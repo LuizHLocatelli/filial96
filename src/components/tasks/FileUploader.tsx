@@ -74,8 +74,19 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         description: `${file.name} foi anexado à tarefa.`,
       });
 
-      // 6. Chamar callback com o novo anexo
-      onFileUploaded(attachmentData as Attachment);
+      // 6. Mapear os dados recebidos do Supabase para o formato esperado pela interface Attachment
+      const formattedAttachment: Attachment = {
+        id: attachmentData.id,
+        name: attachmentData.name,
+        type: attachmentData.type as 'image' | 'pdf',
+        url: attachmentData.url,
+        createdAt: attachmentData.created_at,
+        createdBy: attachmentData.created_by,
+        taskId: attachmentData.task_id
+      };
+
+      // 7. Chamar callback com o anexo formatado
+      onFileUploaded(formattedAttachment);
       setFile(null);
     } catch (error) {
       console.error("Erro ao fazer upload do arquivo:", error);
