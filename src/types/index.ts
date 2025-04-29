@@ -40,6 +40,7 @@ export interface Attachment {
   url: string;
   createdAt: string;
   createdBy: string;
+  taskId: string;
 }
 
 export interface DashboardSummary {
