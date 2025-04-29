@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TaskCard } from "@/components/tasks/TaskCard";
-import { Task } from "@/types";
+import { Attachment, Task } from "@/types";
 import { Package, Plus, Truck } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
@@ -25,6 +25,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { FileUploader } from "@/components/tasks/FileUploader";
+import { AttachmentList } from "@/components/tasks/AttachmentList";
+import { supabase } from "@/integrations/supabase/client";
 
 // Dados de exemplo para visualização
 const mockDeliveries: Task[] = [
@@ -82,10 +85,57 @@ export default function EntregasRetiradas() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [taskAttachments, setTaskAttachments] = useState<Attachment[]>([]);
   
-  const handleTaskClick = (task: Task) => {
+  const handleTaskClick = async (task: Task) => {
     setSelectedTask(task);
     setIsDialogOpen(true);
+    
+    // Carregar anexos da tarefa selecionada
+    if (task.id) {
+      try {
+        const { data, error } = await supabase
+          .from("attachments")
+          .select("*")
+          .eq("task_id", task.id);
+          
+        if (error) {
+          console.error("Erro ao carregar anexos:", error);
+          return;
+        }
+        
+        // Mapear os dados recebidos do Supabase para o formato esperado pela interface Attachment
+        const formattedAttachments: Attachment[] = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          type: item.type as 'image' | 'pdf',
+          url: item.url,
+          createdAt: item.created_at,
+          createdBy: item.created_by,
+          taskId: item.task_id
+        }));
+        
+        setTaskAttachments(formattedAttachments);
+      } catch (error) {
+        console.error("Erro ao buscar anexos:", error);
+      }
+    }
+  };
+  
+  const handleFileUploaded = (attachment: Attachment) => {
+    setTaskAttachments(prev => [...prev, attachment]);
+    toast({
+      title: "Anexo adicionado",
+      description: `${attachment.name} foi adicionado à tarefa.`,
+    });
+  };
+  
+  const handleAttachmentDeleted = (attachmentId: string) => {
+    setTaskAttachments(prev => prev.filter(att => att.id !== attachmentId));
+    toast({
+      title: "Anexo removido",
+      description: "O anexo foi removido com sucesso.",
+    });
   };
   
   // Contagens para as entregas e retiradas
@@ -255,6 +305,22 @@ export default function EntregasRetiradas() {
                   </p>
                 </div>
               )}
+              
+              {/* Seção de Anexos */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-2">Anexos</h4>
+                <AttachmentList 
+                  attachments={taskAttachments} 
+                  onAttachmentDeleted={handleAttachmentDeleted} 
+                />
+                <div className="mt-4">
+                  <h4 className="font-medium mb-2">Adicionar anexo</h4>
+                  <FileUploader 
+                    taskId={selectedTask.id} 
+                    onFileUploaded={handleFileUploaded} 
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
