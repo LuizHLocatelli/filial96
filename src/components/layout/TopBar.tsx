@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, LogOut, User, Settings } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -12,14 +12,18 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function TopBar() {
-  // Simulação de usuário logado
-  const user = {
-    name: "Maria Silva",
-    email: "maria@exemplo.com",
-    role: "gerente",
-    avatarUrl: "",
+  const { profile, signOut } = useAuth();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
   };
 
   return (
@@ -56,9 +60,9 @@ export function TopBar() {
                 aria-label="Perfil do usuário"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  <AvatarImage src={profile?.avatarUrl} alt={profile?.name} />
                   <AvatarFallback className="bg-brand-blue-100 text-brand-blue-700">
-                    {user.name.substring(0, 2).toUpperCase()}
+                    {profile?.name ? getInitials(profile.name) : '--'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -66,20 +70,29 @@ export function TopBar() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
+                  <p className="text-sm font-medium leading-none">{profile?.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
+                    {profile?.email}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground capitalize">
-                    {user.role}
+                    {profile?.role}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Perfil</DropdownMenuItem>
-              <DropdownMenuItem>Configurações</DropdownMenuItem>
+              <DropdownMenuItem>
+                <User className="h-4 w-4 mr-2" />
+                Perfil
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="h-4 w-4 mr-2" />
+                Configurações
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Sair</DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
