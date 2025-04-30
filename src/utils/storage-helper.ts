@@ -2,45 +2,34 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Ensures that the specified storage bucket exists
- * If it doesn't exist, creates it with the provided options
+ * Verifica se o bucket de armazenamento existe
+ * Se não existir, notifica o usuário
  */
 export async function ensureBucketExists(bucketName: string, isPublic = true) {
   try {
-    // Check if bucket exists
+    // Primeiro verifica se o bucket existe
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
     
     if (listError) {
-      console.error("Error listing buckets:", listError);
+      console.error("Erro ao listar buckets:", listError);
       return false;
     }
     
     const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
     
     if (!bucketExists) {
-      console.log(`Bucket ${bucketName} doesn't exist, attempting to create it...`);
+      console.log(`Bucket ${bucketName} não existe, não é possível criar automaticamente`);
+      console.log("Verifique se o bucket foi criado manualmente no console do Supabase.");
       
-      // Create the bucket directly using the storage API
-      const { data: bucketData, error: createError } = await supabase.storage.createBucket(
-        bucketName,
-        {
-          public: isPublic,
-          fileSizeLimit: 10485760 // 10MB
-        }
-      );
-      
-      if (createError) {
-        console.error(`Error creating bucket ${bucketName}:`, createError);
-        return false;
-      }
-      
-      console.log(`Bucket ${bucketName} created successfully`);
-      return true;
+      // Não é possível criar o bucket devido às políticas de segurança
+      // Retornar falso para indicar que o bucket não está disponível
+      return false;
     }
     
+    console.log(`Bucket ${bucketName} encontrado e está disponível.`);
     return true;
   } catch (error) {
-    console.error("Error ensuring bucket exists:", error);
+    console.error("Erro ao verificar se o bucket existe:", error);
     return false;
   }
 }

@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types";
-import { generateUniqueFileName, isImageFile, ensureBucketExists } from "@/utils/storage-helper";
+import { generateUniqueFileName, isImageFile } from "@/utils/storage-helper";
 
 interface FileUploaderProps {
   taskId: string;
@@ -17,24 +17,38 @@ interface FileUploaderProps {
 export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [bucketReady, setBucketReady] = useState(false);
+  const [isBucketAvailable, setIsBucketAvailable] = useState(false);
   const { user } = useAuth();
 
-  // Check if the attachments bucket exists on component mount
+  // Verificar se o bucket attachments existe ao montar o componente
   useEffect(() => {
     const checkBucket = async () => {
-      const exists = await ensureBucketExists("attachments", true);
-      setBucketReady(exists);
-      
-      if (!exists) {
-        console.error("Failed to ensure attachments bucket exists");
-        toast({
-          variant: "destructive",
-          title: "Erro de configuração",
-          description: "Não foi possível acessar o armazenamento. Entre em contato com o suporte.",
-        });
-      } else {
-        console.log("Attachments bucket is ready");
+      try {
+        // Verificar se o bucket existe
+        const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+        
+        if (listError) {
+          console.error("Erro ao listar buckets:", listError);
+          setIsBucketAvailable(false);
+          return;
+        }
+        
+        const bucketExists = buckets?.some(bucket => bucket.name === "attachments");
+        setIsBucketAvailable(bucketExists);
+        
+        if (!bucketExists) {
+          console.error("Bucket 'attachments' não encontrado");
+          toast({
+            variant: "destructive",
+            title: "Erro de configuração",
+            description: "Não foi possível acessar o armazenamento. Entre em contato com o suporte.",
+          });
+        } else {
+          console.log("Bucket 'attachments' está disponível");
+        }
+      } catch (error) {
+        console.error("Erro ao verificar bucket:", error);
+        setIsBucketAvailable(false);
       }
     };
     
@@ -78,23 +92,33 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       return;
     }
     
-    if (!bucketReady) {
-      // Try to ensure bucket exists one more time before upload
-      const exists = await ensureBucketExists("attachments", true);
-      if (!exists) {
+    if (!isBucketAvailable) {
+      // Verificar novamente se o bucket existe antes do upload
+      try {
+        const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+        
+        if (listError || !buckets?.some(bucket => bucket.name === "attachments")) {
+          toast({
+            variant: "destructive",
+            title: "Erro de armazenamento",
+            description: "Não foi possível acessar o armazenamento de arquivos. Entre em contato com o suporte.",
+          });
+          return;
+        }
+        setIsBucketAvailable(true);
+      } catch (error) {
         toast({
           variant: "destructive",
           title: "Erro de armazenamento",
-          description: "Não foi possível acessar o armazenamento de arquivos. Tente novamente mais tarde.",
+          description: "Não foi possível acessar o armazenamento de arquivos. Entre em contato com o suporte.",
         });
         return;
       }
-      setBucketReady(true);
     }
 
     setIsUploading(true);
     try {
-      // 1. Generate a unique file name to prevent collisions
+      // 1. Gerar um nome único para o arquivo para evitar colisões
       const uniqueFileName = generateUniqueFileName(file.name);
       const filePath = `${taskId}/${uniqueFileName}`;
       
@@ -102,7 +126,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       console.log("Usuário logado:", user.id);
       console.log("Caminho do arquivo:", filePath);
       
-      // 2. Upload the file to storage
+      // 2. Fazer upload do arquivo para o storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("attachments")
         .upload(filePath, file, {
@@ -117,14 +141,14 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       
       console.log("Upload concluído:", uploadData);
 
-      // 3. Get public URL of the file
+      // 3. Obter URL pública do arquivo
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
         
       console.log("URL pública:", publicUrl);
 
-      // 4. Save attachment information in the database
+      // 4. Salvar informações do anexo no banco de dados
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
         .insert([
@@ -146,13 +170,13 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       
       console.log("Anexo salvo:", attachmentData);
 
-      // 5. Notify success and clear the state
+      // 5. Notificar sucesso e limpar o estado
       toast({
         title: "Arquivo enviado com sucesso",
         description: `${file.name} foi anexado à tarefa.`,
       });
 
-      // 6. Map received data to the expected Attachment interface format
+      // 6. Mapear os dados recebidos para o formato esperado pela interface Attachment
       const formattedAttachment: Attachment = {
         id: attachmentData.id,
         name: attachmentData.name,
@@ -163,7 +187,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         taskId: attachmentData.task_id
       };
       
-      // 7. Call callback with the formatted attachment
+      // 7. Chamar callback com o anexo formatado
       onFileUploaded(formattedAttachment);
       setFile(null);
     } catch (error) {
@@ -222,7 +246,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             </div>
             <Button 
               onClick={handleUpload} 
-              disabled={isUploading}
+              disabled={isUploading || !isBucketAvailable}
               size="sm"
               className="gap-1"
             >
@@ -234,6 +258,13 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
               )}
             </Button>
           </div>
+        </div>
+      )}
+
+      {!isBucketAvailable && (
+        <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+          <p>Atenção: O sistema de armazenamento não está disponível no momento.</p>
+          <p>Não será possível fazer upload de anexos até que isso seja resolvido.</p>
         </div>
       )}
     </div>
