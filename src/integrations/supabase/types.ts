@@ -127,9 +127,12 @@ export type Database = {
           created_by: string
           description: string | null
           due_date: string | null
+          expected_arrival_date: string | null
+          expected_delivery_date: string | null
           id: string
           notes: string | null
           priority: string
+          purchase_date: string | null
           status: string
           title: string
           type: string
@@ -146,9 +149,12 @@ export type Database = {
           created_by: string
           description?: string | null
           due_date?: string | null
+          expected_arrival_date?: string | null
+          expected_delivery_date?: string | null
           id?: string
           notes?: string | null
           priority?: string
+          purchase_date?: string | null
           status?: string
           title: string
           type: string
@@ -165,9 +171,12 @@ export type Database = {
           created_by?: string
           description?: string | null
           due_date?: string | null
+          expected_arrival_date?: string | null
+          expected_delivery_date?: string | null
           id?: string
           notes?: string | null
           priority?: string
+          purchase_date?: string | null
           status?: string
           title?: string
           type?: string

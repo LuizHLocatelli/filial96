@@ -62,6 +62,9 @@ export function useTasks({ type, status }: UseTasksProps = {}) {
           clientCpf: task.client_cpf,
           notes: task.notes,
           products: task.notes, // Mapeando notes como products
+          purchaseDate: task.purchase_date,
+          expectedArrivalDate: task.expected_arrival_date,
+          expectedDeliveryDate: task.expected_delivery_date,
         }));
 
         setTasks(transformedTasks);
@@ -118,6 +121,9 @@ export function useTasks({ type, status }: UseTasksProps = {}) {
             clientCpf: task.client_cpf,
             notes: task.notes,
             products: task.notes, // Mapeando notes como products
+            purchaseDate: task.purchase_date,
+            expectedArrivalDate: task.expected_arrival_date,
+            expectedDeliveryDate: task.expected_delivery_date,
           }));
           
           setTasks(transformedTasks);

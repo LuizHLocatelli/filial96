@@ -120,7 +120,7 @@ export function TaskFormDialog({
     console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
 
     try {
-      // Prepare task data with only fields that exist in the database
+      // Prepare task data with all valid database fields
       const taskData = {
         title: data.title,
         description: data.observation || "", 
@@ -131,6 +131,9 @@ export function TaskFormDialog({
         client_address: data.clientAddress,
         client_cpf: data.clientCpf || null,
         notes: data.products || null,
+        purchase_date: data.purchaseDate?.toISOString() || null,
+        expected_arrival_date: data.expectedArrivalDate?.toISOString() || null,
+        expected_delivery_date: data.expectedDeliveryDate?.toISOString() || null,
         type: initialData?.type || "entrega",
         updated_at: new Date().toISOString(),
       };
@@ -231,4 +234,3 @@ export function TaskFormDialog({
     </Dialog>
   );
 }
-

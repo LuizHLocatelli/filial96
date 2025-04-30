@@ -40,7 +40,10 @@ export function CreateTaskDialog({
     clientName: "",
     clientPhone: "",
     clientAddress: "",
-    clientCpf: "", // Adicionamos o campo clientCpf ao estado
+    clientCpf: "",
+    purchaseDate: "",
+    expectedArrivalDate: "",
+    expectedDeliveryDate: "",
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -61,7 +64,10 @@ export function CreateTaskDialog({
       clientName: "",
       clientPhone: "",
       clientAddress: "",
-      clientCpf: "", // Incluímos o campo no reset também
+      clientCpf: "",
+      purchaseDate: "",
+      expectedArrivalDate: "",
+      expectedDeliveryDate: "",
     });
   };
 
@@ -94,7 +100,7 @@ export function CreateTaskDialog({
     setIsSubmitting(true);
     
     try {
-      // Criar a nova tarefa com apenas os campos que existem no banco de dados
+      // Criar a nova tarefa com todos os campos do banco de dados
       const { error: taskError } = await supabase
         .from("tasks")
         .insert({
@@ -107,7 +113,10 @@ export function CreateTaskDialog({
           client_name: task.clientName,
           client_phone: task.clientPhone,
           client_address: task.clientAddress,
-          client_cpf: task.clientCpf, // Adicionamos o campo client_cpf
+          client_cpf: task.clientCpf,
+          purchase_date: task.purchaseDate ? new Date(task.purchaseDate).toISOString() : null,
+          expected_arrival_date: task.expectedArrivalDate ? new Date(task.expectedArrivalDate).toISOString() : null,
+          expected_delivery_date: task.expectedDeliveryDate ? new Date(task.expectedDeliveryDate).toISOString() : null,
           created_by: user.id,
         });
       
