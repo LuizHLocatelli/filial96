@@ -36,13 +36,14 @@ export async function ensureBucketExists(bucketName: string, isPublic = true): P
       };
     }
 
-    // Bucket existe, agora verificar permissões
+    // Bucket existe, agora verificar permissões com um simples teste
     try {
+      // Com RLS desabilitado, vamos apenas tentar listar para verificar acesso básico
       const { data: files, error: listFilesError } = await supabase.storage
         .from(bucketName)
-        .list();
+        .list('test-permission-path', { limit: 1 });
       
-      if (listFilesError) {
+      if (listFilesError && !listFilesError.message.includes("No such object")) {
         console.warn(`Problema ao acessar arquivos no bucket '${bucketName}':`, listFilesError);
         return { 
           exists: true, 

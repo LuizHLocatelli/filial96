@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, X, Image as ImageIcon, Upload, AlertTriangle } from "lucide-react";
+import { Paperclip, X, Image as ImageIcon, Upload, AlertTriangle, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
@@ -24,41 +24,55 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
   // Verificar se o bucket attachments existe ao montar o componente
   useEffect(() => {
-    const checkBucket = async () => {
-      if (!taskId) return;
-      
-      try {
-        setErrorMessage(null);
-        
-        // Verificar se o bucket existe fazendo uma lista vazia
-        const { data, error } = await supabase.storage
-          .from("attachments")
-          .list(taskId, { limit: 1 });
-        
-        if (error) {
-          console.error("Erro ao verificar bucket:", error);
-          setIsBucketAvailable(false);
-          setErrorMessage(
-            error.message.includes("does not exist") || error.message.includes("não existe")
-              ? "O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase."
-              : `Problema no acesso ao armazenamento: ${error.message}`
-          );
-          return;
-        }
-        
-        setIsBucketAvailable(true);
-        console.log("Bucket 'attachments' está acessível");
-      } catch (error: any) {
-        console.error("Erro ao verificar bucket:", error);
-        setIsBucketAvailable(false);
-        setErrorMessage(`Erro ao verificar armazenamento: ${error.message || "Erro desconhecido"}`);
-      }
-    };
+    if (!taskId) return;
     
-    if (taskId) {
-      checkBucket();
-    }
+    checkBucket();
   }, [taskId]);
+
+  const checkBucket = async () => {
+    try {
+      setErrorMessage(null);
+      
+      // Verificar se o bucket existe
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+      
+      if (listError) {
+        console.error("Erro ao listar buckets:", listError);
+        setIsBucketAvailable(false);
+        setErrorMessage(`Erro ao verificar buckets: ${listError.message}`);
+        return;
+      }
+      
+      const bucket = buckets?.find(bucket => bucket.name === "attachments");
+      
+      if (!bucket) {
+        console.error("Bucket 'attachments' não encontrado.");
+        setIsBucketAvailable(false);
+        setErrorMessage("O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase.");
+        return;
+      }
+      
+      // Testar acesso ao bucket com uma lista simples
+      const { error: testError } = await supabase.storage
+        .from("attachments")
+        .list(taskId, { limit: 1 });
+        
+      // Aceitar "No such object" como uma resposta normal quando não há arquivos
+      if (testError && !testError.message.includes("No such object")) {
+        console.error("Erro ao testar acesso ao bucket:", testError);
+        setIsBucketAvailable(false);
+        setErrorMessage(`Problema no acesso ao bucket: ${testError.message}`);
+        return;
+      }
+      
+      console.log("Bucket 'attachments' está acessível");
+      setIsBucketAvailable(true);
+    } catch (error: any) {
+      console.error("Erro ao verificar bucket:", error);
+      setIsBucketAvailable(false);
+      setErrorMessage(`Erro ao verificar armazenamento: ${error.message || "Erro desconhecido"}`);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -79,11 +93,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   };
 
   const handleUpload = async () => {
-    if (!file || !user) {
+    if (!file) {
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Selecione um arquivo e certifique-se de estar logado.",
+        description: "Selecione um arquivo para fazer upload.",
       });
       return;
     }
@@ -108,13 +122,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
     setIsUploading(true);
     try {
-      // 1. Gerar um nome único para o arquivo para evitar colisões
+      // 1. Gerar um nome único para o arquivo
       const uniqueFileName = generateUniqueFileName(file.name);
       const filePath = `${taskId}/${uniqueFileName}`;
       
-      console.log("Iniciando upload para taskId:", taskId);
-      console.log("Usuário logado:", user.id);
-      console.log("Caminho do arquivo:", filePath);
+      console.log("Iniciando upload para:", filePath);
       
       // 2. Fazer upload do arquivo para o storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -125,20 +137,20 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         });
 
       if (uploadError) {
-        console.error("Erro no upload:", uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
       
-      console.log("Upload concluído:", uploadData);
+      console.log("Upload concluído com sucesso:", uploadData);
 
       // 3. Obter URL pública do arquivo
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
         
-      console.log("URL pública:", publicUrl);
+      console.log("URL pública gerada:", publicUrl);
 
       // 4. Salvar informações do anexo no banco de dados
+      const userId = user?.id || "system";
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
         .insert([
@@ -147,26 +159,23 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             name: file.name,
             type: "image",
             url: publicUrl,
-            created_by: user.id
+            created_by: userId
           }
         ])
         .select()
         .single();
 
       if (attachmentError) {
-        console.error("Erro ao salvar anexo:", attachmentError);
-        throw new Error(`Erro ao salvar anexo: ${attachmentError.message}`);
+        throw new Error(`Erro ao salvar anexo no banco: ${attachmentError.message}`);
       }
       
-      console.log("Anexo salvo:", attachmentData);
-
       // 5. Notificar sucesso e limpar o estado
       toast({
         title: "Arquivo enviado com sucesso",
         description: `${file.name} foi anexado à tarefa.`,
       });
 
-      // 6. Mapear os dados recebidos para o formato esperado pela interface Attachment
+      // 6. Mapear os dados recebidos para o formato esperado
       const formattedAttachment: Attachment = {
         id: attachmentData.id,
         name: attachmentData.name,
@@ -180,49 +189,27 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       // 7. Chamar callback com o anexo formatado
       onFileUploaded(formattedAttachment);
       setFile(null);
+      
+      // Limpar input do arquivo
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+      
     } catch (error: any) {
       console.error("Erro ao fazer upload do arquivo:", error);
       toast({
         variant: "destructive",
         title: "Erro ao enviar arquivo",
-        description: error.message || "Não foi possível fazer o upload do arquivo. Tente novamente mais tarde.",
+        description: error.message || "Não foi possível fazer o upload do arquivo.",
       });
     } finally {
       setIsUploading(false);
     }
   };
 
-  const retryBucketCheck = async () => {
+  const retryBucketCheck = () => {
     setIsBucketAvailable(null);
     setErrorMessage(null);
-    
-    try {
-      // Tentar verificar o bucket novamente
-      const { data, error } = await supabase.storage
-        .from("attachments")
-        .list(taskId || "", { limit: 1 });
-      
-      if (error) {
-        console.error("Erro ao verificar bucket:", error);
-        setIsBucketAvailable(false);
-        setErrorMessage(
-          error.message.includes("does not exist") || error.message.includes("não existe")
-            ? "O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase."
-            : `Problema no acesso ao armazenamento: ${error.message}`
-        );
-        return;
-      }
-      
-      setIsBucketAvailable(true);
-      toast({
-        title: "Conexão restaurada",
-        description: "O sistema de armazenamento está disponível agora.",
-      });
-    } catch (error: any) {
-      console.error("Erro ao verificar bucket:", error);
-      setIsBucketAvailable(false);
-      setErrorMessage(`Erro ao verificar armazenamento: ${error.message || "Erro desconhecido"}`);
-    }
+    checkBucket();
   };
 
   return (
@@ -234,12 +221,12 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           className="hidden"
           onChange={handleFileChange}
           accept="image/png, image/jpeg, image/jpg"
-          disabled={isBucketAvailable === false}
+          disabled={isBucketAvailable === false || isUploading}
         />
         <label
           htmlFor="file-upload"
           className={`cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-            isBucketAvailable === false
+            isBucketAvailable === false || isUploading
               ? "opacity-50 pointer-events-none"
               : "hover:bg-accent hover:text-accent-foreground"
           } border border-input bg-background h-10 px-4 py-2`}
@@ -253,6 +240,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             size="sm" 
             onClick={() => setFile(null)}
             className="gap-1"
+            disabled={isUploading}
           >
             <X className="h-4 w-4" />
             Remover
@@ -297,9 +285,10 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             <Button 
               variant="outline" 
               size="sm"
-              className="self-start"
+              className="self-start flex items-center gap-1"
               onClick={retryBucketCheck}
             >
+              <RotateCw className="h-3 w-3" />
               Verificar novamente
             </Button>
           </AlertDescription>

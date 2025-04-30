@@ -40,10 +40,6 @@ let bucketStatus = {
 };
 
 export async function checkBucketAvailability() {
-  if (bucketStatus.checked) {
-    return bucketStatus;
-  }
-
   try {
     console.log("Verificando a existência do bucket 'attachments'...");
     
@@ -64,7 +60,6 @@ export async function checkBucketAvailability() {
     
     if (!bucketExists) {
       console.warn("O bucket 'attachments' não foi encontrado no Supabase.");
-      console.warn("O recurso de uploads de imagens não funcionará até que o bucket seja criado manualmente.");
       
       bucketStatus = {
         checked: true,
@@ -74,13 +69,14 @@ export async function checkBucketAvailability() {
       return bucketStatus;
     }
     
-    // Teste de permissão
+    // Teste simples de permissão - com RLS desabilitado isso deve funcionar
     try {
-      const { data: files, error: listFilesError } = await supabase.storage
+      // Tentar listar arquivos como um teste simples de permissão
+      const { error: listFilesError } = await supabase.storage
         .from("attachments")
-        .list();
+        .list('', { limit: 1 });
       
-      if (listFilesError) {
+      if (listFilesError && !listFilesError.message.includes("No such object")) {
         console.warn("Problema ao acessar arquivos no bucket:", listFilesError);
         bucketStatus = {
           checked: true,

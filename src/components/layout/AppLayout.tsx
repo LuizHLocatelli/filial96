@@ -7,6 +7,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/components/ui/use-toast";
 import { checkBucketAvailability } from "@/integrations/supabase/client";
+import { RotateCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -19,38 +21,44 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [bucketMessage, setBucketMessage] = useState("");
   
   // Verificação do bucket ao carregar o aplicativo
-  useEffect(() => {
-    const verifyBucketStatus = async () => {
-      try {
-        console.log("Iniciando verificação do bucket 'attachments'...");
-        const status = await checkBucketAvailability();
-        
-        setIsBucketChecked(status.checked);
-        setIsBucketAvailable(status.available);
-        setBucketMessage(status.message);
-        
-        if (!status.available) {
-          toast({
-            variant: "destructive",
-            title: "Erro de configuração",
-            description: status.message,
-          });
-        } else {
-          toast({
-            title: "Armazenamento disponível",
-            description: status.message,
-          });
-        }
-      } catch (error) {
-        console.error("Erro ao verificar status do bucket:", error);
-        setIsBucketChecked(true);
-        setIsBucketAvailable(false);
-        setBucketMessage("Ocorreu um erro ao verificar o armazenamento.");
+  const verifyBucketStatus = async () => {
+    try {
+      console.log("Iniciando verificação do bucket 'attachments'...");
+      const status = await checkBucketAvailability();
+      
+      setIsBucketChecked(status.checked);
+      setIsBucketAvailable(status.available);
+      setBucketMessage(status.message);
+      
+      if (!status.available) {
+        toast({
+          variant: "destructive",
+          title: "Erro de configuração",
+          description: status.message,
+        });
+      } else {
+        toast({
+          title: "Armazenamento disponível",
+          description: status.message,
+        });
       }
-    };
-    
+    } catch (error) {
+      console.error("Erro ao verificar status do bucket:", error);
+      setIsBucketChecked(true);
+      setIsBucketAvailable(false);
+      setBucketMessage("Ocorreu um erro ao verificar o armazenamento.");
+    }
+  };
+  
+  useEffect(() => {
     verifyBucketStatus();
   }, []);
+  
+  const handleRetryBucketCheck = () => {
+    setIsBucketChecked(false);
+    setBucketMessage("Verificando novamente o acesso ao armazenamento...");
+    verifyBucketStatus();
+  };
   
   return (
     <SidebarProvider>
@@ -66,9 +74,18 @@ export function AppLayout({ children }: AppLayoutProps) {
               </div>
             )}
             {isBucketChecked && !isBucketAvailable && (
-              <div className="fixed bottom-4 right-4 bg-red-50 p-3 rounded-md border border-red-200 shadow-md max-w-md">
+              <div className="fixed bottom-4 right-4 bg-red-50 p-4 rounded-md border border-red-200 shadow-md max-w-md">
                 <p className="text-red-800 font-medium">Problema de armazenamento</p>
-                <p className="text-red-700">{bucketMessage}</p>
+                <p className="text-red-700 mb-2">{bucketMessage}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRetryBucketCheck} 
+                  className="flex items-center gap-1"
+                >
+                  <RotateCw className="h-3 w-3" />
+                  Verificar novamente
+                </Button>
               </div>
             )}
           </main>
