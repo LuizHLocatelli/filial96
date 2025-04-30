@@ -26,10 +26,7 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
         setIsLoading(true);
         let query = supabase
           .from("tasks")
-          .select(`
-            *,
-            attachments (*)
-          `)
+          .select("*")
           .order("created_at", { ascending: false });
         
         // Filter by task type if provided
@@ -56,7 +53,6 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
           updatedAt: task.updated_at,
           dueDate: task.due_date,
           completedAt: task.completed_at,
-          attachments: task.attachments,
           priority: task.priority,
           clientName: task.client_name,
           clientPhone: task.client_phone,
@@ -90,10 +86,7 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
           // Refetch all tasks when any change occurs
           const { data: newData, error } = await supabase
             .from("tasks")
-            .select(`
-              *,
-              attachments (*)
-            `)
+            .select("*")
             .order("created_at", { ascending: false });
             
           if (error) {
@@ -114,7 +107,6 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
             updatedAt: task.updated_at,
             dueDate: task.due_date,
             completedAt: task.completed_at,
-            attachments: task.attachments,
             priority: task.priority,
             clientName: task.client_name,
             clientPhone: task.client_phone,

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Attachment, Task } from "@/types";
+import { Task } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +23,6 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { FileUploader } from "@/components/tasks/FileUploader";
-import { AttachmentList } from "@/components/tasks/AttachmentList";
 import { v4 as uuidv4 } from "uuid";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,7 +31,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Montagens() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
-  const [newTaskAttachments, setNewTaskAttachments] = useState<Attachment[]>([]);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -62,22 +59,6 @@ export default function Montagens() {
     setNewTask(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleFileUploaded = (attachment: Attachment) => {
-    setNewTaskAttachments(prev => [...prev, attachment]);
-    toast({
-      title: "Anexo adicionado",
-      description: `${attachment.name} foi adicionado à tarefa.`,
-    });
-  };
-  
-  const handleAttachmentDeleted = (attachmentId: string) => {
-    setNewTaskAttachments(prev => prev.filter(att => att.id !== attachmentId));
-    toast({
-      title: "Anexo removido",
-      description: "O anexo foi removido com sucesso.",
-    });
-  };
-  
   const resetForm = () => {
     setNewTask({
       type: "montagem",
@@ -89,7 +70,6 @@ export default function Montagens() {
       clientPhone: "",
       clientAddress: "",
     });
-    setNewTaskAttachments([]);
     setTaskId("");
   };
 
@@ -331,27 +311,6 @@ export default function Montagens() {
                 placeholder="Endereço completo para montagem"
               />
             </div>
-            
-            {/* Seção de Anexos */}
-            <div className="border-t pt-4 mt-2">
-              <h4 className="font-medium mb-2">Anexos</h4>
-              <AttachmentList 
-                attachments={newTaskAttachments} 
-                onAttachmentDeleted={handleAttachmentDeleted} 
-              />
-              
-              {/* Mostrar o FileUploader apenas se a tarefa foi criada */}
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Adicionar anexo</h4>
-                <FileUploader 
-                  taskId={taskId}  // Usar o ID gerado para o uploader
-                  onFileUploaded={handleFileUploaded} 
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  OBS: Os anexos serão salvos após a criação da montagem.
-                </p>
-              </div>
-            </div>
           </div>
           
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
@@ -424,16 +383,6 @@ export default function Montagens() {
                 <div>
                   <h4 className="font-semibold text-sm">Endereço</h4>
                   <p className="text-sm text-muted-foreground">{selectedTask.clientAddress}</p>
-                </div>
-              )}
-              
-              {selectedTask.attachments && selectedTask.attachments.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-sm mb-2">Anexos</h4>
-                  <AttachmentList 
-                    attachments={selectedTask.attachments as Attachment[]}
-                    onAttachmentDeleted={(id) => console.log("Delete attachment:", id)}
-                  />
                 </div>
               )}
             </div>

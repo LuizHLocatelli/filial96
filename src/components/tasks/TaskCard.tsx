@@ -5,7 +5,7 @@ import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskTypeBadge } from "./TaskTypeBadge";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar, Paperclip } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 interface TaskCardProps {
   task: Task;
@@ -47,12 +47,6 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
             })}
           </span>
         </div>
-        {task.attachments && task.attachments.length > 0 && (
-          <div className="flex items-center gap-1">
-            <Paperclip className="h-3 w-3" />
-            <span>{task.attachments.length}</span>
-          </div>
-        )}
       </CardFooter>
     </Card>
   );
