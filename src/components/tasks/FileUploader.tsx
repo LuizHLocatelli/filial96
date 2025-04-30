@@ -25,29 +25,75 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   };
 
   const handleUpload = async () => {
-    if (!file || !user) return;
+    if (!file || !user) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Selecione um arquivo e certifique-se de estar logado.",
+      });
+      return;
+    }
+
+    if (!taskId) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "ID da tarefa não fornecido. Salve a tarefa primeiro.",
+      });
+      return;
+    }
 
     setIsUploading(true);
     try {
+      console.log("Iniciando upload para taskId:", taskId);
+      console.log("Usuário logado:", user.id);
+      
       // 1. Fazer o upload do arquivo para o storage
       const fileExt = file.name.split(".").pop();
-      const filePath = `${taskId}/${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      const filePath = `${taskId}/${fileName}.${fileExt}`;
+      
+      console.log("Caminho do arquivo:", filePath);
+      
+      // Check if attachments bucket exists, create if not
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const attachmentsBucket = buckets?.find(bucket => bucket.name === "attachments");
+      
+      if (!attachmentsBucket) {
+        console.log("Criando bucket de anexos...");
+        const { error: createBucketError } = await supabase.storage
+          .createBucket("attachments", { public: true });
+          
+        if (createBucketError) {
+          console.error("Erro ao criar bucket:", createBucketError);
+          throw createBucketError;
+        }
+      }
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("attachments")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error("Erro no upload:", uploadError);
         throw uploadError;
       }
+      
+      console.log("Upload concluído:", uploadData);
 
       // 2. Obter URL pública do arquivo
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
+        
+      console.log("URL pública:", publicUrl);
 
       // 3. Determinar o tipo de arquivo
       const fileType = file.type.startsWith("image/") ? "image" : "pdf";
+      console.log("Tipo de arquivo:", fileType);
 
       // 4. Salvar informações do anexo no banco de dados
       const { data: attachmentData, error: attachmentError } = await supabase
@@ -65,8 +111,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         .single();
 
       if (attachmentError) {
+        console.error("Erro ao salvar anexo:", attachmentError);
         throw attachmentError;
       }
+      
+      console.log("Anexo salvo:", attachmentData);
 
       // 5. Notificar sucesso e limpar o estado
       toast({
@@ -84,6 +133,8 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         createdBy: attachmentData.created_by,
         taskId: attachmentData.task_id
       };
+      
+      console.log("Anexo formatado:", formattedAttachment);
 
       // 7. Chamar callback com o anexo formatado
       onFileUploaded(formattedAttachment);
@@ -93,7 +144,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       toast({
         variant: "destructive",
         title: "Erro ao enviar arquivo",
-        description: "Não foi possível fazer o upload do arquivo.",
+        description: "Não foi possível fazer o upload do arquivo. Tente novamente mais tarde.",
       });
     } finally {
       setIsUploading(false);

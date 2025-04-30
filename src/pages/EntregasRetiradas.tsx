@@ -7,17 +7,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TaskCard } from "@/components/tasks/TaskCard";
+import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import { Attachment, Task } from "@/types";
 import { Package, Plus, Truck } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Tabs,
@@ -28,68 +28,100 @@ import {
 import { FileUploader } from "@/components/tasks/FileUploader";
 import { AttachmentList } from "@/components/tasks/AttachmentList";
 import { supabase } from "@/integrations/supabase/client";
-
-// Dados de exemplo para visualização
-const mockDeliveries: Task[] = [
-  {
-    id: "1",
-    type: "entrega",
-    title: "Entrega de sofá 3 lugares",
-    description: "Entregar sofá modelo Milano na casa do cliente. Agendado para a tarde.",
-    status: "pendente",
-    assignedTo: "user2",
-    createdBy: "user1",
-    createdAt: "2025-04-28T10:00:00",
-    updatedAt: "2025-04-28T10:00:00",
-    priority: "media",
-    clientName: "João Silva",
-    clientPhone: "(11) 98765-4321",
-    clientAddress: "Rua das Flores, 123 - São Paulo",
-    dueDate: "2025-04-30T13:00:00"
-  },
-  {
-    id: "2",
-    type: "entrega",
-    title: "Entrega de mesa de jantar com 6 cadeiras",
-    description: "Entregar conjunto de mesa e cadeiras modelo Elegance. Cliente solicitou montagem no local.",
-    status: "em_andamento",
-    assignedTo: "user3",
-    createdBy: "user1",
-    createdAt: "2025-04-27T14:00:00",
-    updatedAt: "2025-04-28T09:00:00",
-    priority: "alta",
-    clientName: "Ana Paula Souza",
-    clientPhone: "(11) 92222-3333",
-    clientAddress: "Av. Brasil, 500 - São Paulo",
-    dueDate: "2025-04-29T10:00:00"
-  },
-  {
-    id: "3",
-    type: "retirada",
-    title: "Retirada de geladeira com defeito",
-    description: "Retirar geladeira com defeito para reparo em garantia.",
-    status: "pendente",
-    assignedTo: null,
-    createdBy: "user2",
-    createdAt: "2025-04-28T11:30:00",
-    updatedAt: "2025-04-28T11:30:00",
-    priority: "media",
-    clientName: "Roberto Almeida",
-    clientPhone: "(11) 94444-5555",
-    clientAddress: "Rua Consolação, 800 - São Paulo",
-    dueDate: "2025-05-02T14:00:00"
-  },
-];
+import { TaskList } from "@/components/tasks/TaskList";
+import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 
 export default function EntregasRetiradas() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
+  const [isEntregaDialogOpen, setIsEntregaDialogOpen] = useState(false);
+  const [isRetiradaDialogOpen, setIsRetiradaDialogOpen] = useState(false);
   const [taskAttachments, setTaskAttachments] = useState<Attachment[]>([]);
+  const { toast } = useToast();
+  const [taskCounts, setTaskCounts] = useState({
+    entregas: {
+      pendente: 0,
+      em_andamento: 0,
+      concluida: 0,
+      total: 0
+    },
+    retiradas: {
+      pendente: 0,
+      em_andamento: 0,
+      concluida: 0,
+      total: 0
+    }
+  });
+  
+  // Fetch task counts
+  useEffect(() => {
+    const fetchTaskCounts = async () => {
+      try {
+        // Get counts for entregas
+        const { data: entregas, error: entregasError } = await supabase
+          .from("tasks")
+          .select("status")
+          .eq("type", "entrega");
+        
+        if (entregasError) throw entregasError;
+        
+        // Get counts for retiradas
+        const { data: retiradas, error: retiradasError } = await supabase
+          .from("tasks")
+          .select("status")
+          .eq("type", "retirada");
+          
+        if (retiradasError) throw retiradasError;
+        
+        // Calculate counts
+        const entregasCounts = {
+          pendente: entregas?.filter(t => t.status === "pendente").length || 0,
+          em_andamento: entregas?.filter(t => t.status === "em_andamento").length || 0,
+          concluida: entregas?.filter(t => t.status === "concluida").length || 0,
+          total: entregas?.length || 0
+        };
+        
+        const retiradasCounts = {
+          pendente: retiradas?.filter(t => t.status === "pendente").length || 0,
+          em_andamento: retiradas?.filter(t => t.status === "em_andamento").length || 0,
+          concluida: retiradas?.filter(t => t.status === "concluida").length || 0,
+          total: retiradas?.length || 0
+        };
+        
+        setTaskCounts({
+          entregas: entregasCounts,
+          retiradas: retiradasCounts
+        });
+      } catch (error) {
+        console.error("Erro ao carregar contagens de tarefas:", error);
+      }
+    };
+    
+    fetchTaskCounts();
+    
+    // Subscribe to changes in the tasks table
+    const channel = supabase
+      .channel('task-counts-changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'tasks',
+          filter: "type=eq.entrega OR type=eq.retirada"
+        }, 
+        () => {
+          fetchTaskCounts();
+        })
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
   
   const handleTaskClick = async (task: Task) => {
     setSelectedTask(task);
-    setIsDialogOpen(true);
+    setIsTaskDetailsOpen(true);
     
     // Carregar anexos da tarefa selecionada
     if (task.id) {
@@ -137,24 +169,33 @@ export default function EntregasRetiradas() {
       description: "O anexo foi removido com sucesso.",
     });
   };
-  
-  // Contagens para as entregas e retiradas
-  const entregas = mockDeliveries.filter(t => t.type === "entrega");
-  const retiradas = mockDeliveries.filter(t => t.type === "retirada");
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Entregas e Retiradas</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Entregas e Retiradas</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Gerencie entregas e retiradas de produtos da loja.
           </p>
         </div>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Tarefa
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button 
+            className="flex items-center gap-2 justify-center" 
+            onClick={() => setIsEntregaDialogOpen(true)}
+          >
+            <Truck className="h-4 w-4" />
+            Nova Entrega
+          </Button>
+          <Button 
+            variant="outline"
+            className="flex items-center gap-2 justify-center" 
+            onClick={() => setIsRetiradaDialogOpen(true)}
+          >
+            <Package className="h-4 w-4" />
+            Nova Retirada
+          </Button>
+        </div>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
@@ -163,7 +204,7 @@ export default function EntregasRetiradas() {
             <div className="space-y-1">
               <CardTitle className="text-2xl">Entregas</CardTitle>
               <CardDescription>
-                Total de {entregas.length} entregas agendadas
+                Total de {taskCounts.entregas.total} entregas agendadas
               </CardDescription>
             </div>
             <div className="h-12 w-12 rounded-full bg-brand-blue-100 p-2 flex items-center justify-center">
@@ -174,15 +215,15 @@ export default function EntregasRetiradas() {
             <div className="flex justify-between text-sm mb-4">
               <div>
                 <p className="text-muted-foreground">Pendentes</p>
-                <p className="text-xl font-bold">{entregas.filter(t => t.status === "pendente").length}</p>
+                <p className="text-xl font-bold">{taskCounts.entregas.pendente}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Em andamento</p>
-                <p className="text-xl font-bold">{entregas.filter(t => t.status === "em_andamento").length}</p>
+                <p className="text-xl font-bold">{taskCounts.entregas.em_andamento}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Concluídas</p>
-                <p className="text-xl font-bold">{entregas.filter(t => t.status === "concluida").length}</p>
+                <p className="text-xl font-bold">{taskCounts.entregas.concluida}</p>
               </div>
             </div>
           </CardContent>
@@ -193,7 +234,7 @@ export default function EntregasRetiradas() {
             <div className="space-y-1">
               <CardTitle className="text-2xl">Retiradas</CardTitle>
               <CardDescription>
-                Total de {retiradas.length} retiradas agendadas
+                Total de {taskCounts.retiradas.total} retiradas agendadas
               </CardDescription>
             </div>
             <div className="h-12 w-12 rounded-full bg-purple-100 p-2 flex items-center justify-center">
@@ -204,15 +245,15 @@ export default function EntregasRetiradas() {
             <div className="flex justify-between text-sm mb-4">
               <div>
                 <p className="text-muted-foreground">Pendentes</p>
-                <p className="text-xl font-bold">{retiradas.filter(t => t.status === "pendente").length}</p>
+                <p className="text-xl font-bold">{taskCounts.retiradas.pendente}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Em andamento</p>
-                <p className="text-xl font-bold">{retiradas.filter(t => t.status === "em_andamento").length}</p>
+                <p className="text-xl font-bold">{taskCounts.retiradas.em_andamento}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Concluídas</p>
-                <p className="text-xl font-bold">{retiradas.filter(t => t.status === "concluida").length}</p>
+                <p className="text-xl font-bold">{taskCounts.retiradas.concluida}</p>
               </div>
             </div>
           </CardContent>
@@ -235,35 +276,40 @@ export default function EntregasRetiradas() {
             </TabsList>
             <TabsContent value="todas" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mockDeliveries.map((task) => (
-                  <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                ))}
+                <TaskList onTaskClick={handleTaskClick} />
               </div>
             </TabsContent>
             <TabsContent value="entregas" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mockDeliveries
-                  .filter((task) => task.type === "entrega")
-                  .map((task) => (
-                    <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                  ))}
+                <TaskList type="entrega" onTaskClick={handleTaskClick} />
               </div>
             </TabsContent>
             <TabsContent value="retiradas" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mockDeliveries
-                  .filter((task) => task.type === "retirada")
-                  .map((task) => (
-                    <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                  ))}
+                <TaskList type="retirada" onTaskClick={handleTaskClick} />
               </div>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
       
+      {/* Create Task Dialogs */}
+      <CreateTaskDialog
+        open={isEntregaDialogOpen}
+        onOpenChange={setIsEntregaDialogOpen}
+        taskType="entrega"
+        title="Entrega"
+      />
+      
+      <CreateTaskDialog
+        open={isRetiradaDialogOpen}
+        onOpenChange={setIsRetiradaDialogOpen}
+        taskType="retirada"
+        title="Retirada"
+      />
+      
       {/* Dialog para visualizar detalhes da tarefa */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isTaskDetailsOpen} onOpenChange={setIsTaskDetailsOpen}>
         {selectedTask && (
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -322,11 +368,11 @@ export default function EntregasRetiradas() {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsTaskDetailsOpen(false)}>
                 Fechar
               </Button>
-            </div>
+            </DialogFooter>
           </DialogContent>
         )}
       </Dialog>

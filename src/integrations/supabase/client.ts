@@ -17,6 +17,49 @@ export const supabase = createClient<Database>(
       params: {
         eventsPerSecond: 10
       }
+    },
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    },
+    global: {
+      headers: {
+        'x-application-name': 'lovable-manager-app',
+      },
     }
   }
 );
+
+// Initialize attachment storage bucket
+(async () => {
+  try {
+    // Check if attachments bucket exists
+    const { data: buckets, error } = await supabase.storage.listBuckets();
+    
+    if (error) {
+      console.error("Error checking buckets:", error);
+      return;
+    }
+    
+    const attachmentsBucket = buckets?.find(bucket => bucket.name === "attachments");
+    
+    // If bucket doesn't exist, create it
+    if (!attachmentsBucket) {
+      console.log("Creating attachments bucket...");
+      const { error: createError } = await supabase.storage
+        .createBucket("attachments", { 
+          public: true,
+          fileSizeLimit: 10485760 // 10MB
+        });
+        
+      if (createError) {
+        console.error("Error creating attachments bucket:", createError);
+      } else {
+        console.log("Attachments bucket created successfully");
+      }
+    }
+  } catch (e) {
+    console.error("Error initializing storage:", e);
+  }
+})();
