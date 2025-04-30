@@ -6,18 +6,33 @@ import { TaskCard } from "./TaskCard";
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TaskListProps {
   type?: string;
+  status?: string;
   onTaskClick?: (task: Task) => void;
+  onEditTask?: (task: Task) => void;
   className?: string;
 }
 
-export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
+export function TaskList({ type, status, onTaskClick, onEditTask, className = "" }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Fetch tasks on component mount
   useEffect(() => {
@@ -32,6 +47,11 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
         // Filter by task type if provided
         if (type) {
           query = query.eq("type", type);
+        }
+
+        // Filter by status if provided
+        if (status) {
+          query = query.eq("status", status);
         }
 
         const { data, error } = await query;
@@ -122,6 +142,16 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
               title: "Nova tarefa criada",
               description: "Uma nova tarefa foi adicionada à lista.",
             });
+          } else if (payload.eventType === 'DELETE') {
+            toast({
+              title: "Tarefa removida",
+              description: "Uma tarefa foi removida da lista.",
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            toast({
+              title: "Tarefa atualizada",
+              description: "Uma tarefa foi atualizada.",
+            });
           }
         })
       .subscribe();
@@ -130,12 +160,90 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [type, toast]);
+  }, [type, status, toast]);
 
   // Handle task click
   const handleTaskClick = (task: Task) => {
     if (onTaskClick) {
       onTaskClick(task);
+    }
+  };
+
+  // Handle task edit
+  const handleEditTask = (task: Task) => {
+    if (onEditTask) {
+      onEditTask(task);
+    }
+  };
+
+  // Handle task delete
+  const handleDeleteConfirm = async () => {
+    if (!taskToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskToDelete.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Tarefa excluída",
+        description: "A tarefa foi removida com sucesso."
+      });
+      
+      // Remove the task from the local state
+      setTasks(tasks.filter(t => t.id !== taskToDelete.id));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a tarefa.",
+        variant: "destructive"
+      });
+    } finally {
+      setTaskToDelete(null);
+      setShowDeleteDialog(false);
+    }
+  };
+
+  // Handle drag start
+  const handleDragStart = (task: Task, event: React.DragEvent) => {
+    setDraggedTask(task);
+    event.dataTransfer.setData('text/plain', task.id);
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
+  // Handle drag over
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  };
+
+  // Handle status change via drag and drop
+  const handleStatusChange = async (task: Task, newStatus: string) => {
+    if (task.status === newStatus) return;
+    
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: newStatus })
+        .eq('id', task.id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Status atualizado",
+        description: `Tarefa agora está ${newStatus.replace('_', ' ')}`
+      });
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o status da tarefa.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -178,10 +286,48 @@ export function TaskList({ type, onTaskClick, className = "" }: TaskListProps) {
   }
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 ${className}`}>
-      {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-      ))}
-    </div>
+    <>
+      <div 
+        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 ${className}`}
+        onDragOver={handleDragOver}
+      >
+        {tasks.map((task) => (
+          <div
+            key={task.id}
+            draggable
+            onDragStart={(e) => handleDragStart(task, e)}
+          >
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              onClick={handleTaskClick}
+              onEdit={handleEditTask}
+              onDelete={(task) => {
+                setTaskToDelete(task);
+                setShowDeleteDialog(true);
+              }}
+              isDragging={draggedTask?.id === task.id}
+            />
+          </div>
+        ))}
+      </div>
+      
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Tarefa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

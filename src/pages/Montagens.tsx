@@ -38,6 +38,8 @@ export default function Montagens() {
   const [taskId, setTaskId] = useState<string>("");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentTabValue, setCurrentTabValue] = useState<string>("all");
   
   const [newTask, setNewTask] = useState<Partial<Task>>({
     type: "montagem",
@@ -71,13 +73,14 @@ export default function Montagens() {
       clientAddress: "",
     });
     setTaskId("");
+    setIsEditMode(false);
   };
 
   const handleDialogOpen = (open: boolean) => {
-    if (open) {
-      // Generate a new task ID when dialog opens
+    if (open && !isEditMode) {
+      // Generate a new task ID when dialog opens for new task
       setTaskId(uuidv4());
-    } else {
+    } else if (!open) {
       // Reset form when dialog closes
       resetForm();
     }
@@ -88,8 +91,25 @@ export default function Montagens() {
     setSelectedTask(task);
     setIsTaskDetailsOpen(true);
   };
+  
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setTaskId(task.id);
+    setNewTask({
+      type: task.type,
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      clientName: task.clientName,
+      clientPhone: task.clientPhone,
+      clientAddress: task.clientAddress,
+    });
+    setIsEditMode(true);
+    setIsNewTaskDialogOpen(true);
+  };
 
-  const handleCreateTask = async () => {
+  const handleCreateOrUpdateTask = async () => {
     if (!newTask.title) {
       toast({
         title: "Erro",
@@ -111,45 +131,80 @@ export default function Montagens() {
     setIsSubmitting(true);
     
     try {
-      // Criar a nova tarefa com o taskId gerado quando o diálogo foi aberto
-      const { error: taskError } = await supabase
-        .from("tasks")
-        .insert({
-          id: taskId, // Use the pre-generated ID
-          type: newTask.type,
-          title: newTask.title,
-          description: newTask.description,
-          status: newTask.status,
-          priority: newTask.priority,
-          client_name: newTask.clientName,
-          client_phone: newTask.clientPhone,
-          client_address: newTask.clientAddress,
-          created_by: user.id, // Use the current user's ID
+      if (isEditMode) {
+        // Atualizar tarefa existente
+        const { error: updateError } = await supabase
+          .from("tasks")
+          .update({
+            title: newTask.title,
+            description: newTask.description,
+            status: newTask.status,
+            priority: newTask.priority,
+            client_name: newTask.clientName,
+            client_phone: newTask.clientPhone,
+            client_address: newTask.clientAddress,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", taskId);
+          
+        if (updateError) {
+          throw new Error(`Erro ao atualizar tarefa: ${updateError.message}`);
+        }
+        
+        toast({
+          title: "Montagem atualizada",
+          description: "A montagem foi atualizada com sucesso.",
         });
-      
-      if (taskError) {
-        throw new Error(`Erro ao criar tarefa: ${taskError.message}`);
+      } else {
+        // Criar nova tarefa com o taskId gerado quando o diálogo foi aberto
+        const { error: taskError } = await supabase
+          .from("tasks")
+          .insert({
+            id: taskId, 
+            type: newTask.type,
+            title: newTask.title,
+            description: newTask.description,
+            status: newTask.status,
+            priority: newTask.priority,
+            client_name: newTask.clientName,
+            client_phone: newTask.clientPhone,
+            client_address: newTask.clientAddress,
+            created_by: user.id, 
+          });
+        
+        if (taskError) {
+          throw new Error(`Erro ao criar tarefa: ${taskError.message}`);
+        }
+        
+        toast({
+          title: "Montagem criada",
+          description: "A nova montagem foi criada com sucesso.",
+        });
       }
-      
-      toast({
-        title: "Montagem criada",
-        description: "A nova montagem foi criada com sucesso.",
-      });
       
       // Limpar o formulário e fechar o diálogo
       resetForm();
       setIsNewTaskDialogOpen(false);
       
     } catch (error) {
-      console.error("Erro ao criar montagem:", error);
+      console.error("Erro ao salvar montagem:", error);
       toast({
         title: "Erro",
-        description: "Ocorreu um erro ao criar a montagem. Tente novamente.",
+        description: "Ocorreu um erro ao salvar a montagem. Tente novamente.",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  const handleTabChange = (value: string) => {
+    setCurrentTabValue(value);
+  };
+
+  const getTaskStatus = () => {
+    if (currentTabValue === "all") return undefined;
+    return currentTabValue;
   };
   
   return (
@@ -170,7 +225,7 @@ export default function Montagens() {
         </Button>
       </div>
       
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue="all" className="w-full" onValueChange={handleTabChange}>
         <TabsList className="mb-4 flex overflow-x-auto pb-1 sm:pb-0">
           <TabsTrigger value="all">Todas</TabsTrigger>
           <TabsTrigger value="pendente">Pendentes</TabsTrigger>
@@ -181,39 +236,46 @@ export default function Montagens() {
           <TaskList 
             type="montagem" 
             onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
             className="mt-4"
           />
         </TabsContent>
         <TabsContent value="pendente" className="mt-0">
           <TaskList 
             type="montagem" 
+            status="pendente"
             onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
             className="mt-4"
           />
         </TabsContent>
         <TabsContent value="em_andamento" className="mt-0">
           <TaskList 
             type="montagem" 
+            status="em_andamento"
             onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
             className="mt-4"
           />
         </TabsContent>
         <TabsContent value="concluida" className="mt-0">
           <TaskList 
             type="montagem" 
+            status="concluida"
             onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
             className="mt-4"
           />
         </TabsContent>
       </Tabs>
       
-      {/* Diálogo para criar nova montagem */}
+      {/* Diálogo para criar/editar montagem */}
       <Dialog open={isNewTaskDialogOpen} onOpenChange={handleDialogOpen}>
         <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Criar Nova Montagem</DialogTitle>
+            <DialogTitle>{isEditMode ? 'Editar Montagem' : 'Criar Nova Montagem'}</DialogTitle>
             <DialogDescription>
-              Preencha os detalhes da montagem abaixo
+              {isEditMode ? 'Edite os detalhes da montagem abaixo' : 'Preencha os detalhes da montagem abaixo'}
             </DialogDescription>
           </DialogHeader>
           
@@ -323,11 +385,11 @@ export default function Montagens() {
               Cancelar
             </Button>
             <Button 
-              onClick={handleCreateTask}
+              onClick={handleCreateOrUpdateTask}
               className="w-full sm:w-auto"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Salvando..." : "Salvar Montagem"}
+              {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Montagem"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -388,7 +450,16 @@ export default function Montagens() {
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="flex justify-between">
+            <Button 
+              onClick={() => {
+                setIsTaskDetailsOpen(false);
+                if (selectedTask) handleEditTask(selectedTask);
+              }}
+              variant="outline"
+            >
+              Editar
+            </Button>
             <Button variant="outline" onClick={() => setIsTaskDetailsOpen(false)}>
               Fechar
             </Button>
