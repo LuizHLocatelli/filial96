@@ -28,6 +28,8 @@ import { AttachmentList } from "@/components/tasks/AttachmentList";
 import { v4 as uuidv4 } from "uuid";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { TaskList } from "@/components/tasks/TaskList";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Montagens() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
@@ -37,6 +39,8 @@ export default function Montagens() {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [taskId, setTaskId] = useState<string>("");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
   
   const [newTask, setNewTask] = useState<Partial<Task>>({
     type: "montagem",
@@ -100,6 +104,11 @@ export default function Montagens() {
     setIsNewTaskDialogOpen(open);
   };
   
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsTaskDetailsOpen(true);
+  };
+
   const handleCreateTask = async () => {
     if (!newTask.title) {
       toast({
@@ -181,12 +190,42 @@ export default function Montagens() {
         </Button>
       </div>
       
-      <div className="flex flex-col items-center justify-center py-12 sm:py-16 border-2 border-dashed rounded-lg">
-        <p className="text-muted-foreground mb-4 text-center px-4">
-          Módulo de gerenciamento de montagens em desenvolvimento
-        </p>
-        <Button onClick={() => handleDialogOpen(true)}>Criar Nova Montagem</Button>
-      </div>
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="mb-4 flex overflow-x-auto pb-1 sm:pb-0">
+          <TabsTrigger value="all">Todas</TabsTrigger>
+          <TabsTrigger value="pendente">Pendentes</TabsTrigger>
+          <TabsTrigger value="em_andamento">Em Andamento</TabsTrigger>
+          <TabsTrigger value="concluida">Concluídas</TabsTrigger>
+        </TabsList>
+        <TabsContent value="all" className="mt-0">
+          <TaskList 
+            type="montagem" 
+            onTaskClick={handleTaskClick}
+            className="mt-4"
+          />
+        </TabsContent>
+        <TabsContent value="pendente" className="mt-0">
+          <TaskList 
+            type="montagem" 
+            onTaskClick={handleTaskClick}
+            className="mt-4"
+          />
+        </TabsContent>
+        <TabsContent value="em_andamento" className="mt-0">
+          <TaskList 
+            type="montagem" 
+            onTaskClick={handleTaskClick}
+            className="mt-4"
+          />
+        </TabsContent>
+        <TabsContent value="concluida" className="mt-0">
+          <TaskList 
+            type="montagem" 
+            onTaskClick={handleTaskClick}
+            className="mt-4"
+          />
+        </TabsContent>
+      </Tabs>
       
       {/* Diálogo para criar nova montagem */}
       <Dialog open={isNewTaskDialogOpen} onOpenChange={handleDialogOpen}>
@@ -330,6 +369,79 @@ export default function Montagens() {
               disabled={isSubmitting}
             >
               {isSubmitting ? "Salvando..." : "Salvar Montagem"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para detalhes da tarefa */}
+      <Dialog open={isTaskDetailsOpen} onOpenChange={setIsTaskDetailsOpen}>
+        <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedTask?.title}</DialogTitle>
+            <DialogDescription>
+              Detalhes da montagem
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTask && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-sm">Descrição</h4>
+                <p className="text-sm text-muted-foreground">{selectedTask.description || "Sem descrição"}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold text-sm">Status</h4>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {selectedTask.status.replace('_', ' ')}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm">Prioridade</h4>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {selectedTask.priority}
+                  </p>
+                </div>
+              </div>
+              
+              {selectedTask.clientName && (
+                <div>
+                  <h4 className="font-semibold text-sm">Cliente</h4>
+                  <p className="text-sm text-muted-foreground">{selectedTask.clientName}</p>
+                </div>
+              )}
+              
+              {selectedTask.clientPhone && (
+                <div>
+                  <h4 className="font-semibold text-sm">Telefone</h4>
+                  <p className="text-sm text-muted-foreground">{selectedTask.clientPhone}</p>
+                </div>
+              )}
+              
+              {selectedTask.clientAddress && (
+                <div>
+                  <h4 className="font-semibold text-sm">Endereço</h4>
+                  <p className="text-sm text-muted-foreground">{selectedTask.clientAddress}</p>
+                </div>
+              )}
+              
+              {selectedTask.attachments && selectedTask.attachments.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-sm mb-2">Anexos</h4>
+                  <AttachmentList 
+                    attachments={selectedTask.attachments as Attachment[]}
+                    onAttachmentDeleted={(id) => console.log("Delete attachment:", id)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTaskDetailsOpen(false)}>
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>

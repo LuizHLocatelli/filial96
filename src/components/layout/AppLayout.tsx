@@ -14,7 +14,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full max-w-[100vw] overflow-hidden">
+      <div className="min-h-screen flex w-full overflow-hidden">
         <AppSidebar />
         <div className="flex-1 flex flex-col max-w-full">
           <TopBar />
