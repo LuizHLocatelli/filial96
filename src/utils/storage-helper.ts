@@ -38,3 +38,18 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
     return false;
   }
 }
+
+/**
+ * Get file extension from a file name or path
+ */
+export function getFileExtension(filename: string): string {
+  return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+}
+
+/**
+ * Check if file is an image (PNG or JPEG)
+ */
+export function isImageFile(file: File): boolean {
+  const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  return validImageTypes.includes(file.type);
+}

@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
+import { Paperclip, X, Image as ImageIcon, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types";
+import { ensureBucketExists, isImageFile } from "@/utils/storage-helper";
 
 interface FileUploaderProps {
   taskId: string;
@@ -20,7 +21,19 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      
+      if (!isImageFile(selectedFile)) {
+        toast({
+          variant: "destructive",
+          title: "Tipo de arquivo inválido",
+          description: "Por favor, selecione apenas imagens (PNG ou JPEG).",
+        });
+        e.target.value = '';
+        return;
+      }
+      
+      setFile(selectedFile);
     }
   };
 
@@ -45,30 +58,21 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
     setIsUploading(true);
     try {
-      console.log("Iniciando upload para taskId:", taskId);
-      console.log("Usuário logado:", user.id);
+      // Ensure the attachments bucket exists
+      const bucketExists = await ensureBucketExists("attachments");
       
-      // 1. Fazer o upload do arquivo para o storage
+      if (!bucketExists) {
+        throw new Error("Não foi possível criar ou acessar o bucket de anexos.");
+      }
+      
+      // 1. Upload the file to storage
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const filePath = `${taskId}/${fileName}.${fileExt}`;
       
+      console.log("Iniciando upload para taskId:", taskId);
+      console.log("Usuário logado:", user.id);
       console.log("Caminho do arquivo:", filePath);
-      
-      // Check if attachments bucket exists, create if not
-      const { data: buckets } = await supabase.storage.listBuckets();
-      const attachmentsBucket = buckets?.find(bucket => bucket.name === "attachments");
-      
-      if (!attachmentsBucket) {
-        console.log("Criando bucket de anexos...");
-        const { error: createBucketError } = await supabase.storage
-          .createBucket("attachments", { public: true });
-          
-        if (createBucketError) {
-          console.error("Erro ao criar bucket:", createBucketError);
-          throw createBucketError;
-        }
-      }
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("attachments")
@@ -84,18 +88,17 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       
       console.log("Upload concluído:", uploadData);
 
-      // 2. Obter URL pública do arquivo
+      // 2. Get public URL of the file
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
         
       console.log("URL pública:", publicUrl);
 
-      // 3. Determinar o tipo de arquivo
-      const fileType = file.type.startsWith("image/") ? "image" : "pdf";
-      console.log("Tipo de arquivo:", fileType);
-
-      // 4. Salvar informações do anexo no banco de dados
+      // 3. Determine the file type
+      const fileType = "image"; // Always 'image' since we're only accepting images now
+      
+      // 4. Save attachment information in the database
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
         .insert([
@@ -117,26 +120,24 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       
       console.log("Anexo salvo:", attachmentData);
 
-      // 5. Notificar sucesso e limpar o estado
+      // 5. Notify success and clear the state
       toast({
         title: "Arquivo enviado com sucesso",
         description: `${file.name} foi anexado à tarefa.`,
       });
 
-      // 6. Mapear os dados recebidos do Supabase para o formato esperado pela interface Attachment
+      // 6. Map received data to the expected Attachment interface format
       const formattedAttachment: Attachment = {
         id: attachmentData.id,
         name: attachmentData.name,
-        type: attachmentData.type as 'image' | 'pdf',
+        type: attachmentData.type as 'image',
         url: attachmentData.url,
         createdAt: attachmentData.created_at,
         createdBy: attachmentData.created_by,
         taskId: attachmentData.task_id
       };
       
-      console.log("Anexo formatado:", formattedAttachment);
-
-      // 7. Chamar callback com o anexo formatado
+      // 7. Call callback with the formatted attachment
       onFileUploaded(formattedAttachment);
       setFile(null);
     } catch (error) {
@@ -159,14 +160,14 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           id="file-upload"
           className="hidden"
           onChange={handleFileChange}
-          accept="image/*, application/pdf"
+          accept="image/png, image/jpeg, image/jpg"
         />
         <label
           htmlFor="file-upload"
           className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
         >
           <Paperclip className="h-4 w-4 mr-2" />
-          Escolher arquivo
+          Escolher imagem
         </label>
         {file && (
           <Button 
@@ -184,11 +185,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       {file && (
         <div className="border rounded-md p-3 bg-slate-50">
           <div className="flex items-center">
-            {file.type.startsWith("image/") ? (
-              <ImageIcon className="h-6 w-6 text-blue-500 mr-2" />
-            ) : (
-              <FileText className="h-6 w-6 text-red-500 mr-2" />
-            )}
+            <ImageIcon className="h-6 w-6 text-blue-500 mr-2" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
                 {file.name}
@@ -201,8 +198,14 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
               onClick={handleUpload} 
               disabled={isUploading}
               size="sm"
+              className="gap-1"
             >
-              {isUploading ? "Enviando..." : "Enviar"}
+              {isUploading ? "Enviando..." : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Enviar
+                </>
+              )}
             </Button>
           </div>
         </div>

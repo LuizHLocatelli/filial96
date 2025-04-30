@@ -31,35 +31,4 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Initialize attachment storage bucket
-(async () => {
-  try {
-    // Check if attachments bucket exists
-    const { data: buckets, error } = await supabase.storage.listBuckets();
-    
-    if (error) {
-      console.error("Error checking buckets:", error);
-      return;
-    }
-    
-    const attachmentsBucket = buckets?.find(bucket => bucket.name === "attachments");
-    
-    // If bucket doesn't exist, create it
-    if (!attachmentsBucket) {
-      console.log("Creating attachments bucket...");
-      const { error: createError } = await supabase.storage
-        .createBucket("attachments", { 
-          public: true,
-          fileSizeLimit: 10485760 // 10MB
-        });
-        
-      if (createError) {
-        console.error("Error creating attachments bucket:", createError);
-      } else {
-        console.log("Attachments bucket created successfully");
-      }
-    }
-  } catch (e) {
-    console.error("Error initializing storage:", e);
-  }
-})();
+// Note: Bucket initialization is now handled by the storage-helper.ts
