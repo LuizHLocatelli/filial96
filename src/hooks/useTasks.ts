@@ -59,7 +59,9 @@ export function useTasks({ type, status }: UseTasksProps = {}) {
           clientName: task.client_name,
           clientPhone: task.client_phone,
           clientAddress: task.client_address,
+          clientCpf: task.client_cpf,
           notes: task.notes,
+          products: task.notes, // Mapeando notes como products
         }));
 
         setTasks(transformedTasks);
@@ -113,7 +115,9 @@ export function useTasks({ type, status }: UseTasksProps = {}) {
             clientName: task.client_name,
             clientPhone: task.client_phone,
             clientAddress: task.client_address,
+            clientCpf: task.client_cpf,
             notes: task.notes,
+            products: task.notes, // Mapeando notes como products
           }));
           
           setTasks(transformedTasks);

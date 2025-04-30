@@ -94,7 +94,7 @@ export function CreateTaskDialog({
     setIsSubmitting(true);
     
     try {
-      // Criar a nova tarefa
+      // Criar a nova tarefa com apenas os campos que existem no banco de dados
       const { error: taskError } = await supabase
         .from("tasks")
         .insert({

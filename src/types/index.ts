@@ -17,8 +17,8 @@ export interface Task {
   id: string;
   type: TaskType;
   title: string;
-  description: string; // Keeping for backward compatibility
-  observation?: string; // Added separate observation field
+  description: string;
+  observation?: string;
   status: TaskStatus;
   assignedTo: string | null;
   createdBy: string;

@@ -120,20 +120,17 @@ export function TaskFormDialog({
     console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
 
     try {
-      // Prepare task data including client_cpf
+      // Prepare task data with only fields that exist in the database
       const taskData = {
         title: data.title,
-        description: data.observation || "", // Using description field in DB instead of observation
+        description: data.observation || "", 
         status: data.status,
         priority: data.priority,
         client_name: data.clientName,
         client_phone: data.clientPhone,
         client_address: data.clientAddress,
-        client_cpf: data.clientCpf || null, // Incluímos o client_cpf nos dados
-        products: data.products,
-        purchase_date: data.purchaseDate?.toISOString(),
-        expected_arrival_date: data.expectedArrivalDate?.toISOString(),
-        expected_delivery_date: data.expectedDeliveryDate?.toISOString(),
+        client_cpf: data.clientCpf || null,
+        notes: data.products || null,
         type: initialData?.type || "entrega",
         updated_at: new Date().toISOString(),
       };
@@ -234,3 +231,4 @@ export function TaskFormDialog({
     </Dialog>
   );
 }
+
