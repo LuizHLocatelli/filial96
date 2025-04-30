@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -52,7 +53,7 @@ interface TaskFormDialogProps {
 // Define a schema for form validation
 const taskFormSchema = z.object({
   title: z.string().min(1, "O título é obrigatório"),
-  description: z.string().optional(),
+  observation: z.string().optional(),
   status: z.string().default("pendente"),
   priority: z.string().default("media"),
   clientName: z.string().min(1, "O nome do cliente é obrigatório"),
@@ -62,8 +63,7 @@ const taskFormSchema = z.object({
   purchaseDate: z.date().optional(),
   expectedArrivalDate: z.date().optional(),
   expectedDeliveryDate: z.date().optional(),
-  clientCpf: z.string().min(11, "CPF deve ter pelo menos 11 dígitos").optional(),
-  observation: z.string().optional(),
+  clientCpf: z.string().optional(),
 });
 
 type TaskFormValues = z.infer<typeof taskFormSchema>;
@@ -86,14 +86,13 @@ export function TaskFormDialog({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       title: "",
-      description: "",
+      observation: "",
       status: "pendente",
       priority: "media",
       clientName: "",
       clientPhone: "",
       clientAddress: "",
       products: "",
-      observation: "",
       clientCpf: "",
     }
   });
@@ -103,14 +102,13 @@ export function TaskFormDialog({
     if (initialData) {
       form.reset({
         title: initialData.title || "",
-        description: initialData.description || "",
+        observation: initialData.observation || "",
         status: initialData.status || "pendente",
         priority: initialData.priority || "media",
         clientName: initialData.clientName || "",
         clientPhone: initialData.clientPhone || "",
         clientAddress: initialData.clientAddress || "",
         products: initialData.products || "",
-        observation: initialData.observation || "",
         purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
         expectedArrivalDate: initialData.expectedArrivalDate ? new Date(initialData.expectedArrivalDate) : undefined,
         expectedDeliveryDate: initialData.expectedDeliveryDate ? new Date(initialData.expectedDeliveryDate) : undefined,
@@ -127,14 +125,13 @@ export function TaskFormDialog({
   const resetForm = () => {
     form.reset({
       title: "",
-      description: "",
+      observation: "",
       status: "pendente",
       priority: "media",
       clientName: "",
       clientPhone: "",
       clientAddress: "",
       products: "",
-      observation: "",
       purchaseDate: undefined,
       expectedArrivalDate: undefined,
       expectedDeliveryDate: undefined,
@@ -165,14 +162,14 @@ export function TaskFormDialog({
     try {
       const taskData = {
         title: data.title,
-        description: data.description || "",
+        description: "", // Keeping this for compatibility but not using it in form
+        observation: data.observation || "",
         status: data.status,
         priority: data.priority,
         client_name: data.clientName,
         client_phone: data.clientPhone,
         client_address: data.clientAddress,
         products: data.products,
-        observation: data.observation || "",
         purchase_date: data.purchaseDate?.toISOString(),
         expected_arrival_date: data.expectedArrivalDate?.toISOString(),
         expected_delivery_date: data.expectedDeliveryDate?.toISOString(),
@@ -297,7 +294,7 @@ export function TaskFormDialog({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
+                              format(field.value, "dd/MM/yyyy", { locale: ptBR })
                             ) : (
                               <span>Selecione uma data</span>
                             )}
@@ -311,6 +308,7 @@ export function TaskFormDialog({
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          locale={ptBR}
                           className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
@@ -337,7 +335,7 @@ export function TaskFormDialog({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
+                              format(field.value, "dd/MM/yyyy", { locale: ptBR })
                             ) : (
                               <span>Selecione uma data</span>
                             )}
@@ -351,6 +349,7 @@ export function TaskFormDialog({
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          locale={ptBR}
                           className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
@@ -378,7 +377,7 @@ export function TaskFormDialog({
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "dd/MM/yyyy")
+                            format(field.value, "dd/MM/yyyy", { locale: ptBR })
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -392,6 +391,7 @@ export function TaskFormDialog({
                         selected={field.value}
                         onSelect={field.onChange}
                         initialFocus
+                        locale={ptBR}
                         className={cn("p-3 pointer-events-auto")}
                       />
                     </PopoverContent>
@@ -454,25 +454,6 @@ export function TaskFormDialog({
                 )}
               />
             </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Detalhes adicionais sobre a tarefa"
-                      className="resize-none"
-                      rows={2}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}

@@ -17,7 +17,8 @@ export interface Task {
   id: string;
   type: TaskType;
   title: string;
-  description: string;
+  description: string; // Keeping for backward compatibility
+  observation?: string; // Added separate observation field
   status: TaskStatus;
   assignedTo: string | null;
   createdBy: string;
@@ -35,26 +36,4 @@ export interface Task {
   purchaseDate?: string;
   expectedArrivalDate?: string;
   expectedDeliveryDate?: string;
-  observation?: string;
-}
-
-export interface DashboardSummary {
-  pendingTasks: number;
-  inProgressTasks: number;
-  completedTasks: number;
-  tasksByType: {
-    [key in TaskType]: number;
-  };
-  recentActivity: Activity[];
-}
-
-export interface Activity {
-  id: string;
-  taskId: string;
-  taskType: TaskType;
-  taskTitle: string;
-  action: string;
-  userId: string;
-  userName: string;
-  timestamp: string;
 }
