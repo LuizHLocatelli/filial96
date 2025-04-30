@@ -49,7 +49,7 @@ export function TopBar() {
             aria-label="Notificações"
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-brand-blue-600" />
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-green-600" />
           </Button>
 
           <DropdownMenu>
@@ -61,7 +61,7 @@ export function TopBar() {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={profile?.avatarUrl} alt={profile?.name} />
-                  <AvatarFallback className="bg-brand-blue-100 text-brand-blue-700">
+                  <AvatarFallback className="bg-green-100 text-green-700">
                     {profile?.name ? getInitials(profile.name) : '--'}
                   </AvatarFallback>
                 </Avatar>

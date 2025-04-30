@@ -64,17 +64,17 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				// Custom app colors
-				'brand-blue': {
-					50: '#eef5ff',
-					100: '#d9e8ff',
-					200: '#bcd8ff',
-					300: '#8ab4f8',
-					400: '#5a9bf2',
-					500: '#4285f4',
-					600: '#1a73e8',
-					700: '#185abc',
-					800: '#1a4a99',
-					900: '#1c3e79',
+				'brand-green': {
+					50: '#f0fdf4',
+					100: '#dcfce7',
+					200: '#bbf7d0',
+					300: '#86efac',
+					400: '#4ade80',
+					500: '#22c55e',
+					600: '#16a34a',
+					700: '#15803d',
+					800: '#166534',
+					900: '#14532d',
 				},
 				'brand-gray': {
 					100: '#f8f9fa',
