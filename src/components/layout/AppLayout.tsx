@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { ensureBucketExists } from "@/utils/storage-helper";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -20,15 +21,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     const checkBucket = async () => {
       try {
-        // Verificar se o bucket existe
-        const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-        
-        if (listError) {
-          console.error("Erro ao listar buckets:", listError);
-          return;
-        }
-        
-        const bucketExists = buckets?.some(bucket => bucket.name === "attachments");
+        const bucketExists = await ensureBucketExists("attachments");
         
         if (!bucketExists) {
           toast({
