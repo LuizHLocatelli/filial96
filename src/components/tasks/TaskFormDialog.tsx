@@ -23,6 +23,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -32,6 +48,25 @@ interface TaskFormDialogProps {
   isEditMode?: boolean;
   onSuccess?: () => void;
 }
+
+// Define a schema for form validation
+const taskFormSchema = z.object({
+  title: z.string().min(1, "O título é obrigatório"),
+  description: z.string().optional(),
+  status: z.string().default("pendente"),
+  priority: z.string().default("media"),
+  clientName: z.string().min(1, "O nome do cliente é obrigatório"),
+  clientPhone: z.string().min(8, "O telefone deve ter pelo menos 8 dígitos"),
+  clientAddress: z.string().min(5, "O endereço deve ter pelo menos 5 caracteres"),
+  products: z.string().min(1, "Os produtos são obrigatórios"),
+  purchaseDate: z.date().optional(),
+  expectedArrivalDate: z.date().optional(),
+  expectedDeliveryDate: z.date().optional(),
+  clientCpf: z.string().min(11, "CPF deve ter pelo menos 11 dígitos").optional(),
+  observation: z.string().optional(),
+});
+
+type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 export function TaskFormDialog({
   open,
@@ -46,50 +81,10 @@ export function TaskFormDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(taskId);
 
-  const [task, setTask] = useState<Partial<Task>>({
-    type: "montagem",
-    title: "",
-    description: "",
-    status: "pendente",
-    priority: "media",
-    clientName: "",
-    clientPhone: "",
-    clientAddress: "",
-  });
-
-  // Set initial data when the component mounts or when initialData changes
-  useEffect(() => {
-    if (initialData) {
-      setTask({
-        type: initialData.type || "montagem",
-        title: initialData.title || "",
-        description: initialData.description || "",
-        status: initialData.status || "pendente",
-        priority: initialData.priority || "media",
-        clientName: initialData.clientName || "",
-        clientPhone: initialData.clientPhone || "",
-        clientAddress: initialData.clientAddress || "",
-      });
-    }
-  }, [initialData, open]);
-
-  // Update currentTaskId when taskId prop changes
-  useEffect(() => {
-    setCurrentTaskId(taskId);
-  }, [taskId, isEditMode]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setTask(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setTask(prev => ({ ...prev, [name]: value }));
-  };
-
-  const resetForm = () => {
-    setTask({
-      type: "montagem",
+  // Create form with React Hook Form + Zod
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskFormSchema),
+    defaultValues: {
       title: "",
       description: "",
       status: "pendente",
@@ -97,6 +92,53 @@ export function TaskFormDialog({
       clientName: "",
       clientPhone: "",
       clientAddress: "",
+      products: "",
+      observation: "",
+      clientCpf: "",
+    }
+  });
+
+  // Set initial data when the component mounts or when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        status: initialData.status || "pendente",
+        priority: initialData.priority || "media",
+        clientName: initialData.clientName || "",
+        clientPhone: initialData.clientPhone || "",
+        clientAddress: initialData.clientAddress || "",
+        products: initialData.products || "",
+        observation: initialData.observation || "",
+        purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
+        expectedArrivalDate: initialData.expectedArrivalDate ? new Date(initialData.expectedArrivalDate) : undefined,
+        expectedDeliveryDate: initialData.expectedDeliveryDate ? new Date(initialData.expectedDeliveryDate) : undefined,
+        clientCpf: initialData.clientCpf || "",
+      });
+    }
+  }, [initialData, open, form]);
+
+  // Update currentTaskId when taskId prop changes
+  useEffect(() => {
+    setCurrentTaskId(taskId);
+  }, [taskId, isEditMode]);
+
+  const resetForm = () => {
+    form.reset({
+      title: "",
+      description: "",
+      status: "pendente",
+      priority: "media",
+      clientName: "",
+      clientPhone: "",
+      clientAddress: "",
+      products: "",
+      observation: "",
+      purchaseDate: undefined,
+      expectedArrivalDate: undefined,
+      expectedDeliveryDate: undefined,
+      clientCpf: "",
     });
   };
 
@@ -107,16 +149,7 @@ export function TaskFormDialog({
     onOpenChange(open);
   };
 
-  const handleSaveTask = async () => {
-    if (!task.title) {
-      toast({
-        title: "Erro",
-        description: "Por favor, adicione um título para a tarefa.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleSaveTask = async (data: TaskFormValues) => {
     if (!user) {
       toast({
         title: "Erro",
@@ -130,20 +163,29 @@ export function TaskFormDialog({
     console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
 
     try {
+      const taskData = {
+        title: data.title,
+        description: data.description || "",
+        status: data.status,
+        priority: data.priority,
+        client_name: data.clientName,
+        client_phone: data.clientPhone,
+        client_address: data.clientAddress,
+        products: data.products,
+        observation: data.observation || "",
+        purchase_date: data.purchaseDate?.toISOString(),
+        expected_arrival_date: data.expectedArrivalDate?.toISOString(),
+        expected_delivery_date: data.expectedDeliveryDate?.toISOString(),
+        client_cpf: data.clientCpf || "",
+        type: initialData?.type || "entrega",
+        updated_at: new Date().toISOString(),
+      };
+
       if (isEditMode && currentTaskId) {
         // Atualizar tarefa existente
         const { error: updateError } = await supabase
           .from("tasks")
-          .update({
-            title: task.title,
-            description: task.description,
-            status: task.status,
-            priority: task.priority,
-            client_name: task.clientName,
-            client_phone: task.clientPhone,
-            client_address: task.clientAddress,
-            updated_at: new Date().toISOString(),
-          })
+          .update(taskData)
           .eq("id", currentTaskId);
 
         if (updateError) {
@@ -162,14 +204,7 @@ export function TaskFormDialog({
           .from("tasks")
           .insert({
             id: taskInsertId,
-            type: task.type,
-            title: task.title,
-            description: task.description,
-            status: task.status,
-            priority: task.priority,
-            client_name: task.clientName,
-            client_phone: task.clientPhone,
-            client_address: task.clientAddress,
+            ...taskData,
             created_by: user.id,
           });
 
@@ -214,119 +249,330 @@ export function TaskFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="title">Título da Montagem*</Label>
-            <Input 
-              id="title"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSaveTask)} className="space-y-4">
+            <FormField
+              control={form.control}
               name="title"
-              value={task.title}
-              onChange={handleInputChange}
-              placeholder="Ex: Montagem de guarda-roupa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Título*</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Entrega de sofá" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea 
-              id="description"
-              name="description"
-              value={task.description || ""}
-              onChange={handleInputChange}
-              placeholder="Detalhes sobre a montagem"
-              rows={3}
+            <FormField
+              control={form.control}
+              name="products"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Produtos Comprados*</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Sofá 3 lugares, Mesa de centro" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="priority">Prioridade</Label>
-              <Select 
-                value={task.priority} 
-                onValueChange={(value) => handleSelectChange("priority", value)}
-              >
-                <SelectTrigger id="priority">
-                  <SelectValue placeholder="Selecione a prioridade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="baixa">Baixa</SelectItem>
-                  <SelectItem value="media">Média</SelectItem>
-                  <SelectItem value="alta">Alta</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="purchaseDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Data da Compra</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "dd/MM/yyyy")
+                            ) : (
+                              <span>Selecione uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={task.status} 
-                onValueChange={(value) => handleSelectChange("status", value)}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Selecione o status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                  <SelectItem value="concluida">Concluída</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="clientName">Nome do Cliente</Label>
-            <Input 
-              id="clientName"
-              name="clientName"
-              value={task.clientName || ""}
-              onChange={handleInputChange}
-              placeholder="Nome completo do cliente"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-1">
-              <Label htmlFor="clientPhone">Telefone do Cliente</Label>
-              <Input 
-                id="clientPhone"
-                name="clientPhone"
-                value={task.clientPhone || ""}
-                onChange={handleInputChange}
-                placeholder="(00) 00000-0000"
+              <FormField
+                control={form.control}
+                name="expectedArrivalDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Previsão de Chegada</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "dd/MM/yyyy")
+                            ) : (
+                              <span>Selecione uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-2">
-            <Label htmlFor="clientAddress">Endereço do Cliente</Label>
-            <Input 
-              id="clientAddress"
-              name="clientAddress"
-              value={task.clientAddress || ""}
-              onChange={handleInputChange}
-              placeholder="Endereço completo para montagem"
+            <FormField
+              control={form.control}
+              name="expectedDeliveryDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Previsão de Entrega/Retirada</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "dd/MM/yyyy")
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
 
-        <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
-          <Button 
-            variant="outline" 
-            onClick={() => handleDialogOpen(false)}
-            className="w-full sm:w-auto"
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleSaveTask}
-            className="w-full sm:w-auto"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
-          </Button>
-        </DialogFooter>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prioridade*</FormLabel>
+                    <Select 
+                      value={field.value} 
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a prioridade" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="baixa">Baixa</SelectItem>
+                        <SelectItem value="media">Média</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status*</FormLabel>
+                    <Select 
+                      value={field.value} 
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="pendente">Pendente pela Loja</SelectItem>
+                        <SelectItem value="aguardando_cliente">Aguardando o Cliente</SelectItem>
+                        <SelectItem value="concluida">Entregue</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Detalhes adicionais sobre a tarefa"
+                      className="resize-none"
+                      rows={2}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="observation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Observação</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Observações adicionais"
+                      className="resize-none"
+                      rows={2}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="clientName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome do Cliente*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome completo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="clientCpf"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CPF do Cliente</FormLabel>
+                    <FormControl>
+                      <Input placeholder="000.000.000-00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                control={form.control}
+                name="clientPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone do Cliente*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="(00) 00000-0000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="clientAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Endereço do Cliente*</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Endereço completo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => handleDialogOpen(false)}
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+                type="button"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit"
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

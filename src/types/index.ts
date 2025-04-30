@@ -9,7 +9,7 @@ export interface User {
   avatarUrl?: string;
 }
 
-export type TaskStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada';
+export type TaskStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada' | 'aguardando_cliente';
 
 export type TaskType = 'entrega' | 'retirada' | 'montagem' | 'garantia' | 'organizacao' | 'cobranca';
 
@@ -29,7 +29,13 @@ export interface Task {
   clientName?: string;
   clientPhone?: string;
   clientAddress?: string;
+  clientCpf?: string;
   notes?: string;
+  products?: string;
+  purchaseDate?: string;
+  expectedArrivalDate?: string;
+  expectedDeliveryDate?: string;
+  observation?: string;
 }
 
 export interface DashboardSummary {
