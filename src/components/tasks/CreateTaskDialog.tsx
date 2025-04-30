@@ -23,9 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileUploader } from "./FileUploader";
-import { AttachmentList } from "./AttachmentList";
-import { Attachment, TaskType } from "@/types";
+import { TaskType } from "@/types";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -42,8 +40,6 @@ export function CreateTaskDialog({
 }: CreateTaskDialogProps) {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [taskId, setTaskId] = useState<string>(uuidv4());
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
   
   const [task, setTask] = useState({
     title: "",
@@ -64,22 +60,6 @@ export function CreateTaskDialog({
     setTask(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleFileUploaded = (attachment: Attachment) => {
-    setAttachments(prev => [...prev, attachment]);
-    toast({
-      title: "Anexo adicionado",
-      description: `${attachment.name} foi adicionado à tarefa.`,
-    });
-  };
-  
-  const handleAttachmentDeleted = (attachmentId: string) => {
-    setAttachments(prev => prev.filter(att => att.id !== attachmentId));
-    toast({
-      title: "Anexo removido",
-      description: "O anexo foi removido com sucesso.",
-    });
-  };
-  
   const resetForm = () => {
     setTask({
       title: "",
@@ -90,8 +70,6 @@ export function CreateTaskDialog({
       clientPhone: "",
       clientAddress: "",
     });
-    setAttachments([]);
-    setTaskId(uuidv4());
   };
 
   const handleDialogOpen = (open: boolean) => {
@@ -127,7 +105,7 @@ export function CreateTaskDialog({
       const { error: taskError } = await supabase
         .from("tasks")
         .insert({
-          id: taskId,
+          id: uuidv4(),
           type: taskType,
           title: task.title,
           description: task.description,
@@ -280,26 +258,6 @@ export function CreateTaskDialog({
               onChange={handleInputChange}
               placeholder="Endereço completo"
             />
-          </div>
-          
-          {/* Seção de Anexos */}
-          <div className="border-t pt-4 mt-2">
-            <h4 className="font-medium mb-2">Anexos</h4>
-            <AttachmentList 
-              attachments={attachments} 
-              onAttachmentDeleted={handleAttachmentDeleted} 
-            />
-            
-            <div className="mt-4">
-              <h4 className="font-medium mb-2">Adicionar anexo</h4>
-              <FileUploader 
-                taskId={taskId}
-                onFileUploaded={handleFileUploaded} 
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                OBS: Os anexos serão salvos após a criação da tarefa.
-              </p>
-            </div>
           </div>
         </div>
         

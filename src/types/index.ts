@@ -25,22 +25,11 @@ export interface Task {
   updatedAt: string;
   dueDate?: string;
   completedAt?: string;
-  attachments?: Attachment[];
   priority: 'baixa' | 'media' | 'alta';
   clientName?: string;
   clientPhone?: string;
   clientAddress?: string;
   notes?: string;
-}
-
-export interface Attachment {
-  id: string;
-  name: string;
-  type: 'image' | 'pdf';
-  url: string;
-  createdAt: string;
-  createdBy: string;
-  taskId: string;
 }
 
 export interface DashboardSummary {

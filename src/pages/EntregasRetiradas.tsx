@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Attachment, Task } from "@/types";
+import { Task } from "@/types";
 import { Package, Plus, Truck } from "lucide-react";
 import {
   Dialog,
@@ -25,8 +25,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { FileUploader } from "@/components/tasks/FileUploader";
-import { AttachmentList } from "@/components/tasks/AttachmentList";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskList } from "@/components/tasks/TaskList";
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
@@ -36,7 +34,6 @@ export default function EntregasRetiradas() {
   const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
   const [isEntregaDialogOpen, setIsEntregaDialogOpen] = useState(false);
   const [isRetiradaDialogOpen, setIsRetiradaDialogOpen] = useState(false);
-  const [taskAttachments, setTaskAttachments] = useState<Attachment[]>([]);
   const { toast } = useToast();
   const [taskCounts, setTaskCounts] = useState({
     entregas: {
@@ -122,52 +119,6 @@ export default function EntregasRetiradas() {
   const handleTaskClick = async (task: Task) => {
     setSelectedTask(task);
     setIsTaskDetailsOpen(true);
-    
-    // Carregar anexos da tarefa selecionada
-    if (task.id) {
-      try {
-        const { data, error } = await supabase
-          .from("attachments")
-          .select("*")
-          .eq("task_id", task.id);
-          
-        if (error) {
-          console.error("Erro ao carregar anexos:", error);
-          return;
-        }
-        
-        // Mapear os dados recebidos do Supabase para o formato esperado pela interface Attachment
-        const formattedAttachments: Attachment[] = data.map(item => ({
-          id: item.id,
-          name: item.name,
-          type: item.type as 'image' | 'pdf',
-          url: item.url,
-          createdAt: item.created_at,
-          createdBy: item.created_by,
-          taskId: item.task_id
-        }));
-        
-        setTaskAttachments(formattedAttachments);
-      } catch (error) {
-        console.error("Erro ao buscar anexos:", error);
-      }
-    }
-  };
-  
-  const handleFileUploaded = (attachment: Attachment) => {
-    setTaskAttachments(prev => [...prev, attachment]);
-    toast({
-      title: "Anexo adicionado",
-      description: `${attachment.name} foi adicionado à tarefa.`,
-    });
-  };
-  
-  const handleAttachmentDeleted = (attachmentId: string) => {
-    setTaskAttachments(prev => prev.filter(att => att.id !== attachmentId));
-    toast({
-      title: "Anexo removido",
-      description: "O anexo foi removido com sucesso.",
-    });
   };
 
   return (
@@ -351,22 +302,6 @@ export default function EntregasRetiradas() {
                   </p>
                 </div>
               )}
-              
-              {/* Seção de Anexos */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Anexos</h4>
-                <AttachmentList 
-                  attachments={taskAttachments} 
-                  onAttachmentDeleted={handleAttachmentDeleted} 
-                />
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">Adicionar anexo</h4>
-                  <FileUploader 
-                    taskId={selectedTask.id} 
-                    onFileUploaded={handleFileUploaded} 
-                  />
-                </div>
-              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsTaskDetailsOpen(false)}>
