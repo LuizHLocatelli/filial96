@@ -99,7 +99,7 @@ export function CreateTaskDialog({
           id: uuidv4(),
           type: taskType,
           title: task.title,
-          description: task.observation, // Note: DB field might still be 'description'
+          description: task.observation, // Note: DB field is 'description'
           status: task.status,
           priority: task.priority,
           client_name: task.clientName,

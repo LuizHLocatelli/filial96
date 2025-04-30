@@ -120,9 +120,10 @@ export function TaskFormDialog({
     console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
 
     try {
+      // Prepare task data, removing fields that don't exist in the database
       const taskData = {
         title: data.title,
-        observation: data.observation || "",
+        description: data.observation || "", // Using description field in DB instead of observation
         status: data.status,
         priority: data.priority,
         client_name: data.clientName,
@@ -132,9 +133,9 @@ export function TaskFormDialog({
         purchase_date: data.purchaseDate?.toISOString(),
         expected_arrival_date: data.expectedArrivalDate?.toISOString(),
         expected_delivery_date: data.expectedDeliveryDate?.toISOString(),
-        client_cpf: data.clientCpf || "",
         type: initialData?.type || "entrega",
         updated_at: new Date().toISOString(),
+        // Removing client_cpf as it doesn't exist in the database
       };
 
       if (isEditMode && currentTaskId) {
