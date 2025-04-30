@@ -20,40 +20,22 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
     if (!bucketExists) {
       console.log(`Bucket ${bucketName} doesn't exist, attempting to create it...`);
       
-      // For public buckets, we need to use the REST API to create the bucket due to RLS
-      // This is because the client SDK might not have sufficient permissions
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const supabaseUrl = "https://abpsafkioslfjqtgtvbi.supabase.co";
-        const apiKey = sessionData.session?.access_token || '';
-        
-        const res = await fetch(`${supabaseUrl}/storage/v1/bucket`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': apiKey,
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            id: bucketName,
-            name: bucketName,
-            public: isPublic,
-            file_size_limit: 10485760 // 10MB
-          })
-        });
-        
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.error(`Error creating bucket ${bucketName} via REST:`, errorData);
-          return false;
+      // Create the bucket directly using the storage API
+      const { data: bucketData, error: createError } = await supabase.storage.createBucket(
+        bucketName,
+        {
+          public: isPublic,
+          fileSizeLimit: 10485760 // 10MB
         }
-        
-        console.log(`Bucket ${bucketName} created successfully via REST API`);
-        return true;
-      } catch (restError) {
-        console.error(`REST API error creating bucket ${bucketName}:`, restError);
+      );
+      
+      if (createError) {
+        console.error(`Error creating bucket ${bucketName}:`, createError);
         return false;
       }
+      
+      console.log(`Bucket ${bucketName} created successfully`);
+      return true;
     }
     
     return true;

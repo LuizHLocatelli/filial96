@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Paperclip, X, Image as ImageIcon, Upload } from "lucide-react";
@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types";
-import { generateUniqueFileName, isImageFile } from "@/utils/storage-helper";
+import { generateUniqueFileName, isImageFile, ensureBucketExists } from "@/utils/storage-helper";
 
 interface FileUploaderProps {
   taskId: string;
@@ -17,7 +17,29 @@ interface FileUploaderProps {
 export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [bucketReady, setBucketReady] = useState(false);
   const { user } = useAuth();
+
+  // Check if the attachments bucket exists on component mount
+  useEffect(() => {
+    const checkBucket = async () => {
+      const exists = await ensureBucketExists("attachments", true);
+      setBucketReady(exists);
+      
+      if (!exists) {
+        console.error("Failed to ensure attachments bucket exists");
+        toast({
+          variant: "destructive",
+          title: "Erro de configuração",
+          description: "Não foi possível acessar o armazenamento. Entre em contato com o suporte.",
+        });
+      } else {
+        console.log("Attachments bucket is ready");
+      }
+    };
+    
+    checkBucket();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -54,6 +76,20 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         description: "ID da tarefa não fornecido. Salve a tarefa primeiro.",
       });
       return;
+    }
+    
+    if (!bucketReady) {
+      // Try to ensure bucket exists one more time before upload
+      const exists = await ensureBucketExists("attachments", true);
+      if (!exists) {
+        toast({
+          variant: "destructive",
+          title: "Erro de armazenamento",
+          description: "Não foi possível acessar o armazenamento de arquivos. Tente novamente mais tarde.",
+        });
+        return;
+      }
+      setBucketReady(true);
     }
 
     setIsUploading(true);
