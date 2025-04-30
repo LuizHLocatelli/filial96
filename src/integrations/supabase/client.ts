@@ -34,7 +34,7 @@ export const supabase = createClient<Database>(
 // Função auxiliar para criar bucket se não existir
 export const setupStorage = async () => {
   try {
-    // Verificar se o bucket existe
+    // Verificar se o bucket exists
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
     
     if (listError) {
@@ -70,4 +70,3 @@ export const setupStorage = async () => {
     return false;
   }
 };
-
