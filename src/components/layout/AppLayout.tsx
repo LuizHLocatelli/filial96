@@ -5,9 +5,8 @@ import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { ensureBucketExists } from "@/utils/storage-helper";
+import { checkBucketAvailability } from "@/integrations/supabase/client";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,39 +16,40 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [isBucketChecked, setIsBucketChecked] = useState(false);
   const [isBucketAvailable, setIsBucketAvailable] = useState(false);
+  const [bucketMessage, setBucketMessage] = useState("");
   
   // Verificação do bucket ao carregar o aplicativo
   useEffect(() => {
-    const checkBucket = async () => {
+    const verifyBucketStatus = async () => {
       try {
         console.log("Iniciando verificação do bucket 'attachments'...");
-        const bucketExists = await ensureBucketExists("attachments");
-        console.log("Resultado da verificação:", bucketExists);
+        const status = await checkBucketAvailability();
         
-        setIsBucketAvailable(bucketExists);
+        setIsBucketChecked(status.checked);
+        setIsBucketAvailable(status.available);
+        setBucketMessage(status.message);
         
-        if (!bucketExists) {
+        if (!status.available) {
           toast({
             variant: "destructive",
             title: "Erro de configuração",
-            description: "O bucket de armazenamento 'attachments' não está disponível. É necessário criá-lo manualmente no console do Supabase.",
+            description: status.message,
           });
         } else {
           toast({
             title: "Armazenamento disponível",
-            description: "O bucket 'attachments' está configurado corretamente.",
+            description: status.message,
           });
         }
-        
-        setIsBucketChecked(true);
       } catch (error) {
-        console.error("Erro ao verificar bucket:", error);
+        console.error("Erro ao verificar status do bucket:", error);
         setIsBucketChecked(true);
         setIsBucketAvailable(false);
+        setBucketMessage("Ocorreu um erro ao verificar o armazenamento.");
       }
     };
     
-    checkBucket();
+    verifyBucketStatus();
   }, []);
   
   return (
@@ -63,6 +63,12 @@ export function AppLayout({ children }: AppLayoutProps) {
             {!isBucketChecked && (
               <div className="fixed bottom-4 right-4 bg-amber-50 p-3 rounded-md border border-amber-200 shadow-md max-w-md">
                 <p className="text-amber-800 font-medium">Verificando acesso ao armazenamento...</p>
+              </div>
+            )}
+            {isBucketChecked && !isBucketAvailable && (
+              <div className="fixed bottom-4 right-4 bg-red-50 p-3 rounded-md border border-red-200 shadow-md max-w-md">
+                <p className="text-red-800 font-medium">Problema de armazenamento</p>
+                <p className="text-red-700">{bucketMessage}</p>
               </div>
             )}
           </main>

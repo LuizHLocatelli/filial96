@@ -2,44 +2,76 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Verifica se o bucket de armazenamento existe
- * Se não existir, retorna falso para indicar que o bucket não está disponível
+ * Verifica se o bucket de armazenamento existe e está configurado corretamente
+ * Retorna um objeto com informações sobre o status do bucket
  */
-export async function ensureBucketExists(bucketName: string, isPublic = true) {
+export async function ensureBucketExists(bucketName: string, isPublic = true): Promise<{
+  exists: boolean;
+  hasPermission: boolean;
+  message: string;
+}> {
   try {
     console.log(`Verificando existência do bucket '${bucketName}'...`);
     
-    // Primeiro verifica se o bucket existe
+    // Verificar se o bucket existe
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
     
     if (listError) {
       console.error("Erro ao listar buckets:", listError);
-      return false;
+      return { 
+        exists: false, 
+        hasPermission: false, 
+        message: `Erro ao verificar buckets: ${listError.message}` 
+      };
     }
     
-    const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+    const bucket = buckets?.find(bucket => bucket.name === bucketName);
     
-    if (!bucketExists) {
+    if (!bucket) {
       console.log(`Bucket '${bucketName}' não encontrado no projeto Supabase.`);
-      console.log("É necessário criar o bucket manualmente no console do Supabase.");
-      return false;
+      return { 
+        exists: false, 
+        hasPermission: false, 
+        message: `O bucket '${bucketName}' não foi encontrado. Crie-o no console do Supabase.` 
+      };
     }
-    
-    // Verificar permissões do bucket (isso é apenas para logging)
+
+    // Bucket existe, agora verificar permissões
     try {
-      const { data: files } = await supabase.storage
+      const { data: files, error: listFilesError } = await supabase.storage
         .from(bucketName)
         .list();
-      console.log(`Bucket '${bucketName}' encontrado e permissões verificadas.`);
-    } catch (error) {
-      console.warn(`Bucket '${bucketName}' encontrado, mas pode haver problemas de permissão:`, error);
+      
+      if (listFilesError) {
+        console.warn(`Problema ao acessar arquivos no bucket '${bucketName}':`, listFilesError);
+        return { 
+          exists: true, 
+          hasPermission: false, 
+          message: `Bucket encontrado, mas há problemas de permissão: ${listFilesError.message}` 
+        };
+      }
+      
+      console.log(`Bucket '${bucketName}' encontrado e permissões verificadas com sucesso.`);
+      return { 
+        exists: true, 
+        hasPermission: true, 
+        message: `Bucket '${bucketName}' está disponível e configurado corretamente.` 
+      };
+    } catch (error: any) {
+      console.warn(`Erro ao verificar permissões do bucket:`, error);
+      return { 
+        exists: true, 
+        hasPermission: false, 
+        message: `Bucket encontrado, mas há problemas de permissão: ${error.message || "Erro desconhecido"}` 
+      };
     }
-    
-    console.log(`Bucket '${bucketName}' encontrado e está disponível.`);
-    return true;
-  } catch (error) {
-    console.error("Erro ao verificar se o bucket existe:", error);
-    return false;
+  } catch (error: any) {
+    console.error("Erro ao verificar bucket:", error);
+    return { 
+      exists: false, 
+      hasPermission: false, 
+      message: `Erro ao verificar bucket: ${error.message || "Erro desconhecido"}` 
+    };
   }
 }
 
