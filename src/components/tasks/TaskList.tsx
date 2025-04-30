@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Task } from "@/types";
@@ -22,10 +21,18 @@ interface TaskListProps {
   status?: string;
   onTaskClick?: (task: Task) => void;
   onEditTask?: (task: Task) => void;
+  onDeleteTask?: (task: Task) => void;
   className?: string;
 }
 
-export function TaskList({ type, status, onTaskClick, onEditTask, className = "" }: TaskListProps) {
+export function TaskList({ 
+  type, 
+  status, 
+  onTaskClick, 
+  onEditTask, 
+  onDeleteTask,
+  className = "" 
+}: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -177,6 +184,16 @@ export function TaskList({ type, status, onTaskClick, onEditTask, className = ""
   };
 
   // Handle task delete
+  const handleDeleteTask = (task: Task) => {
+    if (onDeleteTask) {
+      onDeleteTask(task);
+    } else {
+      setTaskToDelete(task);
+      setShowDeleteDialog(true);
+    }
+  };
+
+  // Handle delete confirmation
   const handleDeleteConfirm = async () => {
     if (!taskToDelete) return;
     
@@ -300,9 +317,9 @@ export function TaskList({ type, status, onTaskClick, onEditTask, className = ""
             <TaskCard 
               key={task.id} 
               task={task} 
-              onClick={handleTaskClick}
-              onEdit={handleEditTask}
-              onDelete={(task) => {
+              onClick={onTaskClick ? onTaskClick : handleTaskClick}
+              onEdit={onEditTask ? handleEditTask : undefined}
+              onDelete={onDeleteTask ? handleDeleteTask : (task) => {
                 setTaskToDelete(task);
                 setShowDeleteDialog(true);
               }}

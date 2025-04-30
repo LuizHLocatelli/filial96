@@ -12,14 +12,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { Task } from "@/types";
 import { Package, Plus, Truck } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Tabs,
   TabsContent,
   TabsList,
@@ -27,13 +19,17 @@ import {
 } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskList } from "@/components/tasks/TaskList";
-import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
+import { TaskFormDialog } from "@/components/tasks/TaskFormDialog";
+import { TaskDetailsDialog } from "@/components/tasks/TaskDetailsDialog";
+import { v4 as uuidv4 } from "uuid";
 
 export default function EntregasRetiradas() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
   const [isEntregaDialogOpen, setIsEntregaDialogOpen] = useState(false);
   const [isRetiradaDialogOpen, setIsRetiradaDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [taskId, setTaskId] = useState<string>("");
   const { toast } = useToast();
   const [taskCounts, setTaskCounts] = useState({
     entregas: {
@@ -116,9 +112,68 @@ export default function EntregasRetiradas() {
     };
   }, []);
   
-  const handleTaskClick = async (task: Task) => {
+  const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setIsTaskDetailsOpen(true);
+  };
+
+  const handleDialogOpen = (dialogSetter: React.Dispatch<React.SetStateAction<boolean>>) => {
+    return (open: boolean) => {
+      if (!open) {
+        // Se estiver fechando o diálogo e não estamos no modo de edição
+        if (!isEditMode) {
+          setSelectedTask(null);
+        }
+        
+        dialogSetter(false);
+        return;
+      }
+      
+      if (!isEditMode) {
+        // Generate a new task ID when dialog opens for new task
+        setTaskId(uuidv4());
+      }
+      
+      dialogSetter(open);
+    };
+  };
+  
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setTaskId(task.id);
+    setIsEditMode(true);
+    
+    if (task.type === 'entrega') {
+      setIsEntregaDialogOpen(true);
+    } else if (task.type === 'retirada') {
+      setIsRetiradaDialogOpen(true);
+    }
+  };
+
+  const handleDeleteTask = async (task: Task) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', task.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Tarefa excluída",
+        description: "A tarefa foi removida com sucesso."
+      });
+      
+      setSelectedTask(null);
+      setIsTaskDetailsOpen(false);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a tarefa.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -133,7 +188,11 @@ export default function EntregasRetiradas() {
         <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             className="flex items-center gap-2 justify-center" 
-            onClick={() => setIsEntregaDialogOpen(true)}
+            onClick={() => {
+              setIsEditMode(false);
+              setSelectedTask(null);
+              handleDialogOpen(setIsEntregaDialogOpen)(true);
+            }}
           >
             <Truck className="h-4 w-4" />
             Nova Entrega
@@ -141,7 +200,11 @@ export default function EntregasRetiradas() {
           <Button 
             variant="outline"
             className="flex items-center gap-2 justify-center" 
-            onClick={() => setIsRetiradaDialogOpen(true)}
+            onClick={() => {
+              setIsEditMode(false);
+              setSelectedTask(null);
+              handleDialogOpen(setIsRetiradaDialogOpen)(true);
+            }}
           >
             <Package className="h-4 w-4" />
             Nova Retirada
@@ -227,90 +290,80 @@ export default function EntregasRetiradas() {
             </TabsList>
             <TabsContent value="todas" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TaskList onTaskClick={handleTaskClick} />
+                <TaskList 
+                  onTaskClick={handleTaskClick} 
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                />
               </div>
             </TabsContent>
             <TabsContent value="entregas" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TaskList type="entrega" onTaskClick={handleTaskClick} />
+                <TaskList 
+                  type="entrega" 
+                  onTaskClick={handleTaskClick}
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                />
               </div>
             </TabsContent>
             <TabsContent value="retiradas" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TaskList type="retirada" onTaskClick={handleTaskClick} />
+                <TaskList 
+                  type="retirada" 
+                  onTaskClick={handleTaskClick}
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                />
               </div>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
       
-      {/* Create Task Dialogs */}
-      <CreateTaskDialog
+      {/* Formulário de entrega */}
+      <TaskFormDialog
         open={isEntregaDialogOpen}
-        onOpenChange={setIsEntregaDialogOpen}
-        taskType="entrega"
-        title="Entrega"
+        onOpenChange={handleDialogOpen(setIsEntregaDialogOpen)}
+        taskId={taskId}
+        initialData={selectedTask || {type: "entrega"}}
+        isEditMode={isEditMode}
+        onSuccess={() => {
+          setSelectedTask(null);
+          setIsEditMode(false);
+        }}
       />
       
-      <CreateTaskDialog
+      {/* Formulário de retirada */}
+      <TaskFormDialog
         open={isRetiradaDialogOpen}
-        onOpenChange={setIsRetiradaDialogOpen}
-        taskType="retirada"
-        title="Retirada"
+        onOpenChange={handleDialogOpen(setIsRetiradaDialogOpen)}
+        taskId={taskId}
+        initialData={selectedTask || {type: "retirada"}}
+        isEditMode={isEditMode}
+        onSuccess={() => {
+          setSelectedTask(null);
+          setIsEditMode(false);
+        }}
       />
       
       {/* Dialog para visualizar detalhes da tarefa */}
-      <Dialog open={isTaskDetailsOpen} onOpenChange={setIsTaskDetailsOpen}>
-        {selectedTask && (
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>{selectedTask.title}</DialogTitle>
-              <DialogDescription>
-                Detalhes da tarefa selecionada
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Status:</span>
-                <span className="capitalize">{selectedTask.status.replace("_", " ")}</span>
-              </div>
-              <div>
-                <span className="font-medium">Descrição:</span>
-                <p className="mt-1 text-sm text-muted-foreground">{selectedTask.description}</p>
-              </div>
-              {selectedTask.clientName && (
-                <div>
-                  <span className="font-medium">Cliente:</span>
-                  <p className="mt-1 text-sm">{selectedTask.clientName}</p>
-                  {selectedTask.clientPhone && (
-                    <p className="text-sm">{selectedTask.clientPhone}</p>
-                  )}
-                  {selectedTask.clientAddress && (
-                    <p className="text-sm text-muted-foreground">{selectedTask.clientAddress}</p>
-                  )}
-                </div>
-              )}
-              <div>
-                <span className="font-medium">Prioridade:</span>
-                <p className="mt-1 text-sm capitalize">{selectedTask.priority}</p>
-              </div>
-              {selectedTask.dueDate && (
-                <div>
-                  <span className="font-medium">Data Prevista:</span>
-                  <p className="mt-1 text-sm">
-                    {new Date(selectedTask.dueDate).toLocaleString("pt-BR")}
-                  </p>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsTaskDetailsOpen(false)}>
-                Fechar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
-      </Dialog>
+      <TaskDetailsDialog
+        open={isTaskDetailsOpen}
+        onOpenChange={setIsTaskDetailsOpen}
+        task={selectedTask}
+        onEdit={() => {
+          setIsEditMode(true);
+          setIsTaskDetailsOpen(false);
+          
+          if (selectedTask?.type === 'entrega') {
+            setIsEntregaDialogOpen(true);
+          } else if (selectedTask?.type === 'retirada') {
+            setIsRetiradaDialogOpen(true);
+          }
+        }}
+        onDelete={handleDeleteTask}
+      />
     </div>
   );
 }

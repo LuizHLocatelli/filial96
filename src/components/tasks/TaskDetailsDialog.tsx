@@ -9,12 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Phone, MapPin } from "lucide-react";
 
 interface TaskDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: Task | null;
   onEdit: () => void;
+  onDelete?: (task: Task) => void;
 }
 
 export function TaskDetailsDialog({
@@ -22,6 +24,7 @@ export function TaskDetailsDialog({
   onOpenChange,
   task,
   onEdit,
+  onDelete,
 }: TaskDetailsDialogProps) {
   if (!task) return null;
   
@@ -31,7 +34,7 @@ export function TaskDetailsDialog({
         <DialogHeader>
           <DialogTitle>{task.title}</DialogTitle>
           <DialogDescription>
-            Detalhes da montagem
+            Detalhes da tarefa
           </DialogDescription>
         </DialogHeader>
         
@@ -64,30 +67,49 @@ export function TaskDetailsDialog({
           )}
           
           {task.clientPhone && (
-            <div>
+            <div className="flex items-center gap-2">
               <h4 className="font-semibold text-sm">Telefone</h4>
-              <p className="text-sm text-muted-foreground">{task.clientPhone}</p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <Phone size={14} /> {task.clientPhone}
+              </p>
             </div>
           )}
           
           {task.clientAddress && (
-            <div>
+            <div className="flex items-start gap-2">
               <h4 className="font-semibold text-sm">Endereço</h4>
-              <p className="text-sm text-muted-foreground">{task.clientAddress}</p>
+              <p className="text-sm text-muted-foreground flex items-start gap-1">
+                <MapPin size={14} className="mt-0.5" /> {task.clientAddress}
+              </p>
             </div>
           )}
         </div>
         
-        <DialogFooter className="flex justify-between">
-          <Button 
-            onClick={() => {
-              onOpenChange(false);
-              onEdit();
-            }}
-            variant="outline"
-          >
-            Editar
-          </Button>
+        <DialogFooter className="flex justify-between gap-2">
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => {
+                onOpenChange(false);
+                onEdit();
+              }}
+              variant="outline"
+            >
+              Editar
+            </Button>
+            
+            {onDelete && (
+              <Button 
+                variant="destructive"
+                onClick={() => {
+                  if (onDelete) onDelete(task);
+                  onOpenChange(false);
+                }}
+              >
+                Excluir
+              </Button>
+            )}
+          </div>
+          
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>

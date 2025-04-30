@@ -2,12 +2,79 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
+import { v4 as uuidv4 } from "uuid";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TaskFormDialog } from "@/components/tasks/TaskFormDialog";
+import { TaskDetailsDialog } from "@/components/tasks/TaskDetailsDialog";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Task } from "@/types";
 
 export default function Garantias() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
+  const [taskId, setTaskId] = useState<string>("");
+  const { toast } = useToast();
+
+  const handleDialogOpen = (open: boolean) => {
+    if (!open) {
+      // Se estiver fechando o diálogo e não estamos no modo de edição
+      if (!isEditMode) {
+        setSelectedTask(null);
+      }
+      
+      setIsDialogOpen(false);
+      return;
+    }
+    
+    if (!isEditMode) {
+      // Generate a new task ID when dialog opens for new task
+      setTaskId(uuidv4());
+    }
+    
+    setIsDialogOpen(open);
+  };
+  
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setIsTaskDetailsOpen(true);
+  };
+  
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setTaskId(task.id);
+    setIsEditMode(true);
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteTask = async (task: Task) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', task.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Tarefa excluída",
+        description: "A tarefa foi removida com sucesso."
+      });
+      
+      setSelectedTask(null);
+      setIsTaskDetailsOpen(false);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a tarefa.",
+        variant: "destructive"
+      });
+    }
+  };
   
   return (
     <div className="space-y-6 pb-8">
@@ -20,19 +87,41 @@ export default function Garantias() {
         </div>
         <Button 
           className="flex items-center gap-2 w-full sm:w-auto justify-center" 
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => {
+            setIsEditMode(false);
+            setSelectedTask(null);
+            handleDialogOpen(true);
+          }}
         >
           <Plus className="h-4 w-4" />
           Nova Garantia
         </Button>
       </div>
       
-      {/* Task creation dialog */}
-      <CreateTaskDialog 
+      {/* Task creation/edit dialog */}
+      <TaskFormDialog 
         open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        taskType="garantia"
-        title="Garantia"
+        onOpenChange={handleDialogOpen}
+        taskId={taskId}
+        initialData={selectedTask || undefined}
+        isEditMode={isEditMode}
+        onSuccess={() => {
+          setSelectedTask(null);
+          setIsEditMode(false);
+        }}
+      />
+      
+      {/* Task details dialog */}
+      <TaskDetailsDialog
+        open={isTaskDetailsOpen}
+        onOpenChange={setIsTaskDetailsOpen}
+        task={selectedTask}
+        onEdit={() => {
+          setIsEditMode(true);
+          setIsTaskDetailsOpen(false);
+          setIsDialogOpen(true);
+        }}
+        onDelete={handleDeleteTask}
       />
       
       {/* Task list with tabs for filtering */}
@@ -46,24 +135,39 @@ export default function Garantias() {
         <TabsContent value="all" className="mt-0">
           <TaskList 
             type="garantia" 
+            onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
         <TabsContent value="pendente" className="mt-0">
           <TaskList 
             type="garantia" 
+            status="pendente"
+            onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
         <TabsContent value="em_andamento" className="mt-0">
           <TaskList 
             type="garantia" 
+            status="em_andamento"
+            onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
         <TabsContent value="concluida" className="mt-0">
           <TaskList 
             type="garantia" 
+            status="concluida"
+            onTaskClick={handleTaskClick}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>

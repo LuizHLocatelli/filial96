@@ -10,6 +10,8 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TaskFormDialog } from "@/components/tasks/TaskFormDialog";
 import { TaskDetailsDialog } from "@/components/tasks/TaskDetailsDialog";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Montagens() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
@@ -20,12 +22,24 @@ export default function Montagens() {
   const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentTabValue, setCurrentTabValue] = useState<string>("all");
+  const { toast } = useToast();
 
   const handleDialogOpen = (open: boolean) => {
-    if (open && !isEditMode) {
+    if (!open) {
+      // Se estiver fechando o diálogo e não estamos no modo de edição
+      if (!isEditMode) {
+        setSelectedTask(null);
+      }
+      
+      setIsNewTaskDialogOpen(false);
+      return;
+    }
+    
+    if (!isEditMode) {
       // Generate a new task ID when dialog opens for new task
       setTaskId(uuidv4());
     }
+    
     setIsNewTaskDialogOpen(open);
   };
   
@@ -39,6 +53,32 @@ export default function Montagens() {
     setTaskId(task.id);
     setIsEditMode(true);
     setIsNewTaskDialogOpen(true);
+  };
+
+  const handleDeleteTask = async (task: Task) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', task.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Tarefa excluída",
+        description: "A tarefa foi removida com sucesso."
+      });
+      
+      setSelectedTask(null);
+      setIsTaskDetailsOpen(false);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir a tarefa.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleTabChange = (value: string) => {
@@ -58,6 +98,7 @@ export default function Montagens() {
           className="flex items-center gap-2 w-full sm:w-auto justify-center" 
           onClick={() => {
             setIsEditMode(false);
+            setSelectedTask(null);
             handleDialogOpen(true);
           }}
         >
@@ -78,6 +119,7 @@ export default function Montagens() {
             type="montagem" 
             onTaskClick={handleTaskClick}
             onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
@@ -87,6 +129,7 @@ export default function Montagens() {
             status="pendente"
             onTaskClick={handleTaskClick}
             onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
@@ -96,6 +139,7 @@ export default function Montagens() {
             status="em_andamento"
             onTaskClick={handleTaskClick}
             onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
@@ -105,6 +149,7 @@ export default function Montagens() {
             status="concluida"
             onTaskClick={handleTaskClick}
             onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
             className="mt-4"
           />
         </TabsContent>
@@ -133,6 +178,7 @@ export default function Montagens() {
           setIsTaskDetailsOpen(false);
           setIsNewTaskDialogOpen(true);
         }}
+        onDelete={handleDeleteTask}
       />
     </div>
   );
