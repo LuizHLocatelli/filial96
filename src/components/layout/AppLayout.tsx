@@ -27,7 +27,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           toast({
             variant: "destructive",
             title: "Erro de configuração",
-            description: "O bucket de armazenamento 'attachments' não está disponível. Entre em contato com o suporte.",
+            description: "O bucket de armazenamento 'attachments' não está disponível. É necessário criá-lo manualmente no console do Supabase.",
           });
         }
         
@@ -48,6 +48,11 @@ export function AppLayout({ children }: AppLayoutProps) {
           <TopBar />
           <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
             {children}
+            {!isBucketChecked && (
+              <div className="fixed bottom-4 right-4 bg-amber-50 p-3 rounded-md border border-amber-200 shadow-md max-w-md">
+                <p className="text-amber-800 font-medium">Verificando acesso ao armazenamento...</p>
+              </div>
+            )}
           </main>
         </div>
       </div>

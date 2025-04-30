@@ -3,10 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Verifica se o bucket de armazenamento existe
- * Se não existir, notifica o usuário
+ * Se não existir, retorna falso para indicar que o bucket não está disponível
  */
 export async function ensureBucketExists(bucketName: string, isPublic = true) {
   try {
+    console.log(`Verificando existência do bucket '${bucketName}'...`);
+    
     // Primeiro verifica se o bucket existe
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
     
@@ -18,15 +20,12 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
     const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
     
     if (!bucketExists) {
-      console.log(`Bucket ${bucketName} não existe, não é possível criar automaticamente`);
-      console.log("Verifique se o bucket foi criado manualmente no console do Supabase.");
-      
-      // Não é possível criar o bucket devido às políticas de segurança
-      // Retornar falso para indicar que o bucket não está disponível
+      console.log(`Bucket '${bucketName}' não encontrado no projeto Supabase.`);
+      console.log("É necessário criar o bucket manualmente no console do Supabase.");
       return false;
     }
     
-    console.log(`Bucket ${bucketName} encontrado e está disponível.`);
+    console.log(`Bucket '${bucketName}' encontrado e está disponível.`);
     return true;
   } catch (error) {
     console.error("Erro ao verificar se o bucket existe:", error);
