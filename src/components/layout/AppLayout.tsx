@@ -33,20 +33,26 @@ export function AppLayout({ children }: AppLayoutProps) {
       if (!status.available) {
         toast({
           variant: "destructive",
-          title: "Erro de configuração",
+          title: "Configuração necessária",
           description: status.message,
         });
       } else {
         toast({
           title: "Armazenamento disponível",
-          description: status.message,
+          description: "O sistema de armazenamento está configurado corretamente",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao verificar status do bucket:", error);
       setIsBucketChecked(true);
       setIsBucketAvailable(false);
       setBucketMessage("Ocorreu um erro ao verificar o armazenamento.");
+      
+      toast({
+        variant: "destructive",
+        title: "Erro de configuração",
+        description: error.message || "Ocorreu um erro ao verificar o armazenamento.",
+      });
     }
   };
   
@@ -68,11 +74,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           <TopBar />
           <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
             {children}
+            
             {!isBucketChecked && (
               <div className="fixed bottom-4 right-4 bg-amber-50 p-3 rounded-md border border-amber-200 shadow-md max-w-md">
                 <p className="text-amber-800 font-medium">Verificando acesso ao armazenamento...</p>
               </div>
             )}
+            
             {isBucketChecked && !isBucketAvailable && (
               <div className="fixed bottom-4 right-4 bg-red-50 p-4 rounded-md border border-red-200 shadow-md max-w-md">
                 <p className="text-red-800 font-medium">Problema de armazenamento</p>

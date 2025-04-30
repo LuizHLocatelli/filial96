@@ -52,12 +52,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         return;
       }
       
-      // Testar acesso ao bucket com uma lista simples
+      // Testar acesso ao bucket com RLS desativado
       const { error: testError } = await supabase.storage
         .from("attachments")
-        .list(taskId, { limit: 1 });
+        .list();
         
-      // Aceitar "No such object" como uma resposta normal quando não há arquivos
       if (testError && !testError.message.includes("No such object")) {
         console.error("Erro ao testar acesso ao bucket:", testError);
         setIsBucketAvailable(false);
@@ -150,7 +149,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       console.log("URL pública gerada:", publicUrl);
 
       // 4. Salvar informações do anexo no banco de dados
-      const userId = user?.id || "system";
+      const userId = user?.id || "anonymous";
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
         .insert([

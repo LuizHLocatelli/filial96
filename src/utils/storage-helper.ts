@@ -36,36 +36,26 @@ export async function ensureBucketExists(bucketName: string, isPublic = true): P
       };
     }
 
-    // Bucket existe, agora verificar permissões com um simples teste
-    try {
-      // Com RLS desabilitado, vamos apenas tentar listar para verificar acesso básico
-      const { data: files, error: listFilesError } = await supabase.storage
-        .from(bucketName)
-        .list('test-permission-path', { limit: 1 });
+    // Com RLS desativado, apenas verificamos se conseguimos listar arquivos
+    const { data, error: listFilesError } = await supabase.storage
+      .from(bucketName)
+      .list();
       
-      if (listFilesError && !listFilesError.message.includes("No such object")) {
-        console.warn(`Problema ao acessar arquivos no bucket '${bucketName}':`, listFilesError);
-        return { 
-          exists: true, 
-          hasPermission: false, 
-          message: `Bucket encontrado, mas há problemas de permissão: ${listFilesError.message}` 
-        };
-      }
-      
-      console.log(`Bucket '${bucketName}' encontrado e permissões verificadas com sucesso.`);
-      return { 
-        exists: true, 
-        hasPermission: true, 
-        message: `Bucket '${bucketName}' está disponível e configurado corretamente.` 
-      };
-    } catch (error: any) {
-      console.warn(`Erro ao verificar permissões do bucket:`, error);
+    if (listFilesError && !listFilesError.message.includes("No such object")) {
+      console.warn(`Problema ao acessar arquivos no bucket '${bucketName}':`, listFilesError);
       return { 
         exists: true, 
         hasPermission: false, 
-        message: `Bucket encontrado, mas há problemas de permissão: ${error.message || "Erro desconhecido"}` 
+        message: `Bucket encontrado, mas há problemas de permissão: ${listFilesError.message}` 
       };
     }
+    
+    console.log(`Bucket '${bucketName}' encontrado e permissões verificadas com sucesso.`);
+    return { 
+      exists: true, 
+      hasPermission: true, 
+      message: `Bucket '${bucketName}' está disponível e configurado corretamente.` 
+    };
   } catch (error: any) {
     console.error("Erro ao verificar bucket:", error);
     return { 
