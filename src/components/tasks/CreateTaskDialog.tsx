@@ -40,6 +40,7 @@ export function CreateTaskDialog({
     clientName: "",
     clientPhone: "",
     clientAddress: "",
+    clientCpf: "", // Adicionamos o campo clientCpf ao estado
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,6 +61,7 @@ export function CreateTaskDialog({
       clientName: "",
       clientPhone: "",
       clientAddress: "",
+      clientCpf: "", // Incluímos o campo no reset também
     });
   };
 
@@ -105,6 +107,7 @@ export function CreateTaskDialog({
           client_name: task.clientName,
           client_phone: task.clientPhone,
           client_address: task.clientAddress,
+          client_cpf: task.clientCpf, // Adicionamos o campo client_cpf
           created_by: user.id,
         });
       

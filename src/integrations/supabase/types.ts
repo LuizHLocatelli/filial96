@@ -119,6 +119,7 @@ export type Database = {
         Row: {
           assigned_to: string | null
           client_address: string | null
+          client_cpf: string | null
           client_name: string | null
           client_phone: string | null
           completed_at: string | null
@@ -137,6 +138,7 @@ export type Database = {
         Insert: {
           assigned_to?: string | null
           client_address?: string | null
+          client_cpf?: string | null
           client_name?: string | null
           client_phone?: string | null
           completed_at?: string | null
@@ -155,6 +157,7 @@ export type Database = {
         Update: {
           assigned_to?: string | null
           client_address?: string | null
+          client_cpf?: string | null
           client_name?: string | null
           client_phone?: string | null
           completed_at?: string | null
