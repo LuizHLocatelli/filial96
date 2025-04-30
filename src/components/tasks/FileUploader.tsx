@@ -2,12 +2,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, X, Image as ImageIcon, Upload } from "lucide-react";
+import { Paperclip, X, Image as ImageIcon, Upload, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types";
-import { ensureBucketExists, isImageFile } from "@/utils/storage-helper";
+import { checkBucketExists, isImageFile } from "@/utils/storage-helper";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface FileUploaderProps {
   taskId: string;
@@ -17,9 +18,12 @@ interface FileUploaderProps {
 export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const { user } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUploadError(null);
+    
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       
@@ -28,6 +32,17 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           variant: "destructive",
           title: "Tipo de arquivo inválido",
           description: "Por favor, selecione apenas imagens (PNG ou JPEG).",
+        });
+        e.target.value = '';
+        return;
+      }
+      
+      // Verificar tamanho do arquivo (máximo 5MB)
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        toast({
+          variant: "destructive",
+          title: "Arquivo muito grande",
+          description: "O tamanho máximo permitido é de 5MB.",
         });
         e.target.value = '';
         return;
@@ -57,22 +72,27 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
     }
 
     setIsUploading(true);
+    setUploadError(null);
+    
     try {
-      // Ensure the attachments bucket exists
-      const bucketExists = await ensureBucketExists("attachments");
+      // Verificar se o bucket existe
+      const bucketExists = await checkBucketExists("attachments");
       
       if (!bucketExists) {
-        throw new Error("Não foi possível criar ou acessar o bucket de anexos.");
+        throw new Error("O bucket de armazenamento não existe. Entre em contato com o administrador.");
       }
       
-      // 1. Upload the file to storage
+      // 1. Upload do arquivo para o storage
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const filePath = `${taskId}/${fileName}.${fileExt}`;
       
-      console.log("Iniciando upload para taskId:", taskId);
-      console.log("Usuário logado:", user.id);
-      console.log("Caminho do arquivo:", filePath);
+      console.log("Iniciando upload:", {
+        taskId, 
+        usuarioId: user.id,
+        caminho: filePath,
+        bucketName: "attachments"
+      });
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("attachments")
@@ -83,22 +103,22 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
       if (uploadError) {
         console.error("Erro no upload:", uploadError);
-        throw uploadError;
+        throw new Error(uploadError.message);
       }
       
       console.log("Upload concluído:", uploadData);
 
-      // 2. Get public URL of the file
+      // 2. Obter URL pública do arquivo
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
         
       console.log("URL pública:", publicUrl);
 
-      // 3. Determine the file type
-      const fileType = "image"; // Always 'image' since we're only accepting images now
+      // 3. Determinar o tipo de arquivo
+      const fileType = isImageFile(file) ? "image" : "file";
       
-      // 4. Save attachment information in the database
+      // 4. Salvar informações do anexo no banco de dados
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
         .insert([
@@ -115,18 +135,18 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
       if (attachmentError) {
         console.error("Erro ao salvar anexo:", attachmentError);
-        throw attachmentError;
+        throw new Error(attachmentError.message);
       }
       
       console.log("Anexo salvo:", attachmentData);
 
-      // 5. Notify success and clear the state
+      // 5. Notificar sucesso e limpar o estado
       toast({
         title: "Arquivo enviado com sucesso",
         description: `${file.name} foi anexado à tarefa.`,
       });
 
-      // 6. Map received data to the expected Attachment interface format
+      // 6. Mapear dados recebidos para o formato esperado pela interface Attachment
       const formattedAttachment: Attachment = {
         id: attachmentData.id,
         name: attachmentData.name,
@@ -137,15 +157,23 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         taskId: attachmentData.task_id
       };
       
-      // 7. Call callback with the formatted attachment
+      // 7. Chamar callback com o anexo formatado
       onFileUploaded(formattedAttachment);
       setFile(null);
     } catch (error) {
       console.error("Erro ao fazer upload do arquivo:", error);
+      let errorMessage = "Não foi possível fazer o upload do arquivo. Tente novamente mais tarde.";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      setUploadError(errorMessage);
+      
       toast({
         variant: "destructive",
         title: "Erro ao enviar arquivo",
-        description: "Não foi possível fazer o upload do arquivo. Tente novamente mais tarde.",
+        description: errorMessage,
       });
     } finally {
       setIsUploading(false);
@@ -154,6 +182,14 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
   return (
     <div className="space-y-4">
+      {uploadError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erro ao enviar arquivo</AlertTitle>
+          <AlertDescription>{uploadError}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="flex items-center space-x-2">
         <Input
           type="file"
@@ -161,10 +197,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           className="hidden"
           onChange={handleFileChange}
           accept="image/png, image/jpeg, image/jpg"
+          disabled={isUploading}
         />
         <label
           htmlFor="file-upload"
-          className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          className={`cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
         >
           <Paperclip className="h-4 w-4 mr-2" />
           Escolher imagem
@@ -175,6 +212,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             size="sm" 
             onClick={() => setFile(null)}
             className="gap-1"
+            disabled={isUploading}
           >
             <X className="h-4 w-4" />
             Remover

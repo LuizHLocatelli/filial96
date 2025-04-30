@@ -53,7 +53,7 @@ export type Database = {
       attachments: {
         Row: {
           created_at: string
-          created_by: string
+          created_by: string | null
           id: string
           name: string
           task_id: string
@@ -62,7 +62,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by: string
+          created_by?: string | null
           id?: string
           name: string
           task_id: string
@@ -71,7 +71,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           id?: string
           name?: string
           task_id?: string

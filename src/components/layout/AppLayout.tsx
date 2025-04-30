@@ -1,10 +1,11 @@
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ensureBucketExists } from "@/utils/storage-helper";
+import { setupStorage } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,14 +13,24 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
+  const [storageReady, setStorageReady] = useState<boolean | null>(null);
   
   // Ensure storage bucket exists on app load
   useEffect(() => {
-    ensureBucketExists("attachments").then(exists => {
-      if (!exists) {
-        console.error("Failed to ensure attachments bucket exists");
+    async function initializeStorage() {
+      const result = await setupStorage();
+      setStorageReady(result);
+      
+      if (!result) {
+        toast({
+          title: "Atenção",
+          description: "Não foi possível inicializar o armazenamento. Algumas funcionalidades podem não funcionar corretamente.",
+          variant: "destructive"
+        });
       }
-    });
+    }
+    
+    initializeStorage();
   }, []);
   
   return (

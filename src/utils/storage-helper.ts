@@ -2,10 +2,10 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Ensures that the specified storage bucket exists
- * If it doesn't exist, creates it with the provided options
+ * Checks if a storage bucket exists
+ * Does not try to create it if it doesn't exist
  */
-export async function ensureBucketExists(bucketName: string, isPublic = true) {
+export async function checkBucketExists(bucketName: string) {
   try {
     // Check if bucket exists
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
@@ -16,10 +16,26 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
     }
     
     const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+    return bucketExists || false;
+  } catch (error) {
+    console.error("Error checking if bucket exists:", error);
+    return false;
+  }
+}
+
+/**
+ * Ensures that the specified storage bucket exists
+ * If it doesn't exist, creates it with the provided options
+ */
+export async function ensureBucketExists(bucketName: string, isPublic = true) {
+  try {
+    // Check if bucket exists
+    const bucketExists = await checkBucketExists(bucketName);
     
     // If bucket doesn't exist, create it
     if (!bucketExists) {
-      const { error: createError } = await supabase.storage.createBucket(bucketName, {
+      console.log(`Bucket ${bucketName} doesn't exist, trying to create it.`);
+      const { data, error: createError } = await supabase.storage.createBucket(bucketName, {
         public: isPublic,
         fileSizeLimit: 10485760, // 10MB
       });
@@ -29,7 +45,9 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
         return false;
       }
       
-      console.log(`Bucket ${bucketName} created successfully`);
+      console.log(`Bucket ${bucketName} created successfully:`, data);
+    } else {
+      console.log(`Bucket ${bucketName} already exists.`);
     }
     
     return true;

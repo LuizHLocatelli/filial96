@@ -31,4 +31,43 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Note: Bucket initialization is now handled by the storage-helper.ts
+// Função auxiliar para criar bucket se não existir
+export const setupStorage = async () => {
+  try {
+    // Verificar se o bucket existe
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      console.error("Erro ao listar buckets:", listError);
+      return false;
+    }
+    
+    // Verificar se o bucket "attachments" existe
+    const attachmentsBucket = buckets?.find(bucket => bucket.name === "attachments");
+    
+    if (!attachmentsBucket) {
+      console.log("Bucket 'attachments' não encontrado. Tentando criar...");
+      
+      // Tentar criar o bucket com acesso público
+      const { data, error } = await supabase.storage.createBucket('attachments', {
+        public: true,
+        fileSizeLimit: 10485760 // 10MB
+      });
+      
+      if (error) {
+        console.error("Erro ao criar bucket:", error);
+        return false;
+      }
+      
+      console.log("Bucket 'attachments' criado com sucesso:", data);
+    } else {
+      console.log("Bucket 'attachments' já existe.");
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Erro ao configurar storage:", error);
+    return false;
+  }
+};
+
