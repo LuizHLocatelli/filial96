@@ -1,14 +1,10 @@
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Toaster } from "@/components/ui/toaster";
-import { toast } from "@/components/ui/use-toast";
-import { checkBucketAvailability } from "@/integrations/supabase/client";
-import { RotateCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ensureBucketExists } from "@/utils/storage-helper";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -16,64 +12,15 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
-  const [bucketStatus, setBucketStatus] = useState<{
-    checked: boolean;
-    available: boolean;
-    message: string;
-  }>({
-    checked: false,
-    available: false,
-    message: "Verificando disponibilidade do armazenamento..."
-  });
   
-  // Verificação do bucket ao carregar o aplicativo
-  const verifyBucketStatus = async () => {
-    try {
-      console.log("Iniciando verificação do bucket 'attachments'...");
-      const status = await checkBucketAvailability();
-      
-      setBucketStatus(status);
-      
-      if (!status.available) {
-        toast({
-          variant: "destructive",
-          title: "Configuração necessária",
-          description: status.message,
-        });
-      } else {
-        toast({
-          title: "Armazenamento disponível",
-          description: "O sistema de armazenamento está configurado corretamente",
-        });
-      }
-    } catch (error: any) {
-      console.error("Erro ao verificar status do bucket:", error);
-      setBucketStatus({
-        checked: true,
-        available: false,
-        message: "Ocorreu um erro ao verificar o armazenamento."
-      });
-      
-      toast({
-        variant: "destructive",
-        title: "Erro de configuração",
-        description: error.message || "Ocorreu um erro ao verificar o armazenamento.",
-      });
-    }
-  };
-  
+  // Ensure storage bucket exists on app load
   useEffect(() => {
-    verifyBucketStatus();
-  }, []);
-  
-  const handleRetryBucketCheck = () => {
-    setBucketStatus({
-      checked: false,
-      available: false,
-      message: "Verificando novamente o acesso ao armazenamento..."
+    ensureBucketExists("attachments").then(exists => {
+      if (!exists) {
+        console.error("Failed to ensure attachments bucket exists");
+      }
     });
-    verifyBucketStatus();
-  };
+  }, []);
   
   return (
     <SidebarProvider>
@@ -83,40 +30,9 @@ export function AppLayout({ children }: AppLayoutProps) {
           <TopBar />
           <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
             {children}
-            
-            {!bucketStatus.checked && (
-              <div className="fixed bottom-4 right-4 bg-amber-50 p-3 rounded-md border border-amber-200 shadow-md max-w-md">
-                <p className="text-amber-800 font-medium">Verificando acesso ao armazenamento...</p>
-              </div>
-            )}
-            
-            {bucketStatus.checked && !bucketStatus.available && (
-              <div className="fixed bottom-4 right-4 bg-red-50 p-4 rounded-md border border-red-200 shadow-md max-w-md">
-                <p className="text-red-800 font-medium">Problema de armazenamento</p>
-                <p className="text-red-700 mb-2">{bucketStatus.message}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleRetryBucketCheck} 
-                  className="flex items-center gap-1"
-                >
-                  <RotateCw className="h-3 w-3" />
-                  Verificar novamente
-                </Button>
-              </div>
-            )}
-            
-            {bucketStatus.checked && bucketStatus.available && (
-              <div className="fixed bottom-4 right-4 bg-green-50 p-3 rounded-md border border-green-200 shadow-md max-w-md opacity-90 hover:opacity-100 transition-opacity">
-                <p className="text-green-800 font-medium">
-                  {bucketStatus.message}
-                </p>
-              </div>
-            )}
           </main>
         </div>
       </div>
-      <Toaster />
     </SidebarProvider>
   );
 }

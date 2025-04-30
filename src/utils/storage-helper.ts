@@ -2,67 +2,40 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Verifica se o bucket de armazenamento existe e está configurado corretamente
- * Retorna um objeto com informações sobre o status do bucket
+ * Ensures that the specified storage bucket exists
+ * If it doesn't exist, creates it with the provided options
  */
-export async function ensureBucketExists(bucketName: string): Promise<{
-  exists: boolean;
-  hasPermission: boolean;
-  message: string;
-}> {
+export async function ensureBucketExists(bucketName: string, isPublic = true) {
   try {
-    console.log(`Verificando existência do bucket '${bucketName}'...`);
-    
-    // Verificar se o bucket existe
+    // Check if bucket exists
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
     
     if (listError) {
-      console.error("Erro ao listar buckets:", listError);
-      return { 
-        exists: false, 
-        hasPermission: false, 
-        message: `Erro ao verificar buckets: ${listError.message}` 
-      };
+      console.error("Error listing buckets:", listError);
+      return false;
     }
     
-    const bucket = buckets?.find(bucket => bucket.name === bucketName);
+    const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
     
-    if (!bucket) {
-      console.log(`Bucket '${bucketName}' não encontrado no projeto Supabase.`);
-      return { 
-        exists: false, 
-        hasPermission: false, 
-        message: `O bucket '${bucketName}' não foi encontrado. Crie-o no console do Supabase.` 
-      };
-    }
-
-    // Tentar listar arquivos para verificar permissões
-    const { data, error: listFilesError } = await supabase.storage
-      .from(bucketName)
-      .list();
+    // If bucket doesn't exist, create it
+    if (!bucketExists) {
+      const { error: createError } = await supabase.storage.createBucket(bucketName, {
+        public: isPublic,
+        fileSizeLimit: 10485760, // 10MB
+      });
       
-    if (listFilesError && !listFilesError.message.includes("No such object")) {
-      console.warn(`Problema ao acessar arquivos no bucket '${bucketName}':`, listFilesError);
-      return { 
-        exists: true, 
-        hasPermission: false, 
-        message: `Bucket encontrado, mas há problemas de permissão: ${listFilesError.message}` 
-      };
+      if (createError) {
+        console.error(`Error creating bucket ${bucketName}:`, createError);
+        return false;
+      }
+      
+      console.log(`Bucket ${bucketName} created successfully`);
     }
     
-    console.log(`Bucket '${bucketName}' encontrado e permissões verificadas com sucesso.`);
-    return { 
-      exists: true, 
-      hasPermission: true, 
-      message: `Bucket '${bucketName}' está disponível e configurado corretamente.` 
-    };
-  } catch (error: any) {
-    console.error("Erro ao verificar bucket:", error);
-    return { 
-      exists: false, 
-      hasPermission: false, 
-      message: `Erro ao verificar bucket: ${error.message || "Erro desconhecido"}` 
-    };
+    return true;
+  } catch (error) {
+    console.error("Error ensuring bucket exists:", error);
+    return false;
   }
 }
 
@@ -79,14 +52,4 @@ export function getFileExtension(filename: string): string {
 export function isImageFile(file: File): boolean {
   const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
   return validImageTypes.includes(file.type);
-}
-
-/**
- * Generate a unique file name for storage
- */
-export function generateUniqueFileName(originalName: string): string {
-  const ext = getFileExtension(originalName);
-  const timestamp = Date.now();
-  const randomString = Math.random().toString(36).substring(2, 10);
-  return `${timestamp}_${randomString}.${ext}`;
 }

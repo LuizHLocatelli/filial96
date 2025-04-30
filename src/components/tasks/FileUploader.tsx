@@ -1,14 +1,13 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Paperclip, X, Image as ImageIcon, Upload, AlertTriangle, RotateCw } from "lucide-react";
+import { Paperclip, X, Image as ImageIcon, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { generateUniqueFileName, isImageFile } from "@/utils/storage-helper";
+import { ensureBucketExists, isImageFile } from "@/utils/storage-helper";
 
 interface FileUploaderProps {
   taskId: string;
@@ -18,87 +17,7 @@ interface FileUploaderProps {
 export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [bucketStatus, setBucketStatus] = useState<{
-    checked: boolean;
-    available: boolean;
-    message: string;
-  }>({
-    checked: false,
-    available: false,
-    message: "Verificando disponibilidade do armazenamento..."
-  });
   const { user } = useAuth();
-
-  // Verificar se o bucket attachments existe ao montar o componente
-  useEffect(() => {
-    if (!taskId) return;
-    
-    checkBucket();
-  }, [taskId]);
-
-  const checkBucket = async () => {
-    try {
-      setBucketStatus({
-        checked: false,
-        available: false,
-        message: "Verificando disponibilidade do armazenamento..."
-      });
-      
-      // Verificar se o bucket existe
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-      
-      if (listError) {
-        console.error("Erro ao listar buckets:", listError);
-        setBucketStatus({
-          checked: true,
-          available: false,
-          message: `Erro ao verificar buckets: ${listError.message}`
-        });
-        return;
-      }
-      
-      const bucket = buckets?.find(bucket => bucket.name === "attachments");
-      
-      if (!bucket) {
-        console.error("Bucket 'attachments' não encontrado.");
-        setBucketStatus({
-          checked: true,
-          available: false,
-          message: "O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase."
-        });
-        return;
-      }
-      
-      // Testar acesso ao bucket
-      const { error: testError } = await supabase.storage
-        .from("attachments")
-        .list();
-        
-      if (testError && !testError.message.includes("No such object")) {
-        console.error("Erro ao testar acesso ao bucket:", testError);
-        setBucketStatus({
-          checked: true,
-          available: false,
-          message: `Problema no acesso ao bucket: ${testError.message}`
-        });
-        return;
-      }
-      
-      console.log("Bucket 'attachments' está acessível");
-      setBucketStatus({
-        checked: true,
-        available: true,
-        message: "Armazenamento disponível para upload de arquivos."
-      });
-    } catch (error: any) {
-      console.error("Erro ao verificar bucket:", error);
-      setBucketStatus({
-        checked: true,
-        available: false,
-        message: `Erro ao verificar armazenamento: ${error.message || "Erro desconhecido"}`
-      });
-    }
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -119,11 +38,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   };
 
   const handleUpload = async () => {
-    if (!file) {
+    if (!file || !user) {
       toast({
         variant: "destructive",
         title: "Erro",
-        description: "Selecione um arquivo para fazer upload.",
+        description: "Selecione um arquivo e certifique-se de estar logado.",
       });
       return;
     }
@@ -136,25 +55,25 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       });
       return;
     }
-    
-    if (!bucketStatus.available) {
-      toast({
-        variant: "destructive",
-        title: "Erro de armazenamento",
-        description: bucketStatus.message || "O sistema de armazenamento não está disponível.",
-      });
-      return;
-    }
 
     setIsUploading(true);
     try {
-      // 1. Gerar um nome único para o arquivo
-      const uniqueFileName = generateUniqueFileName(file.name);
-      const filePath = `${taskId}/${uniqueFileName}`;
+      // Ensure the attachments bucket exists
+      const bucketExists = await ensureBucketExists("attachments");
       
-      console.log("Iniciando upload para:", filePath);
+      if (!bucketExists) {
+        throw new Error("Não foi possível criar ou acessar o bucket de anexos.");
+      }
       
-      // 2. Fazer upload do arquivo para o storage
+      // 1. Upload the file to storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      const filePath = `${taskId}/${fileName}.${fileExt}`;
+      
+      console.log("Iniciando upload para taskId:", taskId);
+      console.log("Usuário logado:", user.id);
+      console.log("Caminho do arquivo:", filePath);
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("attachments")
         .upload(filePath, file, {
@@ -163,45 +82,51 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         });
 
       if (uploadError) {
-        throw new Error(`Erro no upload: ${uploadError.message}`);
+        console.error("Erro no upload:", uploadError);
+        throw uploadError;
       }
       
-      console.log("Upload concluído com sucesso:", uploadData);
+      console.log("Upload concluído:", uploadData);
 
-      // 3. Obter URL pública do arquivo
+      // 2. Get public URL of the file
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
         
-      console.log("URL pública gerada:", publicUrl);
+      console.log("URL pública:", publicUrl);
 
-      // 4. Salvar informações do anexo no banco de dados
-      const userId = user?.id || "anonymous";
+      // 3. Determine the file type
+      const fileType = "image"; // Always 'image' since we're only accepting images now
+      
+      // 4. Save attachment information in the database
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
         .insert([
           {
             task_id: taskId,
             name: file.name,
-            type: "image",
+            type: fileType,
             url: publicUrl,
-            created_by: userId
+            created_by: user.id
           }
         ])
         .select()
         .single();
 
       if (attachmentError) {
-        throw new Error(`Erro ao salvar anexo no banco: ${attachmentError.message}`);
+        console.error("Erro ao salvar anexo:", attachmentError);
+        throw attachmentError;
       }
       
-      // 5. Notificar sucesso e limpar o estado
+      console.log("Anexo salvo:", attachmentData);
+
+      // 5. Notify success and clear the state
       toast({
         title: "Arquivo enviado com sucesso",
         description: `${file.name} foi anexado à tarefa.`,
       });
 
-      // 6. Mapear os dados recebidos para o formato esperado
+      // 6. Map received data to the expected Attachment interface format
       const formattedAttachment: Attachment = {
         id: attachmentData.id,
         name: attachmentData.name,
@@ -212,28 +137,19 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         taskId: attachmentData.task_id
       };
       
-      // 7. Chamar callback com o anexo formatado
+      // 7. Call callback with the formatted attachment
       onFileUploaded(formattedAttachment);
       setFile(null);
-      
-      // Limpar input do arquivo
-      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
-      
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao fazer upload do arquivo:", error);
       toast({
         variant: "destructive",
         title: "Erro ao enviar arquivo",
-        description: error.message || "Não foi possível fazer o upload do arquivo.",
+        description: "Não foi possível fazer o upload do arquivo. Tente novamente mais tarde.",
       });
     } finally {
       setIsUploading(false);
     }
-  };
-
-  const retryBucketCheck = () => {
-    checkBucket();
   };
 
   return (
@@ -245,15 +161,10 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           className="hidden"
           onChange={handleFileChange}
           accept="image/png, image/jpeg, image/jpg"
-          disabled={!bucketStatus.available || isUploading}
         />
         <label
           htmlFor="file-upload"
-          className={`cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-            !bucketStatus.available || isUploading
-              ? "opacity-50 pointer-events-none"
-              : "hover:bg-accent hover:text-accent-foreground"
-          } border border-input bg-background h-10 px-4 py-2`}
+          className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
         >
           <Paperclip className="h-4 w-4 mr-2" />
           Escolher imagem
@@ -264,7 +175,6 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             size="sm" 
             onClick={() => setFile(null)}
             className="gap-1"
-            disabled={isUploading}
           >
             <X className="h-4 w-4" />
             Remover
@@ -286,7 +196,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             </div>
             <Button 
               onClick={handleUpload} 
-              disabled={isUploading || !bucketStatus.available}
+              disabled={isUploading}
               size="sm"
               className="gap-1"
             >
@@ -298,36 +208,6 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
               )}
             </Button>
           </div>
-        </div>
-      )}
-
-      {!bucketStatus.checked && (
-        <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-          <p>Verificando disponibilidade do armazenamento...</p>
-        </div>
-      )}
-
-      {bucketStatus.checked && !bucketStatus.available && (
-        <Alert variant="destructive" className="bg-red-50">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="flex flex-col gap-2">
-            <p>{bucketStatus.message}</p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="self-start flex items-center gap-1"
-              onClick={retryBucketCheck}
-            >
-              <RotateCw className="h-3 w-3" />
-              Verificar novamente
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {bucketStatus.checked && bucketStatus.available && (
-        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
-          <p>{bucketStatus.message}</p>
         </div>
       )}
     </div>
