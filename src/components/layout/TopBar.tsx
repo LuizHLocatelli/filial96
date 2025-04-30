@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function TopBar() {
   const { profile, signOut } = useAuth();
@@ -42,6 +43,8 @@ export function TopBar() {
         </div>
 
         <div className="ml-auto flex items-center space-x-4">
+          <ThemeToggle />
+          
           <Button
             variant="ghost"
             size="icon"
@@ -61,7 +64,7 @@ export function TopBar() {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={profile?.avatarUrl} alt={profile?.name} />
-                  <AvatarFallback className="bg-green-100 text-green-700">
+                  <AvatarFallback className="bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200">
                     {profile?.name ? getInitials(profile.name) : '--'}
                   </AvatarFallback>
                 </Avatar>
