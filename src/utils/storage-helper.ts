@@ -23,10 +23,11 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
       // For public buckets, we need to use the REST API to create the bucket due to RLS
       // This is because the client SDK might not have sufficient permissions
       try {
-        const apiEndpoint = `${supabase.auth.getSession().then(({ data }) => data.session?.baseUrl ?? '')}/storage/v1/bucket`;
-        const apiKey = supabase.auth.getSession().then(({ data }) => data.session?.access_token ?? '');
+        const { data: sessionData } = await supabase.auth.getSession();
+        const supabaseUrl = "https://abpsafkioslfjqtgtvbi.supabase.co";
+        const apiKey = sessionData.session?.access_token || '';
         
-        const res = await fetch(apiEndpoint, {
+        const res = await fetch(`${supabaseUrl}/storage/v1/bucket`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
