@@ -25,11 +25,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileUploader } from "@/components/tasks/FileUploader";
 import { AttachmentList } from "@/components/tasks/AttachmentList";
 import { v4 as uuidv4 } from "uuid";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Montagens() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
   const [newTaskAttachments, setNewTaskAttachments] = useState<Attachment[]>([]);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [newTask, setNewTask] = useState<Partial<Task>>({
     type: "montagem",
@@ -131,22 +133,25 @@ export default function Montagens() {
   };
   
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Montagens</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Montagens</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Gerencie montagens de móveis para clientes.
           </p>
         </div>
-        <Button className="flex items-center gap-2" onClick={() => setIsNewTaskDialogOpen(true)}>
+        <Button 
+          className="flex items-center gap-2 w-full sm:w-auto justify-center" 
+          onClick={() => setIsNewTaskDialogOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           Nova Montagem
         </Button>
       </div>
       
-      <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-lg">
-        <p className="text-muted-foreground mb-4">
+      <div className="flex flex-col items-center justify-center py-12 sm:py-16 border-2 border-dashed rounded-lg">
+        <p className="text-muted-foreground mb-4 text-center px-4">
           Módulo de gerenciamento de montagens em desenvolvimento
         </p>
         <Button onClick={() => setIsNewTaskDialogOpen(true)}>Criar Nova Montagem</Button>
@@ -154,7 +159,7 @@ export default function Montagens() {
       
       {/* Diálogo para criar nova montagem */}
       <Dialog open={isNewTaskDialogOpen} onOpenChange={setIsNewTaskDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Criar Nova Montagem</DialogTitle>
           </DialogHeader>
@@ -183,7 +188,7 @@ export default function Montagens() {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="priority">Prioridade</Label>
                 <Select 
@@ -230,8 +235,8 @@ export default function Montagens() {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2 col-span-1">
                 <Label htmlFor="clientPhone">Telefone do Cliente</Label>
                 <Input 
                   id="clientPhone"
@@ -272,9 +277,20 @@ export default function Montagens() {
             </div>
           </div>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsNewTaskDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreateTask}>Salvar Montagem</Button>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsNewTaskDialogOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleCreateTask}
+              className="w-full sm:w-auto"
+            >
+              Salvar Montagem
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
