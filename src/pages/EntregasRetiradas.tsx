@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Package, Plus, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +23,9 @@ export default function EntregasRetiradas() {
     isEditMode,
     taskId,
     setIsTaskDetailsOpen,
+    setIsEntregaDialogOpen,    // Now properly destructured
+    setIsRetiradaDialogOpen,   // Now properly destructured
+    setIsEditMode,             // Now properly destructured
     handleDialogOpen,
     handleTaskClick,
     handleEditTask,

@@ -74,6 +74,9 @@ export function useTaskDialogs() {
     isEditMode,
     taskId,
     setIsTaskDetailsOpen,
+    setIsEntregaDialogOpen,  // Export this setter function
+    setIsRetiradaDialogOpen, // Export this setter function
+    setIsEditMode,           // Export this setter function
     handleDialogOpen,
     handleTaskClick,
     handleEditTask,
