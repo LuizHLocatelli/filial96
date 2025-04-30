@@ -11,15 +11,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, FileWarning, Home, Package, Search, ShoppingBag, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Calendar, ClipboardCheck, FileWarning, Home, Package, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
+  const location = useLocation();
+  
   return (
     <Sidebar>
       <SidebarHeader className="py-4">
         <Link to="/" className="flex items-center gap-2 px-4">
-          <ShoppingBag className="h-6 w-6 text-green-600" />
+          <Home className="h-6 w-6 text-green-600" />
           <span className="font-bold text-lg text-green-700">Filial 96</span>
         </Link>
       </SidebarHeader>
@@ -80,7 +82,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-border">
-        {/* Copyright removed */}
+        {/* Footer content */}
       </SidebarFooter>
     </Sidebar>
   );
