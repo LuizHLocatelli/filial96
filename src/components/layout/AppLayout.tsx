@@ -1,10 +1,9 @@
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ensureBucketExists } from "@/utils/storage-helper";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,15 +11,6 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
-  
-  // Ensure storage bucket exists on app load
-  useEffect(() => {
-    ensureBucketExists("attachments").then(exists => {
-      if (!exists) {
-        console.error("Failed to ensure attachments bucket exists");
-      }
-    });
-  }, []);
   
   return (
     <SidebarProvider>

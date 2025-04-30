@@ -17,19 +17,39 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
     
     const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
     
-    // If bucket doesn't exist, create it
     if (!bucketExists) {
-      const { error: createError } = await supabase.storage.createBucket(bucketName, {
-        public: isPublic,
-        fileSizeLimit: 10485760, // 10MB
-      });
+      console.log(`Bucket ${bucketName} doesn't exist, attempting to create it...`);
       
-      if (createError) {
-        console.error(`Error creating bucket ${bucketName}:`, createError);
+      // For public buckets, we need to use the REST API to create the bucket due to RLS
+      // This is because the client SDK might not have sufficient permissions
+      try {
+        const res = await fetch(`${supabase.supabaseUrl}/storage/v1/bucket`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': supabase.supabaseKey,
+            'Authorization': `Bearer ${supabase.supabaseKey}`
+          },
+          body: JSON.stringify({
+            id: bucketName,
+            name: bucketName,
+            public: isPublic,
+            file_size_limit: 10485760 // 10MB
+          })
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error(`Error creating bucket ${bucketName} via REST:`, errorData);
+          return false;
+        }
+        
+        console.log(`Bucket ${bucketName} created successfully via REST API`);
+        return true;
+      } catch (restError) {
+        console.error(`REST API error creating bucket ${bucketName}:`, restError);
         return false;
       }
-      
-      console.log(`Bucket ${bucketName} created successfully`);
     }
     
     return true;
@@ -52,4 +72,14 @@ export function getFileExtension(filename: string): string {
 export function isImageFile(file: File): boolean {
   const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
   return validImageTypes.includes(file.type);
+}
+
+/**
+ * Generate a unique file name for storage
+ */
+export function generateUniqueFileName(originalName: string): string {
+  const ext = getFileExtension(originalName);
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 10);
+  return `${timestamp}_${randomString}.${ext}`;
 }

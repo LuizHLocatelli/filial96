@@ -31,4 +31,19 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Note: Bucket initialization is now handled by the storage-helper.ts
+// Initialize the storage bucket if it doesn't exist
+(async function initStorage() {
+  try {
+    // Check if attachments bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const attachmentsBucketExists = buckets?.some(bucket => bucket.name === "attachments");
+    
+    if (!attachmentsBucketExists) {
+      console.log("Attachments bucket doesn't exist in storage. Make sure to create it in the Supabase dashboard.");
+    } else {
+      console.log("Attachments bucket exists in storage.");
+    }
+  } catch (error) {
+    console.error("Error checking storage buckets:", error);
+  }
+})();

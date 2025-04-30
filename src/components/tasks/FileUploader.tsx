@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types";
-import { ensureBucketExists, isImageFile } from "@/utils/storage-helper";
+import { generateUniqueFileName, isImageFile } from "@/utils/storage-helper";
 
 interface FileUploaderProps {
   taskId: string;
@@ -58,22 +58,15 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
     setIsUploading(true);
     try {
-      // Ensure the attachments bucket exists
-      const bucketExists = await ensureBucketExists("attachments");
-      
-      if (!bucketExists) {
-        throw new Error("Não foi possível criar ou acessar o bucket de anexos.");
-      }
-      
-      // 1. Upload the file to storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}`;
-      const filePath = `${taskId}/${fileName}.${fileExt}`;
+      // 1. Generate a unique file name to prevent collisions
+      const uniqueFileName = generateUniqueFileName(file.name);
+      const filePath = `${taskId}/${uniqueFileName}`;
       
       console.log("Iniciando upload para taskId:", taskId);
       console.log("Usuário logado:", user.id);
       console.log("Caminho do arquivo:", filePath);
       
+      // 2. Upload the file to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("attachments")
         .upload(filePath, file, {
@@ -83,21 +76,18 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
       if (uploadError) {
         console.error("Erro no upload:", uploadError);
-        throw uploadError;
+        throw new Error(`Erro no upload: ${uploadError.message}`);
       }
       
       console.log("Upload concluído:", uploadData);
 
-      // 2. Get public URL of the file
+      // 3. Get public URL of the file
       const { data: { publicUrl } } = supabase.storage
         .from("attachments")
         .getPublicUrl(filePath);
         
       console.log("URL pública:", publicUrl);
 
-      // 3. Determine the file type
-      const fileType = "image"; // Always 'image' since we're only accepting images now
-      
       // 4. Save attachment information in the database
       const { data: attachmentData, error: attachmentError } = await supabase
         .from("attachments")
@@ -105,7 +95,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           {
             task_id: taskId,
             name: file.name,
-            type: fileType,
+            type: "image",
             url: publicUrl,
             created_by: user.id
           }
@@ -115,7 +105,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
       if (attachmentError) {
         console.error("Erro ao salvar anexo:", attachmentError);
-        throw attachmentError;
+        throw new Error(`Erro ao salvar anexo: ${attachmentError.message}`);
       }
       
       console.log("Anexo salvo:", attachmentData);
