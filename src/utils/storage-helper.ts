@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
  * Verifica se o bucket de armazenamento existe e está configurado corretamente
  * Retorna um objeto com informações sobre o status do bucket
  */
-export async function ensureBucketExists(bucketName: string, isPublic = true): Promise<{
+export async function ensureBucketExists(bucketName: string): Promise<{
   exists: boolean;
   hasPermission: boolean;
   message: string;
@@ -36,7 +36,7 @@ export async function ensureBucketExists(bucketName: string, isPublic = true): P
       };
     }
 
-    // Com RLS desativado, apenas verificamos se conseguimos listar arquivos
+    // Tentar listar arquivos para verificar permissões
     const { data, error: listFilesError } = await supabase.storage
       .from(bucketName)
       .list();

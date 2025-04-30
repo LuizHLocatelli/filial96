@@ -47,12 +47,11 @@ export async function checkBucketAvailability() {
     
     if (listError) {
       console.error("Erro ao listar buckets:", listError);
-      bucketStatus = {
+      return {
         checked: true,
         available: false,
         message: `Erro ao verificar buckets: ${listError.message}`
       };
-      return bucketStatus;
     }
     
     const bucketExists = buckets?.some(bucket => bucket.name === "attachments");
@@ -60,56 +59,39 @@ export async function checkBucketAvailability() {
     if (!bucketExists) {
       console.warn("O bucket 'attachments' não foi encontrado no Supabase.");
       
-      bucketStatus = {
+      return {
         checked: true,
         available: false,
         message: "O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase."
       };
-      return bucketStatus;
     }
     
-    // Com RLS desativado, verificamos com uma simples listagem
-    try {
-      const { error: listFilesError } = await supabase.storage
-        .from("attachments")
-        .list();
+    // Testar acesso ao bucket
+    const { error: listFilesError } = await supabase.storage
+      .from("attachments")
+      .list();
       
-      if (listFilesError && !listFilesError.message.includes("No such object")) {
-        console.warn("Problema ao acessar arquivos no bucket:", listFilesError);
-        bucketStatus = {
-          checked: true,
-          available: false,
-          message: `Bucket encontrado, mas há problemas de permissão: ${listFilesError.message}`
-        };
-        return bucketStatus;
-      }
-      
-      console.log("Bucket 'attachments' encontrado e permissões verificadas com sucesso.");
-      bucketStatus = {
-        checked: true,
-        available: true,
-        message: "Bucket 'attachments' está disponível e configurado corretamente."
-      };
-      return bucketStatus;
-    } catch (error: any) {
-      console.warn("Erro ao verificar permissões do bucket:", error);
-      bucketStatus = {
+    if (listFilesError && !listFilesError.message.includes("No such object")) {
+      console.warn("Problema ao acessar arquivos no bucket:", listFilesError);
+      return {
         checked: true,
         available: false,
-        message: `Bucket encontrado, mas há problemas de permissão: ${error.message || "Erro desconhecido"}`
+        message: `Bucket encontrado, mas há problemas de permissão: ${listFilesError.message}`
       };
-      return bucketStatus;
     }
+    
+    console.log("Bucket 'attachments' encontrado e permissões verificadas com sucesso.");
+    return {
+      checked: true,
+      available: true,
+      message: "Bucket 'attachments' está disponível e configurado corretamente."
+    };
   } catch (error: any) {
-    console.error("Erro ao inicializar verificação do bucket:", error);
-    bucketStatus = {
+    console.error("Erro ao verificar bucket:", error);
+    return {
       checked: true,
       available: false,
       message: `Erro ao verificar bucket: ${error.message || "Erro desconhecido"}`
     };
-    return bucketStatus;
   }
 }
-
-// Iniciar verificação do bucket logo que o cliente é carregado
-checkBucketAvailability();

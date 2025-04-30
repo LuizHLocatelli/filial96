@@ -18,8 +18,15 @@ interface FileUploaderProps {
 export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [isBucketAvailable, setIsBucketAvailable] = useState<boolean | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [bucketStatus, setBucketStatus] = useState<{
+    checked: boolean;
+    available: boolean;
+    message: string;
+  }>({
+    checked: false,
+    available: false,
+    message: "Verificando disponibilidade do armazenamento..."
+  });
   const { user } = useAuth();
 
   // Verificar se o bucket attachments existe ao montar o componente
@@ -31,15 +38,22 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
 
   const checkBucket = async () => {
     try {
-      setErrorMessage(null);
+      setBucketStatus({
+        checked: false,
+        available: false,
+        message: "Verificando disponibilidade do armazenamento..."
+      });
       
       // Verificar se o bucket existe
       const { data: buckets, error: listError } = await supabase.storage.listBuckets();
       
       if (listError) {
         console.error("Erro ao listar buckets:", listError);
-        setIsBucketAvailable(false);
-        setErrorMessage(`Erro ao verificar buckets: ${listError.message}`);
+        setBucketStatus({
+          checked: true,
+          available: false,
+          message: `Erro ao verificar buckets: ${listError.message}`
+        });
         return;
       }
       
@@ -47,29 +61,42 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       
       if (!bucket) {
         console.error("Bucket 'attachments' não encontrado.");
-        setIsBucketAvailable(false);
-        setErrorMessage("O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase.");
+        setBucketStatus({
+          checked: true,
+          available: false,
+          message: "O bucket 'attachments' não foi encontrado. Crie-o no console do Supabase."
+        });
         return;
       }
       
-      // Testar acesso ao bucket com RLS desativado
+      // Testar acesso ao bucket
       const { error: testError } = await supabase.storage
         .from("attachments")
         .list();
         
       if (testError && !testError.message.includes("No such object")) {
         console.error("Erro ao testar acesso ao bucket:", testError);
-        setIsBucketAvailable(false);
-        setErrorMessage(`Problema no acesso ao bucket: ${testError.message}`);
+        setBucketStatus({
+          checked: true,
+          available: false,
+          message: `Problema no acesso ao bucket: ${testError.message}`
+        });
         return;
       }
       
       console.log("Bucket 'attachments' está acessível");
-      setIsBucketAvailable(true);
+      setBucketStatus({
+        checked: true,
+        available: true,
+        message: "Armazenamento disponível para upload de arquivos."
+      });
     } catch (error: any) {
       console.error("Erro ao verificar bucket:", error);
-      setIsBucketAvailable(false);
-      setErrorMessage(`Erro ao verificar armazenamento: ${error.message || "Erro desconhecido"}`);
+      setBucketStatus({
+        checked: true,
+        available: false,
+        message: `Erro ao verificar armazenamento: ${error.message || "Erro desconhecido"}`
+      });
     }
   };
 
@@ -110,11 +137,11 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
       return;
     }
     
-    if (!isBucketAvailable) {
+    if (!bucketStatus.available) {
       toast({
         variant: "destructive",
         title: "Erro de armazenamento",
-        description: errorMessage || "O sistema de armazenamento não está disponível.",
+        description: bucketStatus.message || "O sistema de armazenamento não está disponível.",
       });
       return;
     }
@@ -206,8 +233,6 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
   };
 
   const retryBucketCheck = () => {
-    setIsBucketAvailable(null);
-    setErrorMessage(null);
     checkBucket();
   };
 
@@ -220,12 +245,12 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
           className="hidden"
           onChange={handleFileChange}
           accept="image/png, image/jpeg, image/jpg"
-          disabled={isBucketAvailable === false || isUploading}
+          disabled={!bucketStatus.available || isUploading}
         />
         <label
           htmlFor="file-upload"
           className={`cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-            isBucketAvailable === false || isUploading
+            !bucketStatus.available || isUploading
               ? "opacity-50 pointer-events-none"
               : "hover:bg-accent hover:text-accent-foreground"
           } border border-input bg-background h-10 px-4 py-2`}
@@ -261,7 +286,7 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
             </div>
             <Button 
               onClick={handleUpload} 
-              disabled={isUploading || isBucketAvailable === false}
+              disabled={isUploading || !bucketStatus.available}
               size="sm"
               className="gap-1"
             >
@@ -276,11 +301,17 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         </div>
       )}
 
-      {isBucketAvailable === false && errorMessage && (
+      {!bucketStatus.checked && (
+        <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+          <p>Verificando disponibilidade do armazenamento...</p>
+        </div>
+      )}
+
+      {bucketStatus.checked && !bucketStatus.available && (
         <Alert variant="destructive" className="bg-red-50">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription className="flex flex-col gap-2">
-            <p>{errorMessage}</p>
+            <p>{bucketStatus.message}</p>
             <Button 
               variant="outline" 
               size="sm"
@@ -294,9 +325,9 @@ export function FileUploader({ taskId, onFileUploaded }: FileUploaderProps) {
         </Alert>
       )}
       
-      {isBucketAvailable === null && (
-        <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-          <p>Verificando disponibilidade do armazenamento...</p>
+      {bucketStatus.checked && bucketStatus.available && (
+        <div className="text-sm text-green-600 bg-green-50 p-2 rounded border border-green-200">
+          <p>{bucketStatus.message}</p>
         </div>
       )}
     </div>

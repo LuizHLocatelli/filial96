@@ -16,9 +16,15 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
-  const [isBucketChecked, setIsBucketChecked] = useState(false);
-  const [isBucketAvailable, setIsBucketAvailable] = useState(false);
-  const [bucketMessage, setBucketMessage] = useState("");
+  const [bucketStatus, setBucketStatus] = useState<{
+    checked: boolean;
+    available: boolean;
+    message: string;
+  }>({
+    checked: false,
+    available: false,
+    message: "Verificando disponibilidade do armazenamento..."
+  });
   
   // Verificação do bucket ao carregar o aplicativo
   const verifyBucketStatus = async () => {
@@ -26,9 +32,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       console.log("Iniciando verificação do bucket 'attachments'...");
       const status = await checkBucketAvailability();
       
-      setIsBucketChecked(status.checked);
-      setIsBucketAvailable(status.available);
-      setBucketMessage(status.message);
+      setBucketStatus(status);
       
       if (!status.available) {
         toast({
@@ -44,9 +48,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       }
     } catch (error: any) {
       console.error("Erro ao verificar status do bucket:", error);
-      setIsBucketChecked(true);
-      setIsBucketAvailable(false);
-      setBucketMessage("Ocorreu um erro ao verificar o armazenamento.");
+      setBucketStatus({
+        checked: true,
+        available: false,
+        message: "Ocorreu um erro ao verificar o armazenamento."
+      });
       
       toast({
         variant: "destructive",
@@ -61,8 +67,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, []);
   
   const handleRetryBucketCheck = () => {
-    setIsBucketChecked(false);
-    setBucketMessage("Verificando novamente o acesso ao armazenamento...");
+    setBucketStatus({
+      checked: false,
+      available: false,
+      message: "Verificando novamente o acesso ao armazenamento..."
+    });
     verifyBucketStatus();
   };
   
@@ -75,16 +84,16 @@ export function AppLayout({ children }: AppLayoutProps) {
           <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
             {children}
             
-            {!isBucketChecked && (
+            {!bucketStatus.checked && (
               <div className="fixed bottom-4 right-4 bg-amber-50 p-3 rounded-md border border-amber-200 shadow-md max-w-md">
                 <p className="text-amber-800 font-medium">Verificando acesso ao armazenamento...</p>
               </div>
             )}
             
-            {isBucketChecked && !isBucketAvailable && (
+            {bucketStatus.checked && !bucketStatus.available && (
               <div className="fixed bottom-4 right-4 bg-red-50 p-4 rounded-md border border-red-200 shadow-md max-w-md">
                 <p className="text-red-800 font-medium">Problema de armazenamento</p>
-                <p className="text-red-700 mb-2">{bucketMessage}</p>
+                <p className="text-red-700 mb-2">{bucketStatus.message}</p>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -94,6 +103,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <RotateCw className="h-3 w-3" />
                   Verificar novamente
                 </Button>
+              </div>
+            )}
+            
+            {bucketStatus.checked && bucketStatus.available && (
+              <div className="fixed bottom-4 right-4 bg-green-50 p-3 rounded-md border border-green-200 shadow-md max-w-md opacity-90 hover:opacity-100 transition-opacity">
+                <p className="text-green-800 font-medium">
+                  {bucketStatus.message}
+                </p>
               </div>
             )}
           </main>
