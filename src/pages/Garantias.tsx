@@ -82,7 +82,7 @@ export default function Garantias() {
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Garantias</h2>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Acompanhamento de processos de garantia de produtos.
+            Filial 96 - Acompanhamento de processos de garantia de produtos.
           </p>
         </div>
         <Button 

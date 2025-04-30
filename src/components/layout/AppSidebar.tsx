@@ -20,7 +20,7 @@ export function AppSidebar() {
       <SidebarHeader className="py-4">
         <Link to="/" className="flex items-center gap-2 px-4">
           <ShoppingBag className="h-6 w-6 text-brand-blue-600" />
-          <span className="font-bold text-lg text-brand-blue-600">Móveis Control</span>
+          <span className="font-bold text-lg text-brand-blue-600">Filial 96</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -81,7 +81,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-border">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">© 2025 Móveis Control</span>
+          <span className="text-xs text-muted-foreground">© 2025 Filial 96</span>
         </div>
       </SidebarFooter>
     </Sidebar>
