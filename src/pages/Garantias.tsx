@@ -30,8 +30,8 @@ export default function Garantias() {
       return;
     }
     
+    // Generate a new task ID when dialog opens for new task
     if (!isEditMode) {
-      // Generate a new task ID when dialog opens for new task
       setTaskId(uuidv4());
     }
     
@@ -90,6 +90,7 @@ export default function Garantias() {
           onClick={() => {
             setIsEditMode(false);
             setSelectedTask(null);
+            setTaskId(uuidv4()); // Generate a new UUID here
             handleDialogOpen(true);
           }}
         >
@@ -103,7 +104,7 @@ export default function Garantias() {
         open={isDialogOpen}
         onOpenChange={handleDialogOpen}
         taskId={taskId}
-        initialData={selectedTask || undefined}
+        initialData={selectedTask || {type: "garantia"}}
         isEditMode={isEditMode}
         onSuccess={() => {
           setSelectedTask(null);

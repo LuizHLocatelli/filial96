@@ -23,8 +23,8 @@ export function useTaskDialogs() {
         return;
       }
       
+      // Generate a new task ID when dialog opens for new task
       if (!isEditMode) {
-        // Generate a new task ID when dialog opens for new task
         setTaskId(uuidv4());
       }
       
@@ -74,9 +74,9 @@ export function useTaskDialogs() {
     isEditMode,
     taskId,
     setIsTaskDetailsOpen,
-    setIsEntregaDialogOpen,  // Export this setter function
-    setIsRetiradaDialogOpen, // Export this setter function
-    setIsEditMode,           // Export this setter function
+    setIsEntregaDialogOpen,
+    setIsRetiradaDialogOpen,
+    setIsEditMode,
     handleDialogOpen,
     handleTaskClick,
     handleEditTask,

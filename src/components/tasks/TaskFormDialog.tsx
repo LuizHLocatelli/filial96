@@ -44,6 +44,7 @@ export function TaskFormDialog({
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(taskId);
 
   const [task, setTask] = useState<Partial<Task>>({
     type: "montagem",
@@ -71,6 +72,11 @@ export function TaskFormDialog({
       });
     }
   }, [initialData, open]);
+
+  // Update currentTaskId when taskId prop changes
+  useEffect(() => {
+    setCurrentTaskId(taskId);
+  }, [taskId, isEditMode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -105,7 +111,7 @@ export function TaskFormDialog({
     if (!task.title) {
       toast({
         title: "Erro",
-        description: "Por favor, adicione um título para a montagem.",
+        description: "Por favor, adicione um título para a tarefa.",
         variant: "destructive",
       });
       return;
@@ -114,16 +120,17 @@ export function TaskFormDialog({
     if (!user) {
       toast({
         title: "Erro",
-        description: "Você precisa estar autenticado para criar uma montagem.",
+        description: "Você precisa estar autenticado para criar uma tarefa.",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
+    console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
 
     try {
-      if (isEditMode && taskId) {
+      if (isEditMode && currentTaskId) {
         // Atualizar tarefa existente
         const { error: updateError } = await supabase
           .from("tasks")
@@ -137,22 +144,24 @@ export function TaskFormDialog({
             client_address: task.clientAddress,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", taskId);
+          .eq("id", currentTaskId);
 
         if (updateError) {
           throw new Error(`Erro ao atualizar tarefa: ${updateError.message}`);
         }
 
         toast({
-          title: "Montagem atualizada",
-          description: "A montagem foi atualizada com sucesso.",
+          title: "Tarefa atualizada",
+          description: "A tarefa foi atualizada com sucesso.",
         });
       } else {
-        // Criar nova tarefa
+        // Criar nova tarefa - certifique-se de que temos um ID válido
+        const taskInsertId = currentTaskId || undefined; // Don't send empty string
+        
         const { error: taskError } = await supabase
           .from("tasks")
           .insert({
-            id: taskId, 
+            id: taskInsertId,
             type: task.type,
             title: task.title,
             description: task.description,
@@ -169,8 +178,8 @@ export function TaskFormDialog({
         }
 
         toast({
-          title: "Montagem criada",
-          description: "A nova montagem foi criada com sucesso.",
+          title: "Tarefa criada",
+          description: "A nova tarefa foi criada com sucesso.",
         });
       }
 
@@ -184,10 +193,10 @@ export function TaskFormDialog({
       }
 
     } catch (error) {
-      console.error("Erro ao salvar montagem:", error);
+      console.error("Erro ao salvar tarefa:", error);
       toast({
         title: "Erro",
-        description: "Ocorreu um erro ao salvar a montagem. Tente novamente.",
+        description: "Ocorreu um erro ao salvar a tarefa. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -199,9 +208,9 @@ export function TaskFormDialog({
     <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? 'Editar Montagem' : 'Criar Nova Montagem'}</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Editar Tarefa' : 'Criar Nova Tarefa'}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? 'Edite os detalhes da montagem abaixo' : 'Preencha os detalhes da montagem abaixo'}
+            {isEditMode ? 'Edite os detalhes da tarefa abaixo' : 'Preencha os detalhes da tarefa abaixo'}
           </DialogDescription>
         </DialogHeader>
 
@@ -315,7 +324,7 @@ export function TaskFormDialog({
             className="w-full sm:w-auto"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Montagem"}
+            {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
           </Button>
         </DialogFooter>
       </DialogContent>
