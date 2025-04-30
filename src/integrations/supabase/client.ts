@@ -49,6 +49,17 @@ export const supabase = createClient<Database>(
     
     if (bucketExists) {
       console.log("Bucket 'attachments' encontrado. Sistema pronto para uploads.");
+      
+      // Teste de permissão
+      try {
+        const { data: files } = await supabase.storage
+          .from("attachments")
+          .list("", { limit: 1 });
+        
+        console.log("Permissões de leitura verificadas com sucesso.");
+      } catch (e) {
+        console.warn("Bucket encontrado, mas pode haver problemas de permissão:", e);
+      }
     } else {
       console.warn("O bucket 'attachments' não foi encontrado no Supabase.");
       console.warn("O recurso de uploads de imagens não funcionará até que o bucket seja criado manualmente.");

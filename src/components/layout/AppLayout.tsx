@@ -16,12 +16,17 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   const [isBucketChecked, setIsBucketChecked] = useState(false);
+  const [isBucketAvailable, setIsBucketAvailable] = useState(false);
   
   // Verificação do bucket ao carregar o aplicativo
   useEffect(() => {
     const checkBucket = async () => {
       try {
+        console.log("Iniciando verificação do bucket 'attachments'...");
         const bucketExists = await ensureBucketExists("attachments");
+        console.log("Resultado da verificação:", bucketExists);
+        
+        setIsBucketAvailable(bucketExists);
         
         if (!bucketExists) {
           toast({
@@ -29,11 +34,18 @@ export function AppLayout({ children }: AppLayoutProps) {
             title: "Erro de configuração",
             description: "O bucket de armazenamento 'attachments' não está disponível. É necessário criá-lo manualmente no console do Supabase.",
           });
+        } else {
+          toast({
+            title: "Armazenamento disponível",
+            description: "O bucket 'attachments' está configurado corretamente.",
+          });
         }
         
         setIsBucketChecked(true);
       } catch (error) {
         console.error("Erro ao verificar bucket:", error);
+        setIsBucketChecked(true);
+        setIsBucketAvailable(false);
       }
     };
     

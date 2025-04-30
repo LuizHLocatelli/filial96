@@ -25,6 +25,16 @@ export async function ensureBucketExists(bucketName: string, isPublic = true) {
       return false;
     }
     
+    // Verificar permissões do bucket (isso é apenas para logging)
+    try {
+      const { data: files } = await supabase.storage
+        .from(bucketName)
+        .list();
+      console.log(`Bucket '${bucketName}' encontrado e permissões verificadas.`);
+    } catch (error) {
+      console.warn(`Bucket '${bucketName}' encontrado, mas pode haver problemas de permissão:`, error);
+    }
+    
     console.log(`Bucket '${bucketName}' encontrado e está disponível.`);
     return true;
   } catch (error) {
