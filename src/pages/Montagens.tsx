@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -26,12 +27,16 @@ import { FileUploader } from "@/components/tasks/FileUploader";
 import { AttachmentList } from "@/components/tasks/AttachmentList";
 import { v4 as uuidv4 } from "uuid";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Montagens() {
   const [isNewTaskDialogOpen, setIsNewTaskDialogOpen] = useState(false);
   const [newTaskAttachments, setNewTaskAttachments] = useState<Attachment[]>([]);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [taskId, setTaskId] = useState<string>("");
   
   const [newTask, setNewTask] = useState<Partial<Task>>({
     type: "montagem",
@@ -69,6 +74,32 @@ export default function Montagens() {
     });
   };
   
+  const resetForm = () => {
+    setNewTask({
+      type: "montagem",
+      title: "",
+      description: "",
+      status: "pendente",
+      priority: "media",
+      clientName: "",
+      clientPhone: "",
+      clientAddress: "",
+    });
+    setNewTaskAttachments([]);
+    setTaskId("");
+  };
+
+  const handleDialogOpen = (open: boolean) => {
+    if (open) {
+      // Generate a new task ID when dialog opens
+      setTaskId(uuidv4());
+    } else {
+      // Reset form when dialog closes
+      resetForm();
+    }
+    setIsNewTaskDialogOpen(open);
+  };
+  
   const handleCreateTask = async () => {
     if (!newTask.title) {
       toast({
@@ -78,16 +109,24 @@ export default function Montagens() {
       });
       return;
     }
+
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar autenticado para criar uma montagem.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
     
     try {
-      // Gerar um ID para a nova tarefa
-      const taskId = uuidv4();
-      
-      // Criar a nova tarefa
+      // Criar a nova tarefa com o taskId gerado quando o diálogo foi aberto
       const { error: taskError } = await supabase
         .from("tasks")
         .insert({
-          id: taskId,
+          id: taskId, // Use the pre-generated ID
           type: newTask.type,
           title: newTask.title,
           description: newTask.description,
@@ -96,7 +135,7 @@ export default function Montagens() {
           client_name: newTask.clientName,
           client_phone: newTask.clientPhone,
           client_address: newTask.clientAddress,
-          created_by: "system", // Em uma aplicação real, seria o ID do usuário atual
+          created_by: user.id, // Use the current user's ID
         });
       
       if (taskError) {
@@ -109,17 +148,7 @@ export default function Montagens() {
       });
       
       // Limpar o formulário e fechar o diálogo
-      setNewTask({
-        type: "montagem",
-        title: "",
-        description: "",
-        status: "pendente",
-        priority: "media",
-        clientName: "",
-        clientPhone: "",
-        clientAddress: "",
-      });
-      setNewTaskAttachments([]);
+      resetForm();
       setIsNewTaskDialogOpen(false);
       
     } catch (error) {
@@ -129,6 +158,8 @@ export default function Montagens() {
         description: "Ocorreu um erro ao criar a montagem. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -143,7 +174,7 @@ export default function Montagens() {
         </div>
         <Button 
           className="flex items-center gap-2 w-full sm:w-auto justify-center" 
-          onClick={() => setIsNewTaskDialogOpen(true)}
+          onClick={() => handleDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
           Nova Montagem
@@ -154,14 +185,17 @@ export default function Montagens() {
         <p className="text-muted-foreground mb-4 text-center px-4">
           Módulo de gerenciamento de montagens em desenvolvimento
         </p>
-        <Button onClick={() => setIsNewTaskDialogOpen(true)}>Criar Nova Montagem</Button>
+        <Button onClick={() => handleDialogOpen(true)}>Criar Nova Montagem</Button>
       </div>
       
       {/* Diálogo para criar nova montagem */}
-      <Dialog open={isNewTaskDialogOpen} onOpenChange={setIsNewTaskDialogOpen}>
+      <Dialog open={isNewTaskDialogOpen} onOpenChange={handleDialogOpen}>
         <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Criar Nova Montagem</DialogTitle>
+            <DialogDescription>
+              Preencha os detalhes da montagem abaixo
+            </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
@@ -267,12 +301,16 @@ export default function Montagens() {
                 onAttachmentDeleted={handleAttachmentDeleted} 
               />
               
+              {/* Mostrar o FileUploader apenas se a tarefa foi criada */}
               <div className="mt-4">
                 <h4 className="font-medium mb-2">Adicionar anexo</h4>
                 <FileUploader 
-                  taskId={uuidv4()}  // ID temporário para o uploader
+                  taskId={taskId}  // Usar o ID gerado para o uploader
                   onFileUploaded={handleFileUploaded} 
                 />
+                <p className="text-xs text-muted-foreground mt-2">
+                  OBS: Os anexos serão salvos após a criação da montagem.
+                </p>
               </div>
             </div>
           </div>
@@ -280,16 +318,18 @@ export default function Montagens() {
           <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
             <Button 
               variant="outline" 
-              onClick={() => setIsNewTaskDialogOpen(false)}
+              onClick={() => handleDialogOpen(false)}
               className="w-full sm:w-auto"
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button 
               onClick={handleCreateTask}
               className="w-full sm:w-auto"
+              disabled={isSubmitting}
             >
-              Salvar Montagem
+              {isSubmitting ? "Salvando..." : "Salvar Montagem"}
             </Button>
           </DialogFooter>
         </DialogContent>

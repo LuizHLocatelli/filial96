@@ -14,11 +14,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full max-w-[100vw] overflow-hidden">
         <AppSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col max-w-full">
           <TopBar />
-          <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8 overflow-x-hidden">
+          <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8 overflow-x-hidden overflow-y-auto">
             {children}
           </main>
         </div>
