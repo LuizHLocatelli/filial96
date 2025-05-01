@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -141,31 +142,34 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-green-50 to-green-100 px-4">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-center mb-8">
-          <ShoppingBag className="h-10 w-10 text-green-600 mr-2" />
-          <h1 className="text-3xl font-bold text-green-700">Filial 96</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <ShoppingBag className="h-10 w-10 text-primary mr-2" />
+            <h1 className="text-3xl font-bold text-primary">Filial 96</h1>
+          </div>
+          <ThemeToggle />
         </div>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-green-100">
-            <TabsTrigger value="login" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Login</TabsTrigger>
-            <TabsTrigger value="signup" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Criar conta</TabsTrigger>
-            <TabsTrigger value="reset" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">Recuperar senha</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 bg-muted">
+            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Login</TabsTrigger>
+            <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Criar conta</TabsTrigger>
+            <TabsTrigger value="reset" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Recuperar senha</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <Card className="border-green-200 shadow-lg">
-              <CardHeader className="bg-green-50 rounded-t-md">
-                <CardTitle className="text-green-800">Login</CardTitle>
-                <CardDescription className="text-green-700">
+            <Card className="border-border shadow-lg">
+              <CardHeader className="bg-card rounded-t-md">
+                <CardTitle className="text-card-foreground">Login</CardTitle>
+                <CardDescription className="text-muted-foreground">
                   Acesse sua conta para gerenciar suas atividades na loja.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleLogin}>
                 <CardContent className="space-y-4 pt-6">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-green-700">E-mail</Label>
+                    <Label htmlFor="email" className="text-foreground">E-mail</Label>
                     <Input
                       id="email"
                       type="email"
@@ -173,11 +177,11 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="border-green-200 focus-visible:ring-green-500"
+                      className="border-input focus-visible:ring-ring"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-green-700">Senha</Label>
+                    <Label htmlFor="password" className="text-foreground">Senha</Label>
                     <Input
                       id="password"
                       type="password"
@@ -185,13 +189,13 @@ export default function Auth() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="border-green-200 focus-visible:ring-green-500"
+                      className="border-input focus-visible:ring-ring"
                     />
                   </div>
                 </CardContent>
                 <CardFooter>
                   <Button 
-                    className="w-full bg-green-600 hover:bg-green-700" 
+                    className="w-full bg-primary hover:bg-primary/90" 
                     type="submit" 
                     disabled={isLoading}>
                     {isLoading ? "Entrando..." : "Entrar"}
@@ -201,28 +205,28 @@ export default function Auth() {
             </Card>
           </TabsContent>
           <TabsContent value="signup">
-            <Card className="border-green-200 shadow-lg">
-              <CardHeader className="bg-green-50 rounded-t-md">
-                <CardTitle className="text-green-800">Criar conta</CardTitle>
-                <CardDescription className="text-green-700">
+            <Card className="border-border shadow-lg">
+              <CardHeader className="bg-card rounded-t-md">
+                <CardTitle className="text-card-foreground">Criar conta</CardTitle>
+                <CardDescription className="text-muted-foreground">
                   Crie uma nova conta para acessar o sistema.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleSignUp}>
                 <CardContent className="space-y-4 pt-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-green-700">Nome completo</Label>
+                    <Label htmlFor="name" className="text-foreground">Nome completo</Label>
                     <Input
                       id="name"
                       placeholder="Seu nome completo"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      className="border-green-200 focus-visible:ring-green-500"
+                      className="border-input focus-visible:ring-ring"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email-signup" className="text-green-700">E-mail</Label>
+                    <Label htmlFor="email-signup" className="text-foreground">E-mail</Label>
                     <Input
                       id="email-signup"
                       type="email"
@@ -230,11 +234,11 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="border-green-200 focus-visible:ring-green-500"
+                      className="border-input focus-visible:ring-ring"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password-signup" className="text-green-700">Senha</Label>
+                    <Label htmlFor="password-signup" className="text-foreground">Senha</Label>
                     <Input
                       id="password-signup"
                       type="password"
@@ -242,14 +246,14 @@ export default function Auth() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="border-green-200 focus-visible:ring-green-500"
+                      className="border-input focus-visible:ring-ring"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="role" className="text-green-700">Função</Label>
+                    <Label htmlFor="role" className="text-foreground">Função</Label>
                     <select
                       id="role"
-                      className="flex h-10 w-full rounded-md border border-green-200 bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       value={role}
                       onChange={(e) => setRole(e.target.value as "gerente" | "vendedor" | "crediarista")}
                       required
@@ -262,7 +266,7 @@ export default function Auth() {
                 </CardContent>
                 <CardFooter>
                   <Button 
-                    className="w-full bg-green-600 hover:bg-green-700" 
+                    className="w-full bg-primary hover:bg-primary/90" 
                     type="submit" 
                     disabled={isLoading}>
                     {isLoading ? "Criando conta..." : "Criar conta"}
@@ -272,25 +276,25 @@ export default function Auth() {
             </Card>
           </TabsContent>
           <TabsContent value="reset">
-            <Card className="border-green-200 shadow-lg">
-              <CardHeader className="bg-green-50 rounded-t-md">
-                <CardTitle className="text-green-800">Recuperar senha</CardTitle>
-                <CardDescription className="text-green-700">
+            <Card className="border-border shadow-lg">
+              <CardHeader className="bg-card rounded-t-md">
+                <CardTitle className="text-card-foreground">Recuperar senha</CardTitle>
+                <CardDescription className="text-muted-foreground">
                   Digite seu e-mail para receber instruções de recuperação de senha.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handlePasswordReset}>
                 <CardContent className="space-y-4 pt-6">
                   {resetRequested ? (
-                    <div className="rounded-md bg-green-50 p-4 border border-green-200">
+                    <div className="rounded-md bg-accent p-4 border border-border">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                          <svg className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                         </div>
                         <div className="ml-3">
-                          <p className="text-sm font-medium text-green-800">
+                          <p className="text-sm font-medium text-foreground">
                             Enviamos um e-mail com instruções para redefinir sua senha. Verifique sua caixa de entrada.
                           </p>
                         </div>
@@ -298,7 +302,7 @@ export default function Auth() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label htmlFor="email-reset" className="text-green-700">E-mail</Label>
+                      <Label htmlFor="email-reset" className="text-foreground">E-mail</Label>
                       <Input
                         id="email-reset"
                         type="email"
@@ -306,7 +310,7 @@ export default function Auth() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="border-green-200 focus-visible:ring-green-500"
+                        className="border-input focus-visible:ring-ring"
                       />
                     </div>
                   )}
@@ -314,7 +318,7 @@ export default function Auth() {
                 <CardFooter>
                   {!resetRequested && (
                     <Button 
-                      className="w-full bg-green-600 hover:bg-green-700" 
+                      className="w-full bg-primary hover:bg-primary/90" 
                       type="submit" 
                       disabled={isLoading}>
                       {isLoading ? "Enviando..." : "Enviar link de recuperação"}
