@@ -1,12 +1,17 @@
 
 import { z } from "zod";
+import { TaskStatus } from "@/types";
+
+// Define status and priority as enums with specific allowed values
+const taskStatusEnum = z.enum(["pendente", "em_andamento", "concluida", "cancelada", "aguardando_cliente"]);
+const taskPriorityEnum = z.enum(["baixa", "media", "alta"]);
 
 // Define a schema for form validation
 export const taskFormSchema = z.object({
   title: z.string().min(1, "O título é obrigatório"),
   observation: z.string().optional(),
-  status: z.string().default("pendente"),
-  priority: z.string().default("media"),
+  status: taskStatusEnum.default("pendente"),
+  priority: taskPriorityEnum.default("media"),
   clientName: z.string().min(1, "O nome do cliente é obrigatório"),
   clientPhone: z.string().min(8, "O telefone deve ter pelo menos 8 dígitos"),
   clientAddress: z.string().min(5, "O endereço deve ter pelo menos 5 caracteres"),

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Task } from "@/types";
+import { Task, TaskStatus } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activityLogger";
@@ -139,12 +139,16 @@ export function TaskFormDialog({
         updated_at: new Date().toISOString(),
       };
       
+      // Convert string values to proper Task type values
+      const taskStatus = data.status as TaskStatus;
+      const taskPriority = data.priority as "baixa" | "media" | "alta";
+      
       let taskForActivity: Task = {
         id: currentTaskId || "",
         title: data.title,
         description: data.observation || "", 
-        status: data.status,
-        priority: data.priority,
+        status: taskStatus,
+        priority: taskPriority,
         clientName: data.clientName,
         clientPhone: data.clientPhone,
         clientAddress: data.clientAddress,
@@ -157,6 +161,7 @@ export function TaskFormDialog({
         createdBy: user.id,
         updatedAt: new Date().toISOString(),
         createdAt: initialData?.createdAt || new Date().toISOString(),
+        assignedTo: initialData?.assignedTo || null,
       };
 
       if (isEditMode && currentTaskId) {

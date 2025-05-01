@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { TaskType } from "@/types";
+import { TaskType, TaskStatus } from "@/types";
 import { CreateTaskFormContent } from "./form/CreateTaskFormContent";
 
 interface CreateTaskDialogProps {
@@ -133,8 +133,8 @@ export function CreateTaskDialog({
         type: taskType,
         title: task.title,
         description: task.observation,
-        status: task.status,
-        priority: task.priority,
+        status: task.status as TaskStatus,
+        priority: task.priority as "baixa" | "media" | "alta",
         clientName: task.clientName,
         clientPhone: task.clientPhone,
         clientAddress: task.clientAddress,
@@ -142,7 +142,10 @@ export function CreateTaskDialog({
         purchaseDate: task.purchaseDate,
         expectedArrivalDate: task.expectedArrivalDate,
         expectedDeliveryDate: task.expectedDeliveryDate,
-        createdBy: user.id
+        createdBy: user.id,
+        assignedTo: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       
       console.log("Registrando atividade após criar tarefa");
