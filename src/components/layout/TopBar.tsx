@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search, LogOut, User, Settings } from "lucide-react";
+import { Search, LogOut, User, Settings } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
 
 export function TopBar() {
   const { profile, signOut } = useAuth();
@@ -45,15 +46,7 @@ export function TopBar() {
         <div className="ml-auto flex items-center space-x-4">
           <ThemeToggle />
           
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            aria-label="Notificações"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-green-600" />
-          </Button>
+          <NotificationsMenu />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
