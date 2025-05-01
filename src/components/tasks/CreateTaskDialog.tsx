@@ -5,6 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/utils/activityLogger";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +30,7 @@ export function CreateTaskDialog({
   taskType,
   title,
 }: CreateTaskDialogProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [task, setTask] = useState({
@@ -101,10 +102,12 @@ export function CreateTaskDialog({
     
     try {
       // Criar a nova tarefa com todos os campos do banco de dados
+      const taskId = uuidv4();
+      
       const { error: taskError } = await supabase
         .from("tasks")
         .insert({
-          id: uuidv4(),
+          id: taskId,
           type: taskType,
           title: task.title,
           description: task.observation, // Note: DB field is 'description'
@@ -123,6 +126,32 @@ export function CreateTaskDialog({
       if (taskError) {
         throw new Error(`Erro ao criar tarefa: ${taskError.message}`);
       }
+      
+      // Log activity for the new task
+      const newTask = {
+        id: taskId,
+        type: taskType,
+        title: task.title,
+        description: task.observation,
+        status: task.status,
+        priority: task.priority,
+        clientName: task.clientName,
+        clientPhone: task.clientPhone,
+        clientAddress: task.clientAddress,
+        clientCpf: task.clientCpf,
+        purchaseDate: task.purchaseDate,
+        expectedArrivalDate: task.expectedArrivalDate,
+        expectedDeliveryDate: task.expectedDeliveryDate,
+        createdBy: user.id
+      };
+      
+      console.log("Registrando atividade após criar tarefa");
+      await logActivity({
+        action: "criou",
+        task: newTask,
+        userId: user.id,
+        userName: profile?.name
+      });
       
       toast({
         title: "Tarefa criada",

@@ -12,6 +12,8 @@ interface LogActivityParams {
 
 export async function logActivity({ action, task, userId, userName }: LogActivityParams) {
   try {
+    console.log("Registrando atividade:", action, task.title, userId, userName);
+    
     const { error } = await supabase
       .from("activities")
       .insert({

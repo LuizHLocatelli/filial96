@@ -35,6 +35,7 @@ export function NotificationsMenu() {
         locale: ptBR
       });
     } catch (error) {
+      console.error("Erro ao formatar data:", error, dateString);
       return "data desconhecida";
     }
   };

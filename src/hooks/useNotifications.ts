@@ -28,6 +28,8 @@ export function useNotifications() {
       try {
         setIsLoading(true);
         
+        console.log("Buscando atividades para notificações");
+        
         // Get activities for tasks (simplified approach for now)
         const { data, error } = await supabase
           .from("activities")
@@ -35,13 +37,18 @@ export function useNotifications() {
           .order("timestamp", { ascending: false })
           .limit(10);
         
-        if (error) throw error;
+        if (error) {
+          console.error("Erro ao buscar atividades:", error);
+          throw error;
+        }
+        
+        console.log("Atividades obtidas:", data?.length || 0, data);
         
         // Transform activities to notifications format
-        const transformedNotifications: Notification[] = data.map((activity: any) => ({
+        const transformedNotifications: Notification[] = (data || []).map((activity: any) => ({
           id: activity.id,
           title: `Nova tarefa: ${activity.task_title}`,
-          message: `${activity.user_name} ${activity.action} uma tarefa do tipo ${activity.task_type}`,
+          message: `${activity.user_name || 'Usuário'} ${activity.action} uma tarefa do tipo ${activity.task_type}`,
           isRead: false, // For now all are unread until we implement read status tracking
           created_at: activity.timestamp,
           task_id: activity.task_id
@@ -60,7 +67,7 @@ export function useNotifications() {
     
     // Set up real-time subscription for new activities
     const channel = supabase
-      .channel('notifications-channel')
+      .channel('activities-channel')
       .on('postgres_changes', 
         { 
           event: 'INSERT', 
@@ -68,17 +75,20 @@ export function useNotifications() {
           table: 'activities'
         }, 
         (payload) => {
+          console.log("Nova atividade detectada:", payload);
           const newActivity = payload.new as any;
           
           // Create notification from activity
           const newNotification: Notification = {
             id: newActivity.id,
             title: `Nova tarefa: ${newActivity.task_title}`,
-            message: `${newActivity.user_name} ${newActivity.action} uma tarefa do tipo ${newActivity.task_type}`,
+            message: `${newActivity.user_name || 'Usuário'} ${newActivity.action} uma tarefa do tipo ${newActivity.task_type}`,
             isRead: false,
             created_at: newActivity.timestamp,
             task_id: newActivity.task_id
           };
+          
+          console.log("Nova notificação criada:", newNotification);
           
           // Add the new notification to the state
           setNotifications(prev => [newNotification, ...prev]);
@@ -92,7 +102,10 @@ export function useNotifications() {
         })
       .subscribe();
       
+    console.log("Canal de notificações inscrito");
+      
     return () => {
+      console.log("Removendo canal de notificações");
       supabase.removeChannel(channel);
     };
   }, [profile?.id, toast]);

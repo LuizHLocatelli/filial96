@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Task } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/utils/activityLogger";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +38,7 @@ export function TaskFormDialog({
   onSuccess,
 }: TaskFormDialogProps) {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(taskId);
 
@@ -137,6 +138,26 @@ export function TaskFormDialog({
         type: initialData?.type || "entrega",
         updated_at: new Date().toISOString(),
       };
+      
+      let taskForActivity: Task = {
+        id: currentTaskId || "",
+        title: data.title,
+        description: data.observation || "", 
+        status: data.status,
+        priority: data.priority,
+        clientName: data.clientName,
+        clientPhone: data.clientPhone,
+        clientAddress: data.clientAddress,
+        clientCpf: data.clientCpf || "",
+        products: data.products || "",
+        purchaseDate: data.purchaseDate?.toISOString() || "",
+        expectedArrivalDate: data.expectedArrivalDate?.toISOString() || "",
+        expectedDeliveryDate: data.expectedDeliveryDate?.toISOString() || "",
+        type: initialData?.type || "entrega",
+        createdBy: user.id,
+        updatedAt: new Date().toISOString(),
+        createdAt: initialData?.createdAt || new Date().toISOString(),
+      };
 
       if (isEditMode && currentTaskId) {
         // Atualizar tarefa existente
@@ -148,6 +169,14 @@ export function TaskFormDialog({
         if (updateError) {
           throw new Error(`Erro ao atualizar tarefa: ${updateError.message}`);
         }
+        
+        // Log activity for task update
+        await logActivity({
+          action: "atualizou",
+          task: taskForActivity,
+          userId: user.id,
+          userName: profile?.name
+        });
 
         toast({
           title: "Tarefa atualizada",
@@ -155,12 +184,13 @@ export function TaskFormDialog({
         });
       } else {
         // Criar nova tarefa - certifique-se de que temos um ID válido
-        const taskInsertId = currentTaskId || undefined;
+        const taskId = currentTaskId || undefined;
+        taskForActivity.id = taskId || "";
         
         const { error: taskError } = await supabase
           .from("tasks")
           .insert({
-            id: taskInsertId,
+            id: taskId,
             ...taskData,
             created_by: user.id,
           });
@@ -168,6 +198,14 @@ export function TaskFormDialog({
         if (taskError) {
           throw new Error(`Erro ao criar tarefa: ${taskError.message}`);
         }
+        
+        // Log activity for new task
+        await logActivity({
+          action: "criou",
+          task: taskForActivity,
+          userId: user.id,
+          userName: profile?.name
+        });
 
         toast({
           title: "Tarefa criada",
