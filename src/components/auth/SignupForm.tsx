@@ -1,30 +1,52 @@
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { signupSchema, type SignupFormValues } from "./schemas/signupSchema";
 
 export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState<"gerente" | "vendedor" | "crediarista">("vendedor");
+  
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      role: "vendedor",
+    },
+  });
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignUp = async (values: SignupFormValues) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: values.email,
+        password: values.password,
         options: {
           data: {
-            name,
-            role,
+            name: values.name,
+            role: values.role,
           }
         }
       });
@@ -42,6 +64,9 @@ export function SignupForm() {
         title: "Conta criada com sucesso",
         description: "Verifique seu e-mail para confirmar sua conta.",
       });
+      
+      // Reset form after successful submission
+      form.reset();
     } catch (error) {
       toast({
         variant: "destructive",
@@ -54,66 +79,97 @@ export function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSignUp}>
-      <CardContent className="space-y-4 pt-6">
-        <div className="space-y-2">
-          <Label htmlFor="name" className="text-foreground">Nome completo</Label>
-          <Input
-            id="name"
-            placeholder="Seu nome completo"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="border-input focus-visible:ring-ring"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSignUp)}>
+        <CardContent className="space-y-4 pt-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome completo</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Seu nome completo"
+                    autoComplete="name"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email-signup" className="text-foreground">E-mail</Label>
-          <Input
-            id="email-signup"
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="border-input focus-visible:ring-ring"
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>E-mail</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="seu@email.com"
+                    autoComplete="email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password-signup" className="text-foreground">Senha</Label>
-          <Input
-            id="password-signup"
-            type="password"
-            placeholder="******"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="border-input focus-visible:ring-ring"
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Senha</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="password"
+                    placeholder="******"
+                    autoComplete="new-password"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="role" className="text-foreground">Função</Label>
-          <select
-            id="role"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            value={role}
-            onChange={(e) => setRole(e.target.value as "gerente" | "vendedor" | "crediarista")}
-            required
-          >
-            <option value="vendedor">Vendedor</option>
-            <option value="gerente">Gerente</option>
-            <option value="crediarista">Crediarista</option>
-          </select>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button 
-          className="w-full bg-primary hover:bg-primary/90" 
-          type="submit" 
-          disabled={isLoading}>
-          {isLoading ? "Criando conta..." : "Criar conta"}
-        </Button>
-      </CardFooter>
-    </form>
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Função</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma função" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="vendedor">Vendedor</SelectItem>
+                    <SelectItem value="gerente">Gerente</SelectItem>
+                    <SelectItem value="crediarista">Crediarista</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+        <CardFooter>
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90" 
+            type="submit" 
+            disabled={isLoading}>
+            {isLoading ? "Criando conta..." : "Criar conta"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Form>
   );
 }
