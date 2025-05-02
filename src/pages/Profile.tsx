@@ -30,6 +30,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,6 +82,7 @@ export default function Profile() {
   const { user, profile, signOut } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Formulário de informações pessoais
   const personalInfoForm = useForm<z.infer<typeof personalInfoSchema>>({
@@ -240,20 +242,24 @@ export default function Profile() {
 
       if (error) throw error;
 
-      // Redirecionar para página de login
-      await signOut();
-      
+      // Fazer logout e redirecionar para página de login
       toast({
         title: "Conta excluída",
         description: "Sua conta foi excluída com sucesso.",
       });
+      
+      // Aguardar um momento para garantir que a mensagem de toast seja vista
+      setTimeout(async () => {
+        await signOut();
+        navigate("/auth");
+      }, 1500);
+      
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erro ao excluir conta",
         description: error.message,
       });
-    } finally {
       setLoading(false);
     }
   };

@@ -58,6 +58,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // Configurar listener para mudanças na autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user || null);
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Definir um timeout para evitar potenciais problemas de loop com RLS
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
+        } else if (event === 'SIGNED_OUT') {
+          setProfile(null);
+          // Redirecionar para página de login se estiver em uma rota protegida
+          if (window.location.pathname !== '/auth') {
+            window.location.href = '/auth';
+          }
+        }
+      }
+    );
+    
     // Verificar sessão atual
     const initAuth = async () => {
       setIsLoading(true);
@@ -75,23 +96,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
     
     initAuth();
-
-    // Configurar listener para mudanças na autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user || null);
-        
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Definir um timeout para evitar potenciais problemas de loop com RLS
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-          }, 0);
-        } else if (event === 'SIGNED_OUT') {
-          setProfile(null);
-        }
-      }
-    );
 
     return () => {
       subscription.unsubscribe();
