@@ -26,10 +26,14 @@ export function useAuthEffects({
       }
 
       if (data) {
+        // Get current user's email separately since getUser now returns a promise
+        const { data: userData } = await supabase.auth.getUser();
+        const email = userData?.user?.email || "";
+
         setProfile({
           id: data.id,
           name: data.name,
-          email: supabase.auth.getUser()?.data?.user?.email || "",
+          email: email,
           role: data.role as any,
           avatarUrl: data.avatar_url,
           displayName: data.display_name || data.name.split(" ")[0]

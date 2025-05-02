@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
 import { Link, useNavigate } from "react-router-dom";
