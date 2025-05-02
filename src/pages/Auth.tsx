@@ -1,4 +1,6 @@
 
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Card,
   CardDescription,
@@ -15,18 +17,48 @@ import { AuthHeader } from "@/components/auth/AuthHeader";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignupForm } from "@/components/auth/SignupForm";
 import { PasswordResetForm } from "@/components/auth/PasswordResetForm";
+import { UpdatePasswordForm } from "@/components/auth/UpdatePasswordForm";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("login");
+
+  // Verificar se há um token de acesso na URL (link de recuperação de senha)
+  useEffect(() => {
+    const accessToken = searchParams.get("access_token");
+    const refreshToken = searchParams.get("refresh_token");
+    const type = searchParams.get("type");
+    
+    // Se temos um token de acesso e é do tipo "recovery", vamos para a aba de atualização de senha
+    if ((accessToken || refreshToken) && type === "recovery") {
+      // Importar o token para a sessão atual
+      const setAuthFromUrl = async () => {
+        if (accessToken) {
+          await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || "",
+          });
+          // Troca para a aba de atualização de senha
+          setActiveTab("update-password");
+        }
+      };
+      
+      setAuthFromUrl();
+    }
+  }, [searchParams]);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
       <div className="w-full max-w-md">
         <AuthHeader />
 
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-muted">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4 bg-muted">
             <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Login</TabsTrigger>
             <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Criar conta</TabsTrigger>
             <TabsTrigger value="reset" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Recuperar senha</TabsTrigger>
+            <TabsTrigger value="update-password" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Nova senha</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
             <Card className="border-border shadow-lg">
@@ -59,6 +91,17 @@ export default function Auth() {
                 </CardDescription>
               </CardHeader>
               <PasswordResetForm />
+            </Card>
+          </TabsContent>
+          <TabsContent value="update-password">
+            <Card className="border-border shadow-lg">
+              <CardHeader className="bg-card rounded-t-md">
+                <CardTitle className="text-card-foreground">Redefinir senha</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Digite e confirme sua nova senha abaixo.
+                </CardDescription>
+              </CardHeader>
+              <UpdatePasswordForm />
             </Card>
           </TabsContent>
         </Tabs>
