@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -6,13 +7,14 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 5000 // Reduzido para 5 segundos para toasts normais
 
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  className?: string
 }
 
 const actionTypes = {
@@ -55,10 +57,13 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const addToRemoveQueue = (toastId: string) => {
+const addToRemoveQueue = (toastId: string, className?: string) => {
   if (toastTimeouts.has(toastId)) {
     return
   }
+
+  // Tempo maior para mensagens de boas-vindas
+  const delay = className?.includes("welcome-toast") ? 8000 : TOAST_REMOVE_DELAY
 
   const timeout = setTimeout(() => {
     toastTimeouts.delete(toastId)
@@ -66,7 +71,7 @@ const addToRemoveQueue = (toastId: string) => {
       type: "REMOVE_TOAST",
       toastId: toastId,
     })
-  }, TOAST_REMOVE_DELAY)
+  }, delay)
 
   toastTimeouts.set(toastId, timeout)
 }
@@ -93,10 +98,11 @@ export const reducer = (state: State, action: Action): State => {
       // ! Side effects ! - This could be extracted into a dismissToast() action,
       // but I'll keep it here for simplicity
       if (toastId) {
-        addToRemoveQueue(toastId)
+        const toast = state.toasts.find(t => t.id === toastId)
+        addToRemoveQueue(toastId, toast?.className)
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
+          addToRemoveQueue(toast.id, toast.className)
         })
       }
 
