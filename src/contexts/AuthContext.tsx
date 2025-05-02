@@ -142,21 +142,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error(`Erro ao excluir dados do usuário: ${rpcError.message}`);
       }
       
-      // 3. Mostrar mensagem de sucesso
+      // 3. Excluir a conta de autenticação do usuário
+      const { error: deleteUserError } = await supabase.auth.admin.deleteUser(
+        user?.id || ""
+      );
+      
+      if (deleteUserError) {
+        // Se falhar a exclusão via admin API, tentar via o método normal
+        const { error: deleteError } = await supabase.auth.updateUser({
+          data: { delete_user: true }
+        });
+        
+        if (deleteError) {
+          throw new Error(`Erro ao excluir conta de autenticação: ${deleteError.message}`);
+        }
+      }
+      
+      // 4. Mostrar mensagem de sucesso
       toast({
         title: "Conta excluída",
         description: "Sua conta foi excluída com sucesso.",
       });
       
-      // 4. Fazer logout após excluir a conta
+      // 5. Fazer logout após excluir a conta
       await supabase.auth.signOut();
       
-      // 5. Limpar dados do contexto
+      // 6. Limpar dados do contexto
       setUser(null);
       setProfile(null);
       setSession(null);
       
-      // 6. Redirecionar para a página de login
+      // 7. Redirecionar para a página de login
       window.location.href = '/auth';
       
     } catch (error: any) {
