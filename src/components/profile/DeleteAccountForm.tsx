@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,7 +28,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-// Schema de validação para exclusão de conta
+// Schema validation for account deletion
 const deleteAccountSchema = z.object({
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   confirmation: z.literal("excluir minha conta", {
@@ -41,7 +42,7 @@ export function DeleteAccountForm() {
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Formulário de exclusão de conta
+  // Form for account deletion
   const form = useForm<z.infer<typeof deleteAccountSchema>>({
     resolver: zodResolver(deleteAccountSchema),
     defaultValues: {
@@ -50,16 +51,16 @@ export function DeleteAccountForm() {
     },
   });
 
-  // Função para excluir conta
+  // Function to delete account
   const onSubmit = async (data: z.infer<typeof deleteAccountSchema>) => {
     try {
       setLoading(true);
       console.log("Iniciando processo de exclusão de conta via formulário");
       
-      // Chamar a função de exclusão de conta do contexto
+      // Call the deleteAccount function from auth context
       await deleteAccount(data.password);
       
-      // A navegação será feita dentro da função deleteAccount
+      // Navigation will be handled inside the deleteAccount function
       setDialogOpen(false);
       
     } catch (error: any) {

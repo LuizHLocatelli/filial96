@@ -32,7 +32,7 @@ export function useAuthActions({
     try {
       console.log("Iniciando processo de exclusão de conta");
       
-      // 1. Verify the password
+      // 1. Verify the password first
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user?.email || "",
         password: password,
@@ -45,7 +45,8 @@ export function useAuthActions({
       
       console.log("Senha verificada com sucesso");
       
-      // 2. Call RPC to clean up user data
+      // 2. Call delete_user_account function to clean up user data
+      // This SQL function will delete all user data from the database
       const { error: rpcError } = await supabase.rpc('delete_user_account');
       
       if (rpcError) {
@@ -55,40 +56,36 @@ export function useAuthActions({
       
       console.log("Dados do usuário limpos com sucesso via RPC");
       
-      // Attempt to delete the user's auth account
+      // 3. Delete the actual user account from auth.users
+      // We need to use admin.deleteUser which requires service role
       try {
-        // First try with admin API
-        const { error: adminDeleteError } = await supabase.auth.admin.deleteUser(
-          user?.id || ""
-        );
-        
-        if (adminDeleteError) {
-          console.log("Não foi possível excluir via API admin, tentando método alternativo");
-          throw adminDeleteError;
+        // Make sure the user ID is available
+        if (!user?.id) {
+          throw new Error("ID do usuário não disponível");
         }
         
-        console.log("Usuário excluído com sucesso via API admin");
-      } catch (adminError) {
-        // Fall back to marking user for deletion
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: { delete_user: true }
+        // Delete from auth.users directly
+        const { error: deleteError } = await supabase.functions.invoke('delete-user', {
+          body: { user_id: user.id }
         });
         
-        if (updateError) {
-          console.error("Erro ao marcar usuário para exclusão:", updateError);
-          throw new Error(`Erro ao excluir conta de autenticação: ${updateError.message}`);
+        if (deleteError) {
+          throw deleteError;
         }
         
-        console.log("Usuário marcado para exclusão via updateUser");
+        console.log("Usuário excluído com sucesso");
+      } catch (deleteUserError: any) {
+        console.error("Erro ao excluir conta de autenticação:", deleteUserError);
+        throw new Error(`Falha ao excluir conta de autenticação: ${deleteUserError.message || "Erro desconhecido"}`);
       }
       
-      // Show success message
+      // 4. Show success message
       toast({
         title: "Conta excluída",
         description: "Sua conta foi excluída com sucesso.",
       });
       
-      // Sign out after account deletion
+      // 5. Sign out and clear local state
       await supabase.auth.signOut();
       
       // Clear context data

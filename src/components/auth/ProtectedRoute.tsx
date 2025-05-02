@@ -1,3 +1,4 @@
+
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 
@@ -9,7 +10,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
 
-  // Mostrar um indicador de carregamento enquanto verificamos a autenticação
+  // Show loading indicator while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -18,11 +19,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // Redirecionar para a página de login se não estiver autenticado
+  // Redirect to login page if not authenticated
   if (!user) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Renderizar o conteúdo protegido se estiver autenticado
+  // Render protected content if authenticated
   return <>{children}</>;
 }
