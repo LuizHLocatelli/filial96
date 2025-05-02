@@ -115,7 +115,7 @@ export default function Profile() {
     resolver: zodResolver(deleteAccountSchema),
     defaultValues: {
       password: "",
-      confirmation: "" as any,
+      confirmation: "" as "excluir minha conta",
     },
   });
 

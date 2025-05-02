@@ -92,6 +92,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          display_name: string | null
           id: string
           name: string
           role: string
@@ -100,6 +101,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
           id: string
           name: string
           role: string
@@ -108,6 +110,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
           id?: string
           name?: string
           role?: string
@@ -189,7 +192,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_user_account: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
