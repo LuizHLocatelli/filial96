@@ -64,7 +64,7 @@ export function useAuthActions({
           throw new Error("ID do usuário não disponível");
         }
         
-        // Delete from auth.users directly
+        // Delete from auth.users directly using the Edge Function
         const { error: deleteError } = await supabase.functions.invoke('delete-user', {
           body: { user_id: user.id }
         });
