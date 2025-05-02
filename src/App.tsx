@@ -13,6 +13,7 @@ import Organizacao from "./pages/Organizacao";
 import Cobrancas from "./pages/Cobrancas";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -74,6 +75,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AppLayout><Cobrancas /></AppLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/perfil" 
+                element={
+                  <ProtectedRoute>
+                    <AppLayout><Profile /></AppLayout>
                   </ProtectedRoute>
                 } 
               />

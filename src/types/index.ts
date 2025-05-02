@@ -7,6 +7,7 @@ export interface User {
   name: string;
   role: UserRole;
   avatarUrl?: string;
+  displayName?: string;
 }
 
 export type TaskStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada' | 'aguardando_cliente';

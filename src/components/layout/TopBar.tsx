@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Search, LogOut, User, Settings } from "lucide-react";
+import { Search, LogOut, User } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,9 +15,11 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
+import { Link, useNavigate } from "react-router-dom";
 
 export function TopBar() {
   const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const getInitials = (name: string) => {
     return name
@@ -26,6 +28,10 @@ export function TopBar() {
       .map(n => n[0])
       .join('')
       .toUpperCase();
+  };
+
+  const handleProfileClick = () => {
+    navigate("/perfil");
   };
 
   return (
@@ -76,13 +82,9 @@ export function TopBar() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="h-4 w-4 mr-2" />
                 Perfil
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="h-4 w-4 mr-2" />
-                Configurações
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>

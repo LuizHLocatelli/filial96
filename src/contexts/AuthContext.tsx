@@ -42,7 +42,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           name: data.name,
           email: user?.email || "",
           role: data.role as any,
-          avatarUrl: data.avatar_url
+          avatarUrl: data.avatar_url,
+          displayName: data.display_name || data.name.split(" ")[0]
+        });
+        
+        // Mostrar mensagem de boas-vindas
+        toast({
+          title: `Bem-vindo, ${data.display_name || data.name.split(" ")[0]}!`,
+          description: "Bom ter você de volta.",
         });
       }
     } catch (error) {
