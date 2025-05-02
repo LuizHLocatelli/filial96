@@ -11,6 +11,7 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -119,9 +120,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Erro ao fazer logout:", error);
     }
   };
+  
+  // Função para excluir conta
+  const deleteAccount = async () => {
+    try {
+      // 1. Chamar a função RPC para limpar dados do usuário no banco
+      const { error: rpcError } = await supabase.rpc('delete_user_account');
+      
+      if (rpcError) {
+        throw new Error(`Erro ao excluir dados do usuário: ${rpcError.message}`);
+      }
+      
+      // 2. Fazer logout após excluir a conta
+      await supabase.auth.signOut();
+      
+      // 3. Limpar dados do contexto
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      
+      // 4. Redirecionar para a página de login
+      window.location.href = '/auth';
+      
+      toast({
+        title: "Conta excluída",
+        description: "Sua conta foi excluída com sucesso.",
+      });
+      
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao excluir conta",
+        description: error.message || "Ocorreu um erro ao excluir sua conta.",
+      });
+      console.error("Erro ao excluir conta:", error);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, profile, session, isLoading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, session, isLoading, signOut, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

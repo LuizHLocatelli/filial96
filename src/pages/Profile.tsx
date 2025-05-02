@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,7 +78,7 @@ const deleteAccountSchema = z.object({
 });
 
 export default function Profile() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, deleteAccount } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -237,22 +236,10 @@ export default function Profile() {
 
       if (signInError) throw new Error("Senha incorreta");
 
-      // Se o login foi bem-sucedido, excluir usuário
-      const { error } = await supabase.rpc('delete_user_account');
-
-      if (error) throw error;
-
-      // Fazer logout e redirecionar para página de login
-      toast({
-        title: "Conta excluída",
-        description: "Sua conta foi excluída com sucesso.",
-      });
+      // Se o login foi bem-sucedido, chamar o método de exclusão de conta do contexto
+      await deleteAccount();
       
-      // Aguardar um momento para garantir que a mensagem de toast seja vista
-      setTimeout(async () => {
-        await signOut();
-        navigate("/auth");
-      }, 1500);
+      // O redirecionamento e a mensagem de toast são manipulados pela função deleteAccount no AuthContext
       
     } catch (error: any) {
       toast({
