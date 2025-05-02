@@ -27,6 +27,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      {/* A rota de autenticação deve estar disponível para todos */}
       <Route path="/auth" element={<Auth />} />
       <Route 
         path="/" 

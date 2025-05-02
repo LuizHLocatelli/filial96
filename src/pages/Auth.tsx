@@ -23,7 +23,8 @@ import { supabase } from "@/integrations/supabase/client";
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("login");
-
+  const [showUpdatePassword, setShowUpdatePassword] = useState(false);
+  
   // Verificar se há um token de acesso na URL (link de recuperação de senha)
   useEffect(() => {
     const accessToken = searchParams.get("access_token");
@@ -40,6 +41,8 @@ export default function Auth() {
             refresh_token: refreshToken || "",
           });
           
+          // Habilitar a exibição da aba de atualização de senha
+          setShowUpdatePassword(true);
           // Troca para a aba de atualização de senha
           setActiveTab("update-password");
         }
@@ -55,11 +58,10 @@ export default function Auth() {
         <AuthHeader />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-muted">
+          <TabsList className="grid w-full grid-cols-3 bg-muted">
             <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Login</TabsTrigger>
             <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Criar conta</TabsTrigger>
             <TabsTrigger value="reset" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Recuperar senha</TabsTrigger>
-            <TabsTrigger value="update-password" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Nova senha</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
             <Card className="border-border shadow-lg">
@@ -94,17 +96,19 @@ export default function Auth() {
               <PasswordResetForm />
             </Card>
           </TabsContent>
-          <TabsContent value="update-password">
-            <Card className="border-border shadow-lg">
-              <CardHeader className="bg-card rounded-t-md">
-                <CardTitle className="text-card-foreground">Redefinir senha</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Digite e confirme sua nova senha abaixo.
-                </CardDescription>
-              </CardHeader>
-              <UpdatePasswordForm />
-            </Card>
-          </TabsContent>
+          {showUpdatePassword && (
+            <TabsContent value="update-password">
+              <Card className="border-border shadow-lg">
+                <CardHeader className="bg-card rounded-t-md">
+                  <CardTitle className="text-card-foreground">Redefinir senha</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Digite e confirme sua nova senha abaixo.
+                  </CardDescription>
+                </CardHeader>
+                <UpdatePasswordForm />
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
