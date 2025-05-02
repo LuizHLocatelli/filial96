@@ -1,6 +1,5 @@
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState } from "react";
 import {
   Card,
   CardDescription,
@@ -17,41 +16,10 @@ import { AuthHeader } from "@/components/auth/AuthHeader";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignupForm } from "@/components/auth/SignupForm";
 import { PasswordResetForm } from "@/components/auth/PasswordResetForm";
-import { UpdatePasswordForm } from "@/components/auth/UpdatePasswordForm";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
-  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("login");
-  const [showUpdatePassword, setShowUpdatePassword] = useState(false);
   
-  // Verificar se há um token de acesso na URL (link de recuperação de senha)
-  useEffect(() => {
-    const accessToken = searchParams.get("access_token");
-    const refreshToken = searchParams.get("refresh_token");
-    const type = searchParams.get("type");
-    
-    // Se temos um token de acesso e é do tipo "recovery", vamos para a aba de atualização de senha
-    if ((accessToken || refreshToken) && type === "recovery") {
-      // Importar o token para a sessão atual sem fazer login automático
-      const setAuthFromUrl = async () => {
-        if (accessToken) {
-          await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || "",
-          });
-          
-          // Habilitar a exibição da aba de atualização de senha
-          setShowUpdatePassword(true);
-          // Troca para a aba de atualização de senha
-          setActiveTab("update-password");
-        }
-      };
-      
-      setAuthFromUrl();
-    }
-  }, [searchParams]);
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
       <div className="w-full max-w-md">
@@ -96,19 +64,6 @@ export default function Auth() {
               <PasswordResetForm />
             </Card>
           </TabsContent>
-          {showUpdatePassword && (
-            <TabsContent value="update-password">
-              <Card className="border-border shadow-lg">
-                <CardHeader className="bg-card rounded-t-md">
-                  <CardTitle className="text-card-foreground">Redefinir senha</CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    Digite e confirme sua nova senha abaixo.
-                  </CardDescription>
-                </CardHeader>
-                <UpdatePasswordForm />
-              </Card>
-            </TabsContent>
-          )}
         </Tabs>
       </div>
     </div>

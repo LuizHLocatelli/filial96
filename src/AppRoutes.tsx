@@ -9,6 +9,7 @@ import Organizacao from "./pages/Organizacao";
 import Cobrancas from "./pages/Cobrancas";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
@@ -27,8 +28,11 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* A rota de autenticação deve estar disponível para todos */}
+      {/* Rotas públicas */}
       <Route path="/auth" element={<Auth />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      
+      {/* Rotas protegidas */}
       <Route 
         path="/" 
         element={
