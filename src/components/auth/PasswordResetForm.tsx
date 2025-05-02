@@ -32,11 +32,11 @@ export function PasswordResetForm() {
   const handlePasswordReset = async (values: PasswordResetFormValues) => {
     setIsLoading(true);
     try {
-      // Get the current site URL to use as the redirect URL
-      const currentSiteUrl = window.location.origin;
-      
+      // Use the actual deployed URL where the app is accessible
+      // This ensures the reset link will work on any device
       const { data, error } = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${currentSiteUrl}/auth`,
+        // Don't use window.location.origin as it might be localhost during development
+        // Instead, we'll use the Supabase default behavior which should use the Site URL from the Supabase dashboard
       });
 
       if (error) {
