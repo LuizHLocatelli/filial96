@@ -32,13 +32,14 @@ export default function Auth() {
     
     // Se temos um token de acesso e é do tipo "recovery", vamos para a aba de atualização de senha
     if ((accessToken || refreshToken) && type === "recovery") {
-      // Importar o token para a sessão atual
+      // Importar o token para a sessão atual sem fazer login automático
       const setAuthFromUrl = async () => {
         if (accessToken) {
           await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken || "",
           });
+          
           // Troca para a aba de atualização de senha
           setActiveTab("update-password");
         }

@@ -47,6 +47,7 @@ export function UpdatePasswordForm() {
   const handleUpdatePassword = async (values: UpdatePasswordFormValues) => {
     setIsLoading(true);
     try {
+      // Use updateUser with password instead of signInWithPassword
       const { error } = await supabase.auth.updateUser({
         password: values.password,
       });
