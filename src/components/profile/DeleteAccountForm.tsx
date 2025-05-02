@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +40,7 @@ export function DeleteAccountForm() {
   const { user, deleteAccount } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Formulário de exclusão de conta
   const form = useForm<z.infer<typeof deleteAccountSchema>>({
@@ -56,24 +55,27 @@ export function DeleteAccountForm() {
   const onSubmit = async (data: z.infer<typeof deleteAccountSchema>) => {
     try {
       setLoading(true);
+      console.log("Iniciando processo de exclusão de conta via formulário");
       
       // Chamar a função de exclusão de conta do contexto
       await deleteAccount(data.password);
       
       // A navegação será feita dentro da função deleteAccount
+      setDialogOpen(false);
       
     } catch (error: any) {
+      console.error("Erro capturado no formulário:", error);
       toast({
         variant: "destructive",
         title: "Erro ao excluir conta",
-        description: error.message,
+        description: error.message || "Ocorreu um erro ao excluir sua conta. Por favor, tente novamente.",
       });
       setLoading(false);
     }
   };
 
   return (
-    <AlertDialog>
+    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <AlertDialogTrigger asChild>
         <Button variant="destructive">Excluir Conta</Button>
       </AlertDialogTrigger>

@@ -125,6 +125,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Função para excluir conta
   const deleteAccount = async (password: string) => {
     try {
+      console.log("Iniciando processo de exclusão de conta");
+      
       // 1. Verificar a senha do usuário antes de continuar
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user?.email || "",
@@ -132,56 +134,74 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (signInError) {
+        console.error("Erro ao verificar senha:", signInError);
         throw new Error("Senha incorreta");
       }
+      
+      console.log("Senha verificada com sucesso");
       
       // 2. Chamar a função RPC para limpar dados do usuário no banco
       const { error: rpcError } = await supabase.rpc('delete_user_account');
       
       if (rpcError) {
+        console.error("Erro ao executar RPC delete_user_account:", rpcError);
         throw new Error(`Erro ao excluir dados do usuário: ${rpcError.message}`);
       }
       
-      // 3. Excluir a conta de autenticação do usuário
-      const { error: deleteUserError } = await supabase.auth.admin.deleteUser(
-        user?.id || ""
-      );
+      console.log("Dados do usuário limpos com sucesso via RPC");
       
-      if (deleteUserError) {
-        // Se falhar a exclusão via admin API, tentar via o método normal
-        const { error: deleteError } = await supabase.auth.updateUser({
+      // Tentar excluir o usuário da auth do Supabase
+      try {
+        // Primeiro, tentar com a API de Admin (requer permissões especiais)
+        const { error: adminDeleteError } = await supabase.auth.admin.deleteUser(
+          user?.id || ""
+        );
+        
+        if (adminDeleteError) {
+          console.log("Não foi possível excluir via API admin, tentando método alternativo");
+          throw adminDeleteError;
+        }
+        
+        console.log("Usuário excluído com sucesso via API admin");
+      } catch (adminError) {
+        // Tentar via atualização de dados do usuário 
+        // (método alternativo que marca o usuário para exclusão)
+        const { error: updateError } = await supabase.auth.updateUser({
           data: { delete_user: true }
         });
         
-        if (deleteError) {
-          throw new Error(`Erro ao excluir conta de autenticação: ${deleteError.message}`);
+        if (updateError) {
+          console.error("Erro ao marcar usuário para exclusão:", updateError);
+          throw new Error(`Erro ao excluir conta de autenticação: ${updateError.message}`);
         }
+        
+        console.log("Usuário marcado para exclusão via updateUser");
       }
       
-      // 4. Mostrar mensagem de sucesso
+      // Mostrar mensagem de sucesso
       toast({
         title: "Conta excluída",
         description: "Sua conta foi excluída com sucesso.",
       });
       
-      // 5. Fazer logout após excluir a conta
+      // Fazer logout após excluir a conta
       await supabase.auth.signOut();
       
-      // 6. Limpar dados do contexto
+      // Limpar dados do contexto
       setUser(null);
       setProfile(null);
       setSession(null);
       
-      // 7. Redirecionar para a página de login
+      // Redirecionar para a página de login
       window.location.href = '/auth';
       
     } catch (error: any) {
+      console.error("Erro completo ao excluir conta:", error);
       toast({
         variant: "destructive",
         title: "Erro ao excluir conta",
         description: error.message || "Ocorreu um erro ao excluir sua conta.",
       });
-      console.error("Erro ao excluir conta:", error);
       throw error; // Propagar o erro para que o componente DeleteAccountForm possa lidar com ele
     }
   };
