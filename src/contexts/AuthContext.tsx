@@ -4,6 +4,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { User as AppUser } from "@/types";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: User | null;
@@ -11,7 +12,7 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
-  deleteAccount: () => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -122,30 +123,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   
   // Função para excluir conta
-  const deleteAccount = async () => {
+  const deleteAccount = async (password: string) => {
     try {
-      // 1. Chamar a função RPC para limpar dados do usuário no banco
+      // 1. Verificar a senha do usuário antes de continuar
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || "",
+        password: password,
+      });
+
+      if (signInError) {
+        throw new Error("Senha incorreta");
+      }
+      
+      // 2. Chamar a função RPC para limpar dados do usuário no banco
       const { error: rpcError } = await supabase.rpc('delete_user_account');
       
       if (rpcError) {
         throw new Error(`Erro ao excluir dados do usuário: ${rpcError.message}`);
       }
       
-      // 2. Fazer logout após excluir a conta
-      await supabase.auth.signOut();
-      
-      // 3. Limpar dados do contexto
-      setUser(null);
-      setProfile(null);
-      setSession(null);
-      
-      // 4. Redirecionar para a página de login
-      window.location.href = '/auth';
-      
+      // 3. Mostrar mensagem de sucesso
       toast({
         title: "Conta excluída",
         description: "Sua conta foi excluída com sucesso.",
       });
+      
+      // 4. Fazer logout após excluir a conta
+      await supabase.auth.signOut();
+      
+      // 5. Limpar dados do contexto
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      
+      // 6. Redirecionar para a página de login
+      window.location.href = '/auth';
       
     } catch (error: any) {
       toast({
@@ -154,6 +166,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message || "Ocorreu um erro ao excluir sua conta.",
       });
       console.error("Erro ao excluir conta:", error);
+      throw error; // Propagar o erro para que o componente DeleteAccountForm possa lidar com ele
     }
   };
 

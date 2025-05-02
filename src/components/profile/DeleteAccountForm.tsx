@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,7 @@ export function DeleteAccountForm() {
   const { user, deleteAccount } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Formulário de exclusão de conta
   const form = useForm<z.infer<typeof deleteAccountSchema>>({
@@ -56,16 +57,10 @@ export function DeleteAccountForm() {
     try {
       setLoading(true);
       
-      // Tentar fazer login para validar a senha
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user?.email || "",
-        password: data.password,
-      });
-
-      if (signInError) throw new Error("Senha incorreta");
-
-      // Se o login foi bem-sucedido, chamar o método de exclusão de conta do contexto
-      await deleteAccount();
+      // Chamar a função de exclusão de conta do contexto
+      await deleteAccount(data.password);
+      
+      // A navegação será feita dentro da função deleteAccount
       
     } catch (error: any) {
       toast({
@@ -121,7 +116,7 @@ export function DeleteAccountForm() {
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <AlertDialogAction asChild>
                 <Button type="submit" variant="destructive" disabled={loading}>
-                  Excluir Permanentemente
+                  {loading ? "Excluindo..." : "Excluir Permanentemente"}
                 </Button>
               </AlertDialogAction>
             </AlertDialogFooter>
