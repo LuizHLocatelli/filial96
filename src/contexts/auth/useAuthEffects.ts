@@ -12,7 +12,7 @@ export function useAuthEffects({
   toast,
 }: AuthEffectsProps) {
   // Function to fetch user profile
-  const fetchUserProfile = async (userId: string, showWelcomeMessage = false) => {
+  const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -39,14 +39,11 @@ export function useAuthEffects({
           displayName: data.display_name || data.name.split(" ")[0]
         });
         
-        // Show welcome message only when specifically requested (after login)
-        if (showWelcomeMessage) {
-          toast({
-            title: `Bem-vindo, ${data.display_name || data.name.split(" ")[0]}!`,
-            description: "Bom ter você de volta.",
-            className: "welcome-toast"
-          });
-        }
+        // Show welcome message
+        toast({
+          title: `Bem-vindo, ${data.display_name || data.name.split(" ")[0]}!`,
+          description: "Bom ter você de volta.",
+        });
       }
     } catch (error) {
       console.error("Erro ao buscar perfil:", error);
@@ -63,13 +60,7 @@ export function useAuthEffects({
         if (event === 'SIGNED_IN' && session?.user) {
           // Use setTimeout to avoid potential loop issues with RLS
           setTimeout(() => {
-            // Only show welcome message on SIGNED_IN events
-            fetchUserProfile(session.user.id, true);
-          }, 0);
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          // For token refresh, fetch profile but don't show welcome message
-          setTimeout(() => {
-            fetchUserProfile(session.user.id, false);
+            fetchUserProfile(session.user.id);
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
@@ -91,8 +82,7 @@ export function useAuthEffects({
       setUser(session?.user || null);
       
       if (session?.user) {
-        // Don't show welcome message on initial load
-        await fetchUserProfile(session.user.id, false);
+        await fetchUserProfile(session.user.id);
       }
       
       setIsLoading(false);
