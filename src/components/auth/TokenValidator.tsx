@@ -26,12 +26,12 @@ export function useTokenValidator(): TokenValidatorResult {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        // Enhanced logging for troubleshooting
-        console.log("Reset password flow initiated:", {
+        // Debug info to help diagnose issues
+        console.log("Reset password flow iniciado:", {
           url: window.location.href,
-          token: token ? "present" : "absent",
-          type: type || "absent",
-          hash: hash ? "present" : "absent"
+          token: token ? "presente" : "ausente",
+          type: type || "ausente",
+          hash: hash ? "presente" : "ausente"
         });
 
         // Parse hash parameters (format #access_token=xxx&refresh_token=yyy)
@@ -43,10 +43,10 @@ export function useTokenValidator(): TokenValidatorResult {
         // Determine flow type from all possible sources
         const flowType = hashType || type || (hash.includes("recovery") ? "recovery" : null);
         
-        console.log("Token validation details:", {
-          accessToken: accessToken ? "present" : "absent",
-          refreshToken: refreshToken ? "present" : "absent",
-          flowType: flowType || "absent",
+        console.log("Detalhes da validação:", {
+          accessToken: accessToken ? "presente" : "ausente",
+          refreshToken: refreshToken ? "presente" : "ausente",
+          flowType: flowType || "ausente",
         });
 
         // Check if we're in a recovery flow with valid tokens
@@ -54,7 +54,7 @@ export function useTokenValidator(): TokenValidatorResult {
         const hasToken = accessToken || token;
         
         if (!hasToken && !isRecoveryFlow) {
-          console.error("No recovery token found");
+          console.error("Token de recuperação não encontrado");
           setError("Link de recuperação inválido ou expirado. Por favor, solicite um novo link.");
           setIsValidating(false);
           return;
@@ -63,71 +63,98 @@ export function useTokenValidator(): TokenValidatorResult {
         // Try to establish session for recovery with access_token from hash
         if (accessToken) {
           try {
-            console.log("Setting up session with access_token");
+            console.log("Configurando sessão com access_token");
             const { data, error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken || "",
             });
             
             if (sessionError) {
-              console.error("Session setup error:", sessionError);
+              console.error("Erro na configuração da sessão:", sessionError);
               setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
               setIsValidating(false);
               return;
             }
             
             if (data.session) {
-              console.log("Session successfully established");
+              console.log("Sessão estabelecida com sucesso");
               setIsValidSession(true);
               toast({
                 title: "Verificação bem-sucedida",
                 description: "Por favor, defina sua nova senha.",
               });
             } else {
-              console.error("No session returned after setSession");
+              console.error("Nenhuma sessão retornada após setSession");
               setError("Não foi possível validar sua sessão. Por favor, solicite um novo link.");
             }
           } catch (sessionError) {
-            console.error("Error establishing session:", sessionError);
+            console.error("Erro ao estabelecer sessão:", sessionError);
             setError("Erro ao validar token de recuperação.");
           }
         } 
         // If we have a recovery token from URL or recovery flow is identified
         else if (token || isRecoveryFlow) {
-          console.log("Recovery token or flow identified");
+          console.log("Token de recuperação ou fluxo identificado");
           // Verify token through user API
           try {
-            // Try to get user session - will work if token is valid
-            const { data, error: sessionError } = await supabase.auth.getUser();
+            // Get current session - if token is valid, this might work
+            const { data: userData, error: userError } = await supabase.auth.getUser();
             
-            if (sessionError) {
-              console.error("User verification error:", sessionError);
-              setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
-              setIsValidating(false);
-              return;
-            }
-            
-            if (data.user) {
-              console.log("User session verified:", data.user.id);
+            if (userError) {
+              console.error("Erro na verificação do usuário:", userError);
+              
+              // Try one more approach - verify token directly
+              if (token) {
+                try {
+                  console.log("Tentando verificar token de recuperação diretamente");
+                  
+                  // This approach might work for some token formats
+                  const { error: verifyError } = await supabase.auth.verifyOtp({
+                    token,
+                    type: 'recovery',
+                  });
+                  
+                  if (verifyError) {
+                    console.error("Erro na verificação do token:", verifyError);
+                    setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
+                    setIsValidating(false);
+                    return;
+                  }
+                  
+                  setIsValidSession(true);
+                  toast({
+                    title: "Token verificado",
+                    description: "Por favor, defina sua nova senha abaixo.",
+                  });
+                  
+                } catch (verifyError) {
+                  console.error("Erro na verificação alternativa:", verifyError);
+                  setError("Erro ao verificar token de recuperação.");
+                }
+              } else {
+                setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
+              }
+            } else if (userData.user) {
+              console.log("Usuário verificado:", userData.user.id);
               setIsValidSession(true);
               toast({
                 title: "Redefina sua senha",
                 description: "Por favor, defina sua nova senha abaixo.",
               });
             } else {
-              console.log("No user found with token");
+              console.log("Nenhum usuário encontrado com o token");
               setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
             }
           } catch (error) {
-            console.error("Error during token validation:", error);
+            console.error("Erro durante a validação do token:", error);
             setError("Erro ao verificar token de recuperação.");
           }
         } else {
-          console.error("Unrecognized token format");
+          console.error("Formato de token não reconhecido");
           setError("Link de recuperação inválido ou em formato não reconhecido.");
         }
       } catch (error) {
-        console.error("Fatal error during recovery session verification:", error);
+        console.error("Erro fatal durante a verificação da sessão de recuperação:", error);
         setError("Ocorreu um erro ao verificar sua sessão de recuperação.");
       } finally {
         setIsValidating(false);

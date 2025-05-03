@@ -15,7 +15,7 @@ export default function ResetPassword() {
   const { isValidating, isValidSession, error, token, hash } = useTokenValidator();
 
   // Enhanced debugging for the reset password flow
-  console.log("ResetPassword component state:", {
+  console.log("ResetPassword state:", {
     isValidating,
     isValidSession,
     hasError: !!error,
@@ -40,13 +40,20 @@ export default function ResetPassword() {
     );
   }
 
-  // If session is not valid, this shouldn't render due to the error check above
+  // If session is not valid and no error, show generic error
   if (!isValidSession) {
-    console.error("Invalid session but no error message");
-    return null;
+    console.error("Sessão inválida sem mensagem de erro específica");
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
+        <div className="w-full max-w-md text-center">
+          <AuthHeader />
+          <ResetPasswordError errorMessage="Link de recuperação inválido ou expirado. Por favor, solicite um novo link." />
+        </div>
+      </div>
+    );
   }
 
-  // Main form
+  // Main form when everything is valid
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
       <div className="w-full max-w-md">

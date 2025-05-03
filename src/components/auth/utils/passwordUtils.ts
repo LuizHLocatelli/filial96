@@ -72,16 +72,35 @@ export async function handleUpdatePassword({
       if (token) {
         try {
           console.log("Tentando método alternativo com token específico");
-          const { error: alterError } = await supabase.auth.resetPasswordForEmail(token, {
-            redirectTo: `${window.location.origin}/reset-password`
+          
+          // Try the verifyOtp approach
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token,
+            type: 'recovery',
           });
           
-          if (alterError) {
-            console.error("Erro no método alternativo:", alterError);
+          if (verifyError) {
+            console.error("Erro na verificação do token:", verifyError);
             toast({
               variant: "destructive",
               title: "Erro ao redefinir senha",
               description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
+            });
+            setTimeout(() => navigate("/auth?tab=reset"), 2000);
+            return false;
+          }
+          
+          // After verification, try updating password again
+          const { error: updateError } = await supabase.auth.updateUser({
+            password: password,
+          });
+          
+          if (updateError) {
+            console.error("Erro na segunda tentativa de atualização:", updateError);
+            toast({
+              variant: "destructive",
+              title: "Erro ao redefinir senha",
+              description: "Não foi possível atualizar sua senha. Por favor, solicite um novo link de recuperação.",
             });
             setTimeout(() => navigate("/auth?tab=reset"), 2000);
             return false;
