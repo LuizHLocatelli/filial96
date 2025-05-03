@@ -19,7 +19,7 @@ export function ResetPasswordError({ errorMessage }: ResetPasswordErrorProps) {
     <Card className="border-border shadow-lg mt-4">
       <CardHeader className="bg-card rounded-t-md">
         <CardTitle className="text-card-foreground">Erro de Recuperação</CardTitle>
-        <CardDescription className="text-destructive">
+        <CardDescription className="text-destructive font-semibold">
           {errorMessage}
         </CardDescription>
         <CardDescription className="text-muted-foreground mt-4">
@@ -28,7 +28,7 @@ export function ResetPasswordError({ errorMessage }: ResetPasswordErrorProps) {
       </CardHeader>
       <div className="p-6">
         <Button 
-          className="w-full" 
+          className="w-full bg-primary hover:bg-primary/90" 
           onClick={() => navigate("/auth?tab=reset")}
         >
           Solicitar novo link

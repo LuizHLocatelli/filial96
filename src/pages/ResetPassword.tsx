@@ -1,5 +1,4 @@
 
-import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardDescription,
@@ -14,6 +13,15 @@ import { ResetPasswordLoading } from "@/components/auth/ResetPasswordLoading";
 
 export default function ResetPassword() {
   const { isValidating, isValidSession, error, token, hash } = useTokenValidator();
+
+  // Enhanced debugging for the reset password flow
+  console.log("ResetPassword component state:", {
+    isValidating,
+    isValidSession,
+    hasError: !!error,
+    token: token ? "present" : "absent",
+    hash: hash ? "present" : "absent"
+  });
 
   // Display loading state
   if (isValidating) {
@@ -34,6 +42,7 @@ export default function ResetPassword() {
 
   // If session is not valid, this shouldn't render due to the error check above
   if (!isValidSession) {
+    console.error("Invalid session but no error message");
     return null;
   }
 

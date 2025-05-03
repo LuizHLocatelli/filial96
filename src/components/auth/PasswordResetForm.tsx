@@ -32,11 +32,11 @@ export function PasswordResetForm() {
   const handlePasswordReset = async (values: PasswordResetFormValues) => {
     setIsLoading(true);
     try {
-      // Obter o URL atual e construir o URL de redirecionamento absoluto
+      // Get the absolute URL for the redirect
       const origin = window.location.origin;
       
-      // Configurar URL exato e completo para o redirecionamento
-      // Isso garante que o token seja processado corretamente
+      // Configure exact and complete URL for redirection
+      // This ensures the token is processed correctly
       const redirectTo = `${origin}/reset-password`;
       
       console.log("Solicitando redefinição de senha para:", values.email);
