@@ -32,19 +32,22 @@ export function PasswordResetForm() {
   const handlePasswordReset = async (values: PasswordResetFormValues) => {
     setIsLoading(true);
     try {
-      // Make sure to use the full URL including protocol
-      // This is crucial for Supabase to redirect correctly
+      // Obter o URL atual e construir o URL de redirecionamento absoluto
       const origin = window.location.origin;
+      
+      // Garantir que estamos usando o URL completo para o redirecionamento
+      // Sem parâmetros adicionais que possam interferir no processamento do token
       const redirectTo = `${origin}/reset-password`;
       
-      console.log("Requesting password reset with redirect URL:", redirectTo);
+      console.log("Solicitando redefinição de senha para:", values.email);
+      console.log("URL de redirecionamento configurado:", redirectTo);
 
       const { data, error } = await supabase.auth.resetPasswordForEmail(values.email, {
         redirectTo: redirectTo,
       });
 
       if (error) {
-        console.error("Password reset error:", error);
+        console.error("Erro na solicitação de redefinição de senha:", error);
         toast({
           variant: "destructive",
           title: "Erro ao solicitar redefinição de senha",
@@ -59,7 +62,7 @@ export function PasswordResetForm() {
         description: "Verifique seu e-mail para redefinir sua senha.",
       });
     } catch (error) {
-      console.error("Unexpected error during password reset:", error);
+      console.error("Erro inesperado durante a solicitação de redefinição de senha:", error);
       toast({
         variant: "destructive",
         title: "Erro ao solicitar redefinição de senha",

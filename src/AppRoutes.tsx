@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
@@ -16,7 +17,7 @@ import { useAuth } from "./contexts/auth";
 const AppRoutes = () => {
   const { isLoading } = useAuth();
 
-  // If auth is still loading, show a simple loading spinner
+  // Se a autenticação ainda estiver carregando, mostrar um spinner simples
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -30,7 +31,7 @@ const AppRoutes = () => {
       {/* Rotas públicas */}
       <Route path="/auth" element={<Auth />} />
       
-      {/* Reset Password route - must be a public route */}
+      {/* Rota de redefinição de senha - deve ser uma rota pública */}
       <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Rotas protegidas */}
