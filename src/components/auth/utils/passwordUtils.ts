@@ -74,7 +74,7 @@ export async function handleUpdatePassword({
           console.log("Tentando método alternativo com token específico");
           
           // For direct token verification, we need an email
-          // We'll try to extract from the URL if available
+          // Extract from the URL if available
           const urlParams = new URLSearchParams(window.location.search);
           const email = urlParams.get("email");
           
@@ -114,17 +114,30 @@ export async function handleUpdatePassword({
             }
           } else {
             // If we don't have an email, we can try updating the password directly again
-            // This might work if the session is already established
-            const { error: finalAttemptError } = await supabase.auth.updateUser({
-              password: password,
-            });
+            // Check existing session
+            const { data: sessionData } = await supabase.auth.getSession();
             
-            if (finalAttemptError) {
-              console.error("Falha na última tentativa de atualização:", finalAttemptError);
+            if (sessionData.session) {
+              // Try updating with valid session
+              const { error: finalAttemptError } = await supabase.auth.updateUser({
+                password: password,
+              });
+              
+              if (finalAttemptError) {
+                console.error("Falha na última tentativa de atualização:", finalAttemptError);
+                toast({
+                  variant: "destructive",
+                  title: "Erro ao redefinir senha",
+                  description: "Não foi possível atualizar sua senha. Por favor, solicite um novo link.",
+                });
+                setTimeout(() => navigate("/auth?tab=reset"), 2000);
+                return false;
+              }
+            } else {
               toast({
                 variant: "destructive",
                 title: "Erro ao redefinir senha",
-                description: "Não foi possível atualizar sua senha. Por favor, solicite um novo link.",
+                description: "Sessão inválida. Por favor, solicite um novo link de recuperação com seu e-mail.",
               });
               setTimeout(() => navigate("/auth?tab=reset"), 2000);
               return false;
@@ -132,6 +145,13 @@ export async function handleUpdatePassword({
           }
         } catch (alterErr) {
           console.error("Erro no método alternativo:", alterErr);
+          toast({
+            variant: "destructive",
+            title: "Erro ao redefinir senha",
+            description: "Erro ao processar sua solicitação. Por favor, tente novamente.",
+          });
+          setTimeout(() => navigate("/auth?tab=reset"), 2000);
+          return false;
         }
       } else {
         toast({

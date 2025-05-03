@@ -18,9 +18,10 @@ export function useTokenValidator(): TokenValidatorResult {
   const [isValidSession, setIsValidSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Get token from URL parameters
+  // Get token and email from URL parameters
   const token = searchParams.get("token");
   const type = searchParams.get("type");
+  const email = searchParams.get("email");
   const hash = window.location.hash;
   
   useEffect(() => {
@@ -31,6 +32,7 @@ export function useTokenValidator(): TokenValidatorResult {
           url: window.location.href,
           token: token ? "presente" : "ausente",
           type: type || "ausente",
+          email: email ? "presente" : "ausente",
           hash: hash ? "presente" : "ausente"
         });
 
@@ -47,6 +49,7 @@ export function useTokenValidator(): TokenValidatorResult {
           accessToken: accessToken ? "presente" : "ausente",
           refreshToken: refreshToken ? "presente" : "ausente",
           flowType: flowType || "ausente",
+          email: email || "ausente",
         });
 
         // Check if we're in a recovery flow with valid tokens
@@ -95,80 +98,55 @@ export function useTokenValidator(): TokenValidatorResult {
         // If we have a recovery token from URL or recovery flow is identified
         else if (token || isRecoveryFlow) {
           console.log("Token de recuperação ou fluxo identificado");
-          // Verify token through user API
+          
+          // Get email - either from URL parameter or search params
+          const userEmail = email || searchParams.get("email");
+          
+          if (!userEmail) {
+            console.error("Email não encontrado para verificação do token");
+            setError("Informações incompletas para verificar o token. Por favor, solicite um novo link de recuperação com e-mail.");
+            setIsValidating(false);
+            return;
+          }
+          
+          console.log("Verificando token com email:", userEmail);
+          
+          // Verify the OTP token with email
           try {
-            // Get current session - if token is valid, this might work
-            const { data: userData, error: userError } = await supabase.auth.getUser();
+            const { error: verifyError } = await supabase.auth.verifyOtp({
+              email: userEmail,
+              token: token || "",
+              type: 'recovery',
+            });
             
-            if (userError) {
-              console.error("Erro na verificação do usuário:", userError);
-              
-              // Try one more approach - verify token directly
-              if (token) {
-                try {
-                  console.log("Tentando verificar token de recuperação diretamente");
-                  
-                  // In the new Supabase API, we need to provide either email or tokenHash for verification
-                  // We'll try to extract email from URL parameters if available
-                  const email = searchParams.get("email");
-                  
-                  if (email) {
-                    const { error: verifyError } = await supabase.auth.verifyOtp({
-                      email,
-                      token,
-                      type: 'recovery',
-                    });
-                    
-                    if (verifyError) {
-                      console.error("Erro na verificação do token:", verifyError);
-                      setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
-                      setIsValidating(false);
-                      return;
-                    }
-                    
-                    setIsValidSession(true);
-                    toast({
-                      title: "Token verificado",
-                      description: "Por favor, defina sua nova senha abaixo.",
-                    });
-                  } else {
-                    // If we don't have an email, we'll have to rely on session state
-                    console.log("Email não encontrado para verificação do token");
-                    
-                    // Check if we already have a valid session
-                    const { data: sessionData } = await supabase.auth.getSession();
-                    if (sessionData.session) {
-                      setIsValidSession(true);
-                      toast({
-                        title: "Sessão verificada",
-                        description: "Por favor, defina sua nova senha abaixo.",
-                      });
-                    } else {
-                      setError("Informações incompletas para verificar o token. Por favor, solicite um novo link de recuperação.");
-                    }
-                  }
-                  
-                } catch (verifyError) {
-                  console.error("Erro na verificação alternativa:", verifyError);
-                  setError("Erro ao verificar token de recuperação.");
-                }
-              } else {
-                setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
-              }
-            } else if (userData.user) {
-              console.log("Usuário verificado:", userData.user.id);
+            if (verifyError) {
+              console.error("Erro na verificação do token:", verifyError);
+              setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
+              setIsValidating(false);
+              return;
+            }
+            
+            console.log("Token verificado com sucesso");
+            setIsValidSession(true);
+            toast({
+              title: "Token verificado",
+              description: "Por favor, defina sua nova senha abaixo.",
+            });
+          } catch (verifyError) {
+            console.error("Erro na verificação do token:", verifyError);
+            
+            // Fallback - check if we already have a valid session
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (sessionData.session) {
               setIsValidSession(true);
               toast({
-                title: "Redefina sua senha",
+                title: "Sessão verificada",
                 description: "Por favor, defina sua nova senha abaixo.",
               });
             } else {
-              console.log("Nenhum usuário encontrado com o token");
-              setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
+              setError("Erro ao verificar token de recuperação. Por favor, solicite um novo link.");
+              setIsValidating(false);
             }
-          } catch (error) {
-            console.error("Erro durante a validação do token:", error);
-            setError("Erro ao verificar token de recuperação.");
           }
         } else {
           console.error("Formato de token não reconhecido");
@@ -183,7 +161,7 @@ export function useTokenValidator(): TokenValidatorResult {
     };
     
     verifySession();
-  }, [searchParams, hash, token, type]);
+  }, [searchParams, hash, token, type, email]);
 
   return {
     isValidating,
