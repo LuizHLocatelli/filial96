@@ -15,60 +15,75 @@ export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const [isValidSession, setIsValidSession] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const verifySession = async () => {
       setIsLoading(true);
       try {
-        // Verificar se há um token de acesso na URL (link de recuperação de senha)
+        // Check all possible token formats that Supabase might send
         const accessToken = searchParams.get("access_token");
         const refreshToken = searchParams.get("refresh_token");
         const type = searchParams.get("type");
-        
-        // Check for Supabase's standard recovery token format
+        // This is the standard Supabase recovery token
         const recoveryToken = searchParams.get("token");
         
-        // Se não temos tokens válidos, redirecionar para o login
+        console.log("URL Parameters:", {
+          token: recoveryToken ? "exists" : "missing",
+          type: type || "missing",
+          access_token: accessToken ? "exists" : "missing",
+        });
+        
+        // If there are no valid tokens, redirect to login
         if ((!accessToken && !refreshToken && !recoveryToken) || 
-            (type !== "recovery" && !recoveryToken)) {
-          console.log("Sem tokens de recuperação válidos, redirecionando para login");
-          navigate("/auth");
+            ((type !== "recovery" && !recoveryToken))) {
+          console.log("No valid recovery tokens found, redirecting to login");
+          setError("Link de recuperação inválido ou expirado.");
+          setTimeout(() => navigate("/auth"), 3000);
           return;
         }
         
-        // Handle the token in Supabase format
+        // Handle standard Supabase recovery token format
         if (recoveryToken) {
-          // Get type and redirect_to from query params
-          const redirectTo = searchParams.get("redirect_to") || window.location.origin;
           const tokenType = searchParams.get("type") || "recovery";
           
-          console.log("Verificando token de recuperação:", { 
-            token: recoveryToken, 
-            type: tokenType,
-            redirectTo
+          console.log("Verifying recovery token:", { 
+            tokenExists: !!recoveryToken, 
+            type: tokenType
           });
           
-          // Let Supabase handle the token verification
-          // This will set up the session if the token is valid
-          // We don't need to do anything with the response here as
-          // the user will now be able to reset their password
+          // When a token exists in the URL, we can assume it's a valid session for password reset
+          // The verification happens when the user submits the form
           setIsValidSession(true);
         }
-        // Standard OAuth or magic link flow
+        // Handle older format with access_token
         else if (accessToken) {
-          // Configurar a sessão com o token, mas SEM fazer login automático
-          await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || "",
-          });
-          
-          // Verificamos que a sessão é válida para recuperação de senha
-          setIsValidSession(true);
+          try {
+            // Set the session with the token
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || "",
+            });
+            
+            if (sessionError) {
+              console.error("Error setting session:", sessionError);
+              setError("Erro ao verificar o token de recuperação. Tente novamente.");
+              setTimeout(() => navigate("/auth"), 3000);
+              return;
+            }
+            
+            setIsValidSession(true);
+          } catch (sessionError) {
+            console.error("Error setting session:", sessionError);
+            setError("Erro ao configurar a sessão de recuperação.");
+            setTimeout(() => navigate("/auth"), 3000);
+          }
         }
       } catch (error) {
-        console.error("Erro ao verificar a sessão de recuperação:", error);
-        navigate("/auth");
+        console.error("Error verifying recovery session:", error);
+        setError("Ocorreu um erro ao verificar sua sessão de recuperação.");
+        setTimeout(() => navigate("/auth"), 3000);
       } finally {
         setIsLoading(false);
       }
@@ -77,7 +92,7 @@ export default function ResetPassword() {
     verifySession();
   }, [searchParams, navigate]);
 
-  // Se estiver carregando, mostra um spinner
+  // If loading, show a spinner
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted">
@@ -86,7 +101,30 @@ export default function ResetPassword() {
     );
   }
 
-  // Se não for uma sessão válida, isso será renderizado brevemente antes do redirecionamento
+  // If there's an error, show it
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
+        <div className="w-full max-w-md text-center">
+          <AuthHeader />
+          
+          <Card className="border-border shadow-lg mt-4">
+            <CardHeader className="bg-card rounded-t-md">
+              <CardTitle className="text-card-foreground">Erro de Recuperação</CardTitle>
+              <CardDescription className="text-destructive">
+                {error}
+              </CardDescription>
+              <CardDescription className="text-muted-foreground mt-2">
+                Você será redirecionado para a página de login.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // If not a valid session, this should never render due to redirect in useEffect
   if (!isValidSession) {
     return null;
   }

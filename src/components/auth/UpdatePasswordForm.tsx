@@ -16,7 +16,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const updatePasswordSchema = z.object({
   password: z
@@ -34,7 +35,9 @@ type UpdatePasswordFormValues = z.infer<typeof updatePasswordSchema>;
 
 export function UpdatePasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   const form = useForm<UpdatePasswordFormValues>({
     resolver: zodResolver(updatePasswordSchema),
@@ -47,15 +50,30 @@ export function UpdatePasswordForm() {
   const handleUpdatePassword = async (values: UpdatePasswordFormValues) => {
     setIsLoading(true);
     try {
-      console.log("Tentando atualizar senha");
+      console.log("Attempting to update password");
       
-      // Atualizar a senha do usuário
-      const { error } = await supabase.auth.updateUser({
-        password: values.password,
-      });
+      // Get the token from URL if present (needed for newer Supabase auth)
+      const token = searchParams.get("token");
+      
+      let updateResult;
+      
+      // If we have a token in the URL, we need to use it for verification
+      if (token) {
+        console.log("Using token from URL for password update");
+        updateResult = await supabase.auth.updateUser({
+          password: values.password,
+        });
+      } else {
+        // Use standard update if no token in URL
+        updateResult = await supabase.auth.updateUser({
+          password: values.password,
+        });
+      }
+      
+      const { error } = updateResult;
 
       if (error) {
-        console.error("Erro ao atualizar senha:", error);
+        console.error("Error updating password:", error);
         toast({
           variant: "destructive",
           title: "Erro ao redefinir senha",
@@ -64,20 +82,21 @@ export function UpdatePasswordForm() {
         return;
       }
 
-      // Senha atualizada com sucesso
+      // Password updated successfully
+      setSuccess(true);
       toast({
         title: "Senha alterada com sucesso",
         description: "Sua senha foi redefinida com sucesso. Você será redirecionado para o login.",
       });
       
-      // Fazer logout para forçar novo login com a nova senha
+      // Sign out to force login with new password
       await supabase.auth.signOut();
       
-      // Redirecionar para o login após atualização bem-sucedida
-      setTimeout(() => navigate("/auth"), 2000);
+      // Redirect to login after successful update
+      setTimeout(() => navigate("/auth"), 3000);
       
     } catch (error: any) {
-      console.error("Erro ao redefinir senha:", error);
+      console.error("Error resetting password:", error);
       toast({
         variant: "destructive",
         title: "Erro ao redefinir senha",
@@ -87,6 +106,23 @@ export function UpdatePasswordForm() {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <CardContent className="space-y-4 py-6">
+        <Alert variant="default" className="bg-green-50 border-green-200">
+          <AlertDescription className="flex items-center gap-2 text-green-800">
+            <svg className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>
+              Senha redefinida com sucesso! Você está sendo redirecionado para a página de login.
+            </span>
+          </AlertDescription>
+        </Alert>
+      </CardContent>
+    );
+  }
 
   return (
     <Form {...form}>

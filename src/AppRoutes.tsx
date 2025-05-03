@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
@@ -30,6 +29,8 @@ const AppRoutes = () => {
     <Routes>
       {/* Rotas públicas */}
       <Route path="/auth" element={<Auth />} />
+      
+      {/* Reset Password route - must be a public route */}
       <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Rotas protegidas */}
