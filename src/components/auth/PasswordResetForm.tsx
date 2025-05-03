@@ -35,9 +35,9 @@ export function PasswordResetForm() {
       // Get the absolute URL for the redirect
       const origin = window.location.origin;
       
-      // Configure exact and complete URL for redirection
-      // This ensures the token is processed correctly
-      const redirectTo = `${origin}/reset-password`;
+      // Configure exact and complete URL for redirection with email parameter
+      // This ensures the token is processed correctly and email is available for verification
+      const redirectTo = `${origin}/reset-password?email=${encodeURIComponent(values.email)}`;
       
       console.log("Solicitando redefinição de senha para:", values.email);
       console.log("URL de redirecionamento configurado:", redirectTo);

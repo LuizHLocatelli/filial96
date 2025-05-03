@@ -108,24 +108,45 @@ export function useTokenValidator(): TokenValidatorResult {
                 try {
                   console.log("Tentando verificar token de recuperação diretamente");
                   
-                  // This approach might work for some token formats
-                  const { error: verifyError } = await supabase.auth.verifyOtp({
-                    token,
-                    type: 'recovery',
-                  });
+                  // In the new Supabase API, we need to provide either email or tokenHash for verification
+                  // We'll try to extract email from URL parameters if available
+                  const email = searchParams.get("email");
                   
-                  if (verifyError) {
-                    console.error("Erro na verificação do token:", verifyError);
-                    setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
-                    setIsValidating(false);
-                    return;
+                  if (email) {
+                    const { error: verifyError } = await supabase.auth.verifyOtp({
+                      email,
+                      token,
+                      type: 'recovery',
+                    });
+                    
+                    if (verifyError) {
+                      console.error("Erro na verificação do token:", verifyError);
+                      setError("Token de recuperação inválido ou expirado. Por favor, solicite um novo link.");
+                      setIsValidating(false);
+                      return;
+                    }
+                    
+                    setIsValidSession(true);
+                    toast({
+                      title: "Token verificado",
+                      description: "Por favor, defina sua nova senha abaixo.",
+                    });
+                  } else {
+                    // If we don't have an email, we'll have to rely on session state
+                    console.log("Email não encontrado para verificação do token");
+                    
+                    // Check if we already have a valid session
+                    const { data: sessionData } = await supabase.auth.getSession();
+                    if (sessionData.session) {
+                      setIsValidSession(true);
+                      toast({
+                        title: "Sessão verificada",
+                        description: "Por favor, defina sua nova senha abaixo.",
+                      });
+                    } else {
+                      setError("Informações incompletas para verificar o token. Por favor, solicite um novo link de recuperação.");
+                    }
                   }
-                  
-                  setIsValidSession(true);
-                  toast({
-                    title: "Token verificado",
-                    description: "Por favor, defina sua nova senha abaixo.",
-                  });
                   
                 } catch (verifyError) {
                   console.error("Erro na verificação alternativa:", verifyError);
