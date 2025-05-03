@@ -54,63 +54,90 @@ export function UpdatePasswordForm({ token, hash }: UpdatePasswordFormProps) {
   const handleUpdatePassword = async (values: UpdatePasswordFormValues) => {
     setIsLoading(true);
     try {
-      console.log("Tentando atualizar senha com os parâmetros disponíveis");
+      console.log("Iniciando atualização de senha");
       
-      // Se temos um hash na URL, vamos verificar se ele contém tokens de acesso
+      // Verificar diversos formatos possíveis de token
       const hashParams = hash ? new URLSearchParams(hash.substring(1)) : null;
       const accessToken = hashParams?.get("access_token");
+      const type = hashParams?.get("type");
+      const refreshToken = hashParams?.get("refresh_token") || "";
       
+      console.log("Formato do token:", { 
+        hash: hash ? "presente" : "ausente", 
+        accessToken: accessToken ? "presente" : "ausente",
+        token: token ? "presente" : "ausente",
+        type: type || "ausente",
+      });
+
+      // Se temos access_token no hash, tentar configurar sessão
       if (accessToken) {
-        console.log("Token de acesso encontrado no hash, verificando sessão");
-        const refreshToken = hashParams?.get("refresh_token") || "";
-        
-        // Verificar se já temos uma sessão válida
-        const { data: sessionData } = await supabase.auth.getSession();
-        
-        // Se não tivermos uma sessão válida, tentar configurá-la com os tokens
-        if (!sessionData?.session) {
-          console.log("Nenhuma sessão encontrada, tentando definir com tokens do hash");
+        console.log("Configurando sessão com access_token do hash");
+        try {
           const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
           
           if (sessionError) {
-            console.error("Erro ao definir sessão:", sessionError);
+            console.error("Erro ao configurar sessão:", sessionError);
             toast({
               variant: "destructive",
-              title: "Erro ao validar sessão",
-              description: "Falha ao validar sua sessão de recuperação. Por favor, solicite um novo link.",
+              title: "Erro ao validar token de recuperação",
+              description: "O link de recuperação pode estar expirado ou inválido. Por favor, solicite um novo.",
             });
             setTimeout(() => navigate("/auth"), 3000);
             return;
           }
           
-          console.log("Sessão definida com sucesso usando tokens do hash");
+          console.log("Sessão configurada com sucesso");
+        } catch (err) {
+          console.error("Erro ao configurar sessão:", err);
         }
       }
       
-      // Tentar atualizar a senha
-      console.log("Atualizando senha do usuário");
-      const { error } = await supabase.auth.updateUser({
-        password: values.password,
-      });
-
-      if (error) {
-        console.error("Erro ao atualizar senha:", error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao redefinir senha",
-          description: error.message || "Ocorreu um erro ao redefinir sua senha. Verifique se o link ainda é válido.",
+      // Se temos um token padrão, tentar usá-lo para atualizar a senha
+      if (token) {
+        console.log("Usando token padrão para atualizar senha");
+        const { error } = await supabase.auth.updateUser({
+          password: values.password,
         });
-        return;
+        
+        if (error) {
+          console.error("Erro ao atualizar senha com token padrão:", error);
+          toast({
+            variant: "destructive",
+            title: "Erro ao atualizar senha",
+            description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
+          });
+          setTimeout(() => navigate("/auth"), 3000);
+          return;
+        }
+      } else {
+        // Caso não tenhamos token específico, tentar atualizar a senha diretamente
+        // Isso usa a sessão configurada anteriormente com setSession ou o token da URL
+        console.log("Tentando atualizar senha com sessão atual");
+        const { error } = await supabase.auth.updateUser({
+          password: values.password,
+        });
+        
+        if (error) {
+          console.error("Erro ao atualizar senha:", error);
+          toast({
+            variant: "destructive",
+            title: "Erro ao atualizar senha",
+            description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
+          });
+          setTimeout(() => navigate("/auth"), 3000);
+          return;
+        }
       }
 
       // Senha atualizada com sucesso
+      console.log("Senha atualizada com sucesso");
       setSuccess(true);
       toast({
         title: "Senha alterada com sucesso",
-        description: "Sua senha foi redefinida com sucesso. Você será redirecionado para o login.",
+        description: "Sua senha foi redefinida. Você será redirecionado para o login.",
       });
       
       // Deslogar para forçar login com a nova senha
@@ -124,7 +151,7 @@ export function UpdatePasswordForm({ token, hash }: UpdatePasswordFormProps) {
       toast({
         variant: "destructive",
         title: "Erro ao redefinir senha",
-        description: "Ocorreu um erro inesperado ao redefinir sua senha.",
+        description: "Ocorreu um erro inesperado ao redefinir sua senha. Por favor, tente novamente.",
       });
     } finally {
       setIsLoading(false);

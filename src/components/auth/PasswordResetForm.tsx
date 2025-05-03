@@ -35,14 +35,14 @@ export function PasswordResetForm() {
       // Obter o URL atual e construir o URL de redirecionamento absoluto
       const origin = window.location.origin;
       
-      // Garantir que estamos usando o URL completo para o redirecionamento
-      // Sem parâmetros adicionais que possam interferir no processamento do token
+      // Configurar URL exato e completo para o redirecionamento
+      // Isso garante que o token seja processado corretamente
       const redirectTo = `${origin}/reset-password`;
       
       console.log("Solicitando redefinição de senha para:", values.email);
       console.log("URL de redirecionamento configurado:", redirectTo);
 
-      const { data, error } = await supabase.auth.resetPasswordForEmail(values.email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
         redirectTo: redirectTo,
       });
 

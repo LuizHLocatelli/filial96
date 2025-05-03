@@ -31,7 +31,7 @@ const AppRoutes = () => {
       {/* Rotas públicas */}
       <Route path="/auth" element={<Auth />} />
       
-      {/* Rota de redefinição de senha - deve ser uma rota pública */}
+      {/* Rota de redefinição de senha - pública e acessível sem autenticação */}
       <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Rotas protegidas */}
