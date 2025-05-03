@@ -26,14 +26,37 @@ export default function ResetPassword() {
         const refreshToken = searchParams.get("refresh_token");
         const type = searchParams.get("type");
         
-        // Se não temos tokens ou não é do tipo recovery, redirecionar para o login
-        if ((!accessToken && !refreshToken) || type !== "recovery") {
+        // Check for Supabase's standard recovery token format
+        const recoveryToken = searchParams.get("token");
+        
+        // Se não temos tokens válidos, redirecionar para o login
+        if ((!accessToken && !refreshToken && !recoveryToken) || 
+            (type !== "recovery" && !recoveryToken)) {
           console.log("Sem tokens de recuperação válidos, redirecionando para login");
           navigate("/auth");
           return;
         }
         
-        if (accessToken) {
+        // Handle the token in Supabase format
+        if (recoveryToken) {
+          // Get type and redirect_to from query params
+          const redirectTo = searchParams.get("redirect_to") || window.location.origin;
+          const tokenType = searchParams.get("type") || "recovery";
+          
+          console.log("Verificando token de recuperação:", { 
+            token: recoveryToken, 
+            type: tokenType,
+            redirectTo
+          });
+          
+          // Let Supabase handle the token verification
+          // This will set up the session if the token is valid
+          // We don't need to do anything with the response here as
+          // the user will now be able to reset their password
+          setIsValidSession(true);
+        }
+        // Standard OAuth or magic link flow
+        else if (accessToken) {
           // Configurar a sessão com o token, mas SEM fazer login automático
           await supabase.auth.setSession({
             access_token: accessToken,

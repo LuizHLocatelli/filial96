@@ -47,11 +47,15 @@ export function UpdatePasswordForm() {
   const handleUpdatePassword = async (values: UpdatePasswordFormValues) => {
     setIsLoading(true);
     try {
+      console.log("Tentando atualizar senha");
+      
+      // Atualizar a senha do usuário
       const { error } = await supabase.auth.updateUser({
         password: values.password,
       });
 
       if (error) {
+        console.error("Erro ao atualizar senha:", error);
         toast({
           variant: "destructive",
           title: "Erro ao redefinir senha",
@@ -60,15 +64,20 @@ export function UpdatePasswordForm() {
         return;
       }
 
+      // Senha atualizada com sucesso
       toast({
         title: "Senha alterada com sucesso",
-        description: "Sua senha foi redefinida com sucesso. Você será redirecionado para o dashboard.",
+        description: "Sua senha foi redefinida com sucesso. Você será redirecionado para o login.",
       });
       
-      // Redirecionar para o dashboard após atualização bem-sucedida
-      setTimeout(() => navigate("/"), 2000);
+      // Fazer logout para forçar novo login com a nova senha
+      await supabase.auth.signOut();
+      
+      // Redirecionar para o login após atualização bem-sucedida
+      setTimeout(() => navigate("/auth"), 2000);
       
     } catch (error: any) {
+      console.error("Erro ao redefinir senha:", error);
       toast({
         variant: "destructive",
         title: "Erro ao redefinir senha",

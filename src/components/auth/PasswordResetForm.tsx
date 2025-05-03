@@ -33,7 +33,9 @@ export function PasswordResetForm() {
     setIsLoading(true);
     try {
       // Configurar URL de redirecionamento para a página específica de redefinição de senha
+      // Certifique-se de que está usando a URL completa incluindo o protocolo
       const redirectTo = `${window.location.origin}/reset-password`;
+      console.log("Solicitando recuperação de senha com redirecionamento para:", redirectTo);
 
       const { data, error } = await supabase.auth.resetPasswordForEmail(values.email, {
         redirectTo: redirectTo,
