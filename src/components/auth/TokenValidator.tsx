@@ -113,9 +113,10 @@ export function useTokenValidator(): TokenValidatorResult {
           
           // Verify the OTP token with email
           try {
+            // CRITICAL: Verificar OTP com email E token
             const { error: verifyError } = await supabase.auth.verifyOtp({
               email: userEmail,
-              token: token || "",
+              token: token || "", // O token é necessário
               type: 'recovery',
             });
             
