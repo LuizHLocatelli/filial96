@@ -80,8 +80,10 @@ export function TaskFormDialog({
 
   // Update currentTaskId when taskId prop changes
   useEffect(() => {
-    setCurrentTaskId(taskId);
-  }, [taskId, isEditMode]);
+    if (taskId) {
+      setCurrentTaskId(taskId);
+    }
+  }, [taskId]);
 
   const resetForm = () => {
     form.reset({
@@ -170,6 +172,8 @@ export function TaskFormDialog({
       };
 
       if (isEditMode && currentTaskId) {
+        console.log("Updating existing task with ID:", currentTaskId);
+        
         // Atualizar tarefa existente
         const { error: updateError } = await supabase
           .from("tasks")
@@ -193,21 +197,24 @@ export function TaskFormDialog({
           description: "A tarefa foi atualizada com sucesso.",
         });
       } else {
-        // Criar nova tarefa - certifique-se de que temos um ID válido
-        const taskId = currentTaskId || undefined;
-        taskForActivity.id = taskId || "";
+        console.log("Creating new task");
         
-        const { error: taskError } = await supabase
+        // Criar nova tarefa
+        const { data: insertData, error: taskError } = await supabase
           .from("tasks")
           .insert({
-            id: taskId,
             ...taskData,
             created_by: user.id,
-          });
+          })
+          .select("id")
+          .single();
 
         if (taskError) {
           throw new Error(`Erro ao criar tarefa: ${taskError.message}`);
         }
+        
+        // Update task ID for activity logging
+        taskForActivity.id = insertData.id;
         
         // Log activity for new task
         await logActivity({
