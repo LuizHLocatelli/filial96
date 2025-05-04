@@ -1,42 +1,29 @@
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Task, TaskStatus } from "@/types";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activityLogger";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Task, TaskStatus } from "@/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
-import { taskFormSchema, TaskFormValues } from "./form/TaskFormSchema";
-import { TaskFormContent } from "./form/TaskFormContent";
+import { taskFormSchema, TaskFormValues } from "@/components/tasks/form/TaskFormSchema";
 
-interface TaskFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface UseTaskFormProps {
   taskId?: string;
   initialData?: Partial<Task>;
   isEditMode?: boolean;
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function TaskFormDialog({
-  open,
-  onOpenChange,
+export function useTaskForm({
   taskId,
   initialData,
   isEditMode = false,
   onSuccess,
-}: TaskFormDialogProps) {
+  onCancel,
+}: UseTaskFormProps) {
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,7 +65,7 @@ export function TaskFormDialog({
         clientCpf: initialData.clientCpf || "",
       });
     }
-  }, [initialData, open, form]);
+  }, [initialData, form]);
 
   // Update currentTaskId when taskId prop changes
   useEffect(() => {
@@ -104,14 +91,7 @@ export function TaskFormDialog({
     });
   };
 
-  const handleDialogOpen = (open: boolean) => {
-    if (!open) {
-      resetForm();
-    }
-    onOpenChange(open);
-  };
-
-  const handleSaveTask = async (data: TaskFormValues) => {
+  const handleSubmit = async (data: TaskFormValues) => {
     if (!user) {
       toast({
         title: "Erro",
@@ -235,7 +215,6 @@ export function TaskFormDialog({
 
       // Limpar o formulário e fechar o diálogo
       resetForm();
-      onOpenChange(false);
       
       // Callback para comunicar sucesso ao componente pai
       if (onSuccess) {
@@ -254,41 +233,18 @@ export function TaskFormDialog({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={handleDialogOpen}>
-      <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isEditMode ? 'Editar Tarefa' : 'Criar Nova Tarefa'}</DialogTitle>
-          <DialogDescription>
-            {isEditMode ? 'Edite os detalhes da tarefa abaixo' : 'Preencha os detalhes da tarefa abaixo'}
-          </DialogDescription>
-        </DialogHeader>
+  const handleCancel = () => {
+    resetForm();
+    if (onCancel) {
+      onCancel();
+    }
+  };
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSaveTask)} className="space-y-4">
-            <TaskFormContent control={form.control} />
-            
-            <DialogFooter className="pt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => handleDialogOpen(false)}
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-                type="button"
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit"
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
+  return {
+    form,
+    isSubmitting,
+    resetForm,
+    handleSubmit,
+    handleCancel
+  };
 }
