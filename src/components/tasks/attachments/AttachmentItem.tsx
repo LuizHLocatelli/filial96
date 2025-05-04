@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   FileIcon, 
@@ -11,14 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
-
-interface Attachment {
-  id: string;
-  name: string;
-  url: string;
-  type: string;
-  createdAt: string;
-}
+import { Attachment } from "@/types/attachments";
 
 interface AttachmentItemProps {
   attachment: Attachment;

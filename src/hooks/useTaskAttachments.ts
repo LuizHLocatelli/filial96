@@ -1,51 +1,38 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { v4 as uuidv4 } from "uuid";
+import { Attachment } from "@/types/attachments";
 import { useAuth } from "@/contexts/auth";
-
-interface Attachment {
-  id: string;
-  name: string;
-  url: string;
-  type: string;
-  createdAt: string;
-}
+import { 
+  fetchAttachments,
+  uploadAttachmentToStorage,
+  deleteAttachmentFromStorage
+} from "./attachments/useAttachmentDatabase";
+import { useAttachmentUploadState } from "./attachments/useAttachmentUploadState";
 
 export function useTaskAttachments(taskId?: string) {
-  const [isUploading, setIsUploading] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [progress, setProgress] = useState(0);
+  const { isUploading, progress, startUpload, updateProgress, finishUpload } = useAttachmentUploadState();
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const loadAttachments = async (taskId: string) => {
-    if (!taskId) return;
+  const loadAttachments = async (currentTaskId: string) => {
+    if (!currentTaskId) return;
     
     try {
-      // Buscar anexos da tabela attachments
-      const { data, error } = await supabase
-        .from('attachments')
-        .select('*')
-        .eq('task_id', taskId);
-      
-      if (error) throw error;
-      
-      // Formatar os resultados
-      const formattedAttachments = data.map(item => ({
-        id: item.id,
-        name: item.name,
-        url: item.url,
-        type: item.type,
-        createdAt: item.created_at
-      }));
-      
-      setAttachments(formattedAttachments);
+      const loadedAttachments = await fetchAttachments(currentTaskId);
+      setAttachments(loadedAttachments);
     } catch (error) {
-      console.error("Erro ao carregar anexos:", error);
+      console.error("Error loading attachments:", error);
     }
   };
+  
+  // Reload attachments when taskId changes
+  useEffect(() => {
+    if (taskId) {
+      loadAttachments(taskId);
+    }
+  }, [taskId]);
   
   const uploadAttachment = async (file: File, currentTaskId?: string) => {
     if (!currentTaskId && !taskId) {
@@ -70,11 +57,7 @@ export function useTaskAttachments(taskId?: string) {
     }
     
     try {
-      setIsUploading(true);
-      // Set initial progress
-      setProgress(10);
-      
-      // Validar tipo de arquivo
+      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
         toast({
@@ -85,7 +68,7 @@ export function useTaskAttachments(taskId?: string) {
         return null;
       }
       
-      // Validar tamanho (5MB máximo)
+      // Validate file size (5MB maximum)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
         toast({
@@ -96,124 +79,72 @@ export function useTaskAttachments(taskId?: string) {
         return null;
       }
       
-      // Simulating progress for better UX
-      setProgress(30);
+      // Start upload process
+      startUpload();
       
-      // Gerar um nome de arquivo único
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `${effectiveTaskId}/${fileName}`;
+      // Progress simulation
+      updateProgress(30);
       
-      // Set progress to show upload is progressing
-      setProgress(50);
+      // Perform upload
+      const result = await uploadAttachmentToStorage(file, effectiveTaskId, user.id);
       
-      // Upload para o bucket do Supabase
-      const { error: uploadError, data } = await supabase.storage
-        .from('task_attachments')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Update progress
+      updateProgress(80);
       
-      if (uploadError) throw uploadError;
+      if (!result.success) {
+        throw result.error;
+      }
       
-      // Set progress to show upload is complete
-      setProgress(80);
+      // Add new attachment to state
+      if (result.attachment) {
+        setAttachments(prev => [...prev, result.attachment!]);
+      }
       
-      // Obter URL pública do arquivo
-      const { data: { publicUrl } } = supabase.storage
-        .from('task_attachments')
-        .getPublicUrl(filePath);
-      
-      // Salvar informações do anexo no banco de dados
-      const attachmentData = {
-        id: uuidv4(),
-        task_id: effectiveTaskId,
-        name: file.name,
-        url: publicUrl,
-        type: file.type,
-        created_by: user.id
-      };
-      
-      const { error: dbError } = await supabase
-        .from('attachments')
-        .insert(attachmentData);
-      
-      if (dbError) throw dbError;
-      
-      // Adicionar o novo anexo à lista
-      const newAttachment = {
-        id: attachmentData.id,
-        name: file.name,
-        url: publicUrl,
-        type: file.type,
-        createdAt: new Date().toISOString()
-      };
-      
-      setAttachments(prev => [...prev, newAttachment]);
-      
-      // Set progress to 100% when fully complete
-      setProgress(100);
+      // Complete upload
+      finishUpload(true);
       
       toast({
         title: "Upload concluído",
         description: `${file.name} foi anexado à tarefa`
       });
       
-      return newAttachment;
+      return result.attachment;
     } catch (error) {
-      console.error("Erro ao fazer upload:", error);
+      console.error("Error uploading file:", error);
+      finishUpload(false);
+      
       toast({
         title: "Erro ao fazer upload",
         description: "Não foi possível anexar o arquivo",
         variant: "destructive",
       });
       return null;
-    } finally {
-      setIsUploading(false);
-      // Reset progress after a delay to show completion
-      setTimeout(() => setProgress(0), 1000);
     }
   };
   
   const deleteAttachment = async (attachmentId: string) => {
     try {
-      // Primeiro encontrar o anexo para obter o path do storage
+      // Find the attachment to get URL
       const attachment = attachments.find(a => a.id === attachmentId);
       if (!attachment) return false;
       
-      // Extrair o caminho do arquivo da URL
-      const urlParts = attachment.url.split('task_attachments/');
-      if (urlParts.length < 2) return false;
+      // Delete the attachment from storage and database
+      const success = await deleteAttachmentFromStorage(attachmentId, attachment.url);
       
-      const storagePath = urlParts[1];
+      if (success) {
+        // Update local state
+        setAttachments(prev => prev.filter(a => a.id !== attachmentId));
+        
+        toast({
+          title: "Anexo removido",
+          description: `${attachment.name} foi removido da tarefa`
+        });
+      }
       
-      // Excluir o arquivo do storage
-      const { error: storageError } = await supabase.storage
-        .from('task_attachments')
-        .remove([storagePath]);
-      
-      if (storageError) throw storageError;
-      
-      // Excluir o registro do banco de dados
-      const { error: dbError } = await supabase
-        .from('attachments')
-        .delete()
-        .eq('id', attachmentId);
-      
-      if (dbError) throw dbError;
-      
-      // Atualizar a lista de anexos
-      setAttachments(prev => prev.filter(a => a.id !== attachmentId));
-      
-      toast({
-        title: "Anexo removido",
-        description: `${attachment.name} foi removido da tarefa`
-      });
-      
-      return true;
+      return success;
     } catch (error) {
-      console.error("Erro ao excluir anexo:", error);
+      console.error("Error deleting attachment:", error);
+      
       toast({
         title: "Erro ao excluir anexo",
         description: "Não foi possível remover o arquivo",
