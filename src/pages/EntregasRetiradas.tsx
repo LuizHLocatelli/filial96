@@ -1,4 +1,5 @@
 
+import { useState, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskFormDialog } from "@/components/tasks/dialogs/TaskFormDialog";
@@ -14,6 +15,7 @@ import { useTaskFromUrl } from "@/hooks/useTaskFromUrl";
 export default function EntregasRetiradas() {
   const { toast } = useToast();
   const taskCounts = useTaskCounts();
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const {
     selectedTask,
@@ -43,6 +45,13 @@ export default function EntregasRetiradas() {
     setIsRetiradaDialogOpen
   );
 
+  // Enhanced task success handler that triggers a refresh
+  const handleEnhancedTaskSuccess = useCallback(() => {
+    handleTaskSuccess();
+    // Force list refresh by incrementing key
+    setRefreshKey(prev => prev + 1);
+  }, [handleTaskSuccess]);
+
   const handleDeleteTask = async (task: Task) => {
     try {
       const { error } = await supabase
@@ -58,6 +67,8 @@ export default function EntregasRetiradas() {
       });
       
       setIsTaskDetailsOpen(false);
+      // Force refresh of task list
+      setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error('Error deleting task:', error);
       toast({
@@ -88,6 +99,7 @@ export default function EntregasRetiradas() {
         onTaskClick={handleTaskClick} 
         onEditTask={handleEditTask} 
         onDeleteTask={handleDeleteTask}
+        refreshKey={refreshKey}
       />
       
       {/* Formulário de entrega */}
@@ -97,7 +109,7 @@ export default function EntregasRetiradas() {
         taskId={taskId}
         initialData={selectedTask || {type: "entrega"}}
         isEditMode={isEditMode}
-        onSuccess={handleTaskSuccess}
+        onSuccess={handleEnhancedTaskSuccess}
       />
       
       {/* Formulário de retirada */}
@@ -107,7 +119,7 @@ export default function EntregasRetiradas() {
         taskId={taskId}
         initialData={selectedTask || {type: "retirada"}}
         isEditMode={isEditMode}
-        onSuccess={handleTaskSuccess}
+        onSuccess={handleEnhancedTaskSuccess}
       />
       
       {/* Dialog para visualizar detalhes da tarefa */}

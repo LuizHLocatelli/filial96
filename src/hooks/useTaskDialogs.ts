@@ -1,7 +1,8 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Task } from "@/types";
-import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@/components/ui/use-toast";
 
 export function useTaskDialogs() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -9,63 +10,98 @@ export function useTaskDialogs() {
   const [isEntregaDialogOpen, setIsEntregaDialogOpen] = useState(false);
   const [isRetiradaDialogOpen, setIsRetiradaDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [taskId, setTaskId] = useState<string>("");
-
-  const handleDialogOpen = (dialogSetter: React.Dispatch<React.SetStateAction<boolean>>) => {
-    return (open: boolean) => {
-      if (!open) {
-        // Se estiver fechando o diálogo e não estamos no modo de edição
-        if (!isEditMode) {
-          setSelectedTask(null);
-        }
-        
-        dialogSetter(false);
-        return;
-      }
-      
-      // Generate a new task ID when dialog opens for new task
-      if (!isEditMode) {
-        setTaskId(uuidv4());
-      }
-      
-      dialogSetter(open);
-    };
-  };
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
-  const handleTaskClick = (task: Task) => {
+  // Compute taskId only when needed
+  const taskId = selectedTask?.id;
+
+  // Handle dialog open state change
+  const handleDialogOpen = (setStateFunc: (state: boolean) => void) => (open: boolean) => {
+    setStateFunc(open);
+    // Clear selected task when closing a dialog
+    if (!open) {
+      // Clear URL parameters when closing dialog
+      const url = new URL(window.location.href);
+      url.searchParams.delete('taskId');
+      url.searchParams.delete('action');
+      navigate(url.pathname + url.search, { replace: true });
+    }
+  };
+
+  // Handle task click to view details
+  const handleTaskClick = useCallback((task: Task) => {
     setSelectedTask(task);
     setIsTaskDetailsOpen(true);
-  };
-  
-  const handleEditTask = (task: Task) => {
-    console.log("Editing task:", task);
+    
+    // Update URL with task ID and action
+    const url = new URL(window.location.href);
+    url.searchParams.set('taskId', task.id);
+    url.searchParams.set('action', 'view');
+    navigate(url.pathname + url.search, { replace: true });
+  }, [navigate]);
+
+  // Handle edit task button click
+  const handleEditTask = useCallback((task: Task) => {
     setSelectedTask(task);
-    setTaskId(task.id);
     setIsEditMode(true);
+    setIsTaskDetailsOpen(false);
     
     if (task.type === 'entrega') {
       setIsEntregaDialogOpen(true);
     } else if (task.type === 'retirada') {
       setIsRetiradaDialogOpen(true);
     }
-  };
+    
+    // Update URL with task ID and action
+    const url = new URL(window.location.href);
+    url.searchParams.set('taskId', task.id);
+    url.searchParams.set('action', 'edit');
+    navigate(url.pathname + url.search, { replace: true });
+  }, [navigate]);
 
-  const handleCreateTask = (type: 'entrega' | 'retirada') => {
-    setIsEditMode(false);
+  // Handle create new task
+  const handleCreateTask = useCallback((type: 'entrega' | 'retirada') => {
     setSelectedTask(null);
-    setTaskId(uuidv4());
+    setIsEditMode(false);
     
     if (type === 'entrega') {
       setIsEntregaDialogOpen(true);
-    } else {
+    } else if (type === 'retirada') {
       setIsRetiradaDialogOpen(true);
     }
-  };
-  
-  const handleTaskSuccess = () => {
+    
+    // Clear URL parameters
+    const url = new URL(window.location.href);
+    url.searchParams.delete('taskId');
+    url.searchParams.delete('action');
+    navigate(url.pathname + url.search, { replace: true });
+  }, [navigate]);
+
+  // Handle task success (create/update)
+  const handleTaskSuccess = useCallback(() => {
+    // Clear selected task
     setSelectedTask(null);
     setIsEditMode(false);
-  };
+    
+    // Close dialogs
+    setIsEntregaDialogOpen(false);
+    setIsRetiradaDialogOpen(false);
+    
+    // Show success toast based on edit mode
+    toast({
+      title: isEditMode ? "Tarefa atualizada" : "Tarefa criada",
+      description: isEditMode 
+        ? "A tarefa foi atualizada com sucesso" 
+        : "A nova tarefa foi criada com sucesso",
+    });
+    
+    // Clear URL parameters
+    const url = new URL(window.location.href);
+    url.searchParams.delete('taskId');
+    url.searchParams.delete('action');
+    navigate(url.pathname + url.search, { replace: true });
+  }, [isEditMode, toast, navigate]);
 
   return {
     selectedTask,
@@ -74,10 +110,10 @@ export function useTaskDialogs() {
     isRetiradaDialogOpen,
     isEditMode,
     taskId,
-    setSelectedTask,
     setIsTaskDetailsOpen,
     setIsEntregaDialogOpen,
     setIsRetiradaDialogOpen,
+    setSelectedTask,
     setIsEditMode,
     handleDialogOpen,
     handleTaskClick,
