@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { TaskFormContent } from "../form/TaskFormContent";
 import { useTaskForm } from "@/hooks/useTaskForm";
+import { TaskAttachments } from "../attachments/TaskAttachments";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -63,6 +64,10 @@ export function TaskFormDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <TaskFormContent control={form.control} />
+            
+            {isEditMode && taskId && (
+              <TaskAttachments taskId={taskId} />
+            )}
             
             <DialogFooter className="pt-4">
               <Button 

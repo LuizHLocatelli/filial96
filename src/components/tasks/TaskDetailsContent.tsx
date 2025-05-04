@@ -2,6 +2,7 @@
 import { Task } from "@/types";
 import { Phone, MapPin, Package, Calendar, CalendarClock, CalendarDays, User, Hash } from "lucide-react";
 import { format } from "date-fns";
+import { TaskAttachmentsView } from "./attachments/TaskAttachmentsView";
 
 interface TaskDetailsContentProps {
   task: Task;
@@ -124,6 +125,9 @@ export function TaskDetailsContent({ task }: TaskDetailsContentProps) {
           </p>
         </div>
       )}
+      
+      {/* Adicionamos a visualização de anexos */}
+      {task.id && <TaskAttachmentsView taskId={task.id} />}
     </div>
   );
 }
