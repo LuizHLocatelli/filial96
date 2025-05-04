@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activityLogger";
 import { TaskFormValues } from "@/components/tasks/form/TaskFormSchema";
 import { Task } from "@/types";
+import { validateTaskType, validateTaskStatus, validatePriority } from "@/utils/typeValidation";
 
 interface SaveTaskOptions {
   taskId?: string;
@@ -27,13 +28,19 @@ export async function saveTask(
     const { isEditMode, userId, userName } = options;
     let taskId = options.taskId;
 
+    // Generate a title based on task type if not provided
+    const title = data.title || 
+      (data.type === 'entrega' ? `Entrega para ${data.clientName}` : 
+       data.type === 'retirada' ? `Retirada para ${data.clientName}` : 
+       `Tarefa para ${data.clientName}`);
+
     // Preparar os dados para o banco
     const taskData = {
-      type: data.type,
-      title: data.title,
-      description: data.description,
-      status: data.status,
-      priority: data.priority,
+      type: data.type || (options.initialData?.type || 'entrega'),
+      title: title,
+      description: data.description || data.observation || '',
+      status: validateTaskStatus(data.status),
+      priority: validatePriority(data.priority),
       client_name: data.clientName,
       client_phone: data.clientPhone,
       client_address: data.clientAddress,
@@ -67,12 +74,13 @@ export async function saveTask(
       await logActivity({
         action: "criou",
         task: {
-          ...data,
+          ...taskData,
           id: taskId,
           createdBy: userId,
+          assignedTo: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-        },
+        } as Task,
         userId,
         userName,
       });
@@ -94,10 +102,16 @@ export async function saveTask(
       await logActivity({
         action: "atualizou",
         task: {
-          ...data,
+          ...taskData,
           id: taskId,
+          type: data.type || (options.initialData?.type || 'entrega'),
+          title: title,
+          description: data.description || data.observation || '',
+          assignedTo: null,
+          createdBy: userId,
           updatedAt: new Date().toISOString(),
-        },
+          createdAt: options.initialData?.createdAt || new Date().toISOString(),
+        } as Task,
         userId,
         userName,
       });

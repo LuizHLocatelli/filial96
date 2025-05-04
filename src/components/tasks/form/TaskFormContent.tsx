@@ -28,6 +28,13 @@ export function TaskFormContent({ control }: TaskFormContentProps) {
     <div className="space-y-4">
       <InputField 
         control={control}
+        name="title"
+        label="Título"
+        placeholder="Título da tarefa"
+      />
+      
+      <InputField 
+        control={control}
         name="invoiceNumber"
         label="Número da Nota Fiscal"
         placeholder="Ex: NF-e 123456"
@@ -79,6 +86,14 @@ export function TaskFormContent({ control }: TaskFormContentProps) {
           options={statusOptions}
         />
       </div>
+
+      <TextareaField 
+        control={control}
+        name="description"
+        label="Descrição"
+        placeholder="Descreva a tarefa"
+        rows={2}
+      />
 
       <TextareaField 
         control={control}

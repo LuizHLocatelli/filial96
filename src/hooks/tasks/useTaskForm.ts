@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/auth";
 import { Task } from "@/types";
 import { TaskFormValues } from "@/components/tasks/form/TaskFormSchema";
-import { useTaskFormState } from "./useTaskFormState";
+import { useTaskFormState } from "../useTaskFormState";
 import { saveTask } from "./useTaskDatabase";
 
 interface UseTaskFormProps {
@@ -35,7 +35,7 @@ export function useTaskForm({
         description: "Você precisa estar autenticado para criar uma tarefa.",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
     setIsSubmitting(true);
@@ -66,6 +66,9 @@ export function useTaskForm({
         if (onSuccess) {
           onSuccess();
         }
+        
+        // Retorna o ID da tarefa criada/atualizada para permitir anexos
+        return { taskId: result.taskId };
       } else {
         throw result.error;
       }
@@ -76,6 +79,7 @@ export function useTaskForm({
         description: "Ocorreu um erro ao salvar a tarefa. Tente novamente.",
         variant: "destructive",
       });
+      return null;
     } finally {
       setIsSubmitting(false);
     }
