@@ -1,6 +1,5 @@
 
 import { z } from "zod";
-import { TaskStatus } from "@/types";
 
 // Define status and priority as enums with specific allowed values
 const taskStatusEnum = z.enum(["pendente", "em_andamento", "concluida", "cancelada", "aguardando_cliente"]);

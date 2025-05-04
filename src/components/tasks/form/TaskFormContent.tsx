@@ -17,9 +17,11 @@ export function TaskFormContent({ control }: TaskFormContentProps) {
   ];
 
   const statusOptions = [
-    { value: "pendente", label: "Pendente pela Loja" },
-    { value: "aguardando_cliente", label: "Aguardando o Cliente" },
-    { value: "concluida", label: "Entregue" },
+    { value: "pendente", label: "Pendente" },
+    { value: "em_andamento", label: "Em Andamento" },
+    { value: "aguardando_cliente", label: "Aguardando Cliente" },
+    { value: "concluida", label: "Concluída" },
+    { value: "cancelada", label: "Cancelada" },
   ];
 
   return (

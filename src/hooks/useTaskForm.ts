@@ -109,13 +109,23 @@ export function useTaskForm({
       // Generate a default title based on the invoice number
       const generatedTitle = `${initialData?.type === 'entrega' ? 'Entrega' : 'Retirada'} - NF ${data.invoiceNumber}`;
       
+      // Make sure status is one of the valid enum values
+      const validStatus = ["pendente", "em_andamento", "concluida", "cancelada", "aguardando_cliente"].includes(data.status) 
+        ? data.status 
+        : "pendente";
+        
+      // Make sure priority is one of the valid enum values
+      const validPriority = ["baixa", "media", "alta"].includes(data.priority)
+        ? data.priority
+        : "media";
+      
       // Prepare task data with all valid database fields
       const taskData = {
         invoice_number: data.invoiceNumber,
         title: generatedTitle, // Use generated title
         description: data.observation || "", 
-        status: data.status,
-        priority: data.priority,
+        status: validStatus,
+        priority: validPriority,
         client_name: data.clientName,
         client_phone: data.clientPhone,
         client_address: data.clientAddress,
@@ -129,8 +139,8 @@ export function useTaskForm({
       };
       
       // Convert string values to proper Task type values
-      const taskStatus = data.status as TaskStatus;
-      const taskPriority = data.priority as "baixa" | "media" | "alta";
+      const taskStatus = validStatus as TaskStatus;
+      const taskPriority = validPriority as "baixa" | "media" | "alta";
       
       let taskForActivity: Task = {
         id: currentTaskId || "",
@@ -156,6 +166,7 @@ export function useTaskForm({
 
       if (isEditMode && currentTaskId) {
         console.log("Updating existing task with ID:", currentTaskId);
+        console.log("Task data to update:", taskData);
         
         // Atualizar tarefa existente
         const { error: updateError } = await supabase
@@ -181,6 +192,7 @@ export function useTaskForm({
         });
       } else {
         console.log("Creating new task");
+        console.log("Task data to create:", taskData);
         
         // Criar nova tarefa
         const { data: insertData, error: taskError } = await supabase
