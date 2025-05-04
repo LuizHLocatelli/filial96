@@ -46,6 +46,7 @@ export function TaskFormDialog({
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
+      invoiceNumber: "",
       title: "",
       observation: "",
       status: "pendente",
@@ -62,6 +63,7 @@ export function TaskFormDialog({
   useEffect(() => {
     if (initialData) {
       form.reset({
+        invoiceNumber: initialData.invoiceNumber || "",
         title: initialData.title || "",
         observation: initialData.description || "", // Using description as observation
         status: initialData.status || "pendente",
@@ -85,6 +87,7 @@ export function TaskFormDialog({
 
   const resetForm = () => {
     form.reset({
+      invoiceNumber: "",
       title: "",
       observation: "",
       status: "pendente",
@@ -123,6 +126,7 @@ export function TaskFormDialog({
     try {
       // Prepare task data with all valid database fields
       const taskData = {
+        invoice_number: data.invoiceNumber || "",
         title: data.title,
         description: data.observation || "", 
         status: data.status,
@@ -145,6 +149,7 @@ export function TaskFormDialog({
       
       let taskForActivity: Task = {
         id: currentTaskId || "",
+        invoiceNumber: data.invoiceNumber || "",
         title: data.title,
         description: data.observation || "", 
         status: taskStatus,

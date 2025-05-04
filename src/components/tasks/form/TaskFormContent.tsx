@@ -26,6 +26,14 @@ export function TaskFormContent({ control }: TaskFormContentProps) {
     <div className="space-y-4">
       <InputField 
         control={control}
+        name="invoiceNumber"
+        label="Número da Nota Fiscal"
+        placeholder="Ex: NF-e 123456"
+        required
+      />
+
+      <InputField 
+        control={control}
         name="title"
         label="Título"
         placeholder="Ex: Entrega de sofá"

@@ -37,4 +37,5 @@ export interface Task {
   purchaseDate?: string;
   expectedArrivalDate?: string;
   expectedDeliveryDate?: string;
+  invoiceNumber?: string;
 }
