@@ -5,7 +5,7 @@ import { Package, Plus, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskFormDialog } from "@/components/tasks/dialogs/TaskFormDialog";
 import { TaskDetailsDialog } from "@/components/tasks/TaskDetailsDialog";
-import { Task } from "@/types";
+import { Task, TaskStatus, TaskType } from "@/types";
 import { useTaskCounts } from "@/hooks/useTaskCounts";
 import { useTaskDialogs } from "@/hooks/useTaskDialogs";
 import { TaskStatisticsCards } from "@/components/entregas-retiradas/TaskStatisticsCards";
@@ -59,20 +59,29 @@ export default function EntregasRetiradas() {
           }
           
           if (data) {
+            // Validate task type before assignment
+            const taskType: TaskType = validateTaskType(data.type);
+            
+            // Validate task status before assignment
+            const taskStatus: TaskStatus = validateTaskStatus(data.status);
+            
+            // Validate priority before assignment
+            const priority: 'baixa' | 'media' | 'alta' = validatePriority(data.priority);
+            
             // Transformar os dados para o formato da Task
             const task: Task = {
               id: data.id,
-              type: data.type,
+              type: taskType,
               title: data.title,
               description: data.description || "",
-              status: data.status,
+              status: taskStatus,
               assignedTo: data.assigned_to,
               createdBy: data.created_by,
               createdAt: data.created_at,
               updatedAt: data.updated_at,
               dueDate: data.due_date,
               completedAt: data.completed_at,
-              priority: data.priority,
+              priority: priority,
               clientName: data.client_name,
               clientPhone: data.client_phone,
               clientAddress: data.client_address,
@@ -108,6 +117,24 @@ export default function EntregasRetiradas() {
     }
   }, [location.search]);
 
+  // Helper functions for type validation
+  const validateTaskType = (type: string): TaskType => {
+    const validTypes: TaskType[] = ['entrega', 'retirada', 'montagem', 'garantia', 'organizacao', 'cobranca'];
+    return validTypes.includes(type as TaskType) ? type as TaskType : 'entrega';
+  };
+  
+  const validateTaskStatus = (status: string): TaskStatus => {
+    const validStatuses: TaskStatus[] = ['pendente', 'em_andamento', 'concluida', 'cancelada', 'aguardando_cliente'];
+    return validStatuses.includes(status as TaskStatus) ? status as TaskStatus : 'pendente';
+  };
+  
+  const validatePriority = (priority: string): 'baixa' | 'media' | 'alta' => {
+    const validPriorities = ['baixa', 'media', 'alta'];
+    return validPriorities.includes(priority as 'baixa' | 'media' | 'alta') 
+      ? priority as 'baixa' | 'media' | 'alta' 
+      : 'media';
+  };
+
   const handleDeleteTask = async (task: Task) => {
     try {
       const { error } = await supabase
@@ -138,9 +165,6 @@ export default function EntregasRetiradas() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Entregas e Retiradas</h2>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Gerencie entregas e retiradas de produtos da loja.
-          </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Button 
