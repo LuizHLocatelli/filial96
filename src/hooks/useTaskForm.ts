@@ -164,52 +164,40 @@ export function useTaskForm({
         assignedTo: initialData?.assignedTo || null,
       };
 
-      if (isEditMode && currentTaskId) {
-        console.log("Updating existing task with ID:", currentTaskId);
-        console.log("Task data to update:", taskData);
+      if (isEditMode && initialData && initialData.id) {
+        console.log("Updating existing task with ID:", initialData.id);
         
-        // When in edit mode, handle as a delete + insert to ensure old task is completely removed
-        if (initialData && initialData.id) {
-          console.log("Deleting old task before creating new version");
-          // Delete the old task
-          const { error: deleteError } = await supabase
-            .from("tasks")
-            .delete()
-            .eq("id", initialData.id);
-
-          if (deleteError) {
-            throw new Error(`Erro ao excluir tarefa antiga: ${deleteError.message}`);
-          }
-          
-          // Create a new task with the updated data
-          const { data: insertData, error: insertError } = await supabase
-            .from("tasks")
-            .insert({
-              ...taskData,
-              created_by: user.id,
-              // Use original creation date when possible
-              created_at: initialData?.createdAt || new Date().toISOString(),
-            })
-            .select("id")
-            .single();
-
-          if (insertError) {
-            throw new Error(`Erro ao criar tarefa atualizada: ${insertError.message}`);
-          }
-
-          // Update task ID for activity logging
-          taskForActivity.id = insertData.id;
-        } else {
-          // Fallback to standard update if something is wrong with initialData
-          const { error: updateError } = await supabase
-            .from("tasks")
-            .update(taskData)
-            .eq("id", currentTaskId);
-
-          if (updateError) {
-            throw new Error(`Erro ao atualizar tarefa: ${updateError.message}`);
-          }
+        // First, delete the old task to ensure it's completely removed
+        const { error: deleteError } = await supabase
+          .from("tasks")
+          .delete()
+          .eq("id", initialData.id);
+        
+        if (deleteError) {
+          console.error("Error deleting old task:", deleteError);
+          throw new Error(`Erro ao excluir tarefa antiga: ${deleteError.message}`);
         }
+        
+        console.log("Old task deleted successfully, creating new task");
+        
+        // Create a new task with the updated data
+        const { data: insertData, error: insertError } = await supabase
+          .from("tasks")
+          .insert({
+            ...taskData,
+            created_by: user.id,
+            // Use original creation date when possible
+            created_at: initialData?.createdAt || new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+        
+        if (insertError) {
+          throw new Error(`Erro ao criar tarefa atualizada: ${insertError.message}`);
+        }
+        
+        // Update task ID for activity logging
+        taskForActivity.id = insertData.id;
         
         // Log activity for task update
         await logActivity({
@@ -218,14 +206,13 @@ export function useTaskForm({
           userId: user.id,
           userName: profile?.name
         });
-
+        
         toast({
           title: "Tarefa atualizada",
           description: "A tarefa foi atualizada com sucesso.",
         });
       } else {
         console.log("Creating new task");
-        console.log("Task data to create:", taskData);
         
         // Criar nova tarefa
         const { data: insertData, error: taskError } = await supabase
