@@ -71,7 +71,8 @@ export function useTaskAttachments(taskId?: string) {
     
     try {
       setIsUploading(true);
-      setProgress(0);
+      // Set initial progress
+      setProgress(10);
       
       // Validar tipo de arquivo
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
@@ -95,24 +96,29 @@ export function useTaskAttachments(taskId?: string) {
         return null;
       }
       
+      // Simulating progress for better UX
+      setProgress(30);
+      
       // Gerar um nome de arquivo único
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${effectiveTaskId}/${fileName}`;
       
+      // Set progress to show upload is progressing
+      setProgress(50);
+      
       // Upload para o bucket do Supabase
       const { error: uploadError, data } = await supabase.storage
         .from('task_attachments')
         .upload(filePath, file, {
-          onUploadProgress: (progress) => {
-            const percent = Math.round((progress.loaded / progress.total) * 100);
-            setProgress(percent);
-          },
           cacheControl: '3600',
           upsert: false
         });
       
       if (uploadError) throw uploadError;
+      
+      // Set progress to show upload is complete
+      setProgress(80);
       
       // Obter URL pública do arquivo
       const { data: { publicUrl } } = supabase.storage
@@ -146,6 +152,9 @@ export function useTaskAttachments(taskId?: string) {
       
       setAttachments(prev => [...prev, newAttachment]);
       
+      // Set progress to 100% when fully complete
+      setProgress(100);
+      
       toast({
         title: "Upload concluído",
         description: `${file.name} foi anexado à tarefa`
@@ -162,7 +171,8 @@ export function useTaskAttachments(taskId?: string) {
       return null;
     } finally {
       setIsUploading(false);
-      setProgress(0);
+      // Reset progress after a delay to show completion
+      setTimeout(() => setProgress(0), 1000);
     }
   };
   

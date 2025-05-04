@@ -3,7 +3,7 @@ import { useState } from "react";
 import { 
   FileIcon, 
   FileImageIcon, 
-  FilePdfIcon,
+  FileText,
   Trash2,
   ExternalLink,
   X
@@ -44,7 +44,7 @@ export function AttachmentItem({ attachment, onDelete }: AttachmentItemProps) {
 
   const getIcon = () => {
     if (isImage) return <FileImageIcon className="h-5 w-5 text-blue-500" />;
-    if (isPdf) return <FilePdfIcon className="h-5 w-5 text-red-500" />;
+    if (isPdf) return <FileText className="h-5 w-5 text-red-500" />;
     return <FileIcon className="h-5 w-5 text-gray-500" />;
   };
 
