@@ -168,14 +168,47 @@ export function useTaskForm({
         console.log("Updating existing task with ID:", currentTaskId);
         console.log("Task data to update:", taskData);
         
-        // Atualizar tarefa existente
-        const { error: updateError } = await supabase
-          .from("tasks")
-          .update(taskData)
-          .eq("id", currentTaskId);
+        // When in edit mode, handle as a delete + insert to ensure old task is completely removed
+        if (initialData && initialData.id) {
+          console.log("Deleting old task before creating new version");
+          // Delete the old task
+          const { error: deleteError } = await supabase
+            .from("tasks")
+            .delete()
+            .eq("id", initialData.id);
 
-        if (updateError) {
-          throw new Error(`Erro ao atualizar tarefa: ${updateError.message}`);
+          if (deleteError) {
+            throw new Error(`Erro ao excluir tarefa antiga: ${deleteError.message}`);
+          }
+          
+          // Create a new task with the updated data
+          const { data: insertData, error: insertError } = await supabase
+            .from("tasks")
+            .insert({
+              ...taskData,
+              created_by: user.id,
+              // Use original creation date when possible
+              created_at: initialData?.createdAt || new Date().toISOString(),
+            })
+            .select("id")
+            .single();
+
+          if (insertError) {
+            throw new Error(`Erro ao criar tarefa atualizada: ${insertError.message}`);
+          }
+
+          // Update task ID for activity logging
+          taskForActivity.id = insertData.id;
+        } else {
+          // Fallback to standard update if something is wrong with initialData
+          const { error: updateError } = await supabase
+            .from("tasks")
+            .update(taskData)
+            .eq("id", currentTaskId);
+
+          if (updateError) {
+            throw new Error(`Erro ao atualizar tarefa: ${updateError.message}`);
+          }
         }
         
         // Log activity for task update
