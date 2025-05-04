@@ -1,22 +1,9 @@
-import { supabase } from "@/integrations/supabase/client";
-import { Task, TaskStatus } from "@/types";
-import { validateTaskStatus, validateTaskPriority, generateTaskTitle } from "./useTaskValidation";
-import { logActivity } from "@/utils/activityLogger";
 
-interface TaskData {
-  invoiceNumber?: string;  // Making invoiceNumber optional
-  observation?: string;
-  status?: string;
-  priority?: string;
-  clientName?: string;
-  clientPhone?: string;
-  clientAddress?: string;
-  clientCpf?: string;
-  products?: string;
-  purchaseDate?: Date;
-  expectedArrivalDate?: Date;
-  expectedDeliveryDate?: Date;
-}
+import { v4 as uuidv4 } from "uuid";
+import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/utils/activityLogger";
+import { TaskFormValues } from "@/components/tasks/form/TaskFormSchema";
+import { Task } from "@/types";
 
 interface SaveTaskOptions {
   taskId?: string;
@@ -26,142 +13,105 @@ interface SaveTaskOptions {
   userName?: string;
 }
 
-export async function saveTask(data: TaskData, options: SaveTaskOptions): Promise<{ success: boolean; error?: any }> {
-  const { taskId, isEditMode, initialData, userId, userName } = options;
-  
+interface SaveTaskResult {
+  success: boolean;
+  taskId?: string;
+  error?: any;
+}
+
+export async function saveTask(
+  data: TaskFormValues,
+  options: SaveTaskOptions
+): Promise<SaveTaskResult> {
   try {
-    // Generate a default title based on the invoice number if available
-    const generatedTitle = data.invoiceNumber ? 
-      generateTaskTitle(initialData?.type, data.invoiceNumber) : 
-      initialData?.title || "Nova tarefa";
-    
-    // Make sure status is one of the valid enum values, default to pendente if not provided
-    const validStatus = validateTaskStatus(data.status || "pendente");
-    
-    // Make sure priority is one of the valid enum values, default to media if not provided
-    const validPriority = validateTaskPriority(data.priority || "media");
-    
-    // Prepare task data with all valid database fields
+    const { isEditMode, userId, userName } = options;
+    let taskId = options.taskId;
+
+    // Preparar os dados para o banco
     const taskData = {
-      invoice_number: data.invoiceNumber || null,
-      title: generatedTitle,
-      description: data.observation || "", 
-      status: validStatus,
-      priority: validPriority,
-      client_name: data.clientName || null,
-      client_phone: data.clientPhone || null,
-      client_address: data.clientAddress || null,
-      client_cpf: data.clientCpf || null,
-      notes: data.products || null,
-      purchase_date: data.purchaseDate?.toISOString() || null,
-      expected_arrival_date: data.expectedArrivalDate?.toISOString() || null,
-      expected_delivery_date: data.expectedDeliveryDate?.toISOString() || null,
-      type: initialData?.type || "entrega",
-      updated_at: new Date().toISOString(),
-    };
-    
-    // Convert string values to proper Task type values
-    const taskStatus = validStatus as TaskStatus;
-    const taskPriority = validPriority as "baixa" | "media" | "alta";
-    
-    let taskForActivity: Task = {
-      id: taskId || "",
-      invoiceNumber: data.invoiceNumber || "",
-      title: generatedTitle,
-      description: data.observation || "", 
-      status: taskStatus,
-      priority: taskPriority,
-      clientName: data.clientName || "",
-      clientPhone: data.clientPhone || "",
-      clientAddress: data.clientAddress || "",
-      clientCpf: data.clientCpf || "",
-      products: data.products || "",
-      purchaseDate: data.purchaseDate?.toISOString() || "",
-      expectedArrivalDate: data.expectedArrivalDate?.toISOString() || "",
-      expectedDeliveryDate: data.expectedDeliveryDate?.toISOString() || "",
-      type: initialData?.type || "entrega",
-      createdBy: userId,
-      updatedAt: new Date().toISOString(),
-      createdAt: initialData?.createdAt || new Date().toISOString(),
-      assignedTo: initialData?.assignedTo || null,
+      type: data.type,
+      title: data.title,
+      description: data.description,
+      status: data.status,
+      priority: data.priority,
+      client_name: data.clientName,
+      client_phone: data.clientPhone,
+      client_address: data.clientAddress,
+      client_cpf: data.clientCpf,
+      purchase_date: data.purchaseDate ? new Date(data.purchaseDate).toISOString() : null,
+      expected_arrival_date: data.expectedArrivalDate
+        ? new Date(data.expectedArrivalDate).toISOString()
+        : null,
+      expected_delivery_date: data.expectedDeliveryDate
+        ? new Date(data.expectedDeliveryDate).toISOString()
+        : null,
+      invoice_number: data.invoiceNumber,
     };
 
-    if (isEditMode && initialData && initialData.id) {
-      console.log("Updating existing task with ID:", initialData.id);
-      
-      // First, delete the old task to ensure it's completely removed
-      const { error: deleteError } = await supabase
-        .from("tasks")
-        .delete()
-        .eq("id", initialData.id);
-      
-      if (deleteError) {
-        console.error("Error deleting old task:", deleteError);
-        throw new Error(`Erro ao excluir tarefa antiga: ${deleteError.message}`);
-      }
-      
-      console.log("Old task deleted successfully, creating new task");
-      
-      // Create a new task with the updated data
-      const { data: insertData, error: insertError } = await supabase
+    // Criar ou atualizar a tarefa
+    if (!isEditMode) {
+      // Criar uma nova tarefa
+      taskId = uuidv4();
+
+      const { error } = await supabase
         .from("tasks")
         .insert({
           ...taskData,
+          id: taskId,
           created_by: userId,
-          // Use original creation date when possible
-          created_at: initialData?.createdAt || new Date().toISOString(),
-        })
-        .select("id")
-        .single();
-      
-      if (insertError) {
-        throw new Error(`Erro ao criar tarefa atualizada: ${insertError.message}`);
-      }
-      
-      // Update task ID for activity logging
-      taskForActivity.id = insertData.id;
-      
-      // Log activity for task update
-      await logActivity({
-        action: "atualizou",
-        task: taskForActivity,
-        userId: userId,
-        userName: userName
-      });
-      
-      return { success: true };
-    } else {
-      console.log("Creating new task");
-      
-      // Criar nova tarefa
-      const { data: insertData, error: taskError } = await supabase
-        .from("tasks")
-        .insert({
-          ...taskData,
-          created_by: userId,
-        })
-        .select("id")
-        .single();
+        });
 
-      if (taskError) {
-        throw new Error(`Erro ao criar tarefa: ${taskError.message}`);
-      }
-      
-      // Update task ID for activity logging
-      taskForActivity.id = insertData.id;
-      
-      // Log activity for new task
+      if (error) throw error;
+
+      // Log activity for the new task
       await logActivity({
         action: "criou",
-        task: taskForActivity,
-        userId: userId,
-        userName: userName
+        task: {
+          ...data,
+          id: taskId,
+          createdBy: userId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        userId,
+        userName,
       });
+    } else {
+      // Atualizar tarefa existente
+      if (!taskId) throw new Error("Task ID is required for update");
 
-      return { success: true };
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          ...taskData,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", taskId);
+
+      if (error) throw error;
+
+      // Log activity for the updated task
+      await logActivity({
+        action: "atualizou",
+        task: {
+          ...data,
+          id: taskId,
+          updatedAt: new Date().toISOString(),
+        },
+        userId,
+        userName,
+      });
     }
+
+    return {
+      success: true,
+      taskId: taskId
+    };
   } catch (error) {
-    console.error("Erro ao salvar tarefa:", error);
-    return { success: false, error };
+    console.error("Error saving task:", error);
+    return {
+      success: false,
+      error,
+    };
   }
 }

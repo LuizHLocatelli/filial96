@@ -13,6 +13,7 @@ import {
 import { TaskFormContent } from "../form/TaskFormContent";
 import { useTaskForm } from "@/hooks/useTaskForm";
 import { TaskAttachments } from "../attachments/TaskAttachments";
+import { useState } from "react";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -44,11 +45,24 @@ export function TaskFormDialog({
     onCancel: () => onOpenChange(false)
   });
 
+  // Estado local para armazenar o ID da tarefa após a criação
+  const [newTaskId, setNewTaskId] = useState<string | undefined>(taskId);
+
   const handleDialogOpen = (open: boolean) => {
     if (!open) {
       handleCancel();
+      setNewTaskId(undefined);
     }
     onOpenChange(open);
+  };
+
+  // Função para lidar com o sucesso da criação da tarefa
+  const handleTaskSubmit = async (data: any) => {
+    const result = await handleSubmit(data);
+    if (result?.taskId) {
+      setNewTaskId(result.taskId);
+    }
+    return result;
   };
 
   return (
@@ -62,12 +76,13 @@ export function TaskFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
             <TaskFormContent control={form.control} />
             
-            {isEditMode && taskId && (
-              <TaskAttachments taskId={taskId} />
-            )}
+            {/* Mostrar anexos quando estiver editando OU quando uma nova tarefa for criada e tiver ID */}
+            {(isEditMode && taskId) || newTaskId ? (
+              <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
+            ) : null}
             
             <DialogFooter className="pt-4">
               <Button 
