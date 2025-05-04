@@ -1,17 +1,16 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Task, TaskStatus } from "@/types";
 import { validateTaskStatus, validateTaskPriority, generateTaskTitle } from "./useTaskValidation";
 import { logActivity } from "@/utils/activityLogger";
 
 interface TaskData {
-  invoiceNumber: string;
-  observation: string;
-  status: string;
-  priority: string;
-  clientName: string;
-  clientPhone: string;
-  clientAddress: string;
+  invoiceNumber?: string;  // Making invoiceNumber optional
+  observation?: string;
+  status?: string;
+  priority?: string;
+  clientName?: string;
+  clientPhone?: string;
+  clientAddress?: string;
   clientCpf?: string;
   products?: string;
   purchaseDate?: Date;
@@ -31,25 +30,27 @@ export async function saveTask(data: TaskData, options: SaveTaskOptions): Promis
   const { taskId, isEditMode, initialData, userId, userName } = options;
   
   try {
-    // Generate a default title based on the invoice number
-    const generatedTitle = generateTaskTitle(initialData?.type, data.invoiceNumber);
+    // Generate a default title based on the invoice number if available
+    const generatedTitle = data.invoiceNumber ? 
+      generateTaskTitle(initialData?.type, data.invoiceNumber) : 
+      initialData?.title || "Nova tarefa";
     
-    // Make sure status is one of the valid enum values
-    const validStatus = validateTaskStatus(data.status);
+    // Make sure status is one of the valid enum values, default to pendente if not provided
+    const validStatus = validateTaskStatus(data.status || "pendente");
     
-    // Make sure priority is one of the valid enum values
-    const validPriority = validateTaskPriority(data.priority);
+    // Make sure priority is one of the valid enum values, default to media if not provided
+    const validPriority = validateTaskPriority(data.priority || "media");
     
     // Prepare task data with all valid database fields
     const taskData = {
-      invoice_number: data.invoiceNumber,
+      invoice_number: data.invoiceNumber || null,
       title: generatedTitle,
       description: data.observation || "", 
       status: validStatus,
       priority: validPriority,
-      client_name: data.clientName,
-      client_phone: data.clientPhone,
-      client_address: data.clientAddress,
+      client_name: data.clientName || null,
+      client_phone: data.clientPhone || null,
+      client_address: data.clientAddress || null,
       client_cpf: data.clientCpf || null,
       notes: data.products || null,
       purchase_date: data.purchaseDate?.toISOString() || null,
@@ -65,14 +66,14 @@ export async function saveTask(data: TaskData, options: SaveTaskOptions): Promis
     
     let taskForActivity: Task = {
       id: taskId || "",
-      invoiceNumber: data.invoiceNumber,
+      invoiceNumber: data.invoiceNumber || "",
       title: generatedTitle,
       description: data.observation || "", 
       status: taskStatus,
       priority: taskPriority,
-      clientName: data.clientName,
-      clientPhone: data.clientPhone,
-      clientAddress: data.clientAddress,
+      clientName: data.clientName || "",
+      clientPhone: data.clientPhone || "",
+      clientAddress: data.clientAddress || "",
       clientCpf: data.clientCpf || "",
       products: data.products || "",
       purchaseDate: data.purchaseDate?.toISOString() || "",
