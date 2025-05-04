@@ -19,10 +19,12 @@ import { Notification, useNotifications } from "@/hooks/useNotifications";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 export function NotificationsMenu() {
   const [open, setOpen] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useNotifications();
+  const navigate = useNavigate();
   
   const handleMarkAllRead = () => {
     markAllAsRead();
@@ -44,8 +46,14 @@ export function NotificationsMenu() {
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
-    // Aqui poderia navegar para a tarefa se necessário
-    setOpen(false);
+    
+    // Navegar para a página de entregas e retiradas se a notificação tiver um task_id
+    if (notification.task_id) {
+      setOpen(false);
+      
+      // Navegar para a página de entregas com os parâmetros necessários para abrir o diálogo de detalhes
+      navigate(`/entregas?taskId=${notification.task_id}&action=view`);
+    }
   };
 
   return (

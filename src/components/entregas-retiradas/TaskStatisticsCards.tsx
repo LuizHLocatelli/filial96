@@ -26,9 +26,6 @@ export function TaskStatisticsCards({ taskCounts }: TaskStatsProps) {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="space-y-1">
             <CardTitle className="text-2xl">Entregas</CardTitle>
-            <CardDescription>
-              Total de {taskCounts.entregas.total} entregas agendadas
-            </CardDescription>
           </div>
           <div className="h-12 w-12 rounded-full bg-brand-blue-100 p-2 flex items-center justify-center">
             <Truck className="h-7 w-7 text-brand-blue-700" />
@@ -56,9 +53,6 @@ export function TaskStatisticsCards({ taskCounts }: TaskStatsProps) {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="space-y-1">
             <CardTitle className="text-2xl">Retiradas</CardTitle>
-            <CardDescription>
-              Total de {taskCounts.retiradas.total} retiradas agendadas
-            </CardDescription>
           </div>
           <div className="h-12 w-12 rounded-full bg-purple-100 p-2 flex items-center justify-center">
             <Package className="h-7 w-7 text-purple-700" />
