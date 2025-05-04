@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TaskFormDialog } from "@/components/tasks/TaskFormDialog";
+import { TaskFormDialog } from "@/components/tasks/dialogs/TaskFormDialog";
 import { TaskDetailsDialog } from "@/components/tasks/TaskDetailsDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
