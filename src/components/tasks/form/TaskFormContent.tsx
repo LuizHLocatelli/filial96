@@ -34,14 +34,6 @@ export function TaskFormContent({ control }: TaskFormContentProps) {
 
       <InputField 
         control={control}
-        name="title"
-        label="Título"
-        placeholder="Ex: Entrega de sofá"
-        required
-      />
-
-      <InputField 
-        control={control}
         name="products"
         label="Produtos Comprados"
         placeholder="Ex: Sofá 3 lugares, Mesa de centro"

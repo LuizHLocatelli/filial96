@@ -47,7 +47,6 @@ export function TaskFormDialog({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       invoiceNumber: "",
-      title: "",
       observation: "",
       status: "pendente",
       priority: "media",
@@ -64,7 +63,6 @@ export function TaskFormDialog({
     if (initialData) {
       form.reset({
         invoiceNumber: initialData.invoiceNumber || "",
-        title: initialData.title || "",
         observation: initialData.description || "", // Using description as observation
         status: initialData.status || "pendente",
         priority: initialData.priority || "media",
@@ -88,7 +86,6 @@ export function TaskFormDialog({
   const resetForm = () => {
     form.reset({
       invoiceNumber: "",
-      title: "",
       observation: "",
       status: "pendente",
       priority: "media",
@@ -124,10 +121,13 @@ export function TaskFormDialog({
     console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
 
     try {
+      // Generate a default title based on the invoice number
+      const generatedTitle = `${initialData?.type === 'entrega' ? 'Entrega' : 'Retirada'} - NF ${data.invoiceNumber}`;
+      
       // Prepare task data with all valid database fields
       const taskData = {
-        invoice_number: data.invoiceNumber || "",
-        title: data.title,
+        invoice_number: data.invoiceNumber,
+        title: generatedTitle, // Use generated title
         description: data.observation || "", 
         status: data.status,
         priority: data.priority,
@@ -149,8 +149,8 @@ export function TaskFormDialog({
       
       let taskForActivity: Task = {
         id: currentTaskId || "",
-        invoiceNumber: data.invoiceNumber || "",
-        title: data.title,
+        invoiceNumber: data.invoiceNumber,
+        title: generatedTitle, // Use generated title
         description: data.observation || "", 
         status: taskStatus,
         priority: taskPriority,

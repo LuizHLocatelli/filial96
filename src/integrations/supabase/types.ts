@@ -133,11 +133,12 @@ export type Database = {
           expected_arrival_date: string | null
           expected_delivery_date: string | null
           id: string
+          invoice_number: string | null
           notes: string | null
           priority: string
           purchase_date: string | null
           status: string
-          title: string
+          title: string | null
           type: string
           updated_at: string
         }
@@ -155,11 +156,12 @@ export type Database = {
           expected_arrival_date?: string | null
           expected_delivery_date?: string | null
           id?: string
+          invoice_number?: string | null
           notes?: string | null
           priority?: string
           purchase_date?: string | null
           status?: string
-          title: string
+          title?: string | null
           type: string
           updated_at?: string
         }
@@ -177,11 +179,12 @@ export type Database = {
           expected_arrival_date?: string | null
           expected_delivery_date?: string | null
           id?: string
+          invoice_number?: string | null
           notes?: string | null
           priority?: string
           purchase_date?: string | null
           status?: string
-          title?: string
+          title?: string | null
           type?: string
           updated_at?: string
         }

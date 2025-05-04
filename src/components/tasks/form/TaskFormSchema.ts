@@ -9,7 +9,6 @@ const taskPriorityEnum = z.enum(["baixa", "media", "alta"]);
 // Define a schema for form validation
 export const taskFormSchema = z.object({
   invoiceNumber: z.string().min(1, "O número da nota fiscal é obrigatório"),
-  title: z.string().min(1, "O título é obrigatório"),
   observation: z.string().optional(),
   status: taskStatusEnum.default("pendente"),
   priority: taskPriorityEnum.default("media"),
