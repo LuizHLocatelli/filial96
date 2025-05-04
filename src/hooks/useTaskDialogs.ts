@@ -38,6 +38,7 @@ export function useTaskDialogs() {
   };
   
   const handleEditTask = (task: Task) => {
+    console.log("Editing task:", task);
     setSelectedTask(task);
     setTaskId(task.id);
     setIsEditMode(true);

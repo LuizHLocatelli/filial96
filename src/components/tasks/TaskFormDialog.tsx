@@ -61,6 +61,8 @@ export function TaskFormDialog({
   // Set initial data when the component mounts or when initialData changes
   useEffect(() => {
     if (initialData) {
+      console.log("Setting initial data for form:", initialData);
+      
       form.reset({
         invoiceNumber: initialData.invoiceNumber || "",
         observation: initialData.description || "", // Using description as observation
@@ -121,6 +123,7 @@ export function TaskFormDialog({
 
     setIsSubmitting(true);
     console.log("Saving task with ID:", currentTaskId, "isEditMode:", isEditMode);
+    console.log("Form data:", data);
 
     try {
       // Generate a default title based on the invoice number

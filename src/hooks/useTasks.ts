@@ -65,6 +65,7 @@ export function useTasks({ type, status }: UseTasksProps = {}) {
           purchaseDate: task.purchase_date,
           expectedArrivalDate: task.expected_arrival_date,
           expectedDeliveryDate: task.expected_delivery_date,
+          invoiceNumber: task.invoice_number, // Garantindo que o número da nota fiscal seja mapeado corretamente
         }));
 
         setTasks(transformedTasks);
@@ -124,6 +125,7 @@ export function useTasks({ type, status }: UseTasksProps = {}) {
             purchaseDate: task.purchase_date,
             expectedArrivalDate: task.expected_arrival_date,
             expectedDeliveryDate: task.expected_delivery_date,
+            invoiceNumber: task.invoice_number, // Garantindo que o número da nota fiscal seja mapeado corretamente
           }));
           
           setTasks(transformedTasks);
