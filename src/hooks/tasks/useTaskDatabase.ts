@@ -38,7 +38,7 @@ export async function saveTask(
     const taskData = {
       type: data.type || (options.initialData?.type || 'entrega'),
       title: title,
-      description: data.description || data.observation || '',
+      description: data.observation || '', // Use observation as description for database
       status: validateTaskStatus(data.status),
       priority: validatePriority(data.priority),
       client_name: data.clientName,
@@ -106,7 +106,7 @@ export async function saveTask(
           id: taskId,
           type: data.type || (options.initialData?.type || 'entrega'),
           title: title,
-          description: data.description || data.observation || '',
+          description: data.observation || '', // Use observation as description for activity log
           assignedTo: null,
           createdBy: userId,
           updatedAt: new Date().toISOString(),
