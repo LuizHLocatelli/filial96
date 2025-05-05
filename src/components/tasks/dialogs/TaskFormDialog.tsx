@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -88,7 +87,7 @@ export function TaskFormDialog({
               <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
             )}
             
-            <DialogFooter className="pt-4">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
               <Button 
                 variant="outline" 
                 onClick={() => handleDialogOpen(false)}
@@ -105,7 +104,7 @@ export function TaskFormDialog({
               >
                 {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
       </DialogContent>
