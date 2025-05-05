@@ -47,11 +47,14 @@ export function TaskFormDialog({
 
   // Estado local para armazenar o ID da tarefa após a criação
   const [newTaskId, setNewTaskId] = useState<string | undefined>(taskId);
+  // Estado para controlar se o formulário foi enviado com sucesso
+  const [isTaskCreated, setIsTaskCreated] = useState(false);
 
   const handleDialogOpen = (open: boolean) => {
     if (!open) {
       handleCancel();
       setNewTaskId(undefined);
+      setIsTaskCreated(false);
     }
     onOpenChange(open);
   };
@@ -61,6 +64,7 @@ export function TaskFormDialog({
     const result = await handleSubmit(data);
     if (result?.taskId) {
       setNewTaskId(result.taskId);
+      setIsTaskCreated(true);
     }
     return result;
   };
@@ -80,7 +84,7 @@ export function TaskFormDialog({
             <TaskFormContent control={form.control} />
             
             {/* Mostrar anexos quando estiver editando OU após uma nova tarefa ser criada */}
-            {(isEditMode || newTaskId) && (
+            {(isEditMode || isTaskCreated) && (
               <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
             )}
             

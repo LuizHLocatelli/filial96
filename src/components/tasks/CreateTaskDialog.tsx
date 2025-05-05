@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { TaskType, TaskStatus } from "@/types";
 import { CreateTaskFormContent } from "./form/CreateTaskFormContent";
+import { TaskAttachments } from "./attachments/TaskAttachments";
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -32,6 +33,8 @@ export function CreateTaskDialog({
 }: CreateTaskDialogProps) {
   const { user, profile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdTaskId, setCreatedTaskId] = useState<string | undefined>();
+  const [isTaskCreated, setIsTaskCreated] = useState(false);
   
   const [task, setTask] = useState({
     title: "",
@@ -70,6 +73,8 @@ export function CreateTaskDialog({
       expectedArrivalDate: "",
       expectedDeliveryDate: "",
     });
+    setCreatedTaskId(undefined);
+    setIsTaskCreated(false);
   };
 
   const handleDialogOpen = (open: boolean) => {
@@ -161,9 +166,9 @@ export function CreateTaskDialog({
         description: `A nova ${getTaskTypeName(taskType)} foi criada com sucesso.`,
       });
       
-      // Limpar o formulário e fechar o diálogo
-      resetForm();
-      onOpenChange(false);
+      // Salvar o ID da tarefa criada para exibir o componente de anexos
+      setCreatedTaskId(taskId);
+      setIsTaskCreated(true);
       
     } catch (error) {
       console.error("Erro ao criar tarefa:", error);
@@ -172,6 +177,7 @@ export function CreateTaskDialog({
         description: "Ocorreu um erro ao criar a tarefa. Tente novamente.",
         variant: "destructive",
       });
+      resetForm();
     } finally {
       setIsSubmitting(false);
     }
@@ -200,30 +206,52 @@ export function CreateTaskDialog({
           </DialogDescription>
         </DialogHeader>
         
-        <CreateTaskFormContent 
-          task={task} 
-          handleInputChange={handleInputChange} 
-          handleSelectChange={handleSelectChange}
-          taskType={taskType}
-        />
-        
-        <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
-          <Button 
-            variant="outline" 
-            onClick={() => handleDialogOpen(false)}
-            className="w-full sm:w-auto"
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleCreateTask}
-            className="w-full sm:w-auto"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Salvando..." : "Salvar"}
-          </Button>
-        </DialogFooter>
+        {!isTaskCreated ? (
+          <>
+            <CreateTaskFormContent 
+              task={task} 
+              handleInputChange={handleInputChange} 
+              handleSelectChange={handleSelectChange}
+              taskType={taskType}
+            />
+            
+            <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+              <Button 
+                variant="outline" 
+                onClick={() => handleDialogOpen(false)}
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleCreateTask}
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Salvando..." : "Salvar"}
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
+            <div className="mb-4">
+              <h3 className="text-lg font-medium">Tarefa criada com sucesso!</h3>
+              <p className="text-sm text-muted-foreground">Agora você pode adicionar anexos à tarefa.</p>
+            </div>
+            
+            <TaskAttachments taskId={createdTaskId} />
+            
+            <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+              <Button 
+                onClick={() => handleDialogOpen(false)}
+                className="w-full"
+              >
+                Concluir
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
