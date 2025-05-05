@@ -12,7 +12,7 @@ export function useAuthEffects({
   toast,
 }: AuthEffectsProps) {
   // Function to fetch user profile
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = async (userId: string, showWelcomeToast = false) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -39,11 +39,13 @@ export function useAuthEffects({
           displayName: data.display_name || data.name.split(" ")[0]
         });
         
-        // Show welcome message
-        toast({
-          title: `Bem-vindo, ${data.display_name || data.name.split(" ")[0]}!`,
-          description: "Bom ter você de volta.",
-        });
+        // Show welcome message only when explicitly requested (during sign in)
+        if (showWelcomeToast) {
+          toast({
+            title: `Bem-vindo, ${data.display_name || data.name.split(" ")[0]}!`,
+            description: "Bom ter você de volta.",
+          });
+        }
       }
     } catch (error) {
       console.error("Erro ao buscar perfil:", error);
@@ -60,7 +62,8 @@ export function useAuthEffects({
         if (event === 'SIGNED_IN' && session?.user) {
           // Use setTimeout to avoid potential loop issues with RLS
           setTimeout(() => {
-            fetchUserProfile(session.user.id);
+            // Only show welcome toast on SIGNED_IN event
+            fetchUserProfile(session.user.id, true);
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
@@ -68,6 +71,11 @@ export function useAuthEffects({
           if (window.location.pathname !== '/auth') {
             window.location.href = '/auth';
           }
+        } else if (session?.user) {
+          // For other events (like token refresh), fetch profile without showing welcome toast
+          setTimeout(() => {
+            fetchUserProfile(session.user.id, false);
+          }, 0);
         }
       }
     );
@@ -82,7 +90,8 @@ export function useAuthEffects({
       setUser(session?.user || null);
       
       if (session?.user) {
-        await fetchUserProfile(session.user.id);
+        // Initial load, don't show welcome toast
+        await fetchUserProfile(session.user.id, false);
       }
       
       setIsLoading(false);
