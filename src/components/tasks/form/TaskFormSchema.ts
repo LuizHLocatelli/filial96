@@ -1,29 +1,21 @@
 
 import { z } from "zod";
-import { TaskType } from "@/types";
 
-// Define status and priority as enums with specific allowed values
-const taskStatusEnum = z.enum(["pendente", "em_andamento", "concluida", "cancelada", "aguardando_cliente"]);
-const taskPriorityEnum = z.enum(["baixa", "media", "alta"]);
-const taskTypeEnum = z.enum(["entrega", "retirada", "montagem", "garantia", "organizacao", "cobranca"]);
-
-// Define a schema for form validation
 export const taskFormSchema = z.object({
-  type: taskTypeEnum.default("entrega"),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  invoiceNumber: z.string().min(1, "O número da nota fiscal é obrigatório"),
+  type: z.enum(["entrega", "retirada", "montagem", "garantia", "organizacao", "cobranca"]).default("entrega"),
+  title: z.string().min(1, "Título é obrigatório"),
+  invoiceNumber: z.string().optional(),
+  products: z.string().optional(),
   observation: z.string().optional(),
-  status: taskStatusEnum.default("pendente"),
-  priority: taskPriorityEnum.default("media"),
-  clientName: z.string().min(1, "O nome do cliente é obrigatório"),
-  clientPhone: z.string().min(8, "O telefone deve ter pelo menos 8 dígitos"),
-  clientAddress: z.string().min(5, "O endereço deve ter pelo menos 5 caracteres"),
-  products: z.string().min(1, "Os produtos são obrigatórios"),
+  status: z.enum(["pendente", "em_andamento", "aguardando_cliente", "concluida", "cancelada"]).default("pendente"),
+  priority: z.enum(["baixa", "media", "alta"]).default("media"),
+  clientName: z.string().min(1, "Nome do cliente é obrigatório"),
+  clientPhone: z.string().min(1, "Telefone do cliente é obrigatório"),
+  clientAddress: z.string().min(1, "Endereço do cliente é obrigatório"),
+  clientCpf: z.string().optional(),
   purchaseDate: z.date().optional(),
   expectedArrivalDate: z.date().optional(),
   expectedDeliveryDate: z.date().optional(),
-  clientCpf: z.string().optional(),
 });
 
 export type TaskFormValues = z.infer<typeof taskFormSchema>;

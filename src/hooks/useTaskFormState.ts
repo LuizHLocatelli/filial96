@@ -14,7 +14,6 @@ export function useTaskFormState(initialData?: Partial<Task>) {
     defaultValues: {
       type: initialData?.type || "entrega",
       title: initialData?.title || "",
-      description: initialData?.description || "",
       invoiceNumber: initialData?.invoiceNumber || "",
       observation: initialData?.observation || "",
       status: initialData?.status || "pendente",
@@ -42,9 +41,8 @@ export function useTaskFormState(initialData?: Partial<Task>) {
       form.reset({
         type: initialData.type || "entrega",
         title: initialData.title || "",
-        description: initialData.description || "",
         invoiceNumber: initialData.invoiceNumber || "",
-        observation: initialData.description || "", // Using description as observation
+        observation: initialData.observation || "", 
         status: initialData.status || "pendente",
         priority: initialData.priority || "media",
         clientName: initialData.clientName || "",
@@ -63,7 +61,6 @@ export function useTaskFormState(initialData?: Partial<Task>) {
     form.reset({
       type: initialData?.type || "entrega",
       title: "",
-      description: "",
       invoiceNumber: "",
       observation: "",
       status: "pendente",

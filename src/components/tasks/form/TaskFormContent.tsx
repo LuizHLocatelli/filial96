@@ -89,14 +89,6 @@ export function TaskFormContent({ control }: TaskFormContentProps) {
 
       <TextareaField 
         control={control}
-        name="description"
-        label="Descrição"
-        placeholder="Descreva a tarefa"
-        rows={2}
-      />
-
-      <TextareaField 
-        control={control}
         name="observation"
         label="Observação"
         placeholder="Observações adicionais"

@@ -79,10 +79,10 @@ export function TaskFormDialog({
           <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
             <TaskFormContent control={form.control} />
             
-            {/* Mostrar anexos quando estiver editando OU quando uma nova tarefa for criada e tiver ID */}
-            {(isEditMode && taskId) || newTaskId ? (
+            {/* Mostrar anexos quando estiver editando OU após uma nova tarefa ser criada */}
+            {(isEditMode || newTaskId) && (
               <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
-            ) : null}
+            )}
             
             <DialogFooter className="pt-4">
               <Button 
