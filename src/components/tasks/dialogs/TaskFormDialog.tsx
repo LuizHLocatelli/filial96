@@ -78,35 +78,49 @@ export function TaskFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
-            <TaskFormContent control={form.control} />
+        {!isTaskCreated ? (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
+              <TaskFormContent control={form.control} />
+              
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleDialogOpen(false)}
+                  className="w-full sm:w-auto"
+                  disabled={isSubmitting}
+                  type="button"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit"
+                  className="w-full sm:w-auto"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        ) : (
+          <div className="space-y-4">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium">Tarefa criada com sucesso!</h3>
+              <p className="text-sm text-muted-foreground">Agora você pode adicionar anexos à tarefa.</p>
+            </div>
             
-            {/* Mostrar anexos quando estiver editando OU após uma nova tarefa ser criada */}
-            {(isEditMode || isTaskCreated) && (
-              <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
-            )}
+            <TaskAttachments taskId={newTaskId} />
             
-            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+            <div className="flex justify-end mt-4">
               <Button 
-                variant="outline" 
                 onClick={() => handleDialogOpen(false)}
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-                type="button"
               >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit"
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
+                Concluir
               </Button>
             </div>
-          </form>
-        </Form>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
