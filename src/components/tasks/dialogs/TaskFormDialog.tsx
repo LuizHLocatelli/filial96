@@ -10,9 +10,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TaskFormContent } from "../form/TaskFormContent";
-import { useTaskForm } from "@/hooks/useTaskForm";
+import { useTaskForm } from "@/hooks/tasks/useTaskForm";
 import { TaskAttachments } from "../attachments/TaskAttachments";
 import { useState } from "react";
+import { TaskCreationSuccess } from "../create/TaskCreationSuccess";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -95,7 +96,7 @@ export function TaskFormDialog({
                 </Button>
                 <Button 
                   type="submit"
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto ml-auto"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
@@ -104,22 +105,10 @@ export function TaskFormDialog({
             </form>
           </Form>
         ) : (
-          <div className="space-y-4">
-            <div className="mb-4">
-              <h3 className="text-lg font-medium">Tarefa criada com sucesso!</h3>
-              <p className="text-sm text-muted-foreground">Agora você pode adicionar anexos à tarefa.</p>
-            </div>
-            
-            <TaskAttachments taskId={newTaskId} />
-            
-            <div className="flex justify-end mt-4">
-              <Button 
-                onClick={() => handleDialogOpen(false)}
-              >
-                Concluir
-              </Button>
-            </div>
-          </div>
+          <TaskCreationSuccess 
+            taskId={newTaskId} 
+            onClose={() => handleDialogOpen(false)} 
+          />
         )}
       </DialogContent>
     </Dialog>
