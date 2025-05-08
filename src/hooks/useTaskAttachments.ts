@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types/attachments";
 import { useAuth } from "@/contexts/auth";
@@ -16,7 +16,7 @@ export function useTaskAttachments(taskId?: string) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const loadAttachments = async (currentTaskId: string) => {
+  const loadAttachments = useCallback(async (currentTaskId: string) => {
     if (!currentTaskId) return;
     
     try {
@@ -25,14 +25,14 @@ export function useTaskAttachments(taskId?: string) {
     } catch (error) {
       console.error("Error loading attachments:", error);
     }
-  };
+  }, []);
   
   // Reload attachments when taskId changes
   useEffect(() => {
     if (taskId) {
       loadAttachments(taskId);
     }
-  }, [taskId]);
+  }, [taskId, loadAttachments]);
   
   const uploadAttachment = async (file: File, currentTaskId?: string) => {
     if (!currentTaskId && !taskId) {

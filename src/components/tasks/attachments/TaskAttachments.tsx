@@ -25,24 +25,22 @@ export function TaskAttachments({ taskId, readOnly = false }: TaskAttachmentsPro
     if (taskId) {
       loadAttachments(taskId);
     }
-  }, [taskId]);
+  }, [taskId, loadAttachments]);
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Anexos</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {!readOnly && (
-          <>
-            <AttachmentUploader 
-              onUpload={(file) => uploadAttachment(file, taskId)}
-              isUploading={isUploading}
-              progress={progress}
-            />
-            <Separator className="my-4" />
-          </>
-        )}
+    <div className="space-y-4">
+      {!readOnly && (
+        <AttachmentUploader 
+          onUpload={(file) => uploadAttachment(file, taskId)}
+          isUploading={isUploading}
+          progress={progress}
+        />
+      )}
+      
+      <Separator className="my-4" />
+      
+      <div className="space-y-4">
+        <h4 className="text-lg font-semibold">Anexos</h4>
         
         {attachments.length === 0 ? (
           <div className="text-center py-4 text-muted-foreground text-sm">
@@ -59,7 +57,7 @@ export function TaskAttachments({ taskId, readOnly = false }: TaskAttachmentsPro
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
