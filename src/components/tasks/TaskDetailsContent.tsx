@@ -21,6 +21,9 @@ export function TaskDetailsContent({ task }: TaskDetailsContentProps) {
 
   return (
     <div className="space-y-4">
+      {/* Anexos agora aparecem no topo */}
+      {task.id && <TaskAttachmentsView taskId={task.id} />}
+      
       {task.description && (
         <div>
           <h4 className="font-semibold text-sm">Descrição</h4>
@@ -31,8 +34,8 @@ export function TaskDetailsContent({ task }: TaskDetailsContentProps) {
       {task.invoiceNumber && (
         <div className="flex items-center gap-2">
           <h4 className="font-semibold text-sm">Número da Nota Fiscal</h4>
-          <p className="text-sm text-muted-foreground flex items-center gap-1">
-            <Hash size={14} /> {task.invoiceNumber}
+          <p className="text-sm text-muted-foreground">
+            {task.invoiceNumber}
           </p>
         </div>
       )}
@@ -125,9 +128,6 @@ export function TaskDetailsContent({ task }: TaskDetailsContentProps) {
           </p>
         </div>
       )}
-      
-      {/* Adicionamos a visualização de anexos */}
-      {task.id && <TaskAttachmentsView taskId={task.id} />}
     </div>
   );
 }
