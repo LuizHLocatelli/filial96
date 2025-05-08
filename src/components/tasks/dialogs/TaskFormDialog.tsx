@@ -64,14 +64,12 @@ export function TaskFormDialog({
     const result = await handleSubmit(data);
     if (result?.taskId) {
       setNewTaskId(result.taskId);
-      
-      // Vamos mudar para a aba de anexos automaticamente após criar a tarefa
-      if (!isEditMode) {
-        setActiveTab("anexos");
-      }
     }
     return result;
   };
+
+  // Verifica se há um ID de tarefa disponível (seja por edição ou após criar)
+  const hasTaskId = Boolean(taskId || newTaskId);
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpen}>
@@ -85,75 +83,80 @@ export function TaskFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
-            {!newTaskId || isEditMode ? (
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2 w-full mb-4">
-                  <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
-                  <TabsTrigger 
-                    value="anexos" 
-                    disabled={!newTaskId && !isEditMode}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid grid-cols-2 w-full mb-4">
+                <TabsTrigger value="detalhes">Detalhes</TabsTrigger>
+                <TabsTrigger value="anexos">Anexos</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="detalhes" className="space-y-4 mt-0">
+                <TaskFormContent control={form.control} />
+                
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleDialogOpen(false)}
+                    className="w-full sm:w-auto"
+                    disabled={isSubmitting}
+                    type="button"
                   >
-                    Anexos
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="detalhes" className="space-y-4 mt-0">
-                  <TaskFormContent control={form.control} />
-                </TabsContent>
-                
-                <TabsContent value="anexos" className="space-y-4 mt-0">
-                  {(isEditMode || newTaskId) ? (
-                    <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
-                  ) : (
-                    <div className="text-center py-6 text-muted-foreground">
-                      Salve a tarefa primeiro para adicionar anexos
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            ) : (
-              // Quando uma nova tarefa foi criada e temos o ID, mostrar apenas a aba de anexos
-              <div className="space-y-4">
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium">Tarefa criada com sucesso!</h3>
-                  <p className="text-sm text-muted-foreground">Agora você pode adicionar anexos à tarefa.</p>
+                    Cancelar
+                  </Button>
+                  
+                  <Button 
+                    type="submit"
+                    className="w-full sm:w-auto ml-auto"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
+                  </Button>
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="anexos" className="space-y-4 mt-0">
+                {/* Explicação condicional se a tarefa ainda não foi salva */}
+                {!hasTaskId && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
+                    <p className="text-sm text-yellow-800">
+                      Para adicionar anexos, primeiro salve a tarefa na aba Detalhes.
+                    </p>
+                  </div>
+                )}
                 
-                <TaskAttachments taskId={newTaskId} />
-              </div>
-            )}
-            
-            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => handleDialogOpen(false)}
-                className="w-full sm:w-auto"
-                disabled={isSubmitting}
-                type="button"
-              >
-                {newTaskId && !isEditMode ? "Concluir" : "Cancelar"}
-              </Button>
-              
-              {(!newTaskId || isEditMode) && activeTab === "detalhes" && (
-                <Button 
-                  type="submit"
-                  className="w-full sm:w-auto ml-auto"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
-                </Button>
-              )}
-              
-              {(!newTaskId || isEditMode) && activeTab === "anexos" && (
-                <Button 
-                  type="button"
-                  className="w-full sm:w-auto ml-auto"
-                  onClick={() => handleDialogOpen(false)}
-                >
-                  Concluir
-                </Button>
-              )}
-            </div>
+                {/* Mostrar os anexos se temos um ID de tarefa */}
+                {hasTaskId ? (
+                  <TaskAttachments taskId={newTaskId || taskId} />
+                ) : (
+                  <div className="text-center py-12 border border-dashed rounded-md bg-muted/30">
+                    <p className="text-muted-foreground">
+                      Salve a tarefa primeiro para adicionar anexos
+                    </p>
+                  </div>
+                )}
+                
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleDialogOpen(false)}
+                    className="w-full sm:w-auto"
+                    type="button"
+                  >
+                    {hasTaskId ? "Concluir" : "Cancelar"}
+                  </Button>
+                  
+                  {/* Se não houver ID da tarefa, mostrar botão para voltar à aba de detalhes */}
+                  {!hasTaskId && (
+                    <Button 
+                      type="button"
+                      className="w-full sm:w-auto ml-auto"
+                      onClick={() => setActiveTab("detalhes")}
+                    >
+                      Voltar aos Detalhes
+                    </Button>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </form>
         </Form>
       </DialogContent>
