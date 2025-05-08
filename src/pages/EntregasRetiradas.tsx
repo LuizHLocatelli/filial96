@@ -33,7 +33,8 @@ export default function EntregasRetiradas() {
     handleTaskClick,
     handleEditTask,
     handleCreateTask,
-    handleTaskSuccess
+    handleTaskSuccess,
+    fetchTaskById
   } = useTaskDialogs();
 
   // Use the extracted hook for handling URL params
@@ -51,6 +52,32 @@ export default function EntregasRetiradas() {
     // Force list refresh by incrementing key
     setRefreshKey(prev => prev + 1);
   }, [handleTaskSuccess]);
+
+  // Handle task creation success with redirection to task details
+  const handleTaskCreationSuccess = useCallback(async (createdTaskId?: string) => {
+    if (createdTaskId) {
+      try {
+        const task = await fetchTaskById(createdTaskId);
+        if (task) {
+          // Close any open dialogs
+          setIsEntregaDialogOpen(false);
+          setIsRetiradaDialogOpen(false);
+          
+          // Set the selected task and show details
+          setSelectedTask(task);
+          setIsTaskDetailsOpen(true);
+          
+          // Refresh the task list
+          setRefreshKey(prev => prev + 1);
+        }
+      } catch (error) {
+        console.error("Error fetching created task:", error);
+      }
+    } else {
+      // Fallback to standard success handler if no taskId provided
+      handleEnhancedTaskSuccess();
+    }
+  }, [fetchTaskById, setIsEntregaDialogOpen, setIsRetiradaDialogOpen, setSelectedTask, setIsTaskDetailsOpen]);
 
   const handleDeleteTask = async (task: Task) => {
     try {
@@ -109,7 +136,7 @@ export default function EntregasRetiradas() {
         taskId={taskId}
         initialData={selectedTask || {type: "entrega"}}
         isEditMode={isEditMode}
-        onSuccess={handleEnhancedTaskSuccess}
+        onSuccess={handleTaskCreationSuccess}
       />
       
       {/* Formulário de retirada */}
@@ -119,7 +146,7 @@ export default function EntregasRetiradas() {
         taskId={taskId}
         initialData={selectedTask || {type: "retirada"}}
         isEditMode={isEditMode}
-        onSuccess={handleEnhancedTaskSuccess}
+        onSuccess={handleTaskCreationSuccess}
       />
       
       {/* Dialog para visualizar detalhes da tarefa */}

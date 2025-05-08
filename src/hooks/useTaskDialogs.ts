@@ -1,8 +1,10 @@
 
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Task } from "@/types";
+import { Task, TaskType, TaskStatus } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { validateTaskType, validateTaskStatus, validatePriority } from "@/utils/typeValidation";
 
 export function useTaskDialogs() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -78,6 +80,66 @@ export function useTaskDialogs() {
     navigate(url.pathname + url.search, { replace: true });
   }, [navigate]);
 
+  // Fetch task by ID
+  const fetchTaskById = useCallback(async (taskId: string): Promise<Task | null> => {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("id", taskId)
+        .single();
+        
+      if (error) {
+        console.error("Error fetching task:", error);
+        return null;
+      }
+      
+      if (data) {
+        // Validate task type before assignment
+        const taskType: TaskType = validateTaskType(data.type);
+        
+        // Validate task status before assignment
+        const taskStatus: TaskStatus = validateTaskStatus(data.status);
+        
+        // Validate priority before assignment
+        const priority: 'baixa' | 'media' | 'alta' = validatePriority(data.priority);
+        
+        // Transform data to Task format
+        const task: Task = {
+          id: data.id,
+          type: taskType,
+          title: data.title,
+          description: data.description || "",
+          status: taskStatus,
+          assignedTo: data.assigned_to,
+          createdBy: data.created_by,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+          dueDate: data.due_date,
+          completedAt: data.completed_at,
+          priority: priority,
+          clientName: data.client_name,
+          clientPhone: data.client_phone,
+          clientAddress: data.client_address,
+          clientCpf: data.client_cpf,
+          notes: data.notes,
+          products: data.notes, // Mapping notes as products
+          purchaseDate: data.purchase_date,
+          expectedArrivalDate: data.expected_arrival_date,
+          expectedDeliveryDate: data.expected_delivery_date,
+          invoiceNumber: data.invoice_number,
+        };
+        
+        return task;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      return null;
+    }
+  }, []);
+
   // Handle task success (create/update)
   const handleTaskSuccess = useCallback(() => {
     // Clear selected task
@@ -119,6 +181,7 @@ export function useTaskDialogs() {
     handleTaskClick,
     handleEditTask,
     handleCreateTask,
-    handleTaskSuccess
+    handleTaskSuccess,
+    fetchTaskById
   };
 }

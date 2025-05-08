@@ -15,6 +15,7 @@ interface TaskListProps {
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (task: Task) => void;
   className?: string;
+  refreshKey?: number; // Add refreshKey prop for forcing refetch
 }
 
 export function TaskList({ 
@@ -23,7 +24,8 @@ export function TaskList({
   onTaskClick, 
   onEditTask, 
   onDeleteTask,
-  className = "" 
+  className = "",
+  refreshKey = 0
 }: TaskListProps) {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -35,7 +37,7 @@ export function TaskList({
     draggedTask,
     setDraggedTask,
     handleStatusChange
-  } = useTasks({ type, status });
+  } = useTasks({ type, status, refreshKey });
 
   // Handle task click
   const handleTaskClick = (task: Task) => {

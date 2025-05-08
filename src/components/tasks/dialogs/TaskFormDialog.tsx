@@ -12,7 +12,7 @@ import {
 import { TaskFormContent } from "../form/TaskFormContent";
 import { useTaskForm } from "@/hooks/useTaskForm";
 import { TaskAttachments } from "../attachments/TaskAttachments";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TaskFormDialogProps {
@@ -21,7 +21,7 @@ interface TaskFormDialogProps {
   taskId?: string;
   initialData?: Partial<Task>;
   isEditMode?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (taskId?: string) => void;
 }
 
 export function TaskFormDialog({
@@ -41,7 +41,12 @@ export function TaskFormDialog({
     taskId,
     initialData,
     isEditMode,
-    onSuccess,
+    onSuccess: (taskId?: string) => {
+      // When task is successfully created or edited, pass the taskId to the parent component
+      if (onSuccess && taskId) {
+        onSuccess(taskId);
+      }
+    },
     onCancel: () => onOpenChange(false)
   });
 
@@ -64,6 +69,13 @@ export function TaskFormDialog({
     const result = await handleSubmit(data);
     if (result?.taskId) {
       setNewTaskId(result.taskId);
+      // Close the dialog after successful submission and let the parent component handle the redirection
+      if (!isEditMode) {
+        handleDialogOpen(false);
+        if (onSuccess) {
+          onSuccess(result.taskId);
+        }
+      }
     }
     return result;
   };

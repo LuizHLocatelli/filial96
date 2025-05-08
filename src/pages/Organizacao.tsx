@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
@@ -10,6 +10,7 @@ import { TaskDetailsDialog } from "@/components/tasks/TaskDetailsDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Task } from "@/types";
+import { validateTaskType, validateTaskStatus, validatePriority } from "@/utils/typeValidation";
 
 export default function Organizacao() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function Organizacao() {
   const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
   const [taskId, setTaskId] = useState<string>("");
   const { toast } = useToast();
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDialogOpen = (open: boolean) => {
     if (!open) {
@@ -50,6 +52,83 @@ export default function Organizacao() {
     setIsDialogOpen(true);
   };
 
+  // Fetch task by ID function
+  const fetchTaskById = async (taskId: string): Promise<Task | null> => {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("id", taskId)
+        .single();
+        
+      if (error) {
+        console.error("Error fetching task:", error);
+        return null;
+      }
+      
+      if (data) {
+        // Transform data to Task format
+        const task: Task = {
+          id: data.id,
+          type: validateTaskType(data.type),
+          title: data.title,
+          description: data.description || "",
+          status: validateTaskStatus(data.status),
+          assignedTo: data.assigned_to,
+          createdBy: data.created_by,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+          dueDate: data.due_date,
+          completedAt: data.completed_at,
+          priority: validatePriority(data.priority),
+          clientName: data.client_name,
+          clientPhone: data.client_phone,
+          clientAddress: data.client_address,
+          clientCpf: data.client_cpf,
+          notes: data.notes,
+          products: data.notes, // Mapping notes as products
+          purchaseDate: data.purchase_date,
+          expectedArrivalDate: data.expected_arrival_date,
+          expectedDeliveryDate: data.expected_delivery_date,
+          invoiceNumber: data.invoice_number,
+        };
+        
+        return task;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      return null;
+    }
+  };
+
+  // Handle task creation success with redirection to task details
+  const handleTaskCreationSuccess = useCallback(async (createdTaskId?: string) => {
+    if (createdTaskId) {
+      try {
+        const task = await fetchTaskById(createdTaskId);
+        if (task) {
+          // Close task dialog
+          setIsDialogOpen(false);
+          
+          // Set the selected task and show details
+          setSelectedTask(task);
+          setIsTaskDetailsOpen(true);
+          
+          // Refresh the task list
+          setRefreshKey(prev => prev + 1);
+        }
+      } catch (error) {
+        console.error("Error fetching created task:", error);
+      }
+    } else {
+      // Standard success handling if no taskId provided
+      setIsDialogOpen(false);
+      setRefreshKey(prev => prev + 1);
+    }
+  }, []);
+
   const handleDeleteTask = async (task: Task) => {
     try {
       const { error } = await supabase
@@ -66,6 +145,7 @@ export default function Organizacao() {
       
       setSelectedTask(null);
       setIsTaskDetailsOpen(false);
+      setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error('Error deleting task:', error);
       toast({
@@ -103,12 +183,9 @@ export default function Organizacao() {
         open={isDialogOpen}
         onOpenChange={handleDialogOpen}
         taskId={taskId}
-        initialData={selectedTask || undefined}
+        initialData={selectedTask || {type: "organizacao"}}
         isEditMode={isEditMode}
-        onSuccess={() => {
-          setSelectedTask(null);
-          setIsEditMode(false);
-        }}
+        onSuccess={handleTaskCreationSuccess}
       />
       
       {/* Task details dialog */}
@@ -139,6 +216,7 @@ export default function Organizacao() {
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
             className="mt-4"
+            refreshKey={refreshKey}
           />
         </TabsContent>
         <TabsContent value="pendente" className="mt-0">
@@ -149,6 +227,7 @@ export default function Organizacao() {
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
             className="mt-4"
+            refreshKey={refreshKey}
           />
         </TabsContent>
         <TabsContent value="em_andamento" className="mt-0">
@@ -159,6 +238,7 @@ export default function Organizacao() {
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
             className="mt-4"
+            refreshKey={refreshKey}
           />
         </TabsContent>
         <TabsContent value="concluida" className="mt-0">
@@ -169,6 +249,7 @@ export default function Organizacao() {
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
             className="mt-4"
+            refreshKey={refreshKey}
           />
         </TabsContent>
       </Tabs>
