@@ -10,10 +10,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { TaskFormContent } from "../form/TaskFormContent";
-import { useTaskForm } from "@/hooks/tasks/useTaskForm";
+import { useTaskForm } from "@/hooks/useTaskForm";
 import { TaskAttachments } from "../attachments/TaskAttachments";
 import { useState } from "react";
-import { TaskCreationSuccess } from "../create/TaskCreationSuccess";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -79,37 +78,35 @@ export function TaskFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {!isTaskCreated ? (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
-              <TaskFormContent control={form.control} />
-              
-              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleDialogOpen(false)}
-                  className="w-full sm:w-auto"
-                  disabled={isSubmitting}
-                  type="button"
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit"
-                  className="w-full sm:w-auto ml-auto"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        ) : (
-          <TaskCreationSuccess 
-            taskId={newTaskId} 
-            onClose={() => handleDialogOpen(false)} 
-          />
-        )}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleTaskSubmit)} className="space-y-4">
+            <TaskFormContent control={form.control} />
+            
+            {/* Mostrar anexos quando estiver editando OU após uma nova tarefa ser criada */}
+            {(isEditMode || isTaskCreated) && (
+              <TaskAttachments taskId={isEditMode ? taskId : newTaskId} />
+            )}
+            
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => handleDialogOpen(false)}
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+                type="button"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit"
+                className="w-full sm:w-auto"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
