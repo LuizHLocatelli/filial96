@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -94,7 +93,9 @@ export function ClientesAgendados() {
     if (editingCliente) {
       // Edit existing client
       const updatedClientes = clientes.map(cliente => 
-        cliente.id === editingCliente.id ? { ...data, id: editingCliente.id } : cliente
+        cliente.id === editingCliente.id 
+          ? { ...data, id: editingCliente.id } as Cliente
+          : cliente
       );
       setClientes(updatedClientes);
       toast({
@@ -143,33 +144,6 @@ export function ClientesAgendados() {
       description: "O cliente foi removido com sucesso.",
     });
   };
-  
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const days = new Date(year, month + 1, 0).getDate();
-    
-    let daysArray = [];
-    for (let i = 1; i <= days; i++) {
-      daysArray.push(new Date(year, month, i));
-    }
-    
-    return daysArray;
-  };
-  
-  const prevMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setCurrentMonth(newDate);
-  };
-  
-  const nextMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setCurrentMonth(newDate);
-  };
-  
-  const daysInMonth = getDaysInMonth(currentMonth);
   
   // Filter clients by selected month
   const clientesNoMes = clientes.filter((cliente) => {
