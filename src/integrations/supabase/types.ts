@@ -88,6 +88,30 @@ export type Database = {
           },
         ]
       }
+      card_folders: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          sector: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          sector: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          sector?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -117,6 +141,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      promotional_cards: {
+        Row: {
+          created_at: string
+          created_by: string
+          folder_id: string | null
+          id: string
+          image_url: string
+          position: number
+          sector: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          folder_id?: string | null
+          id?: string
+          image_url: string
+          position?: number
+          sector: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          folder_id?: string | null
+          id?: string
+          image_url?: string
+          position?: number
+          sector?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotional_cards_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "card_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {

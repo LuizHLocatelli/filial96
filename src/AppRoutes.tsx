@@ -7,6 +7,7 @@ import Montagens from "./pages/Montagens";
 import Garantias from "./pages/Garantias";
 import Organizacao from "./pages/Organizacao";
 import Cobrancas from "./pages/Cobrancas";
+import PromotionalCards from "./pages/PromotionalCards";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -80,6 +81,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><Cobrancas /></AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/cards-promocionais" 
+        element={
+          <ProtectedRoute>
+            <AppLayout><PromotionalCards /></AppLayout>
           </ProtectedRoute>
         } 
       />
