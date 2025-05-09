@@ -22,8 +22,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useFolders } from "@/hooks/useFolders";
 
 interface PromotionalCardProps {
@@ -47,28 +45,16 @@ export function PromotionalCard({
 }: PromotionalCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const { folders } = useFolders(sector);
   
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   const currentFolder = folders.find(f => f.id === folderId);
 
   return (
     <>
-      <Card 
-        ref={setNodeRef} 
-        style={style} 
-        className="cursor-grab active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
+      <Card>
         <CardContent className="p-3">
           <div 
-            className="aspect-[3/2] relative rounded-md overflow-hidden bg-muted"
+            className="aspect-[3/2] relative rounded-md overflow-hidden bg-muted cursor-pointer"
             onClick={() => setIsDialogOpen(true)}
           >
             <img 

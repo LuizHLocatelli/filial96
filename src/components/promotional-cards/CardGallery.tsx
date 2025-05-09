@@ -5,8 +5,6 @@ import { PromotionalCard } from "@/components/promotional-cards/PromotionalCard"
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
 
 interface CardItem {
   id: string;
@@ -24,20 +22,6 @@ interface CardGalleryProps {
 export function CardGallery({ sector, folderId }: CardGalleryProps) {
   const [cards, setCards] = useState<CardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 10,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    })
-  );
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -142,46 +126,6 @@ export function CardGallery({ sector, folderId }: CardGalleryProps) {
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (!over || active.id === over.id) {
-      return;
-    }
-    
-    const oldIndex = cards.findIndex(card => card.id === active.id);
-    const newIndex = cards.findIndex(card => card.id === over.id);
-    
-    if (oldIndex === -1 || newIndex === -1) return;
-    
-    // Update the local state
-    const newCards = arrayMove(cards, oldIndex, newIndex);
-    setCards(newCards);
-    
-    // Update positions in the database
-    try {
-      const updates = newCards.map((card, index) => ({
-        id: card.id,
-        position: index
-      }));
-      
-      // Update all cards with new positions
-      for (const update of updates) {
-        await supabase
-          .from('promotional_cards')
-          .update({ position: update.position })
-          .eq('id', update.id);
-      }
-    } catch (error) {
-      console.error('Error updating card positions:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar a ordem dos cards",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleMoveToFolder = async (cardId: string, newFolderId: string | null) => {
     try {
       const { error } = await supabase
@@ -195,6 +139,13 @@ export function CardGallery({ sector, folderId }: CardGalleryProps) {
         title: "Sucesso",
         description: newFolderId ? "Card movido para a pasta com sucesso" : "Card removido da pasta com sucesso"
       });
+      
+      // Update local state to reflect the change
+      setCards(cards.map(card => 
+        card.id === cardId 
+          ? {...card, folder_id: newFolderId}
+          : card
+      ));
     } catch (error) {
       console.error('Error moving card to folder:', error);
       toast({
@@ -228,27 +179,19 @@ export function CardGallery({ sector, folderId }: CardGalleryProps) {
   }
 
   return (
-    <DndContext 
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext items={cards.map(c => c.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {cards.map(card => (
-            <PromotionalCard
-              key={card.id}
-              id={card.id}
-              title={card.title}
-              imageUrl={card.image_url}
-              folderId={card.folder_id}
-              onDelete={() => handleDeleteCard(card.id)}
-              onMoveToFolder={handleMoveToFolder}
-              sector={sector}
-            />
-          ))}
-        </div>
-      </SortableContext>
-    </DndContext>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {cards.map(card => (
+        <PromotionalCard
+          key={card.id}
+          id={card.id}
+          title={card.title}
+          imageUrl={card.image_url}
+          folderId={card.folder_id}
+          onDelete={() => handleDeleteCard(card.id)}
+          onMoveToFolder={handleMoveToFolder}
+          sector={sector}
+        />
+      ))}
+    </div>
   );
 }

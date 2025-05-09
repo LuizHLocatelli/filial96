@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface Folder {
   id: string;
@@ -30,6 +31,11 @@ export function useFolders(sector: "furniture" | "fashion") {
       } catch (error) {
         console.error('Error fetching folders:', error);
         setError("Failed to load folders");
+        toast({
+          title: "Erro",
+          description: "Falha ao carregar pastas",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
