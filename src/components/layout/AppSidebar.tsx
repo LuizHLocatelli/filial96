@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, FileWarning, Home, Package, Users, Image } from "lucide-react";
+import { Calendar, ClipboardCheck, FileWarning, Home, Package, Users, Image, CreditCard } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
@@ -74,6 +74,14 @@ export function AppSidebar() {
                   <Link to="/cobrancas">
                     <Users className="h-5 w-5" />
                     <span>Cobrança</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/crediario">
+                    <CreditCard className="h-5 w-5" />
+                    <span>Crediário</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
