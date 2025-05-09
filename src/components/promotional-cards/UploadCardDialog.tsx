@@ -175,15 +175,15 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId: initial
           <div className="space-y-2">
             <Label htmlFor="card-folder">Pasta (opcional)</Label>
             <Select 
-              value={folderId || ""} 
-              onValueChange={(value) => setFolderId(value || null)}
+              value={folderId || "none"} 
+              onValueChange={(value) => setFolderId(value === "none" ? null : value)}
               disabled={isSubmitting}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma pasta (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma pasta</SelectItem>
+                <SelectItem value="none">Nenhuma pasta</SelectItem>
                 {folders.map((folder) => (
                   <SelectItem key={folder.id} value={folder.id}>
                     {folder.name}
