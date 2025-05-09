@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -103,10 +104,20 @@ export function ClientesAgendados() {
         description: "As informações do cliente foram atualizadas com sucesso.",
       });
     } else {
-      // Add new client
+      // Add new client - fix type issue by ensuring all required properties are present
       const newCliente: Cliente = {
         id: Math.random().toString(36).substr(2, 9),
-        ...data
+        nome: data.nome,
+        conta: data.conta,
+        diaContato: data.diaContato,
+        diaPagamento: data.diaPagamento,
+        tipo: data.tipo,
+        valorParcelas: data.valorParcelas,
+        contratosNegociados: data.contratosNegociados,
+        valorEntrada: data.valorEntrada,
+        qtdParcelas: data.qtdParcelas,
+        valorCadaParcela: data.valorCadaParcela,
+        observacao: data.observacao
       };
       setClientes([...clientes, newCliente]);
       toast({
@@ -144,6 +155,34 @@ export function ClientesAgendados() {
       description: "O cliente foi removido com sucesso.",
     });
   };
+
+  // Re-adding the missing functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const days = new Date(year, month + 1, 0).getDate();
+    
+    let daysArray: Date[] = [];
+    for (let i = 1; i <= days; i++) {
+      daysArray.push(new Date(year, month, i));
+    }
+    
+    return daysArray;
+  };
+  
+  const prevMonth = () => {
+    const newDate = new Date(currentMonth);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setCurrentMonth(newDate);
+  };
+  
+  const nextMonth = () => {
+    const newDate = new Date(currentMonth);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setCurrentMonth(newDate);
+  };
+  
+  const daysInMonth = getDaysInMonth(currentMonth);
   
   // Filter clients by selected month
   const clientesNoMes = clientes.filter((cliente) => {
