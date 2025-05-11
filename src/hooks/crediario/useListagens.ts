@@ -71,7 +71,7 @@ export function useListagens() {
         .insert({
           nome: file.name,
           url: fileUrl,
-          created_by: supabase.auth.getUser().then(res => res.data.user?.id)
+          created_by: (await supabase.auth.getUser()).data.user?.id
         })
         .select();
 
