@@ -39,7 +39,8 @@ export function useClientesSupabase() {
           valorEntrada: item.valor_entrada,
           qtdParcelas: item.qtd_parcelas,
           valorCadaParcela: item.valor_cada_parcela,
-          observacao: item.observacao
+          observacao: item.observacao,
+          indicator: item.indicator
         }));
         setClientes(formattedClientes);
       }
@@ -70,6 +71,7 @@ export function useClientesSupabase() {
         qtd_parcelas: data.qtdParcelas,
         valor_cada_parcela: data.valorCadaParcela,
         observacao: data.observacao,
+        indicator: data.indicator,
         created_by: (await supabase.auth.getUser()).data.user?.id
       };
       
@@ -93,7 +95,8 @@ export function useClientesSupabase() {
           valorEntrada: newCliente[0].valor_entrada,
           qtdParcelas: newCliente[0].qtd_parcelas,
           valorCadaParcela: newCliente[0].valor_cada_parcela,
-          observacao: newCliente[0].observacao
+          observacao: newCliente[0].observacao,
+          indicator: newCliente[0].indicator
         };
         
         setClientes(prevClientes => [...prevClientes, cliente]);
@@ -132,7 +135,8 @@ export function useClientesSupabase() {
         valor_entrada: data.valorEntrada,
         qtd_parcelas: data.qtdParcelas,
         valor_cada_parcela: data.valorCadaParcela,
-        observacao: data.observacao
+        observacao: data.observacao,
+        indicator: data.indicator
       };
       
       const { data: updatedData, error } = await supabase
@@ -156,7 +160,8 @@ export function useClientesSupabase() {
           valorEntrada: updatedData[0].valor_entrada,
           qtdParcelas: updatedData[0].qtd_parcelas,
           valorCadaParcela: updatedData[0].valor_cada_parcela,
-          observacao: updatedData[0].observacao
+          observacao: updatedData[0].observacao,
+          indicator: updatedData[0].indicator
         };
         
         setClientes(prevClientes => 

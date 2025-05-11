@@ -121,6 +121,7 @@ export type Database = {
           dia_contato: string
           dia_pagamento: string
           id: string
+          indicator: string | null
           nome: string
           observacao: string | null
           qtd_parcelas: string | null
@@ -137,6 +138,7 @@ export type Database = {
           dia_contato: string
           dia_pagamento: string
           id?: string
+          indicator?: string | null
           nome: string
           observacao?: string | null
           qtd_parcelas?: string | null
@@ -153,6 +155,7 @@ export type Database = {
           dia_contato?: string
           dia_pagamento?: string
           id?: string
+          indicator?: string | null
           nome?: string
           observacao?: string | null
           qtd_parcelas?: string | null
@@ -195,6 +198,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           id: string
+          indicator: string | null
           nome: string
           url: string
         }
@@ -202,6 +206,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
+          indicator?: string | null
           nome: string
           url: string
         }
@@ -209,6 +214,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
+          indicator?: string | null
           nome?: string
           url?: string
         }

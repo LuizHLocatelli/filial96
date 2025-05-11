@@ -2,8 +2,9 @@
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2 } from "lucide-react";
-import { Cliente } from "../types";
+import { Cliente, getIndicatorColor } from "../types";
 
 interface ClientesTableProps {
   clientes: Cliente[];
@@ -29,6 +30,7 @@ export function ClientesTable({ clientes, onEdit, onDelete, onAddNew }: Clientes
               <TableHead>Nome</TableHead>
               <TableHead>Conta</TableHead>
               <TableHead>Tipo</TableHead>
+              <TableHead>Indicador</TableHead>
               <TableHead>Data de Contato</TableHead>
               <TableHead>Data de Pagamento</TableHead>
               <TableHead>Ações</TableHead>
@@ -41,6 +43,15 @@ export function ClientesTable({ clientes, onEdit, onDelete, onAddNew }: Clientes
                 <TableCell>{cliente.conta}</TableCell>
                 <TableCell>
                   {cliente.tipo === "pagamento" ? "Pagamento" : "Renegociação"}
+                </TableCell>
+                <TableCell>
+                  {cliente.indicator ? (
+                    <Badge className={`${getIndicatorColor(cliente.indicator)} text-white`}>
+                      {cliente.indicator}
+                    </Badge>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   {format(cliente.diaContato, "dd/MM/yyyy")}

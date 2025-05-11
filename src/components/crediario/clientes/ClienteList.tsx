@@ -1,8 +1,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClientesTable } from "../components/ClientesTable";
-import { Cliente } from "../types";
+import { Cliente, indicatorOptions } from "../types";
+import { Filter } from "lucide-react";
+import { useState } from "react";
 
 interface ClienteListProps {
   clientes: Cliente[];
@@ -12,17 +15,43 @@ interface ClienteListProps {
 }
 
 export function ClienteList({ clientes, onEdit, onDelete, onAddNew }: ClienteListProps) {
+  const [filterIndicator, setFilterIndicator] = useState<string | null>(null);
+  
+  const filteredClientes = filterIndicator 
+    ? clientes.filter(cliente => cliente.indicator === filterIndicator)
+    : clientes;
+    
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lista de Clientes Agendados</CardTitle>
-        <CardDescription>
-          Todos os clientes com agendamentos de pagamento ou renegociação
-        </CardDescription>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Lista de Clientes Agendados</CardTitle>
+            <CardDescription>
+              Todos os clientes com agendamentos de pagamento ou renegociação
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={filterIndicator || ""} onValueChange={(value) => setFilterIndicator(value || null)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Todos indicadores" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todos indicadores</SelectItem>
+                {indicatorOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <ClientesTable 
-          clientes={clientes}
+          clientes={filteredClientes}
           onEdit={onEdit}
           onDelete={onDelete}
           onAddNew={onAddNew}

@@ -1,5 +1,5 @@
+
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useFileUpload } from "./useFileUpload";
@@ -9,6 +9,7 @@ export interface Listagem {
   nome: string;
   fileUrl: string;
   createdAt: Date;
+  indicator: string | null;
 }
 
 export function useListagens() {
@@ -38,7 +39,8 @@ export function useListagens() {
           id: item.id,
           nome: item.nome,
           fileUrl: item.url,
-          createdAt: new Date(item.created_at)
+          createdAt: new Date(item.created_at),
+          indicator: item.indicator
         }));
         setListagens(formattedListagens);
       }
@@ -55,14 +57,14 @@ export function useListagens() {
   };
 
   // Adicionar nova listagem
-  const addListagem = async (file: File) => {
-    if (!file) return;
+  const addListagem = async (file: File, indicator: string | null) => {
+    if (!file) return false;
 
     try {
       // 1. Upload do arquivo para o Storage
       const fileUrl = await uploadFile(file, { bucketName: 'crediario_listagens' });
       
-      if (!fileUrl) return;
+      if (!fileUrl) return false;
 
       // 2. Salvar metadados no banco de dados
       const { data, error } = await supabase
@@ -70,7 +72,8 @@ export function useListagens() {
         .insert({
           nome: file.name,
           url: fileUrl,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+          indicator: indicator
         })
         .select();
 
@@ -81,7 +84,8 @@ export function useListagens() {
           id: data[0].id,
           nome: data[0].nome,
           fileUrl: data[0].url,
-          createdAt: new Date(data[0].created_at)
+          createdAt: new Date(data[0].created_at),
+          indicator: data[0].indicator
         };
         
         setListagens(prevListagens => [newListagem, ...prevListagens]);

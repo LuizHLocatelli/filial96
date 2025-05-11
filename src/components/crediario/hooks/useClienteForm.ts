@@ -24,6 +24,7 @@ export function useClienteForm(
       qtdParcelas: cliente.qtdParcelas || "",
       valorCadaParcela: cliente.valorCadaParcela || "",
       observacao: cliente.observacao || "",
+      indicator: cliente.indicator || "",
     } : {
       nome: "",
       conta: "",
@@ -34,6 +35,7 @@ export function useClienteForm(
       qtdParcelas: "",
       valorCadaParcela: "",
       observacao: "",
+      indicator: "",
     }
   });
   
