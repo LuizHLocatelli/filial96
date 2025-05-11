@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,6 +12,45 @@ interface FileUploadOptions {
 export function useFileUpload() {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Ensure buckets exist when the hook is used
+  useEffect(() => {
+    const ensureBucketsExist = async () => {
+      try {
+        // Check if crediario_depositos bucket exists
+        const { data: depositosData, error: depositosError } = await supabase
+          .storage
+          .getBucket('crediario_depositos');
+        
+        if (depositosError && depositosError.code !== 'PGRST116') {
+          // Create the bucket if it doesn't exist
+          await supabase.storage.createBucket('crediario_depositos', {
+            public: true,
+            fileSizeLimit: 10485760 // 10MB
+          });
+          console.log('Created crediario_depositos bucket');
+        }
+        
+        // Check if crediario_listagens bucket exists
+        const { data: listagensData, error: listagensError } = await supabase
+          .storage
+          .getBucket('crediario_listagens');
+        
+        if (listagensError && listagensError.code !== 'PGRST116') {
+          // Create the bucket if it doesn't exist
+          await supabase.storage.createBucket('crediario_listagens', {
+            public: true,
+            fileSizeLimit: 10485760 // 10MB
+          });
+          console.log('Created crediario_listagens bucket');
+        }
+      } catch (error) {
+        console.error("Error checking/creating buckets:", error);
+      }
+    };
+    
+    ensureBucketsExist();
+  }, []);
 
   const uploadFile = async (file: File, options: FileUploadOptions): Promise<string | null> => {
     if (!file) return null;
@@ -26,8 +65,10 @@ export function useFileUpload() {
         ? `${options.folder}/${fileName}`
         : fileName;
       
+      console.log(`Starting upload to ${options.bucketName}/${filePath}`);
+      
       // Upload do arquivo para o Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from(options.bucketName)
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -35,15 +76,18 @@ export function useFileUpload() {
         });
       
       if (uploadError) {
+        console.error("Upload error:", uploadError);
         throw uploadError;
       }
       
+      console.log(`File uploaded successfully: ${filePath}`);
+      
       // Obter a URL pública do arquivo
-      const { data } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from(options.bucketName)
         .getPublicUrl(filePath);
       
-      return data.publicUrl;
+      return urlData.publicUrl;
     } catch (error) {
       console.error("Erro ao fazer upload do arquivo:", error);
       toast({

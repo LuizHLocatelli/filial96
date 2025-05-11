@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ export function Listagens() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
   const { listagens, isLoading, isUploading, addListagem, deleteListagem } = useListagens();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -26,6 +27,12 @@ export function Listagens() {
         return;
       }
       setSelectedFile(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -66,23 +73,32 @@ export function Listagens() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center">
+          <div 
+            className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer"
+            onClick={triggerFileInput}
+          >
             <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
             <p className="text-sm text-muted-foreground mb-2">
               Clique para selecionar ou arraste um arquivo PDF
             </p>
             <Input
               id="pdf-upload"
+              ref={fileInputRef}
               type="file"
               accept="application/pdf"
               onChange={handleFileChange}
               className="hidden"
             />
-            <label htmlFor="pdf-upload">
-              <Button variant="outline" className="cursor-pointer">
-                Selecionar arquivo
-              </Button>
-            </label>
+            <Button 
+              variant="outline" 
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerFileInput();
+              }}
+            >
+              Selecionar arquivo
+            </Button>
           </div>
           {selectedFile && (
             <div className="mt-4">

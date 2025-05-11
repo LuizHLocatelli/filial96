@@ -29,6 +29,16 @@ export function DepositFormDialog({
   handleRemoveFile,
   handleSubmit
 }: DepositFormDialogProps) {
+  // Create a reference to the file input
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Function to trigger file input click
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogContent>
@@ -62,23 +72,33 @@ export function DepositFormDialog({
                 </Button>
               </div>
             ) : (
-              <div className="border border-dashed rounded-md p-6 flex flex-col items-center justify-center">
+              <div 
+                className="border border-dashed rounded-md p-6 flex flex-col items-center justify-center cursor-pointer"
+                onClick={triggerFileInput}
+              >
                 <Upload className="h-10 w-10 text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground mb-2">
                   Clique para selecionar ou arraste uma imagem
                 </p>
                 <Input
                   id="comprovante"
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <label htmlFor="comprovante">
-                  <Button variant="outline" type="button" className="cursor-pointer">
-                    Selecionar arquivo
-                  </Button>
-                </label>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    triggerFileInput();
+                  }}
+                >
+                  Selecionar arquivo
+                </Button>
               </div>
             )}
           </div>
