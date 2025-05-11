@@ -45,21 +45,21 @@ export function DepositionsCalendar({
             </Button>
           </div>
         </div>
-        <CardDescription>
+        <CardDescription className="text-center sm:text-left">
           Clique em um dia para marcar como concluído ou adicionar um comprovante
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className={isMobile ? "px-1 py-2" : "px-6 py-4"}>
         <div className="grid grid-cols-7 gap-1">
           {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-            <div key={day} className="text-center font-medium p-2 text-sm text-muted-foreground">
+            <div key={day} className="text-center font-medium p-1 text-xs sm:text-sm text-muted-foreground">
               {isMobile ? day.charAt(0) : day}
             </div>
           ))}
           
           {/* Espaços vazios antes do primeiro dia do mês */}
           {Array.from({ length: diasDoMes[0].getDay() }).map((_, i) => (
-            <div key={`empty-start-${i}`} className="p-2"></div>
+            <div key={`empty-start-${i}`} className="p-1"></div>
           ))}
           
           {/* Dias do mês */}
@@ -78,16 +78,16 @@ export function DepositionsCalendar({
                 onClick={() => !isWeekend && handleSelectDay(day)}
                 disabled={isWeekend}
                 className={`
-                  p-1 sm:p-2 ${isMobile ? 'h-12' : 'h-16'} border rounded-md flex flex-col items-center justify-center
+                  p-1 ${isMobile ? 'h-10' : 'h-16'} border rounded-md flex flex-col items-center justify-center
                   ${isToday ? "bg-muted" : ""}
                   ${isWeekend ? "bg-gray-50 opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}
                   ${deposito?.concluido ? "border-green-500 border-2" : ""}
                 `}
               >
-                <div className="font-medium text-sm sm:text-base">{day.getDate()}</div>
+                <div className="font-medium text-xs sm:text-base">{day.getDate()}</div>
                 <div className="flex items-center gap-1">
                   {deposito?.concluido && (
-                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                    <CheckCircle className="h-3 w-3 text-green-500" />
                   )}
                   {deposito?.comprovante && (
                     <ImageIcon 

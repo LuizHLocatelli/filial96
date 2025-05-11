@@ -13,7 +13,7 @@ const Crediario = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center sm:text-left">
+      <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Crediário</h2>
         <p className="text-muted-foreground text-sm sm:text-base">
           Gerenciamento de cobranças, clientes agendados, depósitos e folgas
@@ -21,22 +21,54 @@ const Crediario = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className={`grid ${isMobile ? "grid-cols-2 gap-1 mb-2" : "grid-cols-4"} w-full sm:w-auto md:w-[600px]`}>
-          <TabsTrigger value="listagens" className="text-sm sm:text-base">Listagens</TabsTrigger>
-          <TabsTrigger value="clientes" className="text-sm sm:text-base">Clientes</TabsTrigger>
-          {isMobile && (
-            <>
-              <TabsTrigger value="depositos" className="text-sm sm:text-base">Depósitos</TabsTrigger>
-              <TabsTrigger value="folgas" className="text-sm sm:text-base">Folgas</TabsTrigger>
-            </>
-          )}
-          {!isMobile && (
-            <>
-              <TabsTrigger value="depositos" className="text-sm sm:text-base">Depósitos</TabsTrigger>
-              <TabsTrigger value="folgas" className="text-sm sm:text-base">Folgas</TabsTrigger>
-            </>
-          )}
-        </TabsList>
+        <div className="flex justify-center w-full mb-2">
+          <TabsList className={`grid ${isMobile ? "grid-cols-2 gap-2" : "grid-cols-4"} w-full max-w-md`}>
+            <TabsTrigger 
+              value="listagens" 
+              className={`text-sm sm:text-base py-2 ${isMobile ? "px-1" : "px-4"}`}
+            >
+              Listagens
+            </TabsTrigger>
+            <TabsTrigger 
+              value="clientes" 
+              className={`text-sm sm:text-base py-2 ${isMobile ? "px-1" : "px-4"}`}
+            >
+              Clientes
+            </TabsTrigger>
+            {isMobile && (
+              <>
+                <TabsTrigger 
+                  value="depositos" 
+                  className="text-sm sm:text-base py-2 px-1"
+                >
+                  Depósitos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="folgas" 
+                  className="text-sm sm:text-base py-2 px-1"
+                >
+                  Folgas
+                </TabsTrigger>
+              </>
+            )}
+            {!isMobile && (
+              <>
+                <TabsTrigger 
+                  value="depositos" 
+                  className="text-sm sm:text-base py-2 px-4"
+                >
+                  Depósitos
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="folgas" 
+                  className="text-sm sm:text-base py-2 px-4"
+                >
+                  Folgas
+                </TabsTrigger>
+              </>
+            )}
+          </TabsList>
+        </div>
         
         <TabsContent value="listagens" className="mt-4 sm:mt-6">
           <Listagens />
