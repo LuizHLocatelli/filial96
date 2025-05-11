@@ -33,12 +33,12 @@ export function ClienteList({ clientes, onEdit, onDelete, onAddNew }: ClienteLis
           </div>
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select value={filterIndicator || ""} onValueChange={(value) => setFilterIndicator(value || null)}>
+            <Select value={filterIndicator || "all"} onValueChange={(value) => setFilterIndicator(value === "all" ? null : value)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Todos indicadores" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos indicadores</SelectItem>
+                <SelectItem value="all">Todos indicadores</SelectItem>
                 {indicatorOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}

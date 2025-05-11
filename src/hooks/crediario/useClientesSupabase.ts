@@ -59,6 +59,9 @@ export function useClientesSupabase() {
   // Adicionar cliente
   const addCliente = async (data: ClienteFormValues): Promise<Cliente | null> => {
     try {
+      // Transform indicator value
+      const indicatorValue = data.indicator === "none" || !data.indicator ? null : data.indicator;
+      
       const clienteData = {
         nome: data.nome,
         conta: data.conta,
@@ -71,7 +74,7 @@ export function useClientesSupabase() {
         qtd_parcelas: data.qtdParcelas,
         valor_cada_parcela: data.valorCadaParcela,
         observacao: data.observacao,
-        indicator: data.indicator,
+        indicator: indicatorValue,
         created_by: (await supabase.auth.getUser()).data.user?.id
       };
       
@@ -124,6 +127,9 @@ export function useClientesSupabase() {
   // Atualizar cliente
   const updateCliente = async (clienteId: string, data: ClienteFormValues): Promise<Cliente | null> => {
     try {
+      // Transform indicator value
+      const indicatorValue = data.indicator === "none" || !data.indicator ? null : data.indicator;
+      
       const clienteData = {
         nome: data.nome,
         conta: data.conta,
@@ -136,7 +142,7 @@ export function useClientesSupabase() {
         qtd_parcelas: data.qtdParcelas,
         valor_cada_parcela: data.valorCadaParcela,
         observacao: data.observacao,
-        indicator: data.indicator
+        indicator: indicatorValue
       };
       
       const { data: updatedData, error } = await supabase

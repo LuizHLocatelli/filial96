@@ -140,11 +140,12 @@ export function Listagens() {
               
               <div className="space-y-2">
                 <p className="text-sm font-medium">Indicador:</p>
-                <Select value={selectedIndicator || ""} onValueChange={setSelectedIndicator}>
+                <Select value={selectedIndicator || "none"} onValueChange={setSelectedIndicator}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione um indicador" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">Nenhum</SelectItem>
                     {indicatorOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
@@ -179,12 +180,12 @@ export function Listagens() {
               </div>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
-                <Select value={filterIndicator || ""} onValueChange={(value) => setFilterIndicator(value || null)}>
+                <Select value={filterIndicator || "all"} onValueChange={(value) => setFilterIndicator(value === "all" ? null : value)}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Todos indicadores" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos indicadores</SelectItem>
+                    <SelectItem value="all">Todos indicadores</SelectItem>
                     {indicatorOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}

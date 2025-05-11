@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useFileUpload } from "./useFileUpload";
 
 export interface Listagem {
   id: string;
@@ -15,15 +14,13 @@ export interface Listagem {
 export function useListagens() {
   const [listagens, setListagens] = useState<Listagem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const { uploadFile, isUploading } = useFileUpload();
 
-  // Carregar listagens ao iniciar
   useEffect(() => {
     fetchListagens();
   }, []);
 
-  // Buscar listagens do Supabase
   const fetchListagens = async () => {
     setIsLoading(true);
     try {
@@ -38,7 +35,7 @@ export function useListagens() {
         const formattedListagens: Listagem[] = data.map(item => ({
           id: item.id,
           nome: item.nome,
-          fileUrl: item.url,
+          fileUrl: item.file_url,
           createdAt: new Date(item.created_at),
           indicator: item.indicator
         }));
@@ -56,46 +53,52 @@ export function useListagens() {
     }
   };
 
-  // Adicionar nova listagem
-  const addListagem = async (file: File, indicator: string | null) => {
-    if (!file) return false;
-
+  const addListagem = async (file: File, indicator: string | null): Promise<boolean> => {
+    setIsUploading(true);
     try {
-      // 1. Upload do arquivo para o Storage
-      const fileUrl = await uploadFile(file, { bucketName: 'crediario_listagens' });
+      // Transform indicator value
+      const indicatorValue = indicator === "none" || !indicator ? null : indicator;
       
-      if (!fileUrl) return false;
-
-      // 2. Salvar metadados no banco de dados
-      const { data, error } = await supabase
-        .from('crediario_listagens')
-        .insert({
-          nome: file.name,
-          url: fileUrl,
-          created_by: (await supabase.auth.getUser()).data.user?.id,
-          indicator: indicator
-        })
-        .select();
-
-      if (error) throw error;
+      const fileName = file.name;
+      const fileExt = fileName.split('.').pop();
+      const filePath = `crediario/listagens/${Date.now()}_${fileName}`;
       
-      if (data && data[0]) {
-        const newListagem: Listagem = {
-          id: data[0].id,
-          nome: data[0].nome,
-          fileUrl: data[0].url,
-          createdAt: new Date(data[0].created_at),
-          indicator: data[0].indicator
-        };
+      // Upload file to storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file);
         
-        setListagens(prevListagens => [newListagem, ...prevListagens]);
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: publicUrlData } = await supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
         
-        toast({
-          title: "Listagem adicionada",
-          description: "A listagem foi adicionada com sucesso.",
-        });
+      if (!publicUrlData || !publicUrlData.publicUrl) {
+        throw new Error("Failed to get public URL for uploaded file");
       }
       
+      // Insert record in database
+      const { error: insertError } = await supabase
+        .from('crediario_listagens')
+        .insert({
+          nome: fileName,
+          file_url: publicUrlData.publicUrl,
+          file_path: filePath,
+          file_type: fileExt,
+          indicator: indicatorValue,
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        });
+        
+      if (insertError) throw insertError;
+      
+      toast({
+        title: "Upload concluído",
+        description: "A listagem foi adicionada com sucesso.",
+      });
+      
+      await fetchListagens();
       return true;
     } catch (error) {
       console.error("Erro ao adicionar listagem:", error);
@@ -105,35 +108,35 @@ export function useListagens() {
         variant: "destructive",
       });
       return false;
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  // Excluir listagem
-  const deleteListagem = async (id: string, fileUrl: string) => {
+  const deleteListagem = async (id: string, fileUrl: string): Promise<boolean> => {
     try {
-      // 1. Extrair o caminho do arquivo da URL
-      const urlParts = fileUrl.split('crediario_listagens/');
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        
-        // 2. Excluir o arquivo do Storage
-        const { error: storageError } = await supabase.storage
-          .from('crediario_listagens')
-          .remove([filePath]);
-          
-        if (storageError) throw storageError;
-      }
+      // Extract file path from URL
+      const urlParts = fileUrl.split('/');
+      const filePath = `crediario/listagens/${urlParts[urlParts.length - 1]}`;
       
-      // 3. Excluir registro do banco de dados
-      const { error: dbError } = await supabase
+      // Delete record from database
+      const { error: deleteError } = await supabase
         .from('crediario_listagens')
         .delete()
         .eq('id', id);
         
-      if (dbError) throw dbError;
+      if (deleteError) throw deleteError;
       
-      // 4. Atualizar estado local
-      setListagens(prevListagens => prevListagens.filter(item => item.id !== id));
+      // Delete file from storage
+      try {
+        await supabase.storage
+          .from('documents')
+          .remove([filePath]);
+      } catch (storageError) {
+        console.error("Erro ao excluir arquivo de storage:", storageError);
+      }
+      
+      setListagens(prev => prev.filter(item => item.id !== id));
       
       toast({
         title: "Listagem removida",
@@ -157,7 +160,6 @@ export function useListagens() {
     isLoading,
     isUploading,
     addListagem,
-    deleteListagem,
-    refreshListagens: fetchListagens
+    deleteListagem
   };
 }

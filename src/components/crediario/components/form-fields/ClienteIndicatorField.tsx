@@ -24,7 +24,7 @@ export function ClienteIndicatorField() {
                 <SelectValue placeholder="Selecione um indicador" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhum</SelectItem>
+                <SelectItem value="none">Nenhum</SelectItem>
                 {indicatorOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
