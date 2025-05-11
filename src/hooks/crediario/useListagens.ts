@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 export interface Listagem {
   id: string;
   nome: string;
-  fileUrl: string;
+  fileUrl: string; // This will be populated from url column
   createdAt: Date;
   indicator: string | null;
 }
@@ -35,7 +35,7 @@ export function useListagens() {
         const formattedListagens: Listagem[] = data.map(item => ({
           id: item.id,
           nome: item.nome,
-          fileUrl: item.file_url,
+          fileUrl: item.url, // Changed from file_url to url
           createdAt: new Date(item.created_at),
           indicator: item.indicator
         }));
@@ -84,9 +84,7 @@ export function useListagens() {
         .from('crediario_listagens')
         .insert({
           nome: fileName,
-          file_url: publicUrlData.publicUrl,
-          file_path: filePath,
-          file_type: fileExt,
+          url: publicUrlData.publicUrl, // Changed from file_url to url
           indicator: indicatorValue,
           created_by: (await supabase.auth.getUser()).data.user?.id
         });
