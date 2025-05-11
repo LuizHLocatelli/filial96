@@ -10,18 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { CheckCircle, ChevronLeft, ChevronRight, Upload, X, Image as ImageIcon } from "lucide-react";
-
-interface Deposito {
-  id: string;
-  data: Date;
-  concluido: boolean;
-  comprovante: string | null;
-}
+import { useDepositos, Deposito } from "@/hooks/crediario/useDepositos";
 
 export function Depositos() {
   const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [depositos, setDepositos] = useState<Deposito[]>([]);
+  const { depositos, isLoading, isUploading, saveDeposito, deleteDeposito } = useDepositos();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -96,55 +90,22 @@ export function Depositos() {
     setPreviewUrl(null);
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedDay) return;
     
-    if (!previewUrl) {
-      toast({
-        title: "Comprovante obrigatório",
-        description: "Por favor, adicione uma imagem do comprovante de depósito.",
-        variant: "destructive",
-      });
-      return;
-    }
+    const depositoData: Partial<Deposito> = {
+      id: depositoId || undefined,
+      data: selectedDay,
+      concluido: true,
+      comprovante: depositoId ? previewUrl : undefined
+    };
     
-    // Se estamos editando um depósito existente
-    if (depositoId) {
-      setDepositos(
-        depositos.map((deposito) =>
-          deposito.id === depositoId
-            ? {
-                ...deposito,
-                concluido: true,
-                comprovante: previewUrl,
-              }
-            : deposito
-        )
-      );
-      
-      toast({
-        title: "Depósito atualizado",
-        description: `Depósito de ${format(selectedDay, "dd/MM/yyyy")} atualizado com sucesso.`,
-      });
-    } else {
-      // Criar um novo depósito
-      const novoDeposito: Deposito = {
-        id: Math.random().toString(36).substr(2, 9),
-        data: selectedDay,
-        concluido: true,
-        comprovante: previewUrl,
-      };
-      
-      setDepositos([...depositos, novoDeposito]);
-      
-      toast({
-        title: "Depósito concluído",
-        description: `Depósito de ${format(selectedDay, "dd/MM/yyyy")} registrado com sucesso.`,
-      });
-    }
+    const success = await saveDeposito(depositoData, selectedFile);
     
-    setOpenDialog(false);
-    setSelectedDay(null);
+    if (success) {
+      setOpenDialog(false);
+      setSelectedDay(null);
+    }
   };
   
   const calcularProgresso = () => {
@@ -169,118 +130,124 @@ export function Depositos() {
   
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-1">
-          <CardHeader>
-            <CardTitle>Acompanhamento de Depósitos</CardTitle>
-            <CardDescription>
-              Progresso dos depósitos bancários neste mês
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Progresso</span>
-                <span className="text-sm font-medium">{progresso}%</span>
-              </div>
-              <Progress value={progresso} className="h-2" />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle>Acompanhamento de Depósitos</CardTitle>
+              <CardDescription>
+                Progresso dos depósitos bancários neste mês
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
-                <span className="text-muted-foreground text-sm">Total de Depósitos</span>
-                <p className="text-xl font-bold">
-                  {depositos.filter((d) => 
-                    d.data.getMonth() === currentMonth.getMonth() && 
-                    d.data.getFullYear() === currentMonth.getFullYear()
-                  ).length}
-                </p>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-sm">Dias Úteis</span>
-                <p className="text-xl font-bold">
-                  {diasDoMes.filter((day) => ![0, 6].includes(day.getDay())).length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-center">
-              <CardTitle>Calendário de Depósitos</CardTitle>
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" size="icon" onClick={handlePrevMonth}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="font-medium min-w-[120px] text-center">
-                  {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
-                </span>
-                <Button variant="outline" size="icon" onClick={handleNextMonth}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <CardDescription>
-              Clique em um dia para marcar como concluído ou adicionar um comprovante
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-7 gap-1">
-              {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                <div key={day} className="text-center font-medium p-2 text-sm text-muted-foreground">
-                  {day}
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium">Progresso</span>
+                  <span className="text-sm font-medium">{progresso}%</span>
                 </div>
-              ))}
+                <Progress value={progresso} className="h-2" />
+              </div>
               
-              {/* Espaços vazios antes do primeiro dia do mês */}
-              {Array.from({ length: diasDoMes[0].getDay() }).map((_, i) => (
-                <div key={`empty-start-${i}`} className="p-2"></div>
-              ))}
-              
-              {/* Dias do mês */}
-              {diasDoMes.map((day) => {
-                const deposito = depositos.find(
-                  (deposito) => isSameDay(deposito.data, day)
-                );
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-muted-foreground text-sm">Total de Depósitos</span>
+                  <p className="text-xl font-bold">
+                    {depositos.filter((d) => 
+                      d.data.getMonth() === currentMonth.getMonth() && 
+                      d.data.getFullYear() === currentMonth.getFullYear()
+                    ).length}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-sm">Dias Úteis</span>
+                  <p className="text-xl font-bold">
+                    {diasDoMes.filter((day) => ![0, 6].includes(day.getDay())).length}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="md:col-span-2">
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-center">
+                <CardTitle>Calendário de Depósitos</CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="icon" onClick={handlePrevMonth}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="font-medium min-w-[120px] text-center">
+                    {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
+                  </span>
+                  <Button variant="outline" size="icon" onClick={handleNextMonth}>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <CardDescription>
+                Clique em um dia para marcar como concluído ou adicionar um comprovante
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-7 gap-1">
+                {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
+                  <div key={day} className="text-center font-medium p-2 text-sm text-muted-foreground">
+                    {day}
+                  </div>
+                ))}
                 
-                const isWeekend = [0, 6].includes(day.getDay());
-                const isToday = isSameDay(day, new Date());
+                {/* Espaços vazios antes do primeiro dia do mês */}
+                {Array.from({ length: diasDoMes[0].getDay() }).map((_, i) => (
+                  <div key={`empty-start-${i}`} className="p-2"></div>
+                ))}
                 
-                return (
-                  <button
-                    key={day.toString()}
-                    type="button"
-                    onClick={() => !isWeekend && handleSelectDay(day)}
-                    disabled={isWeekend}
-                    className={`
-                      p-2 h-16 border rounded-md flex flex-col items-center justify-center
-                      ${isToday ? "bg-muted" : ""}
-                      ${isWeekend ? "bg-gray-50 opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}
-                      ${deposito?.concluido ? "border-green-500 border-2" : ""}
-                    `}
-                  >
-                    <div className="font-medium">{day.getDate()}</div>
-                    {deposito?.concluido && (
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-1" />
-                    )}
-                    {deposito?.comprovante && (
-                      <ImageIcon 
-                        className="h-3 w-3 text-blue-500 mt-1 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setViewImage(deposito.comprovante);
-                        }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                {/* Dias do mês */}
+                {diasDoMes.map((day) => {
+                  const deposito = depositos.find(
+                    (deposito) => isSameDay(deposito.data, day)
+                  );
+                  
+                  const isWeekend = [0, 6].includes(day.getDay());
+                  const isToday = isSameDay(day, new Date());
+                  
+                  return (
+                    <button
+                      key={day.toString()}
+                      type="button"
+                      onClick={() => !isWeekend && handleSelectDay(day)}
+                      disabled={isWeekend}
+                      className={`
+                        p-2 h-16 border rounded-md flex flex-col items-center justify-center
+                        ${isToday ? "bg-muted" : ""}
+                        ${isWeekend ? "bg-gray-50 opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}
+                        ${deposito?.concluido ? "border-green-500 border-2" : ""}
+                      `}
+                    >
+                      <div className="font-medium">{day.getDate()}</div>
+                      {deposito?.concluido && (
+                        <CheckCircle className="h-4 w-4 text-green-500 mt-1" />
+                      )}
+                      {deposito?.comprovante && (
+                        <ImageIcon 
+                          className="h-3 w-3 text-blue-500 mt-1 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewImage(deposito.comprovante);
+                          }}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
       
       {/* Dialog para adicionar comprovante */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -327,11 +294,11 @@ export function Depositos() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <Label htmlFor="comprovante">
+                  <label htmlFor="comprovante">
                     <Button variant="outline" type="button" className="cursor-pointer">
                       Selecionar arquivo
                     </Button>
-                  </Label>
+                  </label>
                 </div>
               )}
             </div>
@@ -341,8 +308,8 @@ export function Depositos() {
             <Button variant="outline" onClick={() => setOpenDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit}>
-              {depositoId ? "Atualizar Depósito" : "Registrar Depósito"}
+            <Button onClick={handleSubmit} disabled={isUploading}>
+              {isUploading ? "Salvando..." : (depositoId ? "Atualizar Depósito" : "Registrar Depósito")}
             </Button>
           </DialogFooter>
         </DialogContent>

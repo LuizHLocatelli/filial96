@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Cliente, ClienteFormValues, clienteFormSchema } from "../types";
+import { useState } from "react";
 
 interface ClienteFormProps {
   cliente?: Cliente | null;
@@ -22,6 +23,8 @@ interface ClienteFormProps {
 }
 
 export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<ClienteFormValues>({
     resolver: zodResolver(clienteFormSchema),
     defaultValues: cliente ? {
@@ -51,9 +54,18 @@ export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
   
   const tipoAgendamento = form.watch("tipo");
   
+  const handleFormSubmit = async (data: ClienteFormValues) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(data);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -287,8 +299,11 @@ export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
-          <Button type="submit">
-            {cliente ? "Salvar Alterações" : "Adicionar Cliente"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting 
+              ? "Salvando..." 
+              : (cliente ? "Salvar Alterações" : "Adicionar Cliente")
+            }
           </Button>
         </DialogFooter>
       </form>

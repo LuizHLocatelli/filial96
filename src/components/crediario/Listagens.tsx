@@ -5,20 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UploadCloud, FileText, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Listagem {
-  id: string;
-  name: string;
-  createdAt: Date;
-  fileUrl: string;
-}
+import { useListagens } from "@/hooks/crediario/useListagens";
+import { format } from "date-fns";
 
 export function Listagens() {
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [listagens, setListagens] = useState<Listagem[]>([]);
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
+  const { listagens, isLoading, isUploading, addListagem, deleteListagem } = useListagens();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -35,7 +29,7 @@ export function Listagens() {
     }
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!selectedFile) {
       toast({
         title: "Nenhum arquivo selecionado",
@@ -45,37 +39,17 @@ export function Listagens() {
       return;
     }
 
-    setIsUploading(true);
-
-    // Simulating upload
-    setTimeout(() => {
-      const newListagem: Listagem = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: selectedFile.name,
-        createdAt: new Date(),
-        fileUrl: URL.createObjectURL(selectedFile),
-      };
-
-      setListagens([newListagem, ...listagens]);
+    const success = await addListagem(selectedFile);
+    if (success) {
       setSelectedFile(null);
-      setIsUploading(false);
-
-      toast({
-        title: "Upload concluído",
-        description: "Sua listagem foi adicionada com sucesso.",
-      });
-    }, 1500);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setListagens(listagens.filter(item => item.id !== id));
-    if (selectedPdf) {
+  const handleDelete = async (id: string, fileUrl: string) => {
+    if (selectedPdf === fileUrl) {
       setSelectedPdf(null);
     }
-    toast({
-      title: "Listagem removida",
-      description: "A listagem foi excluída com sucesso."
-    });
+    await deleteListagem(id, fileUrl);
   };
 
   const handleView = (fileUrl: string) => {
@@ -137,7 +111,11 @@ export function Listagens() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {listagens.length === 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center py-6">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : listagens.length === 0 ? (
               <div className="text-center py-6">
                 <FileText className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">Nenhuma listagem cadastrada</p>
@@ -152,9 +130,9 @@ export function Listagens() {
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">{item.name}</p>
+                        <p className="font-medium">{item.nome}</p>
                         <p className="text-sm text-muted-foreground">
-                          {item.createdAt.toLocaleDateString()}
+                          {format(item.createdAt, "dd/MM/yyyy")}
                         </p>
                       </div>
                     </div>
@@ -163,7 +141,7 @@ export function Listagens() {
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Ver</span>
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDelete(item.id)}>
+                      <Button size="sm" variant="ghost" onClick={() => handleDelete(item.id, item.fileUrl)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         <span className="sr-only">Excluir</span>
                       </Button>

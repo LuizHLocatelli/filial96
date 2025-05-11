@@ -2,10 +2,18 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Cliente, ClienteFormValues } from "../types";
+import { useClientesSupabase } from "@/hooks/crediario/useClientesSupabase";
 
 export const useClientes = () => {
   const { toast } = useToast();
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const { 
+    clientes, 
+    isLoading, 
+    addCliente: addClienteSupabase, 
+    updateCliente: updateClienteSupabase, 
+    deleteCliente: deleteClienteSupabase 
+  } = useClientesSupabase();
+  
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -44,60 +52,34 @@ export const useClientes = () => {
     return pagamentoMonth === currentMonth.getMonth() && pagamentoYear === currentMonth.getFullYear();
   });
 
-  const addCliente = (data: ClienteFormValues) => {
-    const newCliente: Cliente = {
-      id: Math.random().toString(36).substr(2, 9),
-      nome: data.nome,
-      conta: data.conta,
-      diaContato: data.diaContato,
-      diaPagamento: data.diaPagamento,
-      tipo: data.tipo,
-      valorParcelas: data.valorParcelas,
-      contratosNegociados: data.contratosNegociados,
-      valorEntrada: data.valorEntrada,
-      qtdParcelas: data.qtdParcelas,
-      valorCadaParcela: data.valorCadaParcela,
-      observacao: data.observacao
-    };
-    setClientes([...clientes, newCliente]);
-    toast({
-      title: "Cliente adicionado",
-      description: "O cliente foi adicionado com sucesso.",
-    });
+  const addCliente = async (data: ClienteFormValues) => {
+    const newCliente = await addClienteSupabase(data);
+    if (newCliente) {
+      toast({
+        title: "Cliente adicionado",
+        description: "O cliente foi adicionado com sucesso.",
+      });
+    }
   };
 
-  const updateCliente = (clienteId: string, data: ClienteFormValues) => {
-    const updatedClientes = clientes.map(cliente => 
-      cliente.id === clienteId 
-        ? { 
-            ...cliente,
-            nome: data.nome,
-            conta: data.conta,
-            diaContato: data.diaContato,
-            diaPagamento: data.diaPagamento,
-            tipo: data.tipo,
-            valorParcelas: data.valorParcelas,
-            contratosNegociados: data.contratosNegociados,
-            valorEntrada: data.valorEntrada,
-            qtdParcelas: data.qtdParcelas,
-            valorCadaParcela: data.valorCadaParcela,
-            observacao: data.observacao
-          }
-        : cliente
-    );
-    setClientes(updatedClientes);
-    toast({
-      title: "Cliente atualizado",
-      description: "As informações do cliente foram atualizadas com sucesso.",
-    });
+  const updateCliente = async (clienteId: string, data: ClienteFormValues) => {
+    const updatedCliente = await updateClienteSupabase(clienteId, data);
+    if (updatedCliente) {
+      toast({
+        title: "Cliente atualizado",
+        description: "As informações do cliente foram atualizadas com sucesso.",
+      });
+    }
   };
 
-  const deleteCliente = (id: string) => {
-    setClientes(clientes.filter(cliente => cliente.id !== id));
-    toast({
-      title: "Cliente removido",
-      description: "O cliente foi removido com sucesso.",
-    });
+  const deleteCliente = async (id: string) => {
+    const success = await deleteClienteSupabase(id);
+    if (success) {
+      toast({
+        title: "Cliente removido",
+        description: "O cliente foi removido com sucesso.",
+      });
+    }
   };
 
   const openAddDialog = () => {
@@ -117,6 +99,7 @@ export const useClientes = () => {
     editingCliente,
     dialogOpen,
     daysInMonth,
+    isLoading,
     setDialogOpen,
     addCliente,
     updateCliente,

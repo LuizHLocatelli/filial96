@@ -112,6 +112,108 @@ export type Database = {
         }
         Relationships: []
       }
+      crediario_clientes: {
+        Row: {
+          conta: string
+          contratos_negociados: string | null
+          created_at: string | null
+          created_by: string | null
+          dia_contato: string
+          dia_pagamento: string
+          id: string
+          nome: string
+          observacao: string | null
+          qtd_parcelas: string | null
+          tipo: string
+          valor_cada_parcela: string | null
+          valor_entrada: string | null
+          valor_parcelas: string | null
+        }
+        Insert: {
+          conta: string
+          contratos_negociados?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dia_contato: string
+          dia_pagamento: string
+          id?: string
+          nome: string
+          observacao?: string | null
+          qtd_parcelas?: string | null
+          tipo: string
+          valor_cada_parcela?: string | null
+          valor_entrada?: string | null
+          valor_parcelas?: string | null
+        }
+        Update: {
+          conta?: string
+          contratos_negociados?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dia_contato?: string
+          dia_pagamento?: string
+          id?: string
+          nome?: string
+          observacao?: string | null
+          qtd_parcelas?: string | null
+          tipo?: string
+          valor_cada_parcela?: string | null
+          valor_entrada?: string | null
+          valor_parcelas?: string | null
+        }
+        Relationships: []
+      }
+      crediario_depositos: {
+        Row: {
+          comprovante: string | null
+          concluido: boolean | null
+          created_at: string | null
+          created_by: string | null
+          data: string
+          id: string
+        }
+        Insert: {
+          comprovante?: string | null
+          concluido?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          data: string
+          id?: string
+        }
+        Update: {
+          comprovante?: string | null
+          concluido?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          data?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      crediario_listagens: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          nome: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          nome: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          nome?: string
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

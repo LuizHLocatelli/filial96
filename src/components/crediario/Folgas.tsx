@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, addDays, isSameMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -38,6 +37,7 @@ export function Folgas() {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedCrediarista, setSelectedCrediarista] = useState<string>("");
+  const [viewImage, setViewImage] = useState<string | null>(null);
   
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
@@ -451,6 +451,23 @@ export function Folgas() {
             </Button>
             <Button onClick={handleAddFolga}>
               Adicionar Folga
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Dialog para visualizar imagem */}
+      <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Visualizar Imagem</DialogTitle>
+          </DialogHeader>
+          <DialogContent className="p-0">
+            <img src={viewImage} alt="Imagem" className="w-full h-full object-cover" />
+          </DialogContent>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewImage(null)}>
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>
