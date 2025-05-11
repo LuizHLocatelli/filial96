@@ -22,51 +22,31 @@ const Crediario = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex justify-center w-full mb-2">
-          <TabsList className={`grid ${isMobile ? "grid-cols-2 gap-2" : "grid-cols-4"} w-full max-w-md`}>
+          <TabsList className={`grid grid-cols-4 w-full max-w-md gap-1`}>
             <TabsTrigger 
               value="listagens" 
-              className={`text-sm sm:text-base py-2 ${isMobile ? "px-1" : "px-4"}`}
+              className={`text-xs sm:text-base py-2 px-1 sm:px-4`}
             >
               Listagens
             </TabsTrigger>
             <TabsTrigger 
               value="clientes" 
-              className={`text-sm sm:text-base py-2 ${isMobile ? "px-1" : "px-4"}`}
+              className={`text-xs sm:text-base py-2 px-1 sm:px-4`}
             >
               Clientes
             </TabsTrigger>
-            {isMobile && (
-              <>
-                <TabsTrigger 
-                  value="depositos" 
-                  className="text-sm sm:text-base py-2 px-1"
-                >
-                  Depósitos
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="folgas" 
-                  className="text-sm sm:text-base py-2 px-1"
-                >
-                  Folgas
-                </TabsTrigger>
-              </>
-            )}
-            {!isMobile && (
-              <>
-                <TabsTrigger 
-                  value="depositos" 
-                  className="text-sm sm:text-base py-2 px-4"
-                >
-                  Depósitos
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="folgas" 
-                  className="text-sm sm:text-base py-2 px-4"
-                >
-                  Folgas
-                </TabsTrigger>
-              </>
-            )}
+            <TabsTrigger 
+              value="depositos" 
+              className={`text-xs sm:text-base py-2 px-1 sm:px-4`}
+            >
+              Depósitos
+            </TabsTrigger>
+            <TabsTrigger 
+              value="folgas" 
+              className={`text-xs sm:text-base py-2 px-1 sm:px-4`}
+            >
+              Folgas
+            </TabsTrigger>
           </TabsList>
         </div>
         

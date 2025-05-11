@@ -32,12 +32,12 @@ export function DepositionsCalendar({
     <Card className="md:col-span-2">
       <CardHeader className="pb-2">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
-          <CardTitle className="text-xl">Calendário de Depósitos</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Calendário de Depósitos</CardTitle>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="icon" onClick={handlePrevMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="font-medium min-w-[120px] text-center">
+            <span className="font-medium min-w-[120px] text-center text-sm">
               {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
             </span>
             <Button variant="outline" size="icon" onClick={handleNextMonth}>
@@ -45,15 +45,15 @@ export function DepositionsCalendar({
             </Button>
           </div>
         </div>
-        <CardDescription className="text-center sm:text-left">
+        <CardDescription className="text-center sm:text-left text-xs sm:text-sm">
           Clique em um dia para marcar como concluído ou adicionar um comprovante
         </CardDescription>
       </CardHeader>
-      <CardContent className={isMobile ? "px-1 py-2" : "px-6 py-4"}>
+      <CardContent className="px-1 py-2 sm:px-4 sm:py-3">
         <div className="grid grid-cols-7 gap-1">
           {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-            <div key={day} className="text-center font-medium p-1 text-xs sm:text-sm text-muted-foreground">
-              {isMobile ? day.charAt(0) : day}
+            <div key={day} className="text-center font-medium p-1 text-xs text-muted-foreground">
+              {day.charAt(0)}
             </div>
           ))}
           
@@ -78,13 +78,13 @@ export function DepositionsCalendar({
                 onClick={() => !isWeekend && handleSelectDay(day)}
                 disabled={isWeekend}
                 className={`
-                  p-1 ${isMobile ? 'h-10' : 'h-16'} border rounded-md flex flex-col items-center justify-center
+                  p-1 h-9 sm:h-14 border rounded-md flex flex-col items-center justify-center
                   ${isToday ? "bg-muted" : ""}
                   ${isWeekend ? "bg-gray-50 opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}
                   ${deposito?.concluido ? "border-green-500 border-2" : ""}
                 `}
               >
-                <div className="font-medium text-xs sm:text-base">{day.getDate()}</div>
+                <div className="font-medium text-xs sm:text-sm">{day.getDate()}</div>
                 <div className="flex items-center gap-1">
                   {deposito?.concluido && (
                     <CheckCircle className="h-3 w-3 text-green-500" />
