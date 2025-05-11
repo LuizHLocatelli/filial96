@@ -1,21 +1,15 @@
 
 import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle, ChevronLeft, ChevronRight, Upload, X, Image as ImageIcon } from "lucide-react";
-import { useDepositos, Deposito } from "@/hooks/crediario/useDepositos";
+import { useDepositos } from "@/hooks/crediario/useDepositos";
+import { DepositStats } from "./depositos/DepositStats";
+import { DepositionsCalendar } from "./depositos/DepositionsCalendar";
+import { DepositFormDialog } from "./depositos/DepositFormDialog";
+import { ImagePreviewDialog } from "./depositos/ImagePreviewDialog";
 
 export function Depositos() {
-  const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { depositos, isLoading, isUploading, saveDeposito, deleteDeposito } = useDepositos();
+  const { depositos, isLoading, isUploading, saveDeposito } = useDepositos();
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -69,11 +63,7 @@ export function Depositos() {
       
       // Verifica se o arquivo é uma imagem
       if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Formato inválido",
-          description: "Por favor, selecione uma imagem.",
-          variant: "destructive",
-        });
+        alert("Por favor, selecione uma imagem.");
         return;
       }
       
@@ -93,7 +83,7 @@ export function Depositos() {
   const handleSubmit = async () => {
     if (!selectedDay) return;
     
-    const depositoData: Partial<Deposito> = {
+    const depositoData = {
       id: depositoId || undefined,
       data: selectedDay,
       concluido: true,
@@ -136,205 +126,43 @@ export function Depositos() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <CardTitle>Acompanhamento de Depósitos</CardTitle>
-              <CardDescription>
-                Progresso dos depósitos bancários neste mês
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Progresso</span>
-                  <span className="text-sm font-medium">{progresso}%</span>
-                </div>
-                <Progress value={progresso} className="h-2" />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-muted-foreground text-sm">Total de Depósitos</span>
-                  <p className="text-xl font-bold">
-                    {depositos.filter((d) => 
-                      d.data.getMonth() === currentMonth.getMonth() && 
-                      d.data.getFullYear() === currentMonth.getFullYear()
-                    ).length}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-sm">Dias Úteis</span>
-                  <p className="text-xl font-bold">
-                    {diasDoMes.filter((day) => ![0, 6].includes(day.getDay())).length}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DepositStats 
+            depositos={depositos}
+            currentMonth={currentMonth}
+            diasDoMes={diasDoMes}
+            progresso={progresso}
+          />
           
-          <Card className="md:col-span-2">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle>Calendário de Depósitos</CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="icon" onClick={handlePrevMonth}>
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="font-medium min-w-[120px] text-center">
-                    {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
-                  </span>
-                  <Button variant="outline" size="icon" onClick={handleNextMonth}>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <CardDescription>
-                Clique em um dia para marcar como concluído ou adicionar um comprovante
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-7 gap-1">
-                {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
-                  <div key={day} className="text-center font-medium p-2 text-sm text-muted-foreground">
-                    {day}
-                  </div>
-                ))}
-                
-                {/* Espaços vazios antes do primeiro dia do mês */}
-                {Array.from({ length: diasDoMes[0].getDay() }).map((_, i) => (
-                  <div key={`empty-start-${i}`} className="p-2"></div>
-                ))}
-                
-                {/* Dias do mês */}
-                {diasDoMes.map((day) => {
-                  const deposito = depositos.find(
-                    (deposito) => isSameDay(deposito.data, day)
-                  );
-                  
-                  const isWeekend = [0, 6].includes(day.getDay());
-                  const isToday = isSameDay(day, new Date());
-                  
-                  return (
-                    <button
-                      key={day.toString()}
-                      type="button"
-                      onClick={() => !isWeekend && handleSelectDay(day)}
-                      disabled={isWeekend}
-                      className={`
-                        p-2 h-16 border rounded-md flex flex-col items-center justify-center
-                        ${isToday ? "bg-muted" : ""}
-                        ${isWeekend ? "bg-gray-50 opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}
-                        ${deposito?.concluido ? "border-green-500 border-2" : ""}
-                      `}
-                    >
-                      <div className="font-medium">{day.getDate()}</div>
-                      {deposito?.concluido && (
-                        <CheckCircle className="h-4 w-4 text-green-500 mt-1" />
-                      )}
-                      {deposito?.comprovante && (
-                        <ImageIcon 
-                          className="h-3 w-3 text-blue-500 mt-1 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setViewImage(deposito.comprovante);
-                          }}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <DepositionsCalendar 
+            currentMonth={currentMonth}
+            diasDoMes={diasDoMes}
+            depositos={depositos}
+            handlePrevMonth={handlePrevMonth}
+            handleNextMonth={handleNextMonth}
+            handleSelectDay={handleSelectDay}
+            setViewImage={setViewImage}
+          />
         </div>
       )}
       
       {/* Dialog para adicionar comprovante */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              Depósito Bancário
-              {selectedDay && ` - ${format(selectedDay, "dd/MM/yyyy")}`}
-            </DialogTitle>
-            <DialogDescription>
-              Registre seu depósito bancário diário e anexe o comprovante.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="comprovante">Comprovante de Depósito</Label>
-              {previewUrl ? (
-                <div className="relative">
-                  <img
-                    src={previewUrl}
-                    alt="Comprovante"
-                    className="max-h-48 max-w-full object-contain mx-auto border rounded-md"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 bg-white rounded-full h-8 w-8 p-0"
-                    onClick={handleRemoveFile}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="border border-dashed rounded-md p-6 flex flex-col items-center justify-center">
-                  <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Clique para selecionar ou arraste uma imagem
-                  </p>
-                  <Input
-                    id="comprovante"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <label htmlFor="comprovante">
-                    <Button variant="outline" type="button" className="cursor-pointer">
-                      Selecionar arquivo
-                    </Button>
-                  </label>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDialog(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSubmit} disabled={isUploading}>
-              {isUploading ? "Salvando..." : (depositoId ? "Atualizar Depósito" : "Registrar Depósito")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DepositFormDialog
+        openDialog={openDialog}
+        selectedDay={selectedDay}
+        previewUrl={previewUrl}
+        isUploading={isUploading}
+        depositoId={depositoId}
+        setOpenDialog={setOpenDialog}
+        handleFileChange={handleFileChange}
+        handleRemoveFile={handleRemoveFile}
+        handleSubmit={handleSubmit}
+      />
       
       {/* Dialog para visualizar imagem */}
-      <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Comprovante de Depósito</DialogTitle>
-          </DialogHeader>
-          {viewImage && (
-            <div className="flex justify-center my-4">
-              <img
-                src={viewImage}
-                alt="Comprovante"
-                className="max-h-[70vh] max-w-full object-contain"
-              />
-            </div>
-          )}
-          <DialogFooter>
-            <Button onClick={() => setViewImage(null)}>Fechar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ImagePreviewDialog
+        viewImage={viewImage}
+        setViewImage={setViewImage}
+      />
     </div>
   );
 }
