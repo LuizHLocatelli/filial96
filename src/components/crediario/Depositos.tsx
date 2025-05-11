@@ -6,6 +6,7 @@ import { DepositStats } from "./depositos/DepositStats";
 import { DepositionsCalendar } from "./depositos/DepositionsCalendar";
 import { DepositFormDialog } from "./depositos/DepositFormDialog";
 import { ImagePreviewDialog } from "./depositos/ImagePreviewDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Depositos() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -16,6 +17,7 @@ export function Depositos() {
   const [depositoId, setDepositoId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [viewImage, setViewImage] = useState<string | null>(null);
+  const isMobile = useIsMobile();
   
   const diasDoMes = eachDayOfInterval({
     start: startOfMonth(currentMonth),
@@ -125,7 +127,7 @@ export function Depositos() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <DepositStats 
             depositos={depositos}
             currentMonth={currentMonth}

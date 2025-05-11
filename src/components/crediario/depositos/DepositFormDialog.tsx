@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Upload, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DepositFormDialogProps {
   openDialog: boolean;
@@ -32,6 +33,7 @@ export function DepositFormDialog({
 }: DepositFormDialogProps) {
   // Create a reference to the file input
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   // Function to trigger file input click
   const triggerFileInput = () => {
@@ -42,9 +44,9 @@ export function DepositFormDialog({
   
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogContent>
+      <DialogContent className={isMobile ? "w-[95vw] max-w-[95vw] p-4" : ""}>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl">
             Depósito Bancário
             {selectedDay && ` - ${format(selectedDay, "dd/MM/yyyy")}`}
           </DialogTitle>
@@ -78,8 +80,8 @@ export function DepositFormDialog({
                 onClick={triggerFileInput}
               >
                 <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground mb-2">
-                  Clique para selecionar ou arraste uma imagem
+                <p className="text-sm text-muted-foreground mb-2 text-center">
+                  {isMobile ? "Toque para selecionar" : "Clique para selecionar ou arraste uma imagem"}
                 </p>
                 <Input
                   id="comprovante"
@@ -92,7 +94,7 @@ export function DepositFormDialog({
                 <Button 
                   variant="outline" 
                   type="button" 
-                  className="cursor-pointer"
+                  className="cursor-pointer w-full sm:w-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     triggerFileInput();
@@ -105,11 +107,19 @@ export function DepositFormDialog({
           </div>
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpenDialog(false)}>
+        <DialogFooter className={isMobile ? "flex-col space-y-2" : ""}>
+          <Button 
+            variant="outline" 
+            onClick={() => setOpenDialog(false)}
+            className={isMobile ? "w-full" : ""}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={isUploading}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isUploading}
+            className={isMobile ? "w-full" : ""}
+          >
             {isUploading ? "Salvando..." : (depositoId ? "Atualizar Depósito" : "Registrar Depósito")}
           </Button>
         </DialogFooter>

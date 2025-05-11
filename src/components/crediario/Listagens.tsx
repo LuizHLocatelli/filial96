@@ -7,6 +7,7 @@ import { UploadCloud, FileText, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useListagens } from "@/hooks/crediario/useListagens";
 import { format } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Listagens() {
   const { toast } = useToast();
@@ -14,6 +15,7 @@ export function Listagens() {
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
   const { listagens, isLoading, isUploading, addListagem, deleteListagem } = useListagens();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -64,7 +66,7 @@ export function Listagens() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       <Card className="md:col-span-1">
         <CardHeader>
           <CardTitle>Upload de Listagens</CardTitle>
@@ -78,8 +80,8 @@ export function Listagens() {
             onClick={triggerFileInput}
           >
             <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground mb-2">
-              Clique para selecionar ou arraste um arquivo PDF
+            <p className="text-sm text-center text-muted-foreground mb-2">
+              {isMobile ? "Toque para selecionar um PDF" : "Clique para selecionar ou arraste um arquivo PDF"}
             </p>
             <Input
               id="pdf-upload"
@@ -91,7 +93,7 @@ export function Listagens() {
             />
             <Button 
               variant="outline" 
-              className="cursor-pointer"
+              className="cursor-pointer w-full sm:w-auto"
               onClick={(e) => {
                 e.stopPropagation();
                 triggerFileInput();
@@ -103,7 +105,7 @@ export function Listagens() {
           {selectedFile && (
             <div className="mt-4">
               <p className="text-sm font-medium">Arquivo selecionado:</p>
-              <p className="text-sm text-muted-foreground">{selectedFile.name}</p>
+              <p className="text-sm text-muted-foreground truncate">{selectedFile.name}</p>
             </div>
           )}
         </CardContent>
@@ -143,16 +145,16 @@ export function Listagens() {
                     key={item.id} 
                     className="flex items-center justify-between p-3 border rounded-lg"
                   >
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{item.nome}</p>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <FileText className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{item.nome}</p>
                         <p className="text-sm text-muted-foreground">
                           {format(item.createdAt, "dd/MM/yyyy")}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <Button size="sm" variant="ghost" onClick={() => handleView(item.fileUrl)}>
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Ver</span>
@@ -171,13 +173,13 @@ export function Listagens() {
 
         {selectedPdf && (
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-2">
               <CardTitle>Visualizador de PDF</CardTitle>
               <CardDescription>
                 Visualize o conteúdo da listagem selecionada
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[500px]">
+            <CardContent className={isMobile ? "h-[400px]" : "h-[500px]"}>
               <iframe
                 src={selectedPdf}
                 className="w-full h-full border-0"
