@@ -16,7 +16,13 @@ interface ClienteFormProps {
 }
 
 export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
-  const { form, isSubmitting, tipoAgendamento, handleFormSubmit } = useClienteForm(cliente, onSubmit);
+  // Wrap the onSubmit function to return a Promise
+  const handleSubmit = async (data: ClienteFormValues): Promise<void> => {
+    onSubmit(data);
+    return Promise.resolve();
+  };
+
+  const { form, isSubmitting, tipoAgendamento, handleFormSubmit } = useClienteForm(cliente, handleSubmit);
   
   return (
     <Form {...form}>
