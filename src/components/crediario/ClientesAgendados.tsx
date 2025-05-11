@@ -1,12 +1,11 @@
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ClienteFormDialog } from "./components/ClienteFormDialog";
+import { ClienteCalendar } from "./components/ClienteCalendar";
 import { ClienteFormValues } from "./types";
 import { useClientes } from "./hooks/useClientes";
-import { ClienteStats } from "./components/ClienteStats";
-import { ClienteCalendar } from "./components/ClienteCalendar";
-import { ClientesTable } from "./components/ClientesTable";
-import { ClienteFormDialog } from "./components/ClienteFormDialog";
+import { ClienteHeader } from "./clientes/ClienteHeader";
+import { ClienteList } from "./clientes/ClienteList";
+import { ClientesLoader } from "./clientes/ClientesLoader";
 
 export function ClientesAgendados() {
   const { 
@@ -38,26 +37,20 @@ export function ClientesAgendados() {
 
   return (
     <div className="space-y-6">
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      ) : (
+      <ClientesLoader isLoading={isLoading}>
         <>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <ClienteStats clientes={clientes} clientesNoMes={clientesNoMes} />
+          <ClienteHeader 
+            clientes={clientes}
+            clientesNoMes={clientesNoMes}
+            onAddNew={openAddDialog}
+          />
             
-            <Button className="md:w-auto w-full" onClick={openAddDialog}>
-              Adicionar Cliente
-            </Button>
-            
-            <ClienteFormDialog
-              open={dialogOpen}
-              cliente={editingCliente}
-              onOpenChange={setDialogOpen}
-              onSubmit={handleSubmit}
-            />
-          </div>
+          <ClienteFormDialog
+            open={dialogOpen}
+            cliente={editingCliente}
+            onOpenChange={setDialogOpen}
+            onSubmit={handleSubmit}
+          />
 
           <div className="grid grid-cols-1 gap-6">
             <ClienteCalendar
@@ -68,25 +61,15 @@ export function ClientesAgendados() {
               nextMonth={nextMonth}
             />
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Lista de Clientes Agendados</CardTitle>
-                <CardDescription>
-                  Todos os clientes com agendamentos de pagamento ou renegociação
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ClientesTable 
-                  clientes={clientes}
-                  onEdit={openEditDialog}
-                  onDelete={deleteCliente}
-                  onAddNew={openAddDialog}
-                />
-              </CardContent>
-            </Card>
+            <ClienteList 
+              clientes={clientes}
+              onEdit={openEditDialog}
+              onDelete={deleteCliente}
+              onAddNew={openAddDialog}
+            />
           </div>
         </>
-      )}
+      </ClientesLoader>
     </div>
   );
 }
