@@ -22,7 +22,8 @@ export function useFileUpload() {
           .storage
           .getBucket('crediario_depositos');
         
-        if (depositosError && depositosError.code !== 'PGRST116') {
+        if (depositosError) {
+          console.log('Error checking depositos bucket:', depositosError);
           // Create the bucket if it doesn't exist
           await supabase.storage.createBucket('crediario_depositos', {
             public: true,
@@ -36,7 +37,8 @@ export function useFileUpload() {
           .storage
           .getBucket('crediario_listagens');
         
-        if (listagensError && listagensError.code !== 'PGRST116') {
+        if (listagensError) {
+          console.log('Error checking listagens bucket:', listagensError);
           // Create the bucket if it doesn't exist
           await supabase.storage.createBucket('crediario_listagens', {
             public: true,
