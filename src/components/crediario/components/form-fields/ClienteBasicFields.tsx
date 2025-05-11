@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UseFormReturn } from "react-hook-form";
 import { ClienteFormValues } from "../../types";
 
-interface ClienteBasicFieldsProps {
+export interface ClienteBasicFieldsProps {
   form: UseFormReturn<ClienteFormValues>;
 }
 

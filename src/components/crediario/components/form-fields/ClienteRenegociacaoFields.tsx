@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { ClienteFormValues } from "../../types";
 
-interface ClienteRenegociacaoFieldsProps {
+export interface ClienteRenegociacaoFieldsProps {
   form: UseFormReturn<ClienteFormValues>;
   visible: boolean;
 }

@@ -7,7 +7,7 @@ interface ClienteFormDialogProps {
   open: boolean;
   cliente: Cliente | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ClienteFormValues) => void;
+  onSubmit: (data: ClienteFormValues) => Promise<void>;
 }
 
 export function ClienteFormDialog({ 

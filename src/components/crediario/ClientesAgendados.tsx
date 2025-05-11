@@ -26,13 +26,14 @@ export function ClientesAgendados() {
     openEditDialog
   } = useClientes();
 
-  const handleSubmit = async (data: ClienteFormValues) => {
+  const handleSubmit = async (data: ClienteFormValues): Promise<void> => {
     if (editingCliente) {
       await updateCliente(editingCliente.id, data);
     } else {
       await addCliente(data);
     }
     setDialogOpen(false);
+    return Promise.resolve();
   };
 
   return (

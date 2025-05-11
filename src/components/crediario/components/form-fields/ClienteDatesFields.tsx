@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { ClienteFormValues } from "../../types";
 import { ClienteDateField } from "./ClienteDateField";
 
-interface ClienteDatesFieldsProps {
+export interface ClienteDatesFieldsProps {
   form: UseFormReturn<ClienteFormValues>;
 }
 

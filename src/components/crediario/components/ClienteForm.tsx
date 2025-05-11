@@ -13,26 +13,27 @@ import { ClienteIndicatorField } from "./form-fields/ClienteIndicatorField";
 interface ClienteFormProps {
   cliente: Cliente | null | undefined;
   onSubmit: (data: ClienteFormValues) => Promise<void>;
+  onCancel?: () => void;
 }
 
-export function ClienteForm({ cliente, onSubmit }: ClienteFormProps) {
+export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
   const { form, isSubmitting, tipoAgendamento, handleFormSubmit } = useClienteForm(cliente, onSubmit);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        <ClienteBasicFields />
+        <ClienteBasicFields form={form} />
         
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <ClienteDatesFields />
+          <ClienteDatesFields form={form} />
           <ClienteIndicatorField />
         </div>
         
         {tipoAgendamento === "renegociacao" && (
-          <ClienteRenegociacaoFields />
+          <ClienteRenegociacaoFields form={form} visible={tipoAgendamento === "renegociacao"} />
         )}
         
-        <ClienteObservacaoField />
+        <ClienteObservacaoField form={form} />
         
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Salvando..." : cliente ? "Atualizar Cliente" : "Adicionar Cliente"}
