@@ -3,17 +3,21 @@ import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Crediarista, Folga } from "./types";
+import { Crediarista, Folga, FolgaFormValues } from "./types";
+import { useAuth } from "@/contexts/auth";
 
 export function useFolgas() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [crediaristas, setCrediaristas] = useState<Crediarista[]>([]);
   const [isLoadingCrediaristas, setIsLoadingCrediaristas] = useState<boolean>(true);
   const [folgas, setFolgas] = useState<Folga[]>([]);
+  const [isLoadingFolgas, setIsLoadingFolgas] = useState<boolean>(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedCrediarista, setSelectedCrediarista] = useState<string>("");
+  const [motivo, setMotivo] = useState<string>("");
   const [viewImage, setViewImage] = useState<string | null>(null);
   
   // Fetch crediaristas from database
@@ -60,6 +64,51 @@ export function useFolgas() {
     fetchCrediaristas();
   }, [toast]);
   
+  // Fetch folgas from database
+  useEffect(() => {
+    async function fetchFolgas() {
+      setIsLoadingFolgas(true);
+      try {
+        const { data, error } = await supabase
+          .from("crediario_folgas")
+          .select("*");
+          
+        if (error) {
+          console.error("Error fetching folgas:", error);
+          toast({
+            title: "Erro ao carregar folgas",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Transform the data to match the Folga interface
+        const formattedFolgas: Folga[] = data.map((folga) => ({
+          id: folga.id,
+          data: new Date(folga.data),
+          crediaristaId: folga.crediarista_id,
+          motivo: folga.motivo || undefined,
+          createdAt: folga.created_at,
+          createdBy: folga.created_by,
+        }));
+        
+        setFolgas(formattedFolgas);
+      } catch (error) {
+        console.error("Error fetching folgas:", error);
+        toast({
+          title: "Erro ao carregar folgas",
+          description: "Não foi possível carregar a lista de folgas.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingFolgas(false);
+      }
+    }
+    
+    fetchFolgas();
+  }, [toast]);
+  
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
       const newDate = new Date(prev);
@@ -76,7 +125,7 @@ export function useFolgas() {
     });
   };
   
-  const handleAddFolga = () => {
+  const handleAddFolga = async () => {
     if (!selectedDate) {
       toast({
         title: "Selecione uma data",
@@ -99,7 +148,7 @@ export function useFolgas() {
     const existingFolga = folgas.find(
       (folga) =>
         folga.crediaristaId === selectedCrediarista &&
-        folga.data.getTime() === selectedDate.getTime()
+        folga.data.toDateString() === selectedDate.toDateString()
     );
     
     if (existingFolga) {
@@ -111,30 +160,96 @@ export function useFolgas() {
       return;
     }
     
-    const novaFolga: Folga = {
-      id: Math.random().toString(36).substr(2, 9),
-      data: selectedDate,
-      crediaristaId: selectedCrediarista,
-    };
-    
-    setFolgas([...folgas, novaFolga]);
-    
-    toast({
-      title: "Folga adicionada",
-      description: `Folga registrada com sucesso.`,
-    });
-    
-    setOpenDialog(false);
-    setSelectedDate(null);
-    setSelectedCrediarista("");
+    try {
+      // Format date for Supabase (YYYY-MM-DD format)
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      
+      // Insert folga into Supabase
+      const { data, error } = await supabase
+        .from("crediario_folgas")
+        .insert({
+          data: formattedDate,
+          crediarista_id: selectedCrediarista,
+          motivo: motivo || null,
+          created_by: user?.id,
+        })
+        .select();
+        
+      if (error) {
+        console.error("Error adding folga:", error);
+        toast({
+          title: "Erro ao adicionar folga",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        // Add the new folga to the state
+        const newFolga: Folga = {
+          id: data[0].id,
+          data: new Date(data[0].data),
+          crediaristaId: data[0].crediarista_id,
+          motivo: data[0].motivo || undefined,
+          createdAt: data[0].created_at,
+          createdBy: data[0].created_by,
+        };
+        
+        setFolgas([...folgas, newFolga]);
+        
+        toast({
+          title: "Folga adicionada",
+          description: `Folga registrada com sucesso.`,
+        });
+        
+        setOpenDialog(false);
+        setSelectedDate(null);
+        setSelectedCrediarista("");
+        setMotivo("");
+      }
+    } catch (error) {
+      console.error("Error adding folga:", error);
+      toast({
+        title: "Erro ao adicionar folga",
+        description: "Não foi possível adicionar a folga.",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleDeleteFolga = (folgaId: string) => {
-    setFolgas(folgas.filter((folga) => folga.id !== folgaId));
-    toast({
-      title: "Folga removida",
-      description: "A folga foi removida com sucesso.",
-    });
+  const handleDeleteFolga = async (folgaId: string) => {
+    try {
+      const { error } = await supabase
+        .from("crediario_folgas")
+        .delete()
+        .eq("id", folgaId);
+        
+      if (error) {
+        console.error("Error deleting folga:", error);
+        toast({
+          title: "Erro ao remover folga",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Remove folga from state
+      setFolgas(folgas.filter((folga) => folga.id !== folgaId));
+      
+      toast({
+        title: "Folga removida",
+        description: "A folga foi removida com sucesso.",
+      });
+    } catch (error) {
+      console.error("Error deleting folga:", error);
+      toast({
+        title: "Erro ao remover folga",
+        description: "Não foi possível remover a folga.",
+        variant: "destructive",
+      });
+    }
   };
   
   const getCrediaristaById = (id: string) => {
@@ -176,6 +291,7 @@ export function useFolgas() {
     currentMonth,
     crediaristas,
     isLoadingCrediaristas,
+    isLoadingFolgas,
     folgas,
     openDialog,
     setOpenDialog,
@@ -183,6 +299,8 @@ export function useFolgas() {
     setSelectedDate,
     selectedCrediarista,
     setSelectedCrediarista,
+    motivo,
+    setMotivo,
     viewImage,
     setViewImage,
     handlePrevMonth,

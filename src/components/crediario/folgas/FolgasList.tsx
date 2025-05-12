@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Crediarista, Folga } from "./types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface FolgasListProps {
   folgas: Folga[];
@@ -35,6 +36,7 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
               <TableRow>
                 <TableHead>Crediarista</TableHead>
                 <TableHead>Data</TableHead>
+                <TableHead>Motivo</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -50,6 +52,22 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
                       </TableCell>
                       <TableCell>
                         {format(folga.data, "dd/MM/yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        {folga.motivo ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="text-left truncate max-w-[200px] block">
+                                {folga.motivo}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs">{folga.motivo}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">Não informado</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

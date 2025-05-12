@@ -19,6 +19,8 @@ export function Folgas() {
     setSelectedDate,
     selectedCrediarista,
     setSelectedCrediarista,
+    motivo,
+    setMotivo,
     viewImage,
     setViewImage,
     handlePrevMonth,
@@ -68,6 +70,8 @@ export function Folgas() {
         setSelectedDate={setSelectedDate}
         selectedCrediarista={selectedCrediarista}
         setSelectedCrediarista={setSelectedCrediarista}
+        motivo={motivo}
+        setMotivo={setMotivo}
         crediaristas={crediaristas}
         onAddFolga={handleAddFolga}
       />

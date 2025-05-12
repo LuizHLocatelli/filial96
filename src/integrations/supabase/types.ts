@@ -193,6 +193,41 @@ export type Database = {
         }
         Relationships: []
       }
+      crediario_folgas: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          crediarista_id: string
+          data: string
+          id: string
+          motivo: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          crediarista_id: string
+          data: string
+          id?: string
+          motivo?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          crediarista_id?: string
+          data?: string
+          id?: string
+          motivo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_folgas_crediarista_id_fkey"
+            columns: ["crediarista_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crediario_listagens: {
         Row: {
           created_at: string | null

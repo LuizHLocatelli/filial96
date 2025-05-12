@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Crediarista } from "./types";
 
 interface AddFolgaDialogProps {
@@ -17,6 +18,8 @@ interface AddFolgaDialogProps {
   setSelectedDate: (date: Date | null) => void;
   selectedCrediarista: string;
   setSelectedCrediarista: (id: string) => void;
+  motivo: string;
+  setMotivo: (motivo: string) => void;
   crediaristas: Crediarista[];
   onAddFolga: () => void;
 }
@@ -28,6 +31,8 @@ export function AddFolgaDialog({
   setSelectedDate,
   selectedCrediarista,
   setSelectedCrediarista,
+  motivo,
+  setMotivo,
   crediaristas,
   onAddFolga
 }: AddFolgaDialogProps) {
@@ -86,6 +91,16 @@ export function AddFolgaDialog({
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Motivo (opcional)</label>
+            <Textarea
+              placeholder="Informe o motivo da folga"
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              className="resize-none"
+            />
           </div>
         </div>
         
