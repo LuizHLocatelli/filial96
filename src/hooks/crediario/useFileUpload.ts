@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -12,47 +12,6 @@ interface FileUploadOptions {
 export function useFileUpload() {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  
-  // Ensure buckets exist when the hook is used
-  useEffect(() => {
-    const ensureBucketsExist = async () => {
-      try {
-        // Check if crediario_depositos bucket exists
-        const { data: depositosData, error: depositosError } = await supabase
-          .storage
-          .getBucket('crediario_depositos');
-        
-        if (depositosError) {
-          console.log('Error checking depositos bucket:', depositosError);
-          // Create the bucket if it doesn't exist
-          await supabase.storage.createBucket('crediario_depositos', {
-            public: true,
-            fileSizeLimit: 10485760 // 10MB
-          });
-          console.log('Created crediario_depositos bucket');
-        }
-        
-        // Check if crediario_listagens bucket exists
-        const { data: listagensData, error: listagensError } = await supabase
-          .storage
-          .getBucket('crediario_listagens');
-        
-        if (listagensError) {
-          console.log('Error checking listagens bucket:', listagensError);
-          // Create the bucket if it doesn't exist
-          await supabase.storage.createBucket('crediario_listagens', {
-            public: true,
-            fileSizeLimit: 10485760 // 10MB
-          });
-          console.log('Created crediario_listagens bucket');
-        }
-      } catch (error) {
-        console.error("Error checking/creating buckets:", error);
-      }
-    };
-    
-    ensureBucketsExist();
-  }, []);
 
   const uploadFile = async (file: File, options: FileUploadOptions): Promise<string | null> => {
     if (!file) return null;
@@ -68,6 +27,22 @@ export function useFileUpload() {
         : fileName;
       
       console.log(`Starting upload to ${options.bucketName}/${filePath}`);
+      
+      // Verificar se o bucket existe antes de fazer upload
+      try {
+        const { data, error } = await supabase.storage.getBucket(options.bucketName);
+        
+        if (error) {
+          console.log(`Bucket ${options.bucketName} não existe ou não é acessível`);
+          // Falha silenciosa - iremos tentar fazer upload mesmo assim, pois o bucket pode
+          // existir mas o usuário pode não ter permissão para verificá-lo
+        } else {
+          console.log(`Bucket ${options.bucketName} exists:`, data);
+        }
+      } catch (bucketError) {
+        console.warn(`Erro ao verificar bucket ${options.bucketName}:`, bucketError);
+        // Continuamos, pois isso pode ser apenas um erro de permissão
+      }
       
       // Upload do arquivo para o Supabase Storage
       const { data, error: uploadError } = await supabase.storage
@@ -90,13 +65,23 @@ export function useFileUpload() {
         .getPublicUrl(filePath);
       
       return urlData.publicUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao fazer upload do arquivo:", error);
-      toast({
-        title: "Erro no upload",
-        description: "Ocorreu um erro ao fazer o upload do arquivo.",
-        variant: "destructive",
-      });
+      
+      // Tratamento específico para erros comuns de bucket
+      if (error.message?.includes('bucket') || error.status === 404) {
+        toast({
+          title: "Erro no upload",
+          description: "O bucket de armazenamento não existe ou você não tem permissão para acessá-lo.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro no upload",
+          description: "Ocorreu um erro ao fazer o upload do arquivo.",
+          variant: "destructive",
+        });
+      }
       return null;
     } finally {
       setIsUploading(false);

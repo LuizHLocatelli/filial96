@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useFileUpload } from "@/hooks/crediario/useFileUpload";
 
 export interface Listagem {
   id: string;
@@ -16,56 +17,11 @@ export function useListagens() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const { uploadFile } = useFileUpload();
 
   useEffect(() => {
-    const initialize = async () => {
-      await ensureBucketExists();
-      fetchListagens();
-    };
-    
-    initialize();
+    fetchListagens();
   }, []);
-
-  // Ensure the documents bucket exists
-  const ensureBucketExists = async () => {
-    try {
-      console.log('Checking if documents bucket exists...');
-      
-      // Check if bucket exists
-      const { data, error } = await supabase
-        .storage
-        .getBucket('documents');
-      
-      if (error) {
-        console.log('Documents bucket does not exist, creating it now...');
-        
-        // Create the bucket if it doesn't exist
-        const { data: bucketData, error: createError } = await supabase.storage.createBucket('documents', {
-          public: true,
-          fileSizeLimit: 10485760 // 10MB limit
-        });
-        
-        if (createError) {
-          console.error("Failed to create bucket:", createError);
-          toast({
-            title: "Erro na configuração",
-            description: "Não foi possível configurar o armazenamento. Tente novamente mais tarde.",
-            variant: "destructive",
-          });
-          return false;
-        }
-        
-        console.log('Documents bucket created successfully:', bucketData);
-        return true;
-      }
-      
-      console.log('Documents bucket exists:', data);
-      return true;
-    } catch (error) {
-      console.error("Error checking/creating bucket:", error);
-      return false;
-    }
-  };
 
   const fetchListagens = async () => {
     setIsLoading(true);
@@ -102,52 +58,31 @@ export function useListagens() {
   const addListagem = async (file: File, indicator: string | null): Promise<boolean> => {
     setIsUploading(true);
     try {
-      // Ensure bucket exists before uploading
-      const bucketExists = await ensureBucketExists();
-      if (!bucketExists) {
-        throw new Error("Não foi possível configurar o armazenamento para upload.");
-      }
-      
       // Transform indicator value
       const indicatorValue = indicator === "none" || !indicator ? null : indicator;
       
       const fileName = file.name;
-      const filePath = `crediario/listagens/${Date.now()}_${fileName}`;
       
-      console.log(`Starting upload to documents/${filePath}`);
+      console.log("Starting file upload via useFileUpload");
       
-      // Upload file to storage with better error handling
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-        
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
+      // Use the uploadFile function from useFileUpload
+      const fileUrl = await uploadFile(file, {
+        bucketName: 'crediario_listagens',
+        folder: 'pdfs'
+      });
+      
+      if (!fileUrl) {
+        throw new Error("Não foi possível fazer o upload do arquivo.");
       }
       
-      console.log("File uploaded successfully:", uploadData);
-      
-      // Get public URL
-      const { data: publicUrlData } = await supabase.storage
-        .from('documents')
-        .getPublicUrl(filePath);
-        
-      if (!publicUrlData || !publicUrlData.publicUrl) {
-        throw new Error("Failed to get public URL for uploaded file");
-      }
-      
-      console.log("Public URL generated:", publicUrlData.publicUrl);
+      console.log("File uploaded successfully, URL:", fileUrl);
       
       // Insert record in database
       const { error: insertError } = await supabase
         .from('crediario_listagens')
         .insert({
           nome: fileName,
-          url: publicUrlData.publicUrl, // Using url field
+          url: fileUrl,
           indicator: indicatorValue,
           created_by: (await supabase.auth.getUser()).data.user?.id
         });
@@ -181,11 +116,7 @@ export function useListagens() {
 
   const deleteListagem = async (id: string, fileUrl: string): Promise<boolean> => {
     try {
-      // Get file path from URL
-      const filePathMatch = fileUrl.match(/crediario\/listagens\/[^?]*/);
-      const filePath = filePathMatch ? filePathMatch[0] : null;
-      
-      // Delete record from database
+      // Delete record from database first
       const { error: deleteError } = await supabase
         .from('crediario_listagens')
         .delete()
@@ -193,15 +124,33 @@ export function useListagens() {
         
       if (deleteError) throw deleteError;
       
-      // Delete file from storage if we could extract the path
-      if (filePath) {
-        try {
-          await supabase.storage
-            .from('documents')
+      // Try to delete file from storage if possible
+      try {
+        // Extract bucket and path from URL
+        const url = new URL(fileUrl);
+        const pathParts = url.pathname.split('/');
+        const bucketName = pathParts[1] === 'storage' ? pathParts[2] : 'crediario_listagens';
+        
+        // Get file path without bucket and "object" part
+        let filePath = pathParts.slice(pathParts.indexOf(bucketName) + 2).join('/');
+        
+        // Remove query parameters if present
+        filePath = filePath.split('?')[0];
+        
+        console.log(`Attempting to delete file: bucket=${bucketName}, path=${filePath}`);
+        
+        if (bucketName && filePath) {
+          const { error: storageError } = await supabase.storage
+            .from(bucketName)
             .remove([filePath]);
-        } catch (storageError) {
-          console.error("Erro ao excluir arquivo de storage:", storageError);
+            
+          if (storageError) {
+            console.warn("Warning: Could not delete file from storage:", storageError);
+          }
         }
+      } catch (storageError) {
+        // Just log storage deletion errors, but don't fail the operation
+        console.warn("Warning: Error parsing file URL or deleting from storage:", storageError);
       }
       
       setListagens(prev => prev.filter(item => item.id !== id));
