@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, addDays, isSameMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarIcon, ChevronLeft, ChevronRight, Trash2, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { User as AppUser } from "@/types";
 
 interface Crediarista {
   id: string;
@@ -28,16 +31,57 @@ interface Folga {
 export function Folgas() {
   const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [crediaristas] = useState<Crediarista[]>([
-    { id: "1", nome: "Ana Silva" },
-    { id: "2", nome: "Carlos Oliveira" },
-    { id: "3", nome: "Juliana Costa" },
-  ]);
+  const [crediaristas, setCrediaristas] = useState<Crediarista[]>([]);
+  const [isLoadingCrediaristas, setIsLoadingCrediaristas] = useState<boolean>(true);
   const [folgas, setFolgas] = useState<Folga[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedCrediarista, setSelectedCrediarista] = useState<string>("");
   const [viewImage, setViewImage] = useState<string | null>(null);
+  
+  // Fetch crediaristas from database
+  useEffect(() => {
+    async function fetchCrediaristas() {
+      setIsLoadingCrediaristas(true);
+      try {
+        // Fetch profiles with role "crediarista"
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, name, avatar_url")
+          .eq("role", "crediarista");
+          
+        if (error) {
+          console.error("Error fetching crediaristas:", error);
+          toast({
+            title: "Erro ao carregar crediaristas",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        // Transform the data to match the Crediarista interface
+        const formattedCrediaristas: Crediarista[] = data.map((profile) => ({
+          id: profile.id,
+          nome: profile.name,
+          avatar: profile.avatar_url || undefined,
+        }));
+        
+        setCrediaristas(formattedCrediaristas);
+      } catch (error) {
+        console.error("Error fetching crediaristas:", error);
+        toast({
+          title: "Erro ao carregar crediaristas",
+          description: "Não foi possível carregar a lista de crediaristas.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingCrediaristas(false);
+      }
+    }
+    
+    fetchCrediaristas();
+  }, [toast]);
   
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
@@ -167,22 +211,34 @@ export function Folgas() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="grid grid-cols-3 gap-4">
-              {crediaristas.map((crediarista) => (
-                <div key={crediarista.id} className="flex flex-col">
-                  <span className="text-muted-foreground text-sm">
-                    {crediarista.nome}
-                  </span>
-                  <span className="text-2xl font-bold">
-                    {folgas.filter(
-                      (folga) => folga.crediaristaId === crediarista.id &&
-                      folga.data.getMonth() === currentMonth.getMonth() &&
-                      folga.data.getFullYear() === currentMonth.getFullYear()
-                    ).length}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {isLoadingCrediaristas ? (
+              <div className="flex justify-center py-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            ) : crediaristas.length === 0 ? (
+              <div className="text-center py-2">
+                <p className="text-muted-foreground">
+                  Nenhum crediarista encontrado
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-4">
+                {crediaristas.map((crediarista) => (
+                  <div key={crediarista.id} className="flex flex-col">
+                    <span className="text-muted-foreground text-sm">
+                      {crediarista.nome}
+                    </span>
+                    <span className="text-2xl font-bold">
+                      {folgas.filter(
+                        (folga) => folga.crediaristaId === crediarista.id &&
+                        folga.data.getMonth() === currentMonth.getMonth() &&
+                        folga.data.getFullYear() === currentMonth.getFullYear()
+                      ).length}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
         
@@ -212,124 +268,138 @@ export function Folgas() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-40">Crediarista</TableHead>
-                {weeks[0]?.map((day) => (
-                  <TableHead key={day.toString()} className="text-center p-1">
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs text-muted-foreground">
-                        {format(day, "EEE", { locale: ptBR })}
-                      </span>
-                      <span className={cn(
-                        "font-medium",
-                        !isSameMonth(day, currentMonth) && "text-muted-foreground opacity-50"
-                      )}>
-                        {day.getDate()}
-                      </span>
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {crediaristas.map((crediarista) => (
-                <TableRow key={crediarista.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <span>{crediarista.nome}</span>
-                    </div>
-                  </TableCell>
-                  {weeks[0]?.map((day) => {
-                    // Verificar se existe folga para este crediarista neste dia
-                    const folga = folgas.find(
-                      (folga) =>
-                        folga.crediaristaId === crediarista.id &&
-                        isSameDay(folga.data, day)
-                    );
-                    
-                    return (
-                      <TableCell key={day.toString()} className="text-center p-1">
-                        {folga && (
-                          <div 
-                            className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto cursor-pointer"
-                            title={`Folga de ${crediarista.nome} em ${format(day, "dd/MM/yyyy")}`}
-                          >
-                            <span className="h-2 w-2 bg-blue-500 rounded-full" />
-                          </div>
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          {/* Exibir outras semanas */}
-          {weeks.slice(1).map((week, weekIndex) => (
-            <Table key={`week-${weekIndex + 1}`} className="mt-4">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-40"></TableHead>
-                  {week.map((day) => (
-                    <TableHead key={day.toString()} className="text-center p-1">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xs text-muted-foreground">
-                          {format(day, "EEE", { locale: ptBR })}
-                        </span>
-                        <span className={cn(
-                          "font-medium",
-                          !isSameMonth(day, currentMonth) && "text-muted-foreground opacity-50"
-                        )}>
-                          {day.getDate()}
-                        </span>
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {crediaristas.map((crediarista) => (
-                  <TableRow key={`${crediarista.id}-week-${weekIndex + 1}`}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                          <User className="h-4 w-4 text-muted-foreground" />
+          {isLoadingCrediaristas ? (
+            <div className="flex justify-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : crediaristas.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-muted-foreground">
+                Nenhum crediarista encontrado para exibir no calendário
+              </p>
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-40">Crediarista</TableHead>
+                    {weeks[0]?.map((day) => (
+                      <TableHead key={day.toString()} className="text-center p-1">
+                        <div className="flex flex-col items-center">
+                          <span className="text-xs text-muted-foreground">
+                            {format(day, "EEE", { locale: ptBR })}
+                          </span>
+                          <span className={cn(
+                            "font-medium",
+                            !isSameMonth(day, currentMonth) && "text-muted-foreground opacity-50"
+                          )}>
+                            {day.getDate()}
+                          </span>
                         </div>
-                        <span>{crediarista.nome}</span>
-                      </div>
-                    </TableCell>
-                    {week.map((day) => {
-                      // Verificar se existe folga para este crediarista neste dia
-                      const folga = folgas.find(
-                        (folga) =>
-                          folga.crediaristaId === crediarista.id &&
-                          isSameDay(folga.data, day)
-                      );
-                      
-                      return (
-                        <TableCell key={day.toString()} className="text-center p-1">
-                          {folga && (
-                            <div 
-                              className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto cursor-pointer"
-                              title={`Folga de ${crediarista.nome} em ${format(day, "dd/MM/yyyy")}`}
-                            >
-                              <span className="h-2 w-2 bg-blue-500 rounded-full" />
-                            </div>
-                          )}
-                        </TableCell>
-                      );
-                    })}
+                      </TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ))}
+                </TableHeader>
+                <TableBody>
+                  {crediaristas.map((crediarista) => (
+                    <TableRow key={crediarista.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <span>{crediarista.nome}</span>
+                        </div>
+                      </TableCell>
+                      {weeks[0]?.map((day) => {
+                        // Verificar se existe folga para este crediarista neste dia
+                        const folga = folgas.find(
+                          (folga) =>
+                            folga.crediaristaId === crediarista.id &&
+                            isSameDay(folga.data, day)
+                        );
+                        
+                        return (
+                          <TableCell key={day.toString()} className="text-center p-1">
+                            {folga && (
+                              <div 
+                                className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto cursor-pointer"
+                                title={`Folga de ${crediarista.nome} em ${format(day, "dd/MM/yyyy")}`}
+                              >
+                                <span className="h-2 w-2 bg-blue-500 rounded-full" />
+                              </div>
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              
+              {/* Exibir outras semanas */}
+              {weeks.slice(1).map((week, weekIndex) => (
+                <Table key={`week-${weekIndex + 1}`} className="mt-4">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-40"></TableHead>
+                      {week.map((day) => (
+                        <TableHead key={day.toString()} className="text-center p-1">
+                          <div className="flex flex-col items-center">
+                            <span className="text-xs text-muted-foreground">
+                              {format(day, "EEE", { locale: ptBR })}
+                            </span>
+                            <span className={cn(
+                              "font-medium",
+                              !isSameMonth(day, currentMonth) && "text-muted-foreground opacity-50"
+                            )}>
+                              {day.getDate()}
+                            </span>
+                          </div>
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {crediaristas.map((crediarista) => (
+                      <TableRow key={`${crediarista.id}-week-${weekIndex + 1}`}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <span>{crediarista.nome}</span>
+                          </div>
+                        </TableCell>
+                        {week.map((day) => {
+                          // Verificar se existe folga para este crediarista neste dia
+                          const folga = folgas.find(
+                            (folga) =>
+                              folga.crediaristaId === crediarista.id &&
+                              isSameDay(folga.data, day)
+                          );
+                          
+                          return (
+                            <TableCell key={day.toString()} className="text-center p-1">
+                              {folga && (
+                                <div 
+                                  className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto cursor-pointer"
+                                  title={`Folga de ${crediarista.nome} em ${format(day, "dd/MM/yyyy")}`}
+                                >
+                                  <span className="h-2 w-2 bg-blue-500 rounded-full" />
+                                </div>
+                              )}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ))}
+            </>
+          )}
         </CardContent>
       </Card>
       
@@ -462,9 +532,9 @@ export function Folgas() {
           <DialogHeader>
             <DialogTitle>Visualizar Imagem</DialogTitle>
           </DialogHeader>
-          <DialogContent className="p-0">
-            <img src={viewImage} alt="Imagem" className="w-full h-full object-cover" />
-          </DialogContent>
+          <div className="p-0">
+            <img src={viewImage || ""} alt="Imagem" className="w-full h-full object-cover" />
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setViewImage(null)}>
               Fechar
