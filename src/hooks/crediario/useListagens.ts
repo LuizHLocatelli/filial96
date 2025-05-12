@@ -37,17 +37,17 @@ export function useListagens() {
         const formattedListagens: Listagem[] = data.map(item => ({
           id: item.id,
           nome: item.nome,
-          fileUrl: item.url, // Using the url field from database
+          fileUrl: item.url,
           createdAt: new Date(item.created_at),
           indicator: item.indicator
         }));
         setListagens(formattedListagens);
       }
     } catch (error) {
-      console.error("Erro ao carregar listagens:", error);
+      console.error("Error loading listagens:", error);
       toast({
-        title: "Erro ao carregar listagens",
-        description: "Ocorreu um erro ao carregar as listagens.",
+        title: "Error loading listagens",
+        description: "An error occurred while loading the listagens.",
         variant: "destructive",
       });
     } finally {
@@ -63,8 +63,6 @@ export function useListagens() {
       
       const fileName = file.name;
       
-      console.log("Starting file upload via useFileUpload");
-      
       // Use the uploadFile function from useFileUpload
       const fileUrl = await uploadFile(file, {
         bucketName: 'crediario_listagens',
@@ -72,10 +70,8 @@ export function useListagens() {
       });
       
       if (!fileUrl) {
-        throw new Error("Não foi possível fazer o upload do arquivo.");
+        throw new Error("Could not upload file.");
       }
-      
-      console.log("File uploaded successfully, URL:", fileUrl);
       
       // Insert record in database
       const { error: insertError } = await supabase
@@ -92,20 +88,18 @@ export function useListagens() {
         throw insertError;
       }
       
-      console.log("Database record created successfully");
-      
       toast({
-        title: "Upload concluído",
-        description: "A listagem foi adicionada com sucesso.",
+        title: "Upload complete",
+        description: "The listagem was added successfully.",
       });
       
       await fetchListagens();
       return true;
     } catch (error: any) {
-      console.error("Erro detalhado ao adicionar listagem:", error);
+      console.error("Detailed error when adding listagem:", error);
       toast({
-        title: "Erro ao adicionar listagem",
-        description: error.message || "Ocorreu um erro ao adicionar a listagem.",
+        title: "Error adding listagem",
+        description: error.message || "An error occurred while adding the listagem.",
         variant: "destructive",
       });
       return false;
@@ -124,48 +118,49 @@ export function useListagens() {
         
       if (deleteError) throw deleteError;
       
-      // Try to delete file from storage if possible
+      // Try to delete file from storage
       try {
-        // Extract bucket and path from URL
         const url = new URL(fileUrl);
         const pathParts = url.pathname.split('/');
-        const bucketName = pathParts[1] === 'storage' ? pathParts[2] : 'crediario_listagens';
         
-        // Get file path without bucket and "object" part
-        let filePath = pathParts.slice(pathParts.indexOf(bucketName) + 2).join('/');
+        // Extract path without the /storage/v1/object/public/ prefix
+        let filePath = '';
         
-        // Remove query parameters if present
-        filePath = filePath.split('?')[0];
+        if (pathParts.includes('pdfs')) {
+          // Get the path starting from 'pdfs'
+          const pdfIndex = pathParts.indexOf('pdfs');
+          filePath = pathParts.slice(pdfIndex).join('/');
+        } else {
+          // Fallback to just the filename
+          filePath = pathParts[pathParts.length - 1];
+        }
         
-        console.log(`Attempting to delete file: bucket=${bucketName}, path=${filePath}`);
+        console.log(`Attempting to delete file: bucket=crediario_listagens, path=${filePath}`);
         
-        if (bucketName && filePath) {
-          const { error: storageError } = await supabase.storage
-            .from(bucketName)
-            .remove([filePath]);
-            
-          if (storageError) {
-            console.warn("Warning: Could not delete file from storage:", storageError);
-          }
+        const { error: storageError } = await supabase.storage
+          .from('crediario_listagens')
+          .remove([filePath]);
+          
+        if (storageError) {
+          console.warn("Warning: Could not delete file from storage:", storageError);
         }
       } catch (storageError) {
-        // Just log storage deletion errors, but don't fail the operation
         console.warn("Warning: Error parsing file URL or deleting from storage:", storageError);
       }
       
       setListagens(prev => prev.filter(item => item.id !== id));
       
       toast({
-        title: "Listagem removida",
-        description: "A listagem foi removida com sucesso.",
+        title: "Listagem removed",
+        description: "The listagem was removed successfully.",
       });
       
       return true;
     } catch (error) {
-      console.error("Erro ao excluir listagem:", error);
+      console.error("Error deleting listagem:", error);
       toast({
-        title: "Erro ao remover listagem",
-        description: "Ocorreu um erro ao remover a listagem.",
+        title: "Error removing listagem",
+        description: "An error occurred while removing the listagem.",
         variant: "destructive",
       });
       return false;

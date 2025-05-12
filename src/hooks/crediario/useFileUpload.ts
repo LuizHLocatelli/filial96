@@ -19,7 +19,7 @@ export function useFileUpload() {
     try {
       setIsUploading(true);
       
-      // Gerar um nome único para o arquivo
+      // Generate unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = options.folder 
@@ -28,23 +28,7 @@ export function useFileUpload() {
       
       console.log(`Starting upload to ${options.bucketName}/${filePath}`);
       
-      // Verificar se o bucket existe antes de fazer upload
-      try {
-        const { data, error } = await supabase.storage.getBucket(options.bucketName);
-        
-        if (error) {
-          console.log(`Bucket ${options.bucketName} não existe ou não é acessível`);
-          // Falha silenciosa - iremos tentar fazer upload mesmo assim, pois o bucket pode
-          // existir mas o usuário pode não ter permissão para verificá-lo
-        } else {
-          console.log(`Bucket ${options.bucketName} exists:`, data);
-        }
-      } catch (bucketError) {
-        console.warn(`Erro ao verificar bucket ${options.bucketName}:`, bucketError);
-        // Continuamos, pois isso pode ser apenas um erro de permissão
-      }
-      
-      // Upload do arquivo para o Supabase Storage
+      // Upload file to Supabase Storage
       const { data, error: uploadError } = await supabase.storage
         .from(options.bucketName)
         .upload(filePath, file, {
@@ -59,26 +43,25 @@ export function useFileUpload() {
       
       console.log(`File uploaded successfully: ${filePath}`);
       
-      // Obter a URL pública do arquivo
+      // Get public URL of the file
       const { data: urlData } = supabase.storage
         .from(options.bucketName)
         .getPublicUrl(filePath);
       
       return urlData.publicUrl;
     } catch (error: any) {
-      console.error("Erro ao fazer upload do arquivo:", error);
+      console.error("Error uploading file:", error);
       
-      // Tratamento específico para erros comuns de bucket
       if (error.message?.includes('bucket') || error.status === 404) {
         toast({
-          title: "Erro no upload",
-          description: "O bucket de armazenamento não existe ou você não tem permissão para acessá-lo.",
+          title: "Upload error",
+          description: "Storage bucket does not exist or you don't have permission to access it.",
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Erro no upload",
-          description: "Ocorreu um erro ao fazer o upload do arquivo.",
+          title: "Upload error",
+          description: "An error occurred while uploading the file.",
           variant: "destructive",
         });
       }

@@ -29,20 +29,20 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type !== 'application/pdf') {
-        setUploadError("Por favor, selecione um arquivo PDF.");
+        setUploadError("Please select a PDF file.");
         toast({
-          title: "Formato inválido",
-          description: "Por favor, selecione um arquivo PDF.",
+          title: "Invalid format",
+          description: "Please select a PDF file.",
           variant: "destructive",
         });
         return;
       }
       
       if (file.size > 10 * 1024 * 1024) { // 10MB
-        setUploadError("O arquivo não pode ser maior que 10MB.");
+        setUploadError("File size cannot exceed 10MB.");
         toast({
-          title: "Arquivo muito grande",
-          description: "O arquivo não pode ser maior que 10MB.",
+          title: "File too large",
+          description: "File size cannot exceed 10MB.",
           variant: "destructive",
         });
         return;
@@ -62,10 +62,10 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
     setUploadError(null);
     
     if (!selectedFile) {
-      setUploadError("Nenhum arquivo selecionado");
+      setUploadError("No file selected");
       toast({
-        title: "Nenhum arquivo selecionado",
-        description: "Por favor, selecione um arquivo PDF para fazer upload.",
+        title: "No file selected",
+        description: "Please select a PDF file to upload.",
         variant: "destructive",
       });
       return;
@@ -83,7 +83,7 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
       }
     } catch (error) {
       console.error("Error during upload:", error);
-      setUploadError("Erro ao fazer upload. Tente novamente.");
+      setUploadError("Error uploading file. Please try again.");
     }
   };
 
