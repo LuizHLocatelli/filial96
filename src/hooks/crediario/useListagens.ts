@@ -19,7 +19,30 @@ export function useListagens() {
 
   useEffect(() => {
     fetchListagens();
+    ensureBucketExists();
   }, []);
+
+  // Ensure the documents bucket exists
+  const ensureBucketExists = async () => {
+    try {
+      // Check if documents bucket exists
+      const { data, error } = await supabase
+        .storage
+        .getBucket('documents');
+        
+      if (error) {
+        console.log('Creating documents bucket...');
+        // Create the bucket if it doesn't exist
+        await supabase.storage.createBucket('documents', {
+          public: true,
+          fileSizeLimit: 10485760 // 10MB limit
+        });
+        console.log('Documents bucket created');
+      }
+    } catch (error) {
+      console.error("Error checking/creating bucket:", error);
+    }
+  };
 
   const fetchListagens = async () => {
     setIsLoading(true);
@@ -60,7 +83,6 @@ export function useListagens() {
       const indicatorValue = indicator === "none" || !indicator ? null : indicator;
       
       const fileName = file.name;
-      const fileExt = fileName.split('.').pop();
       const filePath = `crediario/listagens/${Date.now()}_${fileName}`;
       
       // Upload file to storage
@@ -113,9 +135,9 @@ export function useListagens() {
 
   const deleteListagem = async (id: string, fileUrl: string): Promise<boolean> => {
     try {
-      // Extract file path from URL
-      const urlParts = fileUrl.split('/');
-      const filePath = `crediario/listagens/${urlParts[urlParts.length - 1]}`;
+      // Get file path from URL
+      const filePathMatch = fileUrl.match(/crediario\/listagens\/[^?]*/);
+      const filePath = filePathMatch ? filePathMatch[0] : null;
       
       // Delete record from database
       const { error: deleteError } = await supabase
@@ -125,13 +147,15 @@ export function useListagens() {
         
       if (deleteError) throw deleteError;
       
-      // Delete file from storage
-      try {
-        await supabase.storage
-          .from('documents')
-          .remove([filePath]);
-      } catch (storageError) {
-        console.error("Erro ao excluir arquivo de storage:", storageError);
+      // Delete file from storage if we could extract the path
+      if (filePath) {
+        try {
+          await supabase.storage
+            .from('documents')
+            .remove([filePath]);
+        } catch (storageError) {
+          console.error("Erro ao excluir arquivo de storage:", storageError);
+        }
       }
       
       setListagens(prev => prev.filter(item => item.id !== id));
