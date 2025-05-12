@@ -107,8 +107,9 @@ const PdfViewerPage = () => {
             src={pdfUrl}
             className="w-full h-full border-0"
             title="PDF Viewer"
-            frameBorder="0"
             allowFullScreen
+            sandbox="allow-same-origin allow-scripts allow-forms"
+            loading="eager"
           />
         </CardContent>
       </Card>
