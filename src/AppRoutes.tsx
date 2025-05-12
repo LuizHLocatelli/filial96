@@ -8,7 +8,8 @@ import Garantias from "./pages/Garantias";
 import Organizacao from "./pages/Organizacao";
 import Cobrancas from "./pages/Cobrancas";
 import PromotionalCards from "./pages/PromotionalCards";
-import Crediario from "./pages/Crediario"; // Add import
+import Crediario from "./pages/Crediario";
+import PdfViewerPage from "./pages/PdfViewerPage"; // Add import
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -93,12 +94,20 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      {/* Add new route for Crediário */}
       <Route 
         path="/crediario" 
         element={
           <ProtectedRoute>
             <AppLayout><Crediario /></AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      {/* Add new route for PDF viewer */}
+      <Route 
+        path="/pdf-viewer" 
+        element={
+          <ProtectedRoute>
+            <AppLayout><PdfViewerPage /></AppLayout>
           </ProtectedRoute>
         } 
       />

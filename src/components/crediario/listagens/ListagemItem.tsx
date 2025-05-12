@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Listagem } from "@/hooks/crediario/useListagens";
 import { getIndicatorColor } from "@/components/crediario/types";
+import { useNavigate } from "react-router-dom";
 
 interface ListagemItemProps {
   item: Listagem;
@@ -14,6 +15,12 @@ interface ListagemItemProps {
 }
 
 export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
+  const navigate = useNavigate();
+  
+  const handleViewInNewPage = () => {
+    navigate(`/pdf-viewer?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.nome)}`);
+  };
+  
   return (
     <div className="flex items-center justify-between p-3 border rounded-lg">
       <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -33,7 +40,7 @@ export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
         </div>
       </div>
       <div className="flex gap-2 flex-shrink-0">
-        <Button size="sm" variant="ghost" onClick={() => onView(item.fileUrl, item.nome)}>
+        <Button size="sm" variant="ghost" onClick={handleViewInNewPage}>
           <Eye className="h-4 w-4" />
           <span className="sr-only">Ver</span>
         </Button>
