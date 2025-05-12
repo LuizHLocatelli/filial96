@@ -28,6 +28,7 @@ export function Listagens() {
   const { listagens, isLoading, isUploading, addListagem, deleteListagem } = useListagens();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const [pdfName, setPdfName] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -70,12 +71,14 @@ export function Listagens() {
   const handleDelete = async (id: string, fileUrl: string) => {
     if (selectedPdf === fileUrl) {
       setSelectedPdf(null);
+      setPdfName(null);
     }
     await deleteListagem(id, fileUrl);
   };
 
-  const handleView = (fileUrl: string) => {
+  const handleView = (fileUrl: string, nome: string) => {
     setSelectedPdf(fileUrl);
+    setPdfName(nome);
   };
 
   const filteredListagens = filterIndicator 
@@ -90,6 +93,13 @@ export function Listagens() {
       case "M2": return "bg-orange-500";
       case "M3": return "bg-purple-500";
       default: return "bg-gray-500";
+    }
+  };
+
+  // Function to open PDF in a new window with full controls
+  const openPdfInNewWindow = () => {
+    if (selectedPdf) {
+      window.open(selectedPdf, '_blank');
     }
   };
 
@@ -234,7 +244,7 @@ export function Listagens() {
                       </div>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
-                      <Button size="sm" variant="ghost" onClick={() => handleView(item.fileUrl)}>
+                      <Button size="sm" variant="ghost" onClick={() => handleView(item.fileUrl, item.nome)}>
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">Ver</span>
                       </Button>
@@ -252,18 +262,33 @@ export function Listagens() {
 
         {selectedPdf && (
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Visualizador de PDF</CardTitle>
-              <CardDescription>
-                Visualize o conteúdo da listagem selecionada
-              </CardDescription>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Visualizador de PDF</CardTitle>
+                <CardDescription>
+                  {pdfName || "Visualize o conteúdo da listagem selecionada"}
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={openPdfInNewWindow}
+                className="whitespace-nowrap"
+              >
+                Abrir em nova janela
+              </Button>
             </CardHeader>
-            <CardContent className={isMobile ? "h-[400px]" : "h-[500px]"}>
-              <iframe
-                src={selectedPdf}
-                className="w-full h-full border-0"
-                title="PDF Viewer"
-              />
+            <CardContent className={isMobile ? "h-[400px]" : "h-[600px]"}>
+              <div className="w-full h-full border rounded-md overflow-hidden">
+                <iframe
+                  src={`${selectedPdf}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+                  className="w-full h-full border-0"
+                  title="PDF Viewer"
+                  allowFullScreen
+                  sandbox="allow-same-origin allow-scripts allow-forms"
+                  loading="eager"
+                />
+              </div>
             </CardContent>
           </Card>
         )}

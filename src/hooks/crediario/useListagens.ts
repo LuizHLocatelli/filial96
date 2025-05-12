@@ -35,7 +35,7 @@ export function useListagens() {
         const formattedListagens: Listagem[] = data.map(item => ({
           id: item.id,
           nome: item.nome,
-          fileUrl: item.url, // Changed from file_url to url
+          fileUrl: item.url, // Using the url field from database
           createdAt: new Date(item.created_at),
           indicator: item.indicator
         }));
@@ -84,7 +84,7 @@ export function useListagens() {
         .from('crediario_listagens')
         .insert({
           nome: fileName,
-          url: publicUrlData.publicUrl, // Changed from file_url to url
+          url: publicUrlData.publicUrl, // Using url field
           indicator: indicatorValue,
           created_by: (await supabase.auth.getUser()).data.user?.id
         });
