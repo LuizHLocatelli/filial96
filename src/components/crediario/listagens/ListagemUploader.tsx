@@ -3,11 +3,12 @@ import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { indicatorOptions } from "@/components/crediario/types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ListagemUploaderProps {
   isUploading: boolean;
@@ -18,13 +19,17 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedIndicator, setSelectedIndicator] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUploadError(null);
+    
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type !== 'application/pdf') {
+        setUploadError("Por favor, selecione um arquivo PDF.");
         toast({
           title: "Formato inválido",
           description: "Por favor, selecione um arquivo PDF.",
@@ -32,6 +37,17 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
         });
         return;
       }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        setUploadError("O arquivo não pode ser maior que 10MB.");
+        toast({
+          title: "Arquivo muito grande",
+          description: "O arquivo não pode ser maior que 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setSelectedFile(file);
     }
   };
@@ -43,7 +59,10 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
   };
 
   const handleUpload = async () => {
+    setUploadError(null);
+    
     if (!selectedFile) {
+      setUploadError("Nenhum arquivo selecionado");
       toast({
         title: "Nenhum arquivo selecionado",
         description: "Por favor, selecione um arquivo PDF para fazer upload.",
@@ -52,10 +71,19 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
       return;
     }
 
-    const success = await onUpload(selectedFile, selectedIndicator);
-    if (success) {
-      setSelectedFile(null);
-      setSelectedIndicator(null);
+    try {
+      const success = await onUpload(selectedFile, selectedIndicator);
+      if (success) {
+        setSelectedFile(null);
+        setSelectedIndicator(null);
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    } catch (error) {
+      console.error("Error during upload:", error);
+      setUploadError("Erro ao fazer upload. Tente novamente.");
     }
   };
 
@@ -68,6 +96,13 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {uploadError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{uploadError}</AlertDescription>
+          </Alert>
+        )}
+        
         <div 
           className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer"
           onClick={triggerFileInput}

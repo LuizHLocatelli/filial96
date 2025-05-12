@@ -18,29 +18,52 @@ export function useListagens() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchListagens();
-    ensureBucketExists();
+    const initialize = async () => {
+      await ensureBucketExists();
+      fetchListagens();
+    };
+    
+    initialize();
   }, []);
 
   // Ensure the documents bucket exists
   const ensureBucketExists = async () => {
     try {
-      // Check if documents bucket exists
+      console.log('Checking if documents bucket exists...');
+      
+      // Check if bucket exists
       const { data, error } = await supabase
         .storage
         .getBucket('documents');
-        
+      
       if (error) {
-        console.log('Creating documents bucket...');
+        console.log('Documents bucket does not exist, creating it now...');
+        
         // Create the bucket if it doesn't exist
-        await supabase.storage.createBucket('documents', {
+        const { data: bucketData, error: createError } = await supabase.storage.createBucket('documents', {
           public: true,
           fileSizeLimit: 10485760 // 10MB limit
         });
-        console.log('Documents bucket created');
+        
+        if (createError) {
+          console.error("Failed to create bucket:", createError);
+          toast({
+            title: "Erro na configuração",
+            description: "Não foi possível configurar o armazenamento. Tente novamente mais tarde.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        
+        console.log('Documents bucket created successfully:', bucketData);
+        return true;
       }
+      
+      console.log('Documents bucket exists:', data);
+      return true;
     } catch (error) {
       console.error("Error checking/creating bucket:", error);
+      return false;
     }
   };
 
@@ -79,18 +102,34 @@ export function useListagens() {
   const addListagem = async (file: File, indicator: string | null): Promise<boolean> => {
     setIsUploading(true);
     try {
+      // Ensure bucket exists before uploading
+      const bucketExists = await ensureBucketExists();
+      if (!bucketExists) {
+        throw new Error("Não foi possível configurar o armazenamento para upload.");
+      }
+      
       // Transform indicator value
       const indicatorValue = indicator === "none" || !indicator ? null : indicator;
       
       const fileName = file.name;
       const filePath = `crediario/listagens/${Date.now()}_${fileName}`;
       
-      // Upload file to storage
+      console.log(`Starting upload to documents/${filePath}`);
+      
+      // Upload file to storage with better error handling
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
         
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
+      
+      console.log("File uploaded successfully:", uploadData);
       
       // Get public URL
       const { data: publicUrlData } = await supabase.storage
@@ -100,6 +139,8 @@ export function useListagens() {
       if (!publicUrlData || !publicUrlData.publicUrl) {
         throw new Error("Failed to get public URL for uploaded file");
       }
+      
+      console.log("Public URL generated:", publicUrlData.publicUrl);
       
       // Insert record in database
       const { error: insertError } = await supabase
@@ -111,7 +152,12 @@ export function useListagens() {
           created_by: (await supabase.auth.getUser()).data.user?.id
         });
         
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("Database insert error:", insertError);
+        throw insertError;
+      }
+      
+      console.log("Database record created successfully");
       
       toast({
         title: "Upload concluído",
@@ -120,11 +166,11 @@ export function useListagens() {
       
       await fetchListagens();
       return true;
-    } catch (error) {
-      console.error("Erro ao adicionar listagem:", error);
+    } catch (error: any) {
+      console.error("Erro detalhado ao adicionar listagem:", error);
       toast({
         title: "Erro ao adicionar listagem",
-        description: "Ocorreu um erro ao adicionar a listagem.",
+        description: error.message || "Ocorreu um erro ao adicionar a listagem.",
         variant: "destructive",
       });
       return false;
