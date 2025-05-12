@@ -15,7 +15,6 @@ const PdfViewerPage = () => {
   
   const pdfUrl = searchParams.get("url");
   const pdfName = searchParams.get("name");
-  const [isFullscreen, setIsFullscreen] = useState(false);
   
   useEffect(() => {
     if (!pdfUrl) {
@@ -34,10 +33,40 @@ const PdfViewerPage = () => {
 
   const handleDownload = () => {
     if (pdfUrl) {
-      const link = document.createElement("a");
-      link.href = pdfUrl;
-      link.download = pdfName || "documento.pdf";
-      link.click();
+      // Create fetch request to get the file as blob
+      fetch(pdfUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Create a URL for the blob
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = pdfName || "documento.pdf";
+          document.body.appendChild(link);
+          link.click();
+          
+          // Clean up
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          
+          toast({
+            title: "Download concluído",
+            description: "O arquivo foi baixado com sucesso.",
+          });
+        })
+        .catch(error => {
+          console.error('Download failed:', error);
+          toast({
+            title: "Erro ao baixar",
+            description: "Não foi possível baixar o arquivo.",
+            variant: "destructive",
+          });
+        });
     }
   };
 
