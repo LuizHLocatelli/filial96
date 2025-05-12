@@ -18,7 +18,8 @@ export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
   const navigate = useNavigate();
   
   const handleViewInNewPage = () => {
-    navigate(`/pdf-viewer?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.nome)}`);
+    const url = `/pdf-viewer?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.nome)}`;
+    window.open(url, "_blank");
   };
   
   return (

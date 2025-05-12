@@ -104,12 +104,11 @@ const PdfViewerPage = () => {
       <Card className="w-full">
         <CardContent className={`p-0 ${isMobile ? "h-[70vh]" : "h-[80vh]"}`}>
           <iframe
-            src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
+            src={pdfUrl}
             className="w-full h-full border-0"
             title="PDF Viewer"
+            frameBorder="0"
             allowFullScreen
-            sandbox="allow-same-origin allow-scripts allow-forms"
-            loading="eager"
           />
         </CardContent>
       </Card>
