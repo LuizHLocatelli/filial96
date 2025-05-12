@@ -70,6 +70,12 @@ const PdfViewerPage = () => {
     }
   };
 
+  const handleOpenPdf = () => {
+    if (pdfUrl) {
+      window.open(pdfUrl, '_blank');
+    }
+  };
+
   if (!pdfUrl) {
     return null;
   }
@@ -103,14 +109,18 @@ const PdfViewerPage = () => {
 
       <Card className="w-full">
         <CardContent className={`p-0 ${isMobile ? "h-[70vh]" : "h-[80vh]"}`}>
-          <iframe
-            src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1&view=FitH`}
-            className="w-full h-full border-0"
-            title="PDF Viewer"
-            allowFullScreen
-            sandbox="allow-same-origin allow-scripts allow-forms"
-            loading="eager"
-          />
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100">
+            <div className="text-center mb-4">
+              {pdfName || "3b3978e3-4236-48b5-8a56-3b7fad724b67.pdf"}
+            </div>
+            <Button 
+              variant="default" 
+              className="bg-blue-500 hover:bg-blue-600"
+              onClick={handleOpenPdf}
+            >
+              Abrir
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
