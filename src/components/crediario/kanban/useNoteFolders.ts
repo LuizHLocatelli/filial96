@@ -13,7 +13,7 @@ export function useNoteFolders() {
   const fetchFolders = async () => {
     setIsLoading(true);
     try {
-      // Usando 'notes-folders' como identificador string em vez de tentar usar 'notes' como UUID
+      // Using text comparison instead of UUID comparison
       const { data, error } = await supabase
         .from('crediario_kanban_columns')
         .select('id, name, created_at')
@@ -118,13 +118,14 @@ export function useNoteFolders() {
     }
     
     try {
+      // Make sure we're setting board_id as a string 'notes-folders' not as a UUID
       const { data, error } = await supabase
         .from('crediario_kanban_columns')
-        .insert({
+        .insert([{
           name: folderData.name,
-          board_id: 'notes-folders', // Usando 'notes-folders' como identificador string
-          position: 0, // Posição padrão
-        })
+          board_id: 'notes-folders',
+          position: 0,
+        }])
         .select('id')
         .single();
         
@@ -138,7 +139,6 @@ export function useNoteFolders() {
         return;
       }
       
-      // O canal de realtime vai cuidar da atualização
       toast({
         title: "Sucesso",
         description: "Pasta criada com sucesso",
