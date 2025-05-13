@@ -280,6 +280,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -287,6 +288,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -294,6 +296,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -391,23 +394,29 @@ export type Database = {
         Row: {
           board_id: string
           created_at: string | null
+          created_by: string | null
           id: string
           name: string
           position: number
+          updated_at: string | null
         }
         Insert: {
           board_id: string
           created_at?: string | null
+          created_by?: string | null
           id?: string
           name: string
           position?: number
+          updated_at?: string | null
         }
         Update: {
           board_id?: string
           created_at?: string | null
+          created_by?: string | null
           id?: string
           name?: string
           position?: number
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -426,6 +435,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           id: string
+          updated_at: string | null
         }
         Insert: {
           card_id: string
@@ -433,6 +443,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
+          updated_at?: string | null
         }
         Update: {
           card_id?: string
@@ -440,6 +451,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -550,6 +562,7 @@ export type Database = {
           id: string
           name: string
           position: number
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
@@ -557,6 +570,7 @@ export type Database = {
           id?: string
           name: string
           position?: number
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
@@ -564,6 +578,7 @@ export type Database = {
           id?: string
           name?: string
           position?: number
+          updated_at?: string | null
         }
         Relationships: []
       }

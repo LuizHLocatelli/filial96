@@ -29,7 +29,7 @@ export function useBoardData() {
           return;
         }
         
-        // Add updated_at if it doesn't exist in the database
+        // Ensure all required fields are present
         const boardWithUpdated: Board = {
           ...boardData,
           updated_at: boardData.updated_at || boardData.created_at || new Date().toISOString(),
@@ -52,7 +52,7 @@ export function useBoardData() {
           return;
         }
         
-        // Add fields that might be missing
+        // Ensure all required fields are present in columns
         const columnsWithUpdated: Column[] = columnsData.map(col => ({
           ...col,
           created_by: col.created_by || '',
@@ -78,7 +78,8 @@ export function useBoardData() {
         // Convert and validate priority
         const validatedCards: TaskCard[] = cardsData.map(card => ({
           ...card,
-          priority: validatePriority(card.priority)
+          priority: validatePriority(card.priority),
+          updated_at: card.updated_at || card.created_at || new Date().toISOString()
         }));
         
         setCards(validatedCards);
