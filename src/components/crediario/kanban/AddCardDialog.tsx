@@ -6,7 +6,7 @@ import { CardFormFields, formSchema } from "./form/CardFormFields";
 import { useCardForm } from "./form/useCardForm";
 import { useEffect } from "react";
 
-interface AddCardDialogProps {
+export interface AddCardDialogProps {
   columnId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -26,9 +26,9 @@ export function AddCardDialog({
       description: values.description || "",
       column_id: columnId,
       priority: values.priority,
-      assignee_id: values.assigneeId,
-      due_date: values.dueDate?.toISOString(),
-      background_color: values.backgroundColor // Include the background color
+      assigneeId: values.assigneeId,
+      dueDate: values.dueDate?.toISOString(),
+      backgroundColor: values.backgroundColor // Include the background color
     });
     
     onOpenChange(false);

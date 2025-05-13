@@ -21,11 +21,7 @@ export function useNoteFolders() {
         
       if (error) {
         console.error('Error fetching folders:', error);
-        toast({
-          title: "Erro",
-          description: "Erro ao carregar pastas",
-          variant: "destructive"
-        });
+        toast.error("Erro ao carregar pastas");
         return;
       }
       
@@ -38,11 +34,7 @@ export function useNoteFolders() {
       setFolders(foldersWithUpdated);
     } catch (error) {
       console.error('Unexpected error:', error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro inesperado",
-        variant: "destructive"
-      });
+      toast.error("Ocorreu um erro inesperado");
     } finally {
       setIsLoading(false);
     }
@@ -68,11 +60,7 @@ export function useNoteFolders() {
   // Add a new folder
   const addFolder = async (folderData: CreateFolderData) => {
     if (!profile) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar autenticado para adicionar pastas",
-        variant: "destructive"
-      });
+      toast.error("Você precisa estar autenticado para adicionar pastas");
       return null;
     }
     
@@ -94,22 +82,14 @@ export function useNoteFolders() {
         
       if (error) {
         console.error('Error adding folder:', error);
-        toast({
-          title: "Erro",
-          description: "Erro ao adicionar pasta",
-          variant: "destructive"
-        });
+        toast.error("Erro ao adicionar pasta");
         return null;
       }
       
       return data;
     } catch (error) {
       console.error('Unexpected error:', error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro inesperado",
-        variant: "destructive"
-      });
+      toast.error("Ocorreu um erro inesperado");
       return null;
     }
   };
@@ -127,22 +107,14 @@ export function useNoteFolders() {
         
       if (error) {
         console.error('Error updating folder:', error);
-        toast({
-          title: "Erro",
-          description: "Erro ao atualizar pasta",
-          variant: "destructive"
-        });
+        toast.error("Erro ao atualizar pasta");
         return false;
       }
       
       return true;
     } catch (error) {
       console.error('Unexpected error:', error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro inesperado",
-        variant: "destructive"
-      });
+      toast.error("Ocorreu um erro inesperado");
       return false;
     }
   };
@@ -158,11 +130,7 @@ export function useNoteFolders() {
         
       if (updateError) {
         console.error('Error updating notes:', updateError);
-        toast({
-          title: "Erro",
-          description: "Erro ao atualizar notas",
-          variant: "destructive"
-        });
+        toast.error("Erro ao atualizar notas");
         return false;
       }
       
@@ -174,22 +142,14 @@ export function useNoteFolders() {
         
       if (error) {
         console.error('Error deleting folder:', error);
-        toast({
-          title: "Erro",
-          description: "Erro ao excluir pasta",
-          variant: "destructive"
-        });
+        toast.error("Erro ao excluir pasta");
         return false;
       }
       
       return true;
     } catch (error) {
       console.error('Unexpected error:', error);
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro inesperado",
-        variant: "destructive"
-      });
+      toast.error("Ocorreu um erro inesperado");
       return false;
     }
   };

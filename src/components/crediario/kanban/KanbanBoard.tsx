@@ -93,6 +93,7 @@ export function KanbanBoard() {
       />
 
       <AddCardDialog
+        columnId={targetColumnId || ""}
         open={addCardDialogOpen}
         onOpenChange={setAddCardDialogOpen}
         onAddCard={handleAddCard}

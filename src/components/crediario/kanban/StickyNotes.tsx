@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,11 +69,14 @@ export function StickyNotes() {
     setAddFolderDialogOpen(true);
   };
 
+  // Modify these functions to handle the Promise<boolean> return type
   const handleUpdateNote = async (id: string, content: string, folderId?: string) => {
+    // Convert the Promise<boolean> to Promise<void>
     await updateNote(id, content, folderId);
   };
 
   const handleDeleteNote = async (id: string) => {
+    // Convert the Promise<boolean> to Promise<void>
     await deleteNote(id);
   };
 
@@ -211,9 +213,9 @@ export function StickyNotes() {
                   key={note.id}
                   note={note}
                   folders={folders}
-                  onUpdate={updateNote}
+                  onUpdate={handleUpdateNote}
                   onMoveToFolder={handleMoveToFolder}
-                  onDelete={deleteNote}
+                  onDelete={handleDeleteNote}
                 />
               ))
             ) : (
@@ -236,9 +238,9 @@ export function StickyNotes() {
                     key={note.id}
                     note={note}
                     folders={folders}
-                    onUpdate={updateNote}
+                    onUpdate={handleUpdateNote}
                     onMoveToFolder={handleMoveToFolder}
-                    onDelete={deleteNote}
+                    onDelete={handleDeleteNote}
                   />
                 ))
               ) : (
