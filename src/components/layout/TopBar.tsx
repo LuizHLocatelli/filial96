@@ -16,7 +16,7 @@ export function TopBar() {
           variant="ghost"
           size="icon"
           className="mr-4 md:hidden"
-          onClick={() => sidebar.toggle?.()}
+          onClick={() => sidebar.toggleSidebar()}
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle Menu</span>
