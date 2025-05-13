@@ -1,7 +1,8 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Monitor, UserRound, Settings, MessageSquare, ListTodo, Users, PiggyBank, Calendar } from "lucide-react";
+import { ListTodo, Users, Settings, PiggyBank, Calendar } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface QuickAccessProps {
   onNavigate: (tab: string) => void;
@@ -12,26 +13,32 @@ interface AccessCardProps {
   icon: React.ReactNode;
   onClick: () => void;
   bgColor: string;
+  darkBgColor: string;
   hoverColor: string;
+  darkHoverColor: string;
 }
 
-const AccessCard = ({ title, icon, onClick, bgColor, hoverColor }: AccessCardProps) => {
+const AccessCard = ({ title, icon, onClick, bgColor, darkBgColor, hoverColor, darkHoverColor }: AccessCardProps) => {
+  const { isDarkMode } = useTheme();
+  
   return (
     <motion.div
-      className={`${bgColor} rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 h-28 sm:h-36`}
+      className={`${isDarkMode ? darkBgColor : bgColor} rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 h-28 sm:h-36`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
     >
-      <div className={`${hoverColor} p-2 sm:p-3 rounded-full mb-2 sm:mb-3`}>
+      <div className={`${isDarkMode ? darkHoverColor : hoverColor} p-2 sm:p-3 rounded-full mb-2 sm:mb-3`}>
         {icon}
       </div>
-      <span className="font-medium text-base sm:text-lg text-green-800">{title}</span>
+      <span className={`font-medium text-base sm:text-lg ${isDarkMode ? 'text-white' : 'text-green-800'}`}>{title}</span>
     </motion.div>
   );
 };
 
 export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
+  const { isDarkMode } = useTheme();
+  
   const handleNavigation = useCallback(
     (tab: string) => {
       onNavigate(tab);
@@ -42,73 +49,59 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
   return (
     <div className="animate-fade-in">
       <div className="text-center mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-green-800">Acesso Rápido</h2>
-        <p className="text-sm sm:text-base text-green-700">Selecione uma opção para começar</p>
+        <h2 className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">Acesso Rápido</h2>
+        <p className="text-sm sm:text-base text-green-700 dark:text-green-400">Selecione uma opção para começar</p>
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
         <AccessCard
           title="Listagens"
-          icon={<ListTodo size={24} className="text-green-700" />}
+          icon={<ListTodo size={24} className={isDarkMode ? "text-green-300" : "text-green-700"} />}
           onClick={() => handleNavigation("listagens")}
           bgColor="bg-green-100"
+          darkBgColor="bg-green-900/30"
           hoverColor="bg-green-200"
+          darkHoverColor="bg-green-800/50"
         />
         
         <AccessCard
           title="Clientes"
-          icon={<Users size={24} className="text-blue-700" />}
+          icon={<Users size={24} className={isDarkMode ? "text-blue-300" : "text-blue-700"} />}
           onClick={() => handleNavigation("clientes")}
           bgColor="bg-blue-100"
+          darkBgColor="bg-blue-900/30"
           hoverColor="bg-blue-200"
+          darkHoverColor="bg-blue-800/50"
         />
         
         <AccessCard
           title="Depósitos"
-          icon={<PiggyBank size={24} className="text-purple-700" />}
+          icon={<PiggyBank size={24} className={isDarkMode ? "text-purple-300" : "text-purple-700"} />}
           onClick={() => handleNavigation("depositos")}
           bgColor="bg-purple-100"
+          darkBgColor="bg-purple-900/30"
           hoverColor="bg-purple-200"
+          darkHoverColor="bg-purple-800/50"
         />
         
         <AccessCard
           title="Folgas"
-          icon={<Calendar size={24} className="text-orange-700" />}
+          icon={<Calendar size={24} className={isDarkMode ? "text-orange-300" : "text-orange-700"} />}
           onClick={() => handleNavigation("folgas")}
           bgColor="bg-orange-100"
+          darkBgColor="bg-orange-900/30"
           hoverColor="bg-orange-200"
+          darkHoverColor="bg-orange-800/50"
         />
         
         <AccessCard
           title="Quadro Kanban"
-          icon={<Settings size={24} className="text-yellow-700" />}
+          icon={<Settings size={24} className={isDarkMode ? "text-yellow-300" : "text-yellow-700"} />}
           onClick={() => handleNavigation("kanban")}
           bgColor="bg-yellow-100"
+          darkBgColor="bg-yellow-900/30"
           hoverColor="bg-yellow-200"
-        />
-        
-        <AccessCard
-          title="Dashboard"
-          icon={<Monitor size={24} className="text-emerald-700" />}
-          onClick={() => window.location.href = "/"}
-          bgColor="bg-emerald-100"
-          hoverColor="bg-emerald-200"
-        />
-        
-        <AccessCard
-          title="Perfil"
-          icon={<UserRound size={24} className="text-indigo-700" />}
-          onClick={() => window.location.href = "/perfil"}
-          bgColor="bg-indigo-100"
-          hoverColor="bg-indigo-200"
-        />
-        
-        <AccessCard
-          title="Mensagens"
-          icon={<MessageSquare size={24} className="text-pink-700" />}
-          onClick={() => alert("Módulo de mensagens em desenvolvimento")}
-          bgColor="bg-pink-100"
-          hoverColor="bg-pink-200"
+          darkHoverColor="bg-yellow-800/50"
         />
       </div>
     </div>
