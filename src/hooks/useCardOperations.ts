@@ -9,6 +9,8 @@ export interface CardItem {
   image_url: string;
   folder_id: string | null;
   position: number;
+  code: string;
+  promotion_date: string | null;
 }
 
 export function useCardOperations() {

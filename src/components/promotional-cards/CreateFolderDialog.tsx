@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/auth";
 
 interface CreateFolderDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
   const [folderName, setFolderName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
   const handleCreateFolder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +35,25 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
       return;
     }
     
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para criar uma pasta",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from('card_folders')
         .insert([
-          { name: folderName.trim(), sector }
+          { 
+            name: folderName.trim(), 
+            sector,
+            created_by: user.id
+          }
         ]);
       
       if (error) throw error;
