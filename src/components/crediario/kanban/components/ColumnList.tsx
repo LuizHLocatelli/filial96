@@ -1,6 +1,6 @@
 
 import React from "react";
-import { DndContext, closestCenter, DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { DndContext, closestCenter, DragEndEvent, DragOverEvent, DragStartEvent, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { SortableContext, arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanColumn } from "../KanbanColumn";
 import { Column, TaskCard } from "../types";
@@ -24,10 +24,19 @@ export function ColumnList({
   onDragEnd,
   onAddCard
 }: ColumnListProps) {
+  // Add sensors for drag detection
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
   return (
     <div className="rounded-lg bg-secondary/20 p-4 overflow-x-auto">
       <DndContext
-        sensors={[]}
+        sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
