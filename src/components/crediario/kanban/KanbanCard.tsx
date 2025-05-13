@@ -1,10 +1,8 @@
 
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Circle } from "lucide-react";
+import { Calendar, Circle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { TaskCard } from "./types";
 import { CardDetails } from "./CardDetails";
 import { useState } from "react";
@@ -20,21 +18,6 @@ export function KanbanCard({ card }: { card: TaskCard }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const { usersData } = useUsers();
   
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: card.id,
-    data: {
-      type: 'card',
-      card,
-      columnId: card.column_id,
-    },
-  });
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   const assignee = card.assignee_id 
     ? usersData.find(user => user.id === card.assignee_id) 
     : null;
@@ -42,12 +25,8 @@ export function KanbanCard({ card }: { card: TaskCard }) {
   return (
     <>
       <div
-        ref={setNodeRef}
-        style={style}
         onClick={() => setDetailsOpen(true)}
         className="bg-card p-3 rounded-md border border-border shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-        {...attributes}
-        {...listeners}
       >
         <div className="space-y-2">
           <div className="flex justify-between items-start">

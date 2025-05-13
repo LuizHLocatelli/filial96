@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Column } from '../types';
 import { useAuth } from '@/contexts/auth';
@@ -54,24 +53,6 @@ export function useColumnActions(columns: Column[], setColumns: React.Dispatch<R
       return null;
     }
   };
-  
-  // Update column position
-  const updateColumnPosition = async (columnId: string, newPosition: number) => {
-    try {
-      const { error } = await supabase
-        .from('crediario_kanban_columns')
-        .update({ position: newPosition })
-        .eq('id', columnId);
-        
-      if (error) {
-        console.error('Error updating column position:', error);
-        toast.error('Erro ao atualizar posição da coluna');
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      toast.error('Ocorreu um erro inesperado');
-    }
-  };
 
-  return { addColumn, updateColumnPosition };
+  return { addColumn };
 }
