@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,11 +10,23 @@ interface AddFolderDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onAddFolder: (folderData: CreateFolderData) => Promise<void>;
+  initialData?: {
+    id: string;
+    name: string;
+  };
 }
 
-export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialogProps) {
+export function AddFolderDialog({ isOpen, onClose, onAddFolder, initialData }: AddFolderDialogProps) {
   const [folderName, setFolderName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  useEffect(() => {
+    if (initialData) {
+      setFolderName(initialData.name);
+    } else {
+      setFolderName('');
+    }
+  }, [initialData, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +37,15 @@ export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialo
     try {
       await onAddFolder({ name: folderName.trim() });
       setFolderName('');
-      onClose();
     } catch (error) {
-      console.error('Error creating folder:', error);
+      console.error('Error creating/updating folder:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const dialogTitle = initialData ? "Editar Pasta" : "Nova Pasta";
+  const submitButtonText = initialData ? "Salvar" : "Criar";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -39,7 +53,7 @@ export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialo
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Nova Pasta</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
@@ -67,7 +81,7 @@ export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialo
               type="submit" 
               disabled={!folderName.trim() || isSubmitting}
             >
-              Criar
+              {submitButtonText}
             </Button>
           </DialogFooter>
         </form>

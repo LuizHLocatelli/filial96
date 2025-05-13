@@ -4,18 +4,15 @@ import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import EntregasRetiradas from "./pages/EntregasRetiradas";
 import Montagens from "./pages/Montagens";
-import Garantias from "./pages/Garantias";
-import Organizacao from "./pages/Organizacao";
-import Cobrancas from "./pages/Cobrancas";
-import PromotionalCards from "./pages/PromotionalCards";
 import Crediario from "./pages/Crediario";
-import PdfViewerPage from "./pages/PdfViewerPage"; // Add import
+import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
+import PromotionalCards from "./pages/PromotionalCards";
 
 const AppRoutes = () => {
   const { isLoading } = useAuth();
@@ -59,30 +56,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><Montagens /></AppLayout>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/garantias" 
-        element={
-          <ProtectedRoute>
-            <AppLayout><Garantias /></AppLayout>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/organizacao" 
-        element={
-          <ProtectedRoute>
-            <AppLayout><Organizacao /></AppLayout>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/cobrancas" 
-        element={
-          <ProtectedRoute>
-            <AppLayout><Cobrancas /></AppLayout>
           </ProtectedRoute>
         } 
       />

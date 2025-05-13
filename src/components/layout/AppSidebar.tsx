@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, FileWarning, Home, Package, Users, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Package, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
@@ -54,30 +54,6 @@ export function AppSidebar() {
                   <Link to="/montagens">
                     <ClipboardCheck className="h-5 w-5" />
                     <span>Montagens</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/garantias">
-                    <FileWarning className="h-5 w-5" />
-                    <span>Garantias</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/organizacao">
-                    <Calendar className="h-5 w-5" />
-                    <span>Organização</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/cobrancas">
-                    <Users className="h-5 w-5" />
-                    <span>Cobrança</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -9,10 +9,12 @@ import { useNoteFolders } from './useNoteFolders';
 import { AddFolderDialog } from './AddFolderDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateFolderData } from './types';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export function StickyNotes() {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [addFolderDialogOpen, setAddFolderDialogOpen] = useState(false);
+  const [folderToEdit, setFolderToEdit] = useState<{ id: string, name: string } | null>(null);
   
   const {
     notes,
@@ -26,6 +28,7 @@ export function StickyNotes() {
     folders,
     isLoading: foldersLoading,
     addFolder,
+    updateFolder,
     deleteFolder,
   } = useNoteFolders();
 
@@ -42,7 +45,18 @@ export function StickyNotes() {
   };
   
   const handleAddFolder = async (folderData: CreateFolderData) => {
-    await addFolder(folderData);
+    if (folderToEdit) {
+      await updateFolder(folderToEdit.id, folderData.name);
+      setFolderToEdit(null);
+    } else {
+      await addFolder(folderData);
+    }
+    setAddFolderDialogOpen(false);
+  };
+  
+  const handleEditFolder = (folder: { id: string, name: string }) => {
+    setFolderToEdit(folder);
+    setAddFolderDialogOpen(true);
   };
 
   const isLoading = notesLoading || foldersLoading;
@@ -60,7 +74,10 @@ export function StickyNotes() {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">Notas Rápidas</h3>
         <div className="space-x-2">
-          <Button size="sm" variant="outline" onClick={() => setAddFolderDialogOpen(true)}>
+          <Button size="sm" variant="outline" onClick={() => {
+            setFolderToEdit(null);
+            setAddFolderDialogOpen(true);
+          }}>
             <FolderPlus className="h-4 w-4 mr-1" />
             Nova Pasta
           </Button>
@@ -81,9 +98,63 @@ export function StickyNotes() {
           <TabsTrigger value="todas">Todas</TabsTrigger>
           <TabsTrigger value="sem-pasta">Sem pasta</TabsTrigger>
           {folders.map(folder => (
-            <TabsTrigger key={folder.id} value={folder.id}>
-              {folder.name}
-            </TabsTrigger>
+            <div key={folder.id} className="relative group">
+              <TabsTrigger value={folder.id}>
+                {folder.name}
+              </TabsTrigger>
+              <div className="absolute right-0 top-0 hidden group-hover:flex opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditFolder({ id: folder.id, name: folder.name });
+                  }}
+                >
+                  <span className="sr-only">Editar</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-destructive"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span className="sr-only">Excluir</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir pasta</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja excluir a pasta "{folder.name}"? 
+                        Esta ação não pode ser desfeita.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => deleteFolder(folder.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
           ))}
         </TabsList>
 
@@ -162,11 +233,15 @@ export function StickyNotes() {
         ))}
       </Tabs>
 
-      {/* Dialog para adicionar nova pasta */}
+      {/* Dialog para adicionar ou editar pasta */}
       <AddFolderDialog 
         isOpen={addFolderDialogOpen}
-        onClose={() => setAddFolderDialogOpen(false)}
+        onClose={() => {
+          setFolderToEdit(null);
+          setAddFolderDialogOpen(false);
+        }}
         onAddFolder={handleAddFolder}
+        initialData={folderToEdit || undefined}
       />
     </Card>
   );
