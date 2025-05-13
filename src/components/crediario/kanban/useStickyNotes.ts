@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { StickyNote, CreateFolderData } from './types';
+import { StickyNote } from './types';
 import { useAuth } from '@/contexts/auth';
 import { toast } from '@/components/ui/use-toast';
 
@@ -24,7 +24,7 @@ export function useStickyNotes(folderId?: string | null) {
         .select('*')
         .order('updated_at', { ascending: false });
         
-      // Se um folderId foi fornecido e não for "todas", filtra por pasta
+      // Se um folderId foi fornecido, filtra por pasta
       if (folderId === "sem-pasta") {
         query = query.is('folder_id', null);
       } else if (folderId && folderId !== "todas") {

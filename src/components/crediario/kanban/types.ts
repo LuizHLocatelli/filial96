@@ -86,7 +86,7 @@ export interface NoteFolder {
   id: string;
   name: string;
   created_at: string;
-  created_by?: string;
+  created_by?: string | null;
 }
 
 export interface CreateCardData {

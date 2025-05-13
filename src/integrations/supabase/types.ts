@@ -505,6 +505,7 @@ export type Database = {
           content: string
           created_at: string | null
           created_by: string | null
+          folder_id: string | null
           id: string
           position_x: number | null
           position_y: number | null
@@ -515,6 +516,7 @@ export type Database = {
           content: string
           created_at?: string | null
           created_by?: string | null
+          folder_id?: string | null
           id?: string
           position_x?: number | null
           position_y?: number | null
@@ -525,12 +527,21 @@ export type Database = {
           content?: string
           created_at?: string | null
           created_by?: string | null
+          folder_id?: string | null
           id?: string
           position_x?: number | null
           position_y?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "crediario_sticky_notes_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_columns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

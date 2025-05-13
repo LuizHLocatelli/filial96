@@ -15,7 +15,7 @@ export function useNoteFolders() {
     try {
       const { data, error } = await supabase
         .from('crediario_kanban_columns') // Using existing table as folder storage
-        .select('id, name, created_at, created_by')
+        .select('id, name, created_at')
         .eq('board_id', 'notes') // Using 'notes' as a special identifier for note folders
         .order('name', { ascending: true });
         
@@ -34,7 +34,7 @@ export function useNoteFolders() {
         id: item.id,
         name: item.name,
         created_at: item.created_at,
-        created_by: item.created_by
+        created_by: null // Since created_by might not be available in the table
       }));
       
       setFolders(folderData);
@@ -68,7 +68,7 @@ export function useNoteFolders() {
                 id: newFolder.id,
                 name: newFolder.name,
                 created_at: newFolder.created_at,
-                created_by: newFolder.created_by
+                created_by: newFolder.created_by || null
               };
               setFolders(prevFolders => 
                 [...prevFolders, folderData].sort((a, b) => a.name.localeCompare(b.name))
@@ -82,7 +82,7 @@ export function useNoteFolders() {
                 id: updatedFolder.id,
                 name: updatedFolder.name,
                 created_at: updatedFolder.created_at,
-                created_by: updatedFolder.created_by
+                created_by: updatedFolder.created_by || null
               };
               setFolders(prevFolders => 
                 prevFolders.map(folder => 
@@ -122,7 +122,6 @@ export function useNoteFolders() {
         .insert({
           name: folderData.name,
           board_id: 'notes', // Using 'notes' as a special identifier
-          created_by: profile.id,
           position: 0, // Default position
         });
         
