@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useFileUpload } from "./useFileUpload";
 
 export interface Deposito {
@@ -10,6 +10,7 @@ export interface Deposito {
   data: Date;
   concluido: boolean;
   comprovante: string | null;
+  jaIncluido?: boolean; // New field
 }
 
 export function useDepositos() {
@@ -39,7 +40,8 @@ export function useDepositos() {
           id: item.id,
           data: new Date(item.data),
           concluido: item.concluido ?? true,
-          comprovante: item.comprovante
+          comprovante: item.comprovante,
+          jaIncluido: item.ja_incluido
         }));
         setDepositos(formattedDepositos);
       }
@@ -72,7 +74,8 @@ export function useDepositos() {
           .from('crediario_depositos')
           .update({ 
             concluido: deposito.concluido,
-            comprovante: comprovanteUrl 
+            comprovante: comprovanteUrl,
+            ja_incluido: deposito.jaIncluido
           })
           .eq('id', deposito.id);
           
@@ -82,7 +85,12 @@ export function useDepositos() {
         setDepositos(prevDepositos => 
           prevDepositos.map(item => 
             item.id === deposito.id 
-              ? { ...item, concluido: !!deposito.concluido, comprovante: comprovanteUrl } 
+              ? { 
+                  ...item, 
+                  concluido: !!deposito.concluido, 
+                  comprovante: comprovanteUrl,
+                  jaIncluido: deposito.jaIncluido
+                } 
               : item
           )
         );
@@ -99,6 +107,7 @@ export function useDepositos() {
           data: format(deposito.data, 'yyyy-MM-dd'),
           concluido: deposito.concluido ?? true,
           comprovante: comprovanteUrl,
+          ja_incluido: deposito.jaIncluido,
           created_by: (await supabase.auth.getUser()).data.user?.id
         };
         
@@ -114,7 +123,8 @@ export function useDepositos() {
             id: data[0].id,
             data: new Date(data[0].data),
             concluido: data[0].concluido,
-            comprovante: data[0].comprovante
+            comprovante: data[0].comprovante,
+            jaIncluido: data[0].ja_incluido
           };
           
           setDepositos(prevDepositos => [createdDeposito, ...prevDepositos]);

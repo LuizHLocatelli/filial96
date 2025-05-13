@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
 import { useDepositos } from "@/hooks/crediario/useDepositos";
-import { DepositStats } from "./depositos/DepositStats";
 import { DepositionsCalendar } from "./depositos/DepositionsCalendar";
 import { DepositFormDialog } from "./depositos/DepositFormDialog";
 import { ImagePreviewDialog } from "./depositos/ImagePreviewDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "@/hooks/use-toast";
 
 export function Depositos() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -41,22 +41,34 @@ export function Depositos() {
   };
   
   const handleSelectDay = (day: Date) => {
+    setSelectedDay(day);
+    
     // Verificar se já existe um depósito para este dia
-    const existingDeposito = depositos.find(
+    const depositosForDay = depositos.filter(
       (deposito) => isSameDay(deposito.data, day)
     );
     
-    if (existingDeposito) {
-      setDepositoId(existingDeposito.id);
-      setPreviewUrl(existingDeposito.comprovante);
-    } else {
+    if (depositosForDay.length > 0) {
+      // Mostrar lista de depósitos existentes
       setDepositoId(null);
       setPreviewUrl(null);
+    } else {
+      // Iniciar novo depósito
+      handleAddNewDeposito();
     }
     
-    setSelectedDay(day);
-    setSelectedFile(null);
     setOpenDialog(true);
+  };
+  
+  const handleViewDeposito = (deposito: typeof depositos[0]) => {
+    setDepositoId(deposito.id);
+    setPreviewUrl(deposito.comprovante);
+  };
+  
+  const handleAddNewDeposito = () => {
+    setDepositoId(null);
+    setPreviewUrl(null);
+    setSelectedFile(null);
   };
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +77,11 @@ export function Depositos() {
       
       // Verifica se o arquivo é uma imagem
       if (!file.type.startsWith('image/')) {
-        alert("Por favor, selecione uma imagem.");
+        toast({
+          title: "Tipo de arquivo inválido",
+          description: "Por favor, selecione uma imagem.",
+          variant: "destructive"
+        });
         return;
       }
       
@@ -82,14 +98,22 @@ export function Depositos() {
     setPreviewUrl(null);
   };
   
-  const handleSubmit = async () => {
-    if (!selectedDay) return;
+  const handleSubmit = async (jaIncluido: boolean) => {
+    if (!selectedDay) {
+      toast({
+        title: "Data não selecionada",
+        description: "Por favor, selecione uma data para o depósito.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     const depositoData = {
       id: depositoId || undefined,
       data: selectedDay,
       concluido: true,
-      comprovante: depositoId ? previewUrl : undefined
+      comprovante: depositoId ? previewUrl : undefined,
+      jaIncluido: jaIncluido
     };
     
     const success = await saveDeposito(depositoData, selectedFile);
@@ -97,28 +121,16 @@ export function Depositos() {
     if (success) {
       setOpenDialog(false);
       setSelectedDay(null);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setDepositoId(null);
     }
   };
   
-  const calcularProgresso = () => {
-    // Filtra os depósitos do mês atual
-    const depositosDoMes = depositos.filter((deposito) => 
-      deposito.data.getMonth() === currentMonth.getMonth() && 
-      deposito.data.getFullYear() === currentMonth.getFullYear()
-    );
-    
-    // Calcula dias úteis (excluindo sábados e domingos)
-    const diasUteisNoMes = diasDoMes.filter(
-      (day) => ![0, 6].includes(day.getDay())
-    ).length;
-    
-    if (diasUteisNoMes === 0) return 0;
-    
-    // Retorna o percentual
-    return Math.round((depositosDoMes.length / diasUteisNoMes) * 100);
-  };
-  
-  const progresso = calcularProgresso();
+  // Obter todos os depósitos para o dia selecionado
+  const depositosForDay = selectedDay 
+    ? depositos.filter(deposito => isSameDay(deposito.data, selectedDay))
+    : [];
   
   return (
     <div className="space-y-6">
@@ -127,14 +139,7 @@ export function Depositos() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <DepositStats 
-            depositos={depositos}
-            currentMonth={currentMonth}
-            diasDoMes={diasDoMes}
-            progresso={progresso}
-          />
-          
+        <div className="grid grid-cols-1 gap-6">
           <DepositionsCalendar 
             currentMonth={currentMonth}
             diasDoMes={diasDoMes}
@@ -154,10 +159,13 @@ export function Depositos() {
         previewUrl={previewUrl}
         isUploading={isUploading}
         depositoId={depositoId}
+        depositosForDay={depositosForDay}
         setOpenDialog={setOpenDialog}
         handleFileChange={handleFileChange}
         handleRemoveFile={handleRemoveFile}
         handleSubmit={handleSubmit}
+        onAddNewDeposito={handleAddNewDeposito}
+        onViewDeposito={handleViewDeposito}
       />
       
       {/* Dialog para visualizar imagem */}

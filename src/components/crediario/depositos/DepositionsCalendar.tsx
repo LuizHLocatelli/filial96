@@ -27,9 +27,14 @@ export function DepositionsCalendar({
   setViewImage
 }: DepositionsCalendarProps) {
   const isMobile = useIsMobile();
+  
+  // Helper function to count deposits for a specific day
+  const countDepositsForDay = (day: Date) => {
+    return depositos.filter(deposito => isSameDay(deposito.data, day)).length;
+  };
 
   return (
-    <Card className="md:col-span-2">
+    <Card className="w-full">
       <CardHeader className="pb-2">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
           <CardTitle className="text-lg sm:text-xl">Calendário de Depósitos</CardTitle>
@@ -46,7 +51,7 @@ export function DepositionsCalendar({
           </div>
         </div>
         <CardDescription className="text-center sm:text-left text-xs sm:text-sm">
-          Clique em um dia para marcar como concluído ou adicionar um comprovante
+          Clique em um dia para adicionar ou visualizar comprovantes
         </CardDescription>
       </CardHeader>
       <CardContent className="px-1 py-2 sm:px-4 sm:py-3">
@@ -64,37 +69,46 @@ export function DepositionsCalendar({
           
           {/* Dias do mês */}
           {diasDoMes.map((day) => {
-            const deposito = depositos.find(
+            const depositosForDay = depositos.filter(
               (deposito) => isSameDay(deposito.data, day)
             );
             
-            const isWeekend = [0, 6].includes(day.getDay());
             const isToday = isSameDay(day, new Date());
+            const depositCount = depositosForDay.length;
+            const hasComprovantes = depositosForDay.some(d => d.comprovante);
             
             return (
               <button
                 key={day.toString()}
                 type="button"
-                onClick={() => !isWeekend && handleSelectDay(day)}
-                disabled={isWeekend}
+                onClick={() => handleSelectDay(day)}
                 className={`
                   p-1 h-9 sm:h-14 border rounded-md flex flex-col items-center justify-center
                   ${isToday ? "bg-muted" : ""}
-                  ${isWeekend ? "bg-gray-50 opacity-50 cursor-not-allowed" : "hover:bg-muted/50"}
-                  ${deposito?.concluido ? "border-green-500 border-2" : ""}
+                  hover:bg-muted/50
+                  ${depositCount > 0 ? "border-green-500 border-2" : ""}
                 `}
               >
                 <div className="font-medium text-xs sm:text-sm">{day.getDate()}</div>
                 <div className="flex items-center gap-1">
-                  {deposito?.concluido && (
-                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  {depositCount > 0 && (
+                    <div className="flex items-center">
+                      <CheckCircle className="h-3 w-3 text-green-500" />
+                      {depositCount > 1 && 
+                        <span className="text-[10px] ml-0.5 text-green-600">{depositCount}</span>
+                      }
+                    </div>
                   )}
-                  {deposito?.comprovante && (
+                  {hasComprovantes && (
                     <ImageIcon 
                       className="h-3 w-3 text-blue-500 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setViewImage(deposito.comprovante!);
+                        // Show the first image for now, we'll implement multi-image view later
+                        const firstWithImage = depositosForDay.find(d => d.comprovante);
+                        if (firstWithImage?.comprovante) {
+                          setViewImage(firstWithImage.comprovante);
+                        }
                       }}
                     />
                   )}
