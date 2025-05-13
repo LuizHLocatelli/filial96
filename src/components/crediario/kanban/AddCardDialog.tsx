@@ -7,6 +7,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TaskCard } from "./types";
+import { Form } from "@/components/ui/form";
 
 interface AddCardDialogProps {
   open: boolean;
@@ -72,26 +73,28 @@ export function AddCardDialog({
           <DialogTitle>{editMode ? 'Editar Cartão' : 'Adicionar Novo Cartão'}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit(saveCard)} className="space-y-4 mt-4">
-          <CardFormFields form={form} />
-          
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={isProcessing || isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isProcessing || isSubmitting}
-            >
-              {isProcessing ? (editMode ? 'Atualizando...' : 'Adicionando...') : (editMode ? 'Atualizar' : 'Adicionar')}
-            </Button>
-          </div>
-        </form>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(saveCard)} className="space-y-4 mt-4">
+            <CardFormFields form={form} />
+            
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                disabled={isProcessing || isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isProcessing || isSubmitting}
+              >
+                {isProcessing ? (editMode ? 'Atualizando...' : 'Adicionando...') : (editMode ? 'Atualizar' : 'Adicionar')}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
