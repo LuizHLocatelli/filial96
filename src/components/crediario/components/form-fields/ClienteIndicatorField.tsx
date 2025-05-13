@@ -17,7 +17,7 @@ export function ClienteIndicatorField() {
           <FormLabel>Indicador</FormLabel>
           <FormControl>
             <Select 
-              value={field.value || ""}
+              value={field.value || "none"}
               onValueChange={field.onChange}
             >
               <SelectTrigger>

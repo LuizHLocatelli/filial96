@@ -101,14 +101,14 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
           <div className="space-y-2">
             <Label htmlFor="folder">Pasta</Label>
             <Select
-              value={selectedFolder || ""}
-              onValueChange={(value) => setSelectedFolder(value === "" ? null : value)}
+              value={selectedFolder || "no-folder"}
+              onValueChange={(value) => setSelectedFolder(value === "no-folder" ? null : value)}
             >
               <SelectTrigger id="folder">
                 <SelectValue placeholder="Selecione uma pasta (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Sem pasta</SelectItem>
+                <SelectItem value="no-folder">Sem pasta</SelectItem>
                 {folders.map((folder) => (
                   <SelectItem key={folder.id} value={folder.id}>{folder.name}</SelectItem>
                 ))}
