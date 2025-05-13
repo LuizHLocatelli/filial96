@@ -8,6 +8,7 @@ import { StickyNoteItem } from './StickyNoteItem';
 import { useNoteFolders } from './useNoteFolders';
 import { AddFolderDialog } from './AddFolderDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CreateFolderData } from './types';
 
 export function StickyNotes() {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
@@ -38,6 +39,10 @@ export function StickyNotes() {
 
   const handleMoveToFolder = (noteId: string, folderId: string | null) => {
     updateNote(noteId, notes.find(note => note.id === noteId)?.content || '', folderId);
+  };
+  
+  const handleAddFolder = async (folderData: CreateFolderData) => {
+    await addFolder(folderData);
   };
 
   const isLoading = notesLoading || foldersLoading;
@@ -161,7 +166,7 @@ export function StickyNotes() {
       <AddFolderDialog 
         isOpen={addFolderDialogOpen}
         onClose={() => setAddFolderDialogOpen(false)}
-        onAddFolder={addFolder}
+        onAddFolder={handleAddFolder}
       />
     </Card>
   );

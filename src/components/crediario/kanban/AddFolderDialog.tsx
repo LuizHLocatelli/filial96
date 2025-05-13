@@ -26,6 +26,8 @@ export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialo
       await onAddFolder({ name: folderName.trim() });
       setFolderName('');
       onClose();
+    } catch (error) {
+      console.error('Error creating folder:', error);
     } finally {
       setIsSubmitting(false);
     }

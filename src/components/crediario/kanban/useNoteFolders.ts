@@ -13,10 +13,11 @@ export function useNoteFolders() {
   const fetchFolders = async () => {
     setIsLoading(true);
     try {
+      // Usando 'notes-folders' como identificador string em vez de tentar usar 'notes' como UUID
       const { data, error } = await supabase
-        .from('crediario_kanban_columns') // Using existing table as folder storage
+        .from('crediario_kanban_columns')
         .select('id, name, created_at')
-        .eq('board_id', 'notes') // Using 'notes' as a special identifier for note folders
+        .eq('board_id', 'notes-folders')
         .order('name', { ascending: true });
         
       if (error) {
@@ -29,13 +30,13 @@ export function useNoteFolders() {
         return;
       }
       
-      // Convert the data to match NoteFolder type
-      const folderData: NoteFolder[] = data.map(item => ({
+      // Converter os dados para corresponder ao tipo NoteFolder
+      const folderData: NoteFolder[] = data ? data.map(item => ({
         id: item.id,
         name: item.name,
         created_at: item.created_at,
-        created_by: null // Since created_by might not be available in the table
-      }));
+        created_by: null // Como created_by pode não estar disponível na tabela
+      })) : [];
       
       setFolders(folderData);
     } catch (error) {
@@ -53,17 +54,17 @@ export function useNoteFolders() {
   useEffect(() => {
     fetchFolders();
     
-    // Set up realtime subscription
+    // Configurar inscrição em tempo real
     const foldersChannel = supabase
       .channel('note-folders-changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'crediario_kanban_columns', filter: `board_id=eq.notes` }, 
+        { event: '*', schema: 'public', table: 'crediario_kanban_columns', filter: `board_id=eq.notes-folders` }, 
         (payload) => {
           console.log('Realtime folder update received:', payload);
           
           if (payload.eventType === 'INSERT') {
             const newFolder = payload.new as any;
-            if (newFolder.board_id === 'notes') {
+            if (newFolder.board_id === 'notes-folders') {
               const folderData: NoteFolder = {
                 id: newFolder.id,
                 name: newFolder.name,
@@ -77,7 +78,7 @@ export function useNoteFolders() {
           } 
           else if (payload.eventType === 'UPDATE') {
             const updatedFolder = payload.new as any;
-            if (updatedFolder.board_id === 'notes') {
+            if (updatedFolder.board_id === 'notes-folders') {
               const folderData: NoteFolder = {
                 id: updatedFolder.id,
                 name: updatedFolder.name,
@@ -117,13 +118,15 @@ export function useNoteFolders() {
     }
     
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('crediario_kanban_columns')
         .insert({
           name: folderData.name,
-          board_id: 'notes', // Using 'notes' as a special identifier
-          position: 0, // Default position
-        });
+          board_id: 'notes-folders', // Usando 'notes-folders' como identificador string
+          position: 0, // Posição padrão
+        })
+        .select('id')
+        .single();
         
       if (error) {
         console.error('Error adding note folder:', error);
@@ -141,6 +144,8 @@ export function useNoteFolders() {
         description: "Pasta criada com sucesso",
       });
       
+      return data;
+      
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -157,7 +162,7 @@ export function useNoteFolders() {
         .from('crediario_kanban_columns')
         .update({ name })
         .eq('id', folderId)
-        .eq('board_id', 'notes');
+        .eq('board_id', 'notes-folders');
         
       if (error) {
         console.error('Error updating note folder:', error);
@@ -211,7 +216,7 @@ export function useNoteFolders() {
         .from('crediario_kanban_columns')
         .delete()
         .eq('id', folderId)
-        .eq('board_id', 'notes');
+        .eq('board_id', 'notes-folders');
         
       if (error) {
         console.error('Error deleting note folder:', error);
