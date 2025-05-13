@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import { CreateFolderData } from './types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export function StickyNotes() {
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>("todas");
   const [addFolderDialogOpen, setAddFolderDialogOpen] = useState(false);
   const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
   const [folderToEdit, setFolderToEdit] = useState<{ id: string, name: string } | null>(null);
@@ -44,6 +43,8 @@ export function StickyNotes() {
       color,
       folderId,
     });
+    // Real-time updates are now handled by the Supabase subscription
+    setCreateNoteDialogOpen(false);
   };
 
   const handleMoveToFolder = (noteId: string, folderId: string | null) => {

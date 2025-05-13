@@ -1,10 +1,12 @@
+import { Database } from '@/integrations/supabase/types';
 
 export interface Board {
   id: string;
   name: string;
   description?: string;
+  created_by: string;
   created_at: string;
-  created_by?: string;
+  updated_at: string;
 }
 
 export interface Column {
@@ -12,7 +14,9 @@ export interface Column {
   board_id: string;
   name: string;
   position: number;
+  created_by: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface TaskCard {
@@ -20,92 +24,84 @@ export interface TaskCard {
   column_id: string;
   title: string;
   description?: string;
+  position: number;
   priority: 'baixa' | 'media' | 'alta';
   assignee_id?: string;
   due_date?: string;
-  position: number;
+  created_by: string;
   created_at: string;
-  created_by?: string;
   updated_at: string;
+  background_color?: string; // New field for card background color
 }
 
-export interface Tag {
+export interface CreateCardData {
+  title: string;
+  description?: string;
+  column_id: string;
+  priority: string;
+  assignee_id?: string;
+  due_date?: string;
+  background_color?: string; // Add to creation data
+}
+
+export interface MoveCardData {
+  cardId: string;
+  sourceColumnId: string;
+  destColumnId: string;
+  newPosition: number;
+}
+
+export interface BoardActivity {
   id: string;
-  name: string;
-  color: string;
+  board_id: string;
+  card_id?: string;
+  column_id?: string;
+  action: 'card_created' | 'card_moved' | 'card_updated' | 'card_deleted' | 'column_created' | 'column_updated' | 'column_deleted';
+  details: Record<string, any>;
+  created_by: string;
   created_at: string;
-}
-
-export interface CardTag {
-  id: string;
-  card_id: string;
-  tag_id: string;
 }
 
 export interface Comment {
   id: string;
   card_id: string;
   content: string;
+  created_by: string;
   created_at: string;
-  created_by?: string;
-  user?: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-  };
+  updated_at: string;
 }
 
-export interface Activity {
-  id: string;
-  board_id: string;
-  card_id?: string;
-  action: string;
-  details?: any;
-  created_at: string;
-  created_by?: string;
-  user?: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-  };
+export interface CreateCommentData {
+  card_id: string;
+  content: string;
 }
 
 export interface StickyNote {
   id: string;
   content: string;
   color: string;
-  position_x?: number;
-  position_y?: number;
+  folder_id: string | null;
+  created_by: string;
   created_at: string;
-  created_by?: string;
   updated_at: string;
-  folder_id?: string | null;
 }
 
 export interface NoteFolder {
   id: string;
   name: string;
+  created_by: string;
   created_at: string;
-  created_by?: string | null;
-}
-
-export interface CreateCardData {
-  title: string;
-  description?: string;
-  priority: string;
-  column_id: string;
-  assignee_id?: string;
-  due_date?: string;
+  updated_at: string;
 }
 
 export interface CreateFolderData {
   name: string;
 }
 
-// Helper function to validate and convert priority string to the correct type
-export function validatePriority(priority: string): 'baixa' | 'media' | 'alta' {
+// Helper to validate priority
+export function validatePriority(priority: any): 'baixa' | 'media' | 'alta' {
   if (priority === 'baixa' || priority === 'media' || priority === 'alta') {
     return priority;
   }
-  return 'media'; // Default to 'media' if invalid value is received
+  return 'media'; // Default to media if invalid
 }

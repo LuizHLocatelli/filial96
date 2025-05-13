@@ -13,14 +13,16 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cardColors } from "@/lib/utils";
 
-// Re-use the same schema from AddCardDialog
+// Update the form schema to include background color
 const formSchema = z.object({
   title: z.string({ required_error: "O título é obrigatório" }).min(1, "O título é obrigatório"),
   description: z.string().optional(),
   priority: z.string({ required_error: "A prioridade é obrigatória" }),
   assigneeId: z.string().optional(),
   dueDate: z.date().optional(),
+  backgroundColor: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,6 +62,33 @@ export function CardFormFields({ form }: CardFormFieldsProps) {
                 {...field} 
                 value={field.value || ""}
               />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="backgroundColor"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Cor do cartão</FormLabel>
+            <FormControl>
+              <div className="flex flex-wrap gap-2">
+                {cardColors.map((colorOption) => (
+                  <button
+                    key={colorOption.value}
+                    type="button"
+                    onClick={() => field.onChange(colorOption.value)}
+                    className={`w-8 h-8 rounded-full transition-all ${
+                      field.value === colorOption.value ? 'ring-2 ring-offset-2 ring-primary' : 'ring-1 ring-muted'
+                    }`}
+                    style={{ backgroundColor: colorOption.value }}
+                    title={colorOption.label}
+                  />
+                ))}
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>

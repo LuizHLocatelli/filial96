@@ -128,18 +128,20 @@ export function useStickyNotes(folderId?: string | null) {
         description: "Você precisa estar autenticado para adicionar notas",
         variant: "destructive"
       });
-      return;
+      return null;
     }
     
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('crediario_sticky_notes')
         .insert({
           content: noteData.content,
           color: noteData.color,
           folder_id: noteData.folderId,
           created_by: profile.id,
-        });
+        })
+        .select()
+        .single();
         
       if (error) {
         console.error('Error adding sticky note:', error);
@@ -148,11 +150,11 @@ export function useStickyNotes(folderId?: string | null) {
           description: "Erro ao adicionar nota",
           variant: "destructive"
         });
-        return;
+        return null;
       }
       
-      // O canal de realtime vai cuidar da atualização
-      
+      // Return the newly created note
+      return data;
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -160,6 +162,7 @@ export function useStickyNotes(folderId?: string | null) {
         description: "Ocorreu um erro inesperado",
         variant: "destructive"
       });
+      return null;
     }
   };
   
@@ -186,16 +189,10 @@ export function useStickyNotes(folderId?: string | null) {
           description: "Erro ao atualizar nota",
           variant: "destructive"
         });
-        return;
+        return false;
       }
       
-      // Local state update for immediate feedback
-      setNotes(prevNotes => prevNotes.map(note => 
-        note.id === noteId 
-          ? { ...note, content, updated_at: new Date().toISOString(), folder_id: folderId ?? note.folder_id } 
-          : note
-      ));
-      
+      return true;
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -203,6 +200,7 @@ export function useStickyNotes(folderId?: string | null) {
         description: "Ocorreu um erro inesperado",
         variant: "destructive"
       });
+      return false;
     }
   };
   
@@ -220,12 +218,11 @@ export function useStickyNotes(folderId?: string | null) {
           description: "Erro ao excluir nota",
           variant: "destructive"
         });
-        return;
+        return false;
       }
       
-      // Local state update for immediate feedback
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId));
-      
+      // Local state update is now handled by the realtime listener
+      return true;
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -233,6 +230,7 @@ export function useStickyNotes(folderId?: string | null) {
         description: "Ocorreu um erro inesperado",
         variant: "destructive"
       });
+      return false;
     }
   };
   

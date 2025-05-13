@@ -23,6 +23,8 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
           priority: validatePriority(cardData.priority),
           position: newPosition,
           created_by: profile.id,
+          // Include the background color if provided
+          background_color: cardData.background_color
         })
         .select()
         .single();

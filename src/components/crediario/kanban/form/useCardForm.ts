@@ -1,11 +1,17 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema, FormValues } from "./CardFormFields";
 import { useState } from "react";
+import { formSchema, FormValues } from "./CardFormFields";
 import { TaskCard } from "../types";
 
-export function useCardForm(initialData?: TaskCard) {
+interface UseCardFormProps {
+  initialData?: Partial<TaskCard>;
+  onSubmit: (values: FormValues) => Promise<void>;
+  onCancel: () => void;
+}
+
+export function useCardForm({ initialData, onSubmit, onCancel }: UseCardFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<FormValues>({
@@ -14,38 +20,33 @@ export function useCardForm(initialData?: TaskCard) {
       title: initialData?.title || "",
       description: initialData?.description || "",
       priority: initialData?.priority || "media",
-      assigneeId: initialData?.assignee_id,
+      assigneeId: initialData?.assignee_id || undefined,
       dueDate: initialData?.due_date ? new Date(initialData.due_date) : undefined,
+      backgroundColor: initialData?.background_color || "#FFFFFF", // Default to white
     },
   });
   
-  const resetForm = () => {
-    form.reset({
-      title: "",
-      description: "",
-      priority: "media",
-      assigneeId: undefined,
-      dueDate: undefined,
-    });
+  const handleSubmit = async (values: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(values);
+      form.reset();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
-  const handleSubmit = (callback: (data: FormValues) => void) => {
-    return form.handleSubmit(async (data) => {
-      setIsSubmitting(true);
-      try {
-        await callback(data);
-      } catch (error) {
-        console.error("Error submitting form:", error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    });
+  const handleCancel = () => {
+    form.reset();
+    onCancel();
   };
   
   return {
     form,
-    resetForm,
+    isSubmitting,
     handleSubmit,
-    isSubmitting
+    handleCancel
   };
 }
