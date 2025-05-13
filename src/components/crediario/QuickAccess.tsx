@@ -18,15 +18,15 @@ interface AccessCardProps {
 const AccessCard = ({ title, icon, onClick, bgColor, hoverColor }: AccessCardProps) => {
   return (
     <motion.div
-      className={`${bgColor} rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 h-36 sm:h-44`}
+      className={`${bgColor} rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 h-28 sm:h-36`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
     >
-      <div className={`${hoverColor} p-3 rounded-full mb-3`}>
+      <div className={`${hoverColor} p-2 sm:p-3 rounded-full mb-2 sm:mb-3`}>
         {icon}
       </div>
-      <span className="font-medium text-lg text-green-800">{title}</span>
+      <span className="font-medium text-base sm:text-lg text-green-800">{title}</span>
     </motion.div>
   );
 };
@@ -41,15 +41,15 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
 
   return (
     <div className="animate-fade-in">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-green-800">Acesso Rápido</h2>
-        <p className="text-green-700">Selecione uma opção para começar</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-green-800">Acesso Rápido</h2>
+        <p className="text-sm sm:text-base text-green-700">Selecione uma opção para começar</p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
         <AccessCard
           title="Listagens"
-          icon={<ListTodo size={32} className="text-green-700" />}
+          icon={<ListTodo size={24} className="text-green-700" />}
           onClick={() => handleNavigation("listagens")}
           bgColor="bg-green-100"
           hoverColor="bg-green-200"
@@ -57,7 +57,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Clientes"
-          icon={<Users size={32} className="text-blue-700" />}
+          icon={<Users size={24} className="text-blue-700" />}
           onClick={() => handleNavigation("clientes")}
           bgColor="bg-blue-100"
           hoverColor="bg-blue-200"
@@ -65,7 +65,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Depósitos"
-          icon={<PiggyBank size={32} className="text-purple-700" />}
+          icon={<PiggyBank size={24} className="text-purple-700" />}
           onClick={() => handleNavigation("depositos")}
           bgColor="bg-purple-100"
           hoverColor="bg-purple-200"
@@ -73,7 +73,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Folgas"
-          icon={<Calendar size={32} className="text-orange-700" />}
+          icon={<Calendar size={24} className="text-orange-700" />}
           onClick={() => handleNavigation("folgas")}
           bgColor="bg-orange-100"
           hoverColor="bg-orange-200"
@@ -81,7 +81,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Quadro Kanban"
-          icon={<Settings size={32} className="text-yellow-700" />}
+          icon={<Settings size={24} className="text-yellow-700" />}
           onClick={() => handleNavigation("kanban")}
           bgColor="bg-yellow-100"
           hoverColor="bg-yellow-200"
@@ -89,7 +89,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Dashboard"
-          icon={<Monitor size={32} className="text-emerald-700" />}
+          icon={<Monitor size={24} className="text-emerald-700" />}
           onClick={() => window.location.href = "/"}
           bgColor="bg-emerald-100"
           hoverColor="bg-emerald-200"
@@ -97,7 +97,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Perfil"
-          icon={<UserRound size={32} className="text-indigo-700" />}
+          icon={<UserRound size={24} className="text-indigo-700" />}
           onClick={() => window.location.href = "/perfil"}
           bgColor="bg-indigo-100"
           hoverColor="bg-indigo-200"
@@ -105,7 +105,7 @@ export const QuickAccess = ({ onNavigate }: QuickAccessProps) => {
         
         <AccessCard
           title="Mensagens"
-          icon={<MessageSquare size={32} className="text-pink-700" />}
+          icon={<MessageSquare size={24} className="text-pink-700" />}
           onClick={() => alert("Módulo de mensagens em desenvolvimento")}
           bgColor="bg-pink-100"
           hoverColor="bg-pink-200"
