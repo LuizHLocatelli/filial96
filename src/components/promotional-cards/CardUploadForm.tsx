@@ -10,6 +10,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CardUploadFormProps {
   sector: "furniture" | "fashion";
@@ -47,33 +48,36 @@ export function CardUploadForm({
   onCancel
 }: CardUploadFormProps) {
   const { folders } = useFolders(sector);
+  const isMobile = useIsMobile();
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="card-title">Título</Label>
+        <Label htmlFor="card-title" className={cn("text-xs sm:text-sm")}>Título</Label>
         <Input
           id="card-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Digite o título do card promocional"
           disabled={isSubmitting}
+          className={cn("text-xs sm:text-sm h-8 sm:h-10")}
         />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="card-code">Código</Label>
+        <Label htmlFor="card-code" className={cn("text-xs sm:text-sm")}>Código</Label>
         <Input
           id="card-code"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Digite o código da promoção"
           disabled={isSubmitting}
+          className={cn("text-xs sm:text-sm h-8 sm:h-10")}
         />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="promotion-date">Validade da Promoção</Label>
+        <Label htmlFor="promotion-date" className={cn("text-xs sm:text-sm")}>Validade da Promoção</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -81,11 +85,12 @@ export function CardUploadForm({
               variant={"outline"}
               className={cn(
                 "w-full justify-start text-left font-normal",
-                !promotionDate && "text-muted-foreground"
+                !promotionDate && "text-muted-foreground",
+                "text-xs sm:text-sm h-8 sm:h-10"
               )}
               disabled={isSubmitting}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 h-3.5 w-3.5" />
               {promotionDate ? format(promotionDate, "dd/MM/yyyy") : "Selecione uma data"}
             </Button>
           </PopoverTrigger>
@@ -101,19 +106,19 @@ export function CardUploadForm({
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="card-folder">Pasta (opcional)</Label>
+        <Label htmlFor="card-folder" className={cn("text-xs sm:text-sm")}>Pasta (opcional)</Label>
         <Select 
           value={folderId || "none"} 
           onValueChange={(value) => setFolderId(value === "none" ? null : value)}
           disabled={isSubmitting}
         >
-          <SelectTrigger>
+          <SelectTrigger className={cn("text-xs sm:text-sm h-8 sm:h-10")}>
             <SelectValue placeholder="Selecione uma pasta (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">Nenhuma pasta</SelectItem>
+            <SelectItem value="none" className={cn(isMobile && "text-xs")}>Nenhuma pasta</SelectItem>
             {folders.map((folder) => (
-              <SelectItem key={folder.id} value={folder.id}>
+              <SelectItem key={folder.id} value={folder.id} className={cn(isMobile && "text-xs")}>
                 {folder.name}
               </SelectItem>
             ))}
@@ -134,16 +139,18 @@ export function CardUploadForm({
           variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
+          className={cn("text-xs sm:text-sm h-8 sm:h-10")}
         >
           Cancelar
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting || !previewUrl}
+          className={cn("text-xs sm:text-sm h-8 sm:h-10")}
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
               Criando...
             </>
           ) : (

@@ -1,13 +1,14 @@
 
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/contexts/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface CreateFolderDialogProps {
   open: boolean;
@@ -18,37 +19,27 @@ interface CreateFolderDialogProps {
 export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderDialogProps) {
   const [folderName, setFolderName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  const isMobile = useIsMobile();
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCreateFolder = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!folderName.trim()) {
       toast({
         title: "Erro",
-        description: "Por favor, insira um nome para a pasta",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar autenticado para criar pastas",
+        description: "Nome da pasta não pode ficar vazio",
         variant: "destructive"
       });
       return;
     }
     
     setIsSubmitting(true);
-    
     try {
-      const { error } = await supabase.from('card_folders').insert({
-        name: folderName.trim(),
-        sector,
-        created_by: user.id
-      });
+      const { error } = await supabase
+        .from('card_folders')
+        .insert([
+          { name: folderName.trim(), sector }
+        ]);
       
       if (error) throw error;
       
@@ -59,6 +50,7 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
       
       setFolderName("");
       onOpenChange(false);
+      
     } catch (error) {
       console.error('Error creating folder:', error);
       toast({
@@ -71,22 +63,29 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
     }
   };
   
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setFolderName("");
+    }
+    onOpenChange(open);
+  };
+  
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle>Nova Pasta</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Nova Pasta</DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleCreateFolder} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="folder-name">Nome da Pasta</Label>
+            <Label htmlFor="folder-name" className="text-xs sm:text-sm">Nome da pasta</Label>
             <Input
               id="folder-name"
               value={folderName}
               onChange={(e) => setFolderName(e.target.value)}
               placeholder="Digite o nome da pasta"
               disabled={isSubmitting}
+              className="text-xs sm:text-sm h-8 sm:h-10"
             />
           </div>
           
@@ -94,18 +93,20 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
+              className="text-xs sm:text-sm h-8 sm:h-10"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !folderName.trim()}
+              className="text-xs sm:text-sm h-8 sm:h-10"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
                   Criando...
                 </>
               ) : (
