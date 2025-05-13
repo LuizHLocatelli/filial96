@@ -1,14 +1,15 @@
 
-import React, { useState, useEffect } from "react";
-import { DndContext, closestCenter, DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
-import { SortableContext, arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { KanbanColumn } from "./KanbanColumn";
-import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 import { useKanbanBoard } from "./useKanbanBoard";
 import { toast } from "sonner";
 import { AddCardDialog } from "./AddCardDialog";
 import { AddColumnDialog } from "./AddColumnDialog";
+import { BoardHeader } from "./components/BoardHeader";
+import { ColumnList } from "./components/ColumnList";
+import { BoardLoading } from "./components/BoardLoading";
+import { BoardEmpty } from "./components/BoardEmpty";
 
 export function KanbanBoard() {
   const {
@@ -135,57 +136,29 @@ export function KanbanBoard() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <BoardLoading />;
   }
 
   if (!board) {
-    return (
-      <div className="text-center py-10">
-        <h3 className="text-lg font-medium">Nenhum quadro encontrado</h3>
-        <p className="text-muted-foreground">Ocorreu um erro ao carregar o quadro.</p>
-      </div>
-    );
+    return <BoardEmpty />;
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-medium">{board.name}</h3>
-          <p className="text-sm text-muted-foreground">{board.description}</p>
-        </div>
-        <Button onClick={() => setAddColumnDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" />
-          Nova Coluna
-        </Button>
-      </div>
+      <BoardHeader 
+        board={board}
+        onAddColumn={() => setAddColumnDialogOpen(true)}
+      />
 
-      <div className="rounded-lg bg-secondary/20 p-4 overflow-x-auto">
-        <DndContext
-          sensors={[]}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-4 min-h-[500px]">
-            <SortableContext items={columns.map(col => col.id)} strategy={horizontalListSortingStrategy}>
-              {columns.map((column) => (
-                <KanbanColumn
-                  key={column.id}
-                  column={column}
-                  cards={cards.filter(card => card.column_id === column.id)}
-                  onAddCard={() => handleOpenAddCardDialog(column.id)}
-                />
-              ))}
-            </SortableContext>
-          </div>
-        </DndContext>
-      </div>
+      <ColumnList
+        columns={columns}
+        cards={cards}
+        activeCard={activeCard}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onAddCard={handleOpenAddCardDialog}
+      />
 
       <AddColumnDialog
         open={addColumnDialogOpen}
