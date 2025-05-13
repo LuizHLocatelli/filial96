@@ -13,11 +13,9 @@ export function useNoteFolders() {
   const fetchFolders = async () => {
     setIsLoading(true);
     try {
-      // Using text comparison instead of UUID comparison
       const { data, error } = await supabase
-        .from('crediario_kanban_columns')
-        .select('id, name, created_at')
-        .eq('board_id', 'notes-folders')
+        .from('note_folders')
+        .select('*')
         .order('name', { ascending: true });
         
       if (error) {
@@ -30,15 +28,7 @@ export function useNoteFolders() {
         return;
       }
       
-      // Converter os dados para corresponder ao tipo NoteFolder
-      const folderData: NoteFolder[] = data ? data.map(item => ({
-        id: item.id,
-        name: item.name,
-        created_at: item.created_at,
-        created_by: null // Como created_by pode não estar disponível na tabela
-      })) : [];
-      
-      setFolders(folderData);
+      setFolders(data || []);
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -58,39 +48,23 @@ export function useNoteFolders() {
     const foldersChannel = supabase
       .channel('note-folders-changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'crediario_kanban_columns', filter: `board_id=eq.notes-folders` }, 
+        { event: '*', schema: 'public', table: 'note_folders' }, 
         (payload) => {
           console.log('Realtime folder update received:', payload);
           
           if (payload.eventType === 'INSERT') {
-            const newFolder = payload.new as any;
-            if (newFolder.board_id === 'notes-folders') {
-              const folderData: NoteFolder = {
-                id: newFolder.id,
-                name: newFolder.name,
-                created_at: newFolder.created_at,
-                created_by: newFolder.created_by || null
-              };
-              setFolders(prevFolders => 
-                [...prevFolders, folderData].sort((a, b) => a.name.localeCompare(b.name))
-              );
-            }
+            const newFolder = payload.new as NoteFolder;
+            setFolders(prevFolders => 
+              [...prevFolders, newFolder].sort((a, b) => a.name.localeCompare(b.name))
+            );
           } 
           else if (payload.eventType === 'UPDATE') {
-            const updatedFolder = payload.new as any;
-            if (updatedFolder.board_id === 'notes-folders') {
-              const folderData: NoteFolder = {
-                id: updatedFolder.id,
-                name: updatedFolder.name,
-                created_at: updatedFolder.created_at,
-                created_by: updatedFolder.created_by || null
-              };
-              setFolders(prevFolders => 
-                prevFolders.map(folder => 
-                  folder.id === folderData.id ? folderData : folder
-                ).sort((a, b) => a.name.localeCompare(b.name))
-              );
-            }
+            const updatedFolder = payload.new as NoteFolder;
+            setFolders(prevFolders => 
+              prevFolders.map(folder => 
+                folder.id === updatedFolder.id ? updatedFolder : folder
+              ).sort((a, b) => a.name.localeCompare(b.name))
+            );
           } 
           else if (payload.eventType === 'DELETE') {
             const deletedFolderId = payload.old.id;
@@ -118,14 +92,13 @@ export function useNoteFolders() {
     }
     
     try {
-      // Make sure we're setting board_id as a string 'notes-folders' not as a UUID
       const { data, error } = await supabase
-        .from('crediario_kanban_columns')
-        .insert([{
+        .from('note_folders')
+        .insert({
           name: folderData.name,
-          board_id: 'notes-folders',
-          position: 0,
-        }])
+          created_by: profile.id,
+          position: 0
+        })
         .select('id')
         .single();
         
@@ -159,10 +132,9 @@ export function useNoteFolders() {
   const updateFolder = async (folderId: string, name: string) => {
     try {
       const { error } = await supabase
-        .from('crediario_kanban_columns')
+        .from('note_folders')
         .update({ name })
-        .eq('id', folderId)
-        .eq('board_id', 'notes-folders');
+        .eq('id', folderId);
         
       if (error) {
         console.error('Error updating note folder:', error);
@@ -213,10 +185,9 @@ export function useNoteFolders() {
       
       // Se não houver notas, pode excluir a pasta
       const { error } = await supabase
-        .from('crediario_kanban_columns')
+        .from('note_folders')
         .delete()
-        .eq('id', folderId)
-        .eq('board_id', 'notes-folders');
+        .eq('id', folderId);
         
       if (error) {
         console.error('Error deleting note folder:', error);

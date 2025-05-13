@@ -538,10 +538,34 @@ export type Database = {
             foreignKeyName: "crediario_sticky_notes_folder_id_fkey"
             columns: ["folder_id"]
             isOneToOne: false
-            referencedRelation: "crediario_kanban_columns"
+            referencedRelation: "note_folders"
             referencedColumns: ["id"]
           },
         ]
+      }
+      note_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          position?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
