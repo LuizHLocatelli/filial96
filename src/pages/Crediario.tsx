@@ -55,12 +55,10 @@ const Crediario = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Crediário</h2>
-      </div>
+      {/* Título removido */}
       
       {showCompactMenu && (
-        <div className="mb-6">
+        <div className="mb-4">
           <QuickAccess onNavigate={handleTabChange} compact={true} />
         </div>
       )}
