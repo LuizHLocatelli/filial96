@@ -1,11 +1,9 @@
-
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   Clock,
@@ -24,6 +22,7 @@ import { TaskCard } from "./types";
 import { useState } from "react";
 import { CardComments } from "./CardComments";
 import { toast } from "sonner";
+import { PriorityBadge } from "./components/PriorityBadge";
 
 interface CardDetailsProps {
   card: TaskCard;
@@ -38,12 +37,6 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
   const assignee = card.assignee_id 
     ? usersData.find(user => user.id === card.assignee_id) 
     : null;
-
-  const priorityColors: Record<string, string> = {
-    baixa: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-    media: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-    alta: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-  };
 
   const handleEditClick = () => {
     // To be implemented
@@ -61,9 +54,7 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl pr-8">{card.title}</DialogTitle>
-            <Badge variant="outline" className={`${priorityColors[card.priority]}`}>
-              {card.priority === 'baixa' ? 'Baixa' : card.priority === 'media' ? 'Média' : 'Alta'}
-            </Badge>
+            <PriorityBadge priority={card.priority} />
           </div>
         </DialogHeader>
         
