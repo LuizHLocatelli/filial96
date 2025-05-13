@@ -61,6 +61,59 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
     }
   };
   
+  // Delete a card
+  const deleteCard = async (cardId: string) => {
+    try {
+      // First remove the card from state for immediate feedback
+      setCards(cards.filter(card => card.id !== cardId));
+      
+      // Then delete from the database
+      const { error } = await supabase
+        .from('crediario_kanban_cards')
+        .delete()
+        .eq('id', cardId);
+        
+      if (error) {
+        throw error;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting card:', error);
+      toast.error('Erro ao excluir o cartão');
+      return false;
+    }
+  };
+  
+  // Update a card
+  const updateCard = async (cardId: string, updates: Partial<TaskCard>) => {
+    try {
+      // First update in local state for immediate feedback
+      setCards(cards.map(card => 
+        card.id === cardId ? { ...card, ...updates } : card
+      ));
+      
+      // Then update in the database
+      const { error } = await supabase
+        .from('crediario_kanban_cards')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', cardId);
+        
+      if (error) {
+        throw error;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating card:', error);
+      toast.error('Erro ao atualizar o cartão');
+      return false;
+    }
+  };
+  
   // Helper function to get board ID by column ID
   const getBoardIdByColumnId = async (columnId: string): Promise<string | null> => {
     try {
@@ -82,5 +135,5 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
     }
   };
 
-  return { addCard };
+  return { addCard, deleteCard, updateCard };
 }

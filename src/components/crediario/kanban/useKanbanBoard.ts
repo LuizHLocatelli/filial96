@@ -6,7 +6,7 @@ import { useCardActions } from './hooks/useCardActions';
 export function useKanbanBoard() {
   const { board, columns, cards, isLoading, setCards } = useBoardData();
   const { addColumn } = useColumnActions(columns, setColumns => setColumns);
-  const { addCard } = useCardActions(cards, setCards);
+  const { addCard, deleteCard, updateCard } = useCardActions(cards, setCards);
   
   return {
     board,
@@ -15,5 +15,7 @@ export function useKanbanBoard() {
     isLoading,
     addColumn,
     addCard,
+    deleteCard,
+    updateCard
   };
 }

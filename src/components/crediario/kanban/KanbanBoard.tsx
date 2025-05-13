@@ -8,6 +8,7 @@ import { BoardHeader } from "./components/BoardHeader";
 import { ColumnList } from "./components/ColumnList";
 import { BoardLoading } from "./components/BoardLoading";
 import { BoardEmpty } from "./components/BoardEmpty";
+import { TaskCard } from "./types";
 
 export function KanbanBoard() {
   const {
@@ -17,6 +18,8 @@ export function KanbanBoard() {
     isLoading,
     addColumn,
     addCard,
+    deleteCard,
+    updateCard
   } = useKanbanBoard();
 
   const [addColumnDialogOpen, setAddColumnDialogOpen] = useState(false);
@@ -51,6 +54,14 @@ export function KanbanBoard() {
     toast.success("Cartão adicionado com sucesso");
   };
 
+  const handleDeleteCard = (card: TaskCard) => {
+    deleteCard(card.id);
+  };
+
+  const handleUpdateCard = (cardId: string, updates: Partial<TaskCard>) => {
+    updateCard(cardId, updates);
+  };
+
   if (isLoading) {
     return <BoardLoading />;
   }
@@ -70,6 +81,8 @@ export function KanbanBoard() {
         columns={columns}
         cards={cards}
         onAddCard={handleOpenAddCardDialog}
+        onDeleteCard={handleDeleteCard}
+        onUpdateCard={handleUpdateCard}
       />
 
       <AddColumnDialog

@@ -9,9 +9,17 @@ interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
   onAddCard: () => void;
+  onDeleteCard?: (card: TaskCard) => void;
+  onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
 }
 
-export function KanbanColumn({ column, cards, onAddCard }: KanbanColumnProps) {
+export function KanbanColumn({ 
+  column, 
+  cards, 
+  onAddCard,
+  onDeleteCard,
+  onUpdateCard 
+}: KanbanColumnProps) {
   return (
     <div className="flex-shrink-0 w-80 bg-background rounded-lg shadow-sm border border-border">
       <Card className="h-full flex flex-col">
@@ -26,7 +34,12 @@ export function KanbanColumn({ column, cards, onAddCard }: KanbanColumnProps) {
         <CardContent className="p-2 flex-1 overflow-y-auto max-h-[65vh]">
           <div className="space-y-2">
             {cards.map((card) => (
-              <KanbanCard key={card.id} card={card} />
+              <KanbanCard 
+                key={card.id} 
+                card={card} 
+                onDelete={onDeleteCard ? () => onDeleteCard(card) : undefined}
+                onUpdate={onUpdateCard}
+              />
             ))}
           </div>
           
