@@ -39,13 +39,7 @@ export function useAuthEffects({
           displayName: data.display_name || data.name.split(" ")[0]
         });
         
-        // Show welcome message only when explicitly requested (during sign in)
-        if (showWelcomeToast) {
-          toast({
-            title: `Bem-vindo, ${data.display_name || data.name.split(" ")[0]}!`,
-            description: "Bom ter você de volta.",
-          });
-        }
+        // Removed welcome toast message
       }
     } catch (error) {
       console.error("Erro ao buscar perfil:", error);
@@ -62,8 +56,8 @@ export function useAuthEffects({
         if (event === 'SIGNED_IN' && session?.user) {
           // Use setTimeout to avoid potential loop issues with RLS
           setTimeout(() => {
-            // Only show welcome toast on SIGNED_IN event
-            fetchUserProfile(session.user.id, true);
+            // Don't show welcome toast anymore, just fetch the profile
+            fetchUserProfile(session.user.id, false);
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
