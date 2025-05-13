@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useFileUpload } from "./useFileUpload";
 
 export interface Deposito {
@@ -41,7 +41,7 @@ export function useDepositos() {
           data: new Date(item.data),
           concluido: item.concluido ?? true,
           comprovante: item.comprovante,
-          jaIncluido: item.ja_incluido
+          jaIncluido: item.ja_incluido === true
         }));
         setDepositos(formattedDepositos);
       }
@@ -124,7 +124,7 @@ export function useDepositos() {
             data: new Date(data[0].data),
             concluido: data[0].concluido,
             comprovante: data[0].comprovante,
-            jaIncluido: data[0].ja_incluido
+            jaIncluido: data[0].ja_incluido === true
           };
           
           setDepositos(prevDepositos => [createdDeposito, ...prevDepositos]);
