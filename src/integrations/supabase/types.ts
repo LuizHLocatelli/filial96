@@ -641,32 +641,38 @@ export type Database = {
       }
       promotional_cards: {
         Row: {
+          code: string | null
           created_at: string
           created_by: string
           folder_id: string | null
           id: string
           image_url: string
           position: number
+          promotion_date: string | null
           sector: string
           title: string
         }
         Insert: {
+          code?: string | null
           created_at?: string
           created_by: string
           folder_id?: string | null
           id?: string
           image_url: string
           position?: number
+          promotion_date?: string | null
           sector: string
           title: string
         }
         Update: {
+          code?: string | null
           created_at?: string
           created_by?: string
           folder_id?: string | null
           id?: string
           image_url?: string
           position?: number
+          promotion_date?: string | null
           sector?: string
           title?: string
         }

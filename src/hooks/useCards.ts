@@ -26,7 +26,21 @@ export function useCards(sector: "furniture" | "fashion", folderId: string | nul
         
         if (error) throw error;
         
-        setCards(data as CardItem[]);
+        // Ensure all fields from CardItem are present in the data
+        const typedCards: CardItem[] = data.map(card => ({
+          id: card.id,
+          title: card.title,
+          image_url: card.image_url,
+          sector: card.sector,
+          position: card.position,
+          folder_id: card.folder_id,
+          created_by: card.created_by,
+          created_at: card.created_at,
+          code: card.code || null,
+          promotion_date: card.promotion_date
+        }));
+        
+        setCards(typedCards);
       } catch (error) {
         console.error('Error fetching cards:', error);
         toast({
