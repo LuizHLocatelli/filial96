@@ -23,11 +23,16 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
   const { toast } = useToast();
 
   const colors = [
-    { value: '#FEF7CD', label: 'Amarelo' },
-    { value: '#F2FCE2', label: 'Verde' },
-    { value: '#E5DEFF', label: 'Roxo' },
-    { value: '#FFE9E7', label: 'Vermelho' },
-    { value: '#E5F6FF', label: 'Azul' },
+    { value: '#FEF7CD', label: 'Amarelo', textColor: '#5B4D00' },
+    { value: '#F2FCE2', label: 'Verde', textColor: '#1A4D00' },
+    { value: '#E5DEFF', label: 'Roxo', textColor: '#4A1D95' },
+    { value: '#FFE9E7', label: 'Vermelho', textColor: '#7A1100' },
+    { value: '#E5F6FF', label: 'Azul', textColor: '#004A77' },
+    { value: '#FEC6A1', label: 'Laranja', textColor: '#803400' },
+    { value: '#FFDEE2', label: 'Rosa', textColor: '#9C1C36' },
+    { value: '#FDE1D3', label: 'Pêssego', textColor: '#7A3A19' },
+    { value: '#D3E4FD', label: 'Azul Claro', textColor: '#002A66' },
+    { value: '#F1F0FB', label: 'Cinza', textColor: '#303030' },
   ];
 
   const handleSubmit = async () => {
@@ -60,6 +65,12 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
     }
   };
 
+  // Determina a cor do texto com base na cor de fundo para garantir contraste
+  const getTextColor = () => {
+    const colorOption = colors.find(c => c.value === color);
+    return colorOption ? colorOption.textColor : '#000000';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -76,7 +87,10 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
               onChange={(e) => setContent(e.target.value)} 
               placeholder="Digite o conteúdo da nota"
               className="min-h-[120px]"
-              style={{ backgroundColor: color }}
+              style={{ 
+                backgroundColor: color, 
+                color: getTextColor() 
+              }}
             />
           </div>
 
@@ -135,6 +149,11 @@ function getRandomColor() {
     '#E5DEFF', // roxo claro
     '#FFE9E7', // vermelho claro
     '#E5F6FF', // azul claro
+    '#FEC6A1', // laranja claro
+    '#FFDEE2', // rosa claro
+    '#FDE1D3', // pêssego claro
+    '#D3E4FD', // azul claro alternativo
+    '#F1F0FB', // cinza claro
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 }

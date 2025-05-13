@@ -1,18 +1,19 @@
 
-import { useState, useRef, useEffect } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit, Save, X, Clock, FolderInput } from 'lucide-react';
+import { MoreHorizontal, FolderClosed } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Card, CardContent } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { NoteFolder, StickyNote } from './types';
+import { StickyNote, NoteFolder } from './types';
+import { Textarea } from '@/components/ui/textarea';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface StickyNoteItemProps {
   note: StickyNote;
   folders: NoteFolder[];
-  onUpdate: (id: string, content: string) => void;
+  onUpdate: (id: string, content: string, folderId?: string | null) => Promise<void>;
   onMoveToFolder: (id: string, folderId: string | null) => void;
   onDelete: (id: string) => void;
 }
@@ -20,126 +21,184 @@ interface StickyNoteItemProps {
 export function StickyNoteItem({ note, folders, onUpdate, onMoveToFolder, onDelete }: StickyNoteItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(note.content);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.selectionStart = textareaRef.current.value.length;
+  const handleUpdate = async () => {
+    if (content.trim() === note.content) {
+      setIsEditing(false);
+      return;
     }
-  }, [isEditing]);
 
-  const handleSave = () => {
-    if (content.trim()) {
-      onUpdate(note.id, content);
+    setIsSubmitting(true);
+    try {
+      await onUpdate(note.id, content);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating sticky note:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      handleUpdate();
+    }
+    if (e.key === 'Escape') {
+      setContent(note.content);
       setIsEditing(false);
     }
   };
 
-  const handleCancel = () => {
-    setContent(note.content);
-    setIsEditing(false);
+  // Determina a cor do texto com base na cor de fundo para garantir contraste
+  const getTextColor = () => {
+    const colorMap: Record<string, string> = {
+      '#FEF7CD': '#5B4D00', // amarelo -> marrom escuro
+      '#F2FCE2': '#1A4D00', // verde claro -> verde escuro
+      '#E5DEFF': '#4A1D95', // roxo claro -> roxo escuro
+      '#FFE9E7': '#7A1100', // vermelho claro -> vermelho escuro
+      '#E5F6FF': '#004A77', // azul claro -> azul escuro
+      '#FEC6A1': '#803400', // laranja claro -> marrom
+      '#FFDEE2': '#9C1C36', // rosa claro -> rosa escuro
+      '#FDE1D3': '#7A3A19', // pêssego -> marrom médio
+      '#D3E4FD': '#002A66', // azul claro alt -> azul marinho
+      '#F1F0FB': '#303030', // cinza claro -> cinza escuro
+    };
+    
+    return colorMap[note.color] || '#000000';
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      handleCancel();
-    }
-  };
+  const hasFolder = note.folder_id !== null;
+  const folder = folders.find(f => f.id === note.folder_id);
 
   return (
     <Card 
-      className="overflow-hidden border-t-4" 
-      style={{ borderTopColor: note.color }}
+      className="overflow-hidden flex flex-col" 
+      style={{ backgroundColor: note.color, color: getTextColor() }}
     >
-      <CardContent className="p-3 space-y-2">
-        {isEditing ? (
-          <>
+      {isEditing ? (
+        <div className="flex flex-col h-full">
+          <div className="flex-grow p-3">
             <Textarea
-              ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="min-h-[100px] text-sm resize-none"
-              placeholder="Digite sua nota aqui..."
+              autoFocus
+              className="w-full h-full min-h-[100px] p-0 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 resize-none"
+              style={{ 
+                backgroundColor: 'transparent', 
+                color: getTextColor() 
+              }}
             />
-            <div className="flex justify-end space-x-2">
-              <Button size="sm" variant="outline" onClick={handleCancel}>
-                <X className="h-3.5 w-3.5 mr-1" />
-                Cancelar
-              </Button>
-              <Button size="sm" onClick={handleSave}>
-                <Save className="h-3.5 w-3.5 mr-1" />
-                Salvar
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div 
-              className="text-sm min-h-[100px] whitespace-pre-wrap"
-              style={{ wordBreak: 'break-word' }}
+          </div>
+          <div className="flex justify-end p-3 pt-0 gap-2 mt-auto">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setContent(note.content);
+                setIsEditing(false);
+              }}
+              disabled={isSubmitting}
+              className="text-xs"
+              style={{ color: getTextColor() }}
             >
-              {note.content}
-            </div>
-            <div className="flex justify-between items-center text-xs text-muted-foreground">
-              <div className="flex items-center">
-                <Clock className="h-3 w-3 mr-1" />
-                {formatDistanceToNow(new Date(note.updated_at), {
-                  addSuffix: true,
-                  locale: ptBR,
-                })}
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleUpdate}
+              disabled={isSubmitting}
+              className="text-xs"
+              style={{ color: getTextColor(), borderColor: getTextColor() }}
+              variant="outline"
+            >
+              {isSubmitting ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="p-3 pb-0 flex justify-between items-start">
+            {hasFolder && folder && (
+              <div className="flex items-center text-xs gap-1 mb-2">
+                <FolderClosed className="h-3 w-3" />
+                <span>{folder.name}</span>
               </div>
-              <div className="space-x-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="sm" variant="ghost">
-                      <FolderInput className="h-3.5 w-3.5" />
-                      <span className="sr-only">Mover para pasta</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-background">
-                    <DropdownMenuLabel>Mover para pasta</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => onMoveToFolder(note.id, null)}
-                      className={!note.folder_id ? "bg-muted/50" : ""}
+            )}
+            <div className={`ml-auto ${hasFolder ? '' : 'w-full'}`}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Abrir menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <span className="w-full">Mover para pasta</span>
+                  </DropdownMenuItem>
+                  {folders.map(folder => (
+                    <DropdownMenuItem
+                      key={folder.id}
+                      className="pl-6"
+                      onClick={() => onMoveToFolder(note.id, folder.id)}
                     >
-                      Sem pasta
+                      {folder.name}
                     </DropdownMenuItem>
-                    
-                    {folders.map(folder => (
-                      <DropdownMenuItem 
-                        key={folder.id}
-                        onClick={() => onMoveToFolder(note.id, folder.id)}
-                        className={note.folder_id === folder.id ? "bg-muted/50" : ""}
+                  ))}
+                  <DropdownMenuItem
+                    className="pl-6"
+                    onClick={() => onMoveToFolder(note.id, null)}
+                  >
+                    Remover da pasta
+                  </DropdownMenuItem>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onSelect={(e) => e.preventDefault()}
                       >
-                        {folder.name}
+                        Excluir
                       </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                
-                <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
-                  <Edit className="h-3.5 w-3.5" />
-                  <span className="sr-only">Editar</span>
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => onDelete(note.id)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Excluir</span>
-                </Button>
-              </div>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir nota</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Esta nota será permanentemente excluída.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => onDelete(note.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Excluir
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          </>
-        )}
-      </CardContent>
+          </div>
+          <div 
+            className="p-3 whitespace-pre-wrap flex-grow cursor-pointer"
+            onClick={() => setIsEditing(true)}
+            style={{ color: getTextColor() }}
+          >
+            {note.content}
+          </div>
+          <div className="p-3 pt-0 text-xs opacity-70" style={{ color: getTextColor() }}>
+            {note.updated_at && formatDistanceToNow(new Date(note.updated_at), { addSuffix: true, locale: ptBR })}
+          </div>
+        </>
+      )}
     </Card>
   );
 }
