@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 
 export interface Notification {
@@ -64,7 +64,7 @@ export function useNotifications() {
         // Criar um mapa de atividades lidas para fácil verificação
         const readActivityMap = new Map();
         if (readStatusData) {
-          readStatusData.forEach((status: NotificationReadState) => {
+          readStatusData.forEach((status: any) => {
             readActivityMap.set(status.activity_id, status.read);
           });
         }

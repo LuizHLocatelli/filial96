@@ -582,6 +582,30 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_read_status: {
+        Row: {
+          activity_id: string
+          created_at: string
+          id: string
+          read: boolean
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

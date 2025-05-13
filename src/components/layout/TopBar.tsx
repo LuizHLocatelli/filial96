@@ -7,7 +7,7 @@ import { NotificationsMenu } from "@/components/notifications/NotificationsMenu"
 import { UserMenu } from "../auth/UserMenu";
 
 export function TopBar() {
-  const { toggle } = useSidebar();
+  const sidebar = useSidebar();
   
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
@@ -16,7 +16,7 @@ export function TopBar() {
           variant="ghost"
           size="icon"
           className="mr-4 md:hidden"
-          onClick={toggle}
+          onClick={() => sidebar.toggle?.()}
         >
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle Menu</span>
