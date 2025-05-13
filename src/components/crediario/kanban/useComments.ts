@@ -46,7 +46,7 @@ export function useComments(cardId: string) {
           const user = usersData?.find(user => user.id === comment.created_by);
           return {
             ...comment,
-            updated_at: comment.updated_at || comment.created_at,
+            updated_at: comment.updated_at || comment.created_at || new Date().toISOString(),
             user: user ? {
               id: user.id,
               name: user.name,
@@ -60,7 +60,7 @@ export function useComments(cardId: string) {
         // Add the updated_at field if missing
         const formattedComments: Comment[] = commentsData.map(comment => ({
           ...comment,
-          updated_at: comment.updated_at || comment.created_at
+          updated_at: comment.updated_at || comment.created_at || new Date().toISOString()
         }));
         setComments(formattedComments);
       }

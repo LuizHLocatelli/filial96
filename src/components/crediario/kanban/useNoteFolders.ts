@@ -28,7 +28,7 @@ export function useNoteFolders() {
       // Add updated_at if it doesn't exist
       const foldersWithUpdated: NoteFolder[] = data.map(folder => ({
         ...folder,
-        updated_at: folder.updated_at || folder.created_at
+        updated_at: folder.updated_at || folder.created_at || new Date().toISOString()
       }));
       
       setFolders(foldersWithUpdated);
