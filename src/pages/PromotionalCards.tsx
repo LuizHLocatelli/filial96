@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -8,6 +7,7 @@ import { FoldersList } from "@/components/promotional-cards/FoldersList";
 import { CardGallery } from "@/components/promotional-cards/CardGallery";
 import { CreateFolderDialog } from "@/components/promotional-cards/CreateFolderDialog";
 import { UploadCardDialog } from "@/components/promotional-cards/UploadCardDialog";
+import { SectorSelector } from "@/components/promotional-cards/SectorSelector";
 
 export default function PromotionalCards() {
   const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion">("furniture");
@@ -26,64 +26,56 @@ export default function PromotionalCards() {
         </div>
       </div>
 
-      <Tabs 
-        defaultValue="furniture" 
-        onValueChange={(value) => setSelectedSector(value as "furniture" | "fashion")}
-        className="w-full"
-      >
-        <TabsList>
-          <TabsTrigger value="furniture">Móveis</TabsTrigger>
-          <TabsTrigger value="fashion">Moda</TabsTrigger>
-        </TabsList>
+      <SectorSelector 
+        selectedSector={selectedSector} 
+        onSectorChange={(value) => setSelectedSector(value as "furniture" | "fashion")} 
+      />
 
-        {/* Conteúdo para ambos os setores */}
-        {["furniture", "fashion"].map((sector) => (
-          <TabsContent key={sector} value={sector} className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Sidebar com pastas */}
-              <Card className="w-full md:w-64 h-fit">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-medium">Pastas</h3>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => setIsCreateFolderOpen(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Nova
-                    </Button>
-                  </div>
-                  
-                  <FoldersList 
-                    sector={sector as "furniture" | "fashion"}
-                    selectedFolderId={selectedFolderId}
-                    onSelectFolder={setSelectedFolderId}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Galeria principal */}
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-medium">Cards Promocionais</h3>
-                  <Button
-                    onClick={() => setIsUploadCardOpen(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Novo Card
-                  </Button>
-                </div>
-
-                <CardGallery 
-                  sector={sector as "furniture" | "fashion"}
-                  folderId={selectedFolderId}
-                />
+      {/* Conteúdo para o setor selecionado */}
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar com pastas */}
+          <Card className="w-full md:w-64 h-fit">
+            <CardContent className="p-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-medium">Pastas</h3>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setIsCreateFolderOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Nova
+                </Button>
               </div>
+              
+              <FoldersList 
+                sector={selectedSector}
+                selectedFolderId={selectedFolderId}
+                onSelectFolder={setSelectedFolderId}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Galeria principal */}
+          <div className="flex-1">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-medium">Cards Promocionais</h3>
+              <Button
+                onClick={() => setIsUploadCardOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Novo Card
+              </Button>
             </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+
+            <CardGallery 
+              sector={selectedSector}
+              folderId={selectedFolderId}
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Diálogos */}
       <CreateFolderDialog

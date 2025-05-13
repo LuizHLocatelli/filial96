@@ -13,11 +13,15 @@ interface UploadCardDialogProps {
 export function UploadCardDialog({ open, onOpenChange, sector, folderId: initialFolderId }: UploadCardDialogProps) {
   const {
     title,
+    code,
+    promotionDate,
     selectedFile,
     previewUrl,
     isSubmitting,
     folderId,
     setTitle,
+    setCode,
+    setPromotionDate,
     setFolderId,
     handleFileChange,
     removeImage,
@@ -50,6 +54,10 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId: initial
           sector={sector}
           title={title}
           setTitle={setTitle}
+          code={code}
+          setCode={setCode}
+          promotionDate={promotionDate}
+          setPromotionDate={setPromotionDate}
           folderId={folderId}
           setFolderId={setFolderId}
           previewUrl={previewUrl}

@@ -2,7 +2,14 @@
 import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, FolderOpen, X, MoreHorizontal } from "lucide-react";
+import { 
+  Trash2, 
+  FolderOpen, 
+  X, 
+  MoreHorizontal, 
+  Download,
+  Pencil
+} from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -23,10 +30,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useFolders } from "@/hooks/useFolders";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PromotionalCardProps {
   id: string;
   title: string;
+  code?: string;
+  promotionDate?: string;
   imageUrl: string;
   folderId: string | null;
   onDelete: () => void;
@@ -37,6 +51,8 @@ interface PromotionalCardProps {
 export function PromotionalCard({ 
   id, 
   title, 
+  code,
+  promotionDate,
   imageUrl, 
   folderId, 
   onDelete,
@@ -45,9 +61,76 @@ export function PromotionalCard({
 }: PromotionalCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(title);
+  const [isLoading, setIsLoading] = useState(false);
   const { folders } = useFolders(sector);
   
   const currentFolder = folders.find(f => f.id === folderId);
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // Create a download link
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title.replace(/\s+/g, '_')}.${blob.type.split('/')[1]}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Sucesso",
+        description: "Download iniciado"
+      });
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível fazer o download",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUpdateTitle = async () => {
+    if (!editedTitle.trim()) {
+      toast({
+        title: "Erro",
+        description: "O título não pode ficar vazio",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('promotional_cards')
+        .update({ title: editedTitle.trim() })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Sucesso",
+        description: "Título atualizado com sucesso"
+      });
+      
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating card title:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o título",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -77,6 +160,17 @@ export function PromotionalCard({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
                 Visualizar
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                setIsEditDialogOpen(true);
+                setEditedTitle(title);
+              }}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar
               </DropdownMenuItem>
               
               <DropdownMenuLabel>Pastas</DropdownMenuLabel>
@@ -130,12 +224,77 @@ export function PromotionalCard({
                 className="w-full h-full object-contain"
               />
             </div>
-            {currentFolder && (
-              <div className="mt-2 text-sm text-muted-foreground">
-                Pasta: {currentFolder.name}
-              </div>
-            )}
+            
+            <div className="w-full mt-4 space-y-2">
+              {code && (
+                <div className="text-sm">
+                  <span className="font-semibold">Código:</span> {code}
+                </div>
+              )}
+              {promotionDate && (
+                <div className="text-sm">
+                  <span className="font-semibold">Validade:</span> {new Date(promotionDate).toLocaleDateString('pt-BR')}
+                </div>
+              )}
+              {currentFolder && (
+                <div className="text-sm">
+                  <span className="font-semibold">Pasta:</span> {currentFolder.name}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-2 mt-4 w-full justify-end">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDownload}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Card</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleUpdateTitle();
+          }} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="card-title">Título</Label>
+              <Input
+                id="card-title"
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                placeholder="Digite o título do card"
+                disabled={isLoading}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+                disabled={isLoading}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading || !editedTitle.trim()}
+              >
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Salvar"}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
 

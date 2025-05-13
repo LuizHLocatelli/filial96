@@ -7,6 +7,8 @@ import { useAuth } from "@/contexts/auth";
 
 interface CardUploadState {
   title: string;
+  code: string;
+  promotionDate: Date | undefined;
   selectedFile: File | null;
   previewUrl: string | null;
   isSubmitting: boolean;
@@ -22,6 +24,8 @@ interface UseCardUploadProps {
 export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUploadProps) {
   const [state, setState] = useState<CardUploadState>({
     title: "",
+    code: "",
+    promotionDate: undefined,
     selectedFile: null,
     previewUrl: null,
     isSubmitting: false,
@@ -32,6 +36,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
   const resetState = () => {
     setState({
       title: "",
+      code: "",
+      promotionDate: undefined,
       selectedFile: null,
       previewUrl: null,
       isSubmitting: false,
@@ -41,6 +47,14 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
 
   const setTitle = (title: string) => {
     setState(prev => ({ ...prev, title }));
+  };
+
+  const setCode = (code: string) => {
+    setState(prev => ({ ...prev, code }));
+  };
+
+  const setPromotionDate = (promotionDate: Date | undefined) => {
+    setState(prev => ({ ...prev, promotionDate }));
   };
 
   const setFolderId = (folderId: string | null) => {
@@ -143,6 +157,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       
       const { error: insertError } = await supabase.from('promotional_cards').insert({
         title: state.title.trim(),
+        code: state.code.trim(),
+        promotion_date: state.promotionDate,
         image_url: imageUrl,
         folder_id: state.folderId,
         sector,
@@ -174,6 +190,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
   return {
     ...state,
     setTitle,
+    setCode,
+    setPromotionDate,
     setFolderId,
     handleFileChange,
     removeImage,
