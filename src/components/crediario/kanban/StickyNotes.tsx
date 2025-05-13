@@ -7,6 +7,7 @@ import { useStickyNotes } from './useStickyNotes';
 import { StickyNoteItem } from './StickyNoteItem';
 import { useNoteFolders } from './useNoteFolders';
 import { AddFolderDialog } from './AddFolderDialog';
+import { CreateNoteDialog } from './CreateNoteDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateFolderData } from './types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -14,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 export function StickyNotes() {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [addFolderDialogOpen, setAddFolderDialogOpen] = useState(false);
+  const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
   const [folderToEdit, setFolderToEdit] = useState<{ id: string, name: string } | null>(null);
   
   const {
@@ -33,10 +35,14 @@ export function StickyNotes() {
   } = useNoteFolders();
 
   const handleAddNote = () => {
-    addNote({
-      content: 'Nova nota...',
-      color: getRandomColor(),
-      folderId: selectedFolder,
+    setCreateNoteDialogOpen(true);
+  };
+
+  const handleCreateNote = async (content: string, color: string, folderId: string | null) => {
+    await addNote({
+      content,
+      color,
+      folderId,
     });
   };
 
@@ -243,17 +249,14 @@ export function StickyNotes() {
         onAddFolder={handleAddFolder}
         initialData={folderToEdit || undefined}
       />
+
+      {/* Dialog para criar nova nota */}
+      <CreateNoteDialog
+        isOpen={createNoteDialogOpen}
+        onClose={() => setCreateNoteDialogOpen(false)}
+        onCreateNote={handleCreateNote}
+        folders={folders}
+      />
     </Card>
   );
-}
-
-function getRandomColor() {
-  const colors = [
-    '#FEF7CD', // amarelo claro
-    '#F2FCE2', // verde claro
-    '#E5DEFF', // roxo claro
-    '#FFE9E7', // vermelho claro
-    '#E5F6FF', // azul claro
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
 }
