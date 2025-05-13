@@ -155,10 +155,13 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       
       const position = positionData && positionData.length > 0 ? positionData[0].position + 1 : 0;
       
+      // Convert Date to ISO string if it exists, otherwise set to null
+      const formattedPromotionDate = state.promotionDate ? state.promotionDate.toISOString() : null;
+      
       const { error: insertError } = await supabase.from('promotional_cards').insert({
         title: state.title.trim(),
         code: state.code.trim(),
-        promotion_date: state.promotionDate,
+        promotion_date: formattedPromotionDate,
         image_url: imageUrl,
         folder_id: state.folderId,
         sector,
