@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Board, Column, TaskCard, CreateCardData } from './types';
+import { Board, Column, TaskCard, CreateCardData, validatePriority } from './types';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
 
@@ -64,7 +64,13 @@ export function useKanbanBoard() {
           return;
         }
         
-        setCards(cardsData);
+        // Convert and validate priority
+        const validatedCards: TaskCard[] = cardsData.map(card => ({
+          ...card,
+          priority: validatePriority(card.priority)
+        }));
+        
+        setCards(validatedCards);
       } catch (error) {
         console.error('Unexpected error:', error);
         toast.error('Ocorreu um erro inesperado');
@@ -232,6 +238,8 @@ export function useKanbanBoard() {
         .from('crediario_kanban_cards')
         .insert({
           ...cardData,
+          // Validate priority before inserting
+          priority: validatePriority(cardData.priority),
           position: newPosition,
           created_by: profile.id,
         })
@@ -244,7 +252,13 @@ export function useKanbanBoard() {
         return;
       }
       
-      setCards([...cards, data]);
+      // Ensure proper typing of the new card
+      const newCard: TaskCard = {
+        ...data,
+        priority: validatePriority(data.priority)
+      };
+      
+      setCards([...cards, newCard]);
       
       // Log activity
       if (board) {

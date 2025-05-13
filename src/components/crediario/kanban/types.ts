@@ -89,3 +89,11 @@ export interface CreateCardData {
   assignee_id?: string;
   due_date?: string;
 }
+
+// Helper function to validate and convert priority string to the correct type
+export function validatePriority(priority: string): 'baixa' | 'media' | 'alta' {
+  if (priority === 'baixa' || priority === 'media' || priority === 'alta') {
+    return priority;
+  }
+  return 'media'; // Default to 'media' if invalid value is received
+}

@@ -18,26 +18,51 @@ export function useComments(cardId: string) {
   const fetchComments = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get the comments
+      const { data: commentsData, error: commentsError } = await supabase
         .from('crediario_kanban_comments')
-        .select(`
-          *,
-          user:created_by(
-            id, 
-            name, 
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('card_id', cardId)
         .order('created_at', { ascending: true });
         
-      if (error) {
-        console.error('Error fetching comments:', error);
+      if (commentsError) {
+        console.error('Error fetching comments:', commentsError);
         toast.error('Erro ao carregar comentários');
         return;
       }
+
+      // Then get the profiles for those comments
+      const userIds = commentsData
+        .filter(comment => comment.created_by)
+        .map(comment => comment.created_by);
       
-      setComments(data);
+      if (userIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from('profiles')
+          .select('id, name, avatar_url')
+          .in('id', userIds);
+        
+        if (usersError) {
+          console.error('Error fetching users:', usersError);
+        }
+        
+        // Map user data to comments
+        const commentsWithUsers: Comment[] = commentsData.map(comment => {
+          const user = usersData?.find(user => user.id === comment.created_by);
+          return {
+            ...comment,
+            user: user ? {
+              id: user.id,
+              name: user.name,
+              avatar_url: user.avatar_url
+            } : undefined
+          };
+        });
+        
+        setComments(commentsWithUsers);
+      } else {
+        setComments(commentsData);
+      }
     } catch (error) {
       console.error('Unexpected error:', error);
       toast.error('Ocorreu um erro inesperado');
