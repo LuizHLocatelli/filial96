@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Listagens } from "@/components/crediario/Listagens";
 import { ClientesAgendados } from "@/components/crediario/ClientesAgendados";
@@ -7,10 +7,32 @@ import { Depositos } from "@/components/crediario/Depositos";
 import { Folgas } from "@/components/crediario/Folgas";
 import { Kanban } from "@/components/crediario/kanban/Kanban";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 const Crediario = () => {
-  const [activeTab, setActiveTab] = useState("listagens");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "listagens");
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  // Atualizar URL quando a aba mudar
+  useEffect(() => {
+    if (activeTab) {
+      setSearchParams({ tab: activeTab });
+    }
+  }, [activeTab, setSearchParams]);
+
+  // Atualizar a aba quando a URL mudar
+  useEffect(() => {
+    if (tabFromUrl && ["listagens", "clientes", "depositos", "folgas", "kanban"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   return (
     <div className="space-y-6">
@@ -21,7 +43,7 @@ const Crediario = () => {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="flex justify-center w-full mb-2">
           <TabsList className={`grid grid-cols-5 w-full max-w-3xl gap-1`}>
             <TabsTrigger 

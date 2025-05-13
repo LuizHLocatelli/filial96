@@ -10,12 +10,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, FileWarning, Home, Package, Users, Image, CreditCard } from "lucide-react";
+import { Calendar, ClipboardCheck, FileWarning, Home, Package, Users, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
   const location = useLocation();
+  const pathStart = `/${location.pathname.split('/')[1]}`;
   
   return (
     <Sidebar>
@@ -77,14 +81,59 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              
+              {/* Crediário com submenu */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={pathStart === "/crediario"}>
                   <Link to="/crediario">
                     <CreditCard className="h-5 w-5" />
                     <span>Crediário</span>
                   </Link>
                 </SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=listagens">
+                        <FileText className="h-4 w-4" />
+                        <span>Listagens</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=clientes">
+                        <Users className="h-4 w-4" />
+                        <span>Clientes</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=depositos">
+                        <Banknote className="h-4 w-4" />
+                        <span>Depósitos</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=folgas">
+                        <Coffee className="h-4 w-4" />
+                        <span>Folgas</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=kanban">
+                        <KanbanSquare className="h-4 w-4" />
+                        <span>Quadro</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               </SidebarMenuItem>
+              
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/cards-promocionais">
