@@ -31,6 +31,12 @@ export function Folgas() {
     weeks
   } = useFolgas();
   
+  // Função para lidar com cliques nas datas do calendário
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setOpenDialog(true);
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -48,12 +54,12 @@ export function Folgas() {
       
       <FolgasCalendar
         currentMonth={currentMonth}
-        weeks={weeks}
         crediaristas={crediaristas}
         folgas={folgas}
         isLoadingCrediaristas={isLoadingCrediaristas}
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
+        onDateClick={handleDateClick}
       />
       
       <FolgasList

@@ -1,36 +1,60 @@
 
-import { format, isSameDay, isSameMonth } from "date-fns";
+import { format, isSameDay, isSameMonth, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Crediarista, Folga } from "./types";
 
 interface FolgasCalendarProps {
   currentMonth: Date;
-  weeks: Date[][];
   crediaristas: Crediarista[];
   folgas: Folga[];
   isLoadingCrediaristas: boolean;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  onDateClick: (date: Date) => void;
 }
 
 export function FolgasCalendar({
   currentMonth,
-  weeks,
   crediaristas,
   folgas,
   isLoadingCrediaristas,
   onPrevMonth,
-  onNextMonth
+  onNextMonth,
+  onDateClick
 }: FolgasCalendarProps) {
+  // Função para gerar os dias do mês atual para o calendário
+  const getDaysInMonth = () => {
+    const start = startOfMonth(currentMonth);
+    const end = endOfMonth(currentMonth);
+    return eachDayOfInterval({ start, end });
+  };
+  
+  // Dias do mês atual
+  const daysInMonth = getDaysInMonth();
+  
+  // Obter folgas para um dia específico
+  const getFolgasForDay = (day: Date) => {
+    return folgas.filter(folga => 
+      isSameDay(folga.data, day)
+    );
+  };
+  
+  // Obter os crediaristas que têm folga em um dia específico
+  const getCrediaristasForDay = (day: Date) => {
+    const folgasNoDay = getFolgasForDay(day);
+    return folgasNoDay.map(folga => 
+      crediaristas.find(c => c.id === folga.crediaristaId)
+    ).filter(Boolean) as Crediarista[];
+  };
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
           <CardTitle>Calendário de Folgas</CardTitle>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="icon" onClick={onPrevMonth}>
@@ -45,83 +69,64 @@ export function FolgasCalendar({
           </div>
         </div>
         <CardDescription>
-          Visualização de folgas por crediarista durante o mês
+          Visualize as folgas por crediarista em cada dia do mês
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-1 py-2 sm:px-4 sm:py-3">
         {isLoadingCrediaristas ? (
           <div className="flex justify-center py-6">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        ) : crediaristas.length === 0 ? (
-          <div className="text-center py-6">
-            <p className="text-muted-foreground">
-              Nenhum crediarista encontrado para exibir no calendário
-            </p>
-          </div>
         ) : (
           <>
-            {weeks.map((week, weekIndex) => (
-              <Table key={`week-${weekIndex}`} className={weekIndex > 0 ? "mt-4" : ""}>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-40">
-                      {weekIndex === 0 && "Crediarista"}
-                    </TableHead>
-                    {week.map((day) => (
-                      <TableHead key={day.toString()} className="text-center p-1">
-                        <div className="flex flex-col items-center">
-                          <span className="text-xs text-muted-foreground">
-                            {format(day, "EEE", { locale: ptBR })}
-                          </span>
-                          <span className={cn(
-                            "font-medium",
-                            !isSameMonth(day, currentMonth) && "text-muted-foreground opacity-50"
-                          )}>
-                            {day.getDate()}
-                          </span>
-                        </div>
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {crediaristas.map((crediarista) => (
-                    <TableRow key={`${crediarista.id}-week-${weekIndex}`}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                            <User className="h-4 w-4 text-muted-foreground" />
+            <div className="grid grid-cols-7 gap-1">
+              {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
+                <div key={day} className="text-center font-medium p-1 text-xs text-muted-foreground">
+                  {day}
+                </div>
+              ))}
+              
+              {/* Espaços vazios antes do primeiro dia do mês */}
+              {Array.from({ length: daysInMonth[0].getDay() }).map((_, i) => (
+                <div key={`empty-start-${i}`} className="p-1"></div>
+              ))}
+              
+              {/* Dias do mês */}
+              {daysInMonth.map((day) => {
+                const crediaristasNoDay = getCrediaristasForDay(day);
+                const isWeekend = [0, 6].includes(day.getDay());
+                const hasFolgas = crediaristasNoDay.length > 0;
+                
+                return (
+                  <div
+                    key={day.toString()}
+                    className={cn(
+                      "p-1 min-h-14 border rounded-md flex flex-col justify-between cursor-pointer transition-colors",
+                      isWeekend ? "bg-gray-50 dark:bg-gray-900/20" : "",
+                      hasFolgas ? "bg-blue-50 dark:bg-blue-900/20" : "",
+                      "hover:bg-gray-100 dark:hover:bg-gray-800/50"
+                    )}
+                    onClick={() => onDateClick(day)}
+                  >
+                    <div className="font-medium text-sm">{day.getDate()}</div>
+                    {hasFolgas && (
+                      <div className="mt-1 space-y-1">
+                        {crediaristasNoDay.slice(0, 2).map((crediarista, index) => (
+                          <div key={`${crediarista.id}-${index}`} className="text-xs truncate">
+                            {crediarista.nome}
                           </div>
-                          <span>{crediarista.nome}</span>
-                        </div>
-                      </TableCell>
-                      {week.map((day) => {
-                        // Verificar se existe folga para este crediarista neste dia
-                        const folga = folgas.find(
-                          (folga) =>
-                            folga.crediaristaId === crediarista.id &&
-                            isSameDay(folga.data, day)
-                        );
-                        
-                        return (
-                          <TableCell key={day.toString()} className="text-center p-1">
-                            {folga && (
-                              <div 
-                                className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mx-auto cursor-pointer"
-                                title={`Folga de ${crediarista.nome} em ${format(day, "dd/MM/yyyy")}`}
-                              >
-                                <span className="h-2 w-2 bg-blue-500 rounded-full" />
-                              </div>
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ))}
+                        ))}
+                        {crediaristasNoDay.length > 2 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{crediaristasNoDay.length - 2} mais
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </>
         )}
       </CardContent>
