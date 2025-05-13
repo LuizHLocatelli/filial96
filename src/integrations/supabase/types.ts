@@ -228,6 +228,250 @@ export type Database = {
           },
         ]
       }
+      crediario_kanban_activities: {
+        Row: {
+          action: string
+          board_id: string
+          card_id: string | null
+          created_at: string | null
+          created_by: string | null
+          details: Json | null
+          id: string
+        }
+        Insert: {
+          action: string
+          board_id: string
+          card_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          details?: Json | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          board_id?: string
+          card_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          details?: Json | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_kanban_activities_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crediario_kanban_activities_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crediario_kanban_boards: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      crediario_kanban_card_tags: {
+        Row: {
+          card_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          card_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          card_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_kanban_card_tags_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crediario_kanban_card_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crediario_kanban_cards: {
+        Row: {
+          assignee_id: string | null
+          column_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          position: number
+          priority: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assignee_id?: string | null
+          column_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          position?: number
+          priority?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assignee_id?: string | null
+          column_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          position?: number
+          priority?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_kanban_cards_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crediario_kanban_cards_column_id_fkey"
+            columns: ["column_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_columns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crediario_kanban_columns: {
+        Row: {
+          board_id: string
+          created_at: string | null
+          id: string
+          name: string
+          position: number
+        }
+        Insert: {
+          board_id: string
+          created_at?: string | null
+          id?: string
+          name: string
+          position?: number
+        }
+        Update: {
+          board_id?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_kanban_columns_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crediario_kanban_comments: {
+        Row: {
+          card_id: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+        }
+        Insert: {
+          card_id: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+        }
+        Update: {
+          card_id?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_kanban_comments_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_kanban_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crediario_kanban_tags: {
+        Row: {
+          color: string
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       crediario_listagens: {
         Row: {
           created_at: string | null
@@ -252,6 +496,39 @@ export type Database = {
           indicator?: string | null
           nome?: string
           url?: string
+        }
+        Relationships: []
+      }
+      crediario_sticky_notes: {
+        Row: {
+          color: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          position_x: number | null
+          position_y: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          position_x?: number | null
+          position_y?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
