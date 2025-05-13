@@ -2,23 +2,22 @@
 import { useState, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Trash2, Edit, Save, X, Clock } from 'lucide-react';
+import { Trash2, Edit, Save, X, Clock, FolderInput } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { NoteFolder, StickyNote } from './types';
 
-interface StickyNoteProps {
-  note: {
-    id: string;
-    content: string;
-    color: string;
-    updated_at: string;
-  };
+interface StickyNoteItemProps {
+  note: StickyNote;
+  folders: NoteFolder[];
   onUpdate: (id: string, content: string) => void;
+  onMoveToFolder: (id: string, folderId: string | null) => void;
   onDelete: (id: string) => void;
 }
 
-export function StickyNote({ note, onUpdate, onDelete }: StickyNoteProps) {
+export function StickyNoteItem({ note, folders, onUpdate, onMoveToFolder, onDelete }: StickyNoteItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(note.content);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -94,6 +93,35 @@ export function StickyNote({ note, onUpdate, onDelete }: StickyNoteProps) {
                 })}
               </div>
               <div className="space-x-1">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="ghost">
+                      <FolderInput className="h-3.5 w-3.5" />
+                      <span className="sr-only">Mover para pasta</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-background">
+                    <DropdownMenuLabel>Mover para pasta</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => onMoveToFolder(note.id, null)}
+                      className={!note.folder_id ? "bg-muted/50" : ""}
+                    >
+                      Sem pasta
+                    </DropdownMenuItem>
+                    
+                    {folders.map(folder => (
+                      <DropdownMenuItem 
+                        key={folder.id}
+                        onClick={() => onMoveToFolder(note.id, folder.id)}
+                        className={note.folder_id === folder.id ? "bg-muted/50" : ""}
+                      >
+                        {folder.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
                 <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
                   <Edit className="h-3.5 w-3.5" />
                   <span className="sr-only">Editar</span>

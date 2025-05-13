@@ -1,0 +1,223 @@
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { NoteFolder } from './types';
+import { useAuth } from '@/contexts/auth';
+import { toast } from '@/components/ui/use-toast';
+
+interface CreateFolderData {
+  name: string;
+}
+
+export function useNoteFolders() {
+  const [folders, setFolders] = useState<NoteFolder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { profile } = useAuth();
+  
+  const fetchFolders = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('crediario_note_folders')
+        .select('*')
+        .order('name', { ascending: true });
+        
+      if (error) {
+        console.error('Error fetching note folders:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar pastas",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setFolders(data);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchFolders();
+    
+    // Set up realtime subscription
+    const foldersChannel = supabase
+      .channel('note-folders-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'crediario_note_folders' }, 
+        (payload) => {
+          console.log('Realtime folder update received:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            const newFolder = payload.new as NoteFolder;
+            setFolders(prevFolders => [...prevFolders, newFolder].sort((a, b) => 
+              a.name.localeCompare(b.name)));
+          } 
+          else if (payload.eventType === 'UPDATE') {
+            const updatedFolder = payload.new as NoteFolder;
+            setFolders(prevFolders => 
+              prevFolders.map(folder => 
+                folder.id === updatedFolder.id ? updatedFolder : folder
+              ).sort((a, b) => a.name.localeCompare(b.name))
+            );
+          } 
+          else if (payload.eventType === 'DELETE') {
+            const deletedFolderId = payload.old.id;
+            setFolders(prevFolders => 
+              prevFolders.filter(folder => folder.id !== deletedFolderId)
+            );
+          }
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(foldersChannel);
+    };
+  }, []);
+  
+  const addFolder = async (folderData: CreateFolderData) => {
+    if (!profile) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar autenticado para adicionar pastas",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('crediario_note_folders')
+        .insert({
+          name: folderData.name,
+          created_by: profile.id,
+        });
+        
+      if (error) {
+        console.error('Error adding note folder:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao adicionar pasta",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // O canal de realtime vai cuidar da atualização
+      toast({
+        title: "Sucesso",
+        description: "Pasta criada com sucesso",
+      });
+      
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const updateFolder = async (folderId: string, name: string) => {
+    try {
+      const { error } = await supabase
+        .from('crediario_note_folders')
+        .update({ name })
+        .eq('id', folderId);
+        
+      if (error) {
+        console.error('Error updating note folder:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao atualizar pasta",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const deleteFolder = async (folderId: string) => {
+    try {
+      // Verificar se há notas nessa pasta primeiro
+      const { data: notes, error: countError } = await supabase
+        .from('crediario_sticky_notes')
+        .select('id')
+        .eq('folder_id', folderId);
+      
+      if (countError) {
+        console.error('Error checking notes in folder:', countError);
+        toast({
+          title: "Erro",
+          description: "Erro ao verificar notas na pasta",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (notes && notes.length > 0) {
+        toast({
+          title: "Atenção",
+          description: `Esta pasta contém ${notes.length} nota(s). Mova ou exclua as notas antes de excluir a pasta.`,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Se não houver notas, pode excluir a pasta
+      const { error } = await supabase
+        .from('crediario_note_folders')
+        .delete()
+        .eq('id', folderId);
+        
+      if (error) {
+        console.error('Error deleting note folder:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir pasta",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Sucesso",
+        description: "Pasta excluída com sucesso"
+      });
+      
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  return {
+    folders,
+    isLoading,
+    addFolder,
+    updateFolder,
+    deleteFolder,
+  };
+}

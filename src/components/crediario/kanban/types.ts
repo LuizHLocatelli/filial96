@@ -79,6 +79,14 @@ export interface StickyNote {
   created_at: string;
   created_by?: string;
   updated_at: string;
+  folder_id?: string | null;
+}
+
+export interface NoteFolder {
+  id: string;
+  name: string;
+  created_at: string;
+  created_by?: string;
 }
 
 export interface CreateCardData {
