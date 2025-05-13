@@ -26,7 +26,7 @@ export function AppSidebar() {
       <SidebarHeader className="py-4">
         <Link to="/" className="flex items-center gap-2 px-4">
           <Home className="h-6 w-6 text-green-600" />
-          <span className="font-bold text-lg text-green-700">Filial 96</span>
+          <span className="font-bold text-lg text-green-700">FILIAL 96</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>

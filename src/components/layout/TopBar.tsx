@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
 import { UserMenu } from "../auth/UserMenu";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function TopBar() {
   const sidebar = useSidebar();
@@ -25,14 +26,15 @@ export function TopBar() {
         <div className="flex justify-between items-center w-full">
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-lg font-semibold hidden md:inline-block">
-              Juntos a Gente Resolve
+              FILIAL 96
             </span>
             <span className="text-lg font-semibold md:hidden">
-              JAR
+              FILIAL 96
             </span>
           </Link>
           
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationsMenu />
             <UserMenu />
           </div>
