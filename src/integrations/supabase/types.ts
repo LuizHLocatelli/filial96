@@ -174,6 +174,7 @@ export type Database = {
           created_by: string | null
           data: string
           id: string
+          ja_incluido: boolean | null
         }
         Insert: {
           comprovante?: string | null
@@ -182,6 +183,7 @@ export type Database = {
           created_by?: string | null
           data: string
           id?: string
+          ja_incluido?: boolean | null
         }
         Update: {
           comprovante?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           created_by?: string | null
           data?: string
           id?: string
+          ja_incluido?: boolean | null
         }
         Relationships: []
       }
