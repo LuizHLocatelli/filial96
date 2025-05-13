@@ -8,11 +8,12 @@ import { Folgas } from "@/components/crediario/Folgas";
 import { Kanban } from "@/components/crediario/kanban/Kanban";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { QuickAccess } from "@/components/crediario/QuickAccess";
 
 const Crediario = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(tabFromUrl || "listagens");
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "welcome");
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -25,7 +26,7 @@ const Crediario = () => {
 
   // Atualizar a aba quando a URL mudar
   useEffect(() => {
-    if (tabFromUrl && ["listagens", "clientes", "depositos", "folgas", "kanban"].includes(tabFromUrl)) {
+    if (tabFromUrl && ["welcome", "listagens", "clientes", "depositos", "folgas", "kanban"].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
@@ -45,7 +46,13 @@ const Crediario = () => {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="flex justify-center w-full mb-2">
-          <TabsList className={`grid grid-cols-5 w-full max-w-3xl gap-1`}>
+          <TabsList className={`grid grid-cols-6 w-full max-w-3xl gap-1`}>
+            <TabsTrigger 
+              value="welcome" 
+              className={`text-xs sm:text-base py-2 px-1 sm:px-4`}
+            >
+              Início
+            </TabsTrigger>
             <TabsTrigger 
               value="listagens" 
               className={`text-xs sm:text-base py-2 px-1 sm:px-4`}
@@ -78,6 +85,10 @@ const Crediario = () => {
             </TabsTrigger>
           </TabsList>
         </div>
+        
+        <TabsContent value="welcome" className="mt-4 sm:mt-6">
+          <QuickAccess onNavigate={handleTabChange} />
+        </TabsContent>
         
         <TabsContent value="listagens" className="mt-4 sm:mt-6">
           <Listagens />
