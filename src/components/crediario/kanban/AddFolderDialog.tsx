@@ -4,11 +4,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { CreateFolderData } from './types';
 
 interface AddFolderDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddFolder: (name: string) => Promise<void>;
+  onAddFolder: (folderData: CreateFolderData) => Promise<void>;
 }
 
 export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialogProps) {
@@ -22,7 +23,7 @@ export function AddFolderDialog({ isOpen, onClose, onAddFolder }: AddFolderDialo
     
     setIsSubmitting(true);
     try {
-      await onAddFolder(folderName.trim());
+      await onAddFolder({ name: folderName.trim() });
       setFolderName('');
       onClose();
     } finally {

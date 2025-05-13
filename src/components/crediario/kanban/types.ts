@@ -98,6 +98,10 @@ export interface CreateCardData {
   due_date?: string;
 }
 
+export interface CreateFolderData {
+  name: string;
+}
+
 // Helper function to validate and convert priority string to the correct type
 export function validatePriority(priority: string): 'baixa' | 'media' | 'alta' {
   if (priority === 'baixa' || priority === 'media' || priority === 'alta') {

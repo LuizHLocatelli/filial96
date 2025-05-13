@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { StickyNote } from './types';
+import { StickyNote, CreateFolderData } from './types';
 import { useAuth } from '@/contexts/auth';
 import { toast } from '@/components/ui/use-toast';
 
@@ -24,11 +24,11 @@ export function useStickyNotes(folderId?: string | null) {
         .select('*')
         .order('updated_at', { ascending: false });
         
-      // Se um folderId foi fornecido, filtra por pasta
-      if (folderId) {
-        query = query.eq('folder_id', folderId);
-      } else {
+      // Se um folderId foi fornecido e não for "todas", filtra por pasta
+      if (folderId === "sem-pasta") {
         query = query.is('folder_id', null);
+      } else if (folderId && folderId !== "todas") {
+        query = query.eq('folder_id', folderId);
       }
         
       const { data, error } = await query;
@@ -43,7 +43,7 @@ export function useStickyNotes(folderId?: string | null) {
         return;
       }
       
-      setNotes(data);
+      setNotes(data || []);
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -72,8 +72,12 @@ export function useStickyNotes(folderId?: string | null) {
             const newNote = payload.new as StickyNote;
             
             // Verifica se deve incluir esta nota baseado no filtro de pasta
-            if ((folderId && newNote.folder_id === folderId) || 
-                (!folderId && !newNote.folder_id)) {
+            const shouldInclude = 
+              folderId === "todas" || 
+              (folderId === "sem-pasta" && !newNote.folder_id) || 
+              (folderId !== "todas" && folderId !== "sem-pasta" && newNote.folder_id === folderId);
+              
+            if (shouldInclude) {
               setNotes(prevNotes => [newNote, ...prevNotes]);
             }
           } 
@@ -81,11 +85,25 @@ export function useStickyNotes(folderId?: string | null) {
           else if (payload.eventType === 'UPDATE') {
             const updatedNote = payload.new as StickyNote;
             
-            setNotes(prevNotes => 
-              prevNotes.map(note => 
-                note.id === updatedNote.id ? updatedNote : note
-              )
-            );
+            // Verificar se a nota ainda deve estar na visualização atual
+            const shouldInclude = 
+              folderId === "todas" || 
+              (folderId === "sem-pasta" && !updatedNote.folder_id) || 
+              (folderId !== "todas" && folderId !== "sem-pasta" && updatedNote.folder_id === folderId);
+              
+            if (shouldInclude) {
+              // Atualizar a nota se ela estiver na visualização
+              setNotes(prevNotes => 
+                prevNotes.map(note => 
+                  note.id === updatedNote.id ? updatedNote : note
+                )
+              );
+            } else {
+              // Remover a nota da visualização se ela não pertence mais à pasta atual
+              setNotes(prevNotes => 
+                prevNotes.filter(note => note.id !== updatedNote.id)
+              );
+            }
           } 
           // Se for uma nota sendo excluída
           else if (payload.eventType === 'DELETE') {
