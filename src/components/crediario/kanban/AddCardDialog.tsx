@@ -72,7 +72,7 @@ export function AddCardDialog({
           <DialogTitle>{editMode ? 'Editar Cartão' : 'Adicionar Novo Cartão'}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(saveCard)} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit(saveCard)} className="space-y-4 mt-4">
           <CardFormFields form={form} />
           
           <div className="flex justify-end space-x-2 mt-4">
@@ -80,13 +80,13 @@ export function AddCardDialog({
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              disabled={isProcessing}
+              disabled={isProcessing || isSubmitting}
             >
               Cancelar
             </Button>
             <Button 
               type="submit" 
-              disabled={isProcessing}
+              disabled={isProcessing || isSubmitting}
             >
               {isProcessing ? (editMode ? 'Atualizando...' : 'Adicionando...') : (editMode ? 'Atualizar' : 'Adicionar')}
             </Button>
