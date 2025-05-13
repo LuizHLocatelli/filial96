@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,8 +48,11 @@ export function StickyNotes() {
     setCreateNoteDialogOpen(false);
   };
 
-  const handleMoveToFolder = (noteId: string, folderId: string | null) => {
-    updateNote(noteId, notes.find(note => note.id === noteId)?.content || '', folderId);
+  const handleMoveToFolder = async (noteId: string, folderId: string | null) => {
+    const noteToUpdate = notes.find(note => note.id === noteId);
+    if (noteToUpdate) {
+      await updateNote(noteId, noteToUpdate.content, folderId);
+    }
   };
   
   const handleAddFolder = async (folderData: CreateFolderData) => {
@@ -64,6 +68,14 @@ export function StickyNotes() {
   const handleEditFolder = (folder: { id: string, name: string }) => {
     setFolderToEdit(folder);
     setAddFolderDialogOpen(true);
+  };
+
+  const handleUpdateNote = async (id: string, content: string, folderId?: string) => {
+    await updateNote(id, content, folderId);
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    await deleteNote(id);
   };
 
   const isLoading = notesLoading || foldersLoading;
@@ -152,7 +164,9 @@ export function StickyNotes() {
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
                       <AlertDialogAction 
-                        onClick={() => deleteFolder(folder.id)}
+                        onClick={async () => {
+                          await deleteFolder(folder.id);
+                        }}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
                         Excluir
@@ -173,9 +187,9 @@ export function StickyNotes() {
                   key={note.id}
                   note={note}
                   folders={folders}
-                  onUpdate={updateNote}
+                  onUpdate={handleUpdateNote}
                   onMoveToFolder={handleMoveToFolder}
-                  onDelete={deleteNote}
+                  onDelete={handleDeleteNote}
                 />
               ))
             ) : (

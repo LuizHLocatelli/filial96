@@ -37,16 +37,17 @@ export function KanbanBoard() {
     setAddCardDialogOpen(true);
   };
 
-  const handleAddCard = (data: { title: string; description?: string; priority: string; assigneeId?: string; dueDate?: Date }) => {
+  const handleAddCard = async (data: { title: string; description?: string; priority: string; assigneeId?: string; dueDate?: Date; backgroundColor?: string }) => {
     if (!targetColumnId) return;
     
-    addCard({
+    await addCard({
       title: data.title,
       description: data.description,
       priority: data.priority,
       column_id: targetColumnId,
       assignee_id: data.assigneeId,
       due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
+      background_color: data.backgroundColor
     });
     
     setAddCardDialogOpen(false);

@@ -36,7 +36,14 @@ export function useColumnActions(columns: Column[], setColumns: React.Dispatch<R
         return null;
       }
       
-      setColumns([...columns, data]);
+      // Add missing fields to match our Column type
+      const newColumn: Column = {
+        ...data,
+        created_by: profile.id,
+        updated_at: data.created_at
+      };
+      
+      // We don't actually use setColumns here since we're reloading via realtime
       
       // Log activity
       await supabase.from('crediario_kanban_activities').insert({

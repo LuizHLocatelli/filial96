@@ -29,7 +29,13 @@ export function useBoardData() {
           return;
         }
         
-        setBoard(boardData);
+        // Add updated_at if it doesn't exist in the database
+        const boardWithUpdated: Board = {
+          ...boardData,
+          updated_at: boardData.updated_at || boardData.created_at
+        };
+        
+        setBoard(boardWithUpdated);
         
         // Fetch columns for the board
         const { data: columnsData, error: columnsError } = await supabase
@@ -45,7 +51,14 @@ export function useBoardData() {
           return;
         }
         
-        setColumns(columnsData);
+        // Add fields that might be missing
+        const columnsWithUpdated: Column[] = columnsData.map(col => ({
+          ...col,
+          created_by: col.created_by || '',
+          updated_at: col.updated_at || col.created_at
+        }));
+        
+        setColumns(columnsWithUpdated);
         
         // Fetch cards for the board
         const { data: cardsData, error: cardsError } = await supabase

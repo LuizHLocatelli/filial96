@@ -1,3 +1,4 @@
+
 import { Database } from '@/integrations/supabase/types';
 
 export interface Board {
@@ -31,7 +32,7 @@ export interface TaskCard {
   created_by: string;
   created_at: string;
   updated_at: string;
-  background_color?: string; // New field for card background color
+  background_color?: string; // Field for card background color
 }
 
 export interface CreateCardData {
@@ -41,7 +42,7 @@ export interface CreateCardData {
   priority: string;
   assignee_id?: string;
   due_date?: string;
-  background_color?: string; // Add to creation data
+  background_color?: string;
 }
 
 export interface MoveCardData {
@@ -68,7 +69,12 @@ export interface Comment {
   content: string;
   created_by: string;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  user?: {
+    id: string;
+    name: string;
+    avatar_url?: string;
+  };
 }
 
 export interface CreateCommentData {
@@ -91,7 +97,8 @@ export interface NoteFolder {
   name: string;
   created_by: string;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  position?: number;
 }
 
 export interface CreateFolderData {

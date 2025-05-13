@@ -1,14 +1,9 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Comment } from './types';
+import { Comment, CreateCommentData } from './types';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth';
-
-interface CreateCommentData {
-  card_id: string;
-  content: string;
-}
 
 export function useComments(cardId: string) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -51,6 +46,7 @@ export function useComments(cardId: string) {
           const user = usersData?.find(user => user.id === comment.created_by);
           return {
             ...comment,
+            updated_at: comment.updated_at || comment.created_at,
             user: user ? {
               id: user.id,
               name: user.name,
@@ -61,7 +57,12 @@ export function useComments(cardId: string) {
         
         setComments(commentsWithUsers);
       } else {
-        setComments(commentsData);
+        // Add the updated_at field if missing
+        const formattedComments: Comment[] = commentsData.map(comment => ({
+          ...comment,
+          updated_at: comment.updated_at || comment.created_at
+        }));
+        setComments(formattedComments);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
