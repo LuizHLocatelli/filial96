@@ -11,9 +11,10 @@ import { useState } from "react";
 import { useCardActions } from "./hooks/useCardActions"; 
 import { useKanbanBoard } from "./useKanbanBoard";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Lock, AlertTriangle } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { getTextColor } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CardDetailsProps {
   card: TaskCard;
@@ -25,6 +26,7 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
   const [activeTab, setActiveTab] = useState("details");
   const { cards, setCards } = useKanbanBoard();
   const { updateCard, deleteCard } = useCardActions(cards, setCards);
+  const isMobile = useIsMobile();
   
   // Handle form submission for editing the card
   const handleSubmit = async (values: FormValues) => {
@@ -34,7 +36,7 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
       priority: values.priority as 'baixa' | 'media' | 'alta',
       assignee_id: values.assigneeId,
       due_date: values.dueDate?.toISOString(),
-      due_time: values.dueTime, // Add dueTime
+      due_time: values.dueTime,
       background_color: values.backgroundColor
     });
   };
@@ -60,45 +62,45 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-[700px] p-0 overflow-hidden"
+        className="sm:max-w-[700px] p-0 overflow-hidden max-h-[90vh] w-[calc(100%-2rem)]"
       >
-        <DialogHeader className="p-6" style={headerStyle}>
-          <DialogTitle className="text-xl">{card.title}</DialogTitle>
+        <DialogHeader className="p-4 sm:p-6" style={headerStyle}>
+          <DialogTitle className="text-lg sm:text-xl">{card.title}</DialogTitle>
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-6">
+          <div className="px-4 sm:px-6">
             <TabsList className="w-full">
               <TabsTrigger value="details" className="flex-1">Detalhes</TabsTrigger>
               <TabsTrigger value="comments" className="flex-1">Comentários</TabsTrigger>
             </TabsList>
           </div>
           
-          <TabsContent value="details" className="p-6 space-y-6 pt-2">
+          <TabsContent value="details" className="p-4 sm:p-6 space-y-4 sm:space-y-6 pt-2 overflow-y-auto max-h-[60vh]">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(submitForm)} className="space-y-4">
                 <CardFormFields form={form} />
                 
-                <div className="flex justify-between items-center pt-2">
+                <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between items-center'} pt-2`}>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" type="button">
+                      <Button variant="destructive" size={isMobile ? "default" : "sm"} type="button" className={isMobile ? "w-full" : ""}>
                         <Trash2 className="h-4 w-4 mr-1" />
                         Excluir
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent className="w-[calc(100%-2rem)]">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Excluir cartão</AlertDialogTitle>
                         <AlertDialogDescription>
                           Esta ação não pode ser desfeita. Tem certeza que deseja excluir este cartão?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogFooter className={isMobile ? "flex-col gap-2" : ""}>
+                        <AlertDialogCancel className={isMobile ? "w-full mt-0" : ""}>Cancelar</AlertDialogCancel>
                         <AlertDialogAction 
                           onClick={handleDelete}
-                          className="bg-destructive hover:bg-destructive/90"
+                          className={`bg-destructive hover:bg-destructive/90 ${isMobile ? "w-full" : ""}`}
                         >
                           Excluir
                         </AlertDialogAction>
@@ -106,11 +108,20 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
                     </AlertDialogContent>
                   </AlertDialog>
                   
-                  <div className="flex space-x-2">
-                    <Button variant="outline" onClick={handleCancel} type="button">
+                  <div className={`flex ${isMobile ? "flex-col w-full" : "space-x-2"}`}>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleCancel} 
+                      type="button"
+                      className={isMobile ? "w-full mb-2" : ""}
+                    >
                       Cancelar
                     </Button>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className={isMobile ? "w-full" : ""}
+                    >
                       {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
                     </Button>
                   </div>
@@ -119,7 +130,7 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
             </Form>
           </TabsContent>
           
-          <TabsContent value="comments" className="p-6 pt-2">
+          <TabsContent value="comments" className="p-4 sm:p-6 pt-2 overflow-y-auto max-h-[60vh]">
             <CardComments cardId={card.id} />
           </TabsContent>
         </Tabs>

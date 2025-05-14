@@ -6,6 +6,7 @@ import { CardFormFields, formSchema } from "./form/CardFormFields";
 import { useCardForm } from "./form/useCardForm";
 import { useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface AddCardDialogProps {
   columnId: string;
@@ -20,6 +21,7 @@ export function AddCardDialog({
   onOpenChange, 
   onAddCard 
 }: AddCardDialogProps) {
+  const isMobile = useIsMobile();
   
   const handleSubmit = async (values: any) => {
     try {
@@ -32,7 +34,7 @@ export function AddCardDialog({
         priority: values.priority,
         assigneeId: values.assigneeId,
         dueDate: values.dueDate,
-        dueTime: values.dueTime, // Add the dueTime field
+        dueTime: values.dueTime,
         backgroundColor: values.backgroundColor
       });
       
@@ -73,7 +75,7 @@ export function AddCardDialog({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Adicionar Cartão</DialogTitle>
         </DialogHeader>
@@ -82,11 +84,20 @@ export function AddCardDialog({
           <form onSubmit={form.handleSubmit(submitForm)} className="space-y-4">
             <CardFormFields form={form} />
             
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={handleCancel} type="button">
+            <div className={`flex ${isMobile ? "flex-col gap-2" : "justify-end space-x-2"}`}>
+              <Button 
+                variant="outline" 
+                onClick={handleCancel} 
+                type="button"
+                className={isMobile ? "w-full" : ""}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={isMobile ? "w-full" : ""}
+              >
                 {isSubmitting ? 'Adicionando...' : 'Adicionar Cartão'}
               </Button>
             </div>

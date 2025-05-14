@@ -14,6 +14,7 @@ import { useTaskForm } from "@/hooks/useTaskForm";
 import { TaskAttachments } from "../attachments/TaskAttachments";
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -49,6 +50,7 @@ export function TaskFormDialog({
     },
     onCancel: () => onOpenChange(false)
   });
+  const isMobile = useIsMobile();
 
   // Estado local para armazenar o ID da tarefa após a criação
   const [newTaskId, setNewTaskId] = useState<string | undefined>(taskId);
@@ -101,14 +103,14 @@ export function TaskFormDialog({
                 <TabsTrigger value="anexos">Anexos</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="detalhes" className="space-y-4 mt-0">
+              <TabsContent value="detalhes" className="space-y-4 mt-0 overflow-y-auto max-h-[60vh]">
                 <TaskFormContent control={form.control} />
                 
-                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+                <div className={`flex ${isMobile ? "flex-col gap-2" : "flex-row justify-end"} mt-4`}>
                   <Button 
                     variant="outline" 
                     onClick={() => handleDialogOpen(false)}
-                    className="w-full sm:w-auto"
+                    className={`${isMobile ? "w-full order-1" : "mr-2"}`}
                     disabled={isSubmitting}
                     type="button"
                   >
@@ -117,7 +119,7 @@ export function TaskFormDialog({
                   
                   <Button 
                     type="submit"
-                    className="w-full sm:w-auto ml-auto"
+                    className={`${isMobile ? "w-full order-0" : ""}`}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Salvando..." : isEditMode ? "Salvar Alterações" : "Salvar Tarefa"}
@@ -125,7 +127,7 @@ export function TaskFormDialog({
                 </div>
               </TabsContent>
               
-              <TabsContent value="anexos" className="space-y-4 mt-0">
+              <TabsContent value="anexos" className="space-y-4 mt-0 overflow-y-auto max-h-[60vh]">
                 {/* Explicação condicional se a tarefa ainda não foi salva */}
                 {!hasTaskId && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-4">
@@ -146,11 +148,11 @@ export function TaskFormDialog({
                   </div>
                 )}
                 
-                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 mt-4">
+                <div className={`flex ${isMobile ? "flex-col gap-2" : "flex-row justify-end"} mt-4`}>
                   <Button 
                     variant="outline" 
                     onClick={() => handleDialogOpen(false)}
-                    className="w-full sm:w-auto"
+                    className={isMobile ? "w-full" : ""}
                     type="button"
                   >
                     {hasTaskId ? "Concluir" : "Cancelar"}
@@ -160,7 +162,7 @@ export function TaskFormDialog({
                   {!hasTaskId && (
                     <Button 
                       type="button"
-                      className="w-full sm:w-auto ml-auto"
+                      className={isMobile ? "w-full" : "ml-2"}
                       onClick={() => setActiveTab("detalhes")}
                     >
                       Voltar aos Detalhes
