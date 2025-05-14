@@ -10,18 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cardColors } from "@/lib/utils";
 
-// Update the form schema to include background color
+// Update the form schema to include background color and time
 const formSchema = z.object({
   title: z.string({ required_error: "O título é obrigatório" }).min(1, "O título é obrigatório"),
   description: z.string().optional(),
   priority: z.string({ required_error: "A prioridade é obrigatória" }),
   assigneeId: z.string().optional(),
   dueDate: z.date().optional(),
+  dueTime: z.string().optional(),
   backgroundColor: z.string().optional(),
 });
 
@@ -147,46 +148,71 @@ export function CardFormFields({ form }: CardFormFieldsProps) {
         )}
       />
       
-      <FormField
-        control={form.control}
-        name="dueDate"
-        render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>Data de Vencimento</FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full pl-3 text-left font-normal",
-                      !field.value && "text-muted-foreground"
-                    )}
-                  >
-                    {field.value ? (
-                      format(field.value, "dd/MM/yyyy", { locale: ptBR })
-                    ) : (
-                      <span>Selecione uma data (opcional)</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={field.value}
-                  onSelect={field.onChange}
-                  initialFocus
-                  locale={ptBR}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FormField
+          control={form.control}
+          name="dueDate"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Prazo</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "dd/MM/yyyy", { locale: ptBR })
+                      ) : (
+                        <span>Selecione uma data (opcional)</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    initialFocus
+                    locale={ptBR}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="dueTime"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Horário</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input 
+                    type="time"
+                    placeholder="Horário limite" 
+                    {...field} 
+                    value={field.value || ""}
+                    className="pl-10"
+                  />
+                  <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </>
   );
 }

@@ -32,6 +32,7 @@ export function AddCardDialog({
         priority: values.priority,
         assigneeId: values.assigneeId,
         dueDate: values.dueDate,
+        dueTime: values.dueTime, // Add the dueTime field
         backgroundColor: values.backgroundColor
       });
       
@@ -64,6 +65,7 @@ export function AddCardDialog({
         priority: "media",
         assigneeId: undefined,
         dueDate: undefined,
+        dueTime: "",
         backgroundColor: "#FFFFFF" // Default white background
       });
     }

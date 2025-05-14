@@ -67,6 +67,7 @@ export function KanbanBoard() {
     priority: string; 
     assigneeId?: string; 
     dueDate?: Date; 
+    dueTime?: string;
     backgroundColor?: string 
   }) => {
     if (!targetColumnId) {
@@ -85,6 +86,7 @@ export function KanbanBoard() {
         column_id: targetColumnId,
         assignee_id: data.assigneeId,
         due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
+        due_time: data.dueTime, // Add the dueTime field
         background_color: data.backgroundColor
       });
       

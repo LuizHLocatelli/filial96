@@ -34,7 +34,8 @@ export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
       priority: values.priority as 'baixa' | 'media' | 'alta',
       assignee_id: values.assigneeId,
       due_date: values.dueDate?.toISOString(),
-      background_color: values.backgroundColor // Include the background color in updates
+      due_time: values.dueTime, // Add dueTime
+      background_color: values.backgroundColor
     });
   };
   

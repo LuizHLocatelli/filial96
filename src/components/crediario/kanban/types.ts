@@ -29,6 +29,7 @@ export interface TaskCard {
   priority: 'baixa' | 'media' | 'alta';
   assignee_id?: string;
   due_date?: string;
+  due_time?: string; // Added due time field
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -42,6 +43,7 @@ export interface CreateCardData {
   priority: string;
   assignee_id?: string;
   due_date?: string;
+  due_time?: string; // Added due time field
   background_color?: string;
 }
 

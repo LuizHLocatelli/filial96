@@ -22,6 +22,7 @@ export function useCardForm({ initialData, onSubmit, onCancel }: UseCardFormProp
       priority: initialData?.priority || "media",
       assigneeId: initialData?.assignee_id || undefined,
       dueDate: initialData?.due_date ? new Date(initialData.due_date) : undefined,
+      dueTime: initialData?.due_time || "",
       backgroundColor: initialData?.background_color || "#FFFFFF", // Default to white
     },
   });
