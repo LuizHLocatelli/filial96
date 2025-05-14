@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { AttachmentUploadResult } from "@/types/attachments";
 
 interface FileUploadOptions {
@@ -13,6 +13,7 @@ interface FileUploadOptions {
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { toast } = useToast();
 
   const uploadFile = async (file: File, options: FileUploadOptions): Promise<string | null> => {
     if (!file) return null;
@@ -24,7 +25,11 @@ export function useFileUpload() {
       // Validate file size (limit to 100MB)
       const maxSize = 100 * 1024 * 1024; // 100MB
       if (file.size > maxSize) {
-        toast.error(`O arquivo é muito grande. O limite é de 100MB.`);
+        toast({
+          title: "Arquivo muito grande",
+          description: `O arquivo é muito grande. O limite é de 100MB.`,
+          variant: "destructive"
+        });
         return null;
       }
 
@@ -65,11 +70,23 @@ export function useFileUpload() {
         console.error("Erro de upload:", uploadError);
         
         if (uploadError.message?.includes('JWT')) {
-          toast.error("Erro de autenticação. Por favor, faça login novamente.");
+          toast({
+            title: "Erro de autenticação",
+            description: "Por favor, faça login novamente.",
+            variant: "destructive"
+          });
         } else if (uploadError.message?.includes('size')) {
-          toast.error("O arquivo é muito grande ou o formato não é permitido.");
+          toast({
+            title: "Arquivo muito grande",
+            description: "O arquivo é muito grande ou o formato não é permitido.",
+            variant: "destructive"
+          });
         } else {
-          toast.error("Não foi possível enviar o arquivo. Tente novamente mais tarde.");
+          toast({
+            title: "Erro de upload",
+            description: "Não foi possível enviar o arquivo. Tente novamente mais tarde.",
+            variant: "destructive"
+          });
         }
         
         throw uploadError;
@@ -86,15 +103,11 @@ export function useFileUpload() {
     } catch (error: any) {
       console.error("Erro ao enviar arquivo:", error);
       
-      if (!toast.message) { // Check if toast isn't already displayed
-        if (error.message?.includes('bucket') || error.status === 404) {
-          toast.error("O bucket de armazenamento não existe ou você não tem permissão.");
-        } else if (error.message?.includes('JWT') || error.message?.includes('auth')) {
-          toast.error("Erro de autenticação. Por favor, faça login novamente.");
-        } else {
-          toast.error("Ocorreu um erro ao enviar o arquivo.");
-        }
-      }
+      toast({
+        title: "Erro de upload", 
+        description: error.message || "Ocorreu um erro ao enviar o arquivo.",
+        variant: "destructive"
+      });
       
       return null;
     } finally {

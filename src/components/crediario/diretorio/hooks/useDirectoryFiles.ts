@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 import { DirectoryFile } from '../types';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { useFileUpload } from '@/hooks/crediario/useFileUpload';
 
 export function useDirectoryFiles(categoryId?: string) {
@@ -11,6 +11,7 @@ export function useDirectoryFiles(categoryId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { uploadFile, isUploading, progress } = useFileUpload();
+  const { toast } = useToast();
   
   const fetchFiles = async () => {
     try {
@@ -34,7 +35,11 @@ export function useDirectoryFiles(categoryId?: string) {
     } catch (err) {
       console.error('Erro ao carregar arquivos:', err);
       setError(err instanceof Error ? err : new Error('Erro ao carregar arquivos'));
-      toast.error('Erro ao carregar arquivos do diretório');
+      toast({
+        title: "Erro ao carregar arquivos",
+        description: "Não foi possível carregar os arquivos do diretório.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -45,8 +50,8 @@ export function useDirectoryFiles(categoryId?: string) {
     description?: string; 
     categoryId?: string; 
     isFeatured?: boolean;
-  }) => {
-    if (!file) return null;
+  }): Promise<boolean> => {
+    if (!file) return false;
     
     try {
       // Usar o hook useFileUpload para garantir consistência
@@ -79,11 +84,21 @@ export function useDirectoryFiles(categoryId?: string) {
       if (error) throw error;
       
       setFiles(prev => [data, ...prev]);
-      return data;
+      
+      toast({
+        title: "Upload concluído",
+        description: "O arquivo foi enviado com sucesso."
+      });
+      
+      return true;
     } catch (err: any) {
       console.error('Erro ao fazer upload do arquivo:', err);
-      // Não exibe toast aqui pois já foi exibido na função uploadFile
-      throw err;
+      toast({
+        title: "Erro no upload",
+        description: err.message || "Não foi possível enviar o arquivo.",
+        variant: "destructive"
+      });
+      return false;
     }
   };
   
@@ -104,11 +119,18 @@ export function useDirectoryFiles(categoryId?: string) {
       if (error) throw error;
       
       setFiles(prev => prev.map(file => file.id === id ? data : file));
-      toast.success('Arquivo atualizado com sucesso');
+      toast({
+        title: "Arquivo atualizado",
+        description: "Arquivo atualizado com sucesso"
+      });
       return data;
     } catch (err) {
       console.error('Erro ao atualizar arquivo:', err);
-      toast.error('Não foi possível atualizar o arquivo');
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o arquivo",
+        variant: "destructive"
+      });
       throw err;
     }
   };
@@ -140,10 +162,17 @@ export function useDirectoryFiles(categoryId?: string) {
       if (error) throw error;
       
       setFiles(prev => prev.filter(file => file.id !== id));
-      toast.success('Arquivo excluído com sucesso');
+      toast({
+        title: "Arquivo excluído",
+        description: "Arquivo excluído com sucesso"
+      });
     } catch (err) {
       console.error('Erro ao excluir arquivo:', err);
-      toast.error('Não foi possível excluir o arquivo');
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir o arquivo",
+        variant: "destructive"
+      });
       throw err;
     }
   };

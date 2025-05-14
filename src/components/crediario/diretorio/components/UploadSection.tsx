@@ -3,6 +3,7 @@ import { FileUploader } from './FileUploader';
 import { Button } from '@/components/ui/button';
 import { DirectoryCategory } from '../types';
 import { Plus } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface UploadSectionProps {
   categories: DirectoryCategory[];
@@ -27,22 +28,34 @@ export function UploadSection({
   handleEditCategory
 }: UploadSectionProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-[1fr_250px]">
+    <div className="grid gap-6 md:grid-cols-[1fr_300px]">
       {/* Upload de arquivo */}
-      <div className="p-6 border rounded-lg">
-        <h3 className="text-lg font-medium mb-4">Upload de arquivo</h3>
-        <FileUploader 
-          categories={categories}
-          onUpload={onUpload}
-          isUploading={isUploading}
-          progress={progress}
-        />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload de arquivo</CardTitle>
+          <CardDescription>
+            Faça upload de arquivos para o diretório
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FileUploader 
+            categories={categories}
+            onUpload={onUpload}
+            isUploading={isUploading}
+            progress={progress}
+          />
+        </CardContent>
+      </Card>
       
       {/* Gerenciamento de categorias */}
-      <div className="p-6 border rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">Categorias</h3>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Categorias</CardTitle>
+            <CardDescription>
+              Gerencie as categorias do diretório
+            </CardDescription>
+          </div>
           <Button 
             size="sm"
             onClick={() => setCategoryDialogOpen(true)}
@@ -50,34 +63,35 @@ export function UploadSection({
             <Plus className="h-4 w-4 mr-1" />
             Nova
           </Button>
-        </div>
-        
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {categories.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Nenhuma categoria criada
-            </p>
-          ) : (
-            categories.map((category) => (
-              <div 
-                key={category.id}
-                className="flex justify-between items-center p-2 rounded hover:bg-muted/50"
-              >
-                <div className="truncate max-w-[150px]">
-                  <span>{category.name}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleEditCategory(category)}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            {categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma categoria criada
+              </p>
+            ) : (
+              categories.map((category) => (
+                <div 
+                  key={category.id}
+                  className="flex justify-between items-center p-2 rounded hover:bg-muted/50"
                 >
-                  Editar
-                </Button>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+                  <div className="truncate max-w-[150px]">
+                    <span>{category.name}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditCategory(category)}
+                  >
+                    Editar
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
