@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ListTodo, Users, PiggyBank, Calendar, LayoutDashboard } from "lucide-react";
+import { ListTodo, Users, PiggyBank, Calendar, LayoutDashboard, FolderArchive } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface QuickAccessProps {
@@ -79,8 +79,7 @@ export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) =
         </div>
       )}
       
-      <div className={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-2 gap-3 sm:gap-4'} 
-        md:grid-cols-${compact ? '5' : '3'} lg:grid-cols-${compact ? '5' : '4'} 
+      <div className={`grid ${compact ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4'} 
         ${compact ? 'max-w-full' : 'max-w-4xl mx-auto'}`}
       >
         <AccessCard
@@ -135,6 +134,17 @@ export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) =
           darkBgColor="bg-yellow-900/40"
           hoverColor="bg-yellow-200"
           darkHoverColor="bg-yellow-800/60"
+          compact={compact}
+        />
+        
+        <AccessCard
+          title="Diretório"
+          icon={<FolderArchive size={iconSize} className={isDarkMode ? "text-cyan-300" : "text-cyan-700"} />}
+          onClick={() => handleNavigation("diretorio")}
+          bgColor="bg-cyan-100"
+          darkBgColor="bg-cyan-900/40"
+          hoverColor="bg-cyan-200"
+          darkHoverColor="bg-cyan-800/60"
           compact={compact}
         />
       </div>

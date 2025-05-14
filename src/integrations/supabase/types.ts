@@ -196,6 +196,83 @@ export type Database = {
         }
         Relationships: []
       }
+      crediario_directory_categories: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crediario_directory_files: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_featured: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_featured?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_featured?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_directory_files_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "crediario_directory_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crediario_folgas: {
         Row: {
           created_at: string | null

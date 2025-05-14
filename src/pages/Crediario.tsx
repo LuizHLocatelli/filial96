@@ -5,6 +5,7 @@ import { ClientesAgendados } from "@/components/crediario/ClientesAgendados";
 import { Depositos } from "@/components/crediario/Depositos";
 import { Folgas } from "@/components/crediario/Folgas";
 import { Kanban } from "@/components/crediario/kanban/Kanban";
+import { Diretorio } from "@/components/crediario/diretorio/Diretorio";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { QuickAccess } from "@/components/crediario/QuickAccess";
 
@@ -23,7 +24,7 @@ const Crediario = () => {
 
   // Update the tab when URL changes
   useEffect(() => {
-    if (tabFromUrl && ["welcome", "listagens", "clientes", "depositos", "folgas", "kanban"].includes(tabFromUrl)) {
+    if (tabFromUrl && ["welcome", "listagens", "clientes", "depositos", "folgas", "kanban", "diretorio"].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
@@ -46,6 +47,8 @@ const Crediario = () => {
         return <Folgas />;
       case "kanban":
         return <Kanban />;
+      case "diretorio":
+        return <Diretorio />;
       default:
         return <QuickAccess onNavigate={handleTabChange} />;
     }

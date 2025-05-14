@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, Home, Package, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Package, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
@@ -104,6 +104,14 @@ export function AppSidebar() {
                       <Link to="/crediario?tab=kanban">
                         <KanbanSquare className="h-4 w-4" />
                         <span>Quadro</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=diretorio">
+                        <FolderArchive className="h-4 w-4" />
+                        <span>Diretório</span>
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
