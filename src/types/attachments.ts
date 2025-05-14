@@ -13,3 +13,10 @@ export interface AttachmentUploadResult {
   error?: Error;
   url?: string;
 }
+
+export interface FileUploadOptions {
+  bucketName: string;
+  folder?: string;
+  generateUniqueName?: boolean;
+  maxSizeInMB?: number;
+}

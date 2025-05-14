@@ -4,6 +4,7 @@ import { useDirectoryCategories } from './hooks/useDirectoryCategories';
 import { useDirectoryFiles } from './hooks/useDirectoryFiles';
 import { useCategoryOperations } from './hooks/useCategoryOperations';
 import { useFileOperations } from './hooks/useFileOperations';
+import { useFileUpload } from './hooks/useFileUpload';
 import { FileGrid } from './components/FileGrid';
 import { FileList } from './components/FileList';
 import { CategoryDialog } from './components/CategoryDialog';
@@ -13,6 +14,7 @@ import { FileViewer } from './components/FileViewer';
 import { DirectoryToolbar } from './components/DirectoryToolbar';
 import { CategoryFilter } from './components/CategoryFilter';
 import { LoadingIndicator } from './components/LoadingIndicator';
+import { FileUploader } from './components/FileUploader';
 import { FileViewMode } from './types';
 import { Separator } from '@/components/ui/separator';
 
@@ -36,8 +38,11 @@ export function Diretorio() {
     files, 
     isLoading: filesLoading, 
     updateFile, 
-    deleteFile
+    deleteFile,
+    fetchFiles
   } = useDirectoryFiles(categoryOps.selectedCategoryId);
+
+  const { isUploading, uploadFile } = useFileUpload();
   
   // Hook de operações de arquivos
   const fileOps = useFileOperations(files, categories);
@@ -75,6 +80,15 @@ export function Diretorio() {
     await deleteFile(fileOps.selectedFile.id, fileOps.selectedFile.file_url);
   };
 
+  const handleFileUpload = async (file: File, categoryId: string | null, isFeatured: boolean) => {
+    const result = await uploadFile(file, categoryId, isFeatured);
+    if (result) {
+      await fetchFiles();
+      return true;
+    }
+    return false;
+  };
+
   const isLoading = categoriesLoading || filesLoading;
 
   return (
@@ -86,51 +100,61 @@ export function Diretorio() {
         </p>
       </div>
       
-      <div className="space-y-4">
-        {/* Barra de ferramentas */}
-        <DirectoryToolbar 
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          sortBy={fileOps.sortBy}
-          sortDirection={fileOps.sortDirection}
-          handleSortChange={fileOps.handleSortChange}
-          setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
-          categories={categories}
-          setSelectedCategoryId={categoryOps.setSelectedCategoryId}
-          handleEditCategory={categoryOps.handleEditCategory}
-          searchQuery={fileOps.searchQuery}
-          setSearchQuery={fileOps.setSearchQuery}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-1">
+          <FileUploader 
+            isUploading={isUploading}
+            onUpload={handleFileUpload}
+            categories={categories}
+          />
+        </div>
+        
+        <div className="md:col-span-2 space-y-4">
+          {/* Barra de ferramentas */}
+          <DirectoryToolbar 
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            sortBy={fileOps.sortBy}
+            sortDirection={fileOps.sortDirection}
+            handleSortChange={fileOps.handleSortChange}
+            setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
+            categories={categories}
+            setSelectedCategoryId={categoryOps.setSelectedCategoryId}
+            handleEditCategory={categoryOps.handleEditCategory}
+            searchQuery={fileOps.searchQuery}
+            setSearchQuery={fileOps.setSearchQuery}
+          />
 
-        {/* Filtro de categoria ativo */}
-        <CategoryFilter 
-          selectedCategoryId={categoryOps.selectedCategoryId}
-          handleClearCategory={categoryOps.handleClearCategory}
-          categories={categories}
-        />
+          {/* Filtro de categoria ativo */}
+          <CategoryFilter 
+            selectedCategoryId={categoryOps.selectedCategoryId}
+            handleClearCategory={categoryOps.handleClearCategory}
+            categories={categories}
+          />
 
-        <Separator />
+          <Separator />
 
-        {/* Exibição de arquivos */}
-        {isLoading ? (
-          <LoadingIndicator />
-        ) : (
-          viewMode === 'grid' ? (
-            <FileGrid
-              files={fileOps.sortedFiles}
-              onViewFile={fileOps.handleViewFile}
-              onDeleteFile={fileOps.handleDeleteFile}
-              onEditFile={fileOps.handleEditFile}
-            />
+          {/* Exibição de arquivos */}
+          {isLoading ? (
+            <LoadingIndicator />
           ) : (
-            <FileList
-              files={fileOps.sortedFiles}
-              onViewFile={fileOps.handleViewFile}
-              onDeleteFile={fileOps.handleDeleteFile}
-              onEditFile={fileOps.handleEditFile}
-            />
-          )
-        )}
+            viewMode === 'grid' ? (
+              <FileGrid
+                files={fileOps.sortedFiles}
+                onViewFile={fileOps.handleViewFile}
+                onDeleteFile={fileOps.handleDeleteFile}
+                onEditFile={fileOps.handleEditFile}
+              />
+            ) : (
+              <FileList
+                files={fileOps.sortedFiles}
+                onViewFile={fileOps.handleViewFile}
+                onDeleteFile={fileOps.handleDeleteFile}
+                onEditFile={fileOps.handleEditFile}
+              />
+            )
+          )}
+        </div>
       </div>
 
       {/* Diálogos */}

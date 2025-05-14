@@ -3,12 +3,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { AttachmentUploadResult } from "@/types/attachments";
-
-interface FileUploadOptions {
-  bucketName: string;
-  folder?: string;
-}
+import { AttachmentUploadResult, FileUploadOptions } from "@/types/attachments";
 
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
@@ -22,20 +17,24 @@ export function useFileUpload() {
       setIsUploading(true);
       setProgress(0);
       
-      // Validate file size (limit to 100MB)
-      const maxSize = 100 * 1024 * 1024; // 100MB
+      // Validate file size
+      const maxSize = (options.maxSizeInMB || 100) * 1024 * 1024; // Default to 100MB
       if (file.size > maxSize) {
         toast({
           title: "Arquivo muito grande",
-          description: `O arquivo é muito grande. O limite é de 100MB.`,
+          description: `O arquivo é muito grande. O limite é de ${options.maxSizeInMB || 100}MB.`,
           variant: "destructive"
         });
         return null;
       }
 
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
+      // Generate filename
+      let fileName = file.name;
+      if (options.generateUniqueName !== false) {
+        const fileExt = file.name.split('.').pop();
+        fileName = `${uuidv4()}.${fileExt}`;
+      }
+      
       const filePath = options.folder 
         ? `${options.folder}/${fileName}`
         : fileName;
@@ -54,7 +53,7 @@ export function useFileUpload() {
         }
       }, 300);
       
-      // Upload file to Supabase Storage without the problematic onUploadProgress option
+      // Upload file to Supabase Storage
       const { data, error: uploadError } = await supabase.storage
         .from(options.bucketName)
         .upload(filePath, file, {
