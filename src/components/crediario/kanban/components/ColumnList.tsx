@@ -1,6 +1,7 @@
 
 import { Column, TaskCard } from "../types";
 import { KanbanColumn } from "../KanbanColumn";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ColumnListProps {
   columns: Column[];
@@ -12,17 +13,19 @@ interface ColumnListProps {
 
 export function ColumnList({ columns, cards, onAddCard, onDeleteCard, onUpdateCard }: ColumnListProps) {
   return (
-    <div className="flex space-x-4 overflow-x-auto pb-4 px-2">
-      {columns.map((column) => (
-        <KanbanColumn
-          key={column.id}
-          column={column}
-          cards={cards.filter((card) => card.column_id === column.id)}
-          onAddCard={() => onAddCard(column.id)}
-          onDeleteCard={onDeleteCard}
-          onUpdateCard={onUpdateCard}
-        />
-      ))}
-    </div>
+    <ScrollArea className="h-[70vh]">
+      <div className="flex flex-col space-y-4 px-2 pb-4">
+        {columns.map((column) => (
+          <KanbanColumn
+            key={column.id}
+            column={column}
+            cards={cards.filter((card) => card.column_id === column.id)}
+            onAddCard={() => onAddCard(column.id)}
+            onDeleteCard={onDeleteCard}
+            onUpdateCard={onUpdateCard}
+          />
+        ))}
+      </div>
+    </ScrollArea>
   );
 }

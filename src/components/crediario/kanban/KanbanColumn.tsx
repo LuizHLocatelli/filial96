@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { KanbanCard } from "./KanbanCard";
 import { Column, TaskCard } from "./types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface KanbanColumnProps {
   column: Column;
@@ -21,18 +22,18 @@ export function KanbanColumn({
   onUpdateCard 
 }: KanbanColumnProps) {
   return (
-    <div className="flex-shrink-0 w-80 bg-background rounded-lg shadow-sm border border-border">
-      <Card className="h-full flex flex-col">
-        <CardHeader className="p-3 border-b">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">{column.name}</h3>
-            <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center text-xs">
-              {cards.length}
-            </div>
+    <Card className="w-full bg-background rounded-lg shadow-sm border border-border">
+      <CardHeader className="p-3 border-b">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">{column.name}</h3>
+          <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center text-xs">
+            {cards.length}
           </div>
-        </CardHeader>
-        <CardContent className="p-2 flex-1 overflow-y-auto max-h-[65vh]">
-          <div className="space-y-2">
+        </div>
+      </CardHeader>
+      <CardContent className="p-2">
+        <ScrollArea className="max-h-[250px]">
+          <div className="space-y-2 pr-2">
             {cards.map((card) => (
               <KanbanCard 
                 key={card.id} 
@@ -42,18 +43,18 @@ export function KanbanColumn({
               />
             ))}
           </div>
-          
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full mt-2 text-muted-foreground justify-start"
-            onClick={onAddCard}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Adicionar cartão
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+        </ScrollArea>
+        
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full mt-2 text-muted-foreground justify-start"
+          onClick={onAddCard}
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          Adicionar cartão
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

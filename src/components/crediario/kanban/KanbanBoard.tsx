@@ -96,13 +96,15 @@ export function KanbanBoard() {
         onAddColumn={() => setAddColumnDialogOpen(true)}
       />
 
-      <ColumnList
-        columns={columns}
-        cards={cards}
-        onAddCard={handleOpenAddCardDialog}
-        onDeleteCard={handleDeleteCard}
-        onUpdateCard={handleUpdateCard}
-      />
+      <div className="w-full">
+        <ColumnList
+          columns={columns}
+          cards={cards}
+          onAddCard={handleOpenAddCardDialog}
+          onDeleteCard={handleDeleteCard}
+          onUpdateCard={handleUpdateCard}
+        />
+      </div>
 
       <AddColumnDialog
         open={addColumnDialogOpen}
