@@ -37,18 +37,29 @@ export function useFileUpload() {
       
       console.log(`Iniciando upload para ${options.bucketName}/${filePath}`);
       
-      // Upload file to Supabase Storage with progress tracking
+      // Create a custom progress tracker
+      let lastProgress = 0;
+      const progressInterval = setInterval(() => {
+        // Simulate progress update (since we can't track real progress)
+        if (lastProgress < 95) {
+          lastProgress += Math.random() * 10;
+          const rounded = Math.min(95, Math.round(lastProgress));
+          setProgress(rounded);
+          console.log(`Progresso do upload: ${rounded}%`);
+        }
+      }, 300);
+      
+      // Upload file to Supabase Storage without the problematic onUploadProgress option
       const { data, error: uploadError } = await supabase.storage
         .from(options.bucketName)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false,
-          onUploadProgress: (progress) => {
-            const percent = Math.round((progress.loaded / progress.total) * 100);
-            setProgress(percent);
-            console.log(`Progresso do upload: ${percent}%`);
-          }
+          upsert: false
         });
+      
+      // Clear interval and set to 100% when done
+      clearInterval(progressInterval);
+      setProgress(100);
       
       if (uploadError) {
         console.error("Erro de upload:", uploadError);
@@ -88,7 +99,7 @@ export function useFileUpload() {
       return null;
     } finally {
       setIsUploading(false);
-      setProgress(0);
+      setTimeout(() => setProgress(0), 500); // Reset progress after a short delay
     }
   };
 
