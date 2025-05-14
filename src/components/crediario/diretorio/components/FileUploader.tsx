@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,8 @@ import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { DirectoryCategory } from '../types';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface FileUploaderProps {
   categories: DirectoryCategory[];
@@ -31,6 +33,7 @@ export function FileUploader({ categories, onUpload, isUploading, progress = 0 }
   const [isFeatured, setIsFeatured] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -136,9 +139,22 @@ export function FileUploader({ categories, onUpload, isUploading, progress = 0 }
     return 'bg-gray-100 text-gray-700';
   };
 
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-4">
+        {uploadError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{uploadError}</AlertDescription>
+          </Alert>
+        )}
+        
         <div 
           className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
             isDragging ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary'
@@ -146,11 +162,12 @@ export function FileUploader({ categories, onUpload, isUploading, progress = 0 }
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => document.getElementById('file-upload')?.click()}
+          onClick={triggerFileInput}
         >
           <input
             type="file"
             id="file-upload"
+            ref={fileInputRef}
             className="hidden"
             onChange={handleFileChange}
           />
@@ -192,12 +209,6 @@ export function FileUploader({ categories, onUpload, isUploading, progress = 0 }
             </div>
           )}
         </div>
-
-        {uploadError && (
-          <div className="text-sm text-red-500 p-2 bg-red-50 rounded border border-red-200">
-            {uploadError}
-          </div>
-        )}
 
         {file && (
           <div className="space-y-3">
@@ -257,8 +268,13 @@ export function FileUploader({ categories, onUpload, isUploading, progress = 0 }
               </div>
             )}
 
-            <Button type="submit" disabled={isUploading} className="w-full">
-              {isUploading ? 'Enviando...' : 'Enviar arquivo'}
+            <Button 
+              type="submit" 
+              disabled={isUploading} 
+              className="w-full"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {isUploading ? 'Enviando...' : 'Fazer Upload'}
             </Button>
           </div>
         )}
