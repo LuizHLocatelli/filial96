@@ -1,4 +1,5 @@
 
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,7 +44,7 @@ export function EditColumnDialog({ open, onOpenChange, column, onEditColumn }: E
   });
   
   // Update form values when column changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (column) {
       form.reset({
         name: column.name,
