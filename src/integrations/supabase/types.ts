@@ -847,6 +847,38 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_featured_directory_files: {
+        Args: { limit_count?: number }
+        Returns: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_featured: boolean | null
+          name: string
+          updated_at: string
+        }[]
+      }
+      search_directory_files: {
+        Args: { search_term: string }
+        Returns: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_featured: boolean | null
+          name: string
+          updated_at: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
