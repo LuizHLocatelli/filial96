@@ -13,6 +13,7 @@ interface UploadSectionProps {
     isFeatured?: boolean;
   }) => Promise<any>;
   isUploading: boolean;
+  progress?: number;
   setCategoryDialogOpen: (open: boolean) => void;
   handleEditCategory: (category: DirectoryCategory) => void;
 }
@@ -21,6 +22,7 @@ export function UploadSection({
   categories, 
   onUpload, 
   isUploading, 
+  progress = 0,
   setCategoryDialogOpen,
   handleEditCategory
 }: UploadSectionProps) {
@@ -33,6 +35,7 @@ export function UploadSection({
           categories={categories}
           onUpload={onUpload}
           isUploading={isUploading}
+          progress={progress}
         />
       </div>
       

@@ -11,4 +11,5 @@ export interface AttachmentUploadResult {
   success: boolean;
   attachment?: Attachment;
   error?: Error;
+  url?: string;
 }

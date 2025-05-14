@@ -4,12 +4,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 import { DirectoryFile } from '../types';
 import { toast } from 'sonner';
+import { useFileUpload } from '@/hooks/crediario/useFileUpload';
 
 export function useDirectoryFiles(categoryId?: string) {
   const [files, setFiles] = useState<DirectoryFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const { uploadFile, isUploading, progress } = useFileUpload();
   
   const fetchFiles = async () => {
     try {
@@ -39,7 +40,7 @@ export function useDirectoryFiles(categoryId?: string) {
     }
   };
   
-  const uploadFile = async (file: File, options: { 
+  const uploadDirectoryFile = async (file: File, options: { 
     name?: string; 
     description?: string; 
     categoryId?: string; 
@@ -48,33 +49,21 @@ export function useDirectoryFiles(categoryId?: string) {
     if (!file) return null;
     
     try {
-      setIsUploading(true);
+      // Usar o hook useFileUpload para garantir consistência
+      const fileUrl = await uploadFile(file, {
+        bucketName: 'directory_files',
+        folder: 'files'
+      });
       
-      // Gerar nome de arquivo único
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `files/${fileName}`;
-      
-      // Upload do arquivo para o Storage do Supabase
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('directory_files')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-      
-      if (uploadError) throw uploadError;
-      
-      // Obter URL pública do arquivo
-      const { data: urlData } = supabase.storage
-        .from('directory_files')
-        .getPublicUrl(filePath);
+      if (!fileUrl) {
+        throw new Error('Falha ao fazer upload do arquivo');
+      }
       
       // Salvar metadados do arquivo no banco de dados
       const fileData = {
         name: options.name || file.name,
         description: options.description || null,
-        file_url: urlData.publicUrl,
+        file_url: fileUrl,
         file_type: file.type,
         file_size: file.size,
         category_id: options.categoryId || null,
@@ -90,14 +79,11 @@ export function useDirectoryFiles(categoryId?: string) {
       if (error) throw error;
       
       setFiles(prev => [data, ...prev]);
-      toast.success('Arquivo enviado com sucesso');
       return data;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao fazer upload do arquivo:', err);
-      toast.error('Não foi possível enviar o arquivo');
+      // Não exibe toast aqui pois já foi exibido na função uploadFile
       throw err;
-    } finally {
-      setIsUploading(false);
     }
   };
   
@@ -170,9 +156,10 @@ export function useDirectoryFiles(categoryId?: string) {
     files,
     isLoading,
     isUploading,
+    progress,
     error,
     fetchFiles,
-    uploadFile,
+    uploadFile: uploadDirectoryFile,
     updateFile,
     deleteFile
   };

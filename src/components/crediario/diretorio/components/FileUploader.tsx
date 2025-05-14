@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { DirectoryCategory } from '../types';
+import { Progress } from '@/components/ui/progress';
 
 interface FileUploaderProps {
   categories: DirectoryCategory[];
@@ -19,19 +20,22 @@ interface FileUploaderProps {
     isFeatured?: boolean;
   }) => Promise<any>;
   isUploading: boolean;
+  progress?: number;
 }
 
-export function FileUploader({ categories, onUpload, isUploading }: FileUploaderProps) {
+export function FileUploader({ categories, onUpload, isUploading, progress = 0 }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      setUploadError(null);
       setFile(selectedFile);
       setFileName(selectedFile.name);
     }
@@ -53,6 +57,7 @@ export function FileUploader({ categories, onUpload, isUploading }: FileUploader
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
+    setUploadError(null);
 
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
@@ -64,32 +69,58 @@ export function FileUploader({ categories, onUpload, isUploading }: FileUploader
   const clearFile = () => {
     setFile(null);
     setFileName('');
+    setUploadError(null);
+  };
+
+  const validateFileSize = (file: File) => {
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    if (file.size > maxSize) {
+      setUploadError(`O arquivo é muito grande. O limite é de 100MB.`);
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!file) {
-      toast.error('Selecione um arquivo para fazer upload');
+      setUploadError('Selecione um arquivo para fazer upload');
       return;
     }
 
+    // Validar tamanho do arquivo
+    if (!validateFileSize(file)) {
+      return;
+    }
+
+    setUploadError(null);
+    
     try {
-      await onUpload(file, {
+      const result = await onUpload(file, {
         name: fileName || file.name,
         description: description || undefined,
         categoryId: categoryId || undefined,
         isFeatured
       });
       
-      // Limpar o formulário após o upload bem-sucedido
-      setFile(null);
-      setFileName('');
-      setDescription('');
-      setCategoryId('');
-      setIsFeatured(false);
-    } catch (error) {
+      if (result) {
+        // Upload bem-sucedido
+        toast.success('Arquivo enviado com sucesso!');
+        
+        // Limpar o formulário após o upload bem-sucedido
+        setFile(null);
+        setFileName('');
+        setDescription('');
+        setCategoryId('');
+        setIsFeatured(false);
+      } else {
+        // O upload falhou, mas o erro já foi tratado em onUpload
+        console.log('Upload falhou, sem resultado retornado');
+      }
+    } catch (error: any) {
       console.error('Erro no upload:', error);
+      setUploadError(error.message || 'Erro ao enviar o arquivo');
     }
   };
 
@@ -131,7 +162,7 @@ export function FileUploader({ categories, onUpload, isUploading }: FileUploader
                 Arraste e solte um arquivo aqui ou clique para selecionar
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Suporta PDF, Word, Excel, Imagens e outros formatos
+                Suporta PDF, Word, Excel, Imagens e outros formatos (máx. 100MB)
               </p>
             </div>
           ) : (
@@ -161,6 +192,12 @@ export function FileUploader({ categories, onUpload, isUploading }: FileUploader
             </div>
           )}
         </div>
+
+        {uploadError && (
+          <div className="text-sm text-red-500 p-2 bg-red-50 rounded border border-red-200">
+            {uploadError}
+          </div>
+        )}
 
         {file && (
           <div className="space-y-3">
@@ -210,6 +247,15 @@ export function FileUploader({ categories, onUpload, isUploading }: FileUploader
               />
               <Label htmlFor="featured">Destacar este arquivo</Label>
             </div>
+
+            {isUploading && (
+              <div className="space-y-2">
+                <Progress value={progress} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">
+                  Enviando: {progress}%
+                </p>
+              </div>
+            )}
 
             <Button type="submit" disabled={isUploading} className="w-full">
               {isUploading ? 'Enviando...' : 'Enviar arquivo'}
