@@ -339,6 +339,7 @@ export type Database = {
       crediario_kanban_cards: {
         Row: {
           assignee_id: string | null
+          background_color: string | null
           column_id: string
           created_at: string | null
           created_by: string | null
@@ -352,6 +353,7 @@ export type Database = {
         }
         Insert: {
           assignee_id?: string | null
+          background_color?: string | null
           column_id: string
           created_at?: string | null
           created_by?: string | null
@@ -365,6 +367,7 @@ export type Database = {
         }
         Update: {
           assignee_id?: string | null
+          background_color?: string | null
           column_id?: string
           created_at?: string | null
           created_by?: string | null

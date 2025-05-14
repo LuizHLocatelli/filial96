@@ -54,11 +54,11 @@ const Crediario = () => {
   const showCompactMenu = activeTab !== "welcome";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4"> {/* Reduzido o espaçamento vertical de space-y-6 para space-y-4 */}
       {/* Título removido */}
       
       {showCompactMenu && (
-        <div className="mb-4">
+        <div className="mb-2"> {/* Reduzido o espaçamento inferior de mb-4 para mb-2 */}
           <QuickAccess onNavigate={handleTabChange} compact={true} />
         </div>
       )}

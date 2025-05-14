@@ -36,20 +36,20 @@ const AccessCard = ({
     <motion.div
       className={`${isDarkMode ? darkBgColor : bgColor} rounded-xl flex flex-col items-center justify-center 
         cursor-pointer transition-all duration-300 ${compact 
-          ? 'p-1.5 h-12 sm:h-16' 
+          ? 'p-2 h-16 sm:h-20' // Aumentado a altura do card compacto
           : 'p-3 h-28 sm:h-36'}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
     >
       <div className={`${isDarkMode ? darkHoverColor : hoverColor} ${compact 
-        ? 'p-1 mb-0.5' 
+        ? 'p-1.5 mb-1' // Ajuste do padding e margem inferior do ícone
         : 'p-2 sm:p-3 mb-2 sm:mb-3'} rounded-full`}
       >
         {icon}
       </div>
       <span className={`font-medium ${compact 
-        ? 'text-xs' 
+        ? 'text-sm' // Aumentado tamanho do texto no modo compacto
         : 'text-base sm:text-lg'} ${isDarkMode ? 'text-white' : 'text-green-800'}`}
       >
         {title}
@@ -68,7 +68,7 @@ export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) =
     [onNavigate]
   );
 
-  const iconSize = compact ? 16 : 24;
+  const iconSize = compact ? 18 : 24; // Aumentado o tamanho do ícone no modo compacto (era 16)
 
   return (
     <div className={compact ? "" : "animate-fade-in"}>
