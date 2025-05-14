@@ -9,9 +9,19 @@ interface ColumnListProps {
   onAddCard: (columnId: string) => void;
   onDeleteCard?: (card: TaskCard) => void;
   onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
+  onEditColumn?: (column: Column) => void;
+  onDeleteColumn?: (columnId: string) => void;
 }
 
-export function ColumnList({ columns, cards, onAddCard, onDeleteCard, onUpdateCard }: ColumnListProps) {
+export function ColumnList({ 
+  columns, 
+  cards, 
+  onAddCard, 
+  onDeleteCard, 
+  onUpdateCard,
+  onEditColumn,
+  onDeleteColumn
+}: ColumnListProps) {
   return (
     <ScrollArea className="h-[70vh]">
       <div className="flex flex-col space-y-4 px-2 pb-4">
@@ -23,6 +33,8 @@ export function ColumnList({ columns, cards, onAddCard, onDeleteCard, onUpdateCa
             onAddCard={() => onAddCard(column.id)}
             onDeleteCard={onDeleteCard}
             onUpdateCard={onUpdateCard}
+            onEditColumn={onEditColumn}
+            onDeleteColumn={onDeleteColumn}
           />
         ))}
       </div>

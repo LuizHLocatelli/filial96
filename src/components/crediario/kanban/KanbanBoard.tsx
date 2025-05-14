@@ -4,11 +4,12 @@ import { useKanbanBoard } from "./useKanbanBoard";
 import { toast } from "sonner";
 import { AddCardDialog } from "./AddCardDialog";
 import { AddColumnDialog } from "./AddColumnDialog";
+import { EditColumnDialog } from "./EditColumnDialog";
 import { BoardHeader } from "./components/BoardHeader";
 import { ColumnList } from "./components/ColumnList";
 import { BoardLoading } from "./components/BoardLoading";
 import { BoardEmpty } from "./components/BoardEmpty";
-import { TaskCard } from "./types";
+import { Column, TaskCard } from "./types";
 
 export function KanbanBoard() {
   const {
@@ -17,12 +18,16 @@ export function KanbanBoard() {
     cards,
     isLoading,
     addColumn,
+    editColumn,
+    deleteColumn,
     addCard,
     deleteCard,
     updateCard
   } = useKanbanBoard();
 
   const [addColumnDialogOpen, setAddColumnDialogOpen] = useState(false);
+  const [editColumnDialogOpen, setEditColumnDialogOpen] = useState(false);
+  const [selectedColumn, setSelectedColumn] = useState<Column | null>(null);
   const [addCardDialogOpen, setAddCardDialogOpen] = useState(false);
   const [targetColumnId, setTargetColumnId] = useState<string | null>(null);
 
@@ -30,6 +35,25 @@ export function KanbanBoard() {
     addColumn(name);
     setAddColumnDialogOpen(false);
     toast.success("Coluna adicionada com sucesso");
+  };
+  
+  const handleEditColumn = (column: Column) => {
+    setSelectedColumn(column);
+    setEditColumnDialogOpen(true);
+  };
+  
+  const handleEditColumnSubmit = async (columnId: string, name: string) => {
+    const success = await editColumn(columnId, name);
+    if (success) {
+      setEditColumnDialogOpen(false);
+    }
+  };
+  
+  const handleDeleteColumn = async (columnId: string) => {
+    const success = await deleteColumn(columnId);
+    if (success) {
+      toast.success("Coluna excluída com sucesso");
+    }
   };
 
   const handleOpenAddCardDialog = (columnId: string) => {
@@ -103,6 +127,8 @@ export function KanbanBoard() {
           onAddCard={handleOpenAddCardDialog}
           onDeleteCard={handleDeleteCard}
           onUpdateCard={handleUpdateCard}
+          onEditColumn={handleEditColumn}
+          onDeleteColumn={handleDeleteColumn}
         />
       </div>
 
@@ -110,6 +136,13 @@ export function KanbanBoard() {
         open={addColumnDialogOpen}
         onOpenChange={setAddColumnDialogOpen}
         onAddColumn={handleAddColumn}
+      />
+      
+      <EditColumnDialog
+        open={editColumnDialogOpen}
+        onOpenChange={setEditColumnDialogOpen}
+        column={selectedColumn}
+        onEditColumn={handleEditColumnSubmit}
       />
 
       <AddCardDialog
