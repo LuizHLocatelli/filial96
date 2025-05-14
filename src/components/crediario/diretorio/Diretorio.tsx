@@ -6,7 +6,6 @@ import { useCategoryOperations } from './hooks/useCategoryOperations';
 import { useFileOperations } from './hooks/useFileOperations';
 import { FileGrid } from './components/FileGrid';
 import { FileList } from './components/FileList';
-import { FileUploader } from './components/FileUploader';
 import { CategoryDialog } from './components/CategoryDialog';
 import { FileDialog } from './components/FileDialog';
 import { DeleteFileDialog } from './components/DeleteFileDialog';
@@ -14,10 +13,8 @@ import { FileViewer } from './components/FileViewer';
 import { DirectoryToolbar } from './components/DirectoryToolbar';
 import { CategoryFilter } from './components/CategoryFilter';
 import { LoadingIndicator } from './components/LoadingIndicator';
-import { UploadSection } from './components/UploadSection';
 import { FileViewMode } from './types';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function Diretorio() {
   // Estado para o modo de visualização
@@ -38,8 +35,6 @@ export function Diretorio() {
   const { 
     files, 
     isLoading: filesLoading, 
-    isUploading,
-    uploadFile, 
     updateFile, 
     deleteFile
   } = useDirectoryFiles(categoryOps.selectedCategoryId);
@@ -65,15 +60,6 @@ export function Diretorio() {
   };
   
   // Manipuladores de eventos para arquivos
-  const handleFileUpload = async (file: File, options: { 
-    name?: string; 
-    description?: string; 
-    categoryId?: string; 
-    isFeatured?: boolean;
-  }) => {
-    return uploadFile(file, options);
-  };
-
   const handleUpdateFile = async (updates: {
     name: string;
     description: string;
@@ -100,73 +86,52 @@ export function Diretorio() {
         </p>
       </div>
       
-      <Tabs defaultValue="browse" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto">
-          <TabsTrigger value="browse">Arquivos</TabsTrigger>
-          <TabsTrigger value="upload">Upload</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="browse" className="mt-4">
-          <div className="space-y-4">
-            {/* Barra de ferramentas */}
-            <DirectoryToolbar 
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-              sortBy={fileOps.sortBy}
-              sortDirection={fileOps.sortDirection}
-              handleSortChange={fileOps.handleSortChange}
-              setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
-              categories={categories}
-              setSelectedCategoryId={categoryOps.setSelectedCategoryId}
-              handleEditCategory={categoryOps.handleEditCategory}
-              searchQuery={fileOps.searchQuery}
-              setSearchQuery={fileOps.setSearchQuery}
-            />
+      <div className="space-y-4">
+        {/* Barra de ferramentas */}
+        <DirectoryToolbar 
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          sortBy={fileOps.sortBy}
+          sortDirection={fileOps.sortDirection}
+          handleSortChange={fileOps.handleSortChange}
+          setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
+          categories={categories}
+          setSelectedCategoryId={categoryOps.setSelectedCategoryId}
+          handleEditCategory={categoryOps.handleEditCategory}
+          searchQuery={fileOps.searchQuery}
+          setSearchQuery={fileOps.setSearchQuery}
+        />
 
-            {/* Filtro de categoria ativo */}
-            <CategoryFilter 
-              selectedCategoryId={categoryOps.selectedCategoryId}
-              handleClearCategory={categoryOps.handleClearCategory}
-              categories={categories}
-            />
+        {/* Filtro de categoria ativo */}
+        <CategoryFilter 
+          selectedCategoryId={categoryOps.selectedCategoryId}
+          handleClearCategory={categoryOps.handleClearCategory}
+          categories={categories}
+        />
 
-            <Separator />
+        <Separator />
 
-            {/* Exibição de arquivos */}
-            {isLoading ? (
-              <LoadingIndicator />
-            ) : (
-              viewMode === 'grid' ? (
-                <FileGrid
-                  files={fileOps.sortedFiles}
-                  onViewFile={fileOps.handleViewFile}
-                  onDeleteFile={fileOps.handleDeleteFile}
-                  onEditFile={fileOps.handleEditFile}
-                />
-              ) : (
-                <FileList
-                  files={fileOps.sortedFiles}
-                  onViewFile={fileOps.handleViewFile}
-                  onDeleteFile={fileOps.handleDeleteFile}
-                  onEditFile={fileOps.handleEditFile}
-                />
-              )
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="upload" className="mt-4">
-          <div className="space-y-4">
-            <UploadSection 
-              categories={categories}
-              onUpload={handleFileUpload}
-              isUploading={isUploading}
-              setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
-              handleEditCategory={categoryOps.handleEditCategory}
+        {/* Exibição de arquivos */}
+        {isLoading ? (
+          <LoadingIndicator />
+        ) : (
+          viewMode === 'grid' ? (
+            <FileGrid
+              files={fileOps.sortedFiles}
+              onViewFile={fileOps.handleViewFile}
+              onDeleteFile={fileOps.handleDeleteFile}
+              onEditFile={fileOps.handleEditFile}
             />
-          </div>
-        </TabsContent>
-      </Tabs>
+          ) : (
+            <FileList
+              files={fileOps.sortedFiles}
+              onViewFile={fileOps.handleViewFile}
+              onDeleteFile={fileOps.handleDeleteFile}
+              onEditFile={fileOps.handleEditFile}
+            />
+          )
+        )}
+      </div>
 
       {/* Diálogos */}
       <CategoryDialog
