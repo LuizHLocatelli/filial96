@@ -29,7 +29,9 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
           position: newPosition,
           created_by: profile.id,
           // Include the background color if provided
-          background_color: cardData.background_color
+          background_color: cardData.background_color,
+          // Include the due_time field (new)
+          due_time: cardData.due_time
         })
         .select()
         .single();

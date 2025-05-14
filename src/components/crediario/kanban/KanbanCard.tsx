@@ -52,6 +52,7 @@ export function KanbanCard({
           
           <CardMetaInfo
             dueDate={card.due_date}
+            dueTime={card.due_time} // Pass the dueTime to CardMetaInfo
             assignee={assignee}
             textColor={textColor}
           />
