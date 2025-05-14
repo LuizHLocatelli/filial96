@@ -9,9 +9,14 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
   
   // Add a new card
   const addCard = async (cardData: CreateCardData) => {
-    if (!profile) return null;
+    if (!profile) {
+      toast.error('Você precisa estar autenticado para adicionar um cartão');
+      return null;
+    }
     
     try {
+      console.log("Adicionando cartão no banco de dados:", cardData);
+      
       const cardsInColumn = cards.filter(card => card.column_id === cardData.column_id);
       const newPosition = cardsInColumn.length;
       
@@ -31,9 +36,11 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
         
       if (error) {
         console.error('Error adding card:', error);
-        toast.error('Erro ao adicionar cartão');
+        toast.error('Erro ao adicionar cartão: ' + error.message);
         return null;
       }
+      
+      console.log("Cartão adicionado com sucesso:", data);
       
       // Ensure proper typing of the new card
       const newCard: TaskCard = {
@@ -58,7 +65,7 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
       return newCard;
     } catch (error) {
       console.error('Unexpected error:', error);
-      toast.error('Ocorreu um erro inesperado');
+      toast.error('Ocorreu um erro inesperado ao adicionar o cartão');
       return null;
     }
   };

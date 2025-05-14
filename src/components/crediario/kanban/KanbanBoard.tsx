@@ -37,22 +37,40 @@ export function KanbanBoard() {
     setAddCardDialogOpen(true);
   };
 
-  const handleAddCard = async (data: { title: string; description?: string; priority: string; assigneeId?: string; dueDate?: Date; backgroundColor?: string }) => {
-    if (!targetColumnId) return;
+  const handleAddCard = async (data: { 
+    title: string; 
+    description?: string; 
+    priority: string; 
+    assigneeId?: string; 
+    dueDate?: Date; 
+    backgroundColor?: string 
+  }) => {
+    if (!targetColumnId) {
+      console.error("Nenhuma coluna selecionada para adicionar o cartão");
+      return;
+    }
     
-    await addCard({
-      title: data.title,
-      description: data.description,
-      priority: data.priority,
-      column_id: targetColumnId,
-      assignee_id: data.assigneeId,
-      due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
-      background_color: data.backgroundColor
-    });
+    console.log("Adicionando cartão à coluna:", targetColumnId);
+    console.log("Dados do cartão:", data);
     
-    setAddCardDialogOpen(false);
-    setTargetColumnId(null);
-    toast.success("Cartão adicionado com sucesso");
+    try {
+      await addCard({
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        column_id: targetColumnId,
+        assignee_id: data.assigneeId,
+        due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
+        background_color: data.backgroundColor
+      });
+      
+      toast.success("Cartão adicionado com sucesso");
+      setAddCardDialogOpen(false);
+      setTargetColumnId(null);
+    } catch (error) {
+      console.error("Erro ao adicionar cartão:", error);
+      toast.error("Erro ao adicionar cartão");
+    }
   };
 
   const handleDeleteCard = (card: TaskCard) => {

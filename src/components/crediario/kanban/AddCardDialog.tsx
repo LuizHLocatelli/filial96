@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import { CardFormFields, formSchema } from "./form/CardFormFields";
 import { useCardForm } from "./form/useCardForm";
 import { useEffect } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 export interface AddCardDialogProps {
   columnId: string;
@@ -21,17 +22,32 @@ export function AddCardDialog({
 }: AddCardDialogProps) {
   
   const handleSubmit = async (values: any) => {
-    await onAddCard({
-      title: values.title,
-      description: values.description || "",
-      column_id: columnId,
-      priority: values.priority,
-      assigneeId: values.assigneeId,
-      dueDate: values.dueDate?.toISOString(),
-      backgroundColor: values.backgroundColor // Include the background color
-    });
-    
-    onOpenChange(false);
+    try {
+      console.log("Submitting card values:", values);
+      console.log("Column ID:", columnId);
+      
+      await onAddCard({
+        title: values.title,
+        description: values.description || "",
+        priority: values.priority,
+        assigneeId: values.assigneeId,
+        dueDate: values.dueDate,
+        backgroundColor: values.backgroundColor
+      });
+      
+      toast({
+        description: "Cartão adicionado com sucesso!",
+      });
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Erro ao adicionar cartão:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Ocorreu um erro ao adicionar o cartão."
+      });
+    }
   };
   
   const { form, isSubmitting, handleSubmit: submitForm, handleCancel } = useCardForm({
