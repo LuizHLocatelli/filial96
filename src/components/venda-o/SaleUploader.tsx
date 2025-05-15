@@ -1,11 +1,10 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UploadCloud, AlertCircle, PlusCircle, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -44,6 +43,8 @@ interface SaleUploaderProps {
 export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  // Add state to force re-render when products change
+  const [productsKey, setProductsKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
 
@@ -94,15 +95,17 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
   const addProduct = () => {
     const currentProducts = form.getValues("produtos") || [];
     form.setValue("produtos", [...currentProducts, { nome: "", codigo: "" }]);
+    // Force re-render by updating the key
+    setProductsKey(prev => prev + 1);
   };
 
   const removeProduct = (index: number) => {
     const currentProducts = form.getValues("produtos");
     if (currentProducts.length > 1) {
-      form.setValue(
-        "produtos",
-        currentProducts.filter((_, i) => i !== index)
-      );
+      const updatedProducts = currentProducts.filter((_, i) => i !== index);
+      form.setValue("produtos", updatedProducts);
+      // Force re-render by updating the key
+      setProductsKey(prev => prev + 1);
     }
   };
 
@@ -126,6 +129,9 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
       setUploadError("Erro ao enviar. Tente novamente.");
     }
   };
+
+  // Get current products for rendering
+  const products = form.watch("produtos");
 
   return (
     <Card className="w-full">
@@ -205,7 +211,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
               />
             </div>
             
-            <div>
+            <div key={productsKey}>
               <div className="flex justify-between items-center mb-2">
                 <Label>Produtos</Label>
                 <Button 
@@ -219,7 +225,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 </Button>
               </div>
               
-              {form.getValues("produtos").map((_, index) => (
+              {products.map((_, index) => (
                 <div key={index} className="flex gap-2 mb-2">
                   <div className="flex-1">
                     <FormField
@@ -249,7 +255,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                       )}
                     />
                   </div>
-                  {form.getValues("produtos").length > 1 && (
+                  {products.length > 1 && (
                     <Button 
                       type="button" 
                       variant="ghost" 
