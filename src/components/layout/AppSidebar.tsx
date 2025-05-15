@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +13,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store, ChevronRight, ShieldCheck } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -42,14 +41,12 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="py-5 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center justify-center gap-2 px-4">
-          <div className={cn(
-            "flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-green-700",
-            isDarkMode ? "shadow-lg shadow-green-500/20" : ""
-          )}>
-            <ShieldCheck className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-bold text-xl bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">FILIAL 96</span>
+        <Link to="/" className="flex items-center justify-center px-4">
+          <img 
+            src="/lovable-uploads/c066d606-7e09-418e-a6ff-c3a603ac88c9.png" 
+            alt="Filial 96 Logo" 
+            className="h-10 w-auto"
+          />
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-2 py-4">
