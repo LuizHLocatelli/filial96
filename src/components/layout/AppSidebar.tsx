@@ -10,22 +10,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { 
-  Calendar, 
-  ClipboardCheck, 
-  Home, 
-  Image, 
-  CreditCard, 
-  FileText, 
-  CalendarDays, 
-  Banknote, 
-  Coffee, 
-  KanbanSquare, 
-  Users, 
-  FolderArchive, 
-  Store 
-} from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
@@ -53,6 +42,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
+              {/* New Venda O menu item */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathStart === "/venda-o"}>
                   <Link to="/venda-o">
@@ -62,67 +52,64 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
+              {/* Crediário com submenu */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathStart === "/crediario" && !location.search.includes('tab=')}>
+                <SidebarMenuButton asChild isActive={pathStart === "/crediario"}>
                   <Link to="/crediario">
                     <CreditCard className="h-5 w-5" />
                     <span>Crediário</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.search.includes('tab=listagens')}>
-                  <Link to="/crediario?tab=listagens">
-                    <FileText className="h-5 w-5" />
-                    <span>Listagens</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.search.includes('tab=clientes')}>
-                  <Link to="/crediario?tab=clientes">
-                    <Users className="h-5 w-5" />
-                    <span>Clientes</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.search.includes('tab=depositos')}>
-                  <Link to="/crediario?tab=depositos">
-                    <Banknote className="h-5 w-5" />
-                    <span>Depósitos</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.search.includes('tab=folgas')}>
-                  <Link to="/crediario?tab=folgas">
-                    <Coffee className="h-5 w-5" />
-                    <span>Folgas</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.search.includes('tab=kanban')}>
-                  <Link to="/crediario?tab=kanban">
-                    <KanbanSquare className="h-5 w-5" />
-                    <span>Quadro</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.search.includes('tab=diretorio')}>
-                  <Link to="/crediario?tab=diretorio">
-                    <FolderArchive className="h-5 w-5" />
-                    <span>Diretório</span>
-                  </Link>
-                </SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=listagens">
+                        <FileText className="h-4 w-4" />
+                        <span>Listagens</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=clientes">
+                        <Users className="h-4 w-4" />
+                        <span>Clientes</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=depositos">
+                        <Banknote className="h-4 w-4" />
+                        <span>Depósitos</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=folgas">
+                        <Coffee className="h-4 w-4" />
+                        <span>Folgas</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=kanban">
+                        <KanbanSquare className="h-4 w-4" />
+                        <span>Quadro</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link to="/crediario?tab=diretorio">
+                        <FolderArchive className="h-4 w-4" />
+                        <span>Diretório</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               </SidebarMenuItem>
               
               <SidebarMenuItem>
