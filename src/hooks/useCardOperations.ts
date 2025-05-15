@@ -1,7 +1,5 @@
 
-import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
 
 export interface CardItem {
   id: string;
@@ -11,10 +9,12 @@ export interface CardItem {
   position: number;
   code: string;
   promotion_date: string | null;
+  created_by: string;
+  created_at: string;
 }
 
 export function useCardOperations() {
-  const deleteCard = async (id: string, setCards?: React.Dispatch<React.SetStateAction<CardItem[]>>) => {
+  const deleteCard = async (id: string) => {
     try {
       // First, get the card to find its image URL
       const { data: cardData, error: cardError } = await supabase
@@ -49,33 +49,14 @@ export function useCardOperations() {
         }
       }
       
-      toast({
-        title: "Sucesso",
-        description: "Card promocional excluído com sucesso"
-      });
-      
-      // Update local state if provided
-      if (setCards) {
-        setCards(prevCards => prevCards.filter(card => card.id !== id));
-      }
-
       return true;
     } catch (error) {
       console.error('Error deleting card:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o card promocional",
-        variant: "destructive"
-      });
       return false;
     }
   };
 
-  const moveCardToFolder = async (
-    cardId: string, 
-    newFolderId: string | null,
-    setCards?: React.Dispatch<React.SetStateAction<CardItem[]>>
-  ) => {
+  const moveCardToFolder = async (cardId: string, newFolderId: string | null) => {
     try {
       const { error } = await supabase
         .from('promotional_cards')
@@ -84,28 +65,9 @@ export function useCardOperations() {
       
       if (error) throw error;
       
-      toast({
-        title: "Sucesso",
-        description: newFolderId ? "Card movido para a pasta com sucesso" : "Card removido da pasta com sucesso"
-      });
-      
-      // Update local state if provided
-      if (setCards) {
-        setCards(prevCards => prevCards.map(card => 
-          card.id === cardId 
-            ? {...card, folder_id: newFolderId}
-            : card
-        ));
-      }
-
       return true;
     } catch (error) {
       console.error('Error moving card to folder:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível mover o card",
-        variant: "destructive"
-      });
       return false;
     }
   };

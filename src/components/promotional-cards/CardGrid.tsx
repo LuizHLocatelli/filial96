@@ -24,7 +24,7 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridPr
           promotionDate={card.promotion_date}
           imageUrl={card.image_url}
           folderId={card.folder_id}
-          onDelete={() => onDelete(card.id)}
+          onDelete={onDelete}
           onMoveToFolder={onMoveToFolder}
           sector={sector}
           isMobile={isMobile}

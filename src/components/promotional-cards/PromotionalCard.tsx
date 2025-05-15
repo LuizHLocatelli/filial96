@@ -44,8 +44,8 @@ interface PromotionalCardProps {
   promotionDate?: string;
   imageUrl: string;
   folderId: string | null;
-  onDelete: () => void;
-  onMoveToFolder: (cardId: string, folderId: string | null) => void;
+  onDelete: (id: string) => Promise<boolean>;
+  onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
   sector: "furniture" | "fashion";
   isMobile?: boolean;
 }
@@ -95,6 +95,33 @@ export function PromotionalCard({
         description: "Não foi possível fazer o download",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    setIsLoading(true);
+    try {
+      const success = await onDelete(id);
+      if (success) {
+        setIsDeleteDialogOpen(false);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMoveToFolder = async (newFolderId: string | null) => {
+    setIsLoading(true);
+    try {
+      const success = await onMoveToFolder(id, newFolderId);
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: newFolderId ? "Card movido para a pasta com sucesso" : "Card removido da pasta com sucesso"
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,7 +207,11 @@ export function PromotionalCard({
               <DropdownMenuSeparator />
               
               {folderId && (
-                <DropdownMenuItem onClick={() => onMoveToFolder(id, null)} className={cn(isMobile && "text-xs")}>
+                <DropdownMenuItem 
+                  onClick={() => handleMoveToFolder(null)} 
+                  className={cn(isMobile && "text-xs")}
+                  disabled={isLoading}
+                >
                   <X className="mr-2 h-3.5 w-3.5" />
                   Remover da pasta
                 </DropdownMenuItem>
@@ -192,8 +223,9 @@ export function PromotionalCard({
                   .map(folder => (
                     <DropdownMenuItem 
                       key={folder.id}
-                      onClick={() => onMoveToFolder(id, folder.id)}
+                      onClick={() => handleMoveToFolder(folder.id)}
                       className={cn(isMobile && "text-xs")}
+                      disabled={isLoading}
                     >
                       <FolderOpen className="mr-2 h-3.5 w-3.5" />
                       Mover para {folder.name}
@@ -205,6 +237,7 @@ export function PromotionalCard({
               <DropdownMenuItem 
                 className={cn("text-red-600", isMobile && "text-xs")}
                 onClick={() => setIsDeleteDialogOpen(true)}
+                disabled={isLoading}
               >
                 <Trash2 className="mr-2 h-3.5 w-3.5" />
                 Excluir
@@ -316,8 +349,19 @@ export function PromotionalCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-xs sm:text-sm h-8 sm:h-10">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} className="text-xs sm:text-sm h-8 sm:h-10">Excluir</AlertDialogAction>
+            <AlertDialogCancel 
+              className="text-xs sm:text-sm h-8 sm:h-10"
+              disabled={isLoading}
+            >
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm} 
+              className="text-xs sm:text-sm h-8 sm:h-10"
+              disabled={isLoading}
+            >
+              {isLoading ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : "Excluir"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
