@@ -135,33 +135,37 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
 
   return (
     <Card className="w-full">
-      <CardHeader>
+      <CardHeader className="px-4 sm:px-6">
         <CardTitle>Nova Venda O</CardTitle>
         <CardDescription>
           Adicione uma nova venda de outra filial com entrega/retirada na nossa loja
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6">
         {uploadError && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
+          <Alert variant="destructive" className="mb-4 text-xs sm:text-sm">
+            <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
             <AlertDescription>{uploadError}</AlertDescription>
           </Alert>
         )}
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="filial"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Filial da Venda</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Filial da Venda</FormLabel>
                     <FormControl>
-                      <Input placeholder="Número da filial" {...field} />
+                      <Input 
+                        placeholder="Número da filial" 
+                        {...field} 
+                        className="text-xs sm:text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -171,27 +175,35 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 name="data_venda"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Data da Venda</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Data da Venda</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input 
+                        type="date" 
+                        {...field} 
+                        className="text-xs sm:text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="nome_cliente"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Cliente</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Nome do Cliente</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome completo" {...field} />
+                      <Input 
+                        placeholder="Nome completo" 
+                        {...field} 
+                        className="text-xs sm:text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -201,11 +213,15 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 name="telefone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefone</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="(XX) XXXXX-XXXX" {...field} />
+                      <Input 
+                        placeholder="(XX) XXXXX-XXXX" 
+                        {...field} 
+                        className="text-xs sm:text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -213,15 +229,15 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
             
             <div key={productsKey}>
               <div className="flex justify-between items-center mb-2">
-                <Label>Produtos</Label>
+                <Label className="text-xs sm:text-sm">Produtos</Label>
                 <Button 
                   type="button" 
                   variant="outline" 
                   size="sm" 
                   onClick={addProduct}
-                  className="flex items-center"
+                  className="flex items-center text-xs sm:text-sm h-7 sm:h-8"
                 >
-                  <PlusCircle className="h-4 w-4 mr-1" /> Adicionar Produto
+                  <PlusCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> Adicionar Produto
                 </Button>
               </div>
               
@@ -234,23 +250,32 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input placeholder="Nome do produto" {...field} />
+                            <Input 
+                              placeholder="Nome do produto" 
+                              {...field} 
+                              className="text-xs sm:text-sm h-8 sm:h-10"
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
                   </div>
-                  <div className="w-24">
+                  <div className="w-20 sm:w-24">
                     <FormField
                       control={form.control}
                       name={`produtos.${index}.codigo`}
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input placeholder="Código" {...field} maxLength={6} />
+                            <Input 
+                              placeholder="Código" 
+                              {...field} 
+                              maxLength={6} 
+                              className="text-xs sm:text-sm h-8 sm:h-10"
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs" />
                         </FormItem>
                       )}
                     />
@@ -261,25 +286,30 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                       variant="ghost" 
                       size="icon" 
                       onClick={() => removeProduct(index)}
+                      className="h-8 sm:h-10 w-8 sm:w-10"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   )}
                 </div>
               ))}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="previsao_chegada"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Previsão de Chegada</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Previsão de Chegada</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input 
+                        type="date" 
+                        {...field} 
+                        className="text-xs sm:text-sm h-8 sm:h-10"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -289,22 +319,26 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 name="tipo_entrega"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de Entrega</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Tipo de Entrega</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10">
                           <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {entregaOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
+                          <SelectItem 
+                            key={option.value} 
+                            value={option.value}
+                            className="text-xs sm:text-sm"
+                          >
                             {option.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -314,35 +348,39 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel className="text-xs sm:text-sm">Status</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10">
                           <SelectValue placeholder="Selecione o status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {statusOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
+                          <SelectItem 
+                            key={option.value} 
+                            value={option.value}
+                            className="text-xs sm:text-sm"
+                          >
                             {option.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
             
             <div className="space-y-2">
-              <Label>Cupom Fiscal (PDF ou Imagem)</Label>
+              <Label className="text-xs sm:text-sm">Cupom Fiscal (PDF ou Imagem)</Label>
               <div 
-                className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer"
+                className="border-2 border-dashed rounded-lg p-4 sm:p-6 flex flex-col items-center justify-center cursor-pointer"
                 onClick={triggerFileInput}
               >
-                <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
-                <p className="text-sm text-center text-muted-foreground mb-2">
+                <UploadCloud className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground mb-3 sm:mb-4" />
+                <p className="text-xs sm:text-sm text-center text-muted-foreground mb-2">
                   {isMobile 
                     ? "Toque para selecionar um arquivo" 
                     : "Clique para selecionar ou arraste um arquivo"}
@@ -356,7 +394,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 />
                 <Button 
                   variant="outline" 
-                  className="cursor-pointer w-full sm:w-auto"
+                  className="cursor-pointer w-full sm:w-auto text-xs sm:text-sm h-7 sm:h-10"
                   onClick={(e) => {
                     e.stopPropagation();
                     triggerFileInput();
@@ -369,14 +407,14 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
               
               {selectedFile && (
                 <div className="mt-2">
-                  <p className="text-sm font-medium">Arquivo selecionado:</p>
-                  <p className="text-sm text-muted-foreground truncate">{selectedFile.name}</p>
+                  <p className="text-xs sm:text-sm font-medium">Arquivo selecionado:</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{selectedFile.name}</p>
                 </div>
               )}
               
               {isUploading && (
                 <div className="mt-2 space-y-2">
-                  <p className="text-sm font-medium">Progresso: {progress}%</p>
+                  <p className="text-xs sm:text-sm font-medium">Progresso: {progress}%</p>
                   <Progress value={progress} className="h-2" />
                 </div>
               )}
@@ -386,7 +424,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
               <Button 
                 type="submit" 
                 disabled={isUploading} 
-                className="w-full"
+                className="w-full sm:h-10 text-xs sm:text-sm"
               >
                 {isUploading ? "Enviando..." : "Adicionar Venda"}
               </Button>

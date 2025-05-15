@@ -56,41 +56,41 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
           Visão geral das vendas realizadas por outras filiais
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+      <CardContent className="px-2 sm:px-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Card className="bg-slate-50">
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">Produtos</div>
-              <div className="text-2xl font-bold">{counts.aguardando_produto}</div>
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-xs sm:text-sm font-medium text-muted-foreground">Produtos</div>
+              <div className="text-xl sm:text-2xl font-bold">{counts.aguardando_produto}</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-50">
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">Clientes</div>
-              <div className="text-2xl font-bold">{counts.aguardando_cliente}</div>
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-xs sm:text-sm font-medium text-muted-foreground">Clientes</div>
+              <div className="text-xl sm:text-2xl font-bold">{counts.aguardando_cliente}</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-50">
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">Pendentes</div>
-              <div className="text-2xl font-bold">{counts.pendente}</div>
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-xs sm:text-sm font-medium text-muted-foreground">Pendentes</div>
+              <div className="text-xl sm:text-2xl font-bold">{counts.pendente}</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-50">
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-muted-foreground">Concluídas</div>
-              <div className="text-2xl font-bold">{counts.concluida}</div>
+            <CardContent className="p-3 sm:p-4">
+              <div className="text-xs sm:text-sm font-medium text-muted-foreground">Concluídas</div>
+              <div className="text-xl sm:text-2xl font-bold">{counts.concluida}</div>
             </CardContent>
           </Card>
         </div>
         
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4 w-full grid grid-cols-2 sm:grid-cols-5">
-            <TabsTrigger value="all">Todas ({counts.all})</TabsTrigger>
-            <TabsTrigger value="aguardando_produto">Aguardando Produto ({counts.aguardando_produto})</TabsTrigger>
-            <TabsTrigger value="aguardando_cliente">Aguardando Cliente ({counts.aguardando_cliente})</TabsTrigger>
-            <TabsTrigger value="pendente">Pendente ({counts.pendente})</TabsTrigger>
-            <TabsTrigger value="concluida">Concluída ({counts.concluida})</TabsTrigger>
+          <TabsList className="mb-4 w-full grid grid-cols-2 sm:flex sm:flex-wrap">
+            <TabsTrigger className="text-xs sm:text-sm" value="all">Todas ({counts.all})</TabsTrigger>
+            <TabsTrigger className="text-xs sm:text-sm" value="aguardando_produto">Aguardando Produto ({counts.aguardando_produto})</TabsTrigger>
+            <TabsTrigger className="text-xs sm:text-sm" value="aguardando_cliente">Aguardando Cliente ({counts.aguardando_cliente})</TabsTrigger>
+            <TabsTrigger className="text-xs sm:text-sm" value="pendente">Pendente ({counts.pendente})</TabsTrigger>
+            <TabsTrigger className="text-xs sm:text-sm" value="concluida">Concluída ({counts.concluida})</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab}>

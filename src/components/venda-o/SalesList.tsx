@@ -67,13 +67,24 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
   // Handle opening the view dialog with correct product parsing
   const handleViewSale = (sale: VendaO) => {
     // Ensure produtos is always an array before setting selectedSale
+    let parsedProdutos;
+    try {
+      if (typeof sale.produtos === 'string') {
+        parsedProdutos = JSON.parse(sale.produtos);
+      } else if (Array.isArray(sale.produtos)) {
+        parsedProdutos = sale.produtos;
+      } else {
+        parsedProdutos = [];
+        console.error("Produtos não é um array nem uma string JSON válida:", sale.produtos);
+      }
+    } catch (error) {
+      console.error("Erro ao processar produtos:", error);
+      parsedProdutos = [];
+    }
+    
     const parsedSale = {
       ...sale,
-      produtos: Array.isArray(sale.produtos) 
-        ? sale.produtos 
-        : typeof sale.produtos === 'string'
-          ? JSON.parse(sale.produtos)
-          : JSON.parse(JSON.stringify(sale.produtos))
+      produtos: parsedProdutos
     };
     
     setSelectedSale(parsedSale);
@@ -107,91 +118,95 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
 
   return (
     <>
-      <Table>
-        <TableCaption>{title} - Total: {sales.length}</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Data</TableHead>
-            <TableHead className="hidden md:table-cell">Cliente</TableHead>
-            <TableHead className="hidden md:table-cell">Filial</TableHead>
-            <TableHead className="hidden lg:table-cell">Produtos</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sales.map((sale) => (
-            <TableRow key={sale.id}>
-              <TableCell className="font-medium">
-                {format(parseISO(sale.data_venda), "dd/MM/yyyy")}
-              </TableCell>
-              <TableCell className="hidden md:table-cell">{sale.nome_cliente}</TableCell>
-              <TableCell className="hidden md:table-cell">{sale.filial}</TableCell>
-              <TableCell className="hidden lg:table-cell">
-                {Array.isArray(sale.produtos) ? sale.produtos.length : 'N/A'} item(ns)
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={sale.status}
-                  onValueChange={(value) => handleStatusChange(sale.id, value)}
-                  disabled={isChanging[sale.id]}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue>{getStatusBadge(sale.status)}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleViewSale(sale)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="icon"
-                    onClick={() => {
-                      setSelectedSale(sale);
-                      setIsDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+      <div className="overflow-x-auto -mx-2 sm:mx-0">
+        <Table>
+          <TableCaption>{title} - Total: {sales.length}</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Data</TableHead>
+              <TableHead className="hidden md:table-cell">Cliente</TableHead>
+              <TableHead className="hidden md:table-cell">Filial</TableHead>
+              <TableHead className="hidden lg:table-cell">Produtos</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {sales.map((sale) => (
+              <TableRow key={sale.id}>
+                <TableCell className="font-medium text-xs sm:text-sm">
+                  {format(parseISO(sale.data_venda), "dd/MM/yyyy")}
+                </TableCell>
+                <TableCell className="hidden md:table-cell text-xs sm:text-sm">{sale.nome_cliente}</TableCell>
+                <TableCell className="hidden md:table-cell text-xs sm:text-sm">{sale.filial}</TableCell>
+                <TableCell className="hidden lg:table-cell text-xs sm:text-sm">
+                  {Array.isArray(sale.produtos) ? sale.produtos.length : 'N/A'} item(ns)
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={sale.status}
+                    onValueChange={(value) => handleStatusChange(sale.id, value)}
+                    disabled={isChanging[sale.id]}
+                  >
+                    <SelectTrigger className="w-[120px] sm:w-[180px] text-xs sm:text-sm">
+                      <SelectValue>{getStatusBadge(sale.status)}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-1 sm:space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      className="h-7 w-7 sm:h-8 sm:w-8"
+                      onClick={() => handleViewSale(sale)}
+                    >
+                      <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="icon"
+                      className="h-7 w-7 sm:h-8 sm:w-8"
+                      onClick={() => {
+                        setSelectedSale(sale);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-[500px]">
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja excluir esta venda? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Excluir</AlertDialogAction>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="w-full sm:w-auto">Excluir</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         {selectedSale && (
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="max-w-[90vw] sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Detalhes da Venda</DialogTitle>
               <DialogDescription>
@@ -203,7 +218,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                 <Calendar className="h-5 w-5 text-muted-foreground" />
                 <div className="col-span-3">
                   <p className="text-sm font-medium">Data da Venda</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {format(parseISO(selectedSale.data_venda), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </p>
                 </div>
@@ -213,9 +228,9 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                 <Phone className="h-5 w-5 text-muted-foreground" />
                 <div className="col-span-3">
                   <p className="text-sm font-medium">Cliente</p>
-                  <p className="text-sm text-muted-foreground">{selectedSale.nome_cliente}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{selectedSale.nome_cliente}</p>
                   {selectedSale.telefone && (
-                    <p className="text-sm text-muted-foreground">{selectedSale.telefone}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{selectedSale.telefone}</p>
                   )}
                 </div>
               </div>
@@ -224,7 +239,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                 <Package className="h-5 w-5 text-muted-foreground" />
                 <div className="col-span-3">
                   <p className="text-sm font-medium">Produtos</p>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     {Array.isArray(selectedSale.produtos) ? (
                       selectedSale.produtos.map((product, index) => (
                         <div key={index} className="py-1">
@@ -242,11 +257,11 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                 <Truck className="h-5 w-5 text-muted-foreground" />
                 <div className="col-span-3">
                   <p className="text-sm font-medium">Entrega</p>
-                  <p className="text-sm text-muted-foreground capitalize">
+                  <p className="text-xs sm:text-sm text-muted-foreground capitalize">
                     {selectedSale.tipo_entrega === 'frete' ? 'Frete' : 'Retirada'}
                   </p>
                   {selectedSale.previsao_chegada && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Previsão: {format(parseISO(selectedSale.previsao_chegada), "dd/MM/yyyy")}
                     </p>
                   )}
@@ -262,7 +277,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                         <Button
                           key={attachment.id}
                           variant="outline"
-                          className="w-full justify-start"
+                          className="w-full justify-start text-xs sm:text-sm"
                           onClick={() => window.open(attachment.file_url, '_blank')}
                         >
                           <Eye className="h-4 w-4 mr-2" />
@@ -271,7 +286,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground">Nenhum anexo disponível</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Nenhum anexo disponível</p>
                   )}
                 </div>
               </div>

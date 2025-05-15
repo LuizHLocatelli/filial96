@@ -39,21 +39,21 @@ export default function VendaO() {
   };
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container py-4 sm:py-6 space-y-4 sm:space-y-6 px-2 sm:px-6">
       <div className="flex flex-col">
-        <h1 className="text-3xl font-bold tracking-tight">Venda O</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Venda O</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Gerenciamento de vendas de outras filiais com entrega ou retirada na nossa filial
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full md:w-auto">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full grid grid-cols-2 mb-2">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="nova">Nova Venda</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard" className="pt-4">
+        <TabsContent value="dashboard" className="pt-2 sm:pt-4">
           <SalesDashboard 
             sales={sales} 
             isLoading={isLoading} 
@@ -62,7 +62,7 @@ export default function VendaO() {
           />
         </TabsContent>
 
-        <TabsContent value="nova" className="pt-4">
+        <TabsContent value="nova" className="pt-2 sm:pt-4">
           <SaleUploader 
             isUploading={isUploading} 
             progress={progress}
