@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import EntregasRetiradas from "./pages/EntregasRetiradas";
-import Montagens from "./pages/Montagens";
 import Crediario from "./pages/Crediario";
 import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
@@ -49,14 +48,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><EntregasRetiradas /></AppLayout>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/montagens" 
-        element={
-          <ProtectedRoute>
-            <AppLayout><Montagens /></AppLayout>
           </ProtectedRoute>
         } 
       />

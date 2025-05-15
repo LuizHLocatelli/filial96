@@ -15,7 +15,6 @@ import {
 import { AuthHeader } from "@/components/auth/AuthHeader";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignupForm } from "@/components/auth/SignupForm";
-import { PasswordResetForm } from "@/components/auth/PasswordResetForm";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("login");
@@ -26,10 +25,9 @@ export default function Auth() {
         <AuthHeader />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-muted">
+          <TabsList className="grid w-full grid-cols-2 bg-muted">
             <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Login</TabsTrigger>
             <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Criar conta</TabsTrigger>
-            <TabsTrigger value="reset" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Recuperar senha</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
             <Card className="border-border shadow-lg">
@@ -51,17 +49,6 @@ export default function Auth() {
                 </CardDescription>
               </CardHeader>
               <SignupForm />
-            </Card>
-          </TabsContent>
-          <TabsContent value="reset">
-            <Card className="border-border shadow-lg">
-              <CardHeader className="bg-card rounded-t-md">
-                <CardTitle className="text-card-foreground">Recuperar senha</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Digite seu e-mail para receber instruções de recuperação de senha.
-                </CardDescription>
-              </CardHeader>
-              <PasswordResetForm />
             </Card>
           </TabsContent>
         </Tabs>

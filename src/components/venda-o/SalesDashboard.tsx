@@ -53,35 +53,35 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dashboard de Vendas O</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-xl sm:text-2xl text-foreground">Dashboard de Vendas O</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Visão geral das vendas realizadas por outras filiais
         </CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
-          <Card className="bg-slate-50">
+          <Card className="bg-slate-50 dark:bg-slate-900">
             <CardContent className="p-3 sm:p-4">
               <div className="text-xs sm:text-sm font-medium text-muted-foreground">Produtos</div>
-              <div className="text-xl sm:text-2xl font-bold">{counts.aguardando_produto}</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{counts.aguardando_produto}</div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-50">
+          <Card className="bg-slate-50 dark:bg-slate-900">
             <CardContent className="p-3 sm:p-4">
               <div className="text-xs sm:text-sm font-medium text-muted-foreground">Clientes</div>
-              <div className="text-xl sm:text-2xl font-bold">{counts.aguardando_cliente}</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{counts.aguardando_cliente}</div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-50">
+          <Card className="bg-slate-50 dark:bg-slate-900">
             <CardContent className="p-3 sm:p-4">
               <div className="text-xs sm:text-sm font-medium text-muted-foreground">Pendentes</div>
-              <div className="text-xl sm:text-2xl font-bold">{counts.pendente}</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{counts.pendente}</div>
             </CardContent>
           </Card>
-          <Card className="bg-slate-50">
+          <Card className="bg-slate-50 dark:bg-slate-900">
             <CardContent className="p-3 sm:p-4">
               <div className="text-xs sm:text-sm font-medium text-muted-foreground">Concluídas</div>
-              <div className="text-xl sm:text-2xl font-bold">{counts.concluida}</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{counts.concluida}</div>
             </CardContent>
           </Card>
         </div>
