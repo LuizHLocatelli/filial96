@@ -70,8 +70,6 @@ const Crediario = () => {
                 </AlertDescription>
               </Alert>
             </div>
-            
-            <QuickAccess onNavigate={handleTabChange} />
           </div>
         );
       case "listagens":
@@ -87,11 +85,9 @@ const Crediario = () => {
       case "diretorio":
         return <Diretorio />;
       default:
-        return <QuickAccess onNavigate={handleTabChange} />;
+        return null;
     }
   };
-
-  const showCompactMenu = activeTab !== "welcome";
 
   return (
     <div className="space-y-4"> 
@@ -116,11 +112,7 @@ const Crediario = () => {
         </p>
       </div>
       
-      {showCompactMenu && (
-        <div className="mb-3 bg-muted/50 rounded-lg p-3"> 
-          <QuickAccess onNavigate={handleTabChange} compact={true} />
-        </div>
-      )}
+      <QuickAccess onNavigate={handleTabChange} compact={true} />
       
       {renderContent()}
     </div>
