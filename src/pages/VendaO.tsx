@@ -48,10 +48,13 @@ export default function VendaO() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-2 mb-2">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="nova">Nova Venda</TabsTrigger>
-        </TabsList>
+        {/* Improved tab triggers for mobile */}
+        <div className="relative">
+          <TabsList className="w-full grid grid-cols-2 gap-1 mb-2">
+            <TabsTrigger value="dashboard" className="px-2">Dashboard</TabsTrigger>
+            <TabsTrigger value="nova" className="px-2">Nova Venda</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="dashboard" className="pt-2 sm:pt-4">
           <SalesDashboard 

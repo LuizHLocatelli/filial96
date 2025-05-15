@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VendaO, statusOptions } from "@/types/vendaO";
 import { SalesList } from "./SalesList";
 import { Loader2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SalesDashboardProps {
   sales: VendaO[];
@@ -15,6 +16,7 @@ interface SalesDashboardProps {
 
 export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: SalesDashboardProps) {
   const [activeTab, setActiveTab] = useState<string>("all");
+  const isMobile = useIsMobile();
   
   const filteredSales = activeTab === "all" 
     ? sales 
@@ -85,13 +87,16 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
         </div>
         
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4 w-full grid grid-cols-2 sm:flex sm:flex-wrap">
-            <TabsTrigger className="text-xs sm:text-sm" value="all">Todas ({counts.all})</TabsTrigger>
-            <TabsTrigger className="text-xs sm:text-sm" value="aguardando_produto">Aguardando Produto ({counts.aguardando_produto})</TabsTrigger>
-            <TabsTrigger className="text-xs sm:text-sm" value="aguardando_cliente">Aguardando Cliente ({counts.aguardando_cliente})</TabsTrigger>
-            <TabsTrigger className="text-xs sm:text-sm" value="pendente">Pendente ({counts.pendente})</TabsTrigger>
-            <TabsTrigger className="text-xs sm:text-sm" value="concluida">Concluída ({counts.concluida})</TabsTrigger>
-          </TabsList>
+          {/* Improved TabsList layout for mobile */}
+          <div className="overflow-x-auto -mx-2 pb-2">
+            <TabsList className="mb-4 w-full min-w-max flex">
+              <TabsTrigger className="flex-1 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3" value="all">Todas ({counts.all})</TabsTrigger>
+              <TabsTrigger className="flex-1 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3" value="aguardando_produto">Produtos ({counts.aguardando_produto})</TabsTrigger>
+              <TabsTrigger className="flex-1 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3" value="aguardando_cliente">Clientes ({counts.aguardando_cliente})</TabsTrigger>
+              <TabsTrigger className="flex-1 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3" value="pendente">Pendentes ({counts.pendente})</TabsTrigger>
+              <TabsTrigger className="flex-1 text-xs sm:text-sm whitespace-nowrap px-2 sm:px-3" value="concluida">Concluídas ({counts.concluida})</TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value={activeTab}>
             <SalesList 
