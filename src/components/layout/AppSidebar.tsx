@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, Home, Package, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
@@ -38,22 +38,6 @@ export function AppSidebar() {
                   <Link to="/">
                     <Home className="h-5 w-5" />
                     <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/entregas">
-                    <Package className="h-5 w-5" />
-                    <span>Entregas/Retiradas</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/montagens">
-                    <ClipboardCheck className="h-5 w-5" />
-                    <span>Montagens</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
