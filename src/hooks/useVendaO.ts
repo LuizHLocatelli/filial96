@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -36,14 +35,22 @@ export function useVendaO() {
 
           if (attachmentsError) {
             console.error("Error fetching attachments:", attachmentsError);
-            return { ...sale, attachments: [] };
+            return { 
+              ...sale, 
+              produtos: Array.isArray(sale.produtos) ? sale.produtos : JSON.parse(JSON.stringify(sale.produtos)),
+              attachments: [] 
+            };
           }
 
-          return { ...sale, attachments: attachments || [] };
+          return { 
+            ...sale, 
+            produtos: Array.isArray(sale.produtos) ? sale.produtos : JSON.parse(JSON.stringify(sale.produtos)), 
+            attachments: attachments || [] 
+          };
         })
       );
 
-      setSales(salesWithAttachments);
+      setSales(salesWithAttachments as VendaO[]);
     } catch (error) {
       console.error("Error loading Venda O sales:", error);
       toast({
@@ -79,7 +86,7 @@ export function useVendaO() {
           data_venda: saleData.data_venda,
           nome_cliente: saleData.nome_cliente,
           telefone: saleData.telefone,
-          produtos: saleData.produtos,
+          produtos: JSON.stringify(saleData.produtos),
           previsao_chegada: saleData.previsao_chegada,
           tipo_entrega: saleData.tipo_entrega,
           status: saleData.status,
