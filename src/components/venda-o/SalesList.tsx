@@ -22,7 +22,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { 
   Dialog,
@@ -34,7 +33,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Eye, Calendar, Phone, Truck, Package } from "lucide-react";
-import { VendaO, statusOptions } from "@/types/vendaO";
+import { VendaO, statusOptions, VendaOProduct } from "@/types/vendaO";
 
 interface SalesListProps {
   sales: VendaO[];
@@ -63,6 +62,22 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
       await onDelete(selectedSale.id);
       setIsDeleteDialogOpen(false);
     }
+  };
+
+  // Handle opening the view dialog with correct product parsing
+  const handleViewSale = (sale: VendaO) => {
+    // Ensure produtos is always an array before setting selectedSale
+    const parsedSale = {
+      ...sale,
+      produtos: Array.isArray(sale.produtos) 
+        ? sale.produtos 
+        : typeof sale.produtos === 'string'
+          ? JSON.parse(sale.produtos)
+          : JSON.parse(JSON.stringify(sale.produtos))
+    };
+    
+    setSelectedSale(parsedSale);
+    setIsViewDialogOpen(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -113,7 +128,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
               <TableCell className="hidden md:table-cell">{sale.nome_cliente}</TableCell>
               <TableCell className="hidden md:table-cell">{sale.filial}</TableCell>
               <TableCell className="hidden lg:table-cell">
-                {sale.produtos.length} item(ns)
+                {Array.isArray(sale.produtos) ? sale.produtos.length : 'N/A'} item(ns)
               </TableCell>
               <TableCell>
                 <Select
@@ -138,10 +153,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                   <Button 
                     variant="outline" 
                     size="icon"
-                    onClick={() => {
-                      setSelectedSale(sale);
-                      setIsViewDialogOpen(true);
-                    }}
+                    onClick={() => handleViewSale(sale)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
@@ -213,11 +225,15 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                 <div className="col-span-3">
                   <p className="text-sm font-medium">Produtos</p>
                   <div className="text-sm text-muted-foreground">
-                    {selectedSale.produtos.map((product, index) => (
-                      <div key={index} className="py-1">
-                        <p>{product.nome} <span className="text-xs font-mono bg-slate-100 px-1 rounded">#{product.codigo}</span></p>
-                      </div>
-                    ))}
+                    {Array.isArray(selectedSale.produtos) ? (
+                      selectedSale.produtos.map((product, index) => (
+                        <div key={index} className="py-1">
+                          <p>{product.nome} <span className="text-xs font-mono bg-slate-100 px-1 rounded">#{product.codigo}</span></p>
+                        </div>
+                      ))
+                    ) : (
+                      <p>Erro ao carregar produtos</p>
+                    )}
                   </div>
                 </div>
               </div>

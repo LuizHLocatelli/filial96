@@ -1,8 +1,26 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFileUpload } from "@/hooks/crediario/useFileUpload";
 import { VendaO, VendaOProduct, VendaOAttachment } from "@/types/vendaO";
+
+// Helper function to ensure produtos is always an array of VendaOProduct
+const ensureProductsArray = (produtos: any): VendaOProduct[] => {
+  if (Array.isArray(produtos)) {
+    return produtos;
+  }
+  
+  try {
+    if (typeof produtos === 'string') {
+      return JSON.parse(produtos);
+    }
+    return JSON.parse(JSON.stringify(produtos));
+  } catch (e) {
+    console.error("Error parsing produtos:", e);
+    return [];
+  }
+};
 
 export function useVendaO() {
   const [sales, setSales] = useState<VendaO[]>([]);
@@ -37,14 +55,14 @@ export function useVendaO() {
             console.error("Error fetching attachments:", attachmentsError);
             return { 
               ...sale, 
-              produtos: Array.isArray(sale.produtos) ? sale.produtos : JSON.parse(JSON.stringify(sale.produtos)),
+              produtos: ensureProductsArray(sale.produtos),
               attachments: [] 
             };
           }
 
           return { 
             ...sale, 
-            produtos: Array.isArray(sale.produtos) ? sale.produtos : JSON.parse(JSON.stringify(sale.produtos)), 
+            produtos: ensureProductsArray(sale.produtos),
             attachments: attachments || [] 
           };
         })
