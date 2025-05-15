@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, Home, Package, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Package, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar() {
@@ -54,6 +54,16 @@ export function AppSidebar() {
                   <Link to="/montagens">
                     <ClipboardCheck className="h-5 w-5" />
                     <span>Montagens</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              {/* New Venda O menu item */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathStart === "/venda-o"}>
+                  <Link to="/venda-o">
+                    <Store className="h-5 w-5" />
+                    <span>Venda O</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
 import PromotionalCards from "./pages/PromotionalCards";
+import VendaO from "./pages/VendaO";
 
 const AppRoutes = () => {
   const { isLoading } = useAuth();
@@ -72,6 +73,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><Crediario /></AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      {/* Add Venda O route */}
+      <Route 
+        path="/venda-o" 
+        element={
+          <ProtectedRoute>
+            <AppLayout><VendaO /></AppLayout>
           </ProtectedRoute>
         } 
       />
