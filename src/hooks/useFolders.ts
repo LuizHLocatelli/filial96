@@ -26,7 +26,7 @@ export function useFolders(sector: "furniture" | "fashion") {
         
         if (error) throw error;
         
-        setFolders(data as Folder[]);
+        setFolders(data as FolderItem[]);
         setError(null);
       } catch (error) {
         console.error('Error fetching folders:', error);
