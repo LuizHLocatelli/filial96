@@ -8,7 +8,7 @@ import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 
 interface CardGalleryProps {
-  sector: "furniture" | "fashion";
+  sector: "furniture" | "fashion" | "loan" | "service";
   folderId: string | null;
 }
 

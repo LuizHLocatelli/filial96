@@ -31,7 +31,7 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
           id: card.id,
           title: card.title,
           image_url: card.image_url,
-          sector: card.sector,
+          sector: card.sector as "furniture" | "fashion" | "loan" | "service",
           position: card.position,
           folder_id: card.folder_id,
           created_by: card.created_by,
