@@ -11,7 +11,7 @@ import { SectorSelector } from "@/components/promotional-cards/SectorSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function PromotionalCards() {
-  const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion">("furniture");
+  const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion" | "loan" | "service">("furniture");
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
@@ -23,14 +23,17 @@ export default function PromotionalCards() {
         <div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Cards Promocionais</h2>
           <p className="text-muted-foreground text-xs sm:text-sm">
-            Gerencie cards promocionais para setores de Móveis e Moda
+            Gerencie cards promocionais para diferentes setores
           </p>
         </div>
       </div>
 
       <SectorSelector 
         selectedSector={selectedSector} 
-        onSectorChange={(value) => setSelectedSector(value as "furniture" | "fashion")} 
+        onSectorChange={(value) => {
+          setSelectedSector(value as "furniture" | "fashion" | "loan" | "service");
+          setSelectedFolderId(null); // Reset folder selection when changing sector
+        }} 
       />
 
       {/* Conteúdo para o setor selecionado */}

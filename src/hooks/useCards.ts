@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { CardItem } from "./useCardOperations";
 
-export function useCards(sector: "furniture" | "fashion", folderId: string | null) {
+export function useCards(sector: "furniture" | "fashion" | "loan" | "service", folderId: string | null) {
   const [cards, setCards] = useState<CardItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

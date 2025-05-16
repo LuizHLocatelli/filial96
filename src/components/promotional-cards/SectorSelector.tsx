@@ -2,32 +2,36 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { FolderArchive, FileBox, Wallet, Building2 } from "lucide-react";
 
 interface SectorSelectorProps {
-  selectedSector: "furniture" | "fashion";
+  selectedSector: "furniture" | "fashion" | "loan" | "service";
   onSectorChange: (sector: string) => void;
 }
 
 export function SectorSelector({ selectedSector, onSectorChange }: SectorSelectorProps) {
   const isMobile = useIsMobile();
   
+  const sectors = [
+    { title: "Móveis", value: "furniture", icon: Building2 },
+    { title: "Moda", value: "fashion", icon: FileBox },
+    { title: "Empréstimo", value: "loan", icon: Wallet },
+    { title: "Serviços", value: "service", icon: FolderArchive },
+  ];
+  
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-4">
-      <SectorCard
-        title="Móveis"
-        value="furniture"
-        isSelected={selectedSector === "furniture"}
-        onClick={() => onSectorChange("furniture")}
-        isMobile={isMobile}
-      />
-      
-      <SectorCard
-        title="Moda"
-        value="fashion"
-        isSelected={selectedSector === "fashion"}
-        onClick={() => onSectorChange("fashion")}
-        isMobile={isMobile}
-      />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
+      {sectors.map(sector => (
+        <SectorCard
+          key={sector.value}
+          title={sector.title}
+          value={sector.value}
+          isSelected={selectedSector === sector.value}
+          onClick={() => onSectorChange(sector.value)}
+          isMobile={isMobile}
+          Icon={sector.icon}
+        />
+      ))}
     </div>
   );
 }
@@ -38,9 +42,10 @@ interface SectorCardProps {
   isSelected: boolean;
   onClick: () => void;
   isMobile: boolean | undefined;
+  Icon: React.ElementType;
 }
 
-function SectorCard({ title, value, isSelected, onClick, isMobile }: SectorCardProps) {
+function SectorCard({ title, value, isSelected, onClick, isMobile, Icon }: SectorCardProps) {
   return (
     <Card
       className={cn(
@@ -52,6 +57,7 @@ function SectorCard({ title, value, isSelected, onClick, isMobile }: SectorCardP
       )}
       onClick={onClick}
     >
+      <Icon className={cn("mb-1", isMobile ? "h-4 w-4" : "h-5 w-5")} />
       <h3 className={cn("font-semibold", isMobile ? "text-base" : "text-lg")}>{title}</h3>
       <p className={cn("text-sm", isMobile && "text-xs")}>
         Cards promocionais de {title.toLowerCase()}

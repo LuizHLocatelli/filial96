@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Folder, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Folder, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
 import { useFolders } from "@/hooks/useFolders";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface FoldersListProps {
-  sector: "furniture" | "fashion";
+  sector: "furniture" | "fashion" | "loan" | "service";
   selectedFolderId: string | null;
   onSelectFolder: (folderId: string | null) => void;
 }
@@ -101,7 +101,8 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
     }
   };
 
-  const handleUpdateFolder = async () => {
+  const handleUpdateFolder = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!folderToEdit || !editedFolderName.trim()) return;
     
     setIsSubmitting(true);
@@ -133,13 +134,9 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
-        {[1, 2, 3].map((i) => (
-          <div 
-            key={i} 
-            className="h-8 bg-muted rounded-md animate-pulse"
-          />
-        ))}
+      <div className="flex items-center justify-center py-6 text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+        <span>Carregando pastas...</span>
       </div>
     );
   }
@@ -161,8 +158,14 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
           Todos os Cards
         </Button>
         
+        {folders.length === 0 && (
+          <div className="text-sm text-center text-muted-foreground py-3">
+            Nenhuma pasta encontrada
+          </div>
+        )}
+        
         {folders.map((folder) => (
-          <div key={folder.id} className="flex items-center">
+          <div key={folder.id} className="flex items-center group">
             <Button
               variant="ghost"
               size={isMobile ? "sm" : "default"}
@@ -182,7 +185,11 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={cn("px-2", isMobile && "h-6")}
+                  className={cn(
+                    "px-2 opacity-0 group-hover:opacity-100 focus:opacity-100", 
+                    isMobile && "h-6",
+                    selectedFolderId === folder.id && "opacity-100"
+                  )}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MoreHorizontal className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
@@ -221,10 +228,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">Editar Pasta</DialogTitle>
           </DialogHeader>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleUpdateFolder();
-          }} className="space-y-4">
+          <form onSubmit={handleUpdateFolder} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="folder-name" className="text-xs sm:text-sm">Nome da pasta</Label>
               <Input
@@ -252,7 +256,12 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                 disabled={isSubmitting || !editedFolderName.trim()}
                 className="text-xs sm:text-sm h-8 sm:h-10"
               >
-                Salvar
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                    Salvando...
+                  </>
+                ) : "Salvar"}
               </Button>
             </DialogFooter>
           </form>
@@ -283,7 +292,12 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
               className="text-xs sm:text-sm h-8 sm:h-10"
               disabled={isSubmitting}
             >
-              Excluir
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  Excluindo...
+                </>
+              ) : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

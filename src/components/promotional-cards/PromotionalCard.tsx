@@ -10,6 +10,8 @@ import {
   CardDeleteDialog,
   CardDropdownMenu
 } from "./card";
+import { Calendar, Hash } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface PromotionalCardProps {
   id: string;
@@ -20,7 +22,7 @@ interface PromotionalCardProps {
   folderId: string | null;
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  sector: "furniture" | "fashion";
+  sector: "furniture" | "fashion" | "loan" | "service";
   isMobile?: boolean;
 }
 
@@ -98,23 +100,57 @@ export function PromotionalCard({
     }
   };
 
+  // Format date for display
+  const formattedDate = promotionDate ? new Date(promotionDate).toLocaleDateString('pt-BR') : null;
+
   return (
     <>
-      <Card className={cn(isMobile && "border-[0.5px]")}>
-        <CardContent className={cn("p-2", !isMobile && "p-3")}>
+      <Card className={cn(
+        "overflow-hidden transition-all duration-200 hover:shadow-md group",
+        isMobile && "border-[0.5px]"
+      )}>
+        <CardContent className={cn("p-0")}>
           <div 
-            className="aspect-[3/2] relative rounded-md overflow-hidden bg-muted cursor-pointer"
+            className="aspect-[3/2] relative rounded-t-md overflow-hidden bg-muted cursor-pointer"
             onClick={() => setIsDialogOpen(true)}
           >
             <img 
               src={imageUrl} 
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
             />
+            {(code || promotionDate) && (
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white p-2 text-xs">
+                <div className="flex items-center gap-2">
+                  {code && (
+                    <div className="flex items-center gap-1">
+                      <Hash className="h-3 w-3" />
+                      <span className="truncate">{code}</span>
+                    </div>
+                  )}
+                  {formattedDate && (
+                    <div className="flex items-center gap-1 ml-auto">
+                      <Calendar className="h-3 w-3" />
+                      <span>{formattedDate}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
-        <CardFooter className={cn("flex justify-between p-2 pt-0", !isMobile && "p-3 pt-0")}>
-          <div className="truncate text-xs sm:text-sm font-medium max-w-[70%]">{title}</div>
+        <CardFooter className={cn(
+          "flex justify-between p-2 bg-card border-t border-border",
+          !isMobile && "p-3"
+        )}>
+          <div className="flex flex-col gap-1 truncate max-w-[70%]">
+            <p className="truncate text-xs sm:text-sm font-medium">{title}</p>
+            {currentFolder && (
+              <Badge variant="outline" className="text-[10px] w-fit px-1 py-0 h-5">
+                {currentFolder.name}
+              </Badge>
+            )}
+          </div>
           <CardDropdownMenu 
             folderId={folderId}
             folders={folders}

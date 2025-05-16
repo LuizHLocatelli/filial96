@@ -1,9 +1,12 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Download, Calendar, Hash, Folder } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface CardViewDialogProps {
   isOpen: boolean;
@@ -52,15 +55,29 @@ export function CardViewDialog({
       });
     }
   };
+
+  // Format date if it exists
+  const formattedDate = promotionDate 
+    ? format(new Date(promotionDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) 
+    : null;
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6">
+      <DialogContent className="sm:max-w-lg max-w-[95vw] p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg">{title}</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg flex items-center justify-between">
+            <span className="font-semibold text-primary">{title}</span>
+            {code && (
+              <Badge variant="outline" className="ml-2 px-2 whitespace-nowrap">
+                Código: {code}
+              </Badge>
+            )}
+          </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center">
-          <div className="w-full max-h-[60vh] overflow-hidden rounded-md">
+        
+        <div className="flex flex-col gap-4">
+          {/* Card Image with shadow and border */}
+          <div className="w-full max-h-[60vh] overflow-hidden rounded-lg shadow-md border border-border">
             <img 
               src={imageUrl} 
               alt={title}
@@ -68,30 +85,46 @@ export function CardViewDialog({
             />
           </div>
           
-          <div className="w-full mt-4 space-y-2">
+          {/* Card Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-accent rounded-lg">
             {code && (
-              <div className="text-xs sm:text-sm">
-                <span className="font-semibold">Código:</span> {code}
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Código do Card</p>
+                  <p className="text-muted-foreground">{code}</p>
+                </div>
               </div>
             )}
-            {promotionDate && (
-              <div className="text-xs sm:text-sm">
-                <span className="font-semibold">Validade:</span> {new Date(promotionDate).toLocaleDateString('pt-BR')}
+            
+            {formattedDate && (
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Data da Promoção</p>
+                  <p className="text-muted-foreground">{formattedDate}</p>
+                </div>
               </div>
             )}
+            
             {currentFolder && (
-              <div className="text-xs sm:text-sm">
-                <span className="font-semibold">Pasta:</span> {currentFolder.name}
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <Folder className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Pasta</p>
+                  <p className="text-muted-foreground">{currentFolder.name}</p>
+                </div>
               </div>
             )}
           </div>
           
-          <div className="flex gap-2 mt-4 w-full justify-end">
+          {/* Actions */}
+          <div className="flex justify-end mt-2">
             <Button 
-              variant="outline" 
+              variant="secondary" 
               size="sm" 
               onClick={handleDownload}
-              className="text-xs sm:text-sm h-8"
+              className="text-xs sm:text-sm px-3"
             >
               <Download className="mr-2 h-3.5 w-3.5" />
               Download

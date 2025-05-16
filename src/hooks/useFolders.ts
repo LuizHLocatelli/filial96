@@ -6,10 +6,10 @@ import { toast } from "@/components/ui/use-toast";
 export interface FolderItem {
   id: string;
   name: string;
-  sector: "furniture" | "fashion";
+  sector: "furniture" | "fashion" | "loan" | "service";
 }
 
-export function useFolders(sector: "furniture" | "fashion") {
+export function useFolders(sector: "furniture" | "fashion" | "loan" | "service") {
   const [folders, setFolders] = useState<FolderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

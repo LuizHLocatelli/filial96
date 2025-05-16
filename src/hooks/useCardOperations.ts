@@ -7,7 +7,8 @@ export interface CardItem {
   image_url: string;
   folder_id: string | null;
   position: number;
-  code: string;
+  sector: "furniture" | "fashion" | "loan" | "service";
+  code: string | null;
   promotion_date: string | null;
   created_by: string;
   created_at: string;
