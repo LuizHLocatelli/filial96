@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
-interface Folder {
+export interface FolderItem {
   id: string;
   name: string;
   sector: "furniture" | "fashion";
 }
 
 export function useFolders(sector: "furniture" | "fashion") {
-  const [folders, setFolders] = useState<Folder[]>([]);
+  const [folders, setFolders] = useState<FolderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
