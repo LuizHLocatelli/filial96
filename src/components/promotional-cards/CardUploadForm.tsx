@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CardUploadFormProps {
-  sector: "furniture" | "fashion";
+  sector: "furniture" | "fashion" | "loan" | "service";
   title: string;
   setTitle: (title: string) => void;
   code: string;
