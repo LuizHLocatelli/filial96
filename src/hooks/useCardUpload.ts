@@ -16,7 +16,7 @@ interface CardUploadState {
 }
 
 interface UseCardUploadProps {
-  sector: "furniture" | "fashion";
+  sector: "furniture" | "fashion" | "loan" | "service";
   initialFolderId: string | null;
   onSuccess: () => void;
 }

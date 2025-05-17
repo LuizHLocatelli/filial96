@@ -1,6 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
+import { useCardUpload } from "@/hooks/useCardUpload";
 
 interface UploadCardDialogProps {
   open: boolean;
@@ -10,6 +11,31 @@ interface UploadCardDialogProps {
 }
 
 export function UploadCardDialog({ open, onOpenChange, sector, folderId }: UploadCardDialogProps) {
+  const {
+    title,
+    code,
+    promotionDate,
+    previewUrl,
+    isSubmitting,
+    setTitle,
+    setCode,
+    setPromotionDate,
+    setFolderId,
+    handleFileChange,
+    removeImage,
+    handleSubmit,
+    resetState
+  } = useCardUpload({
+    sector,
+    initialFolderId: folderId,
+    onSuccess: () => onOpenChange(false)
+  });
+
+  const handleCancel = () => {
+    resetState();
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -17,9 +43,21 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId }: Uploa
           <DialogTitle>Adicionar Novo Card Promocional</DialogTitle>
         </DialogHeader>
         <CardUploadForm 
-          sector={sector} 
-          folderId={folderId} 
-          onSuccess={() => onOpenChange(false)} 
+          sector={sector}
+          title={title}
+          setTitle={setTitle}
+          code={code}
+          setCode={setCode}
+          promotionDate={promotionDate}
+          setPromotionDate={setPromotionDate}
+          folderId={folderId}
+          setFolderId={setFolderId}
+          previewUrl={previewUrl}
+          handleFileChange={handleFileChange}
+          removeImage={removeImage}
+          handleSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          onCancel={handleCancel}
         />
       </DialogContent>
     </Dialog>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +27,7 @@ interface CardUploadFormProps {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   isSubmitting: boolean;
   onCancel: () => void;
+  onSuccess?: () => void; // Added this optional prop
 }
 
 export function CardUploadForm({
@@ -45,7 +45,8 @@ export function CardUploadForm({
   removeImage,
   handleSubmit,
   isSubmitting,
-  onCancel
+  onCancel,
+  onSuccess
 }: CardUploadFormProps) {
   const { folders } = useFolders(sector);
   const isMobile = useIsMobile();
