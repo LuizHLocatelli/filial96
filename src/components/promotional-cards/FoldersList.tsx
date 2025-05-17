@@ -1,37 +1,22 @@
 
-import { Button } from "@/components/ui/button";
-import { Folder, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
-import { useFolders } from "@/hooks/useFolders";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogTitle, 
-  DialogHeader,
-  DialogFooter
-} from "@/components/ui/dialog";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle 
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { Folder, Home, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useFolders } from "@/hooks/useFolders";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FoldersListProps {
   sector: "furniture" | "fashion" | "loan" | "service";
@@ -41,45 +26,76 @@ interface FoldersListProps {
 
 export function FoldersList({ sector, selectedFolderId, onSelectFolder }: FoldersListProps) {
   const { folders, isLoading } = useFolders(sector);
-  const isMobile = useIsMobile();
-  const [folderToEdit, setFolderToEdit] = useState<{ id: string, name: string } | null>(null);
-  const [folderToDelete, setFolderToDelete] = useState<string | null>(null);
-  const [editedFolderName, setEditedFolderName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<{id: string, name: string} | null>(null);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleDeleteFolder = async () => {
-    if (!folderToDelete) return;
+  const handleEdit = (folder: {id: string, name: string}) => {
+    setSelectedFolder(folder);
+    setNewFolderName(folder.name);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (folder: {id: string, name: string}) => {
+    setSelectedFolder(folder);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const updateFolder = async () => {
+    if (!selectedFolder) return;
     
-    setIsSubmitting(true);
+    setIsProcessing(true);
     try {
-      // Check if folder has cards
-      const { data: cards, error: cardsError } = await supabase
-        .from('promotional_cards')
-        .select('id')
-        .eq('folder_id', folderToDelete);
-      
-      if (cardsError) throw cardsError;
-      
-      if (cards && cards.length > 0) {
-        // Update cards to remove folder association
-        const { error: updateError } = await supabase
-          .from('promotional_cards')
-          .update({ folder_id: null })
-          .eq('folder_id', folderToDelete);
+      const { error } = await supabase
+        .from('card_folders')
+        .update({ name: newFolderName.trim() })
+        .eq('id', selectedFolder.id);
         
-        if (updateError) throw updateError;
-      }
+      if (error) throw error;
       
-      // Delete the folder
-      const { error: deleteError } = await supabase
+      toast({
+        title: "Sucesso",
+        description: "Pasta atualizada com sucesso"
+      });
+      
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.error('Error updating folder:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a pasta",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const deleteFolder = async () => {
+    if (!selectedFolder) return;
+    
+    setIsProcessing(true);
+    try {
+      // First update any cards in this folder to have no folder
+      const { error: updateCardsError } = await supabase
+        .from('promotional_cards')
+        .update({ folder_id: null })
+        .eq('folder_id', selectedFolder.id);
+        
+      if (updateCardsError) throw updateCardsError;
+      
+      // Then delete the folder
+      const { error } = await supabase
         .from('card_folders')
         .delete()
-        .eq('id', folderToDelete);
+        .eq('id', selectedFolder.id);
+        
+      if (error) throw error;
       
-      if (deleteError) throw deleteError;
-      
-      // Reset selected folder if it was deleted
-      if (selectedFolderId === folderToDelete) {
+      // If we were viewing this folder, reset to all cards
+      if (selectedFolderId === selectedFolder.id) {
         onSelectFolder(null);
       }
       
@@ -88,7 +104,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         description: "Pasta excluída com sucesso"
       });
       
-      setFolderToDelete(null);
+      setIsDeleteDialogOpen(false);
     } catch (error) {
       console.error('Error deleting folder:', error);
       toast({
@@ -97,211 +113,134 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         variant: "destructive"
       });
     } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdateFolder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!folderToEdit || !editedFolderName.trim()) return;
-    
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from('card_folders')
-        .update({ name: editedFolderName.trim() })
-        .eq('id', folderToEdit.id);
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Sucesso",
-        description: "Nome da pasta atualizado com sucesso"
-      });
-      
-      setFolderToEdit(null);
-    } catch (error) {
-      console.error('Error updating folder name:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o nome da pasta",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
+      setIsProcessing(false);
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-6 text-muted-foreground">
-        <Loader2 className="h-6 w-6 animate-spin mr-2" />
-        <span>Carregando pastas...</span>
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
       </div>
     );
   }
 
   return (
     <>
-      <div className="space-y-1">
-        <Button
-          variant="ghost"
-          size={isMobile ? "sm" : "default"}
-          className={cn(
-            "w-full justify-start text-left font-normal",
-            selectedFolderId === null && "bg-accent text-accent-foreground",
-            isMobile && "text-xs py-1.5 h-auto"
+      <ScrollArea className="h-[300px] pr-4">
+        <div className="space-y-1">
+          <Button 
+            variant={selectedFolderId === null ? "secondary" : "ghost"} 
+            size="sm"
+            className={cn("w-full justify-start text-sm", 
+              selectedFolderId === null ? "bg-secondary" : "hover:bg-secondary/50")}
+            onClick={() => onSelectFolder(null)}
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Todos os Cards
+          </Button>
+          
+          {folders.map(folder => (
+            <div key={folder.id} className="flex items-center">
+              <Button 
+                variant={selectedFolderId === folder.id ? "secondary" : "ghost"} 
+                size="sm"
+                className={cn("w-full justify-start text-sm", 
+                  selectedFolderId === folder.id ? "bg-secondary" : "hover:bg-secondary/50")}
+                onClick={() => onSelectFolder(folder.id)}
+              >
+                <Folder className="mr-2 h-4 w-4" />
+                <span className="truncate">{folder.name}</span>
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleEdit(folder)}>
+                    <Pencil className="mr-2 h-4 w-4" /> Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => handleDelete(folder)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ))}
+          
+          {folders.length === 0 && (
+            <div className="py-4 text-center text-sm text-muted-foreground">
+              Nenhuma pasta encontrada
+            </div>
           )}
-          onClick={() => onSelectFolder(null)}
-        >
-          <Folder className={cn("mr-2", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
-          Todos os Cards
-        </Button>
-        
-        {folders.length === 0 && (
-          <div className="text-sm text-center text-muted-foreground py-3">
-            Nenhuma pasta encontrada
-          </div>
-        )}
-        
-        {folders.map((folder) => (
-          <div key={folder.id} className="flex items-center group">
-            <Button
-              variant="ghost"
-              size={isMobile ? "sm" : "default"}
-              className={cn(
-                "flex-1 justify-start text-left font-normal",
-                selectedFolderId === folder.id && "bg-accent text-accent-foreground",
-                isMobile && "text-xs py-1.5 h-auto"
-              )}
-              onClick={() => onSelectFolder(folder.id)}
-            >
-              <Folder className={cn("mr-2", isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
-              <span className="truncate">{folder.name}</span>
-            </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={cn(
-                    "px-2 opacity-0 group-hover:opacity-100 focus:opacity-100", 
-                    isMobile && "h-6",
-                    selectedFolderId === folder.id && "opacity-100"
-                  )}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className={cn(isMobile ? "h-3.5 w-3.5" : "h-4 w-4")} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className={cn(isMobile && "w-48")}>
-                <DropdownMenuItem 
-                  className={cn(isMobile && "text-xs")}
-                  onClick={() => {
-                    setFolderToEdit(folder);
-                    setEditedFolderName(folder.name);
-                  }}
-                >
-                  <Pencil className="mr-2 h-3.5 w-3.5" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className={cn("text-red-600", isMobile && "text-xs")}
-                  onClick={() => setFolderToDelete(folder.id)}
-                >
-                  <Trash2 className="mr-2 h-3.5 w-3.5" />
-                  Excluir
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        ))}
-      </div>
+        </div>
+      </ScrollArea>
 
-      {/* Dialog de edição de pasta */}
-      <Dialog 
-        open={folderToEdit !== null} 
-        onOpenChange={(open) => !open && setFolderToEdit(null)}
-      >
-        <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6">
+      {/* Edit Folder Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">Editar Pasta</DialogTitle>
+            <DialogTitle>Editar Pasta</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleUpdateFolder} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="folder-name" className="text-xs sm:text-sm">Nome da pasta</Label>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="folder-name" className="text-right">
+                Nome
+              </Label>
               <Input
                 id="folder-name"
-                value={editedFolderName}
-                onChange={(e) => setEditedFolderName(e.target.value)}
-                placeholder="Digite o nome da pasta"
-                disabled={isSubmitting}
-                className="text-xs sm:text-sm h-8 sm:h-10"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                className="col-span-3"
+                autoFocus
               />
             </div>
-            
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setFolderToEdit(null)}
-                disabled={isSubmitting}
-                className="text-xs sm:text-sm h-8 sm:h-10"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting || !editedFolderName.trim()}
-                className="text-xs sm:text-sm h-8 sm:h-10"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                    Salvando...
-                  </>
-                ) : "Salvar"}
-              </Button>
-            </DialogFooter>
-          </form>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isProcessing}>
+              Cancelar
+            </Button>
+            <Button onClick={updateFolder} disabled={isProcessing || !newFolderName.trim()}>
+              {isProcessing ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Dialog de confirmação de exclusão */}
-      <AlertDialog 
-        open={folderToDelete !== null} 
-        onOpenChange={(open) => !open && setFolderToDelete(null)}
-      >
-        <AlertDialogContent className="max-w-[90vw] sm:max-w-md p-4 sm:p-6">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-base sm:text-lg">Excluir pasta?</AlertDialogTitle>
-            <AlertDialogDescription className="text-xs sm:text-sm">
-              Os cards desta pasta não serão excluídos, mas serão removidos da pasta.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel 
-              className="text-xs sm:text-sm h-8 sm:h-10"
-              disabled={isSubmitting}
-            >
+      {/* Delete Folder Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Tem certeza que deseja excluir a pasta "{selectedFolder?.name}"?</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Os cards desta pasta não serão excluídos, apenas removidos da pasta.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isProcessing}>
               Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteFolder} 
-              className="text-xs sm:text-sm h-8 sm:h-10"
-              disabled={isSubmitting}
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={deleteFolder} 
+              disabled={isProcessing}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                  Excluindo...
-                </>
-              ) : "Excluir"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              {isProcessing ? "Excluindo..." : "Excluir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
