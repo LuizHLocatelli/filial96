@@ -1,10 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useKanbanBoard } from "./useKanbanBoard";
 import { toast } from "sonner";
 import { AddCardDialog } from "./AddCardDialog";
-import { AddColumnDialog } from "./AddColumnDialog";
-import { EditColumnDialog } from "./EditColumnDialog";
 import { BoardHeader } from "./components/BoardHeader";
 import { ColumnList } from "./components/ColumnList";
 import { BoardLoading } from "./components/BoardLoading";
@@ -14,51 +12,74 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
+// IDs das colunas fixas
+const FIXED_COLUMNS = {
+  A_FAZER: 'a_fazer',
+  FAZENDO: 'fazendo',
+  FEITA: 'feita'
+};
+
 export function KanbanBoard() {
   const {
     board,
-    columns,
+    columns: dbColumns,
     cards,
     isLoading,
-    addColumn,
-    editColumn,
-    deleteColumn,
     addCard,
     deleteCard,
-    updateCard
+    updateCard,
+    moveCard
   } = useKanbanBoard();
+  
   const { isDarkMode } = useTheme();
-
-  const [addColumnDialogOpen, setAddColumnDialogOpen] = useState(false);
-  const [editColumnDialogOpen, setEditColumnDialogOpen] = useState(false);
-  const [selectedColumn, setSelectedColumn] = useState<Column | null>(null);
   const [addCardDialogOpen, setAddCardDialogOpen] = useState(false);
   const [targetColumnId, setTargetColumnId] = useState<string | null>(null);
-
-  const handleAddColumn = (name: string) => {
-    addColumn(name);
-    setAddColumnDialogOpen(false);
-    toast.success("Coluna adicionada com sucesso");
-  };
   
-  const handleEditColumn = (column: Column) => {
-    setSelectedColumn(column);
-    setEditColumnDialogOpen(true);
-  };
+  // Criar colunas fixas
+  const [columns, setColumns] = useState<Column[]>([]);
   
-  const handleEditColumnSubmit = async (columnId: string, name: string) => {
-    const success = await editColumn(columnId, name);
-    if (success) {
-      setEditColumnDialogOpen(false);
+  // Configure as colunas fixas baseadas no board atual
+  useEffect(() => {
+    if (board) {
+      // Verifique se já temos as colunas fixas no banco de dados
+      const aFazerCol = dbColumns.find(col => col.id === FIXED_COLUMNS.A_FAZER);
+      const fazendoCol = dbColumns.find(col => col.id === FIXED_COLUMNS.FAZENDO);
+      const feitaCol = dbColumns.find(col => col.id === FIXED_COLUMNS.FEITA);
+      
+      // Crie as colunas fixas, mantendo as existentes ou criando novas
+      const fixedColumns: Column[] = [
+        aFazerCol || {
+          id: FIXED_COLUMNS.A_FAZER,
+          board_id: board.id,
+          name: 'A Fazer',
+          position: 0,
+          created_by: board.created_by,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        fazendoCol || {
+          id: FIXED_COLUMNS.FAZENDO,
+          board_id: board.id,
+          name: 'Fazendo',
+          position: 1,
+          created_by: board.created_by,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        feitaCol || {
+          id: FIXED_COLUMNS.FEITA,
+          board_id: board.id,
+          name: 'Feita',
+          position: 2,
+          created_by: board.created_by,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      
+      setColumns(fixedColumns);
     }
-  };
-  
-  const handleDeleteColumn = async (columnId: string) => {
-    const success = await deleteColumn(columnId);
-    if (success) {
-      toast.success("Coluna excluída com sucesso");
-    }
-  };
+  }, [board, dbColumns]);
 
   const handleOpenAddCardDialog = (columnId: string) => {
     setTargetColumnId(columnId);
@@ -78,9 +99,6 @@ export function KanbanBoard() {
       console.error("Nenhuma coluna selecionada para adicionar o cartão");
       return;
     }
-    
-    console.log("Adicionando cartão à coluna:", targetColumnId);
-    console.log("Dados do cartão:", data);
     
     try {
       await addCard({
@@ -110,6 +128,10 @@ export function KanbanBoard() {
   const handleUpdateCard = (cardId: string, updates: Partial<TaskCard>) => {
     updateCard(cardId, updates);
   };
+  
+  const handleMoveCard = (cardId: string, targetColumnId: string) => {
+    moveCard(cardId, targetColumnId);
+  };
 
   if (isLoading) {
     return <BoardLoading />;
@@ -122,44 +144,29 @@ export function KanbanBoard() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <BoardHeader 
-          board={board}
-          onAddColumn={() => setAddColumnDialogOpen(true)}
-        />
+        <BoardHeader board={board} />
         
-        <Button 
-          onClick={() => setAddColumnDialogOpen(true)} 
-          size="sm" 
-          className="bg-brand-blue-600 hover:bg-brand-blue-700 text-white dark:bg-brand-blue-500 dark:hover:bg-brand-blue-600 dark:text-white shadow-md hover:shadow-lg transition-all"
-        >
-          <Plus className="h-4 w-4 mr-1" /> Nova Coluna
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => handleOpenAddCardDialog(FIXED_COLUMNS.A_FAZER)} 
+            size="sm" 
+            className="bg-brand-blue-600 hover:bg-brand-blue-700 text-white dark:bg-brand-blue-500 dark:hover:bg-brand-blue-600 dark:text-white shadow-md hover:shadow-lg transition-all"
+          >
+            <Plus className="h-4 w-4 mr-1" /> Nova Tarefa
+          </Button>
+        </div>
       </div>
 
-      <div className="w-full overflow-x-auto pb-2">
+      <div className="w-full overflow-x-auto pb-4 snap-x">
         <ColumnList
           columns={columns}
           cards={cards}
           onAddCard={handleOpenAddCardDialog}
           onDeleteCard={handleDeleteCard}
           onUpdateCard={handleUpdateCard}
-          onEditColumn={handleEditColumn}
-          onDeleteColumn={handleDeleteColumn}
+          onMoveCard={handleMoveCard}
         />
       </div>
-
-      <AddColumnDialog
-        open={addColumnDialogOpen}
-        onOpenChange={setAddColumnDialogOpen}
-        onAddColumn={handleAddColumn}
-      />
-      
-      <EditColumnDialog
-        open={editColumnDialogOpen}
-        onOpenChange={setEditColumnDialogOpen}
-        column={selectedColumn}
-        onEditColumn={handleEditColumnSubmit}
-      />
 
       <AddCardDialog
         columnId={targetColumnId || ""}

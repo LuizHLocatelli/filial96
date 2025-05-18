@@ -30,7 +30,7 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
           created_by: profile.id,
           // Include the background color if provided
           background_color: cardData.background_color,
-          // Include the due_time field (new)
+          // Include the due_time field
           due_time: cardData.due_time
         })
         .select()
@@ -125,6 +125,77 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
     }
   };
   
+  // Move card to another column
+  const moveCard = async (cardId: string, targetColumnId: string) => {
+    try {
+      if (!profile) {
+        toast.error('Você precisa estar autenticado para mover um cartão');
+        return false;
+      }
+      
+      const cardToMove = cards.find(card => card.id === cardId);
+      if (!cardToMove) {
+        toast.error('Cartão não encontrado');
+        return false;
+      }
+      
+      // Skip if the card is already in the target column
+      if (cardToMove.column_id === targetColumnId) {
+        return true;
+      }
+      
+      // Calculate new position in target column
+      const cardsInTargetColumn = cards.filter(card => card.column_id === targetColumnId);
+      const newPosition = cardsInTargetColumn.length;
+      
+      // First update in local state for immediate feedback
+      setCards(prevCards => 
+        prevCards.map(card => 
+          card.id === cardId 
+            ? { ...card, column_id: targetColumnId, position: newPosition } 
+            : card
+        )
+      );
+      
+      // Then update in the database
+      const { error } = await supabase
+        .from('crediario_kanban_cards')
+        .update({
+          column_id: targetColumnId,
+          position: newPosition,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', cardId);
+        
+      if (error) {
+        throw error;
+      }
+      
+      // Log activity if possible
+      const boardId = await getBoardIdByColumnId(targetColumnId);
+      if (boardId && profile) {
+        await supabase.from('crediario_kanban_activities').insert({
+          board_id: boardId,
+          card_id: cardId,
+          action: 'card_moved',
+          details: { 
+            card_title: cardToMove.title,
+            from_column: cardToMove.column_id,
+            to_column: targetColumnId
+          },
+          created_by: profile.id,
+        });
+      }
+      
+      toast.success('Cartão movido com sucesso');
+      return true;
+    } catch (error) {
+      console.error('Error moving card:', error);
+      toast.error('Erro ao mover o cartão');
+      return false;
+    }
+  };
+  
   // Helper function to get board ID by column ID
   const getBoardIdByColumnId = async (columnId: string): Promise<string | null> => {
     try {
@@ -146,5 +217,5 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
     }
   };
 
-  return { addCard, deleteCard, updateCard };
+  return { addCard, deleteCard, updateCard, moveCard };
 }

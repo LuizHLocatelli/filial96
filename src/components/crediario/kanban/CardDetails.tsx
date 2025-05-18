@@ -1,139 +1,131 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form } from "@/components/ui/form";
-import { CardFormFields, FormValues } from "./form/CardFormFields";
+import { useState, useEffect } from "react";
 import { TaskCard } from "./types";
-import { useCardForm } from "./form/useCardForm";
-import { CardComments } from "./CardComments";
-import { useState } from "react";
-import { useCardActions } from "./hooks/useCardActions"; 
-import { useKanbanBoard } from "./useKanbanBoard";
-import { Separator } from "@/components/ui/separator";
-import { Trash2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { getTextColor } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useUsers } from "./useUsers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CalendarIcon, Clock, User, CheckCircle, Pencil, MoreHorizontal, Trash } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface CardDetailsProps {
   card: TaskCard;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onMoveCard?: (cardId: string, targetColumnId: string) => void;
 }
 
-export function CardDetails({ card, open, onOpenChange }: CardDetailsProps) {
-  const [activeTab, setActiveTab] = useState("details");
-  const { cards, setCards } = useKanbanBoard();
-  const { updateCard, deleteCard } = useCardActions(cards, setCards);
-  const isMobile = useIsMobile();
+export function CardDetails({ 
+  card, 
+  open, 
+  onOpenChange,
+  onMoveCard
+}: CardDetailsProps) {
+  const [dueDateFormatted, setDueDateFormatted] = useState<string | null>(null);
+  const { usersData } = useUsers();
+  const { isDarkMode } = useTheme();
   
-  // Handle form submission for editing the card
-  const handleSubmit = async (values: FormValues) => {
-    await updateCard(card.id, {
-      title: values.title,
-      description: values.description || "",
-      priority: values.priority as 'baixa' | 'media' | 'alta',
-      assignee_id: values.assigneeId,
-      due_date: values.dueDate?.toISOString(),
-      due_time: values.dueTime,
-      background_color: values.backgroundColor
-    });
-  };
-  
-  const { form, isSubmitting, handleSubmit: submitForm, handleCancel } = useCardForm({
-    initialData: card,
-    onSubmit: handleSubmit,
-    onCancel: () => onOpenChange(false)
-  });
-  
-  // Handle card deletion
-  const handleDelete = async () => {
-    await deleteCard(card.id);
-    onOpenChange(false);
-  };
+  const assignee = card.assignee_id 
+    ? usersData.find(user => user.id === card.assignee_id) 
+    : null;
 
-  // Determine text color based on card background
-  const headerStyle = card.background_color ? {
-    backgroundColor: card.background_color,
-    color: getTextColor(card.background_color)
-  } : {};
+  useEffect(() => {
+    if (card.due_date) {
+      try {
+        const formattedDate = format(new Date(card.due_date), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR });
+        setDueDateFormatted(formattedDate);
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        setDueDateFormatted(null);
+      }
+    } else {
+      setDueDateFormatted(null);
+    }
+  }, [card.due_date]);
+  
+  // Adicionando a função para mover o cartão
+  const handleMoveCard = (columnId: string) => {
+    if (onMoveCard) {
+      onMoveCard(card.id, columnId);
+      onOpenChange(false); // Fechar o diálogo após mover
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="sm:max-w-[700px] p-0 overflow-hidden max-h-[90vh] w-[calc(100%-2rem)]"
-      >
-        <DialogHeader className="p-4 sm:p-6" style={headerStyle}>
-          <DialogTitle className="text-lg sm:text-xl">{card.title}</DialogTitle>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold">{card.title}</DialogTitle>
         </DialogHeader>
-        
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-4 sm:px-6">
-            <TabsList className="w-full">
-              <TabsTrigger value="details" className="flex-1">Detalhes</TabsTrigger>
-              <TabsTrigger value="comments" className="flex-1">Comentários</TabsTrigger>
-            </TabsList>
+
+        <div className="space-y-4">
+          {/* Barra de Status - Nova seção para mover entre colunas */}
+          <div className="flex flex-col space-y-2">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</h3>
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                size="sm" 
+                variant={card.column_id === 'a_fazer' ? "default" : "outline"}
+                onClick={() => handleMoveCard('a_fazer')}
+              >
+                A Fazer
+              </Button>
+              <Button 
+                size="sm" 
+                variant={card.column_id === 'fazendo' ? "default" : "outline"}
+                onClick={() => handleMoveCard('fazendo')}
+              >
+                Fazendo
+              </Button>
+              <Button 
+                size="sm" 
+                variant={card.column_id === 'feita' ? "default" : "outline"}
+                onClick={() => handleMoveCard('feita')}
+              >
+                Feita
+              </Button>
+            </div>
           </div>
-          
-          <TabsContent value="details" className="p-4 sm:p-6 space-y-4 sm:space-y-6 pt-2 overflow-y-auto max-h-[60vh]">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(submitForm)} className="space-y-4">
-                <CardFormFields form={form} />
-                
-                <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between items-center'} pt-2`}>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size={isMobile ? "default" : "sm"} type="button" className={isMobile ? "w-full" : ""}>
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Excluir
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="w-[calc(100%-2rem)]">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir cartão</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta ação não pode ser desfeita. Tem certeza que deseja excluir este cartão?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter className={isMobile ? "flex-col gap-2" : ""}>
-                        <AlertDialogCancel className={isMobile ? "w-full mt-0" : ""}>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction 
-                          onClick={handleDelete}
-                          className={`bg-destructive hover:bg-destructive/90 ${isMobile ? "w-full" : ""}`}
-                        >
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                  
-                  <div className={`flex ${isMobile ? "flex-col w-full" : "space-x-2"}`}>
-                    <Button 
-                      variant="outline" 
-                      onClick={handleCancel} 
-                      type="button"
-                      className={isMobile ? "w-full mb-2" : ""}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      disabled={isSubmitting}
-                      className={isMobile ? "w-full" : ""}
-                    >
-                      {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
-                    </Button>
-                  </div>
-                </div>
-              </form>
-            </Form>
-          </TabsContent>
-          
-          <TabsContent value="comments" className="p-4 sm:p-6 pt-2 overflow-y-auto max-h-[60vh]">
-            <CardComments cardId={card.id} />
-          </TabsContent>
-        </Tabs>
+
+          {/* Informações do Cartão */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Descrição</h3>
+            <p className="text-gray-800 dark:text-gray-200">{card.description || "Nenhuma descrição fornecida."}</p>
+          </div>
+
+          {/* Data de Vencimento */}
+          {dueDateFormatted && (
+            <div className="flex items-center space-x-2">
+              <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Vencimento: {dueDateFormatted}
+              </span>
+            </div>
+          )}
+
+          {/* Responsável */}
+          {assignee && (
+            <div className="flex items-center space-x-2">
+              <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <Avatar className="h-5 w-5">
+                <AvatarImage src={assignee.avatar_url || ""} alt={assignee.name} />
+                <AvatarFallback className="text-[10px] bg-primary/20 dark:bg-primary/30">
+                  {assignee.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Responsável: {assignee.name}
+              </span>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

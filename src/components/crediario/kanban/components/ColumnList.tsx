@@ -2,6 +2,8 @@
 import { Column, TaskCard } from "../types";
 import { KanbanColumn } from "../KanbanColumn";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ColumnListProps {
   columns: Column[];
@@ -9,8 +11,7 @@ interface ColumnListProps {
   onAddCard: (columnId: string) => void;
   onDeleteCard: (card: TaskCard) => void;
   onUpdateCard: (cardId: string, updates: Partial<TaskCard>) => void;
-  onEditColumn: (column: Column) => void;
-  onDeleteColumn: (columnId: string) => void;
+  onMoveCard?: (cardId: string, targetColumnId: string) => void;
 }
 
 export function ColumnList({
@@ -19,10 +20,10 @@ export function ColumnList({
   onAddCard,
   onDeleteCard,
   onUpdateCard,
-  onEditColumn,
-  onDeleteColumn
+  onMoveCard
 }: ColumnListProps) {
   const { isDarkMode } = useTheme();
+  const isMobile = useIsMobile();
   
   // Ordenar colunas pela posição
   const sortedColumns = [...columns].sort((a, b) => {
@@ -32,26 +33,58 @@ export function ColumnList({
     return 0;
   });
 
-  return (
+  return isMobile ? (
+    // Layout móvel com colunas em scroll horizontal
     <div 
-      className={`flex gap-4 min-h-[calc(100vh-250px)] p-2 rounded-lg ${
+      className={`flex gap-4 min-h-[calc(100vh-250px)] p-2 rounded-lg overflow-x-auto snap-x pb-4 ${
         isDarkMode 
           ? 'bg-gray-900/40 backdrop-blur-sm shadow-inner border border-gray-800' 
           : 'bg-gray-100/60 border border-gray-200'
       }`}
     >
       {sortedColumns.map(column => (
-        <KanbanColumn
-          key={column.id}
-          column={column}
-          cards={cards}
-          onAddCard={onAddCard}
-          onDeleteCard={onDeleteCard}
-          onUpdateCard={onUpdateCard}
-          onEditColumn={onEditColumn}
-          onDeleteColumn={onDeleteColumn}
-        />
+        <div key={column.id} className="min-w-[85vw] snap-center">
+          <KanbanColumn
+            column={column}
+            cards={cards}
+            onAddCard={onAddCard}
+            onDeleteCard={onDeleteCard}
+            onUpdateCard={onUpdateCard}
+            onMoveCard={onMoveCard}
+          />
+        </div>
       ))}
+    </div>
+  ) : (
+    // Layout desktop com colunas redimensionáveis
+    <div 
+      className={`rounded-lg ${
+        isDarkMode 
+          ? 'bg-gray-900/40 backdrop-blur-sm shadow-inner border border-gray-800' 
+          : 'bg-gray-100/60 border border-gray-200'
+      }`}
+    >
+      <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-250px)]">
+        {sortedColumns.map((column, index) => (
+          <React.Fragment key={column.id}>
+            <ResizablePanel defaultSize={33} minSize={25}>
+              <KanbanColumn
+                column={column}
+                cards={cards}
+                onAddCard={onAddCard}
+                onDeleteCard={onDeleteCard}
+                onUpdateCard={onUpdateCard}
+                onMoveCard={onMoveCard}
+              />
+            </ResizablePanel>
+            
+            {/* Adicionar separadores entre os painéis, exceto após o último */}
+            {index < sortedColumns.length - 1 && (
+              <ResizableHandle withHandle />
+            )}
+          </React.Fragment>
+        ))}
+      </ResizablePanelGroup>
     </div>
   );
 }

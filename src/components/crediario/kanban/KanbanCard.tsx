@@ -6,25 +6,30 @@ import { useUsers } from "./useUsers";
 import { CardContent } from "./components/CardContent";
 import { CardMetaInfo } from "./components/CardMetaInfo";
 import { getTextColor } from "@/lib/utils";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds, differenceInMinutes, differenceInHours, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Clock } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface KanbanCardProps {
   card: TaskCard;
   onDelete?: () => void;
   onUpdate?: (cardId: string, updates: Partial<TaskCard>) => void;
+  onMoveCard?: (cardId: string, targetColumnId: string) => void;
 }
 
 export function KanbanCard({ 
   card, 
   onDelete, 
-  onUpdate 
+  onUpdate,
+  onMoveCard
 }: KanbanCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [isPastDue, setIsPastDue] = useState(false);
   const { usersData } = useUsers();
+  const { isDarkMode } = useTheme();
   
   const assignee = card.assignee_id 
     ? usersData.find(user => user.id === card.assignee_id) 
@@ -44,12 +49,38 @@ export function KanbanCard({
       const now = new Date();
       const diffInSeconds = differenceInSeconds(dueDate, now);
       
+      setSecondsLeft(diffInSeconds);
+      
       if (diffInSeconds <= 0) {
         setIsPastDue(true);
-        setTimeRemaining(formatDistanceToNow(dueDate, { addSuffix: true, locale: ptBR }));
+        setTimeRemaining("Prazo expirado!");
       } else {
         setIsPastDue(false);
-        setTimeRemaining(formatDistanceToNow(dueDate, { addSuffix: true, locale: ptBR }));
+        
+        // Calcular componentes de tempo individuais
+        const days = differenceInDays(dueDate, now);
+        const hours = differenceInHours(dueDate, now) % 24;
+        const minutes = differenceInMinutes(dueDate, now) % 60;
+        const seconds = diffInSeconds % 60;
+        
+        // Formatar o tempo restante de forma detalhada
+        let formattedTime = "";
+        
+        if (days > 0) {
+          formattedTime += `${days}d `;
+        }
+        
+        if (hours > 0 || days > 0) {
+          formattedTime += `${hours}h `;
+        }
+        
+        if (minutes > 0 || hours > 0 || days > 0) {
+          formattedTime += `${minutes}m `;
+        }
+        
+        formattedTime += `${seconds}s`;
+        
+        setTimeRemaining(formattedTime);
       }
     };
 
@@ -78,6 +109,28 @@ export function KanbanCard({
         borderColor: "rgba(239, 68, 68, 0.5)"
       };
     }
+    
+    // Adicionar cores de urgência baseadas no tempo restante
+    if (secondsLeft !== null) {
+      // Menos de 1 hora
+      if (secondsLeft < 3600) {
+        return {
+          backgroundColor: "rgba(239, 68, 68, 0.15)",
+          color: "rgb(239, 68, 68)",
+          borderColor: "rgba(239, 68, 68, 0.4)"
+        };
+      }
+      
+      // Menos de 24 horas
+      if (secondsLeft < 86400) {
+        return {
+          backgroundColor: "rgba(245, 158, 11, 0.15)",
+          color: isDarkMode ? "rgb(251, 191, 36)" : "rgb(194, 65, 12)",
+          borderColor: "rgba(245, 158, 11, 0.4)"
+        };
+      }
+    }
+    
     return {
       backgroundColor: "rgba(59, 130, 246, 0.1)",
       color: textColor,
@@ -91,7 +144,7 @@ export function KanbanCard({
         onClick={handleCardClick}
         className="p-3 rounded-md border shadow-sm cursor-pointer hover:shadow-md transition-shadow dark:border-gray-700"
         style={{ 
-          backgroundColor: card.background_color || (isDarkMode() ? '#2a2a2a' : 'white'),
+          backgroundColor: card.background_color || (isDarkMode ? '#2a2a2a' : 'white'),
           color: textColor
         }}
       >
@@ -108,7 +161,11 @@ export function KanbanCard({
               className="mt-2 text-xs px-2 py-1 rounded-md border flex items-center gap-1"
               style={getTimerStyle()}
             >
-              <Clock className="h-3 w-3" />
+              {isPastDue ? (
+                <AlertTriangle className="h-3 w-3" />
+              ) : (
+                <Clock className="h-3 w-3" />
+              )}
               <span>{timeRemaining}</span>
             </div>
           )}
@@ -125,16 +182,9 @@ export function KanbanCard({
       <CardDetails 
         card={card} 
         open={detailsOpen} 
-        onOpenChange={setDetailsOpen} 
+        onOpenChange={setDetailsOpen}
+        onMoveCard={onMoveCard}
       />
     </>
   );
-}
-
-// Função para detectar o modo escuro
-function isDarkMode() {
-  if (typeof window !== 'undefined') {
-    return document.documentElement.classList.contains('dark');
-  }
-  return false;
 }
