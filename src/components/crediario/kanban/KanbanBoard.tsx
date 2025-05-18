@@ -10,6 +10,9 @@ import { ColumnList } from "./components/ColumnList";
 import { BoardLoading } from "./components/BoardLoading";
 import { BoardEmpty } from "./components/BoardEmpty";
 import { Column, TaskCard } from "./types";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export function KanbanBoard() {
   const {
@@ -24,6 +27,7 @@ export function KanbanBoard() {
     deleteCard,
     updateCard
   } = useKanbanBoard();
+  const { isDarkMode } = useTheme();
 
   const [addColumnDialogOpen, setAddColumnDialogOpen] = useState(false);
   const [editColumnDialogOpen, setEditColumnDialogOpen] = useState(false);
@@ -86,7 +90,7 @@ export function KanbanBoard() {
         column_id: targetColumnId,
         assignee_id: data.assigneeId,
         due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
-        due_time: data.dueTime, // Add the dueTime field
+        due_time: data.dueTime,
         background_color: data.backgroundColor
       });
       
@@ -116,13 +120,23 @@ export function KanbanBoard() {
   }
 
   return (
-    <div className="space-y-4">
-      <BoardHeader 
-        board={board}
-        onAddColumn={() => setAddColumnDialogOpen(true)}
-      />
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <BoardHeader 
+          board={board}
+          onAddColumn={() => setAddColumnDialogOpen(true)}
+        />
+        
+        <Button 
+          onClick={() => setAddColumnDialogOpen(true)} 
+          size="sm" 
+          className="bg-brand-blue-600 hover:bg-brand-blue-700 text-white dark:bg-brand-blue-500 dark:hover:bg-brand-blue-600 dark:text-white shadow-md hover:shadow-lg transition-all"
+        >
+          <Plus className="h-4 w-4 mr-1" /> Nova Coluna
+        </Button>
+      </div>
 
-      <div className="w-full">
+      <div className="w-full overflow-x-auto pb-2">
         <ColumnList
           columns={columns}
           cards={cards}

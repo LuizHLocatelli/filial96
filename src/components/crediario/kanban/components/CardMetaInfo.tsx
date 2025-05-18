@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface CardMetaInfoProps {
   dueDate?: string;
-  dueTime?: string; // Add dueTime prop
+  dueTime?: string;
   assignee?: {
     id: string;
     name: string;
@@ -22,26 +22,25 @@ export function CardMetaInfo({ dueDate, dueTime, assignee, textColor = "inherit"
   return (
     <div className="flex flex-wrap items-center mt-2 gap-3" style={{ color: textColor }}>
       {dueDate && (
-        <div className="flex items-center gap-1 text-xs">
+        <div className="flex items-center gap-1 text-xs bg-opacity-10 dark:bg-opacity-20 px-1.5 py-0.5 rounded">
           <CalendarIcon className="h-3.5 w-3.5" />
           <span>
             {format(new Date(dueDate), "dd/MM/yyyy", { locale: ptBR })}
-            {dueTime && (
-              <>
-                {" "}
-                <Clock className="h-3 w-3 inline-block mx-0.5" />
-                {dueTime}
-              </>
-            )}
           </span>
+          {dueTime && (
+            <span className="flex items-center gap-1 ml-1">
+              <Clock className="h-3 w-3 inline-block" />
+              {dueTime}
+            </span>
+          )}
         </div>
       )}
       
       {assignee && (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 bg-opacity-10 dark:bg-opacity-20 px-1.5 py-0.5 rounded">
           <Avatar className="h-5 w-5">
             <AvatarImage src={assignee.avatar_url || ""} alt={assignee.name} />
-            <AvatarFallback className="text-[10px]">
+            <AvatarFallback className="text-[10px] bg-primary/20 dark:bg-primary/30">
               {assignee.name.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>

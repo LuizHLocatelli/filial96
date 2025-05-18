@@ -1,128 +1,110 @@
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Plus, Edit, Trash2 } from "lucide-react";
-import { KanbanCard } from "./KanbanCard";
-import { Column, TaskCard } from "./types";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState } from "react";
+import { Column, TaskCard } from "./types";
+import { KanbanCard } from "./KanbanCard";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Edit, Trash, Plus } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
-  onAddCard: () => void;
-  onDeleteCard?: (card: TaskCard) => void;
-  onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
-  onEditColumn?: (column: Column) => void;
-  onDeleteColumn?: (columnId: string) => void;
+  onAddCard: (columnId: string) => void;
+  onDeleteCard: (card: TaskCard) => void;
+  onUpdateCard: (cardId: string, updates: Partial<TaskCard>) => void;
+  onEditColumn: (column: Column) => void;
+  onDeleteColumn: (columnId: string) => void;
 }
 
-export function KanbanColumn({ 
-  column, 
-  cards, 
+export function KanbanColumn({
+  column,
+  cards,
   onAddCard,
   onDeleteCard,
   onUpdateCard,
   onEditColumn,
-  onDeleteColumn 
+  onDeleteColumn
 }: KanbanColumnProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  
+  const { isDarkMode } = useTheme();
+  const [hovering, setHovering] = useState(false);
+  const columnCards = cards.filter(card => card.column_id === column.id);
+
+  // Função para ordenar cartões
+  const sortedCards = [...columnCards].sort((a, b) => {
+    if (a.position !== b.position) {
+      return a.position - b.position;
+    }
+    
+    // Se as posições forem iguais, ordena pela data de criação
+    const dateA = new Date(a.created_at || '');
+    const dateB = new Date(b.created_at || '');
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  const handleEditClick = () => {
+    onEditColumn(column);
+  };
+
+  const handleDeleteClick = () => {
+    onDeleteColumn(column.id);
+  };
+
   return (
-    <Card className="w-full bg-background rounded-lg shadow-sm border border-border">
-      <CardHeader className="p-3 border-b">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">{column.name}</h3>
-          <div className="flex items-center space-x-2">
-            <div className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center text-xs">
-              {cards.length}
-            </div>
-            
-            {(onEditColumn || onDeleteColumn) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {onEditColumn && (
-                    <DropdownMenuItem onClick={() => onEditColumn(column)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>Editar</span>
-                    </DropdownMenuItem>
-                  )}
-                  {onDeleteColumn && (
-                    <DropdownMenuItem 
-                      className="text-destructive focus:text-destructive"
-                      onClick={() => setDeleteDialogOpen(true)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>Excluir</span>
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-2">
-        <ScrollArea className="max-h-[250px]">
-          <div className="space-y-2 pr-2">
-            {cards.map((card) => (
-              <KanbanCard 
-                key={card.id} 
-                card={card} 
-                onDelete={onDeleteCard ? () => onDeleteCard(card) : undefined}
-                onUpdate={onUpdateCard}
-              />
-            ))}
-          </div>
-        </ScrollArea>
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="w-full mt-2 text-muted-foreground justify-start"
-          onClick={onAddCard}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Adicionar cartão
-        </Button>
-      </CardContent>
-      
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Coluna</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir a coluna "{column.name}"? 
-              Esta ação não pode ser desfeita e só é possível se a coluna estiver vazia.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => {
-                if (onDeleteColumn) {
-                  onDeleteColumn(column.id);
-                }
-              }}
+    <div 
+      className="flex flex-col min-w-[280px] w-[280px] h-full max-h-full bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-sm border dark:border-gray-700"
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
+      <div className="flex justify-between items-center p-3 border-b dark:border-gray-700">
+        <h3 className="font-medium text-gray-800 dark:text-gray-200">
+          {column.name} <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">({sortedCards.length})</span>
+        </h3>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
+            <DropdownMenuItem onClick={handleEditClick} className="dark:hover:bg-gray-700">
+              <Edit className="mr-2 h-4 w-4" />
+              <span>Editar</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="dark:bg-gray-700" />
+            <DropdownMenuItem 
+              onClick={handleDeleteClick}
+              className="text-red-600 dark:text-red-400 dark:hover:bg-gray-700"
             >
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </Card>
+              <Trash className="mr-2 h-4 w-4" />
+              <span>Excluir</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+        {sortedCards.map(card => (
+          <KanbanCard
+            key={card.id}
+            card={card}
+            onDelete={() => onDeleteCard(card)}
+            onUpdate={(cardId, updates) => onUpdateCard(cardId, updates)}
+          />
+        ))}
+      </div>
+
+      <Button
+        onClick={() => onAddCard(column.id)}
+        className={`m-2 gap-1 bg-primary-100 hover:bg-primary-200 text-primary-600 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 dark:text-primary-300 w-full justify-center rounded-md transition-all ${
+          hovering ? 'shadow-md' : ''
+        }`}
+        variant="outline"
+        size="sm"
+      >
+        <Plus className="h-4 w-4" />
+        <span>Adicionar Cartão</span>
+      </Button>
+    </div>
   );
 }

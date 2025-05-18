@@ -18,7 +18,7 @@ export function CardContent({
     <div>
       <div className="flex justify-between items-start gap-2">
         <h3 
-          className="font-medium truncate mb-1"
+          className="font-medium truncate mb-1 text-base"
           style={textColor ? { color: textColor } : undefined}
         >
           {title}
@@ -28,7 +28,7 @@ export function CardContent({
       
       {description && (
         <p 
-          className="text-sm line-clamp-2"
+          className="text-sm line-clamp-2 dark:text-opacity-90"
           style={textColor ? { color: textColor, opacity: 0.9 } : undefined}
         >
           {description}
