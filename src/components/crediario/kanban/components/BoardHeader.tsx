@@ -6,7 +6,7 @@ import { Board } from "../types";
 
 interface BoardHeaderProps {
   board: Board | null;
-  onAddColumn: () => void;
+  onAddColumn?: () => void; // Made optional with "?"
 }
 
 export function BoardHeader({ board, onAddColumn }: BoardHeaderProps) {
@@ -18,10 +18,12 @@ export function BoardHeader({ board, onAddColumn }: BoardHeaderProps) {
         <h3 className="text-lg font-medium">{board.name}</h3>
         <p className="text-sm text-muted-foreground">{board.description}</p>
       </div>
-      <Button onClick={onAddColumn}>
-        <Plus className="h-4 w-4 mr-1" />
-        Nova Coluna
-      </Button>
+      {onAddColumn && (
+        <Button onClick={onAddColumn}>
+          <Plus className="h-4 w-4 mr-1" />
+          Nova Coluna
+        </Button>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Column, TaskCard } from "../types";
 import { KanbanColumn } from "../KanbanColumn";
 import { useTheme } from "@/contexts/ThemeContext";
