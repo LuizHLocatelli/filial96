@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Note } from "./types";
+import { StickyNote, NoteFolder } from "./types";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Trash } from "lucide-react";
@@ -9,11 +9,14 @@ import { ptBR } from "date-fns/locale";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface StickyNoteItemProps {
-  note: Note;
+  note: StickyNote;
+  folders?: NoteFolder[];
   onDelete: (noteId: string) => void;
+  onUpdate?: (noteId: string, content: string, folderId?: string) => Promise<void>;
+  onMoveToFolder?: (noteId: string, folderId: string | null) => Promise<void>;
 }
 
-export function StickyNoteItem({ note, onDelete }: StickyNoteItemProps) {
+export function StickyNoteItem({ note, folders, onDelete, onUpdate, onMoveToFolder }: StickyNoteItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { isDarkMode } = useTheme();
 
@@ -39,7 +42,7 @@ export function StickyNoteItem({ note, onDelete }: StickyNoteItemProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium">{note.title}</h3>
+        <h3 className="font-medium">{note.title || "Nota"}</h3>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -47,7 +50,29 @@ export function StickyNoteItem({ note, onDelete }: StickyNoteItemProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className={isDarkMode ? 'bg-gray-800 border-gray-700' : ''}>
-            <DropdownMenuSeparator className={isDarkMode ? 'bg-gray-700' : ''} />
+            {folders && onMoveToFolder && (
+              <>
+                <DropdownMenuItem
+                  onClick={() => onMoveToFolder(note.id, null)}
+                  className={isDarkMode ? 'hover:bg-gray-700' : ''}
+                >
+                  Mover para: Sem pasta
+                </DropdownMenuItem>
+                
+                {folders.map(folder => (
+                  <DropdownMenuItem
+                    key={folder.id}
+                    onClick={() => onMoveToFolder(note.id, folder.id)}
+                    className={isDarkMode ? 'hover:bg-gray-700' : ''}
+                  >
+                    Mover para: {folder.name}
+                  </DropdownMenuItem>
+                ))}
+                
+                <DropdownMenuSeparator className={isDarkMode ? 'bg-gray-700' : ''} />
+              </>
+            )}
+            
             <DropdownMenuItem
               onClick={() => onDelete(note.id)}
               className={`text-red-600 ${isDarkMode ? 'hover:bg-gray-700 text-red-400' : ''}`}

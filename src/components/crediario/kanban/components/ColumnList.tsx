@@ -36,7 +36,7 @@ export function ColumnList({
     <div 
       className={`flex gap-4 min-h-[calc(100vh-250px)] p-2 rounded-lg ${
         isDarkMode 
-          ? 'bg-gray-900/30 backdrop-blur-sm shadow-inner' 
+          ? 'bg-gray-900/40 backdrop-blur-sm shadow-inner border border-gray-800' 
           : 'bg-gray-100/60 border border-gray-200'
       }`}
     >

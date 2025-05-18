@@ -87,6 +87,7 @@ export interface CreateCommentData {
 export interface StickyNote {
   id: string;
   content: string;
+  title?: string;
   color: string;
   folder_id: string | null;
   created_by: string;

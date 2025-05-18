@@ -1,5 +1,6 @@
 
 import { PriorityBadge } from "./PriorityBadge";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface CardContentProps {
   title: string;
@@ -14,11 +15,13 @@ export function CardContent({
   priority,
   textColor
 }: CardContentProps) {
+  const { isDarkMode } = useTheme();
+  
   return (
     <div>
       <div className="flex justify-between items-start gap-2">
         <h3 
-          className="font-medium truncate mb-1 text-base"
+          className={`font-medium truncate mb-1 text-base ${isDarkMode && !textColor ? 'text-gray-100' : ''}`}
           style={textColor ? { color: textColor } : undefined}
         >
           {title}
@@ -28,7 +31,7 @@ export function CardContent({
       
       {description && (
         <p 
-          className="text-sm line-clamp-2 dark:text-opacity-90"
+          className={`text-sm line-clamp-2 ${isDarkMode && !textColor ? 'text-gray-300/90' : 'dark:text-opacity-90'}`}
           style={textColor ? { color: textColor, opacity: 0.9 } : undefined}
         >
           {description}
