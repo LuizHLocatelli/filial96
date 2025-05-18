@@ -5,6 +5,7 @@ import { KanbanColumn } from "../KanbanColumn";
 import { useTheme } from "@/contexts/ThemeContext";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ColumnListProps {
   columns: Column[];
@@ -35,16 +36,16 @@ export function ColumnList({
   });
 
   return isMobile ? (
-    // Layout móvel com colunas em scroll horizontal
+    // Layout móvel com rolagem vertical para cada coluna
     <div 
-      className={`flex gap-4 min-h-[calc(100vh-250px)] p-2 rounded-lg overflow-x-auto snap-x pb-4 ${
+      className={`flex flex-col gap-4 p-2 rounded-lg ${
         isDarkMode 
           ? 'bg-gray-900/40 backdrop-blur-sm shadow-inner border border-gray-800' 
           : 'bg-gray-100/60 border border-gray-200'
       }`}
     >
       {sortedColumns.map(column => (
-        <div key={column.id} className="min-w-[85vw] snap-center">
+        <div key={column.id} className="min-h-[350px] h-auto">
           <KanbanColumn
             column={column}
             cards={cards}
@@ -68,7 +69,7 @@ export function ColumnList({
       <ResizablePanelGroup direction="horizontal" className="min-h-[calc(100vh-250px)]">
         {sortedColumns.map((column, index) => (
           <React.Fragment key={column.id}>
-            <ResizablePanel defaultSize={33} minSize={25}>
+            <ResizablePanel defaultSize={100 / sortedColumns.length} minSize={25}>
               <KanbanColumn
                 column={column}
                 cards={cards}

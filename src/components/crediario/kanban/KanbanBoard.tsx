@@ -157,7 +157,7 @@ export function KanbanBoard() {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto pb-4 snap-x">
+      <div className="w-full">
         <ColumnList
           columns={columns}
           cards={cards}

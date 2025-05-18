@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Plus } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface KanbanColumnProps {
   column: Column;
@@ -101,17 +102,19 @@ export function KanbanColumn({
         </DropdownMenu>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-        {sortedCards.map(card => (
-          <KanbanCard
-            key={card.id}
-            card={card}
-            onDelete={() => onDeleteCard(card)}
-            onUpdate={(cardId, updates) => onUpdateCard(cardId, updates)}
-            onMoveCard={onMoveCard}
-          />
-        ))}
-      </div>
+      <ScrollArea className="flex-1 p-2 h-[calc(100%-100px)]">
+        <div className="space-y-2 pr-2">
+          {sortedCards.map(card => (
+            <KanbanCard
+              key={card.id}
+              card={card}
+              onDelete={() => onDeleteCard(card)}
+              onUpdate={(cardId, updates) => onUpdateCard(cardId, updates)}
+              onMoveCard={onMoveCard}
+            />
+          ))}
+        </div>
+      </ScrollArea>
 
       <Button
         onClick={() => onAddCard(column.id)}
