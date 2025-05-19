@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Column, TaskCard } from "./types";
 import { KanbanCard } from "./KanbanCard";
@@ -11,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
-  onAddCard?: () => void;
+  onAddCard?: (columnId: string) => void;  // Updated to accept columnId parameter
   onDeleteCard?: (card: TaskCard) => void;
   onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
@@ -93,7 +94,7 @@ export function KanbanColumn({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
             <DropdownMenuItem 
-              onClick={() => onAddCard(column.id)}
+              onClick={() => onAddCard && onAddCard(column.id)}
               className="dark:hover:bg-gray-700"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -109,8 +110,8 @@ export function KanbanColumn({
             <KanbanCard
               key={card.id}
               card={card}
-              onDelete={() => onDeleteCard(card)}
-              onUpdate={(cardId, updates) => onUpdateCard(cardId, updates)}
+              onDelete={() => onDeleteCard && onDeleteCard(card)}
+              onUpdate={(cardId, updates) => onUpdateCard && onUpdateCard(cardId, updates)}
               onMoveCard={onMoveCard}
             />
           ))}
@@ -118,7 +119,7 @@ export function KanbanColumn({
       </ScrollArea>
 
       <Button
-        onClick={() => onAddCard(column.id)}
+        onClick={() => onAddCard && onAddCard(column.id)}
         className={`m-2 gap-1 bg-primary-100 hover:bg-primary-200 text-primary-600 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 dark:text-primary-300 w-full justify-center rounded-md transition-all ${
           hovering ? 'shadow-md' : ''
         }`}

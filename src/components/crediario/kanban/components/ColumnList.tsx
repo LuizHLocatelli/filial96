@@ -6,7 +6,7 @@ import { Column, TaskCard } from "../types";
 interface ColumnListProps {
   columns: Column[];
   cards: TaskCard[];
-  onAddCard?: (columnId: string) => void;
+  onAddCard?: (columnId: string) => void;  // Updated to accept columnId parameter
   onDeleteCard?: (card: TaskCard) => void;
   onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
@@ -44,7 +44,7 @@ export function ColumnList({
           <KanbanColumn
             column={column}
             cards={getColumnCards(column.id)}
-            onAddCard={onAddCard ? () => onAddCard(column.id) : undefined}
+            onAddCard={onAddCard}
             onDeleteCard={onDeleteCard}
             onUpdateCard={onUpdateCard}
             onMoveCard={onMoveCard}
