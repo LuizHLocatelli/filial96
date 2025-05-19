@@ -1,6 +1,8 @@
 
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export const cardColors = [
   { value: '#FFFFFF', label: 'Branco' },
@@ -20,6 +22,13 @@ export const cardColors = [
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Formats a date using date-fns
+ */
+export function formatDate(date: string | Date, formatString: string = "dd/MM/yyyy"): string {
+  return format(new Date(date), formatString, { locale: ptBR });
 }
 
 /**

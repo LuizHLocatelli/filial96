@@ -4,7 +4,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 export interface BoardHeaderProps {
   board: Board;
-  onAddColumn?: () => void;
+  onAddColumn?: () => void; // Make onAddColumn optional
 }
 
 export function BoardHeader({ board, onAddColumn }: BoardHeaderProps) {

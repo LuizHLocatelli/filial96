@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FolderArchive, FileBox, Wallet, Building2 } from "lucide-react";
+import { Chair, Shirt, Wallet, Tools } from "lucide-react";
 
 interface SectorSelectorProps {
   selectedSector: "furniture" | "fashion" | "loan" | "service";
@@ -13,10 +13,10 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
   const isMobile = useIsMobile();
   
   const sectors = [
-    { title: "Móveis", value: "furniture", icon: Building2 },
-    { title: "Moda", value: "fashion", icon: FileBox },
+    { title: "Móveis", value: "furniture", icon: Chair },
+    { title: "Moda", value: "fashion", icon: Shirt },
     { title: "Empréstimo", value: "loan", icon: Wallet },
-    { title: "Serviços", value: "service", icon: FolderArchive },
+    { title: "Serviços", value: "service", icon: Tools },
   ];
   
   return (
@@ -57,11 +57,8 @@ function SectorCard({ title, value, isSelected, onClick, isMobile, Icon }: Secto
       )}
       onClick={onClick}
     >
-      <Icon className={cn("mb-1", isMobile ? "h-4 w-4" : "h-5 w-5")} />
+      <Icon className={cn("mb-1", isMobile ? "h-5 w-5" : "h-6 w-6")} />
       <h3 className={cn("font-semibold", isMobile ? "text-base" : "text-lg")}>{title}</h3>
-      <p className={cn("text-sm", isMobile && "text-xs")}>
-        Cards promocionais de {title.toLowerCase()}
-      </p>
     </Card>
   );
 }
