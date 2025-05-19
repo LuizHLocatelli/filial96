@@ -35,6 +35,9 @@ export function SelectField({
   options, 
   control 
 }: SelectFieldProps) {
+  // Ensure we don't have empty string values in options
+  const validOptions = options.filter(option => option.value !== "");
+  
   return (
     <FormField
       control={control}
@@ -43,7 +46,7 @@ export function SelectField({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <Select 
-            value={field.value} 
+            value={field.value || undefined} 
             onValueChange={field.onChange}
           >
             <FormControl>
@@ -52,7 +55,7 @@ export function SelectField({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {options.map((option) => (
+              {validOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>

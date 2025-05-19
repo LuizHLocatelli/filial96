@@ -102,7 +102,7 @@ export function CardFormFields({ form }: CardFormFieldsProps) {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Prioridade</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} defaultValue={field.value || "media"}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a prioridade" />
@@ -136,11 +136,15 @@ export function CardFormFields({ form }: CardFormFieldsProps) {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {usersData.map((user) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.name}
-                  </SelectItem>
-                ))}
+                {usersData && usersData.length > 0 ? (
+                  usersData.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-users">Nenhum usuário disponível</SelectItem>
+                )}
               </SelectContent>
             </Select>
             <FormMessage />
