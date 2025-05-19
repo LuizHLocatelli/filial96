@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Chair, Shirt, Wallet, Tools } from "lucide-react";
+import { Armchair, ShirtIcon, Wallet, Wrench } from "lucide-react";
 
 interface SectorSelectorProps {
   selectedSector: "furniture" | "fashion" | "loan" | "service";
@@ -13,10 +13,10 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
   const isMobile = useIsMobile();
   
   const sectors = [
-    { title: "Móveis", value: "furniture", icon: Chair },
-    { title: "Moda", value: "fashion", icon: Shirt },
+    { title: "Móveis", value: "furniture", icon: Armchair },
+    { title: "Moda", value: "fashion", icon: ShirtIcon },
     { title: "Empréstimo", value: "loan", icon: Wallet },
-    { title: "Serviços", value: "service", icon: Tools },
+    { title: "Serviços", value: "service", icon: Wrench },
   ];
   
   return (

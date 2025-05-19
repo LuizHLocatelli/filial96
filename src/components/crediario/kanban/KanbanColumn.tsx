@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Column, TaskCard } from "./types";
 import { KanbanCard } from "./KanbanCard";
@@ -12,10 +11,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
-  onAddCard: (columnId: string) => void;
-  onDeleteCard: (card: TaskCard) => void;
-  onUpdateCard: (cardId: string, updates: Partial<TaskCard>) => void;
+  onAddCard?: () => void;
+  onDeleteCard?: (card: TaskCard) => void;
+  onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
+  otherColumns?: Column[];
 }
 
 export function KanbanColumn({
@@ -24,7 +24,8 @@ export function KanbanColumn({
   onAddCard,
   onDeleteCard,
   onUpdateCard,
-  onMoveCard
+  onMoveCard,
+  otherColumns = []
 }: KanbanColumnProps) {
   const { isDarkMode } = useTheme();
   const [hovering, setHovering] = useState(false);

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Board, Column, TaskCard, validatePriority } from '../types';
@@ -111,5 +110,5 @@ export function useBoardData() {
     };
   }, []);
 
-  return { board, columns, cards, isLoading, setCards };
+  return { board, columns, cards, isLoading, setCards, setColumns };
 }
