@@ -56,8 +56,13 @@ export function CardDetails({
     }
   };
 
-  // Get available columns to move to (only return valid columns, not the current one)
+  // Get available columns to move to (filter out the current column)
   const availableColumns = columns.filter(column => column.id !== card.column_id);
+
+  // Filter duplicate column names to ensure we only show each column type once
+  const uniqueAvailableColumns = Array.from(
+    new Map(availableColumns.map(column => [column.name, column])).values()
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -81,14 +86,14 @@ export function CardDetails({
                   isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"
                 }`}
               >
-                {availableColumns.length > 0 && (
+                {uniqueAvailableColumns.length > 0 && (
                   <>
                     <DropdownMenuItem disabled className="text-sm opacity-70 px-2">
                       Mover para
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     
-                    {availableColumns.map(column => (
+                    {uniqueAvailableColumns.map(column => (
                       <DropdownMenuItem 
                         key={column.id} 
                         onClick={() => handleMoveCardToColumn(column.id)}
@@ -174,7 +179,7 @@ export function CardDetails({
 
         <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-between mt-4">
           <div className="w-full sm:w-auto order-2 sm:order-1">
-            {availableColumns.length > 0 && (
+            {uniqueAvailableColumns.length > 0 && (
               <DropdownMenu open={moveMenuOpen} onOpenChange={setMoveMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full sm:w-auto">
@@ -183,7 +188,7 @@ export function CardDetails({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
-                  {availableColumns.map((column) => (
+                  {uniqueAvailableColumns.map((column) => (
                     <DropdownMenuItem
                       key={column.id}
                       onClick={() => handleMoveCardToColumn(column.id)}

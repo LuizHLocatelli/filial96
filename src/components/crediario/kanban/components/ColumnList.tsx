@@ -30,20 +30,19 @@ export function ColumnList({
     );
   }
 
-  const getColumnCards = (columnId: string) => {
-    return cards.filter(card => card.column_id === columnId);
-  };
+  // Ordenar colunas por posição para garantir que sejam exibidas corretamente
+  const sortedColumns = [...columns].sort((a, b) => a.position - b.position);
 
   return (
     <div className="flex flex-col md:flex-row gap-4 pb-4 overflow-x-auto min-h-[calc(100vh-250px)]">
-      {columns.map((column) => (
+      {sortedColumns.map((column) => (
         <div 
           key={column.id} 
-          className="flex-shrink-0 w-full md:w-72 mb-4 md:mb-0 min-h-[300px]"
+          className="flex-shrink-0 w-full md:w-72 mb-6 md:mb-0 min-h-[300px]"
         >
           <KanbanColumn
             column={column}
-            cards={getColumnCards(column.id)}
+            cards={cards.filter(card => card.column_id === column.id)}
             onAddCard={onAddCard}
             onDeleteCard={onDeleteCard}
             onUpdateCard={onUpdateCard}

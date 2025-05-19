@@ -141,16 +141,23 @@ export function KanbanCard({
   // Calculate background color for dark mode
   const getCardBackground = () => {
     if (card.background_color) {
-      return isDarkMode 
-        ? `${card.background_color}aa` // Add some transparency in dark mode
-        : card.background_color;
+      // Melhora a visibilidade do cartão no modo escuro
+      const bgColor = card.background_color.toLowerCase();
+      if (isDarkMode) {
+        if (bgColor === '#ffffff' || bgColor === 'white') {
+          return '#2a2a2a'; // Substitui branco por cinza escuro no dark mode
+        }
+        // Adiciona alguma transparência para melhorar visualização
+        return `${bgColor}dd`;
+      }
+      return bgColor;
     }
     return isDarkMode ? '#2a2a2a' : 'white';
   };
 
   const getBorderStyle = () => {
     return isDarkMode 
-      ? "border-gray-700 dark:hover:border-gray-500"
+      ? "border-gray-700 hover:border-gray-500"
       : "border-gray-200 hover:border-gray-300";
   };
 
@@ -161,7 +168,7 @@ export function KanbanCard({
         className={`p-3 rounded-md border shadow-sm cursor-pointer hover:shadow-md transition-all ${getBorderStyle()}`}
         style={{ 
           backgroundColor: getCardBackground(),
-          color: textColor
+          color: isDarkMode ? "#e1e1e1" : textColor
         }}
       >
         <div className="space-y-2">
@@ -169,7 +176,7 @@ export function KanbanCard({
             title={card.title}
             description={card.description}
             priority={card.priority}
-            textColor={textColor}
+            textColor={isDarkMode ? "#e1e1e1" : textColor}
           />
           
           {timeRemaining && card.due_date && (
@@ -190,7 +197,7 @@ export function KanbanCard({
             dueDate={card.due_date}
             dueTime={card.due_time}
             assignee={assignee}
-            textColor={textColor}
+            textColor={isDarkMode ? "#e1e1e1" : textColor}
           />
         </div>
       </div>
