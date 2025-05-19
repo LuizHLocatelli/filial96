@@ -17,12 +17,15 @@ export function CardContent({
 }: CardContentProps) {
   const { isDarkMode } = useTheme();
   
+  // For dark mode, ensure we use a legible text color
+  const textColorValue = isDarkMode ? "#e1e1e1" : textColor;
+  
   return (
     <div>
       <div className="flex justify-between items-start gap-2">
         <h3 
-          className={`font-medium truncate mb-1 text-base ${isDarkMode && !textColor ? 'text-gray-100' : ''}`}
-          style={textColor ? { color: textColor } : undefined}
+          className="font-medium truncate mb-1 text-base"
+          style={textColor ? { color: textColorValue } : undefined}
         >
           {title}
         </h3>
@@ -31,8 +34,8 @@ export function CardContent({
       
       {description && (
         <p 
-          className={`text-sm line-clamp-2 ${isDarkMode && !textColor ? 'text-gray-300/90' : 'dark:text-opacity-90'}`}
-          style={textColor ? { color: textColor, opacity: 0.9 } : undefined}
+          className="text-sm line-clamp-2"
+          style={textColor ? { color: textColorValue, opacity: 0.9 } : undefined}
         >
           {description}
         </p>

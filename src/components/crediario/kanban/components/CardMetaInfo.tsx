@@ -3,6 +3,7 @@ import { CalendarIcon, Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface CardMetaInfoProps {
   dueDate?: string;
@@ -16,11 +17,16 @@ interface CardMetaInfoProps {
 }
 
 export function CardMetaInfo({ dueDate, dueTime, assignee, textColor = "inherit" }: CardMetaInfoProps) {
+  const { isDarkMode } = useTheme();
+  
   // Only render if we have at least one piece of meta info
   if (!dueDate && !assignee) return null;
   
+  // For dark mode, ensure we use a legible text color
+  const textColorValue = isDarkMode ? "#e1e1e1" : textColor;
+  
   return (
-    <div className="flex flex-wrap items-center mt-2 gap-3" style={{ color: textColor }}>
+    <div className="flex flex-wrap items-center mt-2 gap-3" style={{ color: textColorValue }}>
       {dueDate && (
         <div className="flex items-center gap-1 text-xs bg-opacity-10 dark:bg-opacity-20 px-1.5 py-0.5 rounded">
           <CalendarIcon className="h-3.5 w-3.5" />
