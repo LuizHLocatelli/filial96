@@ -1,19 +1,28 @@
+
 import { useState, useEffect } from "react";
 import { TaskCard } from "./types";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { useUsers } from "./useUsers";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarIcon, Clock, User, CheckCircle, Pencil, MoreHorizontal, Trash } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { useUsers } from "./useUsers";
+import { formatDate } from "@/lib/utils";
+import { CardComments } from "./CardComments";
+import { Badge } from "@/components/ui/badge";
+import { Trash, MoreHorizontal, Clock, ArrowRightCircle } from "lucide-react";
+import { useKanbanBoard } from "./useKanbanBoard";
 
 interface CardDetailsProps {
   card: TaskCard;
@@ -22,110 +31,150 @@ interface CardDetailsProps {
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
 }
 
-export function CardDetails({ 
-  card, 
-  open, 
+export function CardDetails({
+  card,
+  open,
   onOpenChange,
-  onMoveCard
+  onMoveCard,
 }: CardDetailsProps) {
-  const [dueDateFormatted, setDueDateFormatted] = useState<string | null>(null);
-  const { usersData } = useUsers();
   const { isDarkMode } = useTheme();
-  
-  const assignee = card.assignee_id 
-    ? usersData.find(user => user.id === card.assignee_id) 
+  const { usersData } = useUsers();
+  const { columns } = useKanbanBoard();
+
+  const assignee = card.assignee_id
+    ? usersData.find((user) => user.id === card.assignee_id)
     : null;
 
-  useEffect(() => {
-    if (card.due_date) {
-      try {
-        const formattedDate = format(new Date(card.due_date), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR });
-        setDueDateFormatted(formattedDate);
-      } catch (error) {
-        console.error("Error formatting date:", error);
-        setDueDateFormatted(null);
-      }
-    } else {
-      setDueDateFormatted(null);
-    }
-  }, [card.due_date]);
-  
-  // Adicionando a função para mover o cartão
-  const handleMoveCard = (columnId: string) => {
+  const currentColumn = columns.find(column => column.id === card.column_id);
+
+  // Simplified version to just show the move options
+  const handleMoveCardToColumn = (targetColumnId: string) => {
     if (onMoveCard) {
-      onMoveCard(card.id, columnId);
-      onOpenChange(false); // Fechar o diálogo após mover
+      onMoveCard(card.id, targetColumnId);
+      onOpenChange(false); // Close the dialog after moving
     }
   };
 
+  // Get available columns to move to
+  const availableColumns = columns.filter(column => column.id !== card.column_id);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className={`sm:max-w-[600px] max-h-[85vh] overflow-y-auto ${
+          isDarkMode ? "border-gray-700" : "border-gray-200"
+        }`}
+      >
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">{card.title}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="mr-8 text-xl">{card.title}</DialogTitle>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className={`${
+                  isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white"
+                }`}
+              >
+                {availableColumns.length > 0 && (
+                  <>
+                    <DropdownMenuItem className="font-medium opacity-70" disabled>
+                      Mover para
+                    </DropdownMenuItem>
+                    
+                    {availableColumns.map(column => (
+                      <DropdownMenuItem 
+                        key={column.id} 
+                        onClick={() => handleMoveCardToColumn(column.id)}
+                        className="flex items-center gap-1"
+                      >
+                        <ArrowRightCircle className="h-4 w-4 mr-1" />
+                        {column.name}
+                      </DropdownMenuItem>
+                    ))}
+                    
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                
+                <DropdownMenuItem className="text-destructive">
+                  <Trash className="h-4 w-4 mr-1" /> Excluir cartão
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Barra de Status - Nova seção para mover entre colunas */}
-          <div className="flex flex-col space-y-2">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</h3>
-            <div className="flex flex-wrap gap-2">
-              <Button 
-                size="sm" 
-                variant={card.column_id === 'a_fazer' ? "default" : "outline"}
-                onClick={() => handleMoveCard('a_fazer')}
-              >
-                A Fazer
-              </Button>
-              <Button 
-                size="sm" 
-                variant={card.column_id === 'fazendo' ? "default" : "outline"}
-                onClick={() => handleMoveCard('fazendo')}
-              >
-                Fazendo
-              </Button>
-              <Button 
-                size="sm" 
-                variant={card.column_id === 'feita' ? "default" : "outline"}
-                onClick={() => handleMoveCard('feita')}
-              >
-                Feita
-              </Button>
-            </div>
-          </div>
-
-          {/* Informações do Cartão */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Descrição</h3>
-            <p className="text-gray-800 dark:text-gray-200">{card.description || "Nenhuma descrição fornecida."}</p>
-          </div>
-
-          {/* Data de Vencimento */}
-          {dueDateFormatted && (
-            <div className="flex items-center space-x-2">
-              <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                Vencimento: {dueDateFormatted}
-              </span>
-            </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Badge
+            variant="outline"
+            className={`${
+              card.priority === "alta"
+                ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 border-red-200 dark:border-red-800"
+                : card.priority === "media"
+                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
+                : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 border-green-200 dark:border-green-800"
+            }`}
+          >
+            Prioridade: {card.priority}
+          </Badge>
+          
+          {currentColumn && (
+            <Badge
+              variant="outline"
+              className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+            >
+              {currentColumn.name}
+            </Badge>
           )}
 
-          {/* Responsável */}
-          {assignee && (
-            <div className="flex items-center space-x-2">
-              <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              <Avatar className="h-5 w-5">
-                <AvatarImage src={assignee.avatar_url || ""} alt={assignee.name} />
-                <AvatarFallback className="text-[10px] bg-primary/20 dark:bg-primary/30">
-                  {assignee.name.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                Responsável: {assignee.name}
-              </span>
-            </div>
+          {card.due_date && (
+            <Badge
+              variant="outline"
+              className="flex items-center gap-1 bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+            >
+              <Clock className="h-3 w-3" />
+              {formatDate(new Date(card.due_date))}
+              {card.due_time && ` - ${card.due_time}`}
+            </Badge>
           )}
         </div>
+
+        {card.description && (
+          <div className="mt-4">
+            <h4 className="font-medium mb-1">Descrição</h4>
+            <div className="text-sm whitespace-pre-wrap bg-gray-50 dark:bg-gray-900/50 p-3 rounded-md border">
+              {card.description}
+            </div>
+          </div>
+        )}
+
+        {assignee && (
+          <div className="mt-4">
+            <h4 className="font-medium mb-1">Responsável</h4>
+            <div className="flex items-center">
+              <div
+                className="bg-primary h-8 w-8 rounded-full flex items-center justify-center text-white"
+                aria-hidden="true"
+              >
+                {assignee.name[0].toUpperCase()}
+              </div>
+              <span className="ml-2">{assignee.name}</span>
+            </div>
+          </div>
+        )}
+
+        <CardComments cardId={card.id} />
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Fechar
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

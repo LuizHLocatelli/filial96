@@ -12,13 +12,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
-// IDs das colunas fixas
-const FIXED_COLUMNS = {
-  A_FAZER: 'a_fazer',
-  FAZENDO: 'fazendo',
-  FEITA: 'feita'
-};
-
 export function KanbanBoard() {
   const {
     board,
@@ -35,53 +28,40 @@ export function KanbanBoard() {
   const [addCardDialogOpen, setAddCardDialogOpen] = useState(false);
   const [targetColumnId, setTargetColumnId] = useState<string | null>(null);
   
-  // Criar colunas fixas
+  // Create colunas fixas
   const [columns, setColumns] = useState<Column[]>([]);
   
   // Configure as colunas fixas baseadas no board atual
   useEffect(() => {
     if (board) {
-      // Verifique se já temos as colunas fixas no banco de dados
-      const aFazerCol = dbColumns.find(col => col.id === FIXED_COLUMNS.A_FAZER);
-      const fazendoCol = dbColumns.find(col => col.id === FIXED_COLUMNS.FAZENDO);
-      const feitaCol = dbColumns.find(col => col.id === FIXED_COLUMNS.FEITA);
+      // Buscar as colunas do banco de dados
+      const aFazerCol = dbColumns.find(col => col.name === "A Fazer");
+      const fazendoCol = dbColumns.find(col => col.name === "Fazendo");
+      const feitaCol = dbColumns.find(col => col.name === "Feita");
       
-      // Crie as colunas fixas, mantendo as existentes ou criando novas
-      const fixedColumns: Column[] = [
-        aFazerCol || {
-          id: FIXED_COLUMNS.A_FAZER,
-          board_id: board.id,
-          name: 'A Fazer',
-          position: 0,
-          created_by: board.created_by,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        fazendoCol || {
-          id: FIXED_COLUMNS.FAZENDO,
-          board_id: board.id,
-          name: 'Fazendo',
-          position: 1,
-          created_by: board.created_by,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        feitaCol || {
-          id: FIXED_COLUMNS.FEITA,
-          board_id: board.id,
-          name: 'Feita',
-          position: 2,
-          created_by: board.created_by,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
+      // Criar colunas temporárias se não existirem no banco
+      // Importante: Estamos usando os IDs reais do banco de dados
+      const fixedColumns: Column[] = [];
       
+      if (aFazerCol) {
+        fixedColumns.push(aFazerCol);
+      }
+      
+      if (fazendoCol) {
+        fixedColumns.push(fazendoCol);
+      }
+      
+      if (feitaCol) {
+        fixedColumns.push(feitaCol);
+      }
+      
+      // Se alguma das colunas não existir, vamos mostrar apenas as que existem
       setColumns(fixedColumns);
     }
   }, [board, dbColumns]);
 
   const handleOpenAddCardDialog = (columnId: string) => {
+    console.log("Opening dialog for column ID:", columnId);
     setTargetColumnId(columnId);
     setAddCardDialogOpen(true);
   };
@@ -101,6 +81,8 @@ export function KanbanBoard() {
     }
     
     try {
+      console.log("Adicionando cartão na coluna:", targetColumnId);
+      
       await addCard({
         title: data.title,
         description: data.description,
@@ -141,19 +123,23 @@ export function KanbanBoard() {
     return <BoardEmpty />;
   }
 
+  const aFazerColumn = columns.find(col => col.name === "A Fazer");
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <BoardHeader board={board} />
         
         <div className="flex gap-2">
-          <Button 
-            onClick={() => handleOpenAddCardDialog(FIXED_COLUMNS.A_FAZER)} 
-            size="sm" 
-            className="bg-brand-blue-600 hover:bg-brand-blue-700 text-white dark:bg-brand-blue-500 dark:hover:bg-brand-blue-600 dark:text-white shadow-md hover:shadow-lg transition-all"
-          >
-            <Plus className="h-4 w-4 mr-1" /> Nova Tarefa
-          </Button>
+          {aFazerColumn && (
+            <Button 
+              onClick={() => handleOpenAddCardDialog(aFazerColumn.id)} 
+              size="sm" 
+              className="bg-brand-blue-600 hover:bg-brand-blue-700 text-white dark:bg-brand-blue-500 dark:hover:bg-brand-blue-600 dark:text-white shadow-md hover:shadow-lg transition-all"
+            >
+              <Plus className="h-4 w-4 mr-1" /> Nova Tarefa
+            </Button>
+          )}
         </div>
       </div>
 

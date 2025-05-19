@@ -50,7 +50,7 @@ export function useCardActions(cards: TaskCard[], setCards: React.Dispatch<React
         priority: validatePriority(data.priority)
       };
       
-      setCards([...cards, newCard]);
+      setCards(prevCards => [...prevCards, newCard]);
       
       // Log activity
       const boardId = await getBoardIdByColumnId(cardData.column_id);
