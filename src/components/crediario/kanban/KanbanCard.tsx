@@ -104,9 +104,9 @@ export function KanbanCard({
   const getTimerStyle = () => {
     if (isPastDue) {
       return {
-        backgroundColor: "rgba(239, 68, 68, 0.2)",
-        color: "rgb(239, 68, 68)",
-        borderColor: "rgba(239, 68, 68, 0.5)"
+        backgroundColor: isDarkMode ? "rgba(239, 68, 68, 0.3)" : "rgba(239, 68, 68, 0.2)",
+        color: isDarkMode ? "rgb(252, 165, 165)" : "rgb(239, 68, 68)",
+        borderColor: isDarkMode ? "rgba(239, 68, 68, 0.6)" : "rgba(239, 68, 68, 0.5)"
       };
     }
     
@@ -115,36 +115,52 @@ export function KanbanCard({
       // Menos de 1 hora
       if (secondsLeft < 3600) {
         return {
-          backgroundColor: "rgba(239, 68, 68, 0.15)",
-          color: "rgb(239, 68, 68)",
-          borderColor: "rgba(239, 68, 68, 0.4)"
+          backgroundColor: isDarkMode ? "rgba(239, 68, 68, 0.25)" : "rgba(239, 68, 68, 0.15)",
+          color: isDarkMode ? "rgb(252, 165, 165)" : "rgb(239, 68, 68)",
+          borderColor: isDarkMode ? "rgba(239, 68, 68, 0.5)" : "rgba(239, 68, 68, 0.4)"
         };
       }
       
       // Menos de 24 horas
       if (secondsLeft < 86400) {
         return {
-          backgroundColor: "rgba(245, 158, 11, 0.15)",
+          backgroundColor: isDarkMode ? "rgba(245, 158, 11, 0.25)" : "rgba(245, 158, 11, 0.15)",
           color: isDarkMode ? "rgb(251, 191, 36)" : "rgb(194, 65, 12)",
-          borderColor: "rgba(245, 158, 11, 0.4)"
+          borderColor: isDarkMode ? "rgba(245, 158, 11, 0.5)" : "rgba(245, 158, 11, 0.4)"
         };
       }
     }
     
     return {
-      backgroundColor: "rgba(59, 130, 246, 0.1)",
-      color: textColor,
-      borderColor: "rgba(59, 130, 246, 0.3)"
+      backgroundColor: isDarkMode ? "rgba(59, 130, 246, 0.2)" : "rgba(59, 130, 246, 0.1)",
+      color: isDarkMode ? "#a3c6ff" : textColor,
+      borderColor: isDarkMode ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.3)"
     };
+  };
+
+  // Calculate background color for dark mode
+  const getCardBackground = () => {
+    if (card.background_color) {
+      return isDarkMode 
+        ? `${card.background_color}aa` // Add some transparency in dark mode
+        : card.background_color;
+    }
+    return isDarkMode ? '#2a2a2a' : 'white';
+  };
+
+  const getBorderStyle = () => {
+    return isDarkMode 
+      ? "border-gray-700 dark:hover:border-gray-500"
+      : "border-gray-200 hover:border-gray-300";
   };
 
   return (
     <>
       <div
         onClick={handleCardClick}
-        className="p-3 rounded-md border shadow-sm cursor-pointer hover:shadow-md transition-shadow dark:border-gray-700"
+        className={`p-3 rounded-md border shadow-sm cursor-pointer hover:shadow-md transition-all ${getBorderStyle()}`}
         style={{ 
-          backgroundColor: card.background_color || (isDarkMode ? '#2a2a2a' : 'white'),
+          backgroundColor: getCardBackground(),
           color: textColor
         }}
       >

@@ -21,7 +21,7 @@ import { useUsers } from "./useUsers";
 import { formatDate } from "@/lib/utils";
 import { CardComments } from "./CardComments";
 import { Badge } from "@/components/ui/badge";
-import { Trash, MoreHorizontal, Clock, ArrowRightCircle } from "lucide-react";
+import { Trash, MoreHorizontal, Clock, ArrowRightCircle, MoveRight } from "lucide-react";
 import { useKanbanBoard } from "./useKanbanBoard";
 
 interface CardDetailsProps {
@@ -40,6 +40,7 @@ export function CardDetails({
   const { isDarkMode } = useTheme();
   const { usersData } = useUsers();
   const { columns } = useKanbanBoard();
+  const [moveMenuOpen, setMoveMenuOpen] = useState(false);
 
   const assignee = card.assignee_id
     ? usersData.find((user) => user.id === card.assignee_id)
@@ -55,7 +56,7 @@ export function CardDetails({
     }
   };
 
-  // Get available columns to move to
+  // Get available columns to move to (only return valid columns, not the current one)
   const availableColumns = columns.filter(column => column.id !== card.column_id);
 
   return (
@@ -82,9 +83,10 @@ export function CardDetails({
               >
                 {availableColumns.length > 0 && (
                   <>
-                    <DropdownMenuItem className="font-medium opacity-70" disabled>
+                    <DropdownMenuItem disabled className="text-sm opacity-70 px-2">
                       Mover para
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     
                     {availableColumns.map(column => (
                       <DropdownMenuItem 
@@ -92,7 +94,7 @@ export function CardDetails({
                         onClick={() => handleMoveCardToColumn(column.id)}
                         className="flex items-center gap-1"
                       >
-                        <ArrowRightCircle className="h-4 w-4 mr-1" />
+                        <MoveRight className="h-4 w-4 mr-1" />
                         {column.name}
                       </DropdownMenuItem>
                     ))}
@@ -170,8 +172,32 @@ export function CardDetails({
 
         <CardComments cardId={card.id} />
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="gap-2 flex-col sm:flex-row sm:justify-between mt-4">
+          <div className="w-full sm:w-auto order-2 sm:order-1">
+            {availableColumns.length > 0 && (
+              <DropdownMenu open={moveMenuOpen} onOpenChange={setMoveMenuOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full sm:w-auto">
+                    <MoveRight className="mr-2 h-4 w-4" />
+                    Mover para
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
+                  {availableColumns.map((column) => (
+                    <DropdownMenuItem
+                      key={column.id}
+                      onClick={() => handleMoveCardToColumn(column.id)}
+                      className="flex items-center gap-1"
+                    >
+                      <ArrowRightCircle className="h-4 w-4 mr-1" />
+                      {column.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="order-1 sm:order-2">
             Fechar
           </Button>
         </DialogFooter>

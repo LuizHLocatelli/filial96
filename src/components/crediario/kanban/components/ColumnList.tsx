@@ -6,7 +6,7 @@ import { Column, TaskCard } from "../types";
 interface ColumnListProps {
   columns: Column[];
   cards: TaskCard[];
-  onAddCard?: (columnId: string) => void;  // Updated to accept columnId parameter
+  onAddCard?: (columnId: string) => void;
   onDeleteCard?: (card: TaskCard) => void;
   onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
@@ -35,11 +35,11 @@ export function ColumnList({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto">
+    <div className="flex flex-col md:flex-row gap-4 pb-4 overflow-x-auto min-h-[calc(100vh-250px)]">
       {columns.map((column) => (
         <div 
           key={column.id} 
-          className="flex-shrink-0 w-full md:w-72"
+          className="flex-shrink-0 w-full md:w-72 mb-4 md:mb-0 min-h-[300px]"
         >
           <KanbanColumn
             column={column}

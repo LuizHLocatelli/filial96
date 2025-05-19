@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
-  onAddCard?: (columnId: string) => void;  // Updated to accept columnId parameter
+  onAddCard?: (columnId: string) => void;
   onDeleteCard?: (card: TaskCard) => void;
   onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
@@ -46,12 +46,12 @@ export function KanbanColumn({
   
   // Determine o estilo do cabeçalho baseado na coluna
   const getHeaderStyle = () => {
-    switch(column.id) {
-      case 'a_fazer':
+    switch(column.name) {
+      case 'A Fazer':
         return 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30';
-      case 'fazendo':
+      case 'Fazendo':
         return 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30';
-      case 'feita':
+      case 'Feita':
         return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-900/30';
       default:
         return 'border-gray-300 dark:border-gray-700';
@@ -60,12 +60,12 @@ export function KanbanColumn({
   
   // Determine o estilo do badge baseado na coluna
   const getBadgeStyle = () => {
-    switch(column.id) {
-      case 'a_fazer':
+    switch(column.name) {
+      case 'A Fazer':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'fazendo':
+      case 'Fazendo':
         return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
-      case 'feita':
+      case 'Feita':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       default:
         return '';
@@ -88,7 +88,7 @@ export function KanbanColumn({
         </h3>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -120,7 +120,7 @@ export function KanbanColumn({
 
       <Button
         onClick={() => onAddCard && onAddCard(column.id)}
-        className={`m-2 gap-1 bg-primary-100 hover:bg-primary-200 text-primary-600 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 dark:text-primary-300 w-full justify-center rounded-md transition-all ${
+        className={`mx-2 mb-2 gap-1 bg-primary-100 hover:bg-primary-200 text-primary-600 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 dark:text-primary-300 w-auto justify-center rounded-md transition-all ${
           hovering ? 'shadow-md' : ''
         }`}
         variant="outline"
