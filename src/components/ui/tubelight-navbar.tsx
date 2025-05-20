@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link } from "react-router-dom"
 import { LucideIcon, ChevronDown, ChevronUp } from "lucide-react"
@@ -29,6 +29,7 @@ export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name)
   const [isMobile, setIsMobile] = useState(false)
   const [openInnerPages, setOpenInnerPages] = useState<string | null>(null)
+  const navItemsRef = useRef<Map<string, HTMLDivElement>>(new Map())
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,10 +65,30 @@ export function NavBar({ items, className }: NavBarProps) {
     }
   }, [items]);
 
+  // Adiciona evento de clique global para fechar o popup quando clicar fora dele
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (openInnerPages) {
+        // Verifica se o clique foi dentro do popup ou no botão que o abre
+        const isClickInsidePopup = (e.target as Element)?.closest('.inner-pages-popup');
+        const isClickOnTrigger = (e.target as Element)?.closest('.inner-pages-trigger');
+
+        if (!isClickInsidePopup && !isClickOnTrigger) {
+          setOpenInnerPages(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openInnerPages]);
+
   const toggleInnerPages = (itemName: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setOpenInnerPages(openInnerPages === itemName ? null : itemName);
+    
+    // Se já estiver aberto, fecha. Se for um item diferente, abre o novo e fecha o anterior
+    setOpenInnerPages(prevOpen => prevOpen === itemName ? null : itemName);
   }
 
   return (
@@ -84,15 +105,26 @@ export function NavBar({ items, className }: NavBarProps) {
           const isOpen = openInnerPages === item.name
 
           return (
-            <div key={item.name} className="relative">
+            <div 
+              key={item.name} 
+              className="relative"
+              ref={el => {
+                if (el) navItemsRef.current.set(item.name, el);
+              }}
+            >
               {/* Inner Pages Popup */}
               <AnimatePresence>
                 {item.hasInnerPages && item.innerPages && isOpen && (
                   <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-background/95 border border-border rounded-xl p-3 shadow-lg w-56"
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-background/95 border border-border rounded-xl p-3 shadow-lg w-56 z-50 inner-pages-popup"
+                    style={{ 
+                      transformOrigin: 'bottom center',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }}
                   >
                     <div className="flex flex-col gap-2">
                       {item.innerPages.map((innerPage) => (
@@ -117,7 +149,13 @@ export function NavBar({ items, className }: NavBarProps) {
 
               <Link
                 to={item.url}
-                onClick={() => setActiveTab(item.name)}
+                onClick={() => {
+                  setActiveTab(item.name);
+                  // Fecha qualquer popup aberto quando clicar em outro item da navbar
+                  if (openInnerPages && openInnerPages !== item.name) {
+                    setOpenInnerPages(null);
+                  }
+                }}
                 className={cn(
                   "relative flex items-center justify-center cursor-pointer text-sm font-medium px-4 py-2 rounded-full transition-colors",
                   "text-foreground/80 hover:text-primary",
@@ -132,7 +170,8 @@ export function NavBar({ items, className }: NavBarProps) {
                   {item.hasInnerPages && (
                     <button 
                       onClick={(e) => toggleInnerPages(item.name, e)}
-                      className="focus:outline-none ml-0.5"
+                      className="focus:outline-none ml-0.5 inner-pages-trigger"
+                      aria-label={isOpen ? "Fechar submenus" : "Abrir submenus"}
                     >
                       {isOpen ? (
                         <ChevronUp size={14} className="text-primary" />
