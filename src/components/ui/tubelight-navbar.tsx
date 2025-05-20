@@ -4,13 +4,14 @@
 import React, { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom" // Using react-router-dom instead of next/link
-import { LucideIcon } from "lucide-react"
+import { LucideIcon, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavItem {
   name: string
   url: string
   icon: LucideIcon
+  hasInnerPages?: boolean
 }
 
 interface NavBarProps {
@@ -64,10 +65,15 @@ export function NavBar({ items, className }: NavBarProps) {
                 isActive && "bg-muted text-primary",
               )}
             >
-              <span className="hidden md:inline">{item.name}</span>
-              <span className="md:hidden">
-                <Icon size={18} strokeWidth={2.5} />
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="hidden md:inline">{item.name}</span>
+                <span className="md:hidden">
+                  <Icon size={18} strokeWidth={2.5} />
+                </span>
+                {item.hasInnerPages && (
+                  <ChevronDown size={14} className="opacity-70" />
+                )}
+              </div>
               {isActive && (
                 <motion.div
                   layoutId="lamp"
