@@ -40,3 +40,4 @@ export function NavBarDemo() {
 
   return <NavBar items={navItems} />
 }
+

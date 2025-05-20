@@ -1,8 +1,7 @@
-
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Link } from "react-router-dom"
 import { LucideIcon, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -44,9 +43,24 @@ export function NavBar({ items, className }: NavBarProps) {
   // Update active tab based on current URL
   useEffect(() => {
     const path = window.location.pathname;
+    const query = new URLSearchParams(window.location.search);
+    const tab = query.get('tab');
+    
     const matchingItem = items.find(item => item.url === path);
     if (matchingItem) {
       setActiveTab(matchingItem.name);
+      
+      // If we're on a page with inner tabs, check which inner tab is active
+      if (tab && matchingItem.hasInnerPages && matchingItem.innerPages) {
+        const innerPageUrl = `${path}?tab=${tab}`;
+        const matchingInnerPage = matchingItem.innerPages.find(
+          innerPage => innerPage.url === innerPageUrl
+        );
+        if (matchingInnerPage) {
+          // We found an active inner page, but we still keep the parent as active
+          // Just keeping this logic for potential future enhancements
+        }
+      }
     }
   }, [items]);
 
@@ -59,11 +73,11 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 sm:bottom-0 left-1/2 -translate-x-1/2 z-50 mb-6",
+        "fixed bottom-0 left-0 w-full flex justify-center z-50 mb-6",
         className,
       )}
     >
-      <div className="flex items-center gap-3 bg-background/5 border border-border backdrop-blur-lg py-1 px-1 rounded-full shadow-lg">
+      <div className="flex items-center gap-3 bg-background/90 border border-border backdrop-blur-lg py-2 px-4 rounded-full shadow-lg">
         {items.map((item) => {
           const Icon = item.icon
           const isActive = activeTab === item.name
@@ -72,51 +86,53 @@ export function NavBar({ items, className }: NavBarProps) {
           return (
             <div key={item.name} className="relative">
               {/* Inner Pages Popup */}
-              {item.hasInnerPages && item.innerPages && isOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute bottom-14 left-1/2 -translate-x-1/2 bg-background border border-border rounded-xl p-2 shadow-lg w-max"
-                >
-                  <div className="flex flex-col gap-2">
-                    {item.innerPages.map((innerPage) => (
-                      <Link
-                        key={innerPage.name}
-                        to={innerPage.url}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors whitespace-nowrap"
-                        onClick={() => {
-                          setOpenInnerPages(null);
-                          setActiveTab(item.name);
-                        }}
-                      >
-                        {innerPage.icon && <innerPage.icon size={16} />}
-                        <span className="text-sm font-medium">{innerPage.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background rotate-45 border-b border-r border-border"></div>
-                </motion.div>
-              )}
+              <AnimatePresence>
+                {item.hasInnerPages && item.innerPages && isOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-background/95 border border-border rounded-xl p-3 shadow-lg w-56"
+                  >
+                    <div className="flex flex-col gap-2">
+                      {item.innerPages.map((innerPage) => (
+                        <Link
+                          key={innerPage.name}
+                          to={innerPage.url}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors whitespace-nowrap"
+                          onClick={() => {
+                            setOpenInnerPages(null);
+                            setActiveTab(item.name);
+                          }}
+                        >
+                          {innerPage.icon && <innerPage.icon size={18} />}
+                          <span className="text-sm font-medium">{innerPage.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background/95 rotate-45 border-b border-r border-border"></div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <Link
                 to={item.url}
                 onClick={() => setActiveTab(item.name)}
                 className={cn(
-                  "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
+                  "relative flex items-center justify-center cursor-pointer text-sm font-medium px-4 py-2 rounded-full transition-colors",
                   "text-foreground/80 hover:text-primary",
                   isActive && "bg-muted text-primary",
                 )}
               >
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <span className="hidden md:inline">{item.name}</span>
-                  <span className="md:hidden">
-                    <Icon size={18} strokeWidth={2.5} />
+                  <span className={cn("flex items-center justify-center", isMobile ? "text-lg" : "")}>
+                    <Icon size={isMobile ? 20 : 18} strokeWidth={2} />
                   </span>
                   {item.hasInnerPages && (
                     <button 
                       onClick={(e) => toggleInnerPages(item.name, e)}
-                      className="focus:outline-none"
+                      className="focus:outline-none ml-0.5"
                     >
                       {isOpen ? (
                         <ChevronUp size={14} className="text-primary" />
@@ -129,7 +145,7 @@ export function NavBar({ items, className }: NavBarProps) {
                 {isActive && (
                   <motion.div
                     layoutId="lamp"
-                    className="absolute inset-0 w-full bg-primary/5 rounded-full -z-10"
+                    className="absolute inset-0 w-full h-full bg-primary/5 rounded-full -z-10"
                     initial={false}
                     transition={{
                       type: "spring",
