@@ -18,9 +18,7 @@ export function CardContent({
   const { isDarkMode } = useTheme();
   
   // For dark mode, ensure we use a legible text color
-  const textColorValue = isDarkMode 
-    ? (textColor ? `${textColor}ee` : "#e5e5e5") // slightly transparent color in dark mode for better contrast
-    : textColor;
+  const textColorValue = isDarkMode ? "#e1e1e1" : textColor;
   
   return (
     <div>
