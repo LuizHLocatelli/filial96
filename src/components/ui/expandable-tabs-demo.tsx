@@ -6,7 +6,7 @@ export function DefaultDemo() {
   const tabs = [
     { title: "Dashboard", icon: Home },
     { title: "Notifications", icon: Bell },
-    { type: "separator" as const },
+    { type: "separator" } as const,
     { title: "Settings", icon: Settings },
     { title: "Support", icon: HelpCircle },
     { title: "Security", icon: Shield },
@@ -23,7 +23,7 @@ export function CustomColorDemo() {
   const tabs = [
     { title: "Profile", icon: User },
     { title: "Messages", icon: Mail },
-    { type: "separator" as const },
+    { type: "separator" } as const,
     { title: "Documents", icon: FileText },
     { title: "Privacy", icon: Lock },
   ];
