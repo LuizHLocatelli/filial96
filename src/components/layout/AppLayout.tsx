@@ -15,19 +15,16 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-hidden relative">
+      <div className="min-h-screen flex w-full overflow-hidden">
         <AppSidebar />
         <div className="flex-1 flex flex-col max-w-full">
           <TopBar />
-          <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto pb-24">
+          <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
             {children}
           </main>
         </div>
-        <div className="z-50">
-          <NavBarDemo />
-        </div>
+        <NavBarDemo />
       </div>
     </SidebarProvider>
   );
 }
-
