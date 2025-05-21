@@ -65,11 +65,11 @@ export function NavBar({ items, className }: NavBarProps) {
     }
   }, [items]);
 
-  // Adiciona evento de clique global para fechar o popup quando clicar fora dele
+  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (openInnerPages) {
-        // Verifica se o clique foi dentro do popup ou no botão que o abre
+        // Check if click was inside popup or on the trigger button
         const isClickInsidePopup = (e.target as Element)?.closest('.inner-pages-popup');
         const isClickOnTrigger = (e.target as Element)?.closest('.inner-pages-trigger');
 
@@ -87,7 +87,7 @@ export function NavBar({ items, className }: NavBarProps) {
     e.preventDefault();
     e.stopPropagation();
     
-    // Se já estiver aberto, fecha. Se for um item diferente, abre o novo e fecha o anterior
+    // If it's already open, close it. If it's a different item, open new and close previous
     setOpenInnerPages(prevOpen => prevOpen === itemName ? null : itemName);
   }
 
@@ -112,46 +112,11 @@ export function NavBar({ items, className }: NavBarProps) {
                 if (el) navItemsRef.current.set(item.name, el);
               }}
             >
-              {/* Inner Pages Popup */}
-              <AnimatePresence>
-                {item.hasInnerPages && item.innerPages && isOpen && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-background/95 border border-border rounded-xl p-3 shadow-lg w-56 z-50 inner-pages-popup"
-                    style={{ 
-                      transformOrigin: 'bottom center',
-                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-                    }}
-                  >
-                    <div className="flex flex-col gap-2">
-                      {item.innerPages.map((innerPage) => (
-                        <Link
-                          key={innerPage.name}
-                          to={innerPage.url}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors whitespace-nowrap"
-                          onClick={() => {
-                            setOpenInnerPages(null);
-                            setActiveTab(item.name);
-                          }}
-                        >
-                          {innerPage.icon && <innerPage.icon size={18} />}
-                          <span className="text-sm font-medium">{innerPage.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background/95 rotate-45 border-b border-r border-border"></div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
               <Link
                 to={item.url}
                 onClick={() => {
                   setActiveTab(item.name);
-                  // Fecha qualquer popup aberto quando clicar em outro item da navbar
+                  // Close any open popup when clicking on another navbar item
                   if (openInnerPages && openInnerPages !== item.name) {
                     setOpenInnerPages(null);
                   }
@@ -200,6 +165,50 @@ export function NavBar({ items, className }: NavBarProps) {
                   </motion.div>
                 )}
               </Link>
+              
+              {/* Centered Inner Pages Popup */}
+              <AnimatePresence>
+                {item.hasInnerPages && item.innerPages && isOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+                            bg-background/95 border border-border rounded-xl p-4 
+                            shadow-lg w-72 z-50 inner-pages-popup"
+                    style={{ 
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
+                    }}
+                  >
+                    <h3 className="text-lg font-medium mb-3 text-center">{item.name}</h3>
+                    <div className="flex flex-col gap-2">
+                      {item.innerPages.map((innerPage) => (
+                        <Link
+                          key={innerPage.name}
+                          to={innerPage.url}
+                          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors whitespace-nowrap"
+                          onClick={() => {
+                            setOpenInnerPages(null);
+                            setActiveTab(item.name);
+                          }}
+                        >
+                          {innerPage.icon && <innerPage.icon size={20} />}
+                          <span className="text-sm font-medium">{innerPage.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="flex justify-center mt-3">
+                      <button
+                        onClick={() => setOpenInnerPages(null)}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Fechar
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )
         })}
