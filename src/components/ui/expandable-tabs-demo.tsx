@@ -14,7 +14,7 @@ export function DefaultDemo() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ExpandableTabs tabs={tabs} />
+      <ExpandableTabs tabs={tabs as any} />
     </div>
   );
 }
@@ -31,7 +31,7 @@ export function CustomColorDemo() {
   return (
     <div className="flex flex-col gap-4">
       <ExpandableTabs 
-        tabs={tabs} 
+        tabs={tabs as any} 
         activeColor="text-blue-500"
         className="border-blue-200 dark:border-blue-800" 
       />

@@ -81,7 +81,7 @@ export function ExpandableTabs({
       )}
     >
       {tabs.map((tab, index) => {
-        if (tab.type === "separator") {
+        if ('type' in tab && tab.type === "separator") {
           return <Separator key={`separator-${index}`} />;
         }
 
