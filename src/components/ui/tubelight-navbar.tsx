@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link } from "react-router-dom"
-import { LucideIcon, ChevronDown, ChevronUp, X } from "lucide-react"
+import { LucideIcon, ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface InnerPage {
@@ -25,101 +25,10 @@ interface NavBarProps {
   className?: string
 }
 
-// Componente para o modal de páginas internas
-const InnerPagesModal = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  innerPages 
-}: { 
-  isOpen: boolean, 
-  onClose: () => void, 
-  title: string, 
-  innerPages: InnerPage[] 
-}) => {
-  // Hook para fechar ao pressionar ESC
-  useEffect(() => {
-    const handleEscKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscKey);
-      // Impedir rolagem do body quando modal estiver aberto
-      document.body.style.overflow = 'hidden';
-    }
-    
-    return () => {
-      document.removeEventListener('keydown', handleEscKey);
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, onClose]);
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Overlay de fundo com blur */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
-            onClick={onClose}
-          />
-          
-          {/* Modal centralizado */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", damping: 25, stiffness: 400 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 
-                     w-[90%] max-w-md bg-background border border-border 
-                     rounded-xl shadow-lg z-50 overflow-hidden"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="inner-pages-title"
-          >
-            {/* Cabeçalho */}
-            <div className="flex items-center justify-between border-b border-border p-4">
-              <h3 id="inner-pages-title" className="text-lg font-medium">{title}</h3>
-              <button 
-                onClick={onClose}
-                className="rounded-full p-1 hover:bg-muted transition-colors"
-                aria-label="Fechar"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            
-            {/* Conteúdo */}
-            <div className="p-4 max-h-[60vh] overflow-y-auto">
-              <div className="flex flex-col gap-2">
-                {innerPages.map((page) => (
-                  <Link
-                    key={page.name}
-                    to={page.url}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
-                    onClick={onClose}
-                  >
-                    {page.icon && <page.icon size={20} />}
-                    <span className="text-sm font-medium">{page.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-};
-
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name)
   const [isMobile, setIsMobile] = useState(false)
-  const [openModalFor, setOpenModalFor] = useState<string | null>(null)
+  const [openInnerPages, setOpenInnerPages] = useState<string | null>(null)
   const navItemsRef = useRef<Map<string, HTMLDivElement>>(new Map())
 
   useEffect(() => {
@@ -156,107 +65,145 @@ export function NavBar({ items, className }: NavBarProps) {
     }
   }, [items]);
 
-  // Função para abrir ou fechar o modal
-  const toggleModal = (itemName: string, e: React.MouseEvent) => {
+  // Adiciona evento de clique global para fechar o popup quando clicar fora dele
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (openInnerPages) {
+        // Verifica se o clique foi dentro do popup ou no botão que o abre
+        const isClickInsidePopup = (e.target as Element)?.closest('.inner-pages-popup');
+        const isClickOnTrigger = (e.target as Element)?.closest('.inner-pages-trigger');
+
+        if (!isClickInsidePopup && !isClickOnTrigger) {
+          setOpenInnerPages(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openInnerPages]);
+
+  const toggleInnerPages = (itemName: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setOpenModalFor(prevOpen => prevOpen === itemName ? null : itemName);
-  };
-
-  // Encontrar o item com o modal aberto
-  const activeModalItem = items.find(item => item.name === openModalFor);
+    
+    // Se já estiver aberto, fecha. Se for um item diferente, abre o novo e fecha o anterior
+    setOpenInnerPages(prevOpen => prevOpen === itemName ? null : itemName);
+  }
 
   return (
-    <>
-      {/* Modal centralizado (independente do navbar) */}
-      {activeModalItem && activeModalItem.innerPages && (
-        <InnerPagesModal
-          isOpen={!!openModalFor}
-          onClose={() => setOpenModalFor(null)}
-          title={activeModalItem.name}
-          innerPages={activeModalItem.innerPages}
-        />
+    <div
+      className={cn(
+        "fixed bottom-0 left-0 w-full flex justify-center z-50 mb-6",
+        className,
       )}
-      
-      {/* Navbar principal */}
-      <div
-        className={cn(
-          "fixed bottom-0 left-0 w-full flex justify-center z-40 mb-6",
-          className,
-        )}
-      >
-        <div className="flex items-center gap-3 bg-background/90 border border-border backdrop-blur-lg py-2 px-4 rounded-full shadow-lg">
-          {items.map((item) => {
-            const Icon = item.icon
-            const isActive = activeTab === item.name
-            const isOpen = openModalFor === item.name
+    >
+      <div className="flex items-center gap-3 bg-background/90 border border-border backdrop-blur-lg py-2 px-4 rounded-full shadow-lg">
+        {items.map((item) => {
+          const Icon = item.icon
+          const isActive = activeTab === item.name
+          const isOpen = openInnerPages === item.name
 
-            return (
-              <div 
-                key={item.name} 
-                className="relative"
-                ref={el => {
-                  if (el) navItemsRef.current.set(item.name, el);
+          return (
+            <div 
+              key={item.name} 
+              className="relative"
+              ref={el => {
+                if (el) navItemsRef.current.set(item.name, el);
+              }}
+            >
+              {/* Inner Pages Popup */}
+              <AnimatePresence>
+                {item.hasInnerPages && item.innerPages && isOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-background/95 border border-border rounded-xl p-3 shadow-lg w-56 z-50 inner-pages-popup"
+                    style={{ 
+                      transformOrigin: 'bottom center',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }}
+                  >
+                    <div className="flex flex-col gap-2">
+                      {item.innerPages.map((innerPage) => (
+                        <Link
+                          key={innerPage.name}
+                          to={innerPage.url}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors whitespace-nowrap"
+                          onClick={() => {
+                            setOpenInnerPages(null);
+                            setActiveTab(item.name);
+                          }}
+                        >
+                          {innerPage.icon && <innerPage.icon size={18} />}
+                          <span className="text-sm font-medium">{innerPage.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background/95 rotate-45 border-b border-r border-border"></div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <Link
+                to={item.url}
+                onClick={() => {
+                  setActiveTab(item.name);
+                  // Fecha qualquer popup aberto quando clicar em outro item da navbar
+                  if (openInnerPages && openInnerPages !== item.name) {
+                    setOpenInnerPages(null);
+                  }
                 }}
+                className={cn(
+                  "relative flex items-center justify-center cursor-pointer text-sm font-medium px-4 py-2 rounded-full transition-colors",
+                  "text-foreground/80 hover:text-primary",
+                  isActive && "bg-muted text-primary",
+                )}
               >
-                <Link
-                  to={item.url}
-                  onClick={() => {
-                    setActiveTab(item.name);
-                    // Fechar qualquer modal aberto ao clicar em outro item
-                    if (openModalFor && openModalFor !== item.name) {
-                      setOpenModalFor(null);
-                    }
-                  }}
-                  className={cn(
-                    "relative flex items-center justify-center cursor-pointer text-sm font-medium px-4 py-2 rounded-full transition-colors",
-                    "text-foreground/80 hover:text-primary",
-                    isActive && "bg-muted text-primary",
-                  )}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="hidden md:inline">{item.name}</span>
-                    <span className={cn("flex items-center justify-center", isMobile ? "text-lg" : "")}>
-                      <Icon size={isMobile ? 20 : 18} strokeWidth={2} />
-                    </span>
-                    {item.hasInnerPages && (
-                      <button 
-                        onClick={(e) => toggleModal(item.name, e)}
-                        className="focus:outline-none ml-0.5 inner-pages-trigger"
-                        aria-label={isOpen ? "Fechar submenus" : "Abrir submenus"}
-                      >
-                        {isOpen ? (
-                          <ChevronUp size={14} className="text-primary" />
-                        ) : (
-                          <ChevronDown size={14} className="opacity-70" />
-                        )}
-                      </button>
-                    )}
-                  </div>
-                  {isActive && (
-                    <motion.div
-                      layoutId="lamp"
-                      className="absolute inset-0 w-full h-full bg-primary/5 rounded-full -z-10"
-                      initial={false}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                      }}
+                <div className="flex items-center gap-1.5">
+                  <span className="hidden md:inline">{item.name}</span>
+                  <span className={cn("flex items-center justify-center", isMobile ? "text-lg" : "")}>
+                    <Icon size={isMobile ? 20 : 18} strokeWidth={2} />
+                  </span>
+                  {item.hasInnerPages && (
+                    <button 
+                      onClick={(e) => toggleInnerPages(item.name, e)}
+                      className="focus:outline-none ml-0.5 inner-pages-trigger"
+                      aria-label={isOpen ? "Fechar submenus" : "Abrir submenus"}
                     >
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full">
-                        <div className="absolute w-12 h-6 bg-primary/20 rounded-full blur-md -top-2 -left-2" />
-                        <div className="absolute w-8 h-6 bg-primary/20 rounded-full blur-md -top-1" />
-                        <div className="absolute w-4 h-4 bg-primary/20 rounded-full blur-sm top-0 left-2" />
-                      </div>
-                    </motion.div>
+                      {isOpen ? (
+                        <ChevronUp size={14} className="text-primary" />
+                      ) : (
+                        <ChevronDown size={14} className="opacity-70" />
+                      )}
+                    </button>
                   )}
-                </Link>
-              </div>
-            )
-          })}
-        </div>
+                </div>
+                {isActive && (
+                  <motion.div
+                    layoutId="lamp"
+                    className="absolute inset-0 w-full h-full bg-primary/5 rounded-full -z-10"
+                    initial={false}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                    }}
+                  >
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full">
+                      <div className="absolute w-12 h-6 bg-primary/20 rounded-full blur-md -top-2 -left-2" />
+                      <div className="absolute w-8 h-6 bg-primary/20 rounded-full blur-md -top-1" />
+                      <div className="absolute w-4 h-4 bg-primary/20 rounded-full blur-sm top-0 left-2" />
+                    </div>
+                  </motion.div>
+                )}
+              </Link>
+            </div>
+          )
+        })}
       </div>
-    </>
+    </div>
   )
 }
