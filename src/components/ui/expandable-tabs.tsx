@@ -11,12 +11,14 @@ interface Tab {
   title: string;
   icon: LucideIcon;
   type?: never;
+  path?: string; // Optional path property for navigation
 }
 
 interface Separator {
   type: "separator";
   title?: never;
   icon?: never;
+  path?: never;
 }
 
 type TabItem = Tab | Separator;
