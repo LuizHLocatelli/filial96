@@ -170,13 +170,13 @@ export function NavBar({ items, className }: NavBarProps) {
               <AnimatePresence>
                 {item.hasInnerPages && item.innerPages && isOpen && (
                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                     className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
                             bg-background/95 border border-border rounded-xl p-4 
-                            shadow-lg w-72 z-50 inner-pages-popup"
+                            shadow-lg w-72 z-[999] inner-pages-popup"
                     style={{ 
                       boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
                     }}
