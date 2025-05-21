@@ -1,5 +1,5 @@
 
-import { Home, Bell, Settings, HelpCircle, Shield, User } from "lucide-react";
+import { Home, Bell, Settings, Shield, User } from "lucide-react";
 import { ExpandableTabs } from "@/components/ui/expandable-tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -38,13 +38,13 @@ export function NavigationTabs() {
   };
   
   return (
-    <div className="sticky top-16 z-30 w-full bg-background border-b pb-1">
-      <div className="container mx-auto px-3 md:px-6">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="bg-background/80 backdrop-blur-md border border-border/30 shadow-lg rounded-full px-2 py-1">
         <ExpandableTabs 
           tabs={tabs as any} 
           onChange={handleTabChange}
           activeColor="text-primary" 
-          className="border-primary/20 dark:border-primary/20" 
+          className="border-none shadow-none" 
         />
       </div>
     </div>

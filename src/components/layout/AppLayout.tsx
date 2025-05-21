@@ -19,10 +19,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <AppSidebar />
         <div className="flex-1 flex flex-col max-w-full">
           <TopBar />
-          <NavigationTabs />
-          <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto">
+          <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto pb-20">
             {children}
           </main>
+          <NavigationTabs />
         </div>
       </div>
     </SidebarProvider>
