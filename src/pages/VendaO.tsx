@@ -5,6 +5,7 @@ import { SalesDashboard } from "@/components/venda-o/SalesDashboard";
 import { useVendaO } from "@/hooks/useVendaO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VendaOProduct } from "@/types/vendaO";
+import { DefaultDemo, CustomColorDemo } from "@/components/ui/expandable-tabs-demo";
 
 export default function VendaO() {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -45,6 +46,16 @@ export default function VendaO() {
         <p className="text-sm sm:text-base text-muted-foreground">
           Gerenciamento de vendas de outras filiais com entrega ou retirada na nossa filial
         </p>
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Filtros rápidos</h2>
+        <DefaultDemo />
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Ações</h2>
+        <CustomColorDemo />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
