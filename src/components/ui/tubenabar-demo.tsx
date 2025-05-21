@@ -1,8 +1,11 @@
 
 import { Home, User, Briefcase, FileText, List, Calendar, BanknoteIcon, Coffee, KanbanSquare, FolderArchive } from 'lucide-react'
 import { NavBar } from "@/components/ui/tubelight-navbar"
+import { useLocation } from 'react-router-dom'
 
 export function NavBarDemo() {
+  const location = useLocation();
+  
   const navItems = [
     { 
       name: 'Dashboard', 
@@ -40,4 +43,3 @@ export function NavBarDemo() {
 
   return <NavBar items={navItems} />
 }
-
