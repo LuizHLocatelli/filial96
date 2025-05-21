@@ -3,7 +3,6 @@
 
 import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Link } from "react-router-dom"
 import { ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useNavbarNavigation } from "./hooks/use-navbar-navigation"
@@ -18,7 +17,8 @@ export function NavBar({ items, className }: NavBarProps) {
     openInnerPages,
     setOpenInnerPages,
     navItemsRef,
-    toggleInnerPages
+    toggleInnerPages,
+    handleNavigation
   } = useNavbarNavigation(items);
 
   return (
@@ -53,18 +53,14 @@ export function NavBar({ items, className }: NavBarProps) {
                 )}
               </AnimatePresence>
 
-              <Link
-                to={item.url}
+              <button
                 onClick={(e) => {
                   if (item.hasInnerPages && item.innerPages) {
-                    // If it has subpages, prevent default behavior to show the modal
-                    e.preventDefault();
+                    // If it has subpages, show the modal
                     toggleInnerPages(item.name, e);
                   } else {
                     // If no subpages, just navigate
-                    setActiveTab(item.name);
-                    // Close any open modal
-                    setOpenInnerPages(null);
+                    handleNavigation(item.url, item.name);
                   }
                 }}
                 className={cn(
@@ -106,7 +102,7 @@ export function NavBar({ items, className }: NavBarProps) {
                     </div>
                   </motion.div>
                 )}
-              </Link>
+              </button>
             </div>
           );
         })}

@@ -27,11 +27,12 @@ export function useNavbarNavigation(items: NavItem[]) {
       // Check inner pages
       if (item.hasInnerPages && item.innerPages) {
         return item.innerPages.some(innerPage => {
-          const innerPagePath = innerPage.url.split('?')[0];
-          const innerPageQuery = new URLSearchParams(innerPage.url.split('?')[1] || '');
+          const innerPageUrl = new URL(innerPage.url, window.location.origin);
+          const innerPathname = innerPageUrl.pathname;
+          const innerTab = new URLSearchParams(innerPageUrl.search).get('tab');
           
-          return innerPagePath === path && 
-                 (!tab || innerPageQuery.get('tab') === tab);
+          return innerPathname === path && 
+                 (tab === null || tab === innerTab);
         });
       }
       
@@ -75,6 +76,12 @@ export function useNavbarNavigation(items: NavItem[]) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openInnerPages]);
 
+  const handleNavigation = (url: string, itemName: string) => {
+    setActiveTab(itemName);
+    setOpenInnerPages(null);
+    navigate(url);
+  };
+
   const toggleInnerPages = (itemName: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -89,6 +96,7 @@ export function useNavbarNavigation(items: NavItem[]) {
     setOpenInnerPages,
     navItemsRef,
     toggleInnerPages,
+    handleNavigation,
     navigate
   };
 }

@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { NavItem } from "./types/navbar-types";
@@ -12,7 +12,18 @@ interface InnerPagesModalProps {
 }
 
 export function InnerPagesModal({ item, setOpenInnerPages, setActiveTab }: InnerPagesModalProps) {
+  const navigate = useNavigate();
+  
   if (!item.hasInnerPages || !item.innerPages) return null;
+  
+  const handleInnerPageClick = (innerPageUrl: string, itemName: string) => {
+    // Close the modal first
+    setOpenInnerPages(null);
+    // Set the active tab
+    setActiveTab(itemName);
+    // Use navigate instead of Link to prevent the flashing issue
+    navigate(innerPageUrl);
+  };
   
   return (
     <div 
@@ -51,18 +62,14 @@ export function InnerPagesModal({ item, setOpenInnerPages, setActiveTab }: Inner
             const Icon = innerPage.icon;
             
             return (
-              <Link
+              <button
                 key={innerPage.name}
-                to={innerPage.url}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors"
-                onClick={() => {
-                  setOpenInnerPages(null);
-                  setActiveTab(item.name);
-                }}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-left w-full"
+                onClick={() => handleInnerPageClick(innerPage.url, item.name)}
               >
                 {Icon && <Icon size={18} />}
                 <span className="text-sm font-medium">{innerPage.name}</span>
-              </Link>
+              </button>
             );
           })}
         </div>
