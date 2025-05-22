@@ -69,6 +69,7 @@ export function OrientacaoTarefas() {
     defaultValues: {
       titulo: "",
       descricao: "",
+      orientacao_id: "none", // Iniciando com um valor válido que não é string vazia
     },
   });
 
@@ -128,11 +129,14 @@ export function OrientacaoTarefas() {
     }
 
     try {
+      // Convertendo "none" para null no valor da orientação
+      const orientacaoId = data.orientacao_id === "none" ? null : data.orientacao_id;
+      
       const newTask = {
         titulo: data.titulo,
         descricao: data.descricao,
         data_entrega: data.data_entrega.toISOString(),
-        orientacao_id: data.orientacao_id || null,
+        orientacao_id: orientacaoId,
         status: "pendente",
         criado_por: user.id,
       };
@@ -151,7 +155,11 @@ export function OrientacaoTarefas() {
       });
 
       // Limpar formulário e atualizar lista
-      form.reset();
+      form.reset({
+        titulo: "",
+        descricao: "",
+        orientacao_id: "none",
+      });
       setShowForm(false);
       fetchTarefas();
     } catch (error: any) {
@@ -286,14 +294,17 @@ export function OrientacaoTarefas() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Orientação relacionada (opcional)</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        value={field.value || "none"} // Garantir que sempre tem um valor
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione uma orientação" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Nenhuma</SelectItem>
+                          <SelectItem value="none">Nenhuma</SelectItem>
                           {orientacoes.map((orientacao) => (
                             <SelectItem key={orientacao.id} value={orientacao.id}>
                               {orientacao.titulo}
