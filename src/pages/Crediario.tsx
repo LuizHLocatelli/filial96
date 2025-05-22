@@ -4,13 +4,12 @@ import { Listagens } from "@/components/crediario/Listagens";
 import { ClientesAgendados } from "@/components/crediario/ClientesAgendados";
 import { Depositos } from "@/components/crediario/Depositos";
 import { Folgas } from "@/components/crediario/Folgas";
-import { Kanban } from "@/components/crediario/kanban/Kanban";
 import { Diretorio } from "@/components/crediario/diretorio/Diretorio";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { QuickAccess } from "@/components/crediario/QuickAccess";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CalendarDays, Users, Banknote, Coffee, KanbanSquare, FolderArchive, CircleAlert } from "lucide-react";
+import { Users, Banknote, Coffee, FolderArchive, CircleAlert } from "lucide-react";
 import { CrediarioOverview } from "@/components/crediario/dashboard/CrediarioOverview";
 
 const Crediario = () => {
@@ -28,7 +27,7 @@ const Crediario = () => {
 
   // Update the tab when URL changes
   useEffect(() => {
-    if (tabFromUrl && ["welcome", "listagens", "clientes", "depositos", "folgas", "kanban", "diretorio"].includes(tabFromUrl)) {
+    if (tabFromUrl && ["welcome", "listagens", "clientes", "depositos", "folgas", "diretorio"].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
@@ -80,8 +79,6 @@ const Crediario = () => {
         return <Depositos />;
       case "folgas":
         return <Folgas />;
-      case "kanban":
-        return <Kanban />;
       case "diretorio":
         return <Diretorio />;
       default:
@@ -98,7 +95,6 @@ const Crediario = () => {
            activeTab === "clientes" ? "Clientes Agendados" :
            activeTab === "depositos" ? "Depósitos" :
            activeTab === "folgas" ? "Folgas" :
-           activeTab === "kanban" ? "Quadro de Tarefas" :
            activeTab === "diretorio" ? "Diretório de Arquivos" : "Crediário"}
         </h1>
         <p className="text-muted-foreground">
@@ -107,7 +103,6 @@ const Crediario = () => {
            activeTab === "clientes" ? "Acompanhe os clientes agendados para contato e pagamento" :
            activeTab === "depositos" ? "Controle os depósitos diários realizados" :
            activeTab === "folgas" ? "Gerencie as folgas da equipe do crediário" :
-           activeTab === "kanban" ? "Organize e acompanhe as tarefas do setor" :
            activeTab === "diretorio" ? "Acesse todos os documentos importantes do setor" : ""}
         </p>
       </div>
