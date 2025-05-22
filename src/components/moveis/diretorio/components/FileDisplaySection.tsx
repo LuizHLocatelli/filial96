@@ -1,11 +1,11 @@
 
 import { Separator } from '@/components/ui/separator';
-import { DirectoryToolbar } from '@/components/moveis/diretorio/components/DirectoryToolbar';
-import { CategoryFilter } from '@/components/moveis/diretorio/components/CategoryFilter';
-import { FileGrid } from '@/components/moveis/diretorio/components/FileGrid';
-import { FileList } from '@/components/moveis/diretorio/components/FileList';
-import { LoadingIndicator } from '@/components/moveis/diretorio/components/LoadingIndicator';
-import { DirectoryCategory, FileViewMode, SortOption } from '@/components/moveis/diretorio/types';
+import { DirectoryToolbar } from './DirectoryToolbar';
+import { CategoryFilter } from './CategoryFilter';
+import { FileGrid } from './FileGrid';
+import { FileList } from './FileList';
+import { LoadingIndicator } from './LoadingIndicator';
+import { DirectoryCategory, FileViewMode, SortOption } from '../types';
 
 interface FileDisplaySectionProps {
   viewMode: FileViewMode;
