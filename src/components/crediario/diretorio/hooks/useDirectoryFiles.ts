@@ -54,6 +54,11 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
 
   const addFile = async (fileData: Partial<DirectoryFile>) => {
     try {
+      // Convert "none" to null for category_id
+      if (fileData.category_id === "none") {
+        fileData.category_id = null;
+      }
+      
       let query;
       
       // Using hardcoded table names to avoid Supabase client type errors
@@ -95,6 +100,11 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
     }
   ) => {
     try {
+      // Convert "none" to null for category_id
+      if (updates.category_id === "none") {
+        updates.category_id = null;
+      }
+      
       let query;
       
       // Using hardcoded table names to avoid Supabase client type errors

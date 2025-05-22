@@ -38,7 +38,7 @@ export function FileDialog({
 }: FileDialogProps) {
   const [name, setName] = useState(file?.name || '');
   const [description, setDescription] = useState(file?.description || '');
-  const [categoryId, setCategoryId] = useState<string>(file?.category_id || '');
+  const [categoryId, setCategoryId] = useState<string>(file?.category_id || 'none'); // Default to 'none'
   const [isFeatured, setIsFeatured] = useState(file?.is_featured || false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,7 +46,7 @@ export function FileDialog({
     if (file) {
       setName(file.name);
       setDescription(file.description || '');
-      setCategoryId(file.category_id || '');
+      setCategoryId(file.category_id || 'none'); // Use 'none' when null
       setIsFeatured(file.is_featured);
     }
   }, [file, open]);
@@ -63,7 +63,7 @@ export function FileDialog({
       await onSave({
         name,
         description: description || '',
-        category_id: categoryId || null,
+        category_id: categoryId === 'none' ? null : categoryId,
         is_featured: isFeatured
       });
       onOpenChange(false);

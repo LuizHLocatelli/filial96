@@ -50,31 +50,18 @@ export function OrientacoesList() {
   const fetchOrientacoes = async () => {
     setIsLoading(true);
     try {
+      // Simplified query - no longer trying to join with profiles
       const { data, error } = await supabase
         .from('moveis_orientacoes')
-        .select(`
-          *,
-          profiles(name)
-        `);
+        .select('*');
 
       if (error) throw error;
 
-      // Map the data to include the creator's name
+      // Just use a default name instead of trying to get it from profiles
       const orientacoesWithAuthor = data.map(item => {
-        // Default creator name
-        let creatorName = 'Usuário';
-        
-        // Safe type check to avoid null errors
-        const profileData = item.profiles as { name?: string } | null;
-        
-        // If profileData exists and has a name property, use it
-        if (profileData && typeof profileData === 'object' && 'name' in profileData) {
-          creatorName = profileData.name || 'Usuário';
-        }
-        
         return {
           ...item,
-          criado_por_nome: creatorName
+          criado_por_nome: 'Usuário'
         };
       });
 
