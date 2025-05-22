@@ -64,8 +64,11 @@ export function OrientacoesList() {
         // Check if profiles data exists and handle potential errors properly
         let creatorName = 'Usuário';
         
-        // Only try to access profiles.name if it's not a query error and has the profiles property
-        if (item.profiles && typeof item.profiles === 'object' && 'name' in item.profiles) {
+        // Safer way to access potentially null/undefined nested properties
+        if (item.profiles && 
+            typeof item.profiles === 'object' && 
+            item.profiles !== null && 
+            'name' in item.profiles) {
           creatorName = item.profiles.name || 'Usuário';
         }
         

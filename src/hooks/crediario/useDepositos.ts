@@ -112,10 +112,16 @@ export function useDepositos() {
     }
   };
 
-  const updateDeposito = async (id: string, updates: Partial<Deposito>) => {
+  const updateDeposito = async (id: string, updates: {
+    data?: Date;
+    concluido?: boolean;
+    ja_incluido?: boolean;
+    comprovante?: string;
+  }) => {
     try {
-      // Format date if it exists in updates
-      const formattedUpdates = { ...updates };
+      // Convert Date to string for database
+      const formattedUpdates: { [key: string]: any } = { ...updates };
+      
       if (updates.data instanceof Date) {
         formattedUpdates.data = updates.data.toISOString().split('T')[0];
       }
