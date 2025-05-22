@@ -35,8 +35,8 @@ export function SelectField({
   options, 
   control 
 }: SelectFieldProps) {
-  // Ensure we don't have empty string values in options
-  const validOptions = options.filter(option => option.value !== "");
+  // Filter out options with empty string values
+  const validOptions = options.filter(option => option.value.trim() !== "");
   
   return (
     <FormField
