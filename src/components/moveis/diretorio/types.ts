@@ -1,11 +1,17 @@
 
+// Types for the directory feature
+export type FileViewMode = 'grid' | 'list';
+
+export type SortOption = 'name' | 'date' | 'size' | 'type';
+export type SortDirection = 'asc' | 'desc';
+
 export interface DirectoryCategory {
   id: string;
   name: string;
   description?: string;
   created_at: string;
-  updated_at: string;
   created_by?: string;
+  updated_at: string;
 }
 
 export interface DirectoryFile {
@@ -15,13 +21,9 @@ export interface DirectoryFile {
   file_url: string;
   file_type: string;
   file_size?: number;
-  category_id?: string | null;
-  is_featured: boolean;
+  category_id?: string;
+  is_featured?: boolean;
   created_at: string;
-  updated_at: string;
   created_by?: string;
+  updated_at: string;
 }
-
-export type SortOption = 'name' | 'date' | 'type' | 'size';
-export type SortDirection = 'asc' | 'desc';
-export type FileViewMode = 'grid' | 'list';

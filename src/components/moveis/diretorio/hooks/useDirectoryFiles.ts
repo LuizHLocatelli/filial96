@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { DirectoryFile } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 
-export function useDirectoryFiles(tableName: string, categoryId?: string) {
+export function useDirectoryFiles(categoryId?: string) {
   const [files, setFiles] = useState<DirectoryFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -13,7 +13,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
     try {
       setIsLoading(true);
       let query = supabase
-        .from(tableName)
+        .from('moveis_arquivos')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -28,7 +28,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
         throw error;
       }
 
-      setFiles(data || []);
+      setFiles(data as DirectoryFile[] || []);
     } catch (err) {
       setError(err as Error);
       console.error(`Erro ao buscar arquivos: ${err}`);
@@ -41,7 +41,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
   const addFile = async (fileData: Partial<DirectoryFile>) => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from('moveis_arquivos')
         .insert([fileData])
         .select('*')
         .single();
@@ -50,8 +50,8 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
         throw error;
       }
 
-      setFiles(prev => [data, ...prev]);
-      return data;
+      setFiles(prev => [data as DirectoryFile, ...prev]);
+      return data as DirectoryFile;
     } catch (err) {
       console.error(`Erro ao adicionar arquivo: ${err}`);
       throw err;
@@ -62,7 +62,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
   const updateFile = async (id: string, updates: Partial<DirectoryFile>) => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from('moveis_arquivos')
         .update(updates)
         .eq('id', id)
         .select('*')
@@ -72,8 +72,8 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
         throw error;
       }
 
-      setFiles(prev => prev.map(file => file.id === id ? data : file));
-      return data;
+      setFiles(prev => prev.map(file => file.id === id ? (data as DirectoryFile) : file));
+      return data as DirectoryFile;
     } catch (err) {
       console.error(`Erro ao atualizar arquivo: ${err}`);
       throw err;
@@ -85,7 +85,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
     try {
       // Primeiro exclui da tabela
       const { error: dbError } = await supabase
-        .from(tableName)
+        .from('moveis_arquivos')
         .delete()
         .eq('id', id);
 

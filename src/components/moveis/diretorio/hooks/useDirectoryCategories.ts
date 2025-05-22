@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { DirectoryCategory } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 
-export function useDirectoryCategories(tableName: string) {
+// Modified to use a specific table name instead of a parameter
+export function useDirectoryCategories() {
   const [categories, setCategories] = useState<DirectoryCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -13,7 +14,7 @@ export function useDirectoryCategories(tableName: string) {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from(tableName)
+        .from('moveis_categorias')
         .select('*')
         .order('name');
 
@@ -21,7 +22,7 @@ export function useDirectoryCategories(tableName: string) {
         throw error;
       }
 
-      setCategories(data || []);
+      setCategories(data as DirectoryCategory[] || []);
     } catch (err) {
       setError(err as Error);
       console.error(`Erro ao buscar categorias: ${err}`);
@@ -34,7 +35,7 @@ export function useDirectoryCategories(tableName: string) {
   const addCategory = async (name: string, description?: string) => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from('moveis_categorias')
         .insert([{ name, description }])
         .select('*')
         .single();
@@ -43,8 +44,8 @@ export function useDirectoryCategories(tableName: string) {
         throw error;
       }
 
-      setCategories(prev => [...prev, data]);
-      return data;
+      setCategories(prev => [...prev, data as DirectoryCategory]);
+      return data as DirectoryCategory;
     } catch (err) {
       console.error(`Erro ao adicionar categoria: ${err}`);
       throw err;
@@ -55,7 +56,7 @@ export function useDirectoryCategories(tableName: string) {
   const updateCategory = async (id: string, updates: Partial<DirectoryCategory>) => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from('moveis_categorias')
         .update(updates)
         .eq('id', id)
         .select('*')
@@ -65,8 +66,8 @@ export function useDirectoryCategories(tableName: string) {
         throw error;
       }
 
-      setCategories(prev => prev.map(cat => cat.id === id ? data : cat));
-      return data;
+      setCategories(prev => prev.map(cat => cat.id === id ? (data as DirectoryCategory) : cat));
+      return data as DirectoryCategory;
     } catch (err) {
       console.error(`Erro ao atualizar categoria: ${err}`);
       throw err;
@@ -77,7 +78,7 @@ export function useDirectoryCategories(tableName: string) {
   const deleteCategory = async (id: string) => {
     try {
       const { error } = await supabase
-        .from(tableName)
+        .from('moveis_categorias')
         .delete()
         .eq('id', id);
 

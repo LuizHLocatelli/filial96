@@ -5,7 +5,7 @@ import { useDirectoryFiles } from './useDirectoryFiles';
 import { useCategoryOperations } from './useCategoryOperations';
 import { useFileOperations } from './useFileOperations';
 import { useFileUpload } from '@/hooks/crediario/useFileUpload';
-import { FileViewMode, SortOption } from '../types';
+import { FileViewMode } from '../types';
 
 export function useMoveisDirectoryOperations() {
   // Estado para o modo de visualização
@@ -14,14 +14,14 @@ export function useMoveisDirectoryOperations() {
   // Hooks para operações de categoria e arquivo
   const categoryOps = useCategoryOperations();
   
-  // Hooks para dados - usamos 'moveis_categorias' e 'moveis_arquivos' como tabelas
+  // Hooks para dados - usamos tabelas específicas
   const { 
     categories, 
     isLoading: categoriesLoading, 
     addCategory, 
     updateCategory,
     deleteCategory 
-  } = useDirectoryCategories('moveis_categorias');
+  } = useDirectoryCategories();
   
   const { 
     files, 
@@ -30,7 +30,7 @@ export function useMoveisDirectoryOperations() {
     deleteFile,
     fetchFiles,
     addFile,
-  } = useDirectoryFiles('moveis_arquivos', categoryOps.selectedCategoryId);
+  } = useDirectoryFiles(categoryOps.selectedCategoryId);
 
   const { isUploading, uploadFile } = useFileUpload();
   
