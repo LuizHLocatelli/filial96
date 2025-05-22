@@ -5,14 +5,14 @@ import { CategoryFilter } from '@/components/crediario/diretorio/components/Cate
 import { FileGrid } from '@/components/crediario/diretorio/components/FileGrid';
 import { FileList } from '@/components/crediario/diretorio/components/FileList';
 import { LoadingIndicator } from '@/components/crediario/diretorio/components/LoadingIndicator';
-import { DirectoryCategory, FileViewMode } from '@/components/crediario/diretorio/types';
+import { DirectoryCategory, FileViewMode, SortOption } from '@/components/crediario/diretorio/types';
 
 interface FileDisplaySectionProps {
   viewMode: FileViewMode;
   setViewMode: (mode: FileViewMode) => void;
-  sortBy: string;
+  sortBy: SortOption;
   sortDirection: 'asc' | 'desc';
-  handleSortChange: (option: any) => void;
+  handleSortChange: (option: SortOption) => void;
   setCategoryDialogOpen: (open: boolean) => void;
   categories: DirectoryCategory[];
   setSelectedCategoryId: (id: string | undefined) => void;

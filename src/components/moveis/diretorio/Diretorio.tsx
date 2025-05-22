@@ -1,5 +1,5 @@
 
-import { useDirectoryOperations } from './hooks/useDirectoryOperations';
+import { useMoveisDirectoryOperations } from './hooks/useMoveisDirectoryOperations';
 import { FileUploadSection } from './components/FileUploadSection';
 import { FileDisplaySection } from './components/FileDisplaySection';
 import { DirectoryDialogs } from './components/DirectoryDialogs';
@@ -16,7 +16,6 @@ export function Diretorio() {
     categoryOps,
     handleAddCategory,
     handleUpdateCategory,
-    handleDeleteCategory,
     
     // Arquivos
     fileOps,
@@ -27,7 +26,7 @@ export function Diretorio() {
     
     // Estado de carregamento
     isLoading
-  } = useDirectoryOperations();
+  } = useMoveisDirectoryOperations();
 
   return (
     <div className="space-y-6">
