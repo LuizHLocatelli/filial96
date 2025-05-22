@@ -61,15 +61,15 @@ export function OrientacoesList() {
 
       // Map the data to include the creator's name
       const orientacoesWithAuthor = data.map(item => {
-        // Check if profiles data exists and handle potential errors properly
+        // Default creator name
         let creatorName = 'Usuário';
         
-        // Safer way to access potentially null/undefined nested properties
-        if (item.profiles && 
-            typeof item.profiles === 'object' && 
-            item.profiles !== null && 
-            'name' in item.profiles) {
-          creatorName = item.profiles.name || 'Usuário';
+        // Safe type check to avoid null errors
+        const profileData = item.profiles as { name?: string } | null;
+        
+        // If profileData exists and has a name property, use it
+        if (profileData && typeof profileData === 'object' && 'name' in profileData) {
+          creatorName = profileData.name || 'Usuário';
         }
         
         return {
