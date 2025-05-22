@@ -23,7 +23,7 @@ export function FileUploader({
   categories 
 }: FileUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [categoryId, setCategoryId] = useState<string>('');
+  const [categoryId, setCategoryId] = useState<string>('none');
   const [isFeatured, setIsFeatured] = useState(false);
   const [description, setDescription] = useState('');
   const { toast } = useToast();
@@ -48,14 +48,14 @@ export function FileUploader({
     
     const success = await onUpload(
       file, 
-      categoryId === '' ? null : categoryId,
+      categoryId === 'none' ? null : categoryId,
       isFeatured
     );
     
     if (success) {
       // Reset form
       setFile(null);
-      setCategoryId('');
+      setCategoryId('none');
       setIsFeatured(false);
       setDescription('');
       
