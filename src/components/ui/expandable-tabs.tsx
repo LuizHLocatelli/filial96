@@ -28,6 +28,7 @@ interface ExpandableTabsProps {
   className?: string;
   activeColor?: string;
   onChange?: (index: number | null) => void;
+  iconSize?: number;
 }
 
 const buttonVariants = {
@@ -56,6 +57,7 @@ export function ExpandableTabs({
   className,
   activeColor = "text-primary",
   onChange,
+  iconSize = 20,
 }: ExpandableTabsProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const outsideClickRef = React.useRef(null);
@@ -71,14 +73,14 @@ export function ExpandableTabs({
   };
 
   const Separator = () => (
-    <div className="mx-1 h-[24px] w-[1px] bg-border/50" aria-hidden="true" />
+    <div className="mx-0.5 h-[24px] w-[1px] bg-border/50" aria-hidden="true" />
   );
 
   return (
     <div
       ref={outsideClickRef}
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-full bg-transparent p-1",
+        "flex items-center justify-center gap-1 rounded-full bg-transparent p-1 overflow-x-auto max-w-full",
         className
       )}
     >
@@ -100,13 +102,13 @@ export function ExpandableTabs({
             onClick={() => handleSelect(index)}
             transition={transition}
             className={cn(
-              "relative flex items-center rounded-full px-2 py-2 text-sm font-medium transition-colors duration-300",
+              "relative flex items-center rounded-full px-2 py-1.5 text-xs sm:text-sm font-medium transition-colors duration-300 flex-shrink-0",
               selected === index
                 ? cn("bg-primary/10", activeColor)
                 : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
             )}
           >
-            <Icon size={20} />
+            <Icon size={iconSize} />
             <AnimatePresence initial={false}>
               {selected === index && (
                 <motion.span
@@ -115,7 +117,7 @@ export function ExpandableTabs({
                   animate="animate"
                   exit="exit"
                   transition={transition}
-                  className="overflow-hidden"
+                  className="overflow-hidden whitespace-nowrap text-xs sm:text-sm"
                 >
                   {tabItem.title}
                 </motion.span>

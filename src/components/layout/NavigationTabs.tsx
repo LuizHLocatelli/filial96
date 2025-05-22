@@ -3,11 +3,13 @@ import { Home, Bell, Settings, Shield, User } from "lucide-react";
 import { ExpandableTabs } from "@/components/ui/expandable-tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function NavigationTabs() {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedTab, setSelectedTab] = useState<number | null>(null);
+  const isMobile = useIsMobile();
   
   const tabs = [
     { title: "Dashboard", icon: Home, path: "/" },
@@ -38,13 +40,14 @@ export function NavigationTabs() {
   };
   
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-background/80 backdrop-blur-md border border-border/30 shadow-lg rounded-full px-2 py-1">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[95%] max-w-md">
+      <div className="bg-background/80 backdrop-blur-md border border-border/30 shadow-lg rounded-full px-1 py-1">
         <ExpandableTabs 
           tabs={tabs as any} 
           onChange={handleTabChange}
           activeColor="text-primary" 
           className="border-none shadow-none" 
+          iconSize={isMobile ? 18 : 20}
         />
       </div>
     </div>
