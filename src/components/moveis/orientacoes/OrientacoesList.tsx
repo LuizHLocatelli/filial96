@@ -22,42 +22,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Edit, Copy, Trash2, MoreHorizontal, Download } from "lucide-react";
+import { Edit, Copy, Trash2, MoreHorizontal, Download, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-export type Orientacao = {
-  id: string;
-  titulo: string;
-  descricao: string;
-  tipo: string;
-  arquivo_url: string;
-  arquivo_nome: string;
-  arquivo_tipo: string;
-  data_criacao: string;
-  criado_por: string;
-  criado_por_nome?: string;
-};
+import { OrientacaoViewerDialog } from './OrientacaoViewerDialog';
+import { Orientacao } from './types';
 
 export function OrientacoesList() {
   const [orientacoes, setOrientacoes] = useState<Orientacao[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedOrientacao, setSelectedOrientacao] = useState<Orientacao | null>(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const fetchOrientacoes = async () => {
     setIsLoading(true);
     try {
-      // Simplified query - no longer trying to join with profiles
       const { data, error } = await supabase
         .from('moveis_orientacoes')
-        .select('*');
+        .select('*')
+        .order('data_criacao', { ascending: false });
 
       if (error) throw error;
 
-      // Just use a default name instead of trying to get it from profiles
+      // Use a default name instead of trying to get it from profiles
       const orientacoesWithAuthor = data.map(item => {
         return {
           ...item,
@@ -106,6 +97,22 @@ export function OrientacoesList() {
     }
   };
 
+  const handleViewOrientation = (orientacao: Orientacao) => {
+    setSelectedOrientacao(orientacao);
+    setViewerOpen(true);
+  };
+
+  const renderBadge = (tipo: string) => {
+    switch (tipo) {
+      case 'vm':
+        return <Badge variant="outline" className="bg-green-100 text-green-800">VM</Badge>;
+      case 'informativo':
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800">Informativo</Badge>;
+      default:
+        return <Badge variant="outline">{tipo}</Badge>;
+    }
+  };
+
   return (
     <div>
       {isLoading ? (
@@ -128,7 +135,7 @@ export function OrientacoesList() {
                 <TableRow key={orientacao.id}>
                   <TableCell className="font-medium">{orientacao.titulo}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{orientacao.tipo}</Badge>
+                    {renderBadge(orientacao.tipo)}
                   </TableCell>
                   <TableCell>{format(new Date(orientacao.data_criacao), 'dd/MM/yyyy', { locale: ptBR })}</TableCell>
                   <TableCell>{orientacao.criado_por_nome}</TableCell>
@@ -142,6 +149,10 @@ export function OrientacoesList() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleViewOrientation(orientacao)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Visualizar
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDownload(orientacao.arquivo_url, orientacao.arquivo_nome)}>
                           <Download className="mr-2 h-4 w-4" />
                           Download
@@ -153,6 +164,14 @@ export function OrientacoesList() {
               ))}
             </TableBody>
           </Table>
+
+          {selectedOrientacao && (
+            <OrientacaoViewerDialog
+              open={viewerOpen}
+              onOpenChange={setViewerOpen}
+              orientacao={selectedOrientacao}
+            />
+          )}
         </div>
       )}
     </div>

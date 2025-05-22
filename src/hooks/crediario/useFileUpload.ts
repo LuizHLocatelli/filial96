@@ -39,6 +39,9 @@ export function useFileUpload() {
       setIsUploading(true);
       setProgress(0);
       
+      // Log progress for debugging
+      console.log('Starting file upload with options:', options);
+      
       // Set default options
       const bucketName = options.bucketName || "directory_files";
       const folder = options.folder || "files";
@@ -58,6 +61,7 @@ export function useFileUpload() {
       }
       
       const filePath = folder ? `${folder}/${fileName}` : fileName;
+      console.log(`Uploading to bucket: ${bucketName}, path: ${filePath}`);
       
       // Upload file to Storage
       const { data: storageData, error: storageError } = await supabase.storage
@@ -72,6 +76,8 @@ export function useFileUpload() {
         throw storageError;
       }
       
+      console.log('File uploaded successfully, getting public URL');
+      
       // Get public URL
       const { data: urlData } = supabase.storage
         .from(bucketName)
@@ -81,6 +87,8 @@ export function useFileUpload() {
         throw new Error('Não foi possível obter a URL pública do arquivo');
       }
       
+      console.log('Public URL obtained:', urlData.publicUrl);
+      
       toast({
         title: 'Upload concluído',
         description: 'Arquivo adicionado com sucesso.',
@@ -88,6 +96,10 @@ export function useFileUpload() {
       
       setProgress(100);
       
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id || '';
+
       return {
         name: file.name,
         description: '',
@@ -96,7 +108,7 @@ export function useFileUpload() {
         file_size: file.size,
         category_id: null,
         is_featured: false,
-        created_by: (await supabase.auth.getUser()).data.user?.id || ''
+        created_by: userId
       };
     } catch (error: any) {
       console.error('Erro detalhado ao adicionar arquivo:', error);
