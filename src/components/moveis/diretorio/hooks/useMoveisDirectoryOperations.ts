@@ -1,11 +1,11 @@
 
 import { useState } from 'react';
-import { useDirectoryCategories } from '@/components/crediario/diretorio/hooks/useDirectoryCategories';
-import { useDirectoryFiles } from '@/components/crediario/diretorio/hooks/useDirectoryFiles';
-import { useCategoryOperations } from '@/components/crediario/diretorio/hooks/useCategoryOperations';
-import { useFileOperations } from '@/components/crediario/diretorio/hooks/useFileOperations';
+import { useDirectoryCategories } from '@/components/moveis/diretorio/hooks/useDirectoryCategories';
+import { useDirectoryFiles } from '@/components/moveis/diretorio/hooks/useDirectoryFiles';
+import { useCategoryOperations } from '@/components/moveis/diretorio/hooks/useCategoryOperations';
+import { useFileOperations } from '@/components/moveis/diretorio/hooks/useFileOperations';
 import { useFileUpload } from '@/hooks/crediario/useFileUpload';
-import { FileViewMode } from '@/components/crediario/diretorio/types';
+import { FileViewMode, SortOption } from '@/components/moveis/diretorio/types';
 
 export function useMoveisDirectoryOperations() {
   // Estado para o modo de visualização
