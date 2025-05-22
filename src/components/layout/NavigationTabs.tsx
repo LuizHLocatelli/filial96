@@ -24,7 +24,7 @@ export function NavigationTabs() {
   useEffect(() => {
     const currentPath = location.pathname;
     const tabIndex = tabs.findIndex(tab => 
-      'path' in tab && tab.path === currentPath
+      'path' in tab && (currentPath === tab.path || currentPath.startsWith(`${tab.path}/`))
     );
     
     if (tabIndex !== -1) {

@@ -1,132 +1,164 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DirectoryFile } from '../types';
 import { useToast } from '@/hooks/use-toast';
 
-export function useDirectoryFiles(categoryId?: string) {
+export interface DirectoryFile {
+  id: string;
+  name: string;
+  description?: string;
+  file_url: string;
+  file_type: string;
+  file_size?: number;
+  category_id?: string | null;
+  is_featured: boolean;
+  created_at: string;
+}
+
+export function useDirectoryFiles(tableName = 'crediario_directory_files', categoryId?: string) {
   const [files, setFiles] = useState<DirectoryFile[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  
+
+  useEffect(() => {
+    fetchFiles();
+  }, [categoryId, tableName]);
+
   const fetchFiles = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      setError(null);
-      
       let query = supabase
-        .from('crediario_directory_files')
+        .from(tableName)
         .select('*')
         .order('created_at', { ascending: false });
-        
+
       if (categoryId) {
         query = query.eq('category_id', categoryId);
       }
-      
+
       const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      setFiles(data || []);
-    } catch (err) {
-      console.error('Erro ao carregar arquivos:', err);
-      setError(err instanceof Error ? err : new Error('Erro ao carregar arquivos'));
+
+      if (error) {
+        throw error;
+      }
+
+      setFiles(data as DirectoryFile[]);
+    } catch (error: any) {
+      console.error('Erro ao buscar arquivos:', error);
       toast({
-        title: "Erro ao carregar arquivos",
-        description: "Não foi possível carregar os arquivos do diretório.",
-        variant: "destructive"
+        title: 'Erro',
+        description: 'Não foi possível carregar a lista de arquivos.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const updateFile = async (id: string, updates: {
-    name?: string;
+
+  const addFile = async (fileData: {
+    name: string;
     description?: string;
+    file_url: string;
+    file_type: string;
+    file_size?: number;
     category_id?: string | null;
     is_featured?: boolean;
   }) => {
     try {
-      const { data, error } = await supabase
-        .from('crediario_directory_files')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      setFiles(prev => prev.map(file => file.id === id ? data : file));
+      const { error } = await supabase.from(tableName).insert(fileData);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
-        title: "Arquivo atualizado",
-        description: "Arquivo atualizado com sucesso"
+        title: 'Sucesso',
+        description: 'Arquivo adicionado com sucesso.',
       });
-      return data;
-    } catch (err) {
-      console.error('Erro ao atualizar arquivo:', err);
+
+      fetchFiles();
+    } catch (error: any) {
+      console.error('Erro ao adicionar arquivo:', error);
       toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar o arquivo",
-        variant: "destructive"
+        title: 'Erro',
+        description: error.message || 'Ocorreu um erro ao adicionar o arquivo.',
+        variant: 'destructive',
       });
-      throw err;
     }
   };
-  
+
+  const updateFile = async (
+    id: string,
+    updates: {
+      name: string;
+      description: string;
+      category_id: string | null;
+      is_featured: boolean;
+    }
+  ) => {
+    try {
+      const { error } = await supabase
+        .from(tableName)
+        .update({
+          name: updates.name,
+          description: updates.description,
+          category_id: updates.category_id,
+          is_featured: updates.is_featured,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: 'Sucesso',
+        description: 'Arquivo atualizado com sucesso.',
+      });
+
+      fetchFiles();
+    } catch (error: any) {
+      console.error('Erro ao atualizar arquivo:', error);
+      toast({
+        title: 'Erro',
+        description: error.message || 'Ocorreu um erro ao atualizar o arquivo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const deleteFile = async (id: string, fileUrl: string) => {
     try {
-      // Extrair o caminho do arquivo a partir da URL
-      const filePathMatch = fileUrl.match(/\/storage\/v1\/object\/public\/directory_files\/(.+)$/);
-      
-      if (filePathMatch && filePathMatch[1]) {
-        const filePath = decodeURIComponent(filePathMatch[1]);
-        
-        // Excluir o arquivo do storage
-        const { error: storageError } = await supabase.storage
-          .from('directory_files')
-          .remove([filePath]);
-          
-        if (storageError) {
-          console.error('Erro ao excluir arquivo do storage:', storageError);
-        }
+      // Deletar o registro do banco de dados
+      const { error } = await supabase.from(tableName).delete().eq('id', id);
+
+      if (error) {
+        throw error;
       }
-      
-      // Excluir o registro do banco de dados
-      const { error } = await supabase
-        .from('crediario_directory_files')
-        .delete()
-        .eq('id', id);
-        
-      if (error) throw error;
-      
-      setFiles(prev => prev.filter(file => file.id !== id));
+
       toast({
-        title: "Arquivo excluído",
-        description: "Arquivo excluído com sucesso"
+        title: 'Sucesso',
+        description: 'Arquivo excluído com sucesso.',
       });
-    } catch (err) {
-      console.error('Erro ao excluir arquivo:', err);
+
+      fetchFiles();
+    } catch (error: any) {
+      console.error('Erro ao excluir arquivo:', error);
       toast({
-        title: "Erro ao excluir",
-        description: "Não foi possível excluir o arquivo",
-        variant: "destructive"
+        title: 'Erro',
+        description: error.message || 'Ocorreu um erro ao excluir o arquivo.',
+        variant: 'destructive',
       });
-      throw err;
     }
   };
-  
-  useEffect(() => {
-    fetchFiles();
-  }, [categoryId]);
-  
+
   return {
     files,
     isLoading,
-    error,
     fetchFiles,
+    addFile,
     updateFile,
-    deleteFile
+    deleteFile,
   };
 }

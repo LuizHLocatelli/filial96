@@ -87,7 +87,8 @@ export function OrientacaoTarefas() {
 
       if (error) throw error;
 
-      setTarefas(data as Tarefa[]);
+      // Add type assertion to properly convert data to Tarefa[]
+      setTarefas(data as unknown as Tarefa[]);
     } catch (error) {
       console.error("Erro ao buscar tarefas:", error);
       toast({
@@ -109,7 +110,8 @@ export function OrientacaoTarefas() {
 
       if (error) throw error;
 
-      setOrientacoes(data);
+      // Add type assertion
+      setOrientacoes(data as unknown as Array<{ id: string; titulo: string }>);
     } catch (error) {
       console.error("Erro ao buscar orientações:", error);
     }
@@ -126,14 +128,18 @@ export function OrientacaoTarefas() {
     }
 
     try {
-      const { error } = await supabase.from("moveis_tarefas").insert({
+      const newTask = {
         titulo: data.titulo,
         descricao: data.descricao,
         data_entrega: data.data_entrega.toISOString(),
         orientacao_id: data.orientacao_id || null,
         status: "pendente",
         criado_por: user.id,
-      });
+      };
+
+      const { error } = await supabase
+        .from("moveis_tarefas")
+        .insert(newTask);
 
       if (error) {
         throw error;
@@ -254,6 +260,7 @@ export function OrientacaoTarefas() {
         </Button>
       </div>
 
+      {/* Form for creating new tasks */}
       {showForm && (
         <Card className="p-6">
           <Form {...form}>
@@ -363,6 +370,7 @@ export function OrientacaoTarefas() {
         </Card>
       )}
 
+      {/* Tasks list */}
       <div className="grid grid-cols-1 gap-4">
         {isLoading ? (
           <Card className="p-6 text-center">
@@ -455,4 +463,30 @@ export function OrientacaoTarefas() {
       </div>
     </div>
   );
+  
+  function getStatusBadge(status: string) {
+    switch (status) {
+      case "pendente":
+        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">Pendente</Badge>;
+      case "em_andamento":
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">Em andamento</Badge>;
+      case "concluida":
+        return <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">Concluída</Badge>;
+      default:
+        return <Badge variant="outline">Desconhecido</Badge>;
+    }
+  }
+
+  function getStatusIcon(status: string) {
+    switch (status) {
+      case "pendente":
+        return <CircleDashed className="h-5 w-5 text-yellow-500" />;
+      case "em_andamento":
+        return <CircleEllipsis className="h-5 w-5 text-blue-500" />;
+      case "concluida":
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      default:
+        return <CircleDashed className="h-5 w-5" />;
+    }
+  }
 }

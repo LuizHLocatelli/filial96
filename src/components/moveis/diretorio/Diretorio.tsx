@@ -111,7 +111,6 @@ export function Diretorio() {
             isUploading={isUploading}
             onUpload={handleFileUpload}
             categories={categories}
-            tableName="moveis_arquivos"
           />
         </div>
         

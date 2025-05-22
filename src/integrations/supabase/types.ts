@@ -641,6 +641,163 @@ export type Database = {
           },
         ]
       }
+      moveis_arquivos: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_featured: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_featured?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_featured?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_arquivos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "moveis_categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moveis_categorias: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      moveis_orientacoes: {
+        Row: {
+          arquivo_nome: string
+          arquivo_tipo: string
+          arquivo_url: string
+          criado_por: string
+          data_criacao: string
+          descricao: string
+          id: string
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          arquivo_nome: string
+          arquivo_tipo: string
+          arquivo_url: string
+          criado_por: string
+          data_criacao?: string
+          descricao: string
+          id?: string
+          tipo: string
+          titulo: string
+        }
+        Update: {
+          arquivo_nome?: string
+          arquivo_tipo?: string
+          arquivo_url?: string
+          criado_por?: string
+          data_criacao?: string
+          descricao?: string
+          id?: string
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
+      moveis_tarefas: {
+        Row: {
+          criado_por: string
+          data_atualizacao: string
+          data_criacao: string
+          data_entrega: string
+          descricao: string
+          id: string
+          orientacao_id: string | null
+          status: string
+          titulo: string
+        }
+        Insert: {
+          criado_por: string
+          data_atualizacao?: string
+          data_criacao?: string
+          data_entrega: string
+          descricao: string
+          id?: string
+          orientacao_id?: string | null
+          status: string
+          titulo: string
+        }
+        Update: {
+          criado_por?: string
+          data_atualizacao?: string
+          data_criacao?: string
+          data_entrega?: string
+          descricao?: string
+          id?: string
+          orientacao_id?: string | null
+          status?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_tarefas_orientacao_id_fkey"
+            columns: ["orientacao_id"]
+            isOneToOne: false
+            referencedRelation: "moveis_orientacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       note_folders: {
         Row: {
           created_at: string
