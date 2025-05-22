@@ -2,18 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-export interface DirectoryFile {
-  id: string;
-  name: string;
-  description?: string;
-  file_url: string;
-  file_type: string;
-  file_size?: number;
-  category_id?: string | null;
-  is_featured: boolean;
-  created_at: string;
-}
+import { DirectoryFile } from '../types';
 
 export function useDirectoryFiles(tableName = 'crediario_directory_files', categoryId?: string) {
   const [files, setFiles] = useState<DirectoryFile[]>([]);
@@ -27,8 +16,9 @@ export function useDirectoryFiles(tableName = 'crediario_directory_files', categ
   const fetchFiles = async () => {
     setIsLoading(true);
     try {
+      // Use type casting for the table name to bypass TypeScript's strict checking
       let query = supabase
-        .from(tableName)
+        .from(tableName as any)
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -65,7 +55,8 @@ export function useDirectoryFiles(tableName = 'crediario_directory_files', categ
     is_featured?: boolean;
   }) => {
     try {
-      const { error } = await supabase.from(tableName).insert(fileData);
+      // Use type casting for the table name to bypass TypeScript's strict checking
+      const { error } = await supabase.from(tableName as any).insert(fileData);
 
       if (error) {
         throw error;
@@ -97,8 +88,9 @@ export function useDirectoryFiles(tableName = 'crediario_directory_files', categ
     }
   ) => {
     try {
+      // Use type casting for the table name to bypass TypeScript's strict checking
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .update({
           name: updates.name,
           description: updates.description,
@@ -130,8 +122,9 @@ export function useDirectoryFiles(tableName = 'crediario_directory_files', categ
 
   const deleteFile = async (id: string, fileUrl: string) => {
     try {
+      // Use type casting for the table name to bypass TypeScript's strict checking
       // Deletar o registro do banco de dados
-      const { error } = await supabase.from(tableName).delete().eq('id', id);
+      const { error } = await supabase.from(tableName as any).delete().eq('id', id);
 
       if (error) {
         throw error;

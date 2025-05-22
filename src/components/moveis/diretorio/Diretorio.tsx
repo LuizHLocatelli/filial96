@@ -17,6 +17,7 @@ import { LoadingIndicator } from '@/components/crediario/diretorio/components/Lo
 import { FileUploader } from '@/components/crediario/diretorio/components/FileUploader';
 import { FileViewMode } from '@/components/crediario/diretorio/types';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
 
 export function Diretorio() {
   // Estado para o modo de visualização
@@ -39,7 +40,8 @@ export function Diretorio() {
     isLoading: filesLoading, 
     updateFile, 
     deleteFile,
-    fetchFiles
+    fetchFiles,
+    addFile,
   } = useDirectoryFiles('moveis_arquivos', categoryOps.selectedCategoryId);
 
   const { isUploading, uploadFile } = useFileUpload();
@@ -88,7 +90,13 @@ export function Diretorio() {
     });
     
     if (result) {
-      await fetchFiles();
+      const fileData = {
+        ...result, 
+        category_id: categoryId,
+        is_featured: isFeatured
+      };
+
+      await addFile(fileData);
       return true;
     }
     return false;

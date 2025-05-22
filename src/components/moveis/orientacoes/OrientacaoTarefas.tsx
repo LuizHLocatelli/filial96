@@ -81,7 +81,7 @@ export function OrientacaoTarefas() {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from("moveis_tarefas")
+        .from("moveis_tarefas" as any)
         .select("*")
         .order("data_entrega", { ascending: true });
 
@@ -104,7 +104,7 @@ export function OrientacaoTarefas() {
   const fetchOrientacoes = async () => {
     try {
       const { data, error } = await supabase
-        .from("moveis_orientacoes")
+        .from("moveis_orientacoes" as any)
         .select("id, titulo")
         .order("titulo", { ascending: true });
 
@@ -138,7 +138,7 @@ export function OrientacaoTarefas() {
       };
 
       const { error } = await supabase
-        .from("moveis_tarefas")
+        .from("moveis_tarefas" as any)
         .insert(newTask);
 
       if (error) {
@@ -167,7 +167,7 @@ export function OrientacaoTarefas() {
   const handleAtualizarStatus = async (tarefaId: string, novoStatus: string) => {
     try {
       const { error } = await supabase
-        .from("moveis_tarefas")
+        .from("moveis_tarefas" as any)
         .update({ 
           status: novoStatus,
           data_atualizacao: new Date().toISOString()
@@ -201,7 +201,7 @@ export function OrientacaoTarefas() {
   const handleExcluirTarefa = async (tarefaId: string) => {
     try {
       const { error } = await supabase
-        .from("moveis_tarefas")
+        .from("moveis_tarefas" as any)
         .delete()
         .eq("id", tarefaId);
 

@@ -2,12 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-export interface DirectoryCategory {
-  id: string;
-  name: string;
-  description?: string;
-}
+import { DirectoryCategory } from '../types';
 
 export function useDirectoryCategories(tableName = 'crediario_directory_categories') {
   const [categories, setCategories] = useState<DirectoryCategory[]>([]);
@@ -21,8 +16,9 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
+      // Use type casting for the table name to bypass TypeScript's strict checking
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .select('*')
         .order('name');
 
@@ -45,8 +41,9 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const addCategory = async (name: string, description?: string) => {
     try {
+      // Use type casting for the table name to bypass TypeScript's strict checking
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .insert({
           name,
           description,
@@ -77,8 +74,9 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
     updates: { name: string; description?: string }
   ) => {
     try {
+      // Use type casting for the table name to bypass TypeScript's strict checking
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .update({
           name: updates.name,
           description: updates.description,
@@ -108,15 +106,19 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const deleteCategory = async (id: string) => {
     try {
-      // Primeiro, atualizamos os arquivos desta categoria para não terem categoria
+      // Dynamic table name for files table based on the categories table
+      const filesTable = tableName === 'moveis_categorias' ? 'moveis_arquivos' : 'crediario_directory_files';
+      
+      // Use type casting for the table name to bypass TypeScript's strict checking
+      // First, update the files of this category to have no category
       await supabase
-        .from(tableName === 'moveis_categorias' ? 'moveis_arquivos' : 'crediario_directory_files')
+        .from(filesTable as any)
         .update({ category_id: null })
         .eq('category_id', id);
 
-      // Agora removemos a categoria
+      // Now remove the category
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .delete()
         .eq('id', id);
 
