@@ -5,6 +5,7 @@ import { KanbanColumn } from "./KanbanColumn";
 import { useState } from "react";
 import { TaskCardPreview } from "./components/TaskCardPreview";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ColumnList } from "./components/ColumnList";
 
 interface KanbanBoardProps {
   columns: Column[];
@@ -78,6 +79,15 @@ export function KanbanBoard({
     );
   }
   
+  // Create adapter functions to convert between card and cardId
+  const handleDeleteCardAdapter = (card: TaskCard) => {
+    onDeleteCard(card.id);
+  };
+
+  const handleUpdateCardAdapter = (card: TaskCard, updates: Partial<TaskCard>) => {
+    onUpdateCard(card.id, updates);
+  };
+  
   return (
     <DndContext
       sensors={sensors}
@@ -86,16 +96,14 @@ export function KanbanBoard({
       onDragEnd={handleDragEnd}
     >
       <div className="flex flex-col md:flex-row gap-4 pb-8 overflow-x-auto min-h-[calc(100vh-250px)]">
-        {sortedColumns.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            column={column}
-            cards={cards.filter(card => card.column_id === column.id)}
-            onAddCard={onAddCard}
-            onDeleteCard={onDeleteCard}
-            onUpdateCard={onUpdateCard}
-          />
-        ))}
+        <ColumnList 
+          columns={sortedColumns}
+          cards={cards}
+          onAddCard={onAddCard}
+          onDeleteCard={onDeleteCard}
+          onUpdateCard={onUpdateCard}
+          onMoveCard={onMoveCard}
+        />
       </div>
       
       {activeCard && <TaskCardPreview card={activeCard} />}
