@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { useDirectoryCategories } from './useDirectoryCategories';
 import { useDirectoryFiles } from './useDirectoryFiles';
 import { useCategoryOperations } from './useCategoryOperations';
 import { useFileOperations } from './useFileOperations';
-import { useFileUpload } from '@/hooks/crediario/useFileUpload';
+import { useFileUpload } from '@/hooks/moveis/useFileUpload';
 import { FileViewMode } from '../types';
 
 export function useMoveisDirectoryOperations() {
@@ -74,17 +73,17 @@ export function useMoveisDirectoryOperations() {
     const result = await uploadFile(file, {
       bucketName: "moveis_arquivos",
       folder: "diretorio",
-      generateUniqueName: true
+      generateUniqueName: true,
+      maxSizeInMB: 10 // Permitir arquivos maiores para documentos e PDFs
     });
     
     if (result) {
-      const fileData = {
-        ...result, 
+      await addFile({
+        ...result,
         category_id: categoryId,
-        is_featured: isFeatured
-      };
-
-      await addFile(fileData);
+        is_featured: isFeatured,
+        description: ""
+      });
       return true;
     }
     return false;
