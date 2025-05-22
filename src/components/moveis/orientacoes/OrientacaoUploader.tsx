@@ -75,14 +75,13 @@ export function OrientacaoUploader({ onSuccess }: OrientacaoUploaderProps) {
     try {
       // 1. Upload do arquivo para o Storage
       const arquivo = data.arquivo;
-      const arquivoUrl = await uploadFile(arquivo, {
+      const uploadResult = await uploadFile(arquivo, {
         bucketName: "moveis_arquivos",
         folder: "orientacoes",
-        maxSizeInMB: 10,
         generateUniqueName: true,
       });
 
-      if (!arquivoUrl) {
+      if (!uploadResult) {
         throw new Error("Erro ao enviar o arquivo.");
       }
 
@@ -91,7 +90,7 @@ export function OrientacaoUploader({ onSuccess }: OrientacaoUploaderProps) {
         titulo: data.titulo,
         tipo: data.tipo,
         descricao: data.descricao,
-        arquivo_url: arquivoUrl,
+        arquivo_url: uploadResult.file_url,
         arquivo_nome: arquivo.name,
         arquivo_tipo: arquivo.type,
         criado_por: user.id,
@@ -239,7 +238,7 @@ export function OrientacaoUploader({ onSuccess }: OrientacaoUploaderProps) {
             )}
           />
 
-          {isUploading && (
+          {isUploading && progress !== undefined && (
             <div className="space-y-2">
               <Progress value={progress} className="h-2" />
               <p className="text-xs text-muted-foreground">

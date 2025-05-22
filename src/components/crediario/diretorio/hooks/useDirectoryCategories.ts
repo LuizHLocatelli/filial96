@@ -16,9 +16,8 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      // Use type casting for the table name to bypass TypeScript's strict checking
       const { data, error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .select('*')
         .order('name');
 
@@ -26,7 +25,9 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
         throw error;
       }
 
-      setCategories(data as DirectoryCategory[]);
+      // Use type assertion to properly cast the data
+      const typedData = (data || []) as unknown as DirectoryCategory[];
+      setCategories(typedData);
     } catch (error: any) {
       console.error('Erro ao buscar categorias:', error);
       toast({
@@ -41,9 +42,8 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const addCategory = async (name: string, description?: string) => {
     try {
-      // Use type casting for the table name to bypass TypeScript's strict checking
       const { error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .insert({
           name,
           description,
@@ -74,9 +74,8 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
     updates: { name: string; description?: string }
   ) => {
     try {
-      // Use type casting for the table name to bypass TypeScript's strict checking
       const { error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .update({
           name: updates.name,
           description: updates.description,
@@ -109,16 +108,15 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
       // Dynamic table name for files table based on the categories table
       const filesTable = tableName === 'moveis_categorias' ? 'moveis_arquivos' : 'crediario_directory_files';
       
-      // Use type casting for the table name to bypass TypeScript's strict checking
       // First, update the files of this category to have no category
       await supabase
-        .from(filesTable as any)
+        .from(filesTable)
         .update({ category_id: null })
         .eq('category_id', id);
 
       // Now remove the category
       const { error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .delete()
         .eq('id', id);
 

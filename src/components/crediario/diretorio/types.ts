@@ -2,26 +2,26 @@
 export interface DirectoryCategory {
   id: string;
   name: string;
-  description: string | null;
+  description?: string;
   created_at: string;
-  created_by: string | null;
   updated_at: string;
+  created_by?: string;
 }
 
 export interface DirectoryFile {
   id: string;
   name: string;
-  description: string | null;
+  description?: string;
   file_url: string;
   file_type: string;
-  file_size: number | null;
-  category_id: string | null;
+  file_size?: number;
+  category_id?: string | null;
   is_featured: boolean;
   created_at: string;
-  created_by: string | null;
   updated_at: string;
+  created_by?: string;
 }
 
-export type FileViewMode = 'grid' | 'list';
-export type SortOption = 'name' | 'date' | 'size' | 'type';
+export type SortBy = 'name' | 'created_at' | 'file_type' | 'file_size';
 export type SortDirection = 'asc' | 'desc';
+export type FileViewMode = 'grid' | 'list';

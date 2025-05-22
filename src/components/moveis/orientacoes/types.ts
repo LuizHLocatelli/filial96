@@ -14,12 +14,12 @@ export interface Orientacao {
 
 export interface Tarefa {
   id: string;
-  orientacao_id?: string;
   titulo: string;
   descricao: string;
   data_entrega: string;
-  status: "pendente" | "em_andamento" | "concluida";
   data_criacao: string;
   data_atualizacao: string;
+  status: "pendente" | "em_andamento" | "concluida";
+  orientacao_id: string | null;
   criado_por: string;
 }

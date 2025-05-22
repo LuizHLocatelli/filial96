@@ -4,14 +4,26 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
 
-interface UploadOptions {
+export interface UploadOptions {
   bucketName?: string;
   folder?: string;
   generateUniqueName?: boolean;
 }
 
+export interface UploadedFile {
+  name: string;
+  description: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+  category_id: any;
+  is_featured: boolean;
+  created_by: string;
+}
+
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0); // Add progress state
   const { toast } = useToast();
   
   const uploadFile = async (
@@ -21,9 +33,10 @@ export function useFileUpload() {
       folder: "files", 
       generateUniqueName: true 
     }
-  ) => {
+  ): Promise<UploadedFile | null> => {
     try {
       setIsUploading(true);
+      setProgress(0);
       
       // Set default options
       const bucketName = options.bucketName || "directory_files";
@@ -44,7 +57,12 @@ export function useFileUpload() {
         .from(bucketName)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          onUploadProgress: (progress) => {
+            // Update progress as a percentage
+            const percentage = Math.round((progress.loaded / progress.total) * 100);
+            setProgress(percentage);
+          }
         });
         
       if (storageError) {
@@ -66,6 +84,8 @@ export function useFileUpload() {
         description: 'Arquivo adicionado com sucesso.',
       });
       
+      setProgress(100);
+      
       return {
         name: file.name,
         description: '',
@@ -74,7 +94,7 @@ export function useFileUpload() {
         file_size: file.size,
         category_id: null,
         is_featured: false,
-        created_by: (await supabase.auth.getUser()).data.user?.id
+        created_by: (await supabase.auth.getUser()).data.user?.id || ''
       };
     } catch (error: any) {
       console.error('Erro detalhado ao adicionar arquivo:', error);
@@ -87,12 +107,13 @@ export function useFileUpload() {
       
       return null;
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
     }
   };
   
   return {
     isUploading,
+    progress,
     uploadFile
   };
 }

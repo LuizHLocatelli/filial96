@@ -25,9 +25,8 @@ const ensureProductsArray = (produtos: any): VendaOProduct[] => {
 export function useVendaO() {
   const [sales, setSales] = useState<VendaO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const { uploadFile, progress } = useFileUpload();
+  const { uploadFile, isUploading, progress } = useFileUpload();
 
   useEffect(() => {
     fetchSales();
@@ -94,7 +93,6 @@ export function useVendaO() {
     },
     file: File
   ): Promise<boolean> => {
-    setIsUploading(true);
     try {
       // Insert sale record
       const { data: sale, error: saleError } = await supabase
@@ -116,13 +114,13 @@ export function useVendaO() {
       if (saleError) throw saleError;
 
       // Upload file to storage
-      const fileUrl = await uploadFile(file, {
+      const result = await uploadFile(file, {
         bucketName: 'venda_o_cupons',
         folder: 'cupons',
         generateUniqueName: true
       });
 
-      if (!fileUrl) {
+      if (!result) {
         throw new Error("Falha ao enviar o cupom fiscal.");
       }
 
@@ -133,7 +131,7 @@ export function useVendaO() {
           sale_id: sale.id,
           file_name: file.name,
           file_type: file.type,
-          file_url: fileUrl,
+          file_url: result.file_url,
           file_size: file.size,
           created_by: (await supabase.auth.getUser()).data.user?.id
         });
@@ -155,8 +153,6 @@ export function useVendaO() {
         variant: "destructive",
       });
       return false;
-    } finally {
-      setIsUploading(false);
     }
   };
 

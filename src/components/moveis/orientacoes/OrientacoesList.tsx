@@ -30,7 +30,7 @@ export function OrientacoesList({ refreshKey = 0 }: OrientacoesListProps) {
       try {
         let query = supabase
           .from("moveis_orientacoes")
-          .select("*, profiles(nome)")
+          .select("*")
           .order("data_criacao", { ascending: false });
 
         if (tipoFiltro) {
@@ -43,17 +43,18 @@ export function OrientacoesList({ refreshKey = 0 }: OrientacoesListProps) {
           throw error;
         }
 
-        const orientacoesFormatadas = data.map(item => ({
+        // Type casting to ensure correct type
+        const orientacoesFormatadas = (data || []).map(item => ({
           id: item.id,
           titulo: item.titulo,
-          tipo: item.tipo,
+          tipo: item.tipo as "vm" | "informativo" | "outro",
           descricao: item.descricao,
           arquivo_url: item.arquivo_url,
           arquivo_nome: item.arquivo_nome,
           arquivo_tipo: item.arquivo_tipo,
           data_criacao: item.data_criacao,
           criado_por: item.criado_por,
-          criado_por_nome: item.profiles?.nome
+          criado_por_nome: item.profiles?.nome || 'Usuário'
         }));
 
         setOrientacoes(orientacoesFormatadas);
@@ -87,7 +88,7 @@ export function OrientacoesList({ refreshKey = 0 }: OrientacoesListProps) {
     }
   };
 
-  const getTipoBadge = (tipo: string) => {
+  const getTipoBadge = (tipo: "vm" | "informativo" | "outro") => {
     switch (tipo) {
       case "vm":
         return <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">VM</Badge>;
