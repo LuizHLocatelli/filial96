@@ -37,17 +37,17 @@ export function EditCardDialog({
   };
   
   const { form, isSubmitting, handleSubmit: submitForm, handleCancel } = useCardForm({
-    onSubmit: handleSubmit,
-    onCancel: () => onOpenChange(false),
-    defaultValues: {
+    initialData: {
       title: card.title,
       description: card.description || "",
       priority: card.priority,
-      assigneeId: card.assignee_id,
-      dueDate: card.due_date ? new Date(card.due_date) : undefined,
-      dueTime: card.due_time || "",
-      backgroundColor: card.background_color || "#FFFFFF"
-    }
+      assignee_id: card.assignee_id,
+      due_date: card.due_date ? new Date(card.due_date) : undefined,
+      due_time: card.due_time || "",
+      background_color: card.background_color || "#FFFFFF"
+    },
+    onSubmit: handleSubmit,
+    onCancel: () => onOpenChange(false)
   });
   
   return (

@@ -1,120 +1,76 @@
 
-import { useState } from "react";
-import { Column, TaskCard } from "./types";
-import { useDroppable } from "@dnd-kit/core";
-import { KanbanCard } from "./KanbanCard";
-import { cn } from "@/lib/utils";
+import { TaskCard, Column } from "./types";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { KanbanCard } from "./KanbanCard";
 
 interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
-  onAddCard: (columnId: string) => void;
-  onDeleteCard: (cardId: string) => void;
-  onUpdateCard: (cardId: string, updates: Partial<TaskCard>) => void;
+  otherColumns?: Column[];
+  onAddCard?: (columnId: string) => void;
+  onDeleteCard?: (card: TaskCard) => void;
+  onUpdateCard?: (card: TaskCard, updates: Partial<TaskCard>) => void;
+  onMoveCard?: (cardId: string, targetColumnId: string) => void;
 }
 
 export function KanbanColumn({
   column,
-  cards,
+  cards = [],
+  otherColumns = [],
   onAddCard,
   onDeleteCard,
-  onUpdateCard
+  onUpdateCard,
+  onMoveCard,
 }: KanbanColumnProps) {
-  const { isDarkMode } = useTheme();
-  const [isHovered, setIsHovered] = useState(false);
-  
-  // Configurar o droppable para a coluna
-  const { setNodeRef, isOver } = useDroppable({
-    id: column.id,
-  });
-  
-  // Ordenar os cartões por posição
+  // Sort cards by position
   const sortedCards = [...cards].sort((a, b) => a.position - b.position);
   
-  // Determinar estilos baseados na coluna
-  const getHeaderStyle = () => {
-    switch(column.name) {
-      case 'A Fazer':
-        return 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30';
-      case 'Fazendo':
-        return 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-950/30';
-      case 'Feita':
-        return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950/30';
-      default:
-        return 'border-gray-300 dark:border-gray-700';
-    }
-  };
-  
-  // Determinar estilos do badge
-  const getBadgeStyle = () => {
-    switch(column.name) {
-      case 'A Fazer':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300';
-      case 'Fazendo':
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300';
-      case 'Feita':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300';
-      default:
-        return '';
+  const handleAddCard = () => {
+    if (onAddCard) {
+      onAddCard(column.id);
     }
   };
   
   return (
     <div 
-      ref={setNodeRef}
-      className={cn(
-        "flex-shrink-0 w-full md:w-80 mb-6 md:mb-0 flex flex-col h-[65vh] border dark:border-gray-700 rounded-md shadow-sm",
-        isOver ? "ring-2 ring-primary/50" : "",
-        isDarkMode ? "bg-gray-800/50" : "bg-white"
-      )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="bg-muted/30 dark:bg-muted/20 rounded-md shadow-sm flex flex-col h-full"
+      id={column.id}
     >
-      <div className={`flex justify-between items-center p-3 border-b dark:border-gray-700 border-l-4 ${getHeaderStyle()}`}>
-        <h3 className="font-medium text-gray-800 dark:text-gray-200 flex items-center gap-2">
-          {column.name}
-          <Badge variant="outline" className={`${getBadgeStyle()} ml-1`}>
-            {sortedCards.length}
-          </Badge>
-        </h3>
-      </div>
-
-      <ScrollArea className="flex-1 p-2">
-        <div className="space-y-3 pr-1">
-          {sortedCards.map(card => (
-            <KanbanCard
-              key={card.id}
-              card={card}
-              onDelete={() => onDeleteCard(card.id)}
-              onUpdate={(updates) => onUpdateCard(card.id, updates)}
-            />
-          ))}
-          
-          {sortedCards.length === 0 && (
-            <div className="flex items-center justify-center h-24 border-2 border-dashed rounded-md border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20">
-              <p className="text-sm text-muted-foreground">Nenhuma tarefa nesta coluna</p>
-            </div>
-          )}
+      <div className="p-3 border-b flex items-center justify-between bg-muted/50 dark:bg-muted/30 rounded-t-md">
+        <div>
+          <h3 className="font-medium text-sm">
+            {column.name}
+            <span className="ml-2 text-xs text-muted-foreground">
+              ({cards.length})
+            </span>
+          </h3>
         </div>
-      </ScrollArea>
-
-      <Button
-        onClick={() => onAddCard(column.id)}
-        className={cn(
-          "m-2 gap-1 justify-center rounded transition-all",
-          isHovered ? "shadow-md" : ""
+        
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleAddCard}>
+          <Plus className="h-4 w-4" />
+          <span className="sr-only">Adicionar Cartão</span>
+        </Button>
+      </div>
+      
+      <div className="p-2 flex-1 overflow-y-auto max-h-[calc(100vh-300px)] space-y-2">
+        {sortedCards.map((card) => (
+          <KanbanCard
+            key={card.id}
+            card={card}
+            onDelete={() => onDeleteCard && onDeleteCard(card)}
+            onUpdate={(updates) => onUpdateCard && onUpdateCard(card, updates)}
+          />
+        ))}
+        
+        {sortedCards.length === 0 && (
+          <div className="h-20 flex items-center justify-center border border-dashed rounded-md">
+            <p className="text-sm text-muted-foreground">
+              Sem tarefas
+            </p>
+          </div>
         )}
-        size="sm"
-        variant="outline"
-      >
-        <Plus className="h-4 w-4" />
-        <span>Adicionar Tarefa</span>
-      </Button>
+      </div>
     </div>
   );
 }

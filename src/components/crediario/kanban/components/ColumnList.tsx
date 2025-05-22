@@ -7,7 +7,7 @@ interface ColumnListProps {
   columns: Column[];
   cards: TaskCard[];
   onAddCard?: (columnId: string) => void;
-  onDeleteCard?: (card: TaskCard) => void;
+  onDeleteCard?: (cardId: string) => void;
   onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
   onMoveCard?: (cardId: string, targetColumnId: string) => void;
 }
@@ -33,6 +33,20 @@ export function ColumnList({
   // Ordenar colunas por posição para garantir que sejam exibidas corretamente
   const sortedColumns = [...columns].sort((a, b) => a.position - b.position);
 
+  // Função wrapper para adaptar os parâmetros
+  const handleDeleteCard = (card: TaskCard) => {
+    if (onDeleteCard) {
+      onDeleteCard(card.id);
+    }
+  };
+
+  // Função wrapper para adaptar os parâmetros
+  const handleUpdateCard = (card: TaskCard, updates: Partial<TaskCard>) => {
+    if (onUpdateCard) {
+      onUpdateCard(card.id, updates);
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-4 pb-4 overflow-x-auto min-h-[calc(100vh-250px)]">
       {sortedColumns.map((column) => (
@@ -44,8 +58,8 @@ export function ColumnList({
             column={column}
             cards={cards.filter(card => card.column_id === column.id)}
             onAddCard={onAddCard}
-            onDeleteCard={onDeleteCard}
-            onUpdateCard={onUpdateCard}
+            onDeleteCard={handleDeleteCard}
+            onUpdateCard={handleUpdateCard}
             onMoveCard={onMoveCard}
             otherColumns={columns.filter(c => c.id !== column.id)}
           />
