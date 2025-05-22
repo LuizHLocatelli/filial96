@@ -38,7 +38,15 @@ export function useDirectoryFiles(categoryId?: string) {
   };
 
   // Adicionar arquivo
-  const addFile = async (fileData: Partial<DirectoryFile>) => {
+  const addFile = async (fileData: {
+    name: string;
+    file_url: string;
+    file_type: string;
+    file_size?: number;
+    category_id?: string | null;
+    is_featured?: boolean;
+    description?: string;
+  }) => {
     try {
       const { data, error } = await supabase
         .from('moveis_arquivos')
