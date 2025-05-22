@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { DirectoryCategory } from '../types';
-import { useSupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useDirectoryCategories(tableName: string) {
-  const supabaseClient = useSupabaseClient();
   const [categories, setCategories] = useState<DirectoryCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -13,7 +12,7 @@ export function useDirectoryCategories(tableName: string) {
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from(tableName)
         .select('*')
         .order('name');
@@ -34,7 +33,7 @@ export function useDirectoryCategories(tableName: string) {
   // Adicionar categoria
   const addCategory = async (name: string, description?: string) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from(tableName)
         .insert([{ name, description }])
         .select('*')
@@ -55,7 +54,7 @@ export function useDirectoryCategories(tableName: string) {
   // Atualizar categoria
   const updateCategory = async (id: string, updates: Partial<DirectoryCategory>) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from(tableName)
         .update(updates)
         .eq('id', id)
@@ -77,7 +76,7 @@ export function useDirectoryCategories(tableName: string) {
   // Excluir categoria
   const deleteCategory = async (id: string) => {
     try {
-      const { error } = await supabaseClient
+      const { error } = await supabase
         .from(tableName)
         .delete()
         .eq('id', id);

@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { DirectoryFile } from '../types';
-import { useSupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useDirectoryFiles(tableName: string, categoryId?: string) {
-  const supabaseClient = useSupabaseClient();
   const [files, setFiles] = useState<DirectoryFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -13,7 +12,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
   const fetchFiles = async () => {
     try {
       setIsLoading(true);
-      let query = supabaseClient
+      let query = supabase
         .from(tableName)
         .select('*')
         .order('created_at', { ascending: false });
@@ -41,7 +40,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
   // Adicionar arquivo
   const addFile = async (fileData: Partial<DirectoryFile>) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from(tableName)
         .insert([fileData])
         .select('*')
@@ -62,7 +61,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
   // Atualizar arquivo
   const updateFile = async (id: string, updates: Partial<DirectoryFile>) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from(tableName)
         .update(updates)
         .eq('id', id)
@@ -85,7 +84,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
   const deleteFile = async (id: string, fileUrl?: string) => {
     try {
       // Primeiro exclui da tabela
-      const { error: dbError } = await supabaseClient
+      const { error: dbError } = await supabase
         .from(tableName)
         .delete()
         .eq('id', id);
@@ -98,7 +97,7 @@ export function useDirectoryFiles(tableName: string, categoryId?: string) {
       if (fileUrl) {
         try {
           const path = fileUrl.split('/').slice(3).join('/');
-          await supabaseClient.storage.from('moveis_arquivos').remove([path]);
+          await supabase.storage.from('moveis_arquivos').remove([path]);
         } catch (storageErr) {
           console.error("Erro ao remover arquivo do storage:", storageErr);
           // Não interrompe o processo se o arquivo não puder ser excluído
