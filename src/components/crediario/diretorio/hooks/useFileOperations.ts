@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { DirectoryFile, DirectoryCategory, SortOption, SortDirection } from '../types';
+import { DirectoryFile, DirectoryCategory, SortBy, SortDirection, SortOption } from '../types';
 
 export function useFileOperations(files: DirectoryFile[], categories: DirectoryCategory[]) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +34,7 @@ export function useFileOperations(files: DirectoryFile[], categories: DirectoryC
         if (a.file_size === null && b.file_size === null) return 0;
         if (a.file_size === null) return direction;
         if (b.file_size === null) return -direction;
-        return direction * (a.file_size - b.file_size);
+        return direction * ((a.file_size || 0) - (b.file_size || 0));
       case 'type':
         return direction * a.file_type.localeCompare(b.file_type);
       case 'date':

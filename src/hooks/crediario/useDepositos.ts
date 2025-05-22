@@ -6,7 +6,7 @@ import { useFileUpload } from '@/hooks/crediario/useFileUpload';
 
 export type Deposito = {
   id: string;
-  data: string;
+  data: Date; // Change from string to Date
   concluido: boolean;
   ja_incluido: boolean;
   comprovante?: string;
@@ -18,7 +18,7 @@ export function useDepositos() {
   const [depositos, setDepositos] = useState<Deposito[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { uploadFile, isUploading } = useFileUpload();
+  const { uploadFile, isUploading, progress } = useFileUpload();
 
   useEffect(() => {
     fetchDepositos();
@@ -36,7 +36,13 @@ export function useDepositos() {
         throw error;
       }
 
-      setDepositos(data);
+      // Convert string dates to Date objects
+      const formattedData = data.map(item => ({
+        ...item,
+        data: new Date(item.data)
+      }));
+
+      setDepositos(formattedData);
     } catch (error: any) {
       toast({
         title: 'Erro',
@@ -108,9 +114,15 @@ export function useDepositos() {
 
   const updateDeposito = async (id: string, updates: Partial<Deposito>) => {
     try {
+      // Format date if it exists in updates
+      const formattedUpdates = { ...updates };
+      if (updates.data instanceof Date) {
+        formattedUpdates.data = updates.data.toISOString().split('T')[0];
+      }
+      
       const { error } = await supabase
         .from('crediario_depositos')
-        .update(updates)
+        .update(formattedUpdates)
         .eq('id', id);
         
       if (error) {
@@ -159,14 +171,68 @@ export function useDepositos() {
       console.error('Erro ao excluir depósito:', error);
     }
   };
+  
+  // Add saveDeposito function that was missing
+  const saveDeposito = async (
+    depositoData: {
+      id?: string;
+      data: Date;
+      concluido: boolean;
+      jaIncluido: boolean;
+      comprovante?: string;
+    }, 
+    file?: File | null
+  ) => {
+    try {
+      let comprovante_url = depositoData.comprovante || '';
+      
+      // Upload do comprovante se existir
+      if (file) {
+        const result = await uploadFile(file, {
+          bucketName: 'directory_files',
+          folder: 'comprovantes',
+          generateUniqueName: true
+        });
+        
+        if (result) {
+          comprovante_url = result.file_url;
+        }
+      }
+      
+      if (depositoData.id) {
+        // Update existing
+        await updateDeposito(depositoData.id, {
+          data: depositoData.data,
+          concluido: depositoData.concluido,
+          ja_incluido: depositoData.jaIncluido,
+          comprovante: comprovante_url || undefined
+        });
+      } else {
+        // Create new
+        await addDeposito({
+          data: depositoData.data,
+          concluido: depositoData.concluido,
+          ja_incluido: depositoData.jaIncluido,
+          comprovante: file || undefined
+        });
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error saving deposit:", error);
+      return false;
+    }
+  };
 
   return {
     depositos,
     isLoading,
     isUploading,
+    progress,
     fetchDepositos,
     addDeposito,
     updateDeposito,
     deleteDeposito,
+    saveDeposito
   };
 }

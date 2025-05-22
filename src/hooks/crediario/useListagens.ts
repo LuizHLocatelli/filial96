@@ -17,7 +17,7 @@ export function useListagens() {
   const [listagens, setListagens] = useState<Listagem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { uploadFile, isUploading } = useFileUpload();
+  const { uploadFile, isUploading, progress } = useFileUpload();
 
   useEffect(() => {
     fetchListagens();
@@ -48,10 +48,10 @@ export function useListagens() {
     }
   };
 
-  const addListagem = async (nome: string, arquivo: File, indicator?: string) => {
+  const addListagem = async (file: File, indicator?: string | null) => {
     try {
       // Upload do arquivo
-      const result = await uploadFile(arquivo, {
+      const result = await uploadFile(file, {
         bucketName: 'directory_files',
         folder: 'listagens',
         generateUniqueName: true
@@ -65,7 +65,7 @@ export function useListagens() {
       const { data, error } = await supabase
         .from('crediario_listagens')
         .insert({
-          nome: nome,
+          nome: file.name,
           url: result.file_url,
           indicator: indicator || null,
           created_by: (await supabase.auth.getUser()).data.user?.id
@@ -112,6 +112,7 @@ export function useListagens() {
       });
       
       fetchListagens();
+      return true;
     } catch (error: any) {
       toast({
         title: 'Erro',
@@ -119,6 +120,7 @@ export function useListagens() {
         variant: 'destructive',
       });
       console.error('Erro ao excluir listagem:', error);
+      return false;
     }
   };
 
@@ -126,6 +128,7 @@ export function useListagens() {
     listagens,
     isLoading,
     isUploading,
+    progress,
     fetchListagens,
     addListagem,
     deleteListagem,

@@ -8,11 +8,12 @@ export function Listagens() {
   const { listagens, isLoading, isUploading, addListagem, deleteListagem } = useListagens();
 
   const handleUpload = async (file: File, indicator: string | null) => {
-    return await addListagem(file, indicator);
+    const result = await addListagem(file, indicator);
+    return !!result; // Convert to boolean
   };
 
-  const handleDelete = async (id: string, fileUrl: string) => {
-    await deleteListagem(id, fileUrl);
+  const handleDelete = async (id: string) => {
+    return await deleteListagem(id);
   };
 
   const handleView = (fileUrl: string, nome: string) => {

@@ -8,6 +8,7 @@ export interface UploadOptions {
   bucketName?: string;
   folder?: string;
   generateUniqueName?: boolean;
+  maxSizeInMB?: number;
 }
 
 export interface UploadedFile {
@@ -23,7 +24,7 @@ export interface UploadedFile {
 
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
-  const [progress, setProgress] = useState(0); // Add progress state
+  const [progress, setProgress] = useState(0);
   const { toast } = useToast();
   
   const uploadFile = async (
@@ -42,6 +43,12 @@ export function useFileUpload() {
       const bucketName = options.bucketName || "directory_files";
       const folder = options.folder || "files";
       const generateUniqueName = options.generateUniqueName !== false;
+      const maxSizeInMB = options.maxSizeInMB || 5;
+      
+      // Check file size
+      if (file.size > maxSizeInMB * 1024 * 1024) {
+        throw new Error(`Arquivo muito grande. Tamanho máximo: ${maxSizeInMB}MB`);
+      }
       
       // Generate unique filename if required
       let fileName = file.name;

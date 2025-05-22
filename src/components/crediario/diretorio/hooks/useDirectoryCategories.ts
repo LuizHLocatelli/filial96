@@ -16,10 +16,17 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*')
-        .order('name');
+      // Use type assertion for table name instead of dynamic query
+      let query;
+      
+      // Using hardcoded table names to avoid Supabase client type errors
+      if (tableName === 'moveis_categorias') {
+        query = supabase.from('moveis_categorias');
+      } else {
+        query = supabase.from('crediario_directory_categories');
+      }
+      
+      const { data, error } = await query.select('*').order('name');
 
       if (error) {
         throw error;
@@ -42,12 +49,19 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const addCategory = async (name: string, description?: string) => {
     try {
-      const { error } = await supabase
-        .from(tableName)
-        .insert({
-          name,
-          description,
-        });
+      let query;
+      
+      // Using hardcoded table names to avoid Supabase client type errors
+      if (tableName === 'moveis_categorias') {
+        query = supabase.from('moveis_categorias');
+      } else {
+        query = supabase.from('crediario_directory_categories');
+      }
+      
+      const { error } = await query.insert({
+        name,
+        description,
+      });
 
       if (error) {
         throw error;
@@ -74,14 +88,20 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
     updates: { name: string; description?: string }
   ) => {
     try {
-      const { error } = await supabase
-        .from(tableName)
-        .update({
-          name: updates.name,
-          description: updates.description,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id);
+      let query;
+      
+      // Using hardcoded table names to avoid Supabase client type errors
+      if (tableName === 'moveis_categorias') {
+        query = supabase.from('moveis_categorias');
+      } else {
+        query = supabase.from('crediario_directory_categories');
+      }
+      
+      const { error } = await query.update({
+        name: updates.name,
+        description: updates.description,
+        updated_at: new Date().toISOString(),
+      }).eq('id', id);
 
       if (error) {
         throw error;
@@ -105,20 +125,37 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const deleteCategory = async (id: string) => {
     try {
-      // Dynamic table name for files table based on the categories table
-      const filesTable = tableName === 'moveis_categorias' ? 'moveis_arquivos' : 'crediario_directory_files';
+      // Determine correct tables based on the current table
+      let categoryTable, filesTable;
+      
+      if (tableName === 'moveis_categorias') {
+        categoryTable = 'moveis_categorias';
+        filesTable = 'moveis_arquivos';
+      } else {
+        categoryTable = 'crediario_directory_categories';
+        filesTable = 'crediario_directory_files';
+      }
       
       // First, update the files of this category to have no category
-      await supabase
-        .from(filesTable)
-        .update({ category_id: null })
-        .eq('category_id', id);
+      if (filesTable === 'moveis_arquivos') {
+        await supabase.from('moveis_arquivos')
+          .update({ category_id: null })
+          .eq('category_id', id);
+      } else {
+        await supabase.from('crediario_directory_files')
+          .update({ category_id: null })
+          .eq('category_id', id);
+      }
 
       // Now remove the category
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq('id', id);
+      let query;
+      if (categoryTable === 'moveis_categorias') {
+        query = supabase.from('moveis_categorias');
+      } else {
+        query = supabase.from('crediario_directory_categories');
+      }
+      
+      const { error } = await query.delete().eq('id', id);
 
       if (error) {
         throw error;

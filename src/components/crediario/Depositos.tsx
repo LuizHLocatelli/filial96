@@ -112,8 +112,8 @@ export function Depositos() {
       id: depositoId || undefined,
       data: selectedDay,
       concluido: true,
-      comprovante: depositoId ? previewUrl : undefined,
-      jaIncluido: jaIncluido
+      jaIncluido: jaIncluido,
+      comprovante: previewUrl || undefined
     };
     
     const success = await saveDeposito(depositoData, selectedFile);
