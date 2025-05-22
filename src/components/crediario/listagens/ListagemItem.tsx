@@ -18,7 +18,7 @@ export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
   const navigate = useNavigate();
   
   const handleViewInNewPage = () => {
-    navigate(`/pdf-viewer?url=${encodeURIComponent(item.fileUrl)}&name=${encodeURIComponent(item.nome)}`);
+    navigate(`/pdf-viewer?url=${encodeURIComponent(item.url)}&name=${encodeURIComponent(item.nome)}`);
   };
   
   return (
@@ -35,7 +35,7 @@ export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {format(item.createdAt, "dd/MM/yyyy")}
+            {format(new Date(item.created_at), "dd/MM/yyyy")}
           </p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
           <Eye className="h-4 w-4" />
           <span className="sr-only">Ver</span>
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => onDelete(item.id, item.fileUrl)}>
+        <Button size="sm" variant="ghost" onClick={() => onDelete(item.id, item.url)}>
           <Trash2 className="h-4 w-4 text-destructive" />
           <span className="sr-only">Excluir</span>
         </Button>

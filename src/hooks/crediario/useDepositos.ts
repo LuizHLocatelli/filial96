@@ -6,7 +6,7 @@ import { useFileUpload } from '@/hooks/crediario/useFileUpload';
 
 export type Deposito = {
   id: string;
-  data: Date; // Change from string to Date
+  data: Date; // This is Date in JS memory
   concluido: boolean;
   ja_incluido: boolean;
   comprovante?: string;

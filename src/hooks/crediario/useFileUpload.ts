@@ -65,10 +65,12 @@ export function useFileUpload() {
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          onUploadProgress: (progress) => {
+          onUploadProgress: (progressEvent) => {
             // Update progress as a percentage
-            const percentage = Math.round((progress.loaded / progress.total) * 100);
-            setProgress(percentage);
+            if (progressEvent.total) {
+              const percentage = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+              setProgress(percentage);
+            }
           }
         });
         
