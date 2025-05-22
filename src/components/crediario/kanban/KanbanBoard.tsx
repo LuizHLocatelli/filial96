@@ -1,165 +1,104 @@
 
-import React, { useState, useEffect } from "react";
-import { useKanbanBoard } from "./useKanbanBoard";
-import { toast } from "sonner";
-import { AddCardDialog } from "./AddCardDialog";
-import { BoardHeader } from "./components/BoardHeader";
-import { ColumnList } from "./components/ColumnList";
-import { BoardLoading } from "./components/BoardLoading";
-import { BoardEmpty } from "./components/BoardEmpty";
+import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { Column, TaskCard } from "./types";
+import { KanbanColumn } from "./KanbanColumn";
+import { useState } from "react";
+import { TaskCardPreview } from "./components/TaskCardPreview";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
-export function KanbanBoard() {
-  const {
-    board,
-    columns: dbColumns,
-    cards,
-    isLoading,
-    addCard,
-    deleteCard,
-    updateCard,
-    moveCard
-  } = useKanbanBoard();
-  
+interface KanbanBoardProps {
+  columns: Column[];
+  cards: TaskCard[];
+  onAddCard: (columnId: string) => void;
+  onDeleteCard: (cardId: string) => void;
+  onUpdateCard: (cardId: string, updates: Partial<TaskCard>) => void;
+  onMoveCard: (cardId: string, targetColumnId: string) => void;
+}
+
+export function KanbanBoard({
+  columns,
+  cards,
+  onAddCard,
+  onDeleteCard,
+  onUpdateCard,
+  onMoveCard
+}: KanbanBoardProps) {
   const { isDarkMode } = useTheme();
-  const [addCardDialogOpen, setAddCardDialogOpen] = useState(false);
-  const [targetColumnId, setTargetColumnId] = useState<string | null>(null);
+  const [activeCard, setActiveCard] = useState<TaskCard | null>(null);
   
-  // Create colunas fixas
-  const [columns, setColumns] = useState<Column[]>([]);
+  // Configurar sensores para o DnD
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // Distância mínima para iniciar o drag
+      },
+    })
+  );
   
-  // Configure as colunas fixas baseadas no board atual
-  useEffect(() => {
-    if (board) {
-      // Buscar as colunas do banco de dados
-      const aFazerCol = dbColumns.find(col => col.name === "A Fazer");
-      const fazendoCol = dbColumns.find(col => col.name === "Fazendo");
-      const feitaCol = dbColumns.find(col => col.name === "Feita");
-      
-      // Criar colunas temporárias se não existirem no banco
-      // Importante: Estamos usando os IDs reais do banco de dados
-      const fixedColumns: Column[] = [];
-      
-      if (aFazerCol) {
-        fixedColumns.push(aFazerCol);
-      }
-      
-      if (fazendoCol) {
-        fixedColumns.push(fazendoCol);
-      }
-      
-      if (feitaCol) {
-        fixedColumns.push(feitaCol);
-      }
-      
-      // Se alguma das colunas não existir, vamos mostrar apenas as que existem
-      setColumns(fixedColumns);
+  // Ordenar colunas por posição
+  const sortedColumns = [...columns].sort((a, b) => a.position - b.position);
+  
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const cardId = active.id as string;
+    const draggedCard = cards.find(card => card.id === cardId);
+    
+    if (draggedCard) {
+      setActiveCard(draggedCard);
     }
-  }, [board, dbColumns]);
-
-  const handleOpenAddCardDialog = (columnId: string) => {
-    console.log("Opening dialog for column ID:", columnId);
-    setTargetColumnId(columnId);
-    setAddCardDialogOpen(true);
   };
-
-  const handleAddCard = async (data: { 
-    title: string; 
-    description?: string; 
-    priority: string; 
-    assigneeId?: string; 
-    dueDate?: Date; 
-    dueTime?: string;
-    backgroundColor?: string 
-  }) => {
-    if (!targetColumnId) {
-      console.error("Nenhuma coluna selecionada para adicionar o cartão");
-      return;
+  
+  const handleDragOver = (event: DragOverEvent) => {
+    // Este método pode ser usado para fornecer feedback visual enquanto arrasta
+  };
+  
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      const cardId = active.id as string;
+      const columnId = over.id as string;
+      
+      // Verificar se o over.id é uma coluna válida
+      const targetColumn = columns.find(col => col.id === columnId);
+      
+      if (targetColumn) {
+        onMoveCard(cardId, columnId);
+      }
     }
     
-    try {
-      console.log("Adicionando cartão na coluna:", targetColumnId);
-      
-      await addCard({
-        title: data.title,
-        description: data.description,
-        priority: data.priority,
-        column_id: targetColumnId,
-        assignee_id: data.assigneeId,
-        due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
-        due_time: data.dueTime,
-        background_color: data.backgroundColor
-      });
-      
-      toast.success("Cartão adicionado com sucesso");
-      setAddCardDialogOpen(false);
-      setTargetColumnId(null);
-    } catch (error) {
-      console.error("Erro ao adicionar cartão:", error);
-      toast.error("Erro ao adicionar cartão");
-    }
-  };
-
-  const handleDeleteCard = (card: TaskCard) => {
-    deleteCard(card.id);
-  };
-
-  const handleUpdateCard = (cardId: string, updates: Partial<TaskCard>) => {
-    updateCard(cardId, updates);
+    setActiveCard(null);
   };
   
-  const handleMoveCard = (cardId: string, targetColumnId: string) => {
-    moveCard(cardId, targetColumnId);
-  };
-
-  if (isLoading) {
-    return <BoardLoading />;
+  if (sortedColumns.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-48 border-2 border-dashed rounded-md">
+        <p className="text-muted-foreground">Nenhuma coluna configurada. Entre em contato com o administrador.</p>
+      </div>
+    );
   }
-
-  if (!board) {
-    return <BoardEmpty />;
-  }
-
-  const aFazerColumn = columns.find(col => col.name === "A Fazer");
   
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <BoardHeader board={board} />
-        
-        <div className="flex gap-2">
-          {aFazerColumn && (
-            <Button 
-              onClick={() => handleOpenAddCardDialog(aFazerColumn.id)} 
-              size="sm" 
-              className="bg-brand-blue-600 hover:bg-brand-blue-700 text-white dark:bg-brand-blue-500 dark:hover:bg-brand-blue-600 dark:text-white shadow-md hover:shadow-lg transition-all"
-            >
-              <Plus className="h-4 w-4 mr-1" /> Nova Tarefa
-            </Button>
-          )}
-        </div>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex flex-col md:flex-row gap-4 pb-8 overflow-x-auto min-h-[calc(100vh-250px)]">
+        {sortedColumns.map((column) => (
+          <KanbanColumn
+            key={column.id}
+            column={column}
+            cards={cards.filter(card => card.column_id === column.id)}
+            onAddCard={onAddCard}
+            onDeleteCard={onDeleteCard}
+            onUpdateCard={onUpdateCard}
+          />
+        ))}
       </div>
-
-      <div className="w-full">
-        <ColumnList
-          columns={columns}
-          cards={cards}
-          onAddCard={handleOpenAddCardDialog}
-          onDeleteCard={handleDeleteCard}
-          onUpdateCard={handleUpdateCard}
-          onMoveCard={handleMoveCard}
-        />
-      </div>
-
-      <AddCardDialog
-        columnId={targetColumnId || ""}
-        open={addCardDialogOpen}
-        onOpenChange={setAddCardDialogOpen}
-        onAddCard={handleAddCard}
-      />
-    </div>
+      
+      {activeCard && <TaskCardPreview card={activeCard} />}
+    </DndContext>
   );
 }

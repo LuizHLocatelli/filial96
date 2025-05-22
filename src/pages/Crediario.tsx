@@ -107,7 +107,7 @@ const Crediario = () => {
            activeTab === "clientes" ? "Acompanhe os clientes agendados para contato e pagamento" :
            activeTab === "depositos" ? "Controle os depósitos diários realizados" :
            activeTab === "folgas" ? "Gerencie as folgas da equipe do crediário" :
-           activeTab === "kanban" ? "Organize as tarefas do setor usando o quadro kanban" :
+           activeTab === "kanban" ? "Organize e acompanhe as tarefas do setor" :
            activeTab === "diretorio" ? "Acesse todos os documentos importantes do setor" : ""}
         </p>
       </div>
@@ -117,6 +117,6 @@ const Crediario = () => {
       {renderContent()}
     </div>
   );
-};
+}
 
 export default Crediario;

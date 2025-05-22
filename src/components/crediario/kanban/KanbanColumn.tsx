@@ -1,22 +1,21 @@
 
 import { useState } from "react";
 import { Column, TaskCard } from "./types";
+import { useDroppable } from "@dnd-kit/core";
 import { KanbanCard } from "./KanbanCard";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Plus } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface KanbanColumnProps {
   column: Column;
   cards: TaskCard[];
-  onAddCard?: (columnId: string) => void;
-  onDeleteCard?: (card: TaskCard) => void;
-  onUpdateCard?: (cardId: string, updates: Partial<TaskCard>) => void;
-  onMoveCard?: (cardId: string, targetColumnId: string) => void;
-  otherColumns?: Column[];
+  onAddCard: (columnId: string) => void;
+  onDeleteCard: (cardId: string) => void;
+  onUpdateCard: (cardId: string, updates: Partial<TaskCard>) => void;
 }
 
 export function KanbanColumn({
@@ -24,110 +23,97 @@ export function KanbanColumn({
   cards,
   onAddCard,
   onDeleteCard,
-  onUpdateCard,
-  onMoveCard,
-  otherColumns = []
+  onUpdateCard
 }: KanbanColumnProps) {
   const { isDarkMode } = useTheme();
-  const [hovering, setHovering] = useState(false);
-  const columnCards = cards.filter(card => card.column_id === column.id);
-
-  // Função para ordenar cartões
-  const sortedCards = [...columnCards].sort((a, b) => {
-    if (a.position !== b.position) {
-      return a.position - b.position;
-    }
-    
-    // Se as posições forem iguais, ordena pela data de criação
-    const dateA = new Date(a.created_at || '');
-    const dateB = new Date(b.created_at || '');
-    return dateB.getTime() - dateA.getTime();
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Configurar o droppable para a coluna
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
   });
   
-  // Determine o estilo do cabeçalho baseado na coluna
+  // Ordenar os cartões por posição
+  const sortedCards = [...cards].sort((a, b) => a.position - b.position);
+  
+  // Determinar estilos baseados na coluna
   const getHeaderStyle = () => {
     switch(column.name) {
       case 'A Fazer':
-        return 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30';
+        return 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30';
       case 'Fazendo':
-        return 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/30';
+        return 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-950/30';
       case 'Feita':
-        return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-900/30';
+        return 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950/30';
       default:
         return 'border-gray-300 dark:border-gray-700';
     }
   };
   
-  // Determine o estilo do badge baseado na coluna
+  // Determinar estilos do badge
   const getBadgeStyle = () => {
     switch(column.name) {
       case 'A Fazer':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300';
       case 'Fazendo':
-        return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300';
       case 'Feita':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300';
       default:
         return '';
     }
   };
-
+  
   return (
     <div 
-      className="flex flex-col h-full max-h-full bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-sm border dark:border-gray-700"
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      style={{width: '100%'}}
+      ref={setNodeRef}
+      className={cn(
+        "flex-shrink-0 w-full md:w-80 mb-6 md:mb-0 flex flex-col h-[65vh] border dark:border-gray-700 rounded-md shadow-sm",
+        isOver ? "ring-2 ring-primary/50" : "",
+        isDarkMode ? "bg-gray-800/50" : "bg-white"
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className={`flex justify-between items-center p-3 border-b dark:border-gray-700 border-l-4 ${getHeaderStyle()}`}>
         <h3 className="font-medium text-gray-800 dark:text-gray-200 flex items-center gap-2">
           {column.name}
-          <Badge variant="outline" className={getBadgeStyle()}>
+          <Badge variant="outline" className={`${getBadgeStyle()} ml-1`}>
             {sortedCards.length}
           </Badge>
         </h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
-            <DropdownMenuItem 
-              onClick={() => onAddCard && onAddCard(column.id)}
-              className="dark:hover:bg-gray-700"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              <span>Adicionar Cartão</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
-      <ScrollArea className="flex-1 p-2 h-[calc(100%-100px)]">
-        <div className="space-y-2 pr-2">
+      <ScrollArea className="flex-1 p-2">
+        <div className="space-y-3 pr-1">
           {sortedCards.map(card => (
             <KanbanCard
               key={card.id}
               card={card}
-              onDelete={() => onDeleteCard && onDeleteCard(card)}
-              onUpdate={(cardId, updates) => onUpdateCard && onUpdateCard(cardId, updates)}
-              onMoveCard={onMoveCard}
+              onDelete={() => onDeleteCard(card.id)}
+              onUpdate={(updates) => onUpdateCard(card.id, updates)}
             />
           ))}
+          
+          {sortedCards.length === 0 && (
+            <div className="flex items-center justify-center h-24 border-2 border-dashed rounded-md border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20">
+              <p className="text-sm text-muted-foreground">Nenhuma tarefa nesta coluna</p>
+            </div>
+          )}
         </div>
       </ScrollArea>
 
       <Button
-        onClick={() => onAddCard && onAddCard(column.id)}
-        className={`mx-2 mb-2 gap-1 bg-primary-100 hover:bg-primary-200 text-primary-600 dark:bg-primary-900/30 dark:hover:bg-primary-900/50 dark:text-primary-300 w-auto justify-center rounded-md transition-all ${
-          hovering ? 'shadow-md' : ''
-        }`}
-        variant="outline"
+        onClick={() => onAddCard(column.id)}
+        className={cn(
+          "m-2 gap-1 justify-center rounded transition-all",
+          isHovered ? "shadow-md" : ""
+        )}
         size="sm"
+        variant="outline"
       >
         <Plus className="h-4 w-4" />
-        <span>Adicionar Cartão</span>
+        <span>Adicionar Tarefa</span>
       </Button>
     </div>
   );

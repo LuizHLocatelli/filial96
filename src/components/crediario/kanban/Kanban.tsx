@@ -1,30 +1,106 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
+import { useKanbanBoard } from "./hooks/useKanbanBoard";
+import { toast } from "sonner";
 import { KanbanBoard } from "./KanbanBoard";
-import { StickyNotes } from "./StickyNotes";
+import { AddCardDialog } from "./AddCardDialog";
+import { PageHeader } from "./components/PageHeader";
+import { BoardLoading } from "./components/BoardLoading";
+import { BoardEmpty } from "./components/BoardEmpty";
 
 export function Kanban() {
+  const {
+    board,
+    columns,
+    cards,
+    isLoading,
+    addCard,
+    deleteCard,
+    updateCard,
+    moveCard
+  } = useKanbanBoard();
+  
+  const [addCardDialogOpen, setAddCardDialogOpen] = useState(false);
+  const [targetColumnId, setTargetColumnId] = useState<string | null>(null);
+  
+  const handleOpenAddCardDialog = (columnId: string) => {
+    setTargetColumnId(columnId);
+    setAddCardDialogOpen(true);
+  };
+
+  const handleAddCard = async (data: { 
+    title: string; 
+    description?: string; 
+    priority: string; 
+    assigneeId?: string; 
+    dueDate?: Date; 
+    dueTime?: string;
+    backgroundColor?: string;
+    labels?: string[];
+  }) => {
+    if (!targetColumnId) {
+      toast.error("Nenhuma coluna selecionada para adicionar o cartão");
+      return;
+    }
+    
+    try {
+      await addCard({
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        column_id: targetColumnId,
+        assignee_id: data.assigneeId,
+        due_date: data.dueDate ? data.dueDate.toISOString() : undefined,
+        due_time: data.dueTime,
+        background_color: data.backgroundColor
+      });
+      
+      toast.success("Tarefa adicionada com sucesso");
+      setAddCardDialogOpen(false);
+      setTargetColumnId(null);
+    } catch (error) {
+      console.error("Erro ao adicionar tarefa:", error);
+      toast.error("Erro ao adicionar tarefa");
+    }
+  };
+
+  if (isLoading) {
+    return <BoardLoading />;
+  }
+
+  if (!board) {
+    return <BoardEmpty />;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold">Quadro de Tarefas e Anotações</h2>
-        <p className="text-muted-foreground text-sm">
-          Organize suas tarefas e faça anotações rápidas para o setor do crediário
-        </p>
-      </div>
+      <PageHeader 
+        title="Quadro de Tarefas" 
+        description="Gerencie e acompanhe todas as atividades do setor de crediário"
+        board={board}
+        onAddTask={() => {
+          const todoColumn = columns.find(col => col.name === "A Fazer");
+          if (todoColumn) {
+            handleOpenAddCardDialog(todoColumn.id);
+          }
+        }}
+      />
       
-      <Tabs defaultValue="kanban">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto">
-          <TabsTrigger value="kanban">Quadro Kanban</TabsTrigger>
-          <TabsTrigger value="notes">Notas Rápidas</TabsTrigger>
-        </TabsList>
-        <TabsContent value="kanban" className="mt-6">
-          <KanbanBoard />
-        </TabsContent>
-        <TabsContent value="notes" className="mt-6">
-          <StickyNotes />
-        </TabsContent>
-      </Tabs>
+      <KanbanBoard 
+        columns={columns}
+        cards={cards}
+        onAddCard={handleOpenAddCardDialog}
+        onDeleteCard={deleteCard}
+        onUpdateCard={updateCard}
+        onMoveCard={moveCard}
+      />
+      
+      <AddCardDialog
+        columnId={targetColumnId || ""}
+        open={addCardDialogOpen}
+        onOpenChange={setAddCardDialogOpen}
+        onAddCard={handleAddCard}
+      />
     </div>
   );
 }
