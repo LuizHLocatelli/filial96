@@ -11,3 +11,15 @@ export interface Orientacao {
   criado_por: string;
   criado_por_nome?: string;
 }
+
+export interface Tarefa {
+  id: string;
+  titulo: string;
+  descricao: string;
+  data_entrega: string;
+  data_criacao: string;
+  data_atualizacao: string;
+  status: string;
+  criado_por: string;
+  orientacao_id: string | null;
+}
