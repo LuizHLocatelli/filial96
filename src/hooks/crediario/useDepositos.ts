@@ -77,7 +77,7 @@ export function useDepositos() {
         }
       }
       
-      // Inserir depósito no banco
+      // Inserir depósito no banco - convert Date to ISO string
       const { data, error } = await supabase
         .from('crediario_depositos')
         .insert({
@@ -172,7 +172,6 @@ export function useDepositos() {
     }
   };
   
-  // Add saveDeposito function that was missing
   const saveDeposito = async (
     depositoData: {
       id?: string;
@@ -200,7 +199,7 @@ export function useDepositos() {
       }
       
       if (depositoData.id) {
-        // Update existing
+        // Update existing - convert Date to string
         await updateDeposito(depositoData.id, {
           data: depositoData.data,
           concluido: depositoData.concluido,

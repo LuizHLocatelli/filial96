@@ -1,44 +1,40 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from 'react';
+import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrientacoesList } from "./OrientacoesList";
-import { OrientacaoUploader } from "./OrientacaoUploader";
 import { OrientacaoTarefas } from "./OrientacaoTarefas";
+import { OrientacaoUploader } from "./OrientacaoUploader";
 
 export function Orientacoes() {
-  const [activeTab, setActiveTab] = useState("lista");
+  const [selectedTab, setSelectedTab] = useState("listar");
   const [refreshKey, setRefreshKey] = useState(0);
-
-  const handleRefresh = () => {
+  
+  const handleUploadSuccess = () => {
+    // Increment refresh key to trigger a refresh of the list
     setRefreshKey(prev => prev + 1);
+    // Switch to list view after upload
+    setSelectedTab("listar");
   };
-
+  
   return (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="relative">
-          <TabsList className="w-full grid grid-cols-3 gap-1 mb-4">
-            <TabsTrigger value="lista" className="px-2">Orientações</TabsTrigger>
-            <TabsTrigger value="upload" className="px-2">Nova Orientação</TabsTrigger>
-            <TabsTrigger value="tarefas" className="px-2">Tarefas de VM</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="lista" className="pt-2 sm:pt-4">
-          <OrientacoesList refreshKey={refreshKey} />
-        </TabsContent>
-
-        <TabsContent value="upload" className="pt-2 sm:pt-4">
-          <OrientacaoUploader onSuccess={() => {
-            handleRefresh();
-            setActiveTab("lista");
-          }} />
-        </TabsContent>
-
-        <TabsContent value="tarefas" className="pt-2 sm:pt-4">
-          <OrientacaoTarefas />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="listar">Listar Orientações</TabsTrigger>
+        <TabsTrigger value="adicionar">Adicionar Nova</TabsTrigger>
+        <TabsTrigger value="tarefas">Tarefas</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="listar" className="space-y-4">
+        <OrientacoesList key={refreshKey} />
+      </TabsContent>
+      
+      <TabsContent value="adicionar" className="space-y-4">
+        <OrientacaoUploader onSuccess={handleUploadSuccess} />
+      </TabsContent>
+      
+      <TabsContent value="tarefas" className="space-y-4">
+        <OrientacaoTarefas />
+      </TabsContent>
+    </Tabs>
   );
 }

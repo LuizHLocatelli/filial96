@@ -7,15 +7,18 @@ import { ListagemList } from "./listagens/ListagemList";
 export function Listagens() {
   const { listagens, isLoading, isUploading, addListagem, deleteListagem } = useListagens();
 
+  // Update the handler to return a boolean as expected
   const handleUpload = async (file: File, indicator: string | null) => {
     const result = await addListagem(file, indicator);
     return !!result; // Convert to boolean
   };
 
-  const handleDelete = async (id: string) => {
+  // Update the handler to match expected signature
+  const handleDelete = async (id: string, fileUrl: string) => {
     return await deleteListagem(id);
   };
 
+  // View handler
   const handleView = (fileUrl: string, nome: string) => {
     // This function is kept for compatibility, but we now navigate via the ListagemItem component
   };

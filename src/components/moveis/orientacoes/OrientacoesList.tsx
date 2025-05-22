@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -46,38 +47,37 @@ export function OrientacoesList() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Inside the component where data is loaded and processed:
-const fetchOrientacoes = async () => {
-  setIsLoading(true);
-  try {
-    const { data, error } = await supabase
-      .from('moveis_orientacoes')
-      .select(`
-        *,
-        criado_por_nome:profiles(name)
-      `);
+  const fetchOrientacoes = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('moveis_orientacoes')
+        .select(`
+          *,
+          profiles(name)
+        `);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Map the data to include the creator's name
-    const orientacoesWithAuthor = data.map(item => ({
-      ...item,
-      // Handle the case where profiles might not be returned correctly
-      criado_por_nome: item.criado_por_nome?.name || 'Usuário'
-    }));
+      // Map the data to include the creator's name
+      const orientacoesWithAuthor = data.map(item => ({
+        ...item,
+        // Handle the case where profiles might not be returned correctly
+        criado_por_nome: item.profiles?.name || 'Usuário'
+      }));
 
-    setOrientacoes(orientacoesWithAuthor as Orientacao[]);
-  } catch (error: any) {
-    console.error("Erro ao buscar orientações:", error);
-    toast({
-      title: "Erro ao carregar orientações",
-      description: error.message || "Ocorreu um erro desconhecido",
-      variant: "destructive"
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setOrientacoes(orientacoesWithAuthor as Orientacao[]);
+    } catch (error: any) {
+      console.error("Erro ao buscar orientações:", error);
+      toast({
+        title: "Erro ao carregar orientações",
+        description: error.message || "Ocorreu um erro desconhecido",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchOrientacoes();
