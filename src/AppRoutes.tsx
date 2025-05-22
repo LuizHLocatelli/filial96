@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Crediario from "./pages/Crediario";
+import Moveis from "./pages/Moveis";
 import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -11,7 +12,6 @@ import Profile from "./pages/Profile";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
 import PromotionalCards from "./pages/PromotionalCards";
-import VendaO from "./pages/VendaO";
 
 const AppRoutes = () => {
   const { isLoading } = useAuth();
@@ -58,12 +58,12 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      {/* Add Venda O route */}
+      {/* Nova rota para a página Móveis */}
       <Route 
-        path="/venda-o" 
+        path="/moveis" 
         element={
           <ProtectedRoute>
-            <AppLayout><VendaO /></AppLayout>
+            <AppLayout><Moveis /></AppLayout>
           </ProtectedRoute>
         } 
       />

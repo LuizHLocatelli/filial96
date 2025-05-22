@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, CalendarDays, Banknote, Coffee, KanbanSquare, Users, FolderArchive, Store, ChevronRight } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, Coffee, Sofa, Users, FolderArchive, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -28,6 +29,7 @@ export function AppSidebar() {
   // Estado para controlar quais submenus estão abertos
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     crediario: false,
+    moveis: false
   });
 
   // Função para alternar o estado de um submenu
@@ -62,14 +64,65 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
-              {/* Venda O menu item */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathStart === "/venda-o"}>
-                  <Link to="/venda-o" className="flex items-center gap-2">
-                    <Store className="h-5 w-5" />
-                    <span>Venda O</span>
-                  </Link>
-                </SidebarMenuButton>
+              {/* Móveis com submenu colapsável */}
+              <SidebarMenuItem className="relative">
+                <Collapsible 
+                  open={openMenus.moveis} 
+                  onOpenChange={() => toggleSubmenu('moveis')}
+                  className="w-full"
+                >
+                  <div className="flex items-center w-full">
+                    <SidebarMenuButton asChild isActive={pathStart === "/moveis"} className="flex-1">
+                      <Link to="/moveis" className="flex items-center gap-2">
+                        <Sofa className="h-5 w-5" />
+                        <span>Móveis</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    <CollapsibleTrigger asChild>
+                      <button 
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", 
+                          openMenus.moveis && "bg-sidebar-accent text-sidebar-accent-foreground"
+                        )}
+                        aria-label="Toggle Móveis submenu"
+                      >
+                        <ChevronRight className={cn(
+                          "h-4 w-4 transition-transform", 
+                          openMenus.moveis && "transform rotate-90"
+                        )} />
+                      </button>
+                    </CollapsibleTrigger>
+                  </div>
+                  
+                  <CollapsibleContent className="mt-1 ml-4 pl-2 border-l border-sidebar-border">
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={location.pathname === "/moveis" && location.search === "?tab=orientacoes"}>
+                        <Link to="/moveis?tab=orientacoes" className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          <span>Orientações</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={location.pathname === "/moveis" && location.search === "?tab=diretorio"}>
+                        <Link to="/moveis?tab=diretorio" className="flex items-center gap-2">
+                          <FolderArchive className="h-4 w-4" />
+                          <span>Diretório</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={location.pathname === "/moveis" && location.search === "?tab=vendao"}>
+                        <Link to="/moveis?tab=vendao" className="flex items-center gap-2">
+                          <ClipboardCheck className="h-4 w-4" />
+                          <span>Venda O</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </CollapsibleContent>
+                </Collapsible>
               </SidebarMenuItem>
               
               {/* Crediário com submenu colapsável */}
@@ -124,7 +177,7 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                       <SidebarMenuButton asChild isActive={location.pathname === "/crediario" && location.search === "?tab=depositos"}>
                         <Link to="/crediario?tab=depositos" className="flex items-center gap-2">
-                          <Banknote className="h-4 w-4" />
+                          <Calendar className="h-4 w-4" />
                           <span>Depósitos</span>
                         </Link>
                       </SidebarMenuButton>
@@ -135,15 +188,6 @@ export function AppSidebar() {
                         <Link to="/crediario?tab=folgas" className="flex items-center gap-2">
                           <Coffee className="h-4 w-4" />
                           <span>Folgas</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild isActive={location.pathname === "/crediario" && location.search === "?tab=kanban"}>
-                        <Link to="/crediario?tab=kanban" className="flex items-center gap-2">
-                          <KanbanSquare className="h-4 w-4" />
-                          <span>Quadro</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
