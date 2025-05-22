@@ -60,11 +60,20 @@ export function OrientacoesList() {
       if (error) throw error;
 
       // Map the data to include the creator's name
-      const orientacoesWithAuthor = data.map(item => ({
-        ...item,
-        // Handle the case where profiles might not be returned correctly
-        criado_por_nome: item.profiles?.name || 'Usuário'
-      }));
+      const orientacoesWithAuthor = data.map(item => {
+        // Check if profiles data exists and handle potential errors properly
+        let creatorName = 'Usuário';
+        
+        // Only try to access profiles.name if it's not a query error and has the profiles property
+        if (item.profiles && typeof item.profiles === 'object' && 'name' in item.profiles) {
+          creatorName = item.profiles.name || 'Usuário';
+        }
+        
+        return {
+          ...item,
+          criado_por_nome: creatorName
+        };
+      });
 
       setOrientacoes(orientacoesWithAuthor as Orientacao[]);
     } catch (error: any) {

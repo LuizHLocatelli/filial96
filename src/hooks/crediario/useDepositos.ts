@@ -199,7 +199,7 @@ export function useDepositos() {
       }
       
       if (depositoData.id) {
-        // Update existing - convert Date to string
+        // Update existing deposit - convert Date to string
         await updateDeposito(depositoData.id, {
           data: depositoData.data,
           concluido: depositoData.concluido,
@@ -207,7 +207,7 @@ export function useDepositos() {
           comprovante: comprovante_url || undefined
         });
       } else {
-        // Create new
+        // Create new deposit
         await addDeposito({
           data: depositoData.data,
           concluido: depositoData.concluido,
