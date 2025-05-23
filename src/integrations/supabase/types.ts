@@ -718,6 +718,48 @@ export type Database = {
         }
         Relationships: []
       }
+      moveis_folgas: {
+        Row: {
+          consultor_id: string
+          created_at: string | null
+          created_by: string | null
+          data: string
+          id: string
+          motivo: string | null
+        }
+        Insert: {
+          consultor_id: string
+          created_at?: string | null
+          created_by?: string | null
+          data: string
+          id?: string
+          motivo?: string | null
+        }
+        Update: {
+          consultor_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          data?: string
+          id?: string
+          motivo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_folgas_consultor_id_fkey"
+            columns: ["consultor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moveis_folgas_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moveis_orientacoes: {
         Row: {
           arquivo_nome: string

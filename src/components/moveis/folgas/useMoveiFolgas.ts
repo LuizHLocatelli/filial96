@@ -6,23 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Consultor, Folga, FolgaFormValues } from "./types";
 import { useAuth } from "@/contexts/auth";
 
-// Type definitions for the database rows
-interface MoveiFolgaRow {
-  id: string;
-  data: string;
-  consultor_id: string;
-  motivo: string | null;
-  created_at: string;
-  created_by: string | null;
-}
-
-interface MoveiFolgaInsert {
-  data: string;
-  consultor_id: string;
-  motivo?: string | null;
-  created_by?: string | null;
-}
-
 export function useMoveiFolgas() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -85,10 +68,9 @@ export function useMoveiFolgas() {
     async function fetchFolgas() {
       setIsLoadingFolgas(true);
       try {
-        // Using type assertion to bypass TypeScript errors until types are regenerated
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from("moveis_folgas")
-          .select("*") as { data: MoveiFolgaRow[] | null; error: any };
+          .select("*");
           
         if (error) {
           console.error("Error fetching folgas:", error);
@@ -186,18 +168,16 @@ export function useMoveiFolgas() {
       // Format date for Supabase (YYYY-MM-DD format)
       const formattedDate = selectedDate.toISOString().split('T')[0];
       
-      const insertData: MoveiFolgaInsert = {
-        data: formattedDate,
-        consultor_id: selectedConsultor,
-        motivo: motivo || null,
-        created_by: user?.id || null,
-      };
-      
-      // Insert folga into Supabase using type assertion
-      const { data, error } = await (supabase as any)
+      // Insert folga into Supabase
+      const { data, error } = await supabase
         .from("moveis_folgas")
-        .insert(insertData)
-        .select() as { data: MoveiFolgaRow[] | null; error: any };
+        .insert({
+          data: formattedDate,
+          consultor_id: selectedConsultor,
+          motivo: motivo || null,
+          created_by: user?.id || null,
+        })
+        .select();
         
       if (error) {
         console.error("Error adding folga:", error);
@@ -244,10 +224,10 @@ export function useMoveiFolgas() {
   
   const handleDeleteFolga = async (folgaId: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from("moveis_folgas")
         .delete()
-        .eq("id", folgaId) as { error: any };
+        .eq("id", folgaId);
         
       if (error) {
         console.error("Error deleting folga:", error);
