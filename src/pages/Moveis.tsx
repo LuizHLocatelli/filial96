@@ -5,12 +5,14 @@ import { useSearchParams } from "react-router-dom";
 import { Orientacoes } from "@/components/moveis/orientacoes/Orientacoes";
 import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
+import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { 
   FileText, 
   FolderArchive, 
   ShoppingCart,
   Sofa,
-  TrendingUp
+  TrendingUp,
+  Calendar
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -43,6 +45,13 @@ export default function Moveis() {
       icon: ShoppingCart,
       description: "Vendas de outras filiais",
       component: <VendaO />
+    },
+    {
+      value: "folgas",
+      label: "Folgas",
+      icon: Calendar,
+      description: "Controle de folgas",
+      component: <Folgas />
     }
   ];
 
@@ -76,7 +85,7 @@ export default function Moveis() {
         </div>
 
         {/* Navigation Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4">
           {tabsConfig.map((tab) => (
             <Card 
               key={tab.value}
