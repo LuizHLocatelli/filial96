@@ -12,6 +12,7 @@ import { Download } from 'lucide-react';
 import { DirectoryFile } from '../types';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { PDFViewer } from '@/components/ui/pdf-viewer';
+import { useState } from 'react';
 
 interface FileViewerProps {
   open: boolean;
@@ -20,13 +21,23 @@ interface FileViewerProps {
 }
 
 export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
+  const [pdfError, setPdfError] = useState(false);
+  
   if (!file) return null;
 
-  const isPdf = file.file_type.includes('pdf');
-  const isImage = file.file_type.includes('image');
+  const isPdf = file.file_type?.includes('pdf') || file.name?.toLowerCase().endsWith('.pdf');
+  const isImage = file.file_type?.includes('image') || 
+                  /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(file.name || '');
+  
+  const handleDialogChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setPdfError(false); // Reset error state when closing
+    }
+    onOpenChange(newOpen);
+  };
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{file.name}</DialogTitle>
@@ -39,7 +50,10 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
         <div className="py-4">
           {isPdf && (
             <div className="w-full">
-              <PDFViewer url={file.file_url} className="min-h-[500px]" />
+              <PDFViewer 
+                url={file.file_url} 
+                className="min-h-[500px]" 
+              />
             </div>
           )}
           

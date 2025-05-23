@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PDFViewer } from "@/components/ui/pdf-viewer";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Download } from "lucide-react";
+import { useState } from "react";
 
 interface PdfViewerProps {
   pdfUrl: string;
@@ -12,9 +13,38 @@ interface PdfViewerProps {
 
 export function PdfViewer({ pdfUrl, pdfName }: PdfViewerProps) {
   const isMobile = useIsMobile();
+  const [hasError, setHasError] = useState(false);
   
   const openPdfInNewWindow = () => {
     window.open(pdfUrl, '_blank');
+  };
+  
+  const handleDownload = () => {
+    // Create fetch request to get the file as blob
+    fetch(pdfUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = pdfName || "documento.pdf";
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Download failed:', error);
+        setHasError(true);
+      });
   };
 
   return (
@@ -26,15 +56,26 @@ export function PdfViewer({ pdfUrl, pdfName }: PdfViewerProps) {
             {pdfName || "Visualize o conteúdo da listagem selecionada"}
           </CardDescription>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={openPdfInNewWindow}
-          className="whitespace-nowrap"
-        >
-          <ExternalLink className="h-4 w-4 mr-2" />
-          Abrir externamente
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={openPdfInNewWindow}
+            className="whitespace-nowrap"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Abrir externamente
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDownload}
+            className="whitespace-nowrap"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Baixar
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-4">
         <div className="border rounded-lg overflow-hidden bg-muted/10">
