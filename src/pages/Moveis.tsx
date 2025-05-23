@@ -1,7 +1,6 @@
 
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Orientacoes } from "@/components/moveis/orientacoes/Orientacoes";
 import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
@@ -47,19 +46,21 @@ export default function Moveis() {
     }
   ];
 
+  const currentTab = tabsConfig.find(tab => tab.value === activeTab) || tabsConfig[0];
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 max-w-full px-2 sm:px-4">
       {/* Header */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Sofa className="h-6 w-6 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                <Sofa className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Móveis</h1>
-                <p className="text-muted-foreground text-sm sm:text-base">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Móveis</h1>
+                <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
                   Gestão completa do setor de móveis
                 </p>
               </div>
@@ -67,15 +68,15 @@ export default function Moveis() {
           </div>
           
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
               <TrendingUp className="h-3 w-3 mr-1" />
               Ativo
             </Badge>
           </div>
         </div>
 
-        {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {tabsConfig.map((tab) => (
             <Card 
               key={tab.value}
@@ -86,18 +87,18 @@ export default function Moveis() {
               }`}
               onClick={() => handleTabChange(tab.value)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${
+              <CardContent className="p-2 sm:p-4">
+                <div className="flex flex-col items-center gap-1 sm:gap-3 text-center">
+                  <div className={`p-1.5 sm:p-2 rounded-lg ${
                     activeTab === tab.value 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-muted'
                   }`}>
-                    <tab.icon className="h-4 w-4" />
+                    <tab.icon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-sm truncate">{tab.label}</h3>
-                    <p className="text-xs text-muted-foreground truncate">
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <h3 className="font-medium text-xs sm:text-sm truncate">{tab.label}</h3>
+                    <p className="text-xs text-muted-foreground hidden sm:block truncate">
                       {tab.description}
                     </p>
                   </div>
@@ -108,28 +109,10 @@ export default function Moveis() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:grid-cols-3">
-          {tabsConfig.map((tab) => (
-            <TabsTrigger 
-              key={tab.value} 
-              value={tab.value}
-              className="flex items-center gap-2 text-xs sm:text-sm"
-            >
-              <tab.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">{tab.label.slice(0, 6)}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        {tabsConfig.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="space-y-4">
-            {tab.component}
-          </TabsContent>
-        ))}
-      </Tabs>
+      {/* Current Tab Content */}
+      <div className="space-y-4">
+        {currentTab.component}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Listagens } from "@/components/crediario/Listagens";
@@ -65,19 +64,21 @@ export default function Crediario() {
     }
   ];
 
+  const currentTab = tabsConfig.find(tab => tab.value === activeTab) || tabsConfig[0];
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 max-w-full px-2 sm:px-4">
       {/* Header */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <CreditCard className="h-6 w-6 text-blue-600" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-blue-500/10 rounded-lg">
+                <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Crediário</h1>
-                <p className="text-muted-foreground text-sm sm:text-base">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Crediário</h1>
+                <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
                   Sistema completo de gestão do crediário
                 </p>
               </div>
@@ -85,15 +86,15 @@ export default function Crediario() {
           </div>
           
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
               <TrendingUp className="h-3 w-3 mr-1" />
               Ativo
             </Badge>
           </div>
         </div>
 
-        {/* Quick Access Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
           {tabsConfig.map((tab) => (
             <Card 
               key={tab.value}
@@ -104,18 +105,18 @@ export default function Crediario() {
               }`}
               onClick={() => handleTabChange(tab.value)}
             >
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <div className={`p-2 rounded-lg ${
+              <CardContent className="p-2 sm:p-3 md:p-4">
+                <div className="flex flex-col items-center gap-1 sm:gap-2 text-center">
+                  <div className={`p-1.5 sm:p-2 rounded-lg ${
                     activeTab === tab.value 
                       ? 'bg-blue-500 text-white' 
                       : 'bg-muted'
                   }`}>
-                    <tab.icon className="h-4 w-4" />
+                    <tab.icon className="h-3 w-3 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="font-medium text-xs sm:text-sm">{tab.label}</h3>
-                    <p className="text-xs text-muted-foreground hidden sm:block">
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <h3 className="font-medium text-xs sm:text-sm truncate">{tab.label}</h3>
+                    <p className="text-xs text-muted-foreground hidden sm:block truncate">
                       {tab.description}
                     </p>
                   </div>
@@ -126,29 +127,10 @@ export default function Crediario() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <div className="overflow-x-auto">
-          <TabsList className="w-full sm:w-auto grid grid-cols-5 sm:inline-flex">
-            {tabsConfig.map((tab) => (
-              <TabsTrigger 
-                key={tab.value} 
-                value={tab.value}
-                className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm min-w-0"
-              >
-                <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
-                <span className="truncate">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
-
-        {tabsConfig.map((tab) => (
-          <TabsContent key={tab.value} value={tab.value} className="space-y-4">
-            {tab.component}
-          </TabsContent>
-        ))}
-      </Tabs>
+      {/* Current Tab Content */}
+      <div className="space-y-4">
+        {currentTab.component}
+      </div>
     </div>
   );
 }
