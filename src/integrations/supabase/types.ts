@@ -796,6 +796,107 @@ export type Database = {
         }
         Relationships: []
       }
+      moveis_produto_foco: {
+        Row: {
+          argumentos_venda: string[] | null
+          ativo: boolean
+          categoria: string
+          codigo_produto: string
+          created_at: string
+          created_by: string
+          id: string
+          informacoes_adicionais: string | null
+          meta_vendas: number | null
+          motivo_foco: string | null
+          nome_produto: string
+          periodo_fim: string
+          periodo_inicio: string
+          preco_de: number
+          preco_por: number
+          updated_at: string
+        }
+        Insert: {
+          argumentos_venda?: string[] | null
+          ativo?: boolean
+          categoria: string
+          codigo_produto: string
+          created_at?: string
+          created_by: string
+          id?: string
+          informacoes_adicionais?: string | null
+          meta_vendas?: number | null
+          motivo_foco?: string | null
+          nome_produto: string
+          periodo_fim: string
+          periodo_inicio: string
+          preco_de: number
+          preco_por: number
+          updated_at?: string
+        }
+        Update: {
+          argumentos_venda?: string[] | null
+          ativo?: boolean
+          categoria?: string
+          codigo_produto?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          informacoes_adicionais?: string | null
+          meta_vendas?: number | null
+          motivo_foco?: string | null
+          nome_produto?: string
+          periodo_fim?: string
+          periodo_inicio?: string
+          preco_de?: number
+          preco_por?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      moveis_produto_foco_imagens: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          imagem_nome: string
+          imagem_tamanho: number | null
+          imagem_tipo: string
+          imagem_url: string
+          ordem: number
+          produto_foco_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          imagem_nome: string
+          imagem_tamanho?: number | null
+          imagem_tipo: string
+          imagem_url: string
+          ordem?: number
+          produto_foco_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          imagem_nome?: string
+          imagem_tamanho?: number | null
+          imagem_tipo?: string
+          imagem_url?: string
+          ordem?: number
+          produto_foco_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_produto_foco_imagens_produto_foco_id_fkey"
+            columns: ["produto_foco_id"]
+            isOneToOne: false
+            referencedRelation: "moveis_produto_foco"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moveis_tarefas: {
         Row: {
           criado_por: string

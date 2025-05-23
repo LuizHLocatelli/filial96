@@ -6,13 +6,15 @@ import { Orientacoes } from "@/components/moveis/orientacoes/Orientacoes";
 import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
+import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
 import { 
   FileText, 
   FolderArchive, 
   ShoppingCart,
   Sofa,
   TrendingUp,
-  Calendar
+  Calendar,
+  Star
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -45,6 +47,13 @@ export default function Moveis() {
       icon: ShoppingCart,
       description: "Vendas de outras filiais",
       component: <VendaO />
+    },
+    {
+      value: "produto-foco",
+      label: "Produto Foco",
+      icon: Star,
+      description: "Produtos prioritários",
+      component: <ProdutoFoco />
     },
     {
       value: "folgas",
@@ -85,7 +94,7 @@ export default function Moveis() {
         </div>
 
         {/* Navigation Cards */}
-        <div className="grid grid-cols-4 gap-2 sm:gap-4">
+        <div className="grid grid-cols-5 gap-2 sm:gap-4">
           {tabsConfig.map((tab) => (
             <Card 
               key={tab.value}

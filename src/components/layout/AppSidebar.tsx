@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +13,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, Coffee, Sofa, Users, FolderArchive, ChevronRight } from "lucide-react";
+import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, Coffee, Sofa, Users, FolderArchive, ChevronRight, Star } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -118,6 +117,24 @@ export function AppSidebar() {
                         <Link to="/moveis?tab=vendao" className="flex items-center gap-2">
                           <ClipboardCheck className="h-4 w-4" />
                           <span>Venda O</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={location.pathname === "/moveis" && location.search === "?tab=produto-foco"}>
+                        <Link to="/moveis?tab=produto-foco" className="flex items-center gap-2">
+                          <Star className="h-4 w-4" />
+                          <span>Produto Foco</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild isActive={location.pathname === "/moveis" && location.search === "?tab=folgas"}>
+                        <Link to="/moveis?tab=folgas" className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Folgas</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
