@@ -18,8 +18,14 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
     try {
       console.log('Fetching files from table:', tableName, 'with categoryId:', categoryId);
       
-      // Create the base query based on table name
-      let query = supabase.from(tableName).select('*');
+      let query;
+      
+      // Using explicit table names to avoid Supabase client type errors
+      if (tableName === 'moveis_arquivos') {
+        query = supabase.from('moveis_arquivos').select('*');
+      } else {
+        query = supabase.from('crediario_directory_files').select('*');
+      }
       
       // Apply category filter if provided
       if (categoryId) {
@@ -77,7 +83,16 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
         fileData.category_id = null;
       }
       
-      const { error } = await supabase.from(tableName).insert([fileData]);
+      let query;
+      
+      // Using explicit table names to avoid Supabase client type errors
+      if (tableName === 'moveis_arquivos') {
+        query = supabase.from('moveis_arquivos');
+      } else {
+        query = supabase.from('crediario_directory_files');
+      }
+      
+      const { error } = await query.insert([fileData]);
 
       if (error) {
         console.error('Error adding file:', error);
@@ -117,7 +132,16 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
         updates.category_id = null;
       }
       
-      const { error } = await supabase.from(tableName).update({
+      let query;
+      
+      // Using explicit table names to avoid Supabase client type errors
+      if (tableName === 'moveis_arquivos') {
+        query = supabase.from('moveis_arquivos');
+      } else {
+        query = supabase.from('crediario_directory_files');
+      }
+      
+      const { error } = await query.update({
         name: updates.name,
         description: updates.description,
         category_id: updates.category_id,
@@ -150,7 +174,16 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
     try {
       console.log('Deleting file:', id);
       
-      const { error } = await supabase.from(tableName).delete().eq('id', id);
+      let query;
+      
+      // Using explicit table names to avoid Supabase client type errors
+      if (tableName === 'moveis_arquivos') {
+        query = supabase.from('moveis_arquivos');
+      } else {
+        query = supabase.from('crediario_directory_files');
+      }
+      
+      const { error } = await query.delete().eq('id', id);
 
       if (error) {
         console.error('Error deleting file:', error);
