@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -60,7 +59,7 @@ export function useProdutoFoco() {
     }
   };
 
-  const createProduto = async (dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
+  const createProduto = async (dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>, imagens?: File[]) => {
     if (!user) return null;
 
     try {
@@ -74,6 +73,13 @@ export function useProdutoFoco() {
         .single();
 
       if (error) throw error;
+
+      // Upload das imagens se fornecidas
+      if (imagens && imagens.length > 0) {
+        for (let i = 0; i < imagens.length; i++) {
+          await uploadImagem(data.id, imagens[i], i);
+        }
+      }
 
       toast.success('Produto foco criado com sucesso!');
       await fetchProdutos();
@@ -190,6 +196,30 @@ export function useProdutoFoco() {
     }
   };
 
+  const registrarVenda = async (dadosVenda: any) => {
+    if (!user) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('moveis_produto_foco_vendas')
+        .insert({
+          ...dadosVenda,
+          created_by: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success('Venda registrada com sucesso!');
+      return data;
+    } catch (error) {
+      console.error('Erro ao registrar venda:', error);
+      toast.error('Erro ao registrar venda');
+      return null;
+    }
+  };
+
   useEffect(() => {
     fetchProdutos();
   }, []);
@@ -203,6 +233,7 @@ export function useProdutoFoco() {
     deleteProduto,
     uploadImagem,
     deleteImagem,
+    registrarVenda,
     refetch: fetchProdutos
   };
 }

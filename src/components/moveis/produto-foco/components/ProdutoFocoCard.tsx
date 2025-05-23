@@ -10,7 +10,8 @@ import {
   Eye,
   Target,
   TrendingUp,
-  ImageIcon
+  ImageIcon,
+  ShoppingCart
 } from 'lucide-react';
 import { ProdutoFocoWithImages } from '../types';
 import { format } from 'date-fns';
@@ -29,6 +30,7 @@ interface ProdutoFocoCardProps {
   onEdit: (produto: ProdutoFocoWithImages) => void;
   onDelete: (id: string) => void;
   onViewDetails: (produto: ProdutoFocoWithImages) => void;
+  onRegistrarVenda?: (produto: ProdutoFocoWithImages) => void;
 }
 
 export function ProdutoFocoCard({ 
@@ -36,7 +38,8 @@ export function ProdutoFocoCard({
   isActive = false, 
   onEdit, 
   onDelete, 
-  onViewDetails 
+  onViewDetails,
+  onRegistrarVenda
 }: ProdutoFocoCardProps) {
   const desconto = ((produto.preco_de - produto.preco_por) / produto.preco_de) * 100;
 
@@ -61,6 +64,11 @@ export function ProdutoFocoCard({
             </div>
           </div>
           <div className="flex gap-1">
+            {isActive && onRegistrarVenda && (
+              <Button variant="ghost" size="sm" onClick={() => onRegistrarVenda(produto)} title="Registrar Venda">
+                <ShoppingCart className="h-4 w-4" />
+              </Button>
+            )}
             <Button variant="ghost" size="sm" onClick={() => onViewDetails(produto)}>
               <Eye className="h-4 w-4" />
             </Button>

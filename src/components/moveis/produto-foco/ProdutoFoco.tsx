@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RegistroVendaDialog } from './components/RegistroVendaDialog';
 
 export function ProdutoFoco() {
   const {
@@ -40,16 +40,18 @@ export function ProdutoFoco() {
     updateProduto,
     deleteProduto,
     uploadImagem,
-    deleteImagem
+    deleteImagem,
+    registrarVenda
   } = useProdutoFoco();
 
   const [showForm, setShowForm] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoFocoWithImages | null>(null);
   const [viewingProduto, setViewingProduto] = useState<ProdutoFocoWithImages | null>(null);
   const [deletingProduto, setDeletingProduto] = useState<string | null>(null);
+  const [vendaProduto, setVendaProduto] = useState<ProdutoFocoWithImages | null>(null);
 
-  const handleCreateProduto = async (dados: any) => {
-    const success = await createProduto(dados);
+  const handleCreateProduto = async (dados: any, imagens?: File[]) => {
+    const success = await createProduto(dados, imagens);
     if (success) {
       setShowForm(false);
     }
@@ -90,6 +92,11 @@ export function ProdutoFoco() {
     setEditingProduto(null);
   };
 
+  const handleRegistrarVenda = async (dadosVenda: any) => {
+    await registrarVenda(dadosVenda);
+    setVendaProduto(null);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -127,6 +134,7 @@ export function ProdutoFoco() {
             onEdit={handleEditProduto}
             onDelete={setDeletingProduto}
             onViewDetails={setViewingProduto}
+            onRegistrarVenda={setVendaProduto}
           />
         </div>
       )}
@@ -229,6 +237,15 @@ export function ProdutoFoco() {
         isOpen={!!viewingProduto}
         onClose={() => setViewingProduto(null)}
       />
+
+      {vendaProduto && (
+        <RegistroVendaDialog
+          isOpen={!!vendaProduto}
+          onClose={() => setVendaProduto(null)}
+          produto={vendaProduto}
+          onRegistrarVenda={handleRegistrarVenda}
+        />
+      )}
 
       <AlertDialog open={!!deletingProduto} onOpenChange={() => setDeletingProduto(null)}>
         <AlertDialogContent>
