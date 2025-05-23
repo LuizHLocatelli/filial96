@@ -8,7 +8,7 @@ import { Button } from './button';
 // Configuração do worker do PDF.js - essencial para o funcionamento
 const pdfjsVersion = pdfjsLib.version;
 if (typeof window !== 'undefined') {
-  const workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsVersion}/build/pdf.worker.min.js`;
+  const workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/pdf.worker.min.js`;
   pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
   console.log('PDF.js worker configurado:', workerSrc);
 }
@@ -24,6 +24,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
   const [error, setError] = useState<string | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [loadAttempts, setLoadAttempts] = useState(0);
+  const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
   
   // Função para abrir o PDF em nova janela se a renderização falhar
   const openInNewWindow = () => {
@@ -33,6 +34,34 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
   const clearCanvases = () => {
     if (containerRef.current) {
       containerRef.current.innerHTML = '';
+    }
+  };
+
+  // Função para buscar o PDF como array de bytes primeiro
+  // Isso evita problemas de CORS com o Supabase
+  const fetchPdfBytes = async (pdfUrl: string): Promise<ArrayBuffer | null> => {
+    try {
+      console.log('Fazendo fetch direto do PDF:', pdfUrl);
+      
+      const response = await fetch(pdfUrl, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+          'Accept': 'application/pdf,*/*',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao baixar PDF: ${response.status} ${response.statusText}`);
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      console.log('PDF baixado com sucesso, tamanho:', arrayBuffer.byteLength);
+      return arrayBuffer;
+    } catch (err) {
+      console.error('Erro ao baixar PDF como bytes:', err);
+      return null;
     }
   };
 
@@ -46,43 +75,53 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     try {
       console.log('Iniciando carregamento do PDF:', pdfUrl);
       
-      // Configuração robusta para o carregamento do PDF com headers CORS adequados
-      const loadingTask = pdfjsLib.getDocument({
-        url: pdfUrl,
-        cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsVersion}/cmaps/`,
-        cMapPacked: true,
-        enableXfa: true,
-        isEvalSupported: false,
-        disableAutoFetch: false,
-        disableStream: false,
-        rangeChunkSize: 65536, // 64KB chunks
-        httpHeaders: {
-          'Accept': 'application/pdf,*/*',
-          'Cache-Control': 'no-cache'
-        },
-        withCredentials: false, // Importante para CORS com Supabase
-        verbosity: 0 // Reduzir logs de debug
-      });
+      // Tentar buscar o PDF como bytes primeiro
+      let pdfData = pdfBytes;
+      
+      if (!pdfData) {
+        pdfData = await fetchPdfBytes(pdfUrl);
+        if (pdfData) {
+          setPdfBytes(pdfData);
+        }
+      }
+      
+      // Configuração para carregar o PDF
+      const loadingTask = pdfData 
+        ? pdfjsLib.getDocument({ data: pdfData }) 
+        : pdfjsLib.getDocument({
+            url: pdfUrl,
+            cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/cmaps/`,
+            cMapPacked: true,
+            enableXfa: true,
+            isEvalSupported: false,
+            disableAutoFetch: false,
+            disableStream: false,
+            rangeChunkSize: 65536, // 64KB chunks
+            withCredentials: false
+          });
 
       // Adicionar manipulador de progresso
-      loadingTask.onProgress = (progress) => {
-        if (progress.total > 0) {
-          const percentage = Math.round(progress.loaded / progress.total * 100);
-          console.log(`Progresso de carregamento: ${percentage}%`);
-        }
-      };
+      if ('onProgress' in loadingTask) {
+        loadingTask.onProgress = (progress: any) => {
+          if (progress && progress.total > 0) {
+            const percentage = Math.round(progress.loaded / progress.total * 100);
+            console.log(`Progresso de carregamento: ${percentage}%`);
+          }
+        };
+      }
       
+      // Usar Promise.race para ter um timeout
       const pdf = await Promise.race([
         loadingTask.promise,
         new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout ao carregar PDF')), 30000) // 30 segundos timeout
+          setTimeout(() => reject(new Error('Timeout ao carregar PDF')), 20000) // 20 segundos timeout
         )
       ]) as pdfjsLib.PDFDocumentProxy;
 
       console.log('PDF carregado com sucesso. Páginas:', pdf.numPages);
       setNumPages(pdf.numPages);
 
-      // Renderizar cada página com melhor controle de erro
+      // Renderizar cada página
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
@@ -94,7 +133,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
           const scale = Math.min(containerWidth / viewport.width, 2);
           const scaledViewport = page.getViewport({ scale });
           
-          // Criar canvas com melhor configuração
+          // Criar canvas
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d', { alpha: false });
           
@@ -107,12 +146,12 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
           canvas.width = scaledViewport.width;
           canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-full h-auto block mx-auto bg-white';
           
-          // Adicionar ao container antes de renderizar
+          // Adicionar ao container
           if (containerRef.current) {
             containerRef.current.appendChild(canvas);
           }
           
-          // Renderizar página com configuração otimizada
+          // Renderizar página
           const renderContext = {
             canvasContext: context,
             viewport: scaledViewport,
@@ -131,11 +170,17 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     } catch (err: any) {
       console.error('Erro ao carregar PDF:', err);
       
-      // Se tiver tentado menos que 2 vezes, tente novamente
+      // Se tiver tentado menos que 2 vezes, tente novamente com outra abordagem
       if (loadAttempts < 2) {
-        console.log(`Tentativa ${loadAttempts + 1} falhou, tentando novamente...`);
+        console.log(`Tentativa ${loadAttempts + 1} falhou, tentando novamente com abordagem diferente...`);
         setLoadAttempts(prev => prev + 1);
-        setTimeout(() => renderPDF(pdfUrl), 2000); // Espera 2 segundos antes de tentar novamente
+        
+        // Limpar os bytes anteriores na próxima tentativa
+        if (pdfBytes && loadAttempts === 0) {
+          setPdfBytes(null);
+        }
+        
+        setTimeout(() => renderPDF(pdfUrl), 1000);
         return;
       }
       
@@ -167,6 +212,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     if (url) {
       console.log('URL do PDF mudou, iniciando carregamento:', url);
       setLoadAttempts(0);
+      setPdfBytes(null);
       renderPDF(url);
       
       return () => {
@@ -178,7 +224,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
 
   if (loading) {
     return (
-      <div className={cn("flex items-center justify-center p-8 min-h-[400px]", className)}>
+      <div className={cn("flex items-center justify-center p-8 min-h-[400px] bg-muted/20 rounded-lg", className)}>
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Carregando PDF...</p>
@@ -206,7 +252,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
 
   if (error) {
     return (
-      <div className={cn("flex items-center justify-center p-8 min-h-[400px]", className)}>
+      <div className={cn("flex items-center justify-center p-8 min-h-[400px] bg-muted/10 rounded-lg", className)}>
         <div className="flex flex-col items-center gap-3 text-center max-w-md">
           <AlertCircle className="h-8 w-8 text-destructive" />
           <div>
