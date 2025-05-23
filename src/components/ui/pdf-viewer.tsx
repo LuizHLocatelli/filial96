@@ -4,12 +4,9 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Configure o worker do PDF.js de forma mais robusta
+// Configure o worker do PDF.js
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url
-  ).toString();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 }
 
 interface PDFViewerProps {
@@ -37,14 +34,17 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     clearCanvases();
 
     try {
-      console.log('Iniciando carregamento do PDF:', pdfUrl);
+      console.log('Carregando PDF:', pdfUrl);
       
-      // Configurações do PDF.js
+      // Tentativa de carregamento mais robusta
       const loadingTask = pdfjsLib.getDocument({
         url: pdfUrl,
-        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/cmaps/',
+        cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/cmaps/`,
         cMapPacked: true,
         enableXfa: true,
+        isEvalSupported: false,
+        disableAutoFetch: false,
+        disableStream: false,
       });
       
       const pdf = await loadingTask.promise;
@@ -52,19 +52,19 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       
       setNumPages(pdf.numPages);
 
-      // Renderiza cada página
+      // Renderizar cada página
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
           console.log(`Renderizando página ${pageNum}`);
           
-          // Calcula o viewport com escala responsiva
-          const desiredWidth = containerRef.current?.clientWidth || 800;
+          // Calcular escala baseada na largura do container
+          const containerWidth = containerRef.current?.clientWidth || 800;
           const viewport = page.getViewport({ scale: 1 });
-          const scale = Math.min(desiredWidth / viewport.width, 2); // Máximo scale de 2
+          const scale = Math.min(containerWidth / viewport.width, 2.5);
           const scaledViewport = page.getViewport({ scale });
           
-          // Cria o canvas
+          // Criar canvas
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
           
@@ -72,20 +72,18 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
           
           canvas.height = scaledViewport.height;
           canvas.width = scaledViewport.width;
-          
-          // Adiciona classes CSS para estilização
           canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-full h-auto block mx-auto';
           
-          // Renderiza a página no canvas
+          // Renderizar página
           const renderContext = {
             canvasContext: context,
             viewport: scaledViewport,
           };
           
           await page.render(renderContext).promise;
-          console.log(`Página ${pageNum} renderizada com sucesso`);
+          console.log(`Página ${pageNum} renderizada`);
           
-          // Adiciona o canvas ao container
+          // Adicionar ao container
           if (containerRef.current) {
             containerRef.current.appendChild(canvas);
           }
@@ -94,9 +92,8 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         }
       }
       
-      console.log('Todas as páginas foram renderizadas');
     } catch (err: any) {
-      console.error('Erro detalhado ao carregar PDF:', err);
+      console.error('Erro ao carregar PDF:', err);
       
       let errorMessage = 'Não foi possível carregar o PDF.';
       
@@ -105,9 +102,11 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       } else if (err.name === 'MissingPDFException') {
         errorMessage = 'Arquivo PDF não encontrado.';
       } else if (err.name === 'UnexpectedResponseException') {
-        errorMessage = 'Erro de rede ao carregar o PDF. Verifique a conexão.';
+        errorMessage = 'Erro de rede ao carregar o PDF.';
       } else if (err.message?.includes('CORS')) {
         errorMessage = 'Erro de permissão (CORS) ao acessar o PDF.';
+      } else if (err.message?.includes('worker')) {
+        errorMessage = 'Erro ao carregar o worker do PDF.js.';
       }
       
       setError(errorMessage);
@@ -129,6 +128,9 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Carregando PDF...</p>
+          <p className="text-xs text-muted-foreground text-center max-w-md">
+            Se o carregamento demorar muito, verifique se o link do PDF está correto.
+          </p>
         </div>
       </div>
     );
@@ -142,7 +144,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
           <div>
             <p className="text-sm font-medium text-destructive mb-2">Erro ao carregar PDF</p>
             <p className="text-xs text-muted-foreground">{error}</p>
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-2 break-all">
               URL: {url}
             </p>
           </div>

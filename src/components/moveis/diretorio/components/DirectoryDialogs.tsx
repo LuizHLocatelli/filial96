@@ -1,20 +1,22 @@
 
-import { CategoryDialog } from '@/components/crediario/diretorio/components/CategoryDialog';
-import { FileDialog } from '@/components/crediario/diretorio/components/FileDialog';
-import { DeleteFileDialog } from '@/components/crediario/diretorio/components/DeleteFileDialog';
-import { FileViewer } from '@/components/crediario/diretorio/components/FileViewer';
-import { DirectoryCategory } from '@/components/crediario/diretorio/types';
+import { CategoryDialog } from './CategoryDialog';
+import { FileDialog } from './FileDialog';
+import { DeleteFileDialog } from './DeleteFileDialog';
+import { FileViewer } from './FileViewer';
+import { DirectoryCategory, DirectoryFile } from '../types';
 
 interface DirectoryDialogsProps {
+  // Category dialogs
   categoryDialogOpen: boolean;
   setCategoryDialogOpen: (open: boolean) => void;
-  onAddCategory: (name: string, description: string) => Promise<void>;
+  onAddCategory: (name: string, description: string) => void;
   
   editCategoryDialogOpen: boolean;
   setEditCategoryDialogOpen: (open: boolean) => void;
-  onUpdateCategory: (name: string, description: string) => Promise<void>;
+  onUpdateCategory: (name: string, description: string) => void;
   selectedCategory: DirectoryCategory | null;
   
+  // File dialogs
   fileDialogOpen: boolean;
   setFileDialogOpen: (open: boolean) => void;
   onUpdateFile: (updates: {
@@ -22,16 +24,17 @@ interface DirectoryDialogsProps {
     description: string;
     category_id: string | null;
     is_featured: boolean;
-  }) => Promise<void>;
+  }) => void;
   
   deleteDialogOpen: boolean;
   setDeleteDialogOpen: (open: boolean) => void;
-  onDeleteFile: () => Promise<void>;
+  onDeleteFile: () => void;
   
+  // File viewer
   viewerOpen: boolean;
   setViewerOpen: (open: boolean) => void;
   
-  selectedFile: any | null;
+  selectedFile: DirectoryFile | null;
   categories: DirectoryCategory[];
 }
 
@@ -61,7 +64,7 @@ export function DirectoryDialogs({
 }: DirectoryDialogsProps) {
   return (
     <>
-      {/* Diálogos de categorias */}
+      {/* Category Dialogs */}
       <CategoryDialog
         open={categoryDialogOpen}
         onOpenChange={setCategoryDialogOpen}
@@ -77,7 +80,7 @@ export function DirectoryDialogs({
         title="Editar Categoria"
       />
 
-      {/* Diálogos de arquivos */}
+      {/* File Dialogs */}
       {selectedFile && (
         <FileDialog
           open={fileDialogOpen}
