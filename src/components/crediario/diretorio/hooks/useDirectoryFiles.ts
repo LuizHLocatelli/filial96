@@ -16,30 +16,45 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
   const fetchFiles = async () => {
     setIsLoading(true);
     try {
-      let query;
+      console.log('Fetching files from table:', tableName, 'with categoryId:', categoryId);
       
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
+      // Create the base query based on table name
+      let query = supabase.from(tableName).select('*');
       
-      // Apply filters and ordering
-      query = query.order('created_at', { ascending: false });
-
+      // Apply category filter if provided
       if (categoryId) {
         query = query.eq('category_id', categoryId);
       }
+      
+      // Apply ordering
+      query = query.order('created_at', { ascending: false });
 
+      console.log('Executing query...');
       const { data, error } = await query;
 
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
 
-      // Use type assertion to properly convert data
-      setFiles((data || []) as unknown as DirectoryFile[]);
+      console.log('Files fetched successfully:', data?.length || 0);
+      
+      // Convert data to DirectoryFile format
+      const convertedFiles: DirectoryFile[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name || '',
+        description: item.description || '',
+        file_url: item.file_url || '',
+        file_type: item.file_type || '',
+        file_size: item.file_size || null,
+        category_id: item.category_id || null,
+        is_featured: item.is_featured || false,
+        created_at: item.created_at || new Date().toISOString(),
+        updated_at: item.updated_at || new Date().toISOString(),
+        created_by: item.created_by || null
+      }));
+      
+      setFiles(convertedFiles);
     } catch (error: any) {
       console.error('Erro ao buscar arquivos:', error);
       toast({
@@ -47,6 +62,7 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
         description: 'Não foi possível carregar a lista de arquivos.',
         variant: 'destructive',
       });
+      setFiles([]);
     } finally {
       setIsLoading(false);
     }
@@ -54,23 +70,17 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
 
   const addFile = async (fileData: Partial<DirectoryFile>) => {
     try {
+      console.log('Adding file:', fileData);
+      
       // Convert "none" to null for category_id
       if (fileData.category_id === "none") {
         fileData.category_id = null;
       }
       
-      let query;
-      
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
-      
-      const { error } = await query.insert(fileData);
+      const { error } = await supabase.from(tableName).insert([fileData]);
 
       if (error) {
+        console.error('Error adding file:', error);
         throw error;
       }
 
@@ -100,21 +110,14 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
     }
   ) => {
     try {
+      console.log('Updating file:', id, updates);
+      
       // Convert "none" to null for category_id
       if (updates.category_id === "none") {
         updates.category_id = null;
       }
       
-      let query;
-      
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
-      
-      const { error } = await query.update({
+      const { error } = await supabase.from(tableName).update({
         name: updates.name,
         description: updates.description,
         category_id: updates.category_id,
@@ -123,6 +126,7 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
       }).eq('id', id);
 
       if (error) {
+        console.error('Error updating file:', error);
         throw error;
       }
 
@@ -144,18 +148,12 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
 
   const deleteFile = async (id: string, fileUrl: string) => {
     try {
-      let query;
+      console.log('Deleting file:', id);
       
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
-      
-      const { error } = await query.delete().eq('id', id);
+      const { error } = await supabase.from(tableName).delete().eq('id', id);
 
       if (error) {
+        console.error('Error deleting file:', error);
         throw error;
       }
 
