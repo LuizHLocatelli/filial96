@@ -1,10 +1,27 @@
 
 import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Consultor, Folga, FolgaFormValues } from "./types";
 import { useAuth } from "@/contexts/auth";
+
+// Type definitions for the database rows
+interface MoveiFolgaRow {
+  id: string;
+  data: string;
+  consultor_id: string;
+  motivo: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
+interface MoveiFolgaInsert {
+  data: string;
+  consultor_id: string;
+  motivo?: string | null;
+  created_by?: string | null;
+}
 
 export function useMoveiFolgas() {
   const { toast } = useToast();
@@ -18,7 +35,6 @@ export function useMoveiFolgas() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedConsultor, setSelectedConsultor] = useState<string>("");
   const [motivo, setMotivo] = useState<string>("");
-  const [viewImage, setViewImage] = useState<string | null>(null);
   
   // Fetch consultores from database
   useEffect(() => {
@@ -69,9 +85,10 @@ export function useMoveiFolgas() {
     async function fetchFolgas() {
       setIsLoadingFolgas(true);
       try {
-        const { data, error } = await supabase
+        // Using type assertion to bypass TypeScript errors until types are regenerated
+        const { data, error } = await (supabase as any)
           .from("moveis_folgas")
-          .select("*");
+          .select("*") as { data: MoveiFolgaRow[] | null; error: any };
           
         if (error) {
           console.error("Error fetching folgas:", error);
@@ -83,6 +100,11 @@ export function useMoveiFolgas() {
           return;
         }
         
+        if (!data) {
+          setFolgas([]);
+          return;
+        }
+        
         // Transform the data to match the Folga interface
         const formattedFolgas: Folga[] = data.map((folga) => ({
           id: folga.id,
@@ -90,7 +112,7 @@ export function useMoveiFolgas() {
           consultorId: folga.consultor_id,
           motivo: folga.motivo || undefined,
           createdAt: folga.created_at,
-          createdBy: folga.created_by,
+          createdBy: folga.created_by || undefined,
         }));
         
         setFolgas(formattedFolgas);
@@ -164,16 +186,18 @@ export function useMoveiFolgas() {
       // Format date for Supabase (YYYY-MM-DD format)
       const formattedDate = selectedDate.toISOString().split('T')[0];
       
-      // Insert folga into Supabase
-      const { data, error } = await supabase
+      const insertData: MoveiFolgaInsert = {
+        data: formattedDate,
+        consultor_id: selectedConsultor,
+        motivo: motivo || null,
+        created_by: user?.id || null,
+      };
+      
+      // Insert folga into Supabase using type assertion
+      const { data, error } = await (supabase as any)
         .from("moveis_folgas")
-        .insert({
-          data: formattedDate,
-          consultor_id: selectedConsultor,
-          motivo: motivo || null,
-          created_by: user?.id,
-        })
-        .select();
+        .insert(insertData)
+        .select() as { data: MoveiFolgaRow[] | null; error: any };
         
       if (error) {
         console.error("Error adding folga:", error);
@@ -193,7 +217,7 @@ export function useMoveiFolgas() {
           consultorId: data[0].consultor_id,
           motivo: data[0].motivo || undefined,
           createdAt: data[0].created_at,
-          createdBy: data[0].created_by,
+          createdBy: data[0].created_by || undefined,
         };
         
         setFolgas([...folgas, newFolga]);
@@ -220,10 +244,10 @@ export function useMoveiFolgas() {
   
   const handleDeleteFolga = async (folgaId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("moveis_folgas")
         .delete()
-        .eq("id", folgaId);
+        .eq("id", folgaId) as { error: any };
         
       if (error) {
         console.error("Error deleting folga:", error);
@@ -301,8 +325,6 @@ export function useMoveiFolgas() {
     setSelectedConsultor,
     motivo,
     setMotivo,
-    viewImage,
-    setViewImage,
     handlePrevMonth,
     handleNextMonth,
     handleAddFolga,
