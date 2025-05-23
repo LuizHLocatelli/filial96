@@ -31,9 +31,6 @@ export default function PromotionalCards() {
                 Cards Promocionais
               </h1>
             </div>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl">
-              Gerencie e organize seus materiais promocionais de forma inteligente e eficiente
-            </p>
           </div>
         </div>
       </div>
