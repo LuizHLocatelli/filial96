@@ -46,7 +46,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     try {
       console.log('Iniciando carregamento do PDF:', pdfUrl);
       
-      // Configuração robusta para o carregamento do PDF
+      // Configuração robusta para o carregamento do PDF com headers CORS adequados
       const loadingTask = pdfjsLib.getDocument({
         url: pdfUrl,
         cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsVersion}/cmaps/`,
@@ -56,11 +56,20 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         disableAutoFetch: false,
         disableStream: false,
         rangeChunkSize: 65536, // 64KB chunks
+        httpHeaders: {
+          'Accept': 'application/pdf,*/*',
+          'Cache-Control': 'no-cache'
+        },
+        withCredentials: false, // Importante para CORS com Supabase
+        verbosity: 0 // Reduzir logs de debug
       });
 
       // Adicionar manipulador de progresso
       loadingTask.onProgress = (progress) => {
-        console.log(`Progresso de carregamento: ${Math.round(progress.loaded / progress.total * 100)}%`);
+        if (progress.total > 0) {
+          const percentage = Math.round(progress.loaded / progress.total * 100);
+          console.log(`Progresso de carregamento: ${percentage}%`);
+        }
       };
       
       const pdf = await Promise.race([
@@ -73,7 +82,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       console.log('PDF carregado com sucesso. Páginas:', pdf.numPages);
       setNumPages(pdf.numPages);
 
-      // Renderizar cada página
+      // Renderizar cada página com melhor controle de erro
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
@@ -85,9 +94,9 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
           const scale = Math.min(containerWidth / viewport.width, 2);
           const scaledViewport = page.getViewport({ scale });
           
-          // Criar canvas
+          // Criar canvas com melhor configuração
           const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
+          const context = canvas.getContext('2d', { alpha: false });
           
           if (!context) {
             console.error('Não foi possível criar o contexto 2D para o canvas');
@@ -96,23 +105,26 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
           
           canvas.height = scaledViewport.height;
           canvas.width = scaledViewport.width;
-          canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-full h-auto block mx-auto';
+          canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-full h-auto block mx-auto bg-white';
           
-          // Adicionar ao container antes de renderizar para garantir que as dimensões sejam corretas
+          // Adicionar ao container antes de renderizar
           if (containerRef.current) {
             containerRef.current.appendChild(canvas);
           }
           
-          // Renderizar página
+          // Renderizar página com configuração otimizada
           const renderContext = {
             canvasContext: context,
             viewport: scaledViewport,
+            background: 'white',
+            intent: 'display'
           };
           
           await page.render(renderContext).promise;
           console.log(`Página ${pageNum} renderizada com sucesso`);
         } catch (pageError) {
           console.error(`Erro ao renderizar página ${pageNum}:`, pageError);
+          // Continuar mesmo se uma página falhar
         }
       }
       
@@ -141,6 +153,8 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         errorMessage = 'Erro ao carregar o worker do PDF.js.';
       } else if (err.message?.includes('Timeout')) {
         errorMessage = 'O carregamento do PDF demorou muito tempo.';
+      } else if (err.message?.includes('fetch')) {
+        errorMessage = 'Erro ao baixar o arquivo PDF.';
       }
       
       setError(`${errorMessage} (${err.message || 'Erro desconhecido'})`);
@@ -168,6 +182,11 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm text-muted-foreground">Carregando PDF...</p>
+          {loadAttempts > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Tentativa {loadAttempts + 1} de 3
+            </p>
+          )}
           <p className="text-xs text-muted-foreground text-center max-w-md">
             Se o carregamento demorar muito, você pode tentar abrir o PDF externamente.
           </p>
@@ -220,7 +239,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       )}
       <div 
         ref={containerRef}
-        className="w-full overflow-x-auto flex flex-col items-center space-y-4"
+        className="w-full overflow-x-auto flex flex-col items-center space-y-4 bg-gray-50 p-4 rounded-lg"
       />
       {!loading && numPages === 0 && !error && (
         <div className="text-center p-8">
