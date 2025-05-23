@@ -1,440 +1,337 @@
 
-import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { ClipboardCheck, FileWarning, Package, Users, Calendar, Clock } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { TaskCard } from "@/components/tasks/TaskCard";
-import { Task } from "@/types";
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  BarChart3, 
+  Users, 
+  Calendar, 
+  TrendingUp, 
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Activity
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
+
+interface StatsData {
+  totalTasks: number;
+  completedTasks: number;
+  pendingTasks: number;
+  totalClients: number;
+  totalDeposits: number;
+  totalSales: number;
+}
 
 export default function Dashboard() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const navigate = useNavigate();
+  const [stats, setStats] = useState<StatsData>({
+    totalTasks: 0,
+    completedTasks: 0,
+    pendingTasks: 0,
+    totalClients: 0,
+    totalDeposits: 0,
+    totalSales: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [taskCounts, setTaskCounts] = useState({
-    entrega: 0,
-    retirada: 0,
-    montagem: 0,
-    garantia: 0,
-    organizacao: 0,
-    cobranca: 0
-  });
-  const [statusCounts, setStatusCounts] = useState({
-    pendente: 0,
-    em_andamento: 0,
-    concluida: 0
-  });
-  const { toast } = useToast();
-  
-  // Fetch tasks and counts on component mount
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from("tasks")
-          .select(`
-            *,
-            attachments (*)
-          `)
-          .order("created_at", { ascending: false })
-          .limit(10);
+    fetchDashboardStats();
+  }, []);
 
-        if (error) {
-          throw error;
-        }
+  const fetchDashboardStats = async () => {
+    try {
+      const [tasksData, clientsData, depositsData, salesData] = await Promise.all([
+        supabase.from("moveis_tarefas").select("status"),
+        supabase.from("crediario_clientes").select("id"),
+        supabase.from("crediario_depositos").select("id"),
+        supabase.from("venda_o_sales").select("id")
+      ]);
 
-        // Transform the data to match our Task type
-        const transformedTasks: Task[] = data.map((task: any) => ({
-          id: task.id,
-          type: task.type,
-          title: task.title,
-          description: task.description || "",
-          status: task.status,
-          assignedTo: task.assigned_to,
-          createdBy: task.created_by,
-          createdAt: task.created_at,
-          updatedAt: task.updated_at,
-          dueDate: task.due_date,
-          completedAt: task.completed_at,
-          attachments: task.attachments,
-          priority: task.priority,
-          clientName: task.client_name,
-          clientPhone: task.client_phone,
-          clientAddress: task.client_address,
-          notes: task.notes,
-        }));
+      const totalTasks = tasksData.data?.length || 0;
+      const completedTasks = tasksData.data?.filter(t => t.status === "concluida").length || 0;
+      const pendingTasks = tasksData.data?.filter(t => t.status === "pendente").length || 0;
 
-        setTasks(transformedTasks);
-        
-        // Calculate counts
-        const typeCount = {
-          entrega: 0,
-          retirada: 0,
-          montagem: 0,
-          garantia: 0,
-          organizacao: 0,
-          cobranca: 0
-        };
-        
-        const statusCount = {
-          pendente: 0,
-          em_andamento: 0,
-          concluida: 0
-        };
-        
-        data.forEach((task: any) => {
-          // Count by type
-          if (typeCount.hasOwnProperty(task.type)) {
-            typeCount[task.type as keyof typeof typeCount]++;
-          }
-          
-          // Count by status
-          if (statusCount.hasOwnProperty(task.status)) {
-            statusCount[task.status as keyof typeof statusCount]++;
-          }
-        });
-        
-        setTaskCounts(typeCount);
-        setStatusCounts(statusCount);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao carregar dados",
-          description: "Não foi possível carregar as tarefas."
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTasks();
-    
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('dashboard-changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'tasks'
-        }, 
-        () => {
-          // Refetch all data when any change occurs
-          fetchTasks();
-          
-          // Notify users of changes
-          toast({
-            title: "Dados atualizados",
-            description: "Novas informações disponíveis no dashboard.",
-          });
-        })
-      .subscribe();
-
-    // Clean up subscription on unmount
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
-  
-  const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    toast({
-      title: "Tarefa selecionada",
-      description: `Você selecionou a tarefa: ${task.title}`,
-    });
+      setStats({
+        totalTasks,
+        completedTasks,
+        pendingTasks,
+        totalClients: clientsData.data?.length || 0,
+        totalDeposits: depositsData.data?.length || 0,
+        totalSales: salesData.data?.length || 0,
+      });
+    } catch (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-  
-  // Calculate total
-  const totalTasks = tasks.length;
+
+  const quickActions = [
+    {
+      title: "Nova Tarefa",
+      description: "Criar nova tarefa de móveis",
+      icon: CheckCircle2,
+      action: () => navigate("/moveis?tab=orientacoes"),
+      color: "bg-green-500"
+    },
+    {
+      title: "Clientes",
+      description: "Gerenciar clientes do crediário",
+      icon: Users,
+      action: () => navigate("/crediario?tab=clientes"),
+      color: "bg-blue-500"
+    },
+    {
+      title: "Depósitos",
+      description: "Controlar depósitos",
+      icon: Calendar,
+      action: () => navigate("/crediario?tab=depositos"),
+      color: "bg-purple-500"
+    },
+    {
+      title: "Cards",
+      description: "Cards promocionais",
+      icon: BarChart3,
+      action: () => navigate("/cards-promocionais"),
+      color: "bg-orange-500"
+    }
+  ];
+
+  const StatCard = ({ title, value, icon: Icon, description, variant = "default" }: {
+    title: string;
+    value: number;
+    icon: any;
+    description: string;
+    variant?: "default" | "success" | "warning" | "danger";
+  }) => {
+    const variantStyles = {
+      default: "border-border text-foreground",
+      success: "border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800",
+      warning: "border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20 dark:border-yellow-800",
+      danger: "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800"
+    };
+
+    return (
+      <Card className={`transition-all duration-200 hover:shadow-md ${variantStyles[variant]}`}>
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              <p className="text-2xl sm:text-3xl font-bold">
+                {isLoading ? (
+                  <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+                ) : (
+                  value
+                )}
+              </p>
+              <p className="text-xs text-muted-foreground">{description}</p>
+            </div>
+            <div className="shrink-0">
+              <Icon className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">
-          Visão geral das atividades e progresso da loja.
+    <div className="space-y-6 p-2 sm:p-4 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
+          Visão geral das atividades da Filial 96
         </p>
       </div>
-      
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {Array(4).fill(0).map((_, i) => (
-            <Card key={i} className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-4 w-24" />
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total de Tarefas"
+          value={stats.totalTasks}
+          icon={Activity}
+          description="Tarefas no sistema"
+        />
+        <StatCard
+          title="Tarefas Concluídas"
+          value={stats.completedTasks}
+          icon={CheckCircle2}
+          description="Finalizadas com sucesso"
+          variant="success"
+        />
+        <StatCard
+          title="Tarefas Pendentes"
+          value={stats.pendingTasks}
+          icon={Clock}
+          description="Aguardando conclusão"
+          variant="warning"
+        />
+        <StatCard
+          title="Clientes Ativos"
+          value={stats.totalClients}
+          icon={Users}
+          description="Clientes cadastrados"
+        />
+      </div>
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3">
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="actions">Ações Rápidas</TabsTrigger>
+          <TabsTrigger value="recent" className="hidden sm:flex">Recente</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Performance Overview */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Taxa de Conclusão</span>
+                    <Badge variant="secondary">
+                      {stats.totalTasks > 0 
+                        ? Math.round((stats.completedTasks / stats.totalTasks) * 100) 
+                        : 0}%
+                    </Badge>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all duration-500" 
+                      style={{ 
+                        width: stats.totalTasks > 0 
+                          ? `${(stats.completedTasks / stats.totalTasks) * 100}%` 
+                          : '0%' 
+                      }}
+                    />
+                  </div>
                 </div>
-                <Skeleton className="h-12 w-12 rounded-full" />
-              </div>
-              <Skeleton className="h-8 w-16 mt-2" />
+
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{stats.completedTasks}</p>
+                    <p className="text-xs text-muted-foreground">Concluídas</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-600">{stats.pendingTasks}</p>
+                    <p className="text-xs text-muted-foreground">Pendentes</p>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <DashboardCard
-            title="Entregas Pendentes"
-            value={taskCounts.entrega}
-            icon={<Package className="h-5 w-5" />}
-            description="Entregas agendadas"
-            trend={{ value: 0, isPositive: true }}
-          />
-          <DashboardCard
-            title="Montagens"
-            value={taskCounts.montagem}
-            icon={<ClipboardCheck className="h-5 w-5" />}
-            description="Montagens programadas"
-            trend={{ value: 0, isPositive: true }}
-          />
-          <DashboardCard
-            title="Garantias"
-            value={taskCounts.garantia}
-            icon={<FileWarning className="h-5 w-5" />}
-            description="Garantias em processo"
-            trend={{ value: 0, isPositive: false }}
-          />
-          <DashboardCard
-            title="Cobranças"
-            value={taskCounts.cobranca}
-            icon={<Users className="h-5 w-5" />}
-            description="Clientes em cobrança"
-            trend={{ value: 0, isPositive: false }}
-          />
-        </div>
-      )}
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Atividades Recentes</CardTitle>
-            <CardDescription>
-              Últimas tarefas criadas ou atualizadas
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid grid-cols-4 mb-4 w-full">
-                <TabsTrigger value="all">Todas</TabsTrigger>
-                <TabsTrigger value="pending">Pendentes</TabsTrigger>
-                <TabsTrigger value="progress">Em Andamento</TabsTrigger>
-                <TabsTrigger value="completed">Concluídas</TabsTrigger>
-              </TabsList>
-              <TabsContent value="all" className="space-y-4">
-                {isLoading ? (
-                  <div className="grid grid-cols-1 gap-4">
-                    {Array(3).fill(0).map((_, i) => (
-                      <Card key={i} className="p-4">
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-3/4" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-12 w-full" />
-                        </div>
-                      </Card>
-                    ))}
+
+            {/* System Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5" />
+                  Status do Sistema
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Crediário</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Ativo
+                    </Badge>
                   </div>
-                ) : tasks.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-4">
-                    {tasks.map((task) => (
-                      <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                    ))}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Móveis</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Ativo
+                    </Badge>
                   </div>
-                ) : (
-                  <p className="text-center text-muted-foreground py-6">Nenhuma tarefa encontrada</p>
-                )}
-              </TabsContent>
-              <TabsContent value="pending" className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {isLoading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <Card key={i} className="p-4">
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-3/4" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-12 w-full" />
-                        </div>
-                      </Card>
-                    ))
-                  ) : (
-                    tasks
-                      .filter((task) => task.status === "pendente")
-                      .map((task) => (
-                        <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                      ))
-                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Cards Promocionais</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Ativo
+                    </Badge>
+                  </div>
                 </div>
-              </TabsContent>
-              <TabsContent value="progress" className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {isLoading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <Card key={i} className="p-4">
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-3/4" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-12 w-full" />
-                        </div>
-                      </Card>
-                    ))
-                  ) : (
-                    tasks
-                      .filter((task) => task.status === "em_andamento")
-                      .map((task) => (
-                        <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                      ))
-                  )}
+
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Última atualização: {new Date().toLocaleString('pt-BR')}
+                  </p>
                 </div>
-              </TabsContent>
-              <TabsContent value="completed" className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {isLoading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <Card key={i} className="p-4">
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-3/4" />
-                          <Skeleton className="h-4 w-1/4" />
-                          <Skeleton className="h-12 w-full" />
-                        </div>
-                      </Card>
-                    ))
-                  ) : (
-                    tasks
-                      .filter((task) => task.status === "concluida")
-                      .map((task) => (
-                        <TaskCard key={task.id} task={task} onClick={handleTaskClick} />
-                      ))
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-        
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Status das Tarefas</CardTitle>
-            <CardDescription>
-              Distribuição das tarefas por status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="actions" className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {quickActions.map((action, index) => (
+              <Card 
+                key={index} 
+                className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105"
+                onClick={action.action}
+              >
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-3">
+                    <div className={`w-12 h-12 rounded-lg ${action.color} flex items-center justify-center`}>
+                      <action.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-sm sm:text-base">{action.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        {action.description}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full justify-between p-0 h-auto font-medium"
+                    >
+                      Acessar
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="recent" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Atividades Recentes</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-4">
-                {Array(3).fill(0).map((_, i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-2 w-full" />
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="flex items-center gap-4 p-3 rounded-lg border">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Activity className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-sm font-medium">Nova tarefa criada</p>
+                      <p className="text-xs text-muted-foreground">
+                        Há {item} hora{item > 1 ? 's' : ''}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="mr-4 w-5 h-5 rounded bg-yellow-400"></div>
-                  <div className="space-y-1 flex-1">
-                    <p className="text-sm font-medium leading-none">
-                      Pendentes
-                    </p>
-                    <div className="h-2 rounded bg-muted overflow-hidden">
-                      <div
-                        className="h-full bg-yellow-400"
-                        style={{ width: totalTasks ? `${(statusCounts.pendente / totalTasks) * 100}%` : "0%" }}
-                      />
-                    </div>
-                  </div>
-                  <span className="font-bold">{statusCounts.pendente}</span>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="mr-4 w-5 h-5 rounded bg-brand-blue-500"></div>
-                  <div className="space-y-1 flex-1">
-                    <p className="text-sm font-medium leading-none">
-                      Em Andamento
-                    </p>
-                    <div className="h-2 rounded bg-muted overflow-hidden">
-                      <div
-                        className="h-full bg-brand-blue-500"
-                        style={{ width: totalTasks ? `${(statusCounts.em_andamento / totalTasks) * 100}%` : "0%" }}
-                      />
-                    </div>
-                  </div>
-                  <span className="font-bold">{statusCounts.em_andamento}</span>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="mr-4 w-5 h-5 rounded bg-green-500"></div>
-                  <div className="space-y-1 flex-1">
-                    <p className="text-sm font-medium leading-none">
-                      Concluídas
-                    </p>
-                    <div className="h-2 rounded bg-muted overflow-hidden">
-                      <div
-                        className="h-full bg-green-500"
-                        style={{ width: totalTasks ? `${(statusCounts.concluida / totalTasks) * 100}%` : "0%" }}
-                      />
-                    </div>
-                  </div>
-                  <span className="font-bold">{statusCounts.concluida}</span>
-                </div>
-              </div>
-            )}
-            
-            <div className="mt-6 space-y-2">
-              <h4 className="text-sm font-medium">Agenda de Hoje</h4>
-              {isLoading ? (
-                <div className="flex flex-col space-y-2 mt-2">
-                  {Array(2).fill(0).map((_, i) => (
-                    <div key={i} className="flex items-center p-2 bg-muted/50 rounded-md">
-                      <Skeleton className="h-4 w-4 mr-2" />
-                      <div className="flex-1">
-                        <Skeleton className="h-4 w-36" />
-                        <Skeleton className="h-3 w-24 mt-1" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col space-y-2 mt-2">
-                  {tasks.filter(t => t.status === 'pendente').slice(0, 2).map((task) => (
-                    <div key={task.id} className="flex items-center p-2 bg-muted/50 rounded-md">
-                      {task.type === 'entrega' ? (
-                        <Package className="h-4 w-4 mr-2 text-brand-blue-600" />
-                      ) : (
-                        <Calendar className="h-4 w-4 mr-2 text-brand-blue-600" />
-                      )}
-                      <div className="flex-1">
-                        <span className="text-sm">{task.title}</span>
-                        <p className="text-xs text-muted-foreground">
-                          {task.clientName || "Cliente não especificado"}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  {tasks.filter(t => t.status === 'pendente').length === 0 && (
-                    <p className="text-sm text-muted-foreground py-2">Nenhuma tarefa pendente hoje</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

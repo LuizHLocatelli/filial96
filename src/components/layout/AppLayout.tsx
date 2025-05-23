@@ -15,12 +15,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-hidden">
+      <div className="min-h-screen flex w-full overflow-hidden bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col max-w-full">
           <TopBar />
-          <main className="flex-1 container mx-auto px-3 py-4 md:px-6 md:py-8 overflow-y-auto pb-20">
-            {children}
+          <main className="flex-1 overflow-y-auto pb-24 md:pb-8">
+            <div className="container mx-auto px-3 py-4 md:px-6 md:py-6 max-w-7xl">
+              {children}
+            </div>
           </main>
           <NavigationTabs />
         </div>

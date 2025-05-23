@@ -20,7 +20,6 @@ export function NavigationTabs() {
     { title: "Perfil", icon: Settings, path: "/perfil" },
   ];
   
-  // Set the selected tab based on current route when component mounts
   useEffect(() => {
     const currentPath = location.pathname;
     const tabIndex = tabs.findIndex(tab => 
@@ -40,8 +39,8 @@ export function NavigationTabs() {
   };
   
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[95%] max-w-md">
-      <div className="bg-background/80 backdrop-blur-md border border-border/30 shadow-lg rounded-full px-1 py-1">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[95%] max-w-sm">
+      <div className="bg-background/95 backdrop-blur-lg border border-border/50 shadow-2xl rounded-2xl px-2 py-2">
         <ExpandableTabs 
           tabs={tabs as any} 
           onChange={handleTabChange}

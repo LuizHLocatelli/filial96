@@ -1,107 +1,135 @@
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Users, InfoIcon, CircleAlert } from "lucide-react";
-import { QuickAccess } from "@/components/moveis/QuickAccess";
+import { useSearchParams } from "react-router-dom";
 import { Orientacoes } from "@/components/moveis/orientacoes/Orientacoes";
 import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
-import { MoveisOverview } from "@/components/moveis/dashboard/MoveisOverview";
+import { 
+  FileText, 
+  FolderArchive, 
+  ShoppingCart,
+  Sofa,
+  TrendingUp
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-const Moveis = () => {
+export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tabFromUrl = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(tabFromUrl || "welcome");
-  const navigate = useNavigate();
-
-  // Update URL when the tab changes
-  useEffect(() => {
-    if (activeTab) {
-      setSearchParams({ tab: activeTab });
-    }
-  }, [activeTab, setSearchParams]);
-
-  // Update the tab when URL changes
-  useEffect(() => {
-    if (tabFromUrl && ["welcome", "orientacoes", "diretorio", "vendao"].includes(tabFromUrl)) {
-      setActiveTab(tabFromUrl);
-    }
-  }, [tabFromUrl]);
-
+  const activeTab = searchParams.get("tab") || "orientacoes";
+  
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    setSearchParams({ tab: value });
   };
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "welcome":
-        return (
-          <div className="space-y-6">
-            <MoveisOverview onNavigate={handleTabChange} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-l-4 border-l-yellow-500">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <CircleAlert className="h-5 w-5 text-yellow-500" />
-                    <span>Lembretes</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm">
-                    <ul className="space-y-2 list-disc pl-5">
-                      <li>Verificar orientações de VM pendentes</li>
-                      <li>Acompanhar novas remessas de móveis</li>
-                      <li>Revisar tarefas de organização do setor</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-                <InfoIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <AlertTitle className="text-blue-800 dark:text-blue-300">Novas orientações</AlertTitle>
-                <AlertDescription className="text-blue-700 dark:text-blue-400 text-sm">
-                  Existem novas orientações de VM disponíveis. Acesse a seção de orientações para mais detalhes.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </div>
-        );
-      case "orientacoes":
-        return <Orientacoes />;
-      case "diretorio":
-        return <Diretorio />;
-      case "vendao":
-        return <VendaO />;
-      default:
-        return null;
+  const tabsConfig = [
+    {
+      value: "orientacoes",
+      label: "Orientações",
+      icon: FileText,
+      description: "Documentos e orientações",
+      component: <Orientacoes />
+    },
+    {
+      value: "diretorio",
+      label: "Diretório",
+      icon: FolderArchive,
+      description: "Arquivos organizados",
+      component: <Diretorio />
+    },
+    {
+      value: "vendao",
+      label: "Venda O",
+      icon: ShoppingCart,
+      description: "Vendas de outras filiais",
+      component: <VendaO />
     }
-  };
+  ];
 
   return (
-    <div className="space-y-4"> 
-      <div className="pb-2">
-        <h1 className="text-2xl font-bold tracking-tight">
-          {activeTab === "welcome" ? "Móveis" : 
-           activeTab === "orientacoes" ? "Orientações e Informativos" :
-           activeTab === "diretorio" ? "Diretório de Arquivos" :
-           activeTab === "vendao" ? "Venda O" : "Móveis"}
-        </h1>
-        <p className="text-muted-foreground">
-          {activeTab === "welcome" ? "Gerencie todas as operações do setor de móveis" : 
-           activeTab === "orientacoes" ? "Orientações de VM e informativos do setor" :
-           activeTab === "diretorio" ? "Acesse documentos do setor de móveis" :
-           activeTab === "vendao" ? "Gerencie vendas de outras filiais" : ""}
-        </p>
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Sofa className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Móveis</h1>
+                <p className="text-muted-foreground text-sm sm:text-base">
+                  Gestão completa do setor de móveis
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <TrendingUp className="h-3 w-3 mr-1" />
+              Ativo
+            </Badge>
+          </div>
+        </div>
+
+        {/* Quick Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {tabsConfig.map((tab) => (
+            <Card 
+              key={tab.value}
+              className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                activeTab === tab.value 
+                  ? 'ring-2 ring-primary bg-primary/5' 
+                  : 'hover:bg-accent/50'
+              }`}
+              onClick={() => handleTabChange(tab.value)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${
+                    activeTab === tab.value 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-muted'
+                  }`}>
+                    <tab.icon className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm truncate">{tab.label}</h3>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {tab.description}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-      
-      <QuickAccess onNavigate={handleTabChange} compact={true} />
-      
-      {renderContent()}
+
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+        <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:grid-cols-3">
+          {tabsConfig.map((tab) => (
+            <TabsTrigger 
+              key={tab.value} 
+              value={tab.value}
+              className="flex items-center gap-2 text-xs sm:text-sm"
+            >
+              <tab.icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.label.slice(0, 6)}</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {tabsConfig.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="space-y-4">
+            {tab.component}
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }
-
-export default Moveis;
