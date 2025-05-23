@@ -1,4 +1,3 @@
-
 export interface ProdutoFoco {
   id: string;
   nome_produto: string;
@@ -32,4 +31,19 @@ export interface ProdutoFocoImagem {
 
 export interface ProdutoFocoWithImages extends ProdutoFoco {
   imagens: ProdutoFocoImagem[];
+}
+
+export interface ProdutoFocoVenda {
+  id: string;
+  produto_foco_id: string;
+  produto_nome: string;
+  produto_codigo: string;
+  cliente_nome: string;
+  cliente_telefone?: string;
+  quantidade: number;
+  valor_total: number;
+  data_venda: string;
+  observacoes?: string;
+  created_at: string;
+  created_by: string;
 }

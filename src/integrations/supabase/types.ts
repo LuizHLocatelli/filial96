@@ -897,6 +897,59 @@ export type Database = {
           },
         ]
       }
+      moveis_produto_foco_vendas: {
+        Row: {
+          cliente_nome: string
+          cliente_telefone: string | null
+          created_at: string
+          created_by: string
+          data_venda: string
+          id: string
+          observacoes: string | null
+          produto_codigo: string
+          produto_foco_id: string
+          produto_nome: string
+          quantidade: number
+          valor_total: number
+        }
+        Insert: {
+          cliente_nome: string
+          cliente_telefone?: string | null
+          created_at?: string
+          created_by: string
+          data_venda: string
+          id?: string
+          observacoes?: string | null
+          produto_codigo: string
+          produto_foco_id: string
+          produto_nome: string
+          quantidade?: number
+          valor_total: number
+        }
+        Update: {
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          created_at?: string
+          created_by?: string
+          data_venda?: string
+          id?: string
+          observacoes?: string | null
+          produto_codigo?: string
+          produto_foco_id?: string
+          produto_nome?: string
+          quantidade?: number
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_produto_foco_vendas_produto_foco_id_fkey"
+            columns: ["produto_foco_id"]
+            isOneToOne: false
+            referencedRelation: "moveis_produto_foco"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moveis_tarefas: {
         Row: {
           criado_por: string

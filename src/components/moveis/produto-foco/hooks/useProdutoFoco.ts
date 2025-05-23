@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -200,8 +201,9 @@ export function useProdutoFoco() {
     if (!user) return null;
 
     try {
+      // Usamos a string literal diretamente para evitar o erro de TypeScript
       const { data, error } = await supabase
-        .from('moveis_produto_foco_vendas')
+        .from("moveis_produto_foco_vendas" as any)
         .insert({
           ...dadosVenda,
           created_by: user.id
