@@ -1,9 +1,11 @@
 
 import { useCards } from "@/hooks/useCards";
 import { useCardOperations } from "@/hooks/useCardOperations";
+import { useCardSearch } from "@/hooks/useCardSearch";
 import { CardGrid } from "@/components/promotional-cards/CardGrid";
 import { CardGalleryEmpty } from "@/components/promotional-cards/CardGalleryEmpty";
 import { CardGalleryLoading } from "@/components/promotional-cards/CardGalleryLoading";
+import { CardSearchBar } from "@/components/promotional-cards/CardSearchBar";
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 
@@ -15,6 +17,7 @@ interface CardGalleryProps {
 export function CardGallery({ sector, folderId }: CardGalleryProps) {
   const { cards, setCards, isLoading } = useCards(sector, folderId);
   const { deleteCard, moveCardToFolder } = useCardOperations();
+  const { searchTerm, setSearchTerm, filteredCards, hasResults, isSearching } = useCardSearch(cards);
   const [processingCardIds, setProcessingCardIds] = useState<Set<string>>(new Set());
 
   const handleDeleteCard = async (id: string) => {
@@ -59,12 +62,9 @@ export function CardGallery({ sector, folderId }: CardGalleryProps) {
       const success = await moveCardToFolder(cardId, newFolderId);
       
       if (success) {
-        // If we're viewing a folder and moving out of it, we should remove the card from the list
         if (folderId && !newFolderId) {
           setCards(prevCards => prevCards.filter(card => card.id !== cardId));
-        } 
-        // If we're viewing all cards and moving to a folder, update the folder_id
-        else if (!folderId) {
+        } else if (!folderId) {
           setCards(prevCards => prevCards.map(card => 
             card.id === cardId 
               ? {...card, folder_id: newFolderId}
@@ -97,16 +97,39 @@ export function CardGallery({ sector, folderId }: CardGalleryProps) {
     return <CardGalleryLoading />;
   }
 
-  if (cards.length === 0) {
-    return <CardGalleryEmpty folderId={folderId} />;
-  }
-
   return (
-    <CardGrid 
-      cards={cards}
-      onDelete={handleDeleteCard}
-      onMoveToFolder={handleMoveToFolder}
-      sector={sector}
-    />
+    <div className="space-y-6">
+      {/* Barra de pesquisa */}
+      {cards.length > 0 && (
+        <CardSearchBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          resultsCount={filteredCards.length}
+          totalCount={cards.length}
+          isSearching={isSearching}
+        />
+      )}
+
+      {/* Resultados */}
+      {cards.length === 0 ? (
+        <CardGalleryEmpty folderId={folderId} />
+      ) : !hasResults && isSearching ? (
+        <div className="text-center py-12">
+          <div className="text-muted-foreground">
+            <p className="text-lg font-medium mb-2">Nenhum card encontrado</p>
+            <p className="text-sm">
+              Tente pesquisar com outros termos ou verifique a ortografia.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <CardGrid 
+          cards={filteredCards}
+          onDelete={handleDeleteCard}
+          onMoveToFolder={handleMoveToFolder}
+          sector={sector}
+        />
+      )}
+    </div>
   );
 }

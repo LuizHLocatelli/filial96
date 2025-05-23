@@ -14,14 +14,41 @@ interface CardGridProps {
 export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridProps) {
   const isMobile = useIsMobile();
   
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    }
+  };
+  
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {cards.map((card, index) => (
+    <motion.div 
+      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {cards.map((card) => (
         <motion.div
           key={card.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.05 }}
+          variants={itemVariants}
+          layout
         >
           <PromotionalCard
             id={card.id}
@@ -37,6 +64,6 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridPr
           />
         </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { toast } from "@/components/ui/use-toast";
 import { useFolders } from "@/hooks/useFolders";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,7 @@ export function PromotionalCard({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const { folders } = useFolders(sector);
   
   const currentFolder = folders.find(f => f.id === folderId);
@@ -51,7 +53,6 @@ export function PromotionalCard({
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       
-      // Create a download link
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `${title.replace(/\s+/g, '_')}.${blob.type.split('/')[1]}`;
@@ -100,65 +101,84 @@ export function PromotionalCard({
     }
   };
 
-  // Format date for display
   const formattedDate = promotionDate ? new Date(promotionDate).toLocaleDateString('pt-BR') : null;
 
   return (
     <>
       <Card className={cn(
-        "overflow-hidden transition-all duration-200 hover:shadow-md group",
-        isMobile && "border-[0.5px]"
+        "overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 group bg-gradient-to-br from-background to-muted/30 border-2 border-border/50 hover:border-primary/30",
+        isMobile && "border-[1px]"
       )}>
-        <CardContent className={cn("p-0")}>
-          <div 
-            className="aspect-[3/2] relative rounded-t-md overflow-hidden bg-muted cursor-pointer"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <img 
-              src={imageUrl} 
-              alt={title}
-              className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
-            />
-            {(code || promotionDate) && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent text-white p-2 text-xs">
-                <div className="flex items-center gap-2">
-                  {code && (
-                    <div className="flex items-center gap-1">
-                      <Hash className="h-3 w-3" />
-                      <span className="truncate">{code}</span>
-                    </div>
-                  )}
-                  {formattedDate && (
-                    <div className="flex items-center gap-1 ml-auto">
-                      <Calendar className="h-3 w-3" />
-                      <span>{formattedDate}</span>
-                    </div>
-                  )}
+        <CardContent className="p-0">
+          <AspectRatio ratio={4/5}>
+            <div 
+              className="relative w-full h-full rounded-t-lg overflow-hidden bg-gradient-to-br from-muted to-muted/50 cursor-pointer group"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted/60 animate-pulse" />
+              )}
+              
+              <img 
+                src={imageUrl} 
+                alt={title}
+                onLoad={() => setImageLoaded(true)}
+                className={cn(
+                  "w-full h-full object-cover transition-all duration-500 group-hover:scale-110",
+                  !imageLoaded && "opacity-0"
+                )}
+              />
+              
+              {/* Overlay com informações */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Badges de código e data */}
+              {(code || promotionDate) && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-2">
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    {code && (
+                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm">
+                        <Hash className="h-3 w-3" />
+                        <span className="truncate font-medium">{code}</span>
+                      </div>
+                    )}
+                    {formattedDate && (
+                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto">
+                        <Calendar className="h-3 w-3" />
+                        <span className="text-xs">{formattedDate}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </AspectRatio>
         </CardContent>
+        
         <CardFooter className={cn(
-          "flex justify-between p-2 bg-card border-t border-border",
-          !isMobile && "p-3"
+          "flex justify-between items-center p-3 bg-gradient-to-r from-background to-muted/20 border-t border-border/50",
+          !isMobile && "p-4"
         )}>
-          <div className="flex flex-col gap-1 truncate max-w-[70%]">
-            <p className="truncate text-xs sm:text-sm font-medium">{title}</p>
+          <div className="flex flex-col gap-1.5 truncate flex-1 min-w-0">
+            <p className="truncate text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+              {title}
+            </p>
             {currentFolder && (
-              <Badge variant="outline" className="text-[10px] w-fit px-1 py-0 h-5">
+              <Badge 
+                variant="outline" 
+                className="text-[10px] w-fit px-2 py-0.5 h-5 bg-primary/10 text-primary border-primary/20"
+              >
                 {currentFolder.name}
               </Badge>
             )}
           </div>
+          
           <CardDropdownMenu 
             folderId={folderId}
             folders={folders}
             onView={() => setIsDialogOpen(true)}
             onDownload={handleDownload}
-            onEdit={() => {
-              setIsEditDialogOpen(true);
-            }}
+            onEdit={() => setIsEditDialogOpen(true)}
             onDelete={() => setIsDeleteDialogOpen(true)}
             onMoveToFolder={handleMoveToFolder}
             isLoading={isLoading}
@@ -167,7 +187,7 @@ export function PromotionalCard({
         </CardFooter>
       </Card>
 
-      {/* Dialog de visualização */}
+      {/* Dialogs permanecem iguais */}
       <CardViewDialog 
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
@@ -179,7 +199,6 @@ export function PromotionalCard({
         isMobile={isMobile}
       />
 
-      {/* Dialog de edição */}
       <CardEditDialog 
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
@@ -188,7 +207,6 @@ export function PromotionalCard({
         isMobile={isMobile}
       />
 
-      {/* Dialog de confirmação de exclusão */}
       <CardDeleteDialog 
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
