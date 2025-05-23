@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,7 +32,7 @@ export function SignupForm() {
       name: "",
       email: "",
       password: "",
-      role: "vendedor",
+      role: "gerente",
     },
   });
 
@@ -151,9 +150,10 @@ export function SignupForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="vendedor">Vendedor</SelectItem>
                     <SelectItem value="gerente">Gerente</SelectItem>
                     <SelectItem value="crediarista">Crediarista</SelectItem>
+                    <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
+                    <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
