@@ -201,9 +201,8 @@ export function useProdutoFoco() {
     if (!user) return null;
 
     try {
-      // Usamos a string literal diretamente para evitar o erro de TypeScript
       const { data, error } = await supabase
-        .from("moveis_produto_foco_vendas" as any)
+        .from('moveis_produto_foco_vendas')
         .insert({
           ...dadosVenda,
           created_by: user.id
