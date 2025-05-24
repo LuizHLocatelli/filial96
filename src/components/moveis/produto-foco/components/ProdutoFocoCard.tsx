@@ -23,6 +23,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ProdutoFocoCardProps {
   produto: ProdutoFocoWithImages;
@@ -83,20 +84,25 @@ export function ProdutoFocoCard({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Galeria de Imagens */}
+        {/* Galeria de Imagens com proporção 4:5 e clique para abrir detalhes */}
         {produto.imagens.length > 0 ? (
           <div className="relative">
             <Carousel className="w-full">
               <CarouselContent>
                 {produto.imagens.map((imagem) => (
                   <CarouselItem key={imagem.id}>
-                    <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                      <img 
-                        src={imagem.imagem_url} 
-                        alt={imagem.imagem_nome}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    <AspectRatio ratio={4/5}>
+                      <div 
+                        className="w-full h-full bg-muted rounded-lg overflow-hidden cursor-pointer hover:opacity-95 transition-opacity"
+                        onClick={() => onViewDetails(produto)}
+                      >
+                        <img 
+                          src={imagem.imagem_url} 
+                          alt={imagem.imagem_nome}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </AspectRatio>
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -109,12 +115,17 @@ export function ProdutoFocoCard({
             </Carousel>
           </div>
         ) : (
-          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <ImageIcon className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">Sem imagens</p>
+          <AspectRatio ratio={4/5}>
+            <div 
+              className="w-full h-full bg-muted rounded-lg flex items-center justify-center cursor-pointer hover:opacity-95 transition-opacity"
+              onClick={() => onViewDetails(produto)}
+            >
+              <div className="text-center text-muted-foreground">
+                <ImageIcon className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">Sem imagens</p>
+              </div>
             </div>
-          </div>
+          </AspectRatio>
         )}
 
         {/* Informações de Preço */}

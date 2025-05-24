@@ -93,8 +93,8 @@ export default function Crediario() {
           </div>
         </div>
 
-        {/* Navigation Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+        {/* Navigation Cards - 3 por linha */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4 max-w-4xl mx-auto">
           {tabsConfig.map((tab) => (
             <Card 
               key={tab.value}
@@ -105,7 +105,7 @@ export default function Crediario() {
               }`}
               onClick={() => handleTabChange(tab.value)}
             >
-              <CardContent className="p-2 sm:p-3 md:p-4">
+              <CardContent className="p-2 sm:p-3 lg:p-4">
                 <div className="flex flex-col items-center gap-1 sm:gap-2 text-center">
                   <div className={`p-1.5 sm:p-2 rounded-lg ${
                     activeTab === tab.value 
