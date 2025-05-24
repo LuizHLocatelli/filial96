@@ -19,8 +19,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <AppSidebar />
         <div className="flex-1 flex flex-col max-w-full">
           <TopBar />
-          <main className="flex-1 overflow-y-auto pb-24 md:pb-8">
-            <div className="container mx-auto px-2 sm:px-3 md:px-6 py-3 sm:py-4 md:py-6 max-w-7xl">
+          <main className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : 'pb-24 md:pb-8'}`}>
+            <div className={`container mx-auto max-w-7xl ${
+              isMobile 
+                ? 'px-2 py-3' 
+                : 'px-2 sm:px-3 md:px-6 py-3 sm:py-4 md:py-6'
+            }`}>
               {children}
             </div>
           </main>

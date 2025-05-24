@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ListTodo, Users, PiggyBank, Calendar, FolderArchive } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QuickAccessProps {
   onNavigate: (tab: string) => void;
@@ -31,25 +32,26 @@ const AccessCard = ({
   compact = false 
 }: AccessCardProps) => {
   const { isDarkMode } = useTheme();
+  const isMobile = useIsMobile();
   
   return (
     <motion.div
       className={`${isDarkMode ? darkBgColor : bgColor} rounded-xl flex flex-col items-center justify-center 
         cursor-pointer transition-all duration-300 ${compact 
-          ? 'p-2 h-16 sm:h-20' // Aumentado a altura do card compacto
+          ? isMobile ? 'p-3 h-20' : 'p-2 h-16 sm:h-20'
           : 'p-3 h-28 sm:h-36'}`}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
     >
       <div className={`${isDarkMode ? darkHoverColor : hoverColor} ${compact 
-        ? 'p-1.5 mb-1' // Ajuste do padding e margem inferior do ícone
+        ? isMobile ? 'p-2 mb-2' : 'p-1.5 mb-1'
         : 'p-2 sm:p-3 mb-2 sm:mb-3'} rounded-full`}
       >
         {icon}
       </div>
-      <span className={`font-medium ${compact 
-        ? 'text-sm' // Aumentado tamanho do texto no modo compacto
+      <span className={`font-medium text-center ${compact 
+        ? isMobile ? 'text-sm' : 'text-xs' 
         : 'text-base sm:text-lg'} ${isDarkMode ? 'text-white' : 'text-green-800'}`}
       >
         {title}
@@ -60,6 +62,7 @@ const AccessCard = ({
 
 export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) => {
   const { isDarkMode } = useTheme();
+  const isMobile = useIsMobile();
   
   const handleNavigation = useCallback(
     (tab: string) => {
@@ -68,14 +71,22 @@ export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) =
     [onNavigate]
   );
 
-  const iconSize = compact ? 18 : 24; // Aumentado o tamanho do ícone no modo compacto (era 16)
+  const iconSize = compact ? (isMobile ? 20 : 18) : 24;
 
   return (
     <div className={compact ? "" : "animate-fade-in"}>
       {!compact && (
-        <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">Acesso Rápido</h2>
-          <p className="text-sm sm:text-base text-green-700 dark:text-green-400">Selecione uma opção para começar</p>
+        <div className={`text-center ${isMobile ? 'mb-4' : 'mb-6 sm:mb-8'}`}>
+          <h2 className={`font-bold text-green-800 dark:text-green-300 ${
+            isMobile ? 'text-lg' : 'text-xl sm:text-2xl'
+          }`}>
+            Acesso Rápido
+          </h2>
+          <p className={`text-green-700 dark:text-green-400 ${
+            isMobile ? 'text-xs' : 'text-sm sm:text-base'
+          }`}>
+            Selecione uma opção para começar
+          </p>
         </div>
       )}
       

@@ -39,14 +39,20 @@ export function NavigationTabs() {
   };
   
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 w-[95%] max-w-sm">
-      <div className="bg-background/95 backdrop-blur-lg border border-border/50 shadow-2xl rounded-2xl px-2 py-2">
+    <div className={`fixed z-50 ${
+      isMobile 
+        ? 'bottom-2 left-2 right-2' 
+        : 'bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-sm'
+    }`}>
+      <div className={`bg-background/95 backdrop-blur-lg border border-border/50 shadow-2xl ${
+        isMobile ? 'rounded-xl px-1 py-1.5' : 'rounded-2xl px-2 py-2'
+      }`}>
         <ExpandableTabs 
           tabs={tabs as any} 
           onChange={handleTabChange}
           activeColor="text-primary" 
           className="border-none shadow-none" 
-          iconSize={isMobile ? 18 : 20}
+          iconSize={isMobile ? 20 : 22}
         />
       </div>
     </div>
