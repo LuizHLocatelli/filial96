@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Search, Filter, Plus, Grid, List } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -50,7 +51,7 @@ export function OrientacoesList() {
         descricao: item.descricao,
         tipo: item.tipo,
         arquivo_url: item.arquivo_url,
-        arquivo_nome: item.arquivo_nome,
+        arquivo_nome: item.arquivo_nome || '',
         arquivo_tipo: item.arquivo_tipo,
         data_criacao: item.data_criacao,
         criado_por: item.criado_por,
@@ -93,7 +94,7 @@ export function OrientacoesList() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className={`space-y-4 ${isMobile ? 'px-2' : 'px-4'}`}>
         {/* Header Skeleton */}
         <div className="space-y-4">
           <div className="h-8 bg-muted animate-pulse rounded-lg w-1/3" />
@@ -104,7 +105,7 @@ export function OrientacoesList() {
         </div>
         
         {/* Cards Skeleton */}
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+        <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-64 bg-muted animate-pulse rounded-lg" />
           ))}
@@ -114,7 +115,7 @@ export function OrientacoesList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-4 w-full max-w-full ${isMobile ? 'px-2' : 'px-4'}`}>
       {/* Header */}
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -123,29 +124,29 @@ export function OrientacoesList() {
               Orientações
             </h2>
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="bg-background/50">
+              <Badge variant="outline" className="bg-background/50 text-xs">
                 Total: {typeStats.all}
               </Badge>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 text-xs">
                 VM: {typeStats.vm}
               </Badge>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 text-xs">
                 Informativo: {typeStats.informativo}
               </Badge>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <Button variant="outline" size="sm" className={`${isMobile ? 'flex-1' : ''}`}>
               <Plus className="h-4 w-4 mr-2" />
-              Nova Orientação
+              {isMobile ? "Nova" : "Nova Orientação"}
             </Button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
+        <div className="flex flex-col gap-3">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar orientações..."
@@ -155,9 +156,9 @@ export function OrientacoesList() {
             />
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2">
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className={`${isMobile ? 'flex-1' : 'w-[180px]'}`}>
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Filtrar por tipo" />
               </SelectTrigger>
@@ -192,26 +193,26 @@ export function OrientacoesList() {
 
       {/* Content */}
       {filteredOrientacoes.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-            <Search className="h-8 w-8 text-muted-foreground" />
+        <div className="text-center py-8">
+          <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Search className="h-6 w-6 text-muted-foreground" />
           </div>
           <h3 className="font-semibold text-lg mb-2">
             {searchQuery || filterType !== "all" ? "Nenhuma orientação encontrada" : "Nenhuma orientação ainda"}
           </h3>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-4 text-sm px-4">
             {searchQuery || filterType !== "all" 
               ? "Tente ajustar os filtros de busca"
               : "Comece criando sua primeira orientação"
             }
           </p>
-          <Button>
+          <Button size={isMobile ? "default" : "lg"}>
             <Plus className="h-4 w-4 mr-2" />
             Nova Orientação
           </Button>
         </div>
       ) : (
-        <div className={`grid gap-4 ${
+        <div className={`grid gap-3 w-full ${
           viewMode === "grid" 
             ? (isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3')
             : 'grid-cols-1'
@@ -219,7 +220,7 @@ export function OrientacoesList() {
           {filteredOrientacoes.map((orientacao, index) => (
             <div
               key={orientacao.id}
-              className="animate-fade-in"
+              className="animate-fade-in w-full"
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <OrientacaoCard 
