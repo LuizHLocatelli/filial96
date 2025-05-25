@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter, Plus, Grid, List } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,19 +15,63 @@ import { OrientacaoCard } from "./components/OrientacaoCard";
 import { OrientacaoViewerDialog } from "./OrientacaoViewerDialog";
 import { Orientacao } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
-interface OrientacoesListProps {
-  orientacoes: Orientacao[];
-  isLoading: boolean;
-}
-
-export function OrientacoesList({ orientacoes, isLoading }: OrientacoesListProps) {
+export function OrientacoesList() {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedOrientacao, setSelectedOrientacao] = useState<Orientacao | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [orientacoes, setOrientacoes] = useState<Orientacao[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchOrientacoes();
+  }, []);
+
+  const fetchOrientacoes = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('moveis_orientacoes')
+        .select(`
+          *,
+          perfis(nome)
+        `)
+        .order('data_criacao', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      const orientacoesFormatted = data?.map(item => ({
+        id: item.id,
+        titulo: item.titulo,
+        descricao: item.descricao,
+        tipo: item.tipo,
+        arquivo_url: item.arquivo_url,
+        arquivo_tipo: item.arquivo_tipo,
+        data_criacao: item.data_criacao,
+        criado_por: item.criado_por,
+        criado_por_nome: item.perfis?.nome || 'Usuário desconhecido'
+      })) || [];
+
+      setOrientacoes(orientacoesFormatted);
+    } catch (error) {
+      console.error('Erro ao buscar orientações:', error);
+      toast({
+        title: "Erro ao carregar orientações",
+        description: "Não foi possível carregar as orientações. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredOrientacoes = orientacoes.filter((orientacao) => {
     const matchesSearch = 
