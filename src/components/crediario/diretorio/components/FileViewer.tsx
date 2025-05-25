@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -12,7 +11,6 @@ import { Download } from 'lucide-react';
 import { DirectoryFile } from '../types';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { PDFViewer } from '@/components/ui/pdf-viewer';
-import { useState } from 'react';
 
 interface FileViewerProps {
   open: boolean;
@@ -21,8 +19,6 @@ interface FileViewerProps {
 }
 
 export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
-  const [pdfError, setPdfError] = useState(false);
-  
   if (!file) return null;
 
   const isPdf = file.file_type?.includes('pdf') || file.name?.toLowerCase().endsWith('.pdf');
@@ -30,9 +26,6 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
                   /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(file.name || '');
   
   const handleDialogChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      setPdfError(false); // Reset error state when closing
-    }
     onOpenChange(newOpen);
   };
   

@@ -1,4 +1,3 @@
-
 import { UseFormReturn } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,7 @@ interface TarefaFormProps {
 
 export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaFormProps) {
   return (
-    <Card className="p-4 sm:p-6 shadow-sm border-2">
+    <Card className="p-4 sm:p-6 shadow-sm border">
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg sm:text-xl font-semibold text-foreground">Nova Tarefa</h3>

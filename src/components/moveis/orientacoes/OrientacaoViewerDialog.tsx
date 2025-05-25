@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Orientacao } from "./types";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { PDFViewer } from "@/components/ui/pdf-viewer";
 
 interface OrientacaoViewerDialogProps {
   open: boolean;
@@ -31,12 +31,8 @@ export function OrientacaoViewerDialog({
       );
     } else if (orientacao.arquivo_tipo.includes("pdf")) {
       return (
-        <div className="w-full h-[70vh] overflow-hidden rounded border">
-          <iframe
-            src={`${orientacao.arquivo_url}#view=FitH`}
-            className="w-full h-full"
-            title={orientacao.titulo}
-          />
+        <div className="w-full h-[70vh] overflow-hidden rounded">
+          <PDFViewer url={orientacao.arquivo_url} className="h-full" />
         </div>
       );
     } else {
@@ -68,19 +64,19 @@ export function OrientacaoViewerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-xl flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {orientacao.titulo}
+      <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[95vh] overflow-hidden flex flex-col p-4 sm:p-6">
+        <DialogHeader className="pb-4">
+          <DialogTitle className="text-lg sm:text-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold">{orientacao.titulo}</span>
               {getTipoBadge(orientacao.tipo)}
             </div>
-            <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Button variant="outline" size="sm" onClick={handleDownload} className="w-full mt-2 sm:mt-0 sm:w-auto whitespace-nowrap">
               <Download className="h-4 w-4 mr-2" />
               Download
             </Button>
           </DialogTitle>
-          <div className="flex justify-between items-center text-sm text-muted-foreground mt-1">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-1 gap-1">
             <span>
               {orientacao.criado_por_nome && `Por: ${orientacao.criado_por_nome}`}
             </span>

@@ -1,51 +1,52 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, RefObject, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFRendererProps {
   url: string;
+  scale: number;
+  fitMode: 'width' | 'page' | 'custom';
+  containerRef: RefObject<HTMLDivElement>;
   onSuccess: (numPages: number) => void;
   onError: (error: string) => void;
   onProgress?: (progress: number) => void;
   loadAttempts: number;
 }
 
-export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts }: PDFRendererProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isMountedRef = useRef(false); // Rastreador de montagem
+export function PDFRenderer({ 
+  url, 
+  scale: userScale,
+  fitMode,
+  containerRef,
+  onSuccess, 
+  onError, 
+  onProgress, 
+  loadAttempts 
+}: PDFRendererProps) {
+  const pageContainerRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(false);
+
+  const [isPanning, setIsPanning] = useState(false);
+  const [startPanPosition, setStartPanPosition] = useState({ x: 0, y: 0 });
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     isMountedRef.current = true;
-    console.log(`PDFRenderer: Montado/Atualizado. URL: ${url}, Tentativa (0-indexed): ${loadAttempts}`);
     if (url) {
         renderPDF();
     } else {
-        console.log("PDFRenderer: useEffect - URL ausente, não chamando renderPDF.");
+        if (pageContainerRef.current) pageContainerRef.current.innerHTML = '';
+        setPanOffset({x:0, y:0});
     }
     return () => {
-        console.log(`PDFRenderer: Desmontando. URL: ${url}`);
         isMountedRef.current = false;
     };
-  }, [url, loadAttempts]);
+  }, [url, loadAttempts, userScale, fitMode]);
 
   const fetchPdfBytes = async (pdfUrl: string): Promise<ArrayBuffer | null> => {
     try {
-      console.log('PDFRenderer: Fazendo fetch direto do PDF:', pdfUrl, `Tentativa: ${loadAttempts}`);
-      
-      const response = await fetch(pdfUrl, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-        headers: {
-          'Accept': 'application/pdf,*/*',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Erro ao baixar PDF: ${response.status} ${response.statusText}`);
-      }
-      
+      const response = await fetch(pdfUrl, { method: 'GET', mode: 'cors', cache: 'no-cache', headers: { 'Accept': 'application/pdf,*/*' } });
+      if (!response.ok) throw new Error(`Erro ao baixar PDF: ${response.status} ${response.statusText}`);
       const arrayBuffer = await response.arrayBuffer();
-      console.log('PDFRenderer: PDF baixado com sucesso, tamanho:', arrayBuffer.byteLength);
       return arrayBuffer;
     } catch (err) {
       console.error('PDFRenderer: Erro ao baixar PDF como bytes:', err);
@@ -54,154 +55,151 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
   };
 
   const renderPDF = async () => {
-    if (!isMountedRef.current) {
-        console.log("PDFRenderer: renderPDF chamado mas componente não montado. Abortando.");
-        return;
-    }
+    if (!isMountedRef.current || !url) return;
 
-    if (!containerRef.current || !url) {
-        console.log("PDFRenderer: Container ou URL ausente, não renderizando.");
-        if (!url && isMountedRef.current) onError("URL do PDF não fornecida ao renderer.");
-        else if (!containerRef.current && isMountedRef.current) onError("Referência do container não está disponível no renderer.");
-        return;
-    }
-
+    let pdf: pdfjsLib.PDFDocumentProxy | null = null;
     try {
-      console.log('PDFRenderer: Iniciando carregamento do PDF:', url, `Tentativa: ${loadAttempts}`);
-      
       const data = await fetchPdfBytes(url);
-      if (!isMountedRef.current) return; // Verificar após await
-
-      if (!data) {
-        throw new Error('Falha ao baixar PDF (dados nulos retornados)');
+      if (!isMountedRef.current || !data) {
+        if (data === null && isMountedRef.current) throw new Error('Falha ao baixar PDF (dados nulos retornados após fetch bem-sucedido aparentemente)');
+        return;
       }
       
       const pdfjsVersion = pdfjsLib.version;
-      const loadingTask = pdfjsLib.getDocument({ 
-          data,
-          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/cmaps/`,
-          cMapPacked: true,
-          enableXfa: true,
-          isEvalSupported: false,
-          disableAutoFetch: false,
-          disableStream: false,
-          rangeChunkSize: 65536,
-          withCredentials: false
-      });
-
+      const loadingTask = pdfjsLib.getDocument({ data, cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/cmaps/`, cMapPacked: true, enableXfa: true, isEvalSupported: false, disableAutoFetch: false, disableStream: false, rangeChunkSize: 65536, withCredentials: false });
+      
       if ('onProgress' in loadingTask && onProgress) {
-        loadingTask.onProgress = (progress: any) => {
-          if (progress && progress.total > 0) {
-            const percentage = Math.round(progress.loaded / progress.total * 100);
-            onProgress(percentage);
+        loadingTask.onProgress = (progressData: any) => {
+          if (progressData && progressData.total > 0) {
+            const percentage = Math.round(progressData.loaded / progressData.total * 100);
+            if (onProgress) onProgress(percentage);
           }
         };
       }
-      
-      const pdf = await Promise.race([
+
+      pdf = await Promise.race([
         loadingTask.promise,
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout ao carregar PDF')), 20000)
-        )
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout ao carregar PDF')), 20000))
       ]) as pdfjsLib.PDFDocumentProxy;
-      if (!isMountedRef.current) return; // Verificar após await
-
-      console.log('PDFRenderer: PDF carregado com sucesso. Páginas:', pdf.numPages);
-      onSuccess(pdf.numPages);
-
-      if (!isMountedRef.current || !containerRef.current) {
-        console.warn("PDFRenderer: Componente desmontado ou containerRef nulo antes de limpar innerHTML.");
-        return;
-      }
-      containerRef.current.innerHTML = '';
-
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        if (!isMountedRef.current || !containerRef.current) {
-            console.warn("PDFRenderer: Componente desmontado ou containerRef nulo durante renderização de páginas.");
-            break;
-        }
-        try {
-          const page = await pdf.getPage(pageNum);
-          if (!isMountedRef.current) break; // Verificar após await
-
-          console.log(`Renderizando página ${pageNum}`);
-          
-          const containerWidth = containerRef.current?.clientWidth || 800;
-          const viewport = page.getViewport({ scale: 1 });
-          const scale = Math.min(containerWidth / viewport.width, 2);
-          const scaledViewport = page.getViewport({ scale });
-          
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d', { alpha: false });
-          
-          if (!context) {
-            console.error('Não foi possível criar o contexto 2D para o canvas');
-            continue;
-          }
-          
-          canvas.height = scaledViewport.height;
-          canvas.width = scaledViewport.width;
-          canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-full h-auto block mx-auto bg-white';
-          
-          if (!isMountedRef.current || !containerRef.current) {
-            console.warn("PDFRenderer: Componente desmontado ou containerRef nulo antes de adicionar canvas à página.");
-            break;
-          }
-          containerRef.current.appendChild(canvas);
-          
-          const renderContext = {
-            canvasContext: context,
-            viewport: scaledViewport,
-            background: 'white',
-            intent: 'display'
-          };
-          
-          await page.render(renderContext).promise;
-          if (!isMountedRef.current) break; // Verificar após await
-
-          console.log(`Página ${pageNum} renderizada com sucesso`);
-        } catch (pageError) {
-          if (!isMountedRef.current) {
-            console.warn("PDFRenderer: Erro ao renderizar página, mas componente desmontado.", pageError);
-            break; 
-          }
-          console.error(`Erro ao renderizar página ${pageNum}:`, pageError);
-        }
-      }
       
+      if (!isMountedRef.current) return;
+      onSuccess(pdf.numPages);    
     } catch (err: any) {
-      if (!isMountedRef.current) {
-        console.warn("PDFRenderer: Erro principal capturado, mas componente desmontado.", err);
-        return;
+      if (!isMountedRef.current) return;
+      console.error('PDFRenderer: Erro ao carregar DOCUMENTO PDF:', err);
+      let errMsg = 'Não foi possível carregar o PDF.';
+      if (err.name === 'InvalidPDFException') errMsg = 'O arquivo não é um PDF válido.';
+      else if (err.name === 'MissingPDFException') errMsg = 'Arquivo PDF não encontrado.';
+      else if (err.name === 'UnexpectedResponseException') errMsg = 'Erro de rede ao carregar o PDF.';
+      else if (err.message?.includes('CORS')) errMsg = 'Erro de permissão (CORS) ao acessar o PDF.';
+      else if (err.message?.includes('worker')) errMsg = 'Erro ao carregar o worker do PDF.js.';
+      else if (err.message?.includes('Timeout')) errMsg = 'O carregamento do PDF demorou muito tempo.';
+      else if (err.message?.includes('fetch')) errMsg = 'Erro ao baixar o arquivo PDF.';
+      onError(`${errMsg} (${err.message || 'Erro desconhecido'})`);
+      return;
+    }
+
+    if (!pdf) return;
+    if (!pageContainerRef.current) {
+      return;
+    }
+
+    if (fitMode !== 'custom') setPanOffset({ x: 0, y: 0 });
+    pageContainerRef.current.innerHTML = '';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      if (!isMountedRef.current || !pageContainerRef.current) break;
+      try {
+        const page = await pdf.getPage(pageNum);
+        if (!isMountedRef.current) break;
+
+        const { current: renderOutputContainer } = containerRef;
+        const { current: actualPageCanvasContainer } = pageContainerRef;
+
+        if (!actualPageCanvasContainer) break; 
+
+        let newScale = userScale;
+        const viewport = page.getViewport({ scale: 1 });
+
+        if (renderOutputContainer) {
+          const containerWidth = renderOutputContainer.clientWidth;
+          const containerHeight = renderOutputContainer.clientHeight;
+
+          if (fitMode !== 'custom' && (containerWidth === 0 || containerHeight === 0) ) {
+          } else if (fitMode === 'width' && containerWidth > 0) {
+            newScale = containerWidth / viewport.width;
+          } else if (fitMode === 'page' && containerWidth > 0 && containerHeight > 0) {
+            const scaleWidth = containerWidth / viewport.width;
+            const scaleHeight = containerHeight / viewport.height;
+            newScale = Math.min(scaleWidth, scaleHeight);
+          }
+        } else if (fitMode !== 'custom') {
+        }
+        
+        newScale = Math.max(0.1, Math.min(newScale, 5.0));
+
+        const scaledViewport = page.getViewport({ scale: newScale });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d', { alpha: false });
+        if (!context) { console.error(`Ctx 2D falhou p/ pág ${pageNum}`); continue; }
+        
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+        canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-none h-auto block mx-auto bg-white';
+        actualPageCanvasContainer.appendChild(canvas);
+        
+        await page.render({ canvasContext: context, viewport: scaledViewport, background: 'white', intent: 'display' }).promise;
+        if (!isMountedRef.current) break;
+      } catch (pageError) {
+        if (!isMountedRef.current) break;
+        console.error(`Erro ao renderizar página ${pageNum}:`, pageError);
       }
-      console.error('PDFRenderer: Erro ao carregar PDF (dentro do try/catch principal):', err);
-      
-      let errorMessage = 'Não foi possível carregar o PDF.';
-      
-      if (err.name === 'InvalidPDFException') {
-        errorMessage = 'O arquivo não é um PDF válido.';
-      } else if (err.name === 'MissingPDFException') {
-        errorMessage = 'Arquivo PDF não encontrado.';
-      } else if (err.name === 'UnexpectedResponseException') {
-        errorMessage = 'Erro de rede ao carregar o PDF.';
-      } else if (err.message?.includes('CORS')) {
-        errorMessage = 'Erro de permissão (CORS) ao acessar o PDF.';
-      } else if (err.message?.includes('worker')) {
-        errorMessage = 'Erro ao carregar o worker do PDF.js.';
-      } else if (err.message?.includes('Timeout')) {
-        errorMessage = 'O carregamento do PDF demorou muito tempo.';
-      } else if (err.message?.includes('fetch')) {
-        errorMessage = 'Erro ao baixar o arquivo PDF.';
-      }
-      
-      onError(`${errorMessage} (${err.message || 'Erro desconhecido'})`);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    setIsPanning(true);
+    setStartPanPosition({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+    let targetElement = e.target as HTMLElement;
+    if (targetElement.tagName === 'CANVAS') targetElement = targetElement.parentElement || targetElement;
+    targetElement.style.cursor = 'grabbing';
+    pageContainerRef.current?.style.setProperty('user-select', 'none');
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isPanning) return;
+    setPanOffset({ x: e.clientX - startPanPosition.x, y: e.clientY - startPanPosition.y });
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsPanning(false);
+    let targetElement = e.target as HTMLElement;
+    if (targetElement.tagName === 'CANVAS') targetElement = targetElement.parentElement || targetElement;
+    targetElement.style.cursor = 'grab';
+    pageContainerRef.current?.style.removeProperty('user-select');
+  };
+  
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isPanning) {
+      setIsPanning(false); 
+      let targetElement = e.target as HTMLElement;
+      if (targetElement.tagName === 'CANVAS') targetElement = targetElement.parentElement || targetElement;
+      targetElement.style.cursor = 'grab';
+      pageContainerRef.current?.style.removeProperty('user-select');
     }
   };
 
   return (
     <div 
-      ref={containerRef}
-      className="w-full overflow-x-auto flex flex-col items-center space-y-4 bg-gray-50 p-4 rounded-lg"
-    />
+      ref={pageContainerRef}
+      className="w-full h-full flex flex-col items-center space-y-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg cursor-grab select-none"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave} 
+      style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)`, transition: isPanning ? 'none' : 'transform 0.1s ease-out' }}
+    >
+    </div>
   );
 }

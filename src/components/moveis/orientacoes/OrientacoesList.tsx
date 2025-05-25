@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -121,39 +120,39 @@ export function OrientacoesList() {
         <div className="w-full overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
-              <TableCaption className="text-xs sm:text-sm">
+              <TableCaption className="text-xs sm:text-sm py-2 sm:py-4">
                 Lista de orientações de montagem de móveis.
               </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[120px] text-xs sm:text-sm">Título</TableHead>
-                  <TableHead className="min-w-[80px] text-xs sm:text-sm">Tipo</TableHead>
-                  <TableHead className="min-w-[100px] text-xs sm:text-sm hidden sm:table-cell">Data</TableHead>
-                  <TableHead className="min-w-[80px] text-xs sm:text-sm hidden md:table-cell">Criado por</TableHead>
-                  <TableHead className="min-w-[80px] text-right text-xs sm:text-sm">Ações</TableHead>
+                  <TableHead className="min-w-[120px] text-xs sm:text-sm px-2 py-3 sm:px-4 sm:py-3">Título</TableHead>
+                  <TableHead className="min-w-[80px] text-xs sm:text-sm px-2 py-3 sm:px-4 sm:py-3">Tipo</TableHead>
+                  <TableHead className="min-w-[100px] text-xs sm:text-sm hidden sm:table-cell px-2 py-3 sm:px-4 sm:py-3">Data</TableHead>
+                  <TableHead className="min-w-[80px] text-xs sm:text-sm hidden md:table-cell px-2 py-3 sm:px-4 sm:py-3">Criado por</TableHead>
+                  <TableHead className="min-w-[80px] text-right text-xs sm:text-sm px-2 py-3 sm:px-4 sm:py-3">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {orientacoes.map((orientacao) => (
                   <TableRow key={orientacao.id}>
-                    <TableCell className="font-medium text-xs sm:text-sm max-w-[120px] truncate">
+                    <TableCell className="font-medium text-xs sm:text-sm max-w-[120px] truncate px-2 py-3 sm:px-4 sm:py-3">
                       {orientacao.titulo}
                     </TableCell>
-                    <TableCell className="text-xs sm:text-sm">
+                    <TableCell className="text-xs sm:text-sm px-2 py-3 sm:px-4 sm:py-3">
                       {renderBadge(orientacao.tipo)}
                     </TableCell>
-                    <TableCell className="text-xs sm:text-sm hidden sm:table-cell">
+                    <TableCell className="text-xs sm:text-sm hidden sm:table-cell px-2 py-3 sm:px-4 sm:py-3">
                       {format(new Date(orientacao.data_criacao), 'dd/MM/yyyy', { locale: ptBR })}
                     </TableCell>
-                    <TableCell className="text-xs sm:text-sm hidden md:table-cell max-w-[80px] truncate">
+                    <TableCell className="text-xs sm:text-sm hidden md:table-cell max-w-[80px] truncate px-2 py-3 sm:px-4 sm:py-3">
                       {orientacao.criado_por_nome}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right px-2 py-3 sm:px-4 sm:py-3">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-6 w-6 sm:h-8 sm:w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Abrir menu</span>
-                            <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">

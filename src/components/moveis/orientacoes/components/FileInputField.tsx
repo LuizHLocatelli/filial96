@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,17 +36,18 @@ export function FileInputField({ form, onFileChange, arquivo }: FileInputFieldPr
                 onChange={onFileChange}
                 {...field}
               />
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById("arquivo")?.click()}
+                  className="whitespace-nowrap"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Escolher Arquivo
                 </Button>
                 {arquivo && (
-                  <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                  <span className="text-sm text-muted-foreground break-all sm:truncate sm:max-w-[200px]">
                     {arquivo.name}
                   </span>
                 )}
