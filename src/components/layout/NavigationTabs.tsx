@@ -1,5 +1,4 @@
-
-import { Home, Bell, Settings, Shield, User, Sofa } from "lucide-react";
+import { Home, Bell, Settings, Shield, User, Sofa, DollarSign, Image } from "lucide-react";
 import { ExpandableTabs } from "@/components/ui/expandable-tabs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -14,10 +13,8 @@ export function NavigationTabs() {
   const tabs = [
     { title: "Dashboard", icon: Home, path: "/" },
     { title: "Móveis", icon: Sofa, path: "/moveis" },
-    { type: "separator" } as const,
-    { title: "Crediário", icon: Shield, path: "/crediario" },
-    { title: "Cards", icon: User, path: "/cards-promocionais" },
-    { title: "Perfil", icon: Settings, path: "/perfil" },
+    { title: "Crediário", icon: DollarSign, path: "/crediario" },
+    { title: "Cards", icon: Image, path: "/cards-promocionais" },
   ];
   
   useEffect(() => {
@@ -29,12 +26,13 @@ export function NavigationTabs() {
     if (tabIndex !== -1) {
       setSelectedTab(tabIndex);
     }
-  }, [location.pathname]);
+  }, [location.pathname, tabs]);
   
   const handleTabChange = (index: number | null) => {
     setSelectedTab(index);
     if (index !== null && 'path' in tabs[index]) {
-      navigate(tabs[index].path);
+      const tabWithPath = tabs[index] as { path: string };
+      navigate(tabWithPath.path);
     }
   };
   

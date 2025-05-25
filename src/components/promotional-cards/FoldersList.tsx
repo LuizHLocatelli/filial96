@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,11 +11,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { EditFolderDialog, Folder as FolderType } from "./EditFolderDialog";
+import { DeleteFolderDialog } from "./DeleteFolderDialog";
 
 interface FoldersListProps {
   sector: "furniture" | "fashion" | "loan" | "service";
@@ -25,96 +22,20 @@ interface FoldersListProps {
 }
 
 export function FoldersList({ sector, selectedFolderId, onSelectFolder }: FoldersListProps) {
-  const { folders, isLoading } = useFolders(sector);
+  const { folders, isLoading, mutateFolders } = useFolders(sector) as any;
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [folderForEdit, setFolderForEdit] = useState<FolderType | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedFolder, setSelectedFolder] = useState<{id: string, name: string} | null>(null);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [folderForDelete, setFolderForDelete] = useState<FolderType | null>(null);
 
-  const handleEdit = (folder: {id: string, name: string}) => {
-    setSelectedFolder(folder);
-    setNewFolderName(folder.name);
+  const handleOpenEditDialog = (folder: FolderType) => {
+    setFolderForEdit(folder);
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (folder: {id: string, name: string}) => {
-    setSelectedFolder(folder);
+  const handleOpenDeleteDialog = (folder: FolderType) => {
+    setFolderForDelete(folder);
     setIsDeleteDialogOpen(true);
-  };
-
-  const updateFolder = async () => {
-    if (!selectedFolder) return;
-    
-    setIsProcessing(true);
-    try {
-      const { error } = await supabase
-        .from('card_folders')
-        .update({ name: newFolderName.trim() })
-        .eq('id', selectedFolder.id);
-        
-      if (error) throw error;
-      
-      toast({
-        title: "Sucesso",
-        description: "Pasta atualizada com sucesso"
-      });
-      
-      setIsEditDialogOpen(false);
-    } catch (error) {
-      console.error('Error updating folder:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar a pasta",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const deleteFolder = async () => {
-    if (!selectedFolder) return;
-    
-    setIsProcessing(true);
-    try {
-      // First update any cards in this folder to have no folder
-      const { error: updateCardsError } = await supabase
-        .from('promotional_cards')
-        .update({ folder_id: null })
-        .eq('folder_id', selectedFolder.id);
-        
-      if (updateCardsError) throw updateCardsError;
-      
-      // Then delete the folder
-      const { error } = await supabase
-        .from('card_folders')
-        .delete()
-        .eq('id', selectedFolder.id);
-        
-      if (error) throw error;
-      
-      // If we were viewing this folder, reset to all cards
-      if (selectedFolderId === selectedFolder.id) {
-        onSelectFolder(null);
-      }
-      
-      toast({
-        title: "Sucesso",
-        description: "Pasta excluída com sucesso"
-      });
-      
-      setIsDeleteDialogOpen(false);
-    } catch (error) {
-      console.error('Error deleting folder:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir a pasta",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
   };
 
   if (isLoading) {
@@ -152,7 +73,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                 onClick={() => onSelectFolder(folder.id)}
               >
                 <Folder className="mr-2 h-4 w-4" />
-                <span className="truncate">{folder.name}</span>
+                <span className="truncate">{(folder as FolderType).name}</span>
               </Button>
               
               <DropdownMenu>
@@ -162,11 +83,11 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleEdit(folder)}>
+                  <DropdownMenuItem onClick={() => handleOpenEditDialog(folder as FolderType)}>
                     <Pencil className="mr-2 h-4 w-4" /> Editar
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    onClick={() => handleDelete(folder)}
+                    onClick={() => handleOpenDeleteDialog(folder as FolderType)}
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="mr-2 h-4 w-4" /> Excluir
@@ -184,63 +105,34 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         </div>
       </ScrollArea>
 
-      {/* Edit Folder Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Editar Pasta</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="folder-name" className="text-right">
-                Nome
-              </Label>
-              <Input
-                id="folder-name"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                className="col-span-3"
-                autoFocus
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isProcessing}>
-              Cancelar
-            </Button>
-            <Button onClick={updateFolder} disabled={isProcessing || !newFolderName.trim()}>
-              {isProcessing ? "Salvando..." : "Salvar"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditFolderDialog 
+        folder={folderForEdit}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSuccess={() => {
+          setIsEditDialogOpen(false);
+          setFolderForEdit(null);
+          if (typeof mutateFolders === 'function') {
+            mutateFolders();
+          }
+        }}
+      />
 
-      {/* Delete Folder Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirmar Exclusão</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p>Tem certeza que deseja excluir a pasta "{selectedFolder?.name}"?</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Os cards desta pasta não serão excluídos, apenas removidos da pasta.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} disabled={isProcessing}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={deleteFolder} 
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Excluindo..." : "Excluir"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteFolderDialog
+        folder={folderForDelete}
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onSuccess={() => {
+          setIsDeleteDialogOpen(false);
+          if (selectedFolderId === folderForDelete?.id) {
+            onSelectFolder(null);
+          }
+          setFolderForDelete(null);
+          if (typeof mutateFolders === 'function') {
+            mutateFolders();
+          }
+        }}
+      />
     </>
   );
 }
