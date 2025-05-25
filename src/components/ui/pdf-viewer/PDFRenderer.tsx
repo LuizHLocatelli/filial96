@@ -1,21 +1,20 @@
-
 import React, { useRef, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFRendererProps {
-  pdfData: ArrayBuffer | null;
   url: string;
   onSuccess: (numPages: number) => void;
   onError: (error: string) => void;
   onProgress?: (progress: number) => void;
+  loadAttempts: number;
 }
 
-export function PDFRenderer({ pdfData, url, onSuccess, onError, onProgress }: PDFRendererProps) {
+export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts }: PDFRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchPdfBytes = async (pdfUrl: string): Promise<ArrayBuffer | null> => {
     try {
-      console.log('Fazendo fetch direto do PDF:', pdfUrl);
+      console.log('PDFRenderer: Fazendo fetch direto do PDF:', pdfUrl, `Tentativa: ${loadAttempts}`);
       
       const response = await fetch(pdfUrl, {
         method: 'GET',
@@ -31,40 +30,41 @@ export function PDFRenderer({ pdfData, url, onSuccess, onError, onProgress }: PD
       }
       
       const arrayBuffer = await response.arrayBuffer();
-      console.log('PDF baixado com sucesso, tamanho:', arrayBuffer.byteLength);
+      console.log('PDFRenderer: PDF baixado com sucesso, tamanho:', arrayBuffer.byteLength);
       return arrayBuffer;
     } catch (err) {
-      console.error('Erro ao baixar PDF como bytes:', err);
+      console.error('PDFRenderer: Erro ao baixar PDF como bytes:', err);
       return null;
     }
   };
 
   const renderPDF = async () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !url) {
+        console.log("PDFRenderer: Container ou URL ausente, não renderizando.");
+        if (!url) onError("URL do PDF não fornecida ao renderer.");
+        return;
+    }
 
     try {
-      console.log('Iniciando carregamento do PDF:', url);
+      console.log('PDFRenderer: Iniciando carregamento do PDF:', url, `Tentativa: ${loadAttempts}`);
       
-      let data = pdfData;
+      const data = await fetchPdfBytes(url);
       if (!data) {
-        data = await fetchPdfBytes(url);
-        if (!data) throw new Error('Falha ao baixar PDF');
+        throw new Error('Falha ao baixar PDF (dados nulos retornados)');
       }
       
       const pdfjsVersion = pdfjsLib.version;
-      const loadingTask = data 
-        ? pdfjsLib.getDocument({ data }) 
-        : pdfjsLib.getDocument({
-            url,
-            cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/cmaps/`,
-            cMapPacked: true,
-            enableXfa: true,
-            isEvalSupported: false,
-            disableAutoFetch: false,
-            disableStream: false,
-            rangeChunkSize: 65536,
-            withCredentials: false
-          });
+      const loadingTask = pdfjsLib.getDocument({ 
+          data,
+          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/cmaps/`,
+          cMapPacked: true,
+          enableXfa: true,
+          isEvalSupported: false,
+          disableAutoFetch: false,
+          disableStream: false,
+          rangeChunkSize: 65536,
+          withCredentials: false
+      });
 
       if ('onProgress' in loadingTask && onProgress) {
         loadingTask.onProgress = (progress: any) => {
@@ -155,8 +155,13 @@ export function PDFRenderer({ pdfData, url, onSuccess, onError, onProgress }: PD
   };
 
   useEffect(() => {
-    renderPDF();
-  }, [url, pdfData]);
+    console.log(`PDFRenderer: useEffect disparado. URL: ${url}, Tentativa (0-indexed): ${loadAttempts}`);
+    if (url) {
+        renderPDF();
+    } else {
+        console.log("PDFRenderer: useEffect - URL ausente, não chamando renderPDF.");
+    }
+  }, [url, loadAttempts]);
 
   return (
     <div 
