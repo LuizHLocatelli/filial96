@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Search, Filter, Plus, Grid, List } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -38,10 +37,7 @@ export function OrientacoesList() {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('moveis_orientacoes')
-        .select(`
-          *,
-          perfis(nome)
-        `)
+        .select('*')
         .order('data_criacao', { ascending: false });
 
       if (error) {
@@ -54,10 +50,11 @@ export function OrientacoesList() {
         descricao: item.descricao,
         tipo: item.tipo,
         arquivo_url: item.arquivo_url,
+        arquivo_nome: item.arquivo_nome,
         arquivo_tipo: item.arquivo_tipo,
         data_criacao: item.data_criacao,
         criado_por: item.criado_por,
-        criado_por_nome: item.perfis?.nome || 'Usuário desconhecido'
+        criado_por_nome: 'Usuário'
       })) || [];
 
       setOrientacoes(orientacoesFormatted);
