@@ -44,7 +44,7 @@ export function OrientacoesList() {
         throw error;
       }
 
-      const orientacoesFormatted = data?.map(item => ({
+      const orientacoesFormatted: Orientacao[] = data?.map(item => ({
         id: item.id,
         titulo: item.titulo,
         descricao: item.descricao,
