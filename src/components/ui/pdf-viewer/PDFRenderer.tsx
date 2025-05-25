@@ -11,6 +11,21 @@ interface PDFRendererProps {
 
 export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts }: PDFRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(false); // Rastreador de montagem
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    console.log(`PDFRenderer: Montado/Atualizado. URL: ${url}, Tentativa (0-indexed): ${loadAttempts}`);
+    if (url) {
+        renderPDF();
+    } else {
+        console.log("PDFRenderer: useEffect - URL ausente, não chamando renderPDF.");
+    }
+    return () => {
+        console.log(`PDFRenderer: Desmontando. URL: ${url}`);
+        isMountedRef.current = false;
+    };
+  }, [url, loadAttempts]);
 
   const fetchPdfBytes = async (pdfUrl: string): Promise<ArrayBuffer | null> => {
     try {
@@ -39,9 +54,15 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
   };
 
   const renderPDF = async () => {
+    if (!isMountedRef.current) {
+        console.log("PDFRenderer: renderPDF chamado mas componente não montado. Abortando.");
+        return;
+    }
+
     if (!containerRef.current || !url) {
         console.log("PDFRenderer: Container ou URL ausente, não renderizando.");
-        if (!url) onError("URL do PDF não fornecida ao renderer.");
+        if (!url && isMountedRef.current) onError("URL do PDF não fornecida ao renderer.");
+        else if (!containerRef.current && isMountedRef.current) onError("Referência do container não está disponível no renderer.");
         return;
     }
 
@@ -49,6 +70,8 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
       console.log('PDFRenderer: Iniciando carregamento do PDF:', url, `Tentativa: ${loadAttempts}`);
       
       const data = await fetchPdfBytes(url);
+      if (!isMountedRef.current) return; // Verificar após await
+
       if (!data) {
         throw new Error('Falha ao baixar PDF (dados nulos retornados)');
       }
@@ -81,17 +104,26 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
           setTimeout(() => reject(new Error('Timeout ao carregar PDF')), 20000)
         )
       ]) as pdfjsLib.PDFDocumentProxy;
+      if (!isMountedRef.current) return; // Verificar após await
 
-      console.log('PDF carregado com sucesso. Páginas:', pdf.numPages);
+      console.log('PDFRenderer: PDF carregado com sucesso. Páginas:', pdf.numPages);
       onSuccess(pdf.numPages);
 
-      // Clear previous content
+      if (!isMountedRef.current || !containerRef.current) {
+        console.warn("PDFRenderer: Componente desmontado ou containerRef nulo antes de limpar innerHTML.");
+        return;
+      }
       containerRef.current.innerHTML = '';
 
-      // Render each page
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        if (!isMountedRef.current || !containerRef.current) {
+            console.warn("PDFRenderer: Componente desmontado ou containerRef nulo durante renderização de páginas.");
+            break;
+        }
         try {
           const page = await pdf.getPage(pageNum);
+          if (!isMountedRef.current) break; // Verificar após await
+
           console.log(`Renderizando página ${pageNum}`);
           
           const containerWidth = containerRef.current?.clientWidth || 800;
@@ -111,9 +143,11 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
           canvas.width = scaledViewport.width;
           canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-full h-auto block mx-auto bg-white';
           
-          if (containerRef.current) {
-            containerRef.current.appendChild(canvas);
+          if (!isMountedRef.current || !containerRef.current) {
+            console.warn("PDFRenderer: Componente desmontado ou containerRef nulo antes de adicionar canvas à página.");
+            break;
           }
+          containerRef.current.appendChild(canvas);
           
           const renderContext = {
             canvasContext: context,
@@ -123,14 +157,24 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
           };
           
           await page.render(renderContext).promise;
+          if (!isMountedRef.current) break; // Verificar após await
+
           console.log(`Página ${pageNum} renderizada com sucesso`);
         } catch (pageError) {
+          if (!isMountedRef.current) {
+            console.warn("PDFRenderer: Erro ao renderizar página, mas componente desmontado.", pageError);
+            break; 
+          }
           console.error(`Erro ao renderizar página ${pageNum}:`, pageError);
         }
       }
       
     } catch (err: any) {
-      console.error('Erro ao carregar PDF:', err);
+      if (!isMountedRef.current) {
+        console.warn("PDFRenderer: Erro principal capturado, mas componente desmontado.", err);
+        return;
+      }
+      console.error('PDFRenderer: Erro ao carregar PDF (dentro do try/catch principal):', err);
       
       let errorMessage = 'Não foi possível carregar o PDF.';
       
@@ -153,15 +197,6 @@ export function PDFRenderer({ url, onSuccess, onError, onProgress, loadAttempts 
       onError(`${errorMessage} (${err.message || 'Erro desconhecido'})`);
     }
   };
-
-  useEffect(() => {
-    console.log(`PDFRenderer: useEffect disparado. URL: ${url}, Tentativa (0-indexed): ${loadAttempts}`);
-    if (url) {
-        renderPDF();
-    } else {
-        console.log("PDFRenderer: useEffect - URL ausente, não chamando renderPDF.");
-    }
-  }, [url, loadAttempts]);
 
   return (
     <div 
