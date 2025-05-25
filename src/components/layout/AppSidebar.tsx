@@ -1,30 +1,17 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/ui/sidebar";
 import { Calendar, ClipboardCheck, Home, Image, CreditCard, FileText, Coffee, Sofa, Users, FolderArchive, ChevronRight, Star } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
-
 export function AppSidebar() {
   const location = useLocation();
   const pathStart = `/${location.pathname.split('/')[1]}`;
-  const { isDarkMode } = useTheme();
-  
+  const {
+    isDarkMode
+  } = useTheme();
+
   // Estado para controlar quais submenus estão abertos
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     crediario: false,
@@ -38,16 +25,10 @@ export function AppSidebar() {
       [menu]: !prev[menu]
     }));
   };
-
-  return (
-    <Sidebar>
+  return <Sidebar>
       <SidebarHeader className="py-5 border-b border-sidebar-border">
         <Link to="/" className="flex items-center justify-center px-4">
-          <img 
-            src="/lovable-uploads/c066d606-7e09-418e-a6ff-c3a603ac88c9.png" 
-            alt="Filial 96 Logo" 
-            className="h-10 w-auto"
-          />
+          <img src="/lovable-uploads/c066d606-7e09-418e-a6ff-c3a603ac88c9.png" alt="Filial 96 Logo" className="h-10 w-auto" />
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-2 py-4">
@@ -65,11 +46,7 @@ export function AppSidebar() {
               
               {/* Móveis com submenu colapsável */}
               <SidebarMenuItem className="relative">
-                <Collapsible 
-                  open={openMenus.moveis} 
-                  onOpenChange={() => toggleSubmenu('moveis')}
-                  className="w-full"
-                >
+                <Collapsible open={openMenus.moveis} onOpenChange={() => toggleSubmenu('moveis')} className="w-full">
                   <div className="flex items-center w-full">
                     <SidebarMenuButton asChild isActive={pathStart === "/moveis"} className="flex-1">
                       <Link to="/moveis" className="flex items-center gap-2">
@@ -78,17 +55,8 @@ export function AppSidebar() {
                       </Link>
                     </SidebarMenuButton>
                     <CollapsibleTrigger asChild>
-                      <button 
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", 
-                          openMenus.moveis && "bg-sidebar-accent text-sidebar-accent-foreground"
-                        )}
-                        aria-label="Toggle Móveis submenu"
-                      >
-                        <ChevronRight className={cn(
-                          "h-4 w-4 transition-transform", 
-                          openMenus.moveis && "transform rotate-90"
-                        )} />
+                      <button className={cn("flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", openMenus.moveis && "bg-sidebar-accent text-sidebar-accent-foreground")} aria-label="Toggle Móveis submenu">
+                        <ChevronRight className={cn("h-4 w-4 transition-transform", openMenus.moveis && "transform rotate-90")} />
                       </button>
                     </CollapsibleTrigger>
                   </div>
@@ -144,11 +112,7 @@ export function AppSidebar() {
               
               {/* Crediário com submenu colapsável */}
               <SidebarMenuItem className="relative">
-                <Collapsible 
-                  open={openMenus.crediario} 
-                  onOpenChange={() => toggleSubmenu('crediario')}
-                  className="w-full"
-                >
+                <Collapsible open={openMenus.crediario} onOpenChange={() => toggleSubmenu('crediario')} className="w-full">
                   <div className="flex items-center w-full">
                     <SidebarMenuButton asChild isActive={pathStart === "/crediario"} className="flex-1">
                       <Link to="/crediario" className="flex items-center gap-2">
@@ -157,17 +121,8 @@ export function AppSidebar() {
                       </Link>
                     </SidebarMenuButton>
                     <CollapsibleTrigger asChild>
-                      <button 
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", 
-                          openMenus.crediario && "bg-sidebar-accent text-sidebar-accent-foreground"
-                        )}
-                        aria-label="Toggle Crediário submenu"
-                      >
-                        <ChevronRight className={cn(
-                          "h-4 w-4 transition-transform", 
-                          openMenus.crediario && "transform rotate-90"
-                        )} />
+                      <button className={cn("flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", openMenus.crediario && "bg-sidebar-accent text-sidebar-accent-foreground")} aria-label="Toggle Crediário submenu">
+                        <ChevronRight className={cn("h-4 w-4 transition-transform", openMenus.crediario && "transform rotate-90")} />
                       </button>
                     </CollapsibleTrigger>
                   </div>
@@ -225,7 +180,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild isActive={pathStart === "/cards-promocionais"}>
                   <Link to="/cards-promocionais" className="flex items-center gap-2">
                     <Image className="h-5 w-5" />
-                    <span>Cards Promocionais</span>
+                    <span>Cards</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -238,6 +193,5 @@ export function AppSidebar() {
           &copy; {new Date().getFullYear()} Filial 96
         </div>
       </SidebarFooter>
-    </Sidebar>
-  );
+    </Sidebar>;
 }
