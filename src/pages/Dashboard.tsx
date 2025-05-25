@@ -84,7 +84,7 @@ export default function Dashboard() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-0 my-[6px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-0 my-0">
         <StatCard title="Total de Tarefas" value={stats.totalTasks} icon={Activity} description="Tarefas no sistema" isLoading={isLoading} />
         <StatCard title="Tarefas Concluídas" value={stats.completedTasks} icon={CheckCircle2} description="Finalizadas com sucesso" variant="success" trend={{
         value: 12,
