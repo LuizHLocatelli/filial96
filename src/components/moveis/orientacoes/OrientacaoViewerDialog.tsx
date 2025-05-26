@@ -68,8 +68,12 @@ export function OrientacaoViewerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${isPdf ? 'max-w-[98vw] w-[98vw] h-[98vh] max-h-[98vh]' : 'sm:max-w-4xl w-[95vw] max-h-[95vh]'} overflow-hidden flex flex-col p-4 sm:p-6`}>
-        <DialogHeader className="pb-4">
+      <DialogContent className={`${
+        isPdf 
+          ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none m-0 p-0 rounded-none border-0' 
+          : 'sm:max-w-4xl w-[95vw] max-h-[95vh]'
+      } overflow-hidden flex flex-col`}>
+        <DialogHeader className={`${isPdf ? 'absolute top-4 left-4 right-4 z-10 bg-background/95 backdrop-blur-sm rounded-lg p-4' : 'pb-4'}`}>
           <DialogTitle className="text-lg sm:text-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold">{orientacao.titulo}</span>

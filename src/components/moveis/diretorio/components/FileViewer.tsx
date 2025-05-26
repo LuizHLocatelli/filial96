@@ -32,8 +32,12 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogContent className={`${isPdf ? 'max-w-[98vw] w-[98vw] h-[98vh] max-h-[98vh]' : 'sm:max-w-[900px] max-h-[90vh]'} overflow-hidden flex flex-col`}>
-        <DialogHeader className="pb-2">
+      <DialogContent className={`${
+        isPdf 
+          ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none m-0 p-0 rounded-none border-0' 
+          : 'sm:max-w-[900px] max-h-[90vh]'
+      } overflow-hidden flex flex-col`}>
+        <DialogHeader className={`${isPdf ? 'absolute top-4 left-4 right-4 z-10 bg-background/95 backdrop-blur-sm rounded-lg p-4' : 'pb-2'}`}>
           <DialogTitle>{file.name}</DialogTitle>
           {file.description && (
             <DialogDescription>
