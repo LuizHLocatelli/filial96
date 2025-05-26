@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Orientacao } from "./types";
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +19,11 @@ export function OrientacaoViewerDialog({
   onOpenChange,
   orientacao
 }: OrientacaoViewerDialogProps) {
+  const isPdf = orientacao.arquivo_tipo.includes("pdf");
+  const isImage = orientacao.arquivo_tipo.includes("image");
+  
   const renderContent = () => {
-    if (orientacao.arquivo_tipo.includes("image")) {
+    if (isImage) {
       return (
         <div className="w-full h-96 overflow-auto">
           <img
@@ -29,10 +33,10 @@ export function OrientacaoViewerDialog({
           />
         </div>
       );
-    } else if (orientacao.arquivo_tipo.includes("pdf")) {
+    } else if (isPdf) {
       return (
-        <div className="w-full h-[70vh] overflow-hidden rounded">
-          <PDFViewer url={orientacao.arquivo_url} className="h-full" />
+        <div className="w-full h-full">
+          <PDFViewer url={orientacao.arquivo_url} className="h-full w-full" />
         </div>
       );
     } else {
@@ -64,7 +68,7 @@ export function OrientacaoViewerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[95vh] overflow-hidden flex flex-col p-4 sm:p-6">
+      <DialogContent className={`${isPdf ? 'max-w-[98vw] w-[98vw] h-[98vh] max-h-[98vh]' : 'sm:max-w-4xl w-[95vw] max-h-[95vh]'} overflow-hidden flex flex-col p-4 sm:p-6`}>
         <DialogHeader className="pb-4">
           <DialogTitle className="text-lg sm:text-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2 flex-wrap">
@@ -89,12 +93,16 @@ export function OrientacaoViewerDialog({
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto mt-2">
-          <div className="mb-4">
-            <p className="whitespace-pre-wrap">{orientacao.descricao}</p>
-          </div>
+        <div className="flex-1 overflow-hidden">
+          {!isPdf && (
+            <div className="mb-4 overflow-y-auto max-h-32">
+              <p className="whitespace-pre-wrap">{orientacao.descricao}</p>
+            </div>
+          )}
 
-          <div className="mt-4 border-t pt-4">{renderContent()}</div>
+          <div className={`${isPdf ? 'h-full' : 'mt-4 border-t pt-4'}`}>
+            {renderContent()}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

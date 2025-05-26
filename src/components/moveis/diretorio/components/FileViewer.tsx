@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -31,8 +32,8 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className={`${isPdf ? 'max-w-[98vw] w-[98vw] h-[98vh] max-h-[98vh]' : 'sm:max-w-[900px] max-h-[90vh]'} overflow-hidden flex flex-col`}>
+        <DialogHeader className="pb-2">
           <DialogTitle>{file.name}</DialogTitle>
           {file.description && (
             <DialogDescription>
@@ -40,18 +41,19 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
             </DialogDescription>
           )}
         </DialogHeader>
-        <div className="py-4">
+        
+        <div className="flex-1 overflow-hidden">
           {isPdf && (
-            <div className="w-full">
+            <div className="w-full h-full">
               <PDFViewer 
                 url={file.file_url} 
-                className="min-h-[500px]" 
+                className="h-full w-full" 
               />
             </div>
           )}
           
           {isImage && (
-            <div className="w-full">
+            <div className="w-full overflow-y-auto py-4">
               <AspectRatio ratio={16 / 9} className="bg-muted">
                 <img
                   src={file.file_url}
@@ -73,20 +75,23 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
             </div>
           )}
         </div>
-        <DialogFooter>
-          <Button asChild>
-            <a 
-              href={file.file_url} 
-              download 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              <span>Baixar</span>
-            </a>
-          </Button>
-        </DialogFooter>
+        
+        {!isPdf && (
+          <DialogFooter className="pt-2">
+            <Button asChild>
+              <a 
+                href={file.file_url} 
+                download 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Baixar</span>
+              </a>
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
