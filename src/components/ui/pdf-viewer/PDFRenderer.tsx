@@ -428,7 +428,7 @@ export function PDFRenderer({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave} 
       style={{
-        transformOrigin: 'center',
+        transformOrigin: 'top left',
         transform: previewScale !== null 
             ? `translate(${panOffset.x}px, ${panOffset.y}px) scale(${previewScale})` 
             : `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`,
