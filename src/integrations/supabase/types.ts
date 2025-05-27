@@ -1243,6 +1243,7 @@ export type Database = {
           filial: string
           id: string
           nome_cliente: string
+          observacoes: string | null
           previsao_chegada: string | null
           produtos: Json
           status: string
@@ -1257,6 +1258,7 @@ export type Database = {
           filial: string
           id?: string
           nome_cliente: string
+          observacoes?: string | null
           previsao_chegada?: string | null
           produtos: Json
           status: string
@@ -1271,6 +1273,7 @@ export type Database = {
           filial?: string
           id?: string
           nome_cliente?: string
+          observacoes?: string | null
           previsao_chegada?: string | null
           produtos?: Json
           status?: string
