@@ -1,9 +1,8 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { VendaO, statusOptions } from "@/types/vendaO";
+import { VendaO } from "@/types/vendaO";
 import { SalesList } from "./SalesList";
 import { Loader2, Search, Package, Users, Clock, CheckCircle, TrendingUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,12 +16,11 @@ interface SalesDashboardProps {
 }
 
 export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: SalesDashboardProps) {
-  const [activeTab, setActiveTab] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const isMobile = useIsMobile();
   
   // Filtrar vendas por busca
-  const filteredSalesBySearch = sales.filter(sale => {
+  const filteredSales = sales.filter(sale => {
     if (!searchTerm) return true;
     const searchLower = searchTerm.toLowerCase();
     return (
@@ -37,27 +35,12 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
     );
   });
   
-  // Filtrar por status
-  const filteredSales = activeTab === "all" 
-    ? filteredSalesBySearch 
-    : filteredSalesBySearch.filter(sale => sale.status === activeTab);
-  
   const counts = {
-    all: filteredSalesBySearch.length,
-    aguardando_produto: filteredSalesBySearch.filter(s => s.status === 'aguardando_produto').length,
-    aguardando_cliente: filteredSalesBySearch.filter(s => s.status === 'aguardando_cliente').length,
-    pendente: filteredSalesBySearch.filter(s => s.status === 'pendente').length,
-    concluida: filteredSalesBySearch.filter(s => s.status === 'concluida').length,
-  };
-
-  const getTitleByStatus = (status: string): string => {
-    switch(status) {
-      case 'aguardando_produto': return 'Aguardando Produto';
-      case 'aguardando_cliente': return 'Aguardando Cliente';
-      case 'pendente': return 'Pendentes';
-      case 'concluida': return 'Concluídas';
-      default: return 'Todas as Vendas';
-    }
+    all: filteredSales.length,
+    aguardando_produto: filteredSales.filter(s => s.status === 'aguardando_produto').length,
+    aguardando_cliente: filteredSales.filter(s => s.status === 'aguardando_cliente').length,
+    pendente: filteredSales.filter(s => s.status === 'pendente').length,
+    concluida: filteredSales.filter(s => s.status === 'concluida').length,
   };
 
   const getStatusIcon = (status: string) => {
@@ -97,19 +80,6 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
     <div className="space-y-6">
       {/* Header com estatísticas */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Vendas O</h2>
-            <p className="text-muted-foreground">
-              Gerencie vendas de outras filiais com entrega ou retirada na nossa loja
-            </p>
-          </div>
-          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 w-fit">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            {sales.length} vendas cadastradas
-          </Badge>
-        </div>
-
         {/* Campo de pesquisa */}
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -135,10 +105,9 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
             return (
               <Card 
                 key={stat.key} 
-                className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
-                onClick={() => setActiveTab(stat.key)}
+                className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${colorClass} opacity-5 group-hover:opacity-10 transition-opacity`} />
+                <div className={`absolute inset-0 bg-gradient-to-br ${colorClass} opacity-5`} />
                 <CardContent className="p-4 sm:p-6 relative">
                   <div className="flex items-center justify-between">
                     <div className="space-y-2">
@@ -163,9 +132,9 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Search className="h-4 w-4" />
           <span>
-            {filteredSalesBySearch.length} resultado(s) encontrado(s) para "{searchTerm}"
+            {filteredSales.length} resultado(s) encontrado(s) para "{searchTerm}"
           </span>
-          {filteredSalesBySearch.length !== sales.length && (
+          {filteredSales.length !== sales.length && (
             <button
               onClick={() => setSearchTerm("")}
               className="text-primary hover:underline ml-2"
@@ -176,67 +145,13 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
         </div>
       )}
         
-      {/* Tabs de filtros */}
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <div className="overflow-x-auto pb-2">
-          <TabsList className="grid w-full min-w-max grid-cols-5 h-14 bg-muted/30 p-1 rounded-xl">
-            <TabsTrigger 
-              value="all" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium">Todas</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.all}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="aguardando_produto" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Produtos</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.aguardando_produto}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="aguardando_cliente" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Clientes</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.aguardando_cliente}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="pendente" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Pendentes</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.pendente}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="concluida" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Concluídas</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.concluida}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <TabsContent value={activeTab} className="mt-6">
-          <SalesList 
-            sales={filteredSales} 
-            title={getTitleByStatus(activeTab)}
-            onStatusChange={onStatusChange}
-            onDelete={onDelete}
-          />
-        </TabsContent>
-      </Tabs>
+      {/* Lista de vendas */}
+      <SalesList 
+        sales={filteredSales} 
+        title="Todas as Vendas"
+        onStatusChange={onStatusChange}
+        onDelete={onDelete}
+      />
     </div>
   );
 }
