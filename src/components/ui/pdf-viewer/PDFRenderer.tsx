@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, RefObject, useState, TouchEvent } from 'react';
+import React, { useRef, useEffect, RefObject, useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFRendererProps {
@@ -39,10 +39,25 @@ export function PDFRenderer({
   const [isFinalizingZoom, setIsFinalizingZoom] = useState(false);
   const finalizeZoomTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Para detecção de duplo toque
+  const lastTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
+  const DOUBLE_TAP_DELAY = 300; // ms
+  const DOUBLE_TAP_MAX_DISTANCE = 30; // pixels
+  const DOUBLE_TAP_ZOOM_SCALE = 1.75; // Escala para aplicar no duplo toque
+
   // Definindo as constantes localmente para clamping do previewScale
   // Idealmente, poderiam vir como props se fossem dinâmicas no PDFViewer
   const RENDERER_MIN_SCALE = 0.25;
   const RENDERER_MAX_SCALE = 3.0;
+
+  const getDistanceBetweenTouches = useCallback((touches: TouchList): number => {
+    const touch1 = touches[0];
+    const touch2 = touches[1];
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  }, []); // Sem dependências, é uma função pura
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -280,31 +295,73 @@ export function PDFRenderer({
     }
   };
 
-  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+  const handleTouchStart = useCallback((e: globalThis.TouchEvent) => {
+    if (finalizeZoomTimeoutRef.current) {
+        clearTimeout(finalizeZoomTimeoutRef.current);
+        finalizeZoomTimeoutRef.current = null;
+        setIsFinalizingZoom(false); 
+    }
+    if (pageContainerRef.current && previewScale !== null) {
+        pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
+    }
+    setPreviewScale(null);
+
     if (e.touches.length === 1) {
-      // Pan
+      const currentTime = new Date().getTime();
+      const currentTouch = e.touches[0];
+      if (lastTapRef.current && 
+          (currentTime - lastTapRef.current.time) < DOUBLE_TAP_DELAY &&
+          Math.abs(currentTouch.clientX - lastTapRef.current.x) < DOUBLE_TAP_MAX_DISTANCE &&
+          Math.abs(currentTouch.clientY - lastTapRef.current.y) < DOUBLE_TAP_MAX_DISTANCE) {
+        console.log('[PDFRenderer] Double tap detected!');
+        e.preventDefault(); 
+        let newScaleTarget;
+        if (Math.abs(userScale - 1.0) < 0.1) {
+          newScaleTarget = DOUBLE_TAP_ZOOM_SCALE;
+        } else {
+          newScaleTarget = 1.0; 
+        }
+        console.log('[PDFRenderer] Double tap - newScaleTarget:', newScaleTarget);
+        if (onScaleChange) {
+          onScaleChange(newScaleTarget);
+        }
+        lastTapRef.current = null; 
+        setIsPanning(false); 
+        setIsPinching(false); 
+        return; 
+      }
+      lastTapRef.current = { time: currentTime, x: currentTouch.clientX, y: currentTouch.clientY };
+    }
+
+    if (e.touches.length === 1) {
       setIsPanning(true);
-      setStartPanPosition({ 
-        x: e.touches[0].clientX - panOffset.x, 
-        y: e.touches[0].clientY - panOffset.y 
-      });
+      setStartPanPosition({ x: e.touches[0].clientX - panOffset.x, y: e.touches[0].clientY - panOffset.y });
     } else if (e.touches.length === 2) {
-      // Pinch
       e.preventDefault(); 
       setIsPinching(true);
-      setInitialPinchDistance(getDistanceBetweenTouches(e.touches));
-      setInitialScale(userScale); // GARANTE que initialScale é a userScale atual no início da pinça
-      setPreviewScale(userScale); // Inicia o preview com a escala atual para evitar saltos
+      lastTapRef.current = null; 
+      setInitialPinchDistance(getDistanceBetweenTouches(e.touches)); 
+      setInitialScale(userScale); 
+      setPreviewScale(userScale); 
     }
-  };
+  }, [userScale, panOffset.x, panOffset.y, previewScale, onScaleChange, getDistanceBetweenTouches, DOUBLE_TAP_DELAY, DOUBLE_TAP_MAX_DISTANCE, DOUBLE_TAP_ZOOM_SCALE, initialScale]); 
 
-  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+  const handleTouchMove = useCallback((e: globalThis.TouchEvent) => {
+    if (e.touches.length === 1 && lastTapRef.current) {
+        const currentTouch = e.touches[0];
+        if (Math.abs(currentTouch.clientX - lastTapRef.current.x) > DOUBLE_TAP_MAX_DISTANCE ||
+            Math.abs(currentTouch.clientY - lastTapRef.current.y) > DOUBLE_TAP_MAX_DISTANCE) {
+            lastTapRef.current = null; 
+        }
+    }
+
     if (isPanning && e.touches.length === 1) {
+      e.preventDefault(); 
       const newX = e.touches[0].clientX - startPanPosition.x;
       const newY = e.touches[0].clientY - startPanPosition.y;
       setPanOffset({ x: newX, y: newY });
       if (pageContainerRef.current) {
-        const currentPreviewScale = previewScale !== null ? previewScale : 1; // Usa previewScale se estiver em pinch, senão 1
+        const currentPreviewScale = previewScale !== null ? previewScale : 1;
         pageContainerRef.current.style.transform = `translate(${newX}px, ${newY}px) scale(${currentPreviewScale})`;
       }
     } else if (isPinching && e.touches.length === 2) {
@@ -313,17 +370,16 @@ export function PDFRenderer({
       if (initialPinchDistance > 0) {
         let newCalculatedPreviewScale = initialScale * (currentDistance / initialPinchDistance);
         newCalculatedPreviewScale = Math.max(RENDERER_MIN_SCALE, Math.min(RENDERER_MAX_SCALE, newCalculatedPreviewScale));
-        console.log('[PDFRenderer] handleTouchMove - newCalculatedPreviewScale:', newCalculatedPreviewScale);
+        console.log('[PDFRenderer] handleTouchMove - PINCH newCalculatedPreviewScale:', newCalculatedPreviewScale);
         setPreviewScale(newCalculatedPreviewScale);
-
         if (pageContainerRef.current) {
           pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${newCalculatedPreviewScale})`;
         }
       }
     }
-  };
+  }, [isPanning, isPinching, startPanPosition, panOffset.x, panOffset.y, previewScale, initialScale, initialPinchDistance, getDistanceBetweenTouches, DOUBLE_TAP_MAX_DISTANCE, RENDERER_MIN_SCALE, RENDERER_MAX_SCALE]);
 
-  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
+  const handleTouchEnd = useCallback((e: globalThis.TouchEvent) => {
     if (isPanning) {
       setIsPanning(false);
     }
@@ -332,29 +388,36 @@ export function PDFRenderer({
       setIsFinalizingZoom(true); 
       setInitialPinchDistance(0);
       if (onScaleChange && previewScale !== null) {
-        console.log('[PDFRenderer] handleTouchEnd - sending to onScaleChange:', previewScale);
+        console.log('[PDFRenderer] handleTouchEnd - PINCH sending to onScaleChange:', previewScale);
         onScaleChange(previewScale); 
-        // Atualiza initialScale para o valor que acabou de ser enviado (e será limitado no PDFViewer)
-        // Isso prepara para o próximo gesto de pinça, caso ocorra rapidamente.
         const newInitial = Math.max(RENDERER_MIN_SCALE, Math.min(RENDERER_MAX_SCALE, previewScale));
         setInitialScale(newInitial);
       } else if (previewScale === null && onScaleChange) {
-        // Se previewScale for null mas estávamos pinchando, significa que não houve movimento.
-        // Enviamos a userScale atual para garantir que o PDFViewer possa resetar o fitMode para 'custom'.
-        console.log('[PDFRenderer] handleTouchEnd - pinch end no move, sending userScale:', userScale);
-        onScaleChange(userScale);
+        if(isPinching) { 
+            console.log('[PDFRenderer] handleTouchEnd - PINCH end no move, sending userScale:', userScale);
+            onScaleChange(userScale);
+        }
       }
     }
-  };
+  }, [isPanning, isPinching, onScaleChange, previewScale, userScale, RENDERER_MIN_SCALE, RENDERER_MAX_SCALE]); 
+  
+  useEffect(() => {
+    const el = pageContainerRef.current;
+    if (!el) return;
+    console.log('[PDFRenderer] Adding touch event listeners');
+    el.addEventListener('touchstart', handleTouchStart, { passive: false });
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true }); 
+    el.addEventListener('touchcancel', handleTouchEnd, { passive: true }); 
 
-  const getDistanceBetweenTouches = (touches: React.TouchList): number => {
-    const touch1 = touches[0];
-    const touch2 = touches[1];
-    return Math.sqrt(
-      Math.pow(touch2.clientX - touch1.clientX, 2) +
-      Math.pow(touch2.clientY - touch1.clientY, 2)
-    );
-  };
+    return () => {
+      console.log('[PDFRenderer] Removing touch event listeners');
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove', handleTouchMove);
+      el.removeEventListener('touchend', handleTouchEnd);
+      el.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]); 
 
   return (
     <div 
@@ -364,19 +427,12 @@ export function PDFRenderer({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave} 
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       style={{
         transformOrigin: 'center',
-        // A transformação aqui é gerenciada mais ativamente agora.
-        // O useEffect e o renderPDF irão definir a transformação inicial/final.
-        // handleTouchMove irá definir a transformação durante os gestos.
-        // Se previewScale não for null, ele domina a escala.
         transform: previewScale !== null 
             ? `translate(${panOffset.x}px, ${panOffset.y}px) scale(${previewScale})` 
             : `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`,
-        transition: isPanning || isPinching || isFinalizingZoom ? 'none' : 'transform 0.1s ease-out' // Modificada condição
+        transition: isPanning || isPinching || isFinalizingZoom ? 'none' : 'transform 0.1s ease-out' 
       }}
     >
     </div>
