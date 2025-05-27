@@ -14,6 +14,7 @@ export interface VendaO {
   previsao_chegada?: string;
   tipo_entrega: 'frete' | 'retirada';
   status: 'aguardando_produto' | 'aguardando_cliente' | 'pendente' | 'concluida';
+  observacoes?: string;
   created_at: string;
   updated_at: string;
   created_by?: string;

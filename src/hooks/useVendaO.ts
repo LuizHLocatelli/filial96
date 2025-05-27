@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -90,6 +89,7 @@ export function useVendaO() {
       previsao_chegada?: string;
       tipo_entrega: 'frete' | 'retirada';
       status: 'aguardando_produto' | 'aguardando_cliente' | 'pendente' | 'concluida';
+      observacoes?: string;
     },
     file: File
   ): Promise<boolean> => {
@@ -106,6 +106,7 @@ export function useVendaO() {
           previsao_chegada: saleData.previsao_chegada,
           tipo_entrega: saleData.tipo_entrega,
           status: saleData.status,
+          observacoes: saleData.observacoes,
           created_by: (await supabase.auth.getUser()).data.user?.id
         })
         .select('*')
