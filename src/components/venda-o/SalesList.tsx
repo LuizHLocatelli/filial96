@@ -17,8 +17,7 @@ import {
   Package, 
   Phone,
   Truck,
-  Clock,
-  FileText
+  Clock
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { statusOptions } from "@/types/vendaO";
@@ -76,23 +75,6 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
   const handleDeleteClick = (sale: VendaO) => {
     setSelectedSale(sale);
     setIsDeleteDialogOpen(true);
-  };
-
-  const handleViewCupom = (sale: VendaO) => {
-    // Se há anexos, abrir o primeiro
-    if (sale.attachments && sale.attachments.length > 0) {
-      const attachment = sale.attachments[0];
-      const fileType = attachment.file_type.toLowerCase();
-      
-      if (fileType === 'application/pdf') {
-        // Abrir PDF no PDFViewer
-        const url = `/pdf-viewer?url=${encodeURIComponent(attachment.file_url)}&name=${encodeURIComponent(attachment.file_name)}`;
-        window.open(url, '_blank');
-      } else {
-        // Para imagens, abrir os detalhes da venda que mostrará a imagem inline
-        handleViewSale(sale);
-      }
-    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -247,20 +229,6 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                     </div>
                     
                     <div className="flex gap-2">
-                      {/* Botão Ver Cupom - só aparece se há anexos */}
-                      {sale.attachments && sale.attachments.length > 0 && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleViewCupom(sale)}
-                          className="flex-1 sm:flex-none gap-2"
-                        >
-                          <FileText className="h-4 w-4" />
-                          <span className="sm:hidden">Ver Cupom</span>
-                          <span className="hidden sm:inline">Cupom</span>
-                        </Button>
-                      )}
-                      
                       <Button 
                         variant="outline" 
                         size="sm"

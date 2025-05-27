@@ -23,8 +23,7 @@ import {
   Clock,
   Building,
   User,
-  Hash,
-  ExternalLink
+  Hash
 } from "lucide-react";
 import { VendaO, VendaOProduct } from "@/types/vendaO";
 
@@ -58,23 +57,6 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
     return tipo === 'frete' 
       ? <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Frete</Badge>
       : <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Retirada</Badge>;
-  };
-
-  const handleViewCupom = (attachment: any) => {
-    const fileType = attachment.file_type.toLowerCase();
-    
-    if (fileType === 'application/pdf') {
-      // Abrir PDF no PDFViewer
-      const url = `/pdf-viewer?url=${encodeURIComponent(attachment.file_url)}&name=${encodeURIComponent(attachment.file_name)}`;
-      window.open(url, '_blank');
-    } else {
-      // Para outros tipos de arquivo, abrir link direto
-      window.open(attachment.file_url, '_blank');
-    }
-  };
-
-  const isImageFile = (fileType: string) => {
-    return fileType.toLowerCase().startsWith('image/');
   };
 
   return (
@@ -265,49 +247,28 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
                 {sale.attachments.map(attachment => (
                   <Card key={attachment.id} className="border border-border/50">
                     <CardContent className="p-4">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 rounded-lg">
-                              <FileText className="h-5 w-5 text-green-600" />
-                            </div>
-                            <div>
-                              <p className="font-medium">{attachment.file_name}</p>
-                              {attachment.file_size && (
-                                <p className="text-sm text-muted-foreground">
-                                  {(attachment.file_size / 1024 / 1024).toFixed(2)} MB
-                                </p>
-                              )}
-                            </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-100 rounded-lg">
+                            <FileText className="h-5 w-5 text-green-600" />
                           </div>
-                          <Button
-                            onClick={() => handleViewCupom(attachment)}
-                            size="sm"
-                            className="gap-2"
-                          >
-                            {attachment.file_type.toLowerCase() === 'application/pdf' ? (
-                              <Eye className="h-4 w-4" />
-                            ) : (
-                              <ExternalLink className="h-4 w-4" />
+                          <div>
+                            <p className="font-medium">{attachment.file_name}</p>
+                            {attachment.file_size && (
+                              <p className="text-sm text-muted-foreground">
+                                {(attachment.file_size / 1024 / 1024).toFixed(2)} MB
+                              </p>
                             )}
-                            Ver Cupom
-                          </Button>
-                        </div>
-                        
-                        {/* Mostrar imagem inline se for uma imagem */}
-                        {isImageFile(attachment.file_type) && (
-                          <div className="mt-4">
-                            <img 
-                              src={attachment.file_url} 
-                              alt={attachment.file_name}
-                              className="w-full h-auto rounded-lg border border-border/50 max-h-96 object-contain"
-                              onError={(e) => {
-                                console.error('Erro ao carregar imagem:', e);
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
                           </div>
-                        )}
+                        </div>
+                        <Button
+                          onClick={() => window.open(attachment.file_url, '_blank')}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Ver Cupom
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
