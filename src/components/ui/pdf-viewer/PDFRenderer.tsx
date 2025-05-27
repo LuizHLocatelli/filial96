@@ -287,7 +287,6 @@ export function PDFRenderer({
         cancelAnimationFrame(scaleUpdateFrameRef.current);
         scaleUpdateFrameRef.current = null;
     }
-    // Garante que não há preview scale residual ao iniciar novo toque
     if (pageContainerRef.current && previewScale !== null) {
         pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
     }
@@ -300,16 +299,13 @@ export function PDFRenderer({
         x: e.touches[0].clientX - panOffset.x, 
         y: e.touches[0].clientY - panOffset.y 
       });
-      // Estilo para cursor de "agarrando" pode ser adicionado aqui se necessário para toque
     } else if (e.touches.length === 2) {
       // Pinch
-      e.preventDefault(); // Prevenir zoom padrão do navegador
+      e.preventDefault(); 
       setIsPinching(true);
       setInitialPinchDistance(getDistanceBetweenTouches(e.touches));
-      // initialScale já deve estar sincronizado com userScale pelo useEffect ou pelo final do último pinch
-      // setInitialScale(userScale); // Não é mais necessário aqui se o useEffect e o touchEnd cuidarem disso
-      // Define o previewScale inicial igual à escala atual para evitar pulos
-      setPreviewScale(userScale);
+      setInitialScale(userScale); // GARANTE que initialScale é a userScale atual no início da pinça
+      setPreviewScale(userScale); // Inicia o preview com a escala atual para evitar saltos
     }
   };
 
