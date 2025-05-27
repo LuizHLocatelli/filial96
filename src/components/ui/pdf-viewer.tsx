@@ -8,6 +8,7 @@ import { PDFPageCounter } from './pdf-viewer/PDFPageCounter';
 import { PDFEmptyState } from './pdf-viewer/PDFEmptyState';
 import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, RefreshCcw, Expand, Shrink } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Configure PDF.js worker on component load
 configurePDFWorker();
@@ -31,11 +32,18 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
   const [fitMode, setFitMode] = useState<'width' | 'page' | 'custom'>('width');
   const rendererContainerRef = useRef<HTMLDivElement>(null);
   const lastContainerDimsRef = useRef({ width: 0, height: 0 });
+  const isMobile = useIsMobile();
 
-  const openPdfInNewWindow = () => {
-    if (url) window.open(url, '_blank');
-  };
+  // Função para ser chamada pelo PDFRenderer para atualizar a escala via gestos
+  const handleScaleChangeFromRenderer = useCallback((newScale: number) => {
+    setFitMode('custom');
+    setScale(prevScale => {
+      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+      return clampedScale;
+    });
+  }, [setFitMode, setScale]);
 
+  // Função para controle de escala via botões (recolocada)
   const handleSetScale = useCallback((newScale: number | ((prevScale: number) => number)) => {
     setFitMode('custom');
     setScale(prevScale => {
@@ -44,14 +52,19 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     });
   }, []);
 
+  // Funções de zoom para os botões (recolocadas)
   const zoomIn = () => handleSetScale(prev => prev + SCALE_STEP);
   const zoomOut = () => handleSetScale(prev => prev - SCALE_STEP);
   const resetZoom = () => {
-    setFitMode('width');
+    setFitMode('width'); 
+    // A escala será resetada para 1.0 no useEffect que observa fitMode
   };
-
   const fitToPage = () => setFitMode('page');
   const fitToWidth = () => setFitMode('width');
+
+  const openPdfInNewWindow = () => {
+    if (url) window.open(url, '_blank');
+  };
 
   const handlePDFSuccess = (pages: number) => {
     console.log("PDFViewer: PDF carregado com sucesso. Páginas:", pages);
@@ -152,6 +165,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
             onSuccess={handlePDFSuccess}
             onError={handlePDFError}
             loadAttempts={loadAttempts}
+            onScaleChange={handleScaleChangeFromRenderer}
             />
         </div>
       </div>
@@ -169,7 +183,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
 
   return (
     <div className={cn("w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800", className)}>
-      {status === 'success' && (
+      {status === 'success' && !isMobile && (
         <div className="flex items-center justify-center flex-wrap gap-1 sm:gap-2 p-2 border-b bg-background shadow-sm sticky top-0 z-10">
           <Button variant="outline" size="icon" onClick={zoomOut} disabled={scale <= MIN_SCALE} title="Diminuir Zoom">
             <ZoomOut className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -201,6 +215,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
             onSuccess={() => { /* Primary onSuccess handled by hidden renderer; this one might log or do nothing */ }}
             onError={handlePDFError}
             loadAttempts={loadAttempts}
+            onScaleChange={handleScaleChangeFromRenderer}
           />
         )}
         {status === 'empty' && <PDFEmptyState onOpenExternal={openPdfInNewWindow} />}

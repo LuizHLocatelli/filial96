@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, RefObject, useState } from 'react';
+import React, { useRef, useEffect, RefObject, useState, TouchEvent } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 
 interface PDFRendererProps {
@@ -10,6 +10,7 @@ interface PDFRendererProps {
   onError: (error: string) => void;
   onProgress?: (progress: number) => void;
   loadAttempts: number;
+  onScaleChange?: (newScale: number) => void;
 }
 
 export function PDFRenderer({ 
@@ -20,7 +21,8 @@ export function PDFRenderer({
   onSuccess, 
   onError, 
   onProgress, 
-  loadAttempts 
+  loadAttempts,
+  onScaleChange
 }: PDFRendererProps) {
   const pageContainerRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(false);
@@ -28,6 +30,11 @@ export function PDFRenderer({
   const [isPanning, setIsPanning] = useState(false);
   const [startPanPosition, setStartPanPosition] = useState({ x: 0, y: 0 });
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+
+  // Estados para o pinch-to-zoom
+  const [isPinching, setIsPinching] = useState(false);
+  const [initialPinchDistance, setInitialPinchDistance] = useState(0);
+  const [initialScale, setInitialScale] = useState(userScale);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -174,6 +181,10 @@ export function PDFRenderer({
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
+    // Ignorar se for um evento de toque (para não conflitar com onTouchStart)
+    if (e.nativeEvent instanceof PointerEvent && e.nativeEvent.pointerType === 'touch') {
+      return;
+    }
     setIsPanning(true);
     setStartPanPosition({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
     let targetElement = e.target as HTMLElement;
@@ -188,6 +199,10 @@ export function PDFRenderer({
   };
 
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Ignorar se for um evento de toque
+    if (e.nativeEvent instanceof PointerEvent && e.nativeEvent.pointerType === 'touch') {
+      return;
+    }
     setIsPanning(false);
     let targetElement = e.target as HTMLElement;
     if (targetElement.tagName === 'CANVAS') targetElement = targetElement.parentElement || targetElement;
@@ -196,6 +211,10 @@ export function PDFRenderer({
   };
   
   const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Ignorar se for um evento de toque
+    if (e.nativeEvent instanceof PointerEvent && e.nativeEvent.pointerType === 'touch') {
+      return;
+    }
     if (isPanning) {
       setIsPanning(false); 
       let targetElement = e.target as HTMLElement;
@@ -205,14 +224,77 @@ export function PDFRenderer({
     }
   };
 
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 1) {
+      // Pan
+      setIsPanning(true);
+      setStartPanPosition({ 
+        x: e.touches[0].clientX - panOffset.x, 
+        y: e.touches[0].clientY - panOffset.y 
+      });
+      // Estilo para cursor de "agarrando" pode ser adicionado aqui se necessário para toque
+    } else if (e.touches.length === 2) {
+      // Pinch
+      e.preventDefault(); // Prevenir zoom padrão do navegador
+      setIsPinching(true);
+      setInitialPinchDistance(getDistanceBetweenTouches(e.touches));
+      setInitialScale(userScale); // Usar o userScale que é a prop que o PDFViewer controla
+    }
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (isPanning && e.touches.length === 1) {
+      // Pan
+      setPanOffset({ 
+        x: e.touches[0].clientX - startPanPosition.x, 
+        y: e.touches[0].clientY - startPanPosition.y 
+      });
+    } else if (isPinching && e.touches.length === 2) {
+      // Pinch
+      e.preventDefault();
+      const currentDistance = getDistanceBetweenTouches(e.touches);
+      if (initialPinchDistance > 0) {
+        const newScaleValue = initialScale * (currentDistance / initialPinchDistance);
+        if (onScaleChange) {
+          onScaleChange(newScaleValue);
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
+    if (isPanning) {
+      setIsPanning(false);
+    }
+    if (isPinching) {
+      setIsPinching(false);
+      setInitialPinchDistance(0);
+      // Atualiza a escala inicial para a próxima interação de pinça
+      // userScale já terá sido atualizado pelo PDFViewer através do onScaleChange
+      setInitialScale(userScale);
+    }
+  };
+
+  const getDistanceBetweenTouches = (touches: React.TouchList): number => {
+    const touch1 = touches[0];
+    const touch2 = touches[1];
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
   return (
     <div 
       ref={pageContainerRef}
-      className="w-full h-full flex flex-col items-center space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-grab select-none"
+      className="w-full h-full flex flex-col items-center space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-grab select-none touch-none"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave} 
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)`, transition: isPanning ? 'none' : 'transform 0.1s ease-out' }}
     >
     </div>
