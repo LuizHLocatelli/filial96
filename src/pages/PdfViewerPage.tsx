@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -76,8 +75,8 @@ const PdfViewerPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 pt-4">
         <div>
           <h1 className="text-2xl font-bold">{pdfName || "Visualizar PDF"}</h1>
           <p className="text-muted-foreground">Visualize o documento PDF</p>
@@ -103,9 +102,9 @@ const PdfViewerPage = () => {
         </div>
       </div>
 
-      <Card className="w-full">
-        <CardContent className="p-4 sm:p-6">
-          <PDFViewer url={pdfUrl} className="min-h-[60vh]" />
+      <Card className="w-full rounded-none border-x-0 sm:rounded-lg sm:border-x">
+        <CardContent className="p-0 sm:p-0">
+          <PDFViewer url={pdfUrl} className="min-h-[calc(100vh-150px)]" />
         </CardContent>
       </Card>
     </div>

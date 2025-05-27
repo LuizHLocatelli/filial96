@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { OrientacaoViewerDialog } from "./OrientacaoViewerDialog";
 import { Orientacao } from "./types";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,6 +13,7 @@ import { OrientacoesLoadingSkeleton } from "./components/OrientacoesLoadingSkele
 
 export function OrientacoesList() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [selectedOrientacao, setSelectedOrientacao] = useState<Orientacao | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
 
@@ -30,8 +31,17 @@ export function OrientacoesList() {
   } = useOrientacoesFilters(orientacoes);
 
   const handleViewOrientacao = (orientacao: Orientacao) => {
-    setSelectedOrientacao(orientacao);
-    setViewerOpen(true);
+    if (orientacao.arquivo_tipo.includes("pdf")) {
+      const params = new URLSearchParams();
+      params.append("url", orientacao.arquivo_url);
+      if (orientacao.arquivo_nome) {
+        params.append("name", orientacao.arquivo_nome);
+      }
+      navigate(`/pdf-viewer?${params.toString()}`);
+    } else {
+      setSelectedOrientacao(orientacao);
+      setViewerOpen(true);
+    }
   };
 
   if (isLoading) {
@@ -65,7 +75,7 @@ export function OrientacoesList() {
         />
       )}
 
-      {selectedOrientacao && (
+      {selectedOrientacao && !selectedOrientacao.arquivo_tipo.includes("pdf") && (
         <OrientacaoViewerDialog
           open={viewerOpen}
           onOpenChange={setViewerOpen}

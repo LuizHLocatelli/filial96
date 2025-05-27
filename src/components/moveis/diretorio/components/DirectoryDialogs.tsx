@@ -1,4 +1,3 @@
-
 import { CategoryDialog } from './CategoryDialog';
 import { FileDialog } from './FileDialog';
 import { DeleteFileDialog } from './DeleteFileDialog';
@@ -98,11 +97,13 @@ export function DirectoryDialogs({
         file={selectedFile}
       />
 
-      <FileViewer
-        open={viewerOpen}
-        onOpenChange={setViewerOpen}
-        file={selectedFile}
-      />
+      {selectedFile && !selectedFile.file_type.includes("pdf") && (
+        <FileViewer
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          file={selectedFile}
+        />
+      )}
     </>
   );
 }

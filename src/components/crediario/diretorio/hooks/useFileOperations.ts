@@ -1,8 +1,9 @@
-
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { DirectoryFile, DirectoryCategory, SortBy, SortDirection, SortOption } from '../types';
 
 export function useFileOperations(files: DirectoryFile[], categories: DirectoryCategory[]) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -54,8 +55,18 @@ export function useFileOperations(files: DirectoryFile[], categories: DirectoryC
   };
 
   const handleViewFile = (file: DirectoryFile) => {
-    setSelectedFile(file);
-    setViewerOpen(true);
+    if (file.file_type.includes("pdf")) {
+      const params = new URLSearchParams();
+      params.append("url", file.file_url);
+      // O nome do arquivo em DirectoryFile é 'name', diferente de 'arquivo_nome' em Orientacao
+      if (file.name) { 
+        params.append("name", file.name);
+      }
+      navigate(`/pdf-viewer?${params.toString()}`);
+    } else {
+      setSelectedFile(file);
+      setViewerOpen(true);
+    }
   };
 
   const handleEditFile = (file: DirectoryFile) => {

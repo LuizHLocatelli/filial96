@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Orientacao } from "./types";
 import { Badge } from "@/components/ui/badge";
@@ -35,8 +34,8 @@ export function OrientacaoViewerDialog({
       );
     } else if (isPdf) {
       return (
-        <div className="w-full h-full">
-          <PDFViewer url={orientacao.arquivo_url} className="h-full w-full" />
+        <div className="w-full h-full border rounded-lg bg-muted/10">
+          <PDFViewer url={orientacao.arquivo_url} className="h-full" />
         </div>
       );
     } else {

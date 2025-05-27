@@ -145,7 +145,7 @@ export function PDFRenderer({
         
         canvas.height = scaledViewport.height;
         canvas.width = scaledViewport.width;
-        canvas.className = 'border border-border rounded-lg shadow-sm mb-4 max-w-none h-auto block mx-auto bg-white';
+        canvas.className = 'border border-border rounded-lg shadow-sm h-auto block bg-white';
         actualPageCanvasContainer.appendChild(canvas);
         
         await page.render({ canvasContext: context, viewport: scaledViewport, background: 'white', intent: 'display' }).promise;
@@ -193,7 +193,7 @@ export function PDFRenderer({
   return (
     <div 
       ref={pageContainerRef}
-      className="w-full h-full flex flex-col items-center space-y-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg cursor-grab select-none"
+      className="w-full h-full flex flex-col items-center space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-grab select-none"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
