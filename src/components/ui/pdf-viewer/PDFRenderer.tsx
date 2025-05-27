@@ -36,17 +36,23 @@ export function PDFRenderer({
   const [initialPinchDistance, setInitialPinchDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(userScale);
   const scaleUpdateFrameRef = useRef<number | null>(null); // Ref para o requestAnimationFrame
+  const [previewScale, setPreviewScale] = useState<number | null>(null); // Estado para a escala de preview do CSS
 
   useEffect(() => {
     isMountedRef.current = true;
     if (url) {
+        // Quando userScale (a escala "real") muda, ou o fitMode, renderizamos o PDF.
+        // E removemos qualquer previewScale que possa estar aplicado.
+        setPreviewScale(null);
+        if (pageContainerRef.current) {
+            pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px)`; // Reseta apenas para pan
+        }
         renderPDF();
     } else {
         if (pageContainerRef.current) pageContainerRef.current.innerHTML = '';
         setPanOffset({x:0, y:0});
     }
-    // Atualiza initialScale se userScale mudar externamente (ex: botões de zoom no desktop)
-    setInitialScale(userScale);
+    setInitialScale(userScale); // Sincroniza initialScale com userScale
 
     return () => {
         isMountedRef.current = false;
@@ -236,6 +242,12 @@ export function PDFRenderer({
         cancelAnimationFrame(scaleUpdateFrameRef.current);
         scaleUpdateFrameRef.current = null;
     }
+    // Garante que não há preview scale residual ao iniciar novo toque
+    if (pageContainerRef.current && previewScale !== null) {
+        pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
+    }
+    setPreviewScale(null);
+
     if (e.touches.length === 1) {
       // Pan
       setIsPanning(true);
@@ -249,57 +261,55 @@ export function PDFRenderer({
       e.preventDefault(); // Prevenir zoom padrão do navegador
       setIsPinching(true);
       setInitialPinchDistance(getDistanceBetweenTouches(e.touches));
-      setInitialScale(userScale); // Captura a escala atual ANTES do início do gesto de pinça
+      // initialScale já deve estar sincronizado com userScale pelo useEffect ou pelo final do último pinch
+      // setInitialScale(userScale); // Não é mais necessário aqui se o useEffect e o touchEnd cuidarem disso
+      // Define o previewScale inicial igual à escala atual para evitar pulos
+      setPreviewScale(userScale);
     }
   };
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     if (isPanning && e.touches.length === 1) {
-      // Pan
-      setPanOffset({ 
-        x: e.touches[0].clientX - startPanPosition.x, 
-        y: e.touches[0].clientY - startPanPosition.y 
-      });
+      const newX = e.touches[0].clientX - startPanPosition.x;
+      const newY = e.touches[0].clientY - startPanPosition.y;
+      setPanOffset({ x: newX, y: newY });
+      if (pageContainerRef.current) {
+        const currentPreviewScale = previewScale !== null ? previewScale : 1; // Usa previewScale se estiver em pinch, senão 1
+        pageContainerRef.current.style.transform = `translate(${newX}px, ${newY}px) scale(${currentPreviewScale})`;
+      }
     } else if (isPinching && e.touches.length === 2) {
-      // Pinch
       e.preventDefault();
       const currentDistance = getDistanceBetweenTouches(e.touches);
       if (initialPinchDistance > 0) {
-        const newScaleValue = initialScale * (currentDistance / initialPinchDistance);
-        
-        if (onScaleChange) {
-          // Cancela o frame anterior se houver um novo movimento antes da atualização
-          if (scaleUpdateFrameRef.current) {
-            cancelAnimationFrame(scaleUpdateFrameRef.current);
-          }
-          // Agenda a atualização da escala para o próximo frame de animação
-          scaleUpdateFrameRef.current = requestAnimationFrame(() => {
-            onScaleChange(newScaleValue);
-            scaleUpdateFrameRef.current = null; // Limpa a ref após a execução
-          });
+        const newPreviewScale = initialScale * (currentDistance / initialPinchDistance);
+        setPreviewScale(newPreviewScale);
+        if (pageContainerRef.current) {
+          // Aplicar transform: scale() e translate() juntos
+          // O centro do zoom deve ser o ponto médio entre os dois toques
+          // Esta parte do cálculo do ponto de origem do zoom pode ser complexa e pode precisar de ajustes finos
+          // Por simplicidade, vamos manter o zoom no centro do container por enquanto.
+          // Idealmente, o transform-origin deveria ser dinâmico ou o translate ajustado.
+          pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${newPreviewScale})`;
         }
       }
     }
   };
 
   const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
-    if (scaleUpdateFrameRef.current) {
-        cancelAnimationFrame(scaleUpdateFrameRef.current);
-        scaleUpdateFrameRef.current = null;
-        // Se um frame foi cancelado, significa que a última escala calculada no touchmove não foi enviada.
-        // Poderíamos recalcular e enviar aqui, mas o `onScaleChange` já terá sido chamado várias vezes.
-        // Apenas garantir que `initialScale` seja atualizado para a próxima interação é importante.
-    }
     if (isPanning) {
       setIsPanning(false);
     }
     if (isPinching) {
       setIsPinching(false);
       setInitialPinchDistance(0);
-      // userScale já foi atualizado pelo PDFViewer através das chamadas throttled do onScaleChange.
-      // Atualiza initialScale para a próxima pinça baseada na escala atualizada.
-      setInitialScale(userScale);
+      if (onScaleChange && previewScale !== null) {
+        onScaleChange(previewScale); // Envia a escala final para o PDFViewer re-renderizar
+      }
+      // initialScale será atualizado pelo useEffect quando userScale mudar
+      // Não é necessário setPreviewScale(null) aqui, pois o useEffect fará isso ao re-renderizar
     }
+    // Se não estava pinchando, e o previewScale foi definido (não deveria acontecer), resetar.
+    // No entanto, o useEffect que observa userScale já deve limpar o previewScale.
   };
 
   const getDistanceBetweenTouches = (touches: React.TouchList): number => {
@@ -322,7 +332,13 @@ export function PDFRenderer({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px)`, transition: isPanning ? 'none' : 'transform 0.1s ease-out' }}
+      style={{
+        // Define a transform origin. Ajuste conforme necessário (ex: 'center center')
+        transformOrigin: 'center',
+        // A transformação inicial é apenas o panOffset. O scale é adicionado dinamicamente
+        transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
+        transition: isPanning || isPinching ? 'none' : 'transform 0.1s ease-out' 
+      }}
     >
     </div>
   );
