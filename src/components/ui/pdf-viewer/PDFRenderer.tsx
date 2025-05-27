@@ -143,12 +143,27 @@ export function PDFRenderer({
         const context = canvas.getContext('2d', { alpha: false });
         if (!context) { console.error(`Ctx 2D falhou p/ pág ${pageNum}`); continue; }
         
-        canvas.height = scaledViewport.height;
-        canvas.width = scaledViewport.width;
+        const outputScale = window.devicePixelRatio || 1;
+
+        canvas.height = Math.floor(scaledViewport.height * outputScale);
+        canvas.width = Math.floor(scaledViewport.width * outputScale);
+        canvas.style.width = Math.floor(scaledViewport.width) + "px";
+        canvas.style.height = Math.floor(scaledViewport.height) + "px";
+
         canvas.className = 'border border-border rounded-lg shadow-sm h-auto block bg-white';
         actualPageCanvasContainer.appendChild(canvas);
         
-        await page.render({ canvasContext: context, viewport: scaledViewport, background: 'white', intent: 'display' }).promise;
+        const transform = outputScale !== 1 
+          ? [outputScale, 0, 0, outputScale, 0, 0] 
+          : null;
+
+        await page.render({ 
+          canvasContext: context, 
+          viewport: scaledViewport, 
+          background: 'white', 
+          intent: 'display',
+          transform: transform
+        }).promise;
         if (!isMountedRef.current) break;
       } catch (pageError) {
         if (!isMountedRef.current) break;
