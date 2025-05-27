@@ -38,6 +38,11 @@ export function PDFRenderer({
   const scaleUpdateFrameRef = useRef<number | null>(null); // Ref para o requestAnimationFrame
   const [previewScale, setPreviewScale] = useState<number | null>(null); // Estado para a escala de preview do CSS
 
+  // Definindo as constantes localmente para clamping do previewScale
+  // Idealmente, poderiam vir como props se fossem dinâmicas no PDFViewer
+  const RENDERER_MIN_SCALE = 0.25;
+  const RENDERER_MAX_SCALE = 3.0;
+
   useEffect(() => {
     isMountedRef.current = true;
     if (url) {
@@ -281,15 +286,14 @@ export function PDFRenderer({
       e.preventDefault();
       const currentDistance = getDistanceBetweenTouches(e.touches);
       if (initialPinchDistance > 0) {
-        const newPreviewScale = initialScale * (currentDistance / initialPinchDistance);
-        setPreviewScale(newPreviewScale);
+        let newCalculatedPreviewScale = initialScale * (currentDistance / initialPinchDistance);
+        // Aplicar clamping ao previewScale
+        newCalculatedPreviewScale = Math.max(RENDERER_MIN_SCALE, Math.min(RENDERER_MAX_SCALE, newCalculatedPreviewScale));
+        
+        setPreviewScale(newCalculatedPreviewScale);
+
         if (pageContainerRef.current) {
-          // Aplicar transform: scale() e translate() juntos
-          // O centro do zoom deve ser o ponto médio entre os dois toques
-          // Esta parte do cálculo do ponto de origem do zoom pode ser complexa e pode precisar de ajustes finos
-          // Por simplicidade, vamos manter o zoom no centro do container por enquanto.
-          // Idealmente, o transform-origin deveria ser dinâmico ou o translate ajustado.
-          pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${newPreviewScale})`;
+          pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${newCalculatedPreviewScale})`;
         }
       }
     }
