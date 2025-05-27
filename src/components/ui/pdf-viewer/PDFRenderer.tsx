@@ -334,17 +334,34 @@ export function PDFRenderer({
     }
 
     if (e.touches.length === 1 && !isPinching && !lastTapRef.current) {
+      // Pan
+      // Se estávamos com um previewScale de um pinch anterior que não foi finalizado, limpá-lo.
+      if (previewScale !== null) {
+          setPreviewScale(null);
+          if (pageContainerRef.current) {
+            // Reseta a transform do container para a userScale atual (que é implicitamente scale(1) para o container se previewScale for null)
+            pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
+          }
+      }
       setIsPanning(true);
       setStartPanPosition({ x: e.touches[0].clientX - panOffset.x, y: e.touches[0].clientY - panOffset.y });
     } else if (e.touches.length === 2) {
+      // Pinch
       e.preventDefault(); 
+      setIsPanning(false); // Garante que o pan para se o segundo dedo descer
       setIsPinching(true);
       lastTapRef.current = null; 
       setInitialPinchDistance(getDistanceBetweenTouches(e.touches)); 
-      setInitialScale(userScale);
-      console.log('[PDFRenderer] Pinch Start - initialScale (userScale):', userScale, 'initialPinchDistance:', getDistanceBetweenTouches(e.touches));
+      setInitialScale(userScale); 
+      setPreviewScale(userScale); // REINSERIDO: Inicia o preview CSS com a userScale atual.
+      console.log('[PDFRenderer] Pinch Start - initialScale/previewScale:', userScale, 'initialPinchDistance:', getDistanceBetweenTouches(e.touches));
+    } else if (e.touches.length === 0 && lastTapRef.current) { 
+        // Se todos os dedos subiram mas tínhamos um lastTap (potencial primeiro toque de um duplo)
+        // e não virou pan/pinch, resetar lastTap para que o próximo toque único não seja duplo toque.
+        // No entanto, handleTouchEnd já lida com isPinching/isPanning. O lastTap para duplo toque é mais sobre o *próximo* touchStart.
+        // Esta condição pode não ser necessária aqui se a lógica de duplo toque estiver robusta.
     }
-  }, [userScale, panOffset.x, panOffset.y, previewScale, onScaleChange, getDistanceBetweenTouches, DOUBLE_TAP_DELAY, DOUBLE_TAP_MAX_DISTANCE, DOUBLE_TAP_ZOOM_SCALE, initialScale, isPinching]);
+  }, [userScale, panOffset.x, panOffset.y, onScaleChange, getDistanceBetweenTouches, DOUBLE_TAP_DELAY, DOUBLE_TAP_MAX_DISTANCE, DOUBLE_TAP_ZOOM_SCALE, initialScale, isPinching, previewScale]); // Adicionado previewScale de volta às dependências
 
   const handleTouchMove = useCallback((e: globalThis.TouchEvent) => {
     if (e.touches.length === 1 && lastTapRef.current) {
