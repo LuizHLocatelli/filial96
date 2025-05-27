@@ -37,6 +37,7 @@ export function PDFRenderer({
   const [initialScale, setInitialScale] = useState(userScale);
   const scaleUpdateFrameRef = useRef<number | null>(null); // Ref para o requestAnimationFrame
   const [previewScale, setPreviewScale] = useState<number | null>(null); // Estado para a escala de preview do CSS
+  const [isFinalizingZoom, setIsFinalizingZoom] = useState(false); // Novo estado
 
   // Definindo as constantes localmente para clamping do previewScale
   // Idealmente, poderiam vir como props se fossem dinâmicas no PDFViewer
@@ -212,6 +213,7 @@ export function PDFRenderer({
         // Força um reflow/repaint, pode ajudar em alguns casos, mas use com cautela.
         // void pageContainerRef.current.offsetWidth;
       }
+      setIsFinalizingZoom(false); // Reabilita transição após tudo pronto
     }
   };
 
@@ -323,15 +325,12 @@ export function PDFRenderer({
     }
     if (isPinching) {
       setIsPinching(false);
+      setIsFinalizingZoom(true); // Desabilita transição para o "assentamento"
       setInitialPinchDistance(0);
       if (onScaleChange && previewScale !== null) {
-        onScaleChange(previewScale); // Envia a escala final para o PDFViewer re-renderizar
+        onScaleChange(previewScale); 
       }
-      // initialScale será atualizado pelo useEffect quando userScale mudar
-      // Não é necessário setPreviewScale(null) aqui, pois o useEffect fará isso ao re-renderizar
     }
-    // Se não estava pinchando, e o previewScale foi definido (não deveria acontecer), resetar.
-    // No entanto, o useEffect que observa userScale já deve limpar o previewScale.
   };
 
   const getDistanceBetweenTouches = (touches: React.TouchList): number => {
@@ -363,7 +362,7 @@ export function PDFRenderer({
         transform: previewScale !== null 
             ? `translate(${panOffset.x}px, ${panOffset.y}px) scale(${previewScale})` 
             : `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`,
-        transition: isPanning || isPinching ? 'none' : 'transform 0.1s ease-out' 
+        transition: isPanning || isPinching || isFinalizingZoom ? 'none' : 'transform 0.1s ease-out' // Modificada condição
       }}
     >
     </div>
