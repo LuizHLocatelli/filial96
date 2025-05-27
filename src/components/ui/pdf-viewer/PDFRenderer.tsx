@@ -38,6 +38,7 @@ export function PDFRenderer({
   const scaleUpdateFrameRef = useRef<number | null>(null); // Ref para o requestAnimationFrame
   const [previewScale, setPreviewScale] = useState<number | null>(null); // Estado para a escala de preview do CSS
   const [isFinalizingZoom, setIsFinalizingZoom] = useState(false); // Novo estado
+  const finalizeZoomTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref para o timeout
 
   // Definindo as constantes localmente para clamping do previewScale
   // Idealmente, poderiam vir como props se fossem dinâmicas no PDFViewer
@@ -46,6 +47,13 @@ export function PDFRenderer({
 
   useEffect(() => {
     isMountedRef.current = true;
+
+    // Limpa qualquer timeout pendente de finalização de zoom se uma nova renderização/URL etc. começar
+    if (finalizeZoomTimeoutRef.current) {
+      clearTimeout(finalizeZoomTimeoutRef.current);
+      finalizeZoomTimeoutRef.current = null;
+    }
+
     if (url) {
         // Não resetamos previewScale ou a transformação aqui diretamente.
         // renderPDF cuidará da limpeza após a renderização.
@@ -64,6 +72,10 @@ export function PDFRenderer({
         isMountedRef.current = false;
         if (scaleUpdateFrameRef.current) {
             cancelAnimationFrame(scaleUpdateFrameRef.current);
+        }
+        // Limpa o timeout de finalização de zoom ao desmontar
+        if (finalizeZoomTimeoutRef.current) {
+          clearTimeout(finalizeZoomTimeoutRef.current);
         }
     };
   }, [url, loadAttempts, userScale, fitMode]);
@@ -206,14 +218,22 @@ export function PDFRenderer({
 
     // Após todas as páginas serem renderizadas (ou tentativas de renderização):
     if (isMountedRef.current) {
-      setPreviewScale(null); // Limpa o estado de preview scale.
+      setPreviewScale(null); 
       if (pageContainerRef.current) {
-        // A transformação agora deve ser apenas o pan, pois os canvases estão na escala correta.
         pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
-        // Força um reflow/repaint, pode ajudar em alguns casos, mas use com cautela.
-        // void pageContainerRef.current.offsetWidth;
       }
-      setIsFinalizingZoom(false); // Reabilita transição após tudo pronto
+      
+      // Limpa timeout anterior se houver, antes de setar um novo
+      if (finalizeZoomTimeoutRef.current) {
+        clearTimeout(finalizeZoomTimeoutRef.current);
+      }
+      // Atrasar a reativação da transição
+      finalizeZoomTimeoutRef.current = setTimeout(() => {
+        if (isMountedRef.current) { // Verifica se o componente ainda está montado
+            setIsFinalizingZoom(false); 
+        }
+        finalizeZoomTimeoutRef.current = null;
+      }, 50); // 50ms de atraso
     }
   };
 
