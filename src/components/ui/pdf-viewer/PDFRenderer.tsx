@@ -35,10 +35,9 @@ export function PDFRenderer({
   const [isPinching, setIsPinching] = useState(false);
   const [initialPinchDistance, setInitialPinchDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(userScale);
-  const scaleUpdateFrameRef = useRef<number | null>(null); // Ref para o requestAnimationFrame
-  const [previewScale, setPreviewScale] = useState<number | null>(null); // Estado para a escala de preview do CSS
-  const [isFinalizingZoom, setIsFinalizingZoom] = useState(false); // Novo estado
-  const finalizeZoomTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref para o timeout
+  const [previewScale, setPreviewScale] = useState<number | null>(null);
+  const [isFinalizingZoom, setIsFinalizingZoom] = useState(false);
+  const finalizeZoomTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Definindo as constantes localmente para clamping do previewScale
   // Idealmente, poderiam vir como props se fossem dinâmicas no PDFViewer
@@ -47,6 +46,7 @@ export function PDFRenderer({
 
   useEffect(() => {
     isMountedRef.current = true;
+    console.log('[PDFRenderer] useEffect - userScale:', userScale, 'fitMode:', fitMode, 'url:', !!url);
 
     // Limpa qualquer timeout pendente de finalização de zoom se uma nova renderização/URL etc. começar
     if (finalizeZoomTimeoutRef.current) {
@@ -70,10 +70,6 @@ export function PDFRenderer({
 
     return () => {
         isMountedRef.current = false;
-        if (scaleUpdateFrameRef.current) {
-            cancelAnimationFrame(scaleUpdateFrameRef.current);
-        }
-        // Limpa o timeout de finalização de zoom ao desmontar
         if (finalizeZoomTimeoutRef.current) {
           clearTimeout(finalizeZoomTimeoutRef.current);
         }
@@ -94,6 +90,7 @@ export function PDFRenderer({
 
   const renderPDF = async () => {
     if (!isMountedRef.current || !url) return;
+    console.log('[PDFRenderer] renderPDF START - userScale:', userScale, 'previewScale:', previewScale);
 
     // Se estivermos entrando em renderPDF e há um previewScale, 
     // significa que o usuário acabou de fazer um zoom por pinça.
@@ -235,6 +232,7 @@ export function PDFRenderer({
         finalizeZoomTimeoutRef.current = null;
       }, 50); // 50ms de atraso
     }
+    console.log('[PDFRenderer] renderPDF END - userScale:', userScale);
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -283,15 +281,6 @@ export function PDFRenderer({
   };
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
-    if (scaleUpdateFrameRef.current) {
-        cancelAnimationFrame(scaleUpdateFrameRef.current);
-        scaleUpdateFrameRef.current = null;
-    }
-    if (pageContainerRef.current && previewScale !== null) {
-        pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
-    }
-    setPreviewScale(null);
-
     if (e.touches.length === 1) {
       // Pan
       setIsPanning(true);
@@ -323,9 +312,8 @@ export function PDFRenderer({
       const currentDistance = getDistanceBetweenTouches(e.touches);
       if (initialPinchDistance > 0) {
         let newCalculatedPreviewScale = initialScale * (currentDistance / initialPinchDistance);
-        // Aplicar clamping ao previewScale
         newCalculatedPreviewScale = Math.max(RENDERER_MIN_SCALE, Math.min(RENDERER_MAX_SCALE, newCalculatedPreviewScale));
-        
+        console.log('[PDFRenderer] handleTouchMove - newCalculatedPreviewScale:', newCalculatedPreviewScale);
         setPreviewScale(newCalculatedPreviewScale);
 
         if (pageContainerRef.current) {
@@ -341,10 +329,20 @@ export function PDFRenderer({
     }
     if (isPinching) {
       setIsPinching(false);
-      setIsFinalizingZoom(true); // Desabilita transição para o "assentamento"
+      setIsFinalizingZoom(true); 
       setInitialPinchDistance(0);
       if (onScaleChange && previewScale !== null) {
+        console.log('[PDFRenderer] handleTouchEnd - sending to onScaleChange:', previewScale);
         onScaleChange(previewScale); 
+        // Atualiza initialScale para o valor que acabou de ser enviado (e será limitado no PDFViewer)
+        // Isso prepara para o próximo gesto de pinça, caso ocorra rapidamente.
+        const newInitial = Math.max(RENDERER_MIN_SCALE, Math.min(RENDERER_MAX_SCALE, previewScale));
+        setInitialScale(newInitial);
+      } else if (previewScale === null && onScaleChange) {
+        // Se previewScale for null mas estávamos pinchando, significa que não houve movimento.
+        // Enviamos a userScale atual para garantir que o PDFViewer possa resetar o fitMode para 'custom'.
+        console.log('[PDFRenderer] handleTouchEnd - pinch end no move, sending userScale:', userScale);
+        onScaleChange(userScale);
       }
     }
   };

@@ -34,11 +34,12 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
   const lastContainerDimsRef = useRef({ width: 0, height: 0 });
   const isMobile = useIsMobile();
 
-  // Função para ser chamada pelo PDFRenderer para atualizar a escala via gestos
-  const handleScaleChangeFromRenderer = useCallback((newScale: number) => {
-    setFitMode('custom');
+  const handleScaleChangeFromRenderer = useCallback((newScaleFromRenderer: number) => {
+    console.log('[PDFViewer] handleScaleChangeFromRenderer - received newScaleFromRenderer:', newScaleFromRenderer);
+    setFitMode('custom'); 
     setScale(prevScale => {
-      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+      const clampedScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScaleFromRenderer));
+      console.log('[PDFViewer] handleScaleChangeFromRenderer - prevScale:', prevScale, 'clampedScale set:', clampedScale);
       return clampedScale;
     });
   }, [setFitMode, setScale]);
@@ -114,7 +115,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
 
   useEffect(() => {
     if (status === 'success' && url && (fitMode === 'width' || fitMode === 'page')) {
-        console.log(`PDFViewer: FitMode mudou para ${fitMode}. Resetando scale para 1.0 para PDFRenderer recalcular.`);
+        console.log(`[PDFViewer] useEffect (fitMode) - FitMode mudou para ${fitMode}. Resetando scale para 1.0`);
         setScale(1.0);
     }
   }, [fitMode, status, url]);
