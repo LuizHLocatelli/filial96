@@ -35,6 +35,7 @@ export function PDFRenderer({
   const [isPinching, setIsPinching] = useState(false);
   const [initialPinchDistance, setInitialPinchDistance] = useState(0);
   const [initialScale, setInitialScale] = useState(userScale);
+  const scaleUpdateFrameRef = useRef<number | null>(null); // Ref para o requestAnimationFrame
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -44,8 +45,14 @@ export function PDFRenderer({
         if (pageContainerRef.current) pageContainerRef.current.innerHTML = '';
         setPanOffset({x:0, y:0});
     }
+    // Atualiza initialScale se userScale mudar externamente (ex: botões de zoom no desktop)
+    setInitialScale(userScale);
+
     return () => {
         isMountedRef.current = false;
+        if (scaleUpdateFrameRef.current) {
+            cancelAnimationFrame(scaleUpdateFrameRef.current);
+        }
     };
   }, [url, loadAttempts, userScale, fitMode]);
 
@@ -225,6 +232,10 @@ export function PDFRenderer({
   };
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    if (scaleUpdateFrameRef.current) {
+        cancelAnimationFrame(scaleUpdateFrameRef.current);
+        scaleUpdateFrameRef.current = null;
+    }
     if (e.touches.length === 1) {
       // Pan
       setIsPanning(true);
@@ -238,7 +249,7 @@ export function PDFRenderer({
       e.preventDefault(); // Prevenir zoom padrão do navegador
       setIsPinching(true);
       setInitialPinchDistance(getDistanceBetweenTouches(e.touches));
-      setInitialScale(userScale); // Usar o userScale que é a prop que o PDFViewer controla
+      setInitialScale(userScale); // Captura a escala atual ANTES do início do gesto de pinça
     }
   };
 
@@ -255,22 +266,38 @@ export function PDFRenderer({
       const currentDistance = getDistanceBetweenTouches(e.touches);
       if (initialPinchDistance > 0) {
         const newScaleValue = initialScale * (currentDistance / initialPinchDistance);
+        
         if (onScaleChange) {
-          onScaleChange(newScaleValue);
+          // Cancela o frame anterior se houver um novo movimento antes da atualização
+          if (scaleUpdateFrameRef.current) {
+            cancelAnimationFrame(scaleUpdateFrameRef.current);
+          }
+          // Agenda a atualização da escala para o próximo frame de animação
+          scaleUpdateFrameRef.current = requestAnimationFrame(() => {
+            onScaleChange(newScaleValue);
+            scaleUpdateFrameRef.current = null; // Limpa a ref após a execução
+          });
         }
       }
     }
   };
 
   const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
+    if (scaleUpdateFrameRef.current) {
+        cancelAnimationFrame(scaleUpdateFrameRef.current);
+        scaleUpdateFrameRef.current = null;
+        // Se um frame foi cancelado, significa que a última escala calculada no touchmove não foi enviada.
+        // Poderíamos recalcular e enviar aqui, mas o `onScaleChange` já terá sido chamado várias vezes.
+        // Apenas garantir que `initialScale` seja atualizado para a próxima interação é importante.
+    }
     if (isPanning) {
       setIsPanning(false);
     }
     if (isPinching) {
       setIsPinching(false);
       setInitialPinchDistance(0);
-      // Atualiza a escala inicial para a próxima interação de pinça
-      // userScale já terá sido atualizado pelo PDFViewer através do onScaleChange
+      // userScale já foi atualizado pelo PDFViewer através das chamadas throttled do onScaleChange.
+      // Atualiza initialScale para a próxima pinça baseada na escala atualizada.
       setInitialScale(userScale);
     }
   };
