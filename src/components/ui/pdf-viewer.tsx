@@ -191,7 +191,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         </div>
       )}
       
-      <div ref={rendererContainerRef} className="flex-1 overflow-auto bg-muted/40 dark:bg-gray-900 p-0 sm:p-4 flex items-center justify-center">
+      <div ref={rendererContainerRef} className="flex-1 overflow-auto overflow-x-hidden bg-muted/40 dark:bg-gray-900 p-0 sm:p-4 flex items-center justify-center">
         {status === 'success' && url && (
           <PDFRenderer
             url={url}
