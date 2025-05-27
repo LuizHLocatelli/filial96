@@ -333,7 +333,7 @@ export function PDFRenderer({
       lastTapRef.current = { time: currentTime, x: currentTouch.clientX, y: currentTouch.clientY };
     }
 
-    if (e.touches.length === 1) {
+    if (e.touches.length === 1 && !isPinching && !lastTapRef.current) {
       setIsPanning(true);
       setStartPanPosition({ x: e.touches[0].clientX - panOffset.x, y: e.touches[0].clientY - panOffset.y });
     } else if (e.touches.length === 2) {
@@ -341,10 +341,10 @@ export function PDFRenderer({
       setIsPinching(true);
       lastTapRef.current = null; 
       setInitialPinchDistance(getDistanceBetweenTouches(e.touches)); 
-      setInitialScale(userScale); 
-      setPreviewScale(userScale); 
+      setInitialScale(userScale);
+      console.log('[PDFRenderer] Pinch Start - initialScale (userScale):', userScale, 'initialPinchDistance:', getDistanceBetweenTouches(e.touches));
     }
-  }, [userScale, panOffset.x, panOffset.y, previewScale, onScaleChange, getDistanceBetweenTouches, DOUBLE_TAP_DELAY, DOUBLE_TAP_MAX_DISTANCE, DOUBLE_TAP_ZOOM_SCALE, initialScale]); 
+  }, [userScale, panOffset.x, panOffset.y, previewScale, onScaleChange, getDistanceBetweenTouches, DOUBLE_TAP_DELAY, DOUBLE_TAP_MAX_DISTANCE, DOUBLE_TAP_ZOOM_SCALE, initialScale, isPinching]);
 
   const handleTouchMove = useCallback((e: globalThis.TouchEvent) => {
     if (e.touches.length === 1 && lastTapRef.current) {
