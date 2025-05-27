@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrientacoesList } from "./OrientacoesList";
@@ -10,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, List, PlusCircle, CheckSquare } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export function Orientacoes() {
+export function VmTarefas() {
   const isMobile = useIsMobile();
   const [selectedTab, setSelectedTab] = useState("listar");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -135,7 +134,7 @@ export function Orientacoes() {
           <TabsList className={`grid grid-cols-3 w-full ${isMobile ? 'min-w-[360px]' : ''}`}>
             <TabsTrigger value="listar" className="text-xs sm:text-sm whitespace-nowrap relative flex items-center justify-center gap-1 sm:gap-2">
               <List className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className={isMobile ? 'text-xs' : ''}>Listar</span>
+              <span className={isMobile ? 'text-xs' : ''}>VM</span>
               {unreadCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
                   {unreadCount}
@@ -144,7 +143,7 @@ export function Orientacoes() {
             </TabsTrigger>
             <TabsTrigger value="adicionar" className="text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1 sm:gap-2">
               <PlusCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className={isMobile ? 'text-xs' : ''}>Nova</span>
+              <span className={isMobile ? 'text-xs' : ''}>Novo VM</span>
             </TabsTrigger>
             <TabsTrigger value="tarefas" className="text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1 sm:gap-2">
               <CheckSquare className="h-3 w-3 sm:h-4 sm:w-4" />

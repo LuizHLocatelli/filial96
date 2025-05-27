@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
-import { Orientacoes } from "@/components/moveis/orientacoes/Orientacoes";
+import { VmTarefas } from "@/components/moveis/orientacoes/Orientacoes";
 import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
@@ -17,6 +16,7 @@ import {
   Star
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AppLayout as Layout } from "@/components/layout/AppLayout";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,7 +32,7 @@ export default function Moveis() {
       label: "Orientações",
       icon: FileText,
       description: "Documentos e orientações",
-      component: <Orientacoes />
+      component: <VmTarefas />
     },
     {
       value: "diretorio",

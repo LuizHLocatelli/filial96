@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -137,15 +136,15 @@ export function PromotionalCard({
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-2">
                   <div className="flex items-center justify-between gap-2 text-xs">
                     {code && (
-                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm">
-                        <Hash className="h-3 w-3" />
-                        <span className="truncate font-medium">{code}</span>
+                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
+                        <Hash className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate font-medium block">{code}</span>
                       </div>
                     )}
                     {formattedDate && (
-                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto">
-                        <Calendar className="h-3 w-3" />
-                        <span className="text-xs">{formattedDate}</span>
+                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
+                        <Calendar className="h-3 w-3 flex-shrink-0" />
+                        <span className="text-xs truncate block">{formattedDate}</span>
                       </div>
                     )}
                   </div>
