@@ -46,18 +46,18 @@ export function PDFRenderer({
   useEffect(() => {
     isMountedRef.current = true;
     if (url) {
-        // Quando userScale (a escala "real") muda, ou o fitMode, renderizamos o PDF.
-        // E removemos qualquer previewScale que possa estar aplicado.
-        setPreviewScale(null);
-        if (pageContainerRef.current) {
-            pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px)`; // Reseta apenas para pan
-        }
-        renderPDF();
+        // Não resetamos previewScale ou a transformação aqui diretamente.
+        // renderPDF cuidará da limpeza após a renderização.
+        renderPDF(); 
     } else {
         if (pageContainerRef.current) pageContainerRef.current.innerHTML = '';
         setPanOffset({x:0, y:0});
+        setPreviewScale(null); // Se não há URL, não há preview.
+        if (pageContainerRef.current) {
+            pageContainerRef.current.style.transform = `translate(0px, 0px) scale(1)`;
+        }
     }
-    setInitialScale(userScale); // Sincroniza initialScale com userScale
+    setInitialScale(userScale); 
 
     return () => {
         isMountedRef.current = false;
@@ -81,6 +81,13 @@ export function PDFRenderer({
 
   const renderPDF = async () => {
     if (!isMountedRef.current || !url) return;
+
+    // Se estivermos entrando em renderPDF e há um previewScale, 
+    // significa que o usuário acabou de fazer um zoom por pinça.
+    // Mantemos o container com esse previewScale visualmente enquanto renderizamos.
+    if (pageContainerRef.current && previewScale !== null) {
+        pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${previewScale})`;
+    }
 
     let pdf: pdfjsLib.PDFDocumentProxy | null = null;
     try {
@@ -193,6 +200,17 @@ export function PDFRenderer({
       } catch (pageError) {
         if (!isMountedRef.current) break;
         console.error(`Erro ao renderizar página ${pageNum}:`, pageError);
+      }
+    }
+
+    // Após todas as páginas serem renderizadas (ou tentativas de renderização):
+    if (isMountedRef.current) {
+      setPreviewScale(null); // Limpa o estado de preview scale.
+      if (pageContainerRef.current) {
+        // A transformação agora deve ser apenas o pan, pois os canvases estão na escala correta.
+        pageContainerRef.current.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`;
+        // Força um reflow/repaint, pode ajudar em alguns casos, mas use com cautela.
+        // void pageContainerRef.current.offsetWidth;
       }
     }
   };
@@ -337,10 +355,14 @@ export function PDFRenderer({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{
-        // Define a transform origin. Ajuste conforme necessário (ex: 'center center')
         transformOrigin: 'center',
-        // A transformação inicial é apenas o panOffset. O scale é adicionado dinamicamente
-        transform: `translate(${panOffset.x}px, ${panOffset.y}px)`,
+        // A transformação aqui é gerenciada mais ativamente agora.
+        // O useEffect e o renderPDF irão definir a transformação inicial/final.
+        // handleTouchMove irá definir a transformação durante os gestos.
+        // Se previewScale não for null, ele domina a escala.
+        transform: previewScale !== null 
+            ? `translate(${panOffset.x}px, ${panOffset.y}px) scale(${previewScale})` 
+            : `translate(${panOffset.x}px, ${panOffset.y}px) scale(1)`,
         transition: isPanning || isPinching ? 'none' : 'transform 0.1s ease-out' 
       }}
     >
