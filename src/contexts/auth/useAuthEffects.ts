@@ -34,7 +34,7 @@ export const useAuthEffects = ({
         if (session?.user) {
           setUser(session.user);
           setSession(session);
-          await fetchUserProfile(session.user.id);
+          await fetchUserProfile(session.user.id, session.user.email);
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
@@ -48,7 +48,7 @@ export const useAuthEffects = ({
       }
     };
 
-    const fetchUserProfile = async (userId: string) => {
+    const fetchUserProfile = async (userId: string, userEmail?: string) => {
       try {
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -64,12 +64,17 @@ export const useAuthEffects = ({
               const newProfile = {
                 id: userId,
                 name: userData.user.email || 'Usuário',
-                role: 'vendedor'
+                role: 'vendedor',
+                email: userData.user.email || userEmail || ''
               };
               
               const { error: insertError } = await supabase
                 .from('profiles')
-                .insert(newProfile);
+                .insert({
+                  id: userId,
+                  name: userData.user.email || 'Usuário',
+                  role: 'vendedor'
+                });
                 
               if (insertError) {
                 console.error("Error creating profile:", insertError);
@@ -81,7 +86,12 @@ export const useAuthEffects = ({
             console.error("Error fetching profile:", error);
           }
         } else if (profile) {
-          setProfile(profile as AppUser);
+          // Combine profile data with email from auth user
+          const fullProfile: AppUser = {
+            ...profile,
+            email: userEmail || profile.email || ''
+          };
+          setProfile(fullProfile);
         }
       } catch (error) {
         console.error("Profile fetch error:", error);
@@ -96,7 +106,7 @@ export const useAuthEffects = ({
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
           setSession(session);
-          await fetchUserProfile(session.user.id);
+          await fetchUserProfile(session.user.id, session.user.email);
           toast({
             title: "Login realizado com sucesso!",
             description: "Bem-vindo de volta.",

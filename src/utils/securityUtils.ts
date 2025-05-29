@@ -46,12 +46,9 @@ export async function validateTaskAccess(taskId: string): Promise<AccessValidati
 
 /**
  * Validates if the current user can modify a specific resource
+ * Note: This is a simplified version that works with tasks only due to TypeScript constraints
  */
-export async function validateResourceOwnership(
-  table: string, 
-  resourceId: string, 
-  ownerField: string = 'created_by'
-): Promise<AccessValidationResult> {
+export async function validateTaskOwnership(taskId: string): Promise<AccessValidationResult> {
   try {
     const { data: currentUser } = await supabase.auth.getUser();
     
@@ -59,25 +56,59 @@ export async function validateResourceOwnership(
       return { hasAccess: false, error: "User not authenticated" };
     }
 
-    const { data: resource, error } = await supabase
-      .from(table)
-      .select(ownerField)
-      .eq('id', resourceId)
+    const { data: task, error } = await supabase
+      .from('tasks')
+      .select('created_by')
+      .eq('id', taskId)
       .single();
 
     if (error) {
-      return { hasAccess: false, error: "Resource not found" };
+      return { hasAccess: false, error: "Task not found" };
     }
 
     const userId = currentUser.user.id;
-    const hasAccess = resource[ownerField] === userId;
+    const hasAccess = task.created_by === userId;
 
     return { 
       hasAccess, 
-      error: hasAccess ? undefined : "Access denied: You don't own this resource" 
+      error: hasAccess ? undefined : "Access denied: You don't own this task" 
     };
   } catch (error) {
-    console.error("Error validating resource ownership:", error);
+    console.error("Error validating task ownership:", error);
+    return { hasAccess: false, error: "Failed to validate ownership" };
+  }
+}
+
+/**
+ * Validates if the current user can modify an attachment
+ */
+export async function validateAttachmentOwnership(attachmentId: string): Promise<AccessValidationResult> {
+  try {
+    const { data: currentUser } = await supabase.auth.getUser();
+    
+    if (!currentUser.user) {
+      return { hasAccess: false, error: "User not authenticated" };
+    }
+
+    const { data: attachment, error } = await supabase
+      .from('attachments')
+      .select('created_by')
+      .eq('id', attachmentId)
+      .single();
+
+    if (error) {
+      return { hasAccess: false, error: "Attachment not found" };
+    }
+
+    const userId = currentUser.user.id;
+    const hasAccess = attachment.created_by === userId;
+
+    return { 
+      hasAccess, 
+      error: hasAccess ? undefined : "Access denied: You don't own this attachment" 
+    };
+  } catch (error) {
+    console.error("Error validating attachment ownership:", error);
     return { hasAccess: false, error: "Failed to validate ownership" };
   }
 }
