@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -72,7 +71,7 @@ export function FileUploader({
   };
 
   return (
-    <Card>
+    <Card className="border shadow-soft">
       <CardHeader>
         <CardTitle>Enviar Arquivo</CardTitle>
         <CardDescription>
@@ -106,7 +105,7 @@ export function FileUploader({
                   id="file-upload"
                   type="file"
                   onChange={handleFileChange}
-                  className="cursor-pointer"
+                  className="cursor-pointer bg-muted/40"
                 />
               </div>
             )}
@@ -115,7 +114,7 @@ export function FileUploader({
           <div>
             <Label htmlFor="category">Categoria</Label>
             <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-muted/40">
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
@@ -137,6 +136,7 @@ export function FileUploader({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
+              className="bg-muted/40"
             />
           </div>
           

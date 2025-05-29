@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,7 +21,7 @@ export function ListagemList({ listagens, isLoading, onView, onDelete }: Listage
     : listagens;
   
   return (
-    <Card>
+    <Card className="border shadow-soft">
       <CardHeader>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
@@ -34,7 +33,7 @@ export function ListagemList({ listagens, isLoading, onView, onDelete }: Listage
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select value={filterIndicator || "all"} onValueChange={(value) => setFilterIndicator(value === "all" ? null : value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px] bg-muted/40">
                 <SelectValue placeholder="Todos indicadores" />
               </SelectTrigger>
               <SelectContent>

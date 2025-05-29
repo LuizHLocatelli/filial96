@@ -1,4 +1,3 @@
-
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Control } from "react-hook-form";
@@ -21,7 +20,7 @@ export function ObservacoesField({ control }: ObservacoesFieldProps) {
           <FormControl>
             <Textarea 
               placeholder="Informações adicionais sobre a venda..." 
-              className="text-xs sm:text-sm resize-none"
+              className="text-xs sm:text-sm resize-none bg-muted/40"
               rows={3}
               {...field} 
             />

@@ -40,7 +40,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow duration-200">
+    <Card className="overflow-hidden border shadow-soft hover:shadow-md transition-shadow duration-200">
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-1 min-w-0">

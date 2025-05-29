@@ -1,4 +1,3 @@
-
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Eye, Trash2 } from "lucide-react";
@@ -22,7 +21,7 @@ export function ListagemItem({ item, onView, onDelete }: ListagemItemProps) {
   };
   
   return (
-    <div className="flex items-center justify-between p-3 border rounded-lg">
+    <div className="flex items-center justify-between p-3 border rounded-lg shadow-soft">
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <FileText className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">

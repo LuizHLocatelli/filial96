@@ -1,4 +1,3 @@
-
 import {
   Form,
   FormControl,
@@ -49,7 +48,7 @@ export function OrientacaoForm({
             <FormItem>
               <FormLabel>Título</FormLabel>
               <FormControl>
-                <Input placeholder="Título da orientação" {...field} />
+                <Input placeholder="Título da orientação" {...field} className="bg-muted/40" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -67,7 +66,7 @@ export function OrientacaoForm({
                 defaultValue={field.value}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-muted/40">
                     <SelectValue placeholder="Selecione um tipo" />
                   </SelectTrigger>
                 </FormControl>
@@ -91,7 +90,7 @@ export function OrientacaoForm({
               <FormControl>
                 <Textarea
                   placeholder="Descreva esta orientação"
-                  className="min-h-[120px]"
+                  className="min-h-[120px] bg-muted/40"
                   {...field}
                 />
               </FormControl>

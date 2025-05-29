@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -156,7 +155,7 @@ export function DirectoryToolbar({
         <Input
           type="search"
           placeholder="Buscar arquivos..."
-          className="pl-8"
+          className="pl-8 bg-muted/40"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

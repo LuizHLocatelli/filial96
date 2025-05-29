@@ -62,7 +62,7 @@ export function ProductListInput({
                     <Input
                       placeholder="Nome do produto"
                       {...field}
-                      className="text-xs sm:text-sm h-8 sm:h-10"
+                      className="text-xs sm:text-sm h-8 sm:h-10 bg-muted/40"
                     />
                   </FormControl>
                   <FormMessage className="text-xs">
@@ -83,7 +83,7 @@ export function ProductListInput({
                       placeholder="Código"
                       {...field}
                       maxLength={6}
-                      className="text-xs sm:text-sm h-8 sm:h-10"
+                      className="text-xs sm:text-sm h-8 sm:h-10 bg-muted/40"
                     />
                   </FormControl>
                   <FormMessage className="text-xs">

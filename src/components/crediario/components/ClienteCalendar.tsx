@@ -1,4 +1,3 @@
-
 import { format, isSameMonth, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,7 @@ export function ClienteCalendar({
   };
 
   return (
-    <Card>
+    <Card className="border shadow-soft">
       <CardHeader>
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
           <CardTitle>Calendário de Pagamentos</CardTitle>

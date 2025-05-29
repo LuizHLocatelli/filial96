@@ -6,8 +6,9 @@ import { OrientacaoUploader } from "./OrientacaoUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { Badge } from "@/components/ui/badge";
-import { Bell, List, PlusCircle, CheckSquare } from "lucide-react";
+import { Bell, List, PlusCircle, CheckSquare, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function VmTarefas() {
   const isMobile = useIsMobile();
@@ -128,41 +129,111 @@ export function VmTarefas() {
   };
   
   return (
-    <div className={`w-full max-w-full overflow-hidden ${isMobile ? 'px-0' : 'px-2'}`}>
-      <Tabs value={selectedTab} onValueChange={handleTabChange} className="space-y-4 w-full">
-        <div className={`w-full overflow-x-auto pb-2 ${isMobile ? 'px-2' : 'px-4'}`}>
-          <TabsList className={`grid grid-cols-3 w-full ${isMobile ? 'min-w-[360px]' : ''}`}>
-            <TabsTrigger value="listar" className="text-xs sm:text-sm whitespace-nowrap relative flex items-center justify-center gap-1 sm:gap-2">
-              <List className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className={isMobile ? 'text-xs' : ''}>VM</span>
-              {unreadCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
-                  {unreadCount}
-                </Badge>
-              )}
+    <div className="w-full max-w-full">
+      <Tabs 
+        value={selectedTab} 
+        onValueChange={handleTabChange} 
+        className="space-y-6 w-full"
+      >
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border/40">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-foreground">VM e Tarefas</h2>
+            <p className="text-sm text-muted-foreground">Gerencie orientações e tarefas relacionadas aos móveis</p>
+          </div>
+          
+          <TabsList className="grid grid-cols-3 w-full bg-muted/50 p-1 rounded-lg">
+            <TabsTrigger 
+              value="listar" 
+              className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="flex items-center gap-2"
+              >
+                <FileText className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{isMobile ? "VM" : "Visualização de Móveis"}</span>
+              </motion.div>
+              <AnimatePresence>
+                {unreadCount > 0 && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    className="absolute -top-2 -right-2"
+                  >
+                    <Badge 
+                      className="h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs rounded-full shadow-md"
+                      variant="destructive"
+                    >
+                      {unreadCount}
+                    </Badge>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </TabsTrigger>
-            <TabsTrigger value="adicionar" className="text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1 sm:gap-2">
-              <PlusCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className={isMobile ? 'text-xs' : ''}>Novo VM</span>
+            
+            <TabsTrigger 
+              value="adicionar" 
+              className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{isMobile ? "Novo" : "Novo VM"}</span>
+              </motion.div>
             </TabsTrigger>
-            <TabsTrigger value="tarefas" className="text-xs sm:text-sm whitespace-nowrap flex items-center justify-center gap-1 sm:gap-2">
-              <CheckSquare className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className={isMobile ? 'text-xs' : ''}>Tarefas</span>
+            
+            <TabsTrigger 
+              value="tarefas" 
+              className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="flex items-center gap-2"
+              >
+                <CheckSquare className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Tarefas</span>
+              </motion.div>
             </TabsTrigger>
           </TabsList>
         </div>
         
-        <TabsContent value="listar" className="space-y-4 w-full m-0">
-          <OrientacoesList key={refreshKey} />
-        </TabsContent>
-        
-        <TabsContent value="adicionar" className={`space-y-4 w-full m-0 ${isMobile ? 'px-2' : 'px-4'}`}>
-          <OrientacaoUploader onSuccess={handleUploadSuccess} />
-        </TabsContent>
-        
-        <TabsContent value="tarefas" className={`space-y-4 w-full m-0 ${isMobile ? 'px-2' : 'px-4'}`}>
-          <OrientacaoTarefas />
-        </TabsContent>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full"
+          >
+            <TabsContent value="listar" className="space-y-4 w-full m-0">
+              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
+                <OrientacoesList key={refreshKey} />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="adicionar" className="space-y-4 w-full m-0">
+              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
+                <OrientacaoUploader onSuccess={handleUploadSuccess} />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="tarefas" className="space-y-4 w-full m-0">
+              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
+                <OrientacaoTarefas />
+              </div>
+            </TabsContent>
+          </motion.div>
+        </AnimatePresence>
       </Tabs>
     </div>
   );

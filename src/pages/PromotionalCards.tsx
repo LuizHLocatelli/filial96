@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,8 @@ import { UploadCardDialog } from "@/components/promotional-cards/UploadCardDialo
 import { SectorSelector } from "@/components/promotional-cards/SectorSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function PromotionalCards() {
   const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion" | "loan" | "service">("furniture");
@@ -19,21 +20,14 @@ export default function PromotionalCards() {
   const isMobile = useIsMobile();
   
   return (
-    <div className="space-y-6 pb-6">
-      {/* Header com gradiente */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 sm:p-8">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Cards Promocionais
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
+    <PageLayout spacing="normal" maxWidth="full">
+      <PageHeader
+        title="Cards Promocionais"
+        description="Gestão completa dos materiais promocionais"
+        icon={Sparkles}
+        iconColor="text-primary"
+        variant="gradient"
+      />
 
       {/* Seletor de setor */}
       <SectorSelector 
@@ -110,6 +104,6 @@ export default function PromotionalCards() {
         sector={selectedSector}
         folderId={selectedFolderId}
       />
-    </div>
+    </PageLayout>
   );
 }

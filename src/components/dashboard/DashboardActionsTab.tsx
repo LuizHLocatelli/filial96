@@ -23,7 +23,7 @@ export function DashboardActionsTab({ actions, isMobile }: DashboardActionsTabPr
       {actions.map((action, index) => (
         <Card 
           key={index} 
-          className="cursor-pointer transition-all duration-300 hover:shadow-strong hover:-translate-y-2 group"
+          className="cursor-pointer transition-all duration-300 border shadow-soft hover:shadow-strong hover:-translate-y-2 group"
           onClick={action.action}
         >
           <CardContent className={isMobile ? "p-4" : "p-6"}>

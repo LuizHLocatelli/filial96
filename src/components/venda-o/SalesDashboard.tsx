@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -117,7 +116,7 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
             placeholder="Buscar por cliente, filial, produto..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-12 border-border/60 focus:border-primary bg-background/50"
+            className="pl-10 h-12 border-border/60 focus:border-primary bg-muted/40"
           />
         </div>
 
@@ -178,56 +177,6 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
         
       {/* Tabs de filtros */}
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-        <div className="overflow-x-auto pb-2">
-          <TabsList className="grid w-full min-w-max grid-cols-5 h-14 bg-muted/30 p-1 rounded-xl">
-            <TabsTrigger 
-              value="all" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium">Todas</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.all}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="aguardando_produto" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Produtos</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.aguardando_produto}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="aguardando_cliente" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Clientes</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.aguardando_cliente}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="pendente" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Pendentes</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.pendente}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="concluida" 
-              className="flex flex-col gap-1 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all px-2 sm:px-4"
-            >
-              <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Concluídas</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {counts.concluida}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        
         <TabsContent value={activeTab} className="mt-6">
           <SalesList 
             sales={filteredSales} 

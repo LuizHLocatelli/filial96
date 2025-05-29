@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -47,10 +46,7 @@ export function LoginForm() {
         return;
       }
 
-      toast({
-        title: "Login bem-sucedido",
-        description: "Bem-vindo de volta!",
-      });
+      // navigate("/"); // Comentado para teste, descomente em produção
       navigate("/");
     } catch (error) {
       toast({

@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,7 +87,7 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
   };
 
   return (
-    <Card>
+    <Card className="border shadow-soft">
       <CardHeader>
         <CardTitle>Upload de Listagens</CardTitle>
         <CardDescription>
@@ -141,7 +140,7 @@ export function ListagemUploader({ isUploading, onUpload }: ListagemUploaderProp
             <div className="space-y-2">
               <p className="text-sm font-medium">Indicador:</p>
               <Select value={selectedIndicator || "none"} onValueChange={setSelectedIndicator}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-muted/40">
                   <SelectValue placeholder="Selecione um indicador" />
                 </SelectTrigger>
                 <SelectContent>

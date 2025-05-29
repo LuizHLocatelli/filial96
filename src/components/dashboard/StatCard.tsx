@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReactNode } from "react";
@@ -43,7 +42,7 @@ export function StatCard({
   };
 
   return (
-    <Card className={`transition-all duration-300 hover:shadow-medium hover:-translate-y-1 ${variantStyles[variant]}`}>
+    <Card className={`transition-all duration-300 shadow-soft hover:shadow-medium hover:-translate-y-1 ${variantStyles[variant]}`}>
       <CardContent className={isMobile ? "p-4" : "p-6"}>
         <div className="flex items-center justify-between">
           <div className="space-y-2 flex-1">

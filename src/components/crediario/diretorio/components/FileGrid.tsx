@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FileText, File, FileImage, Download, MoreHorizontal, Trash, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,7 +65,7 @@ export function FileGrid({ files, onViewFile, onDeleteFile, onEditFile }: FileGr
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {files.map((file) => (
-        <Card key={file.id} className={file.is_featured ? 'border-primary' : ''}>
+        <Card key={file.id} className={`border shadow-soft hover:shadow-md transition-shadow ${file.is_featured ? 'border-primary' : ''}`}>
           <CardContent className="p-4">
             <div 
               className="flex flex-col items-center justify-center h-32 mb-3 cursor-pointer" 

@@ -141,7 +141,7 @@ export function ProdutoFoco() {
 
       {/* Resumo/Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="border shadow-soft">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -153,7 +153,7 @@ export function ProdutoFoco() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border shadow-soft">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -167,7 +167,7 @@ export function ProdutoFoco() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border shadow-soft">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>

@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardContent,
@@ -12,25 +11,25 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { User, Shield } from "lucide-react";
 
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { PersonalInfoForm } from "@/components/profile/PersonalInfoForm";
 import { EmailForm } from "@/components/profile/EmailForm";
 import { PasswordForm } from "@/components/profile/PasswordForm";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Profile() {
-  return (
-    <div className="container max-w-4xl py-6 space-y-6">
-      <ProfileHeader />
-
-      <Tabs defaultValue="info">
-        <TabsList className="w-full">
-          <TabsTrigger value="info" className="flex-1">Informações Pessoais</TabsTrigger>
-          <TabsTrigger value="security" className="flex-1">Segurança</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="info" className="space-y-4 pt-4">
+  const navigationTabs = [
+    {
+      value: "info",
+      label: "Informações Pessoais",
+      icon: User,
+      component: (
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Informações Pessoais</CardTitle>
@@ -54,9 +53,15 @@ export default function Profile() {
               <EmailForm />
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="security" className="space-y-4 pt-4">
+        </div>
+      )
+    },
+    {
+      value: "security",
+      label: "Segurança",
+      icon: Shield,
+      component: (
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Alterar Senha</CardTitle>
@@ -80,8 +85,29 @@ export default function Profile() {
               <DeleteAccountForm />
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+      )
+    }
+  ];
+
+  return (
+    <PageLayout spacing="normal" maxWidth="md">
+      <PageHeader
+        title="Perfil"
+        description="Gerencie suas informações pessoais e configurações de segurança"
+        icon={User}
+        iconColor="text-primary"
+        variant="minimal"
+      />
+
+      <ProfileHeader />
+
+      <PageNavigation
+        tabs={navigationTabs}
+        activeTab="info"
+        onTabChange={() => {}}
+        variant="tabs"
+      />
+    </PageLayout>
   );
 }

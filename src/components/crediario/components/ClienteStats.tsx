@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cliente } from "../types";
 
@@ -9,7 +8,7 @@ interface ClienteStatsProps {
 
 export function ClienteStats({ clientes, clientesNoMes }: ClienteStatsProps) {
   return (
-    <Card className="w-full md:w-auto">
+    <Card className="w-full md:w-auto border shadow-soft">
       <CardHeader className="pb-3">
         <CardTitle>Resumo de Agendamentos</CardTitle>
         <CardDescription>Visão geral dos clientes agendados</CardDescription>

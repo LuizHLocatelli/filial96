@@ -37,7 +37,7 @@ interface TarefaFormProps {
 
 export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaFormProps) {
   return (
-    <Card className="p-4 sm:p-6 shadow-sm border">
+    <Card className="p-4 sm:p-6 shadow-soft border">
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg sm:text-xl font-semibold text-foreground">Nova Tarefa</h3>
@@ -67,7 +67,7 @@ export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaForm
                   <Input 
                     placeholder="Digite o título da tarefa" 
                     {...field} 
-                    className="text-sm"
+                    className="text-sm bg-muted/40"
                   />
                 </FormControl>
                 <FormMessage />
@@ -87,7 +87,7 @@ export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaForm
                     value={field.value || "none"}
                   >
                     <FormControl>
-                      <SelectTrigger className="text-sm">
+                      <SelectTrigger className="text-sm bg-muted/40">
                         <SelectValue placeholder="Selecione uma orientação" />
                       </SelectTrigger>
                     </FormControl>
@@ -152,7 +152,7 @@ export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaForm
                 <FormControl>
                   <Textarea
                     placeholder="Descreva os detalhes desta tarefa..."
-                    className="min-h-[100px] sm:min-h-[120px] text-sm resize-none"
+                    className="min-h-[100px] sm:min-h-[120px] text-sm resize-none bg-muted/40"
                     {...field}
                   />
                 </FormControl>

@@ -51,7 +51,7 @@ export function FolgasCalendar({
   };
 
   return (
-    <Card>
+    <Card className="border shadow-soft">
       <CardHeader className="pb-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-2 mb-2">
           <CardTitle className="text-lg sm:text-xl font-semibold">Calendário de Folgas</CardTitle>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays, isSameDay } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Crediarista, Folga, FolgaFormValues } from "./types";
 import { useAuth } from "@/contexts/auth";

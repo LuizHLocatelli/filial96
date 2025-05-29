@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -137,7 +136,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                           <Input 
                             placeholder="Ex: 001, 002, 003..." 
                             {...field} 
-                            className="h-10 border-border/60 focus:border-primary"
+                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
                           />
                         </FormControl>
                         <FormMessage className="text-xs" />
@@ -155,7 +154,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                           <Input 
                             type="date" 
                             {...field} 
-                            className="h-10 border-border/60 focus:border-primary"
+                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
                           />
                         </FormControl>
                         <FormMessage className="text-xs" />
@@ -185,7 +184,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                           <Input 
                             placeholder="Nome completo do cliente" 
                             {...field} 
-                            className="h-10 border-border/60 focus:border-primary"
+                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
                           />
                         </FormControl>
                         <FormMessage className="text-xs" />
@@ -205,7 +204,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                           <Input 
                             placeholder="(11) 99999-9999" 
                             {...field} 
-                            className="h-10 border-border/60 focus:border-primary"
+                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
                           />
                         </FormControl>
                         <FormMessage className="text-xs" />
@@ -255,7 +254,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                           <Input 
                             type="date" 
                             {...field} 
-                            className="h-10 border-border/60 focus:border-primary"
+                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
                           />
                         </FormControl>
                         <FormMessage className="text-xs" />
@@ -271,7 +270,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                         <FormLabel className="text-sm font-medium">Tipo de Entrega *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-10 border-border/60 focus:border-primary">
+                            <SelectTrigger className="h-10 border-border/60 focus:border-primary bg-muted/40">
                               <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
@@ -296,7 +295,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                         <FormLabel className="text-sm font-medium">Status *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-10 border-border/60 focus:border-primary">
+                            <SelectTrigger className="h-10 border-border/60 focus:border-primary bg-muted/40">
                               <SelectValue placeholder="Selecione o status" />
                             </SelectTrigger>
                           </FormControl>

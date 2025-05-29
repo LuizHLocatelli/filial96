@@ -49,7 +49,7 @@ export function OrientacoesList() {
   }
 
   return (
-    <div className={`space-y-4 w-full max-w-full ${isMobile ? 'px-2' : 'px-4'}`}>
+    <div className="space-y-4 w-full max-w-full p-4">
       <OrientacoesHeader 
         totalCount={typeStats.all}
         vmCount={typeStats.vm}

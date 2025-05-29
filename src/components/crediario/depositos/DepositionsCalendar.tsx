@@ -1,4 +1,3 @@
-
 import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,7 @@ export function DepositionsCalendar({
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border shadow-soft">
       <CardHeader className="pb-2">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
           <CardTitle className="text-lg sm:text-xl">Calendário de Depósitos</CardTitle>
