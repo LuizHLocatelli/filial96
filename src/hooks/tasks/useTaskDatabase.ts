@@ -68,7 +68,10 @@ export async function saveTask(
           created_by: userId,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating task:", error);
+        throw error;
+      }
 
       // Log activity for the new task
       await logActivity({
@@ -88,6 +91,17 @@ export async function saveTask(
       // Atualizar tarefa existente
       if (!taskId) throw new Error("Task ID is required for update");
 
+      // First verify user has permission to update this task
+      const { data: existingTask, error: fetchError } = await supabase
+        .from("tasks")
+        .select('created_by, assigned_to')
+        .eq("id", taskId)
+        .single();
+        
+      if (fetchError || !existingTask) {
+        throw new Error("Task not found or access denied");
+      }
+
       const { error } = await supabase
         .from("tasks")
         .update({
@@ -96,7 +110,10 @@ export async function saveTask(
         })
         .eq("id", taskId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating task:", error);
+        throw error;
+      }
 
       // Log activity for the updated task
       await logActivity({

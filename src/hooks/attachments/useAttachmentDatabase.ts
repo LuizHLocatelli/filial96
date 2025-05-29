@@ -10,7 +10,10 @@ export async function fetchAttachments(taskId: string): Promise<Attachment[]> {
       .select('*')
       .eq('task_id', taskId);
     
-    if (error) throw error;
+    if (error) {
+      console.error("Error fetching attachments:", error);
+      return [];
+    }
     
     // Format the results
     return data.map(item => ({
@@ -32,6 +35,27 @@ export async function uploadAttachmentToStorage(
   userId: string
 ): Promise<AttachmentUploadResult> {
   try {
+    // First verify user has access to the task
+    const { data: taskData, error: taskError } = await supabase
+      .from('tasks')
+      .select('id, created_by, assigned_to')
+      .eq('id', taskId)
+      .single();
+    
+    if (taskError || !taskData) {
+      return {
+        success: false,
+        error: new Error("Task not found or access denied")
+      };
+    }
+    
+    if (taskData.created_by !== userId && taskData.assigned_to !== userId) {
+      return {
+        success: false,
+        error: new Error("Access denied: You don't have permission to add attachments to this task")
+      };
+    }
+    
     // Generate a unique filename
     const fileExt = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`;
@@ -100,20 +124,26 @@ export async function deleteAttachmentFromStorage(
     
     const storagePath = urlParts[1];
     
-    // Delete from storage
-    const { error: storageError } = await supabase.storage
-      .from('task_attachments')
-      .remove([storagePath]);
-    
-    if (storageError) throw storageError;
-    
-    // Delete the database record
+    // Delete the database record first (RLS will check ownership)
     const { error: dbError } = await supabase
       .from('attachments')
       .delete()
       .eq('id', attachmentId);
     
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error("Database deletion error:", dbError);
+      return false;
+    }
+    
+    // Delete from storage
+    const { error: storageError } = await supabase.storage
+      .from('task_attachments')
+      .remove([storagePath]);
+    
+    if (storageError) {
+      console.warn("Storage deletion warning:", storageError);
+      // Don't fail the operation if storage deletion fails
+    }
     
     return true;
   } catch (error) {

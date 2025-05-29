@@ -1,102 +1,122 @@
 
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { AuthEffectsProps } from "./types";
+import { User, Session } from "@supabase/supabase-js";
 import { User as AppUser } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
-export function useAuthEffects({
+interface UseAuthEffectsProps {
+  setUser: (user: User | null) => void;
+  setSession: (session: Session | null) => void;
+  setProfile: (profile: AppUser | null) => void;
+  setIsLoading: (loading: boolean) => void;
+  toast: any;
+}
+
+export const useAuthEffects = ({
   setUser,
   setSession,
   setProfile,
   setIsLoading,
   toast,
-}: AuthEffectsProps) {
-  // Function to fetch user profile
-  const fetchUserProfile = async (userId: string, showWelcomeToast = false) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error) {
-        console.error("Erro ao buscar perfil:", error);
-        return;
-      }
-
-      if (data) {
-        // Get current user's email separately since getUser now returns a promise
-        const { data: userData } = await supabase.auth.getUser();
-        const email = userData?.user?.email || "";
-
-        setProfile({
-          id: data.id,
-          name: data.name,
-          email: email,
-          role: data.role as any,
-          avatarUrl: data.avatar_url,
-          displayName: data.display_name || data.name.split(" ")[0]
-        });
-        
-        // Removed welcome toast message
-      }
-    } catch (error) {
-      console.error("Erro ao buscar perfil:", error);
-    }
-  };
-
+}: UseAuthEffectsProps) => {
   useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          setIsLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          setUser(session.user);
+          setSession(session);
+          await fetchUserProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        toast({
+          title: "Erro de Autenticação",
+          description: "Erro ao inicializar a autenticação. Tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchUserProfile = async (userId: string) => {
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // Profile doesn't exist, create one
+            const { data: userData } = await supabase.auth.getUser();
+            if (userData.user) {
+              const newProfile = {
+                id: userId,
+                name: userData.user.email || 'Usuário',
+                role: 'vendedor'
+              };
+              
+              const { error: insertError } = await supabase
+                .from('profiles')
+                .insert(newProfile);
+                
+              if (insertError) {
+                console.error("Error creating profile:", insertError);
+              } else {
+                setProfile(newProfile as AppUser);
+              }
+            }
+          } else {
+            console.error("Error fetching profile:", error);
+          }
+        } else if (profile) {
+          setProfile(profile as AppUser);
+        }
+      } catch (error) {
+        console.error("Profile fetch error:", error);
+      }
+    };
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setSession(session);
-        setUser(session?.user || null);
+        console.log("Auth state changed:", event, session?.user?.email);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          // Use setTimeout to avoid potential loop issues with RLS
-          setTimeout(() => {
-            // Don't show welcome toast anymore, just fetch the profile
-            fetchUserProfile(session.user.id, false);
-          }, 0);
+          setUser(session.user);
+          setSession(session);
+          await fetchUserProfile(session.user.id);
+          toast({
+            title: "Login realizado com sucesso!",
+            description: "Bem-vindo de volta.",
+          });
         } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setSession(null);
           setProfile(null);
-          // Redirect to login page if on a protected route
-          if (window.location.pathname !== '/auth') {
-            window.location.href = '/auth';
-          }
-        } else if (session?.user) {
-          // For other events (like token refresh), fetch profile without showing welcome toast
-          setTimeout(() => {
-            fetchUserProfile(session.user.id, false);
-          }, 0);
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          setSession(session);
         }
+        
+        setIsLoading(false);
       }
     );
-    
-    // Check current session
-    const initAuth = async () => {
-      setIsLoading(true);
-      
-      // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user || null);
-      
-      if (session?.user) {
-        // Initial load, don't show welcome toast
-        await fetchUserProfile(session.user.id, false);
-      }
-      
-      setIsLoading(false);
-    };
-    
-    initAuth();
+
+    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
-
-  return null;
-}
+  }, [setUser, setSession, setProfile, setIsLoading, toast]);
+};
