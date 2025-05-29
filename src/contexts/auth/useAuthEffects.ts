@@ -90,7 +90,7 @@ export const useAuthEffects = ({
           const fullProfile: AppUser = {
             id: profile.id,
             name: profile.name,
-            role: profile.role as UserRole, // Type cast the role
+            role: profile.role as UserRole,
             email: userEmail || '',
             avatarUrl: profile.avatar_url,
             displayName: profile.display_name
@@ -110,7 +110,10 @@ export const useAuthEffects = ({
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
           setSession(session);
-          await fetchUserProfile(session.user.id, session.user.email);
+          // Use setTimeout to prevent deadlocks
+          setTimeout(() => {
+            fetchUserProfile(session.user.id, session.user.email);
+          }, 0);
           toast({
             title: "Login realizado com sucesso!",
             description: "Bem-vindo de volta.",

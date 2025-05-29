@@ -45,8 +45,7 @@ export async function validateTaskAccess(taskId: string): Promise<AccessValidati
 }
 
 /**
- * Validates if the current user can modify a specific resource
- * Note: This is a simplified version that works with tasks only due to TypeScript constraints
+ * Validates if the current user can modify a specific task
  */
 export async function validateTaskOwnership(taskId: string): Promise<AccessValidationResult> {
   try {
