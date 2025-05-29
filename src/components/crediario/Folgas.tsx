@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { FolgasSummary } from "./folgas/FolgasSummary";
 import { FolgasCalendar } from "./folgas/FolgasCalendar";
@@ -13,6 +12,7 @@ export function Folgas() {
     crediaristas,
     isLoadingCrediaristas,
     folgas,
+    isLoadingFolgas,
     openDialog,
     setOpenDialog,
     selectedDate,
@@ -28,45 +28,45 @@ export function Folgas() {
     handleAddFolga,
     handleDeleteFolga,
     getCrediaristaById,
-    weeks
+    getUserNameById,
+    weeks,
+    allUsers,
+    isLoadingUsers,
+    folgasDoDiaSelecionado,
+    handleDateClick,
   } = useFolgas();
   
-  // Função para lidar com cliques nas datas do calendário
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
-    setOpenDialog(true);
+  // Wrapper para obter apenas o nome do crediarista
+  const getCrediaristaName = (id: string): string | undefined => {
+    return getCrediaristaById(id)?.nome;
   };
   
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <FolgasSummary
+      <div className="space-y-2">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4">
+          <Button onClick={() => handleDateClick(selectedDate || new Date())}>
+            Adicionar Folga
+          </Button>
+        </div>
+      
+        <FolgasCalendar
+          currentMonth={currentMonth}
           crediaristas={crediaristas}
           folgas={folgas}
-          currentMonth={currentMonth}
-          isLoading={isLoadingCrediaristas}
+          isLoadingCrediaristas={isLoadingCrediaristas}
+          onPrevMonth={handlePrevMonth}
+          onNextMonth={handleNextMonth}
+          onDateClick={handleDateClick}
         />
-        
-        <Button onClick={() => setOpenDialog(true)}>
-          Adicionar Folga
-        </Button>
       </div>
-      
-      <FolgasCalendar
-        currentMonth={currentMonth}
-        crediaristas={crediaristas}
-        folgas={folgas}
-        isLoadingCrediaristas={isLoadingCrediaristas}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-        onDateClick={handleDateClick}
-      />
       
       <FolgasList
         folgas={folgas}
         getCrediaristaById={getCrediaristaById}
         onDeleteFolga={handleDeleteFolga}
-        onAddFolga={() => setOpenDialog(true)}
+        onAddFolga={() => handleDateClick(selectedDate || new Date())}
+        getUserNameById={getUserNameById}
       />
       
       <AddFolgaDialog
@@ -80,11 +80,21 @@ export function Folgas() {
         setMotivo={setMotivo}
         crediaristas={crediaristas}
         onAddFolga={handleAddFolga}
+        folgasNoDia={folgasDoDiaSelecionado}
+        getCrediaristaNameById={getCrediaristaName}
+        getUserNameForFolga={getUserNameById}
       />
       
       <ImagePreviewDialog
         imageUrl={viewImage}
         onClose={() => setViewImage(null)}
+      />
+
+      <FolgasSummary
+        crediaristas={crediaristas}
+        folgas={folgas}
+        currentMonth={currentMonth}
+        isLoading={isLoadingCrediaristas}
       />
     </div>
   );

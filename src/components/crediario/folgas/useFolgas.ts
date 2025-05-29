@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays, isSameDay } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Crediarista, Folga, FolgaFormValues } from "./types";
@@ -19,6 +18,9 @@ export function useFolgas() {
   const [selectedCrediarista, setSelectedCrediarista] = useState<string>("");
   const [motivo, setMotivo] = useState<string>("");
   const [viewImage, setViewImage] = useState<string | null>(null);
+  const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string }>>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
+  const [folgasDoDiaSelecionado, setFolgasDoDiaSelecionado] = useState<Folga[]>([]);
   
   // Fetch crediaristas from database
   useEffect(() => {
@@ -62,6 +64,51 @@ export function useFolgas() {
     }
     
     fetchCrediaristas();
+  }, [toast]);
+  
+  // Fetch all users from profiles table
+  useEffect(() => {
+    async function fetchAllUsers() {
+      setIsLoadingUsers(true);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, name"); // Selecionar apenas id e name
+          
+        if (error) {
+          console.error("Error fetching all users:", error);
+          toast({
+            title: "Erro ao carregar usuários",
+            description: error.message,
+            variant: "destructive",
+          });
+          setAllUsers([]); // Definir como array vazio em caso de erro
+          return;
+        }
+        
+        if (data) {
+          const formattedUsers = data.map(profile => ({
+            id: profile.id,
+            name: profile.name || "Usuário Desconhecido", // Fallback para nome desconhecido
+          }));
+          setAllUsers(formattedUsers);
+        } else {
+          setAllUsers([]);
+        }
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+        toast({
+          title: "Erro ao carregar usuários",
+          description: "Não foi possível carregar a lista de usuários.",
+          variant: "destructive",
+        });
+        setAllUsers([]);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    }
+    
+    fetchAllUsers();
   }, [toast]);
   
   // Fetch folgas from database
@@ -123,6 +170,17 @@ export function useFolgas() {
       newDate.setMonth(newDate.getMonth() + 1);
       return newDate;
     });
+  };
+  
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    // Filtrar folgas para o dia selecionado
+    const folgasParaEsteDia = folgas.filter(f => isSameDay(new Date(f.data), date));
+    setFolgasDoDiaSelecionado(folgasParaEsteDia);
+    setOpenDialog(true);
+    // Limpar campos para nova folga, caso o usuário queira adicionar uma nova
+    setSelectedCrediarista(""); 
+    setMotivo("");
   };
   
   const handleAddFolga = async () => {
@@ -197,6 +255,10 @@ export function useFolgas() {
         };
         
         setFolgas([...folgas, newFolga]);
+        // Atualizar também as folgasDoDiaSelecionado se a nova folga for do dia atualmente selecionado
+        if (selectedDate && isSameDay(newFolga.data, selectedDate)) {
+          setFolgasDoDiaSelecionado(prevFolgas => [...prevFolgas, newFolga]);
+        }
         
         toast({
           title: "Folga adicionada",
@@ -253,7 +315,13 @@ export function useFolgas() {
   };
   
   const getCrediaristaById = (id: string) => {
-    return crediaristas.find((crediarista) => crediarista.id === id);
+    return crediaristas.find((c) => c.id === id);
+  };
+  
+  // Função para obter o nome do usuário pelo ID
+  const getUserNameById = (userId: string): string | undefined => {
+    const foundUser = allUsers.find(u => u.id === userId);
+    return foundUser?.name;
   };
   
   // Função para gerar semanas do mês
@@ -308,6 +376,11 @@ export function useFolgas() {
     handleAddFolga,
     handleDeleteFolga,
     getCrediaristaById,
-    weeks
+    getUserNameById,
+    weeks,
+    allUsers,
+    isLoadingUsers,
+    folgasDoDiaSelecionado,
+    handleDateClick,
   };
 }

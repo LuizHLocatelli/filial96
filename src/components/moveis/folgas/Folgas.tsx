@@ -1,4 +1,3 @@
-
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMoveiFolgas } from "./useMoveiFolgas";
@@ -27,12 +26,15 @@ export function Folgas() {
     handleAddFolga,
     handleDeleteFolga,
     getConsultorById,
-    weeks,
+    getUserNameById,
+    folgasDoDiaSelecionado,
+    handleDateClick,
+    allUsers,
+    isLoadingUsers,
   } = useMoveiFolgas();
 
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
-    setOpenDialog(true);
+  const getConsultorName = (id: string): string | undefined => {
+    return getConsultorById(id)?.nome;
   };
 
   return (
@@ -44,23 +46,15 @@ export function Folgas() {
             Gerenciamento de folgas dos consultores de móveis
           </p>
         </div>
-        <Button onClick={() => setOpenDialog(true)}>
+        <Button onClick={() => handleDateClick(selectedDate || new Date())}>
           <PlusCircle className="h-4 w-4 mr-2" />
           Adicionar Folga
         </Button>
       </div>
 
-      <FolgasSummary
-        folgas={folgas}
-        isLoading={isLoadingFolgas}
-        currentMonth={currentMonth}
-        getConsultorById={getConsultorById}
-      />
-
-      <div className="space-y-6">
+      <div className="space-y-2">
         <FolgasCalendar
           currentMonth={currentMonth}
-          weeks={weeks}
           folgas={folgas}
           handlePrevMonth={handlePrevMonth}
           handleNextMonth={handleNextMonth}
@@ -75,6 +69,7 @@ export function Folgas() {
             isLoading={isLoadingFolgas}
             handleDeleteFolga={handleDeleteFolga}
             getConsultorById={getConsultorById}
+            getUserNameById={getUserNameById}
           />
         </div>
       </div>
@@ -91,6 +86,16 @@ export function Folgas() {
         setMotivo={setMotivo}
         handleAddFolga={handleAddFolga}
         isLoading={isLoadingConsultores}
+        folgasNoDia={folgasDoDiaSelecionado}
+        getConsultorNameById={getConsultorName}
+        getUserNameForFolga={getUserNameById}
+      />
+
+      <FolgasSummary
+        folgas={folgas}
+        isLoading={isLoadingFolgas}
+        currentMonth={currentMonth}
+        getConsultorById={getConsultorById}
       />
     </div>
   );

@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays, isSameDay } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Consultor, Folga, FolgaFormValues } from "./types";
@@ -18,6 +17,9 @@ export function useMoveiFolgas() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedConsultor, setSelectedConsultor] = useState<string>("");
   const [motivo, setMotivo] = useState<string>("");
+  const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string }>>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
+  const [folgasDoDiaSelecionado, setFolgasDoDiaSelecionado] = useState<Folga[]>([]);
   
   // Fetch consultores from database
   useEffect(() => {
@@ -61,6 +63,51 @@ export function useMoveiFolgas() {
     }
     
     fetchConsultores();
+  }, [toast]);
+  
+  // Fetch all users from profiles table
+  useEffect(() => {
+    async function fetchAllUsers() {
+      setIsLoadingUsers(true);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, name");
+          
+        if (error) {
+          console.error("Error fetching all users:", error);
+          toast({
+            title: "Erro ao carregar usuários",
+            description: error.message,
+            variant: "destructive",
+          });
+          setAllUsers([]);
+          return;
+        }
+        
+        if (data) {
+          const formattedUsers = data.map(profile => ({
+            id: profile.id,
+            name: profile.name || "Usuário Desconhecido",
+          }));
+          setAllUsers(formattedUsers);
+        } else {
+          setAllUsers([]);
+        }
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+        toast({
+          title: "Erro ao carregar usuários",
+          description: "Não foi possível carregar a lista de usuários.",
+          variant: "destructive",
+        });
+        setAllUsers([]);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    }
+    
+    fetchAllUsers();
   }, [toast]);
   
   // Fetch folgas from database
@@ -129,6 +176,15 @@ export function useMoveiFolgas() {
     });
   };
   
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    const folgasParaEsteDia = folgas.filter(f => isSameDay(new Date(f.data), date));
+    setFolgasDoDiaSelecionado(folgasParaEsteDia);
+    setOpenDialog(true);
+    setSelectedConsultor("");
+    setMotivo("");
+  };
+  
   const handleAddFolga = async () => {
     if (!selectedDate) {
       toast({
@@ -190,7 +246,6 @@ export function useMoveiFolgas() {
       }
       
       if (data && data.length > 0) {
-        // Add the new folga to the state
         const newFolga: Folga = {
           id: data[0].id,
           data: new Date(data[0].data),
@@ -202,15 +257,19 @@ export function useMoveiFolgas() {
         
         setFolgas([...folgas, newFolga]);
         
+        if (selectedDate && isSameDay(newFolga.data, selectedDate)) {
+          setFolgasDoDiaSelecionado(prevFolgas => [...prevFolgas, newFolga]);
+        }
+
         toast({
           title: "Folga adicionada",
-          description: `Folga registrada com sucesso.`,
+          description: `Folga para ${getConsultorById(newFolga.consultorId)?.nome || 'Consultor'} registrada com sucesso.`,
         });
         
-        setOpenDialog(false);
         setSelectedDate(null);
         setSelectedConsultor("");
         setMotivo("");
+        setOpenDialog(false);
       }
     } catch (error) {
       console.error("Error adding folga:", error);
@@ -257,7 +316,13 @@ export function useMoveiFolgas() {
   };
   
   const getConsultorById = (id: string) => {
-    return consultores.find((consultor) => consultor.id === id);
+    return consultores.find((c) => c.id === id);
+  };
+
+  // Função para obter o nome do usuário pelo ID
+  const getUserNameById = (userId: string): string | undefined => {
+    const foundUser = allUsers.find(u => u.id === userId);
+    return foundUser?.name;
   };
   
   // Função para gerar semanas do mês
@@ -310,6 +375,11 @@ export function useMoveiFolgas() {
     handleAddFolga,
     handleDeleteFolga,
     getConsultorById,
-    weeks
+    getUserNameById,
+    weeks,
+    allUsers,
+    isLoadingUsers,
+    folgasDoDiaSelecionado,
+    handleDateClick,
   };
 }
