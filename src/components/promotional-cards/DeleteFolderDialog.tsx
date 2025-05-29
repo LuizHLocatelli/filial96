@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Folder } from "./EditFolderDialog"; // Reutilizar a interface Folder
@@ -73,6 +73,9 @@ export function DeleteFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Confirmar Exclusão</DialogTitle>
+          <DialogDescription>
+            Esta ação irá excluir permanentemente a pasta selecionada
+          </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <p>Tem certeza que deseja excluir a pasta "<strong>{folder.name}</strong>"?</p>

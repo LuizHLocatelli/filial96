@@ -23,6 +23,10 @@ export function VmTarefas() {
     // Switch to list view after upload
     setSelectedTab("listar");
   };
+
+  const handleNovaOrientacao = () => {
+    setSelectedTab("adicionar");
+  };
   
   // Função para buscar o número de orientações não lidas
   useEffect(() => {
@@ -217,7 +221,7 @@ export function VmTarefas() {
           >
             <TabsContent value="listar" className="space-y-4 w-full m-0">
               <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
-                <OrientacoesList key={refreshKey} />
+                <OrientacoesList key={refreshKey} onNovaOrientacao={handleNovaOrientacao} />
               </div>
             </TabsContent>
             

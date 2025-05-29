@@ -1,5 +1,4 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,6 +71,9 @@ export function CardEditDialog({
       <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">Editar Card</DialogTitle>
+          <DialogDescription>
+            Altere o título do card promocional
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={(e) => {
           e.preventDefault();

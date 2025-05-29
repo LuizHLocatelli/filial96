@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Orientacao } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,6 +83,9 @@ export function OrientacaoViewerDialog({
               Download
             </Button>
           </DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
+            {orientacao.descricao ? orientacao.descricao.substring(0, 100) + (orientacao.descricao.length > 100 ? '...' : '') : 'Visualização de orientação'}
+          </DialogDescription>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs sm:text-sm text-muted-foreground mt-2 sm:mt-1 gap-1">
             <span>
               {orientacao.criado_por_nome && `Por: ${orientacao.criado_por_nome}`}

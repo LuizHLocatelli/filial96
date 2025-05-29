@@ -36,15 +36,6 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 150 33% 98%;
-    --sidebar-foreground: 143 5% 30%;
-    --sidebar-primary: 142 70% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 29% 95%;
-    --sidebar-accent-foreground: 143 5% 20%;
-    --sidebar-border: 150 13% 91%;
-    --sidebar-ring: 147.2 70% 50%;
-
     /* Design Tokens - Spacing */
     --spacing-xs: 0.25rem; /* 4px */
     --spacing-sm: 0.5rem;  /* 8px */
@@ -93,15 +84,6 @@
     --input: 156 34% 17%;
     --ring: 144.3 76.3% 48%;
 
-    --sidebar-background: 144 71% 5%;
-    --sidebar-foreground: 153 31% 91%;
-    --sidebar-primary: 142 70% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 143 47% 11%;
-    --sidebar-accent-foreground: 150 40% 98%;
-    --sidebar-border: 156 34% 17%;
-    --sidebar-ring: 144.3 76.3% 48%;
-
     /* Dark mode gradients */
     --gradient-primary: linear-gradient(135deg, hsl(142 70% 40%) 0%, hsl(142 70% 50%) 100%);
     --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
@@ -117,6 +99,47 @@
   body {
     @apply bg-background text-foreground font-inter;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Garantir centralização perfeita dos modais - Correção aprimorada */
+  [data-radix-dialog-content],
+  [data-radix-alert-dialog-content] {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Sobrescrever qualquer estilo que possa estar causando desalinhamento */
+  .dialog-content-center {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+  }
+
+  /* Garantir que o overlay não interfira no posicionamento */
+  [data-radix-dialog-overlay],
+  [data-radix-alert-dialog-overlay] {
+    position: fixed !important;
+    inset: 0 !important;
+  }
+
+  /* Para dispositivos móveis - garantir que não ultrapasse as bordas */
+  @media (max-width: 640px) {
+    [data-radix-dialog-content],
+    [data-radix-alert-dialog-content] {
+      width: calc(100% - 2rem) !important;
+      max-width: calc(100% - 2rem) !important;
+      left: 50% !important;
+      right: auto !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
   }
 }
 

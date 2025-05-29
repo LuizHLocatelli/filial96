@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 
 interface OrientacoesEmptyStateProps {
   hasFilters: boolean;
+  onNovaOrientacao?: () => void;
 }
 
-export function OrientacoesEmptyState({ hasFilters }: OrientacoesEmptyStateProps) {
+export function OrientacoesEmptyState({ hasFilters, onNovaOrientacao }: OrientacoesEmptyStateProps) {
   const isMobile = useIsMobile();
 
   return (
@@ -55,6 +56,7 @@ export function OrientacoesEmptyState({ hasFilters }: OrientacoesEmptyStateProps
             className="pt-4"
           >
             <Button 
+              onClick={onNovaOrientacao}
               size={isMobile ? "default" : "lg"} 
               className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 btn-hover-scale px-8"
             >

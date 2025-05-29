@@ -41,7 +41,7 @@ export default function PromotionalCards() {
       {/* Layout principal */}
       <div className="space-y-6">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar de pastas */}
+          {/* Painel de pastas */}
           <Card className="w-full lg:w-80 bg-gradient-to-br from-background to-muted/30 border-2 border-border/50">
             <CardContent className={cn("p-4", !isMobile && "p-6")}>
               <div className="flex justify-between items-center mb-4">

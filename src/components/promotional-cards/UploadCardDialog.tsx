@@ -1,5 +1,4 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
 
@@ -41,6 +40,9 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId }: Uploa
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Card Promocional</DialogTitle>
+          <DialogDescription>
+            Faça upload de um novo card promocional e preencha as informações necessárias
+          </DialogDescription>
         </DialogHeader>
         <CardUploadForm 
           sector={sector}

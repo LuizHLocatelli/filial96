@@ -17,7 +17,10 @@ import { ProdutoFocoDetails } from './components/ProdutoFocoDetails';
 import { ProdutoFocoWithImages } from './types';
 import { 
   Dialog, 
-  DialogContent 
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -222,6 +225,17 @@ export function ProdutoFoco() {
       {/* Dialogs */}
       <Dialog open={showForm} onOpenChange={closeForm}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingProduto ? 'Editar Produto Foco' : 'Adicionar Produto Foco'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingProduto 
+                ? 'Edite as informações do produto foco selecionado.' 
+                : 'Adicione um novo produto foco para orientar as vendas.'
+              }
+            </DialogDescription>
+          </DialogHeader>
           <ProdutoFocoForm
             produto={editingProduto || undefined}
             onSubmit={editingProduto ? handleUpdateProduto : handleCreateProduto}

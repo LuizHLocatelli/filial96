@@ -8,9 +8,10 @@ interface OrientacoesHeaderProps {
   totalCount: number;
   vmCount: number;
   informativoCount: number;
+  onNovaOrientacao?: () => void;
 }
 
-export function OrientacoesHeader({ totalCount, vmCount, informativoCount }: OrientacoesHeaderProps) {
+export function OrientacoesHeader({ totalCount, vmCount, informativoCount, onNovaOrientacao }: OrientacoesHeaderProps) {
   const isMobile = useIsMobile();
 
   return (
@@ -86,6 +87,7 @@ export function OrientacoesHeader({ totalCount, vmCount, informativoCount }: Ori
           className="flex items-center gap-2 w-full md:w-auto"
         >
           <Button 
+            onClick={onNovaOrientacao}
             className={`${isMobile ? 'flex-1' : ''} bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 btn-hover-scale`}
             size="default"
           >

@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,6 +53,9 @@ export function AddFolderDialog({ isOpen, onClose, onAddFolder, initialData }: A
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
+          <DialogDescription>
+            {initialData ? "Edite o nome da pasta existente" : "Crie uma nova pasta para organizar suas notas"}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">

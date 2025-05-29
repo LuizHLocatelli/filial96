@@ -1,7 +1,7 @@
-
 import { 
   Dialog, 
   DialogContent, 
+  DialogDescription,
   DialogHeader, 
   DialogTitle 
 } from '@/components/ui/dialog';
@@ -231,6 +231,12 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
           <DialogContent className="max-w-4xl max-h-[90vh] p-0 sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Visualização Ampliada</DialogTitle>
+              <DialogDescription>
+                Imagem do produto em tamanho ampliado para melhor visualização
+              </DialogDescription>
+            </DialogHeader>
             <div className="relative">
               <img 
                 src={imagemSelecionada} 

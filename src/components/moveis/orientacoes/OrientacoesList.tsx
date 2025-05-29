@@ -11,7 +11,11 @@ import { OrientacoesEmptyState } from "./components/OrientacoesEmptyState";
 import { OrientacoesGrid } from "./components/OrientacoesGrid";
 import { OrientacoesLoadingSkeleton } from "./components/OrientacoesLoadingSkeleton";
 
-export function OrientacoesList() {
+interface OrientacoesListProps {
+  onNovaOrientacao?: () => void;
+}
+
+export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [selectedOrientacao, setSelectedOrientacao] = useState<Orientacao | null>(null);
@@ -54,6 +58,7 @@ export function OrientacoesList() {
         totalCount={typeStats.all}
         vmCount={typeStats.vm}
         informativoCount={typeStats.informativo}
+        onNovaOrientacao={onNovaOrientacao}
       />
 
       <OrientacoesFilters
@@ -66,7 +71,7 @@ export function OrientacoesList() {
       />
 
       {filteredOrientacoes.length === 0 ? (
-        <OrientacoesEmptyState hasFilters={hasFilters} />
+        <OrientacoesEmptyState hasFilters={hasFilters} onNovaOrientacao={onNovaOrientacao} />
       ) : (
         <OrientacoesGrid
           orientacoes={filteredOrientacoes}

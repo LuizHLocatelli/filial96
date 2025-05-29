@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -54,7 +53,7 @@ export function DepositFormDialog({
   
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogContent className={isMobile ? "w-[95vw] max-w-[95vw] p-4" : ""}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl">
             Depósito Bancário

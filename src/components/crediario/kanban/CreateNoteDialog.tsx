@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -76,6 +75,9 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Nova Nota</DialogTitle>
+          <DialogDescription>
+            Crie uma nova nota para o quadro Kanban com conteúdo personalizado
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-2">

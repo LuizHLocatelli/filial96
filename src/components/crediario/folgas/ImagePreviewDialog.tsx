@@ -1,5 +1,4 @@
-
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface ImagePreviewDialogProps {
@@ -15,6 +14,9 @@ export function ImagePreviewDialog({ imageUrl, onClose }: ImagePreviewDialogProp
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Visualizar Imagem</DialogTitle>
+          <DialogDescription>
+            Visualização da imagem anexada ao registro de folga
+          </DialogDescription>
         </DialogHeader>
         <div className="p-0">
           <img src={imageUrl} alt="Imagem" className="w-full h-full object-cover" />

@@ -4,6 +4,7 @@ import { ptBR } from "date-fns/locale";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -67,11 +68,17 @@ export function AddFolgaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {hasExistingFolgas ? "Detalhes do Dia & Adicionar Folga" : "Adicionar Nova Folga"}
           </DialogTitle>
+          <DialogDescription>
+            {hasExistingFolgas 
+              ? "Visualize as folgas existentes e adicione uma nova para este dia."
+              : "Registre uma nova folga para um consultor em uma data específica."
+            }
+          </DialogDescription>
           {selectedDate && (
             <p className="text-xs sm:text-sm text-muted-foreground pt-1">
               {format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}

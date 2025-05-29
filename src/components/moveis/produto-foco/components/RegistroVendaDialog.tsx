@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -76,6 +76,9 @@ export function RegistroVendaDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Registrar Venda - {produto.nome_produto}</DialogTitle>
+          <DialogDescription>
+            Registre uma nova venda deste produto foco
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">

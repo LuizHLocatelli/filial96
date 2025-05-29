@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface ImagePreviewDialogProps {
   viewImage: string | null;
@@ -13,6 +12,9 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Comprovante de Depósito</DialogTitle>
+          <DialogDescription>
+            Visualização do comprovante de depósito bancário
+          </DialogDescription>
         </DialogHeader>
         {viewImage && (
           <div className="flex justify-center my-4">

@@ -1,5 +1,4 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Calendar, Hash, Folder } from "lucide-react";
@@ -73,6 +72,10 @@ export function CardViewDialog({
               </Badge>
             )}
           </DialogTitle>
+          <DialogDescription>
+            Visualize os detalhes do card promocional
+            {promotionDate && ` da promoção de ${format(new Date(promotionDate), 'dd/MM/yyyy', { locale: ptBR })}`}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col gap-4">

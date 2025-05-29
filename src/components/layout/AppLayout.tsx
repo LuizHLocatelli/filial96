@@ -1,7 +1,4 @@
-
 import { ReactNode } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
 import { NavigationTabs } from "./NavigationTabs";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,23 +11,18 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-hidden bg-background">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col max-w-full">
-          <TopBar />
-          <main className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : 'pb-24 md:pb-8'}`}>
-            <div className={`container mx-auto max-w-7xl ${
-              isMobile 
-                ? 'px-2 py-3' 
-                : 'px-2 sm:px-3 md:px-6 py-3 sm:py-4 md:py-6'
-            }`}>
-              {children}
-            </div>
-          </main>
-          <NavigationTabs />
+    <div className="min-h-screen flex flex-col w-full bg-background">
+      <TopBar />
+      <main className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : 'pb-24 md:pb-8'}`}>
+        <div className={`container mx-auto max-w-7xl ${
+          isMobile 
+            ? 'px-2 py-3' 
+            : 'px-2 sm:px-3 md:px-6 py-3 sm:py-4 md:py-6'
+        }`}>
+          {children}
         </div>
-      </div>
-    </SidebarProvider>
+      </main>
+      <NavigationTabs />
+    </div>
   );
 }

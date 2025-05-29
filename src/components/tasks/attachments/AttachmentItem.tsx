@@ -8,7 +8,7 @@ import {
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Attachment } from "@/types/attachments";
 
@@ -90,6 +90,9 @@ export function AttachmentItem({ attachment, onDelete }: AttachmentItemProps) {
           <DialogContent className="sm:max-w-[800px]">
             <DialogHeader>
               <DialogTitle className="pr-10">{attachment.name}</DialogTitle>
+              <DialogDescription>
+                Visualização do anexo da tarefa
+              </DialogDescription>
             </DialogHeader>
             <div className="flex items-center justify-center">
               <img
