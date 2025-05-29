@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { User as AppUser } from "@/types";
+import { User as AppUser, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UseAuthEffectsProps {
@@ -61,10 +61,10 @@ export const useAuthEffects = ({
             // Profile doesn't exist, create one
             const { data: userData } = await supabase.auth.getUser();
             if (userData.user) {
-              const newProfile = {
+              const newProfile: AppUser = {
                 id: userId,
                 name: userData.user.email || 'Usuário',
-                role: 'vendedor',
+                role: 'consultor_moveis' as UserRole,
                 email: userData.user.email || userEmail || ''
               };
               
@@ -73,23 +73,27 @@ export const useAuthEffects = ({
                 .insert({
                   id: userId,
                   name: userData.user.email || 'Usuário',
-                  role: 'vendedor'
+                  role: 'consultor_moveis'
                 });
                 
               if (insertError) {
                 console.error("Error creating profile:", insertError);
               } else {
-                setProfile(newProfile as AppUser);
+                setProfile(newProfile);
               }
             }
           } else {
             console.error("Error fetching profile:", error);
           }
         } else if (profile) {
-          // Combine profile data with email from auth user
+          // Combine profile data with email from auth user and ensure role is properly typed
           const fullProfile: AppUser = {
-            ...profile,
-            email: userEmail || profile.email || ''
+            id: profile.id,
+            name: profile.name,
+            role: profile.role as UserRole, // Type cast the role
+            email: userEmail || '',
+            avatarUrl: profile.avatar_url,
+            displayName: profile.display_name
           };
           setProfile(fullProfile);
         }
