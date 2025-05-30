@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
@@ -6,6 +7,7 @@ import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
+import { Rotinas } from "@/components/moveis/rotinas/Rotinas";
 import { 
   FileText, 
   FolderArchive, 
@@ -13,7 +15,8 @@ import {
   Sofa,
   TrendingUp,
   Calendar,
-  Star
+  Star,
+  CheckSquare
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -57,6 +60,13 @@ export default function Moveis() {
       icon: Star,
       description: "Produtos prioritários",
       component: <ProdutoFoco />
+    },
+    {
+      value: "rotinas",
+      label: "Rotinas",
+      icon: CheckSquare,
+      description: "Rotinas obrigatórias",
+      component: <Rotinas />
     },
     {
       value: "folgas",

@@ -950,6 +950,83 @@ export type Database = {
           },
         ]
       }
+      moveis_rotinas: {
+        Row: {
+          ativo: boolean
+          categoria: string
+          created_at: string
+          created_by: string
+          descricao: string | null
+          horario_preferencial: string | null
+          id: string
+          nome: string
+          periodicidade: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria: string
+          created_at?: string
+          created_by: string
+          descricao?: string | null
+          horario_preferencial?: string | null
+          id?: string
+          nome: string
+          periodicidade: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string
+          created_at?: string
+          created_by?: string
+          descricao?: string | null
+          horario_preferencial?: string | null
+          id?: string
+          nome?: string
+          periodicidade?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      moveis_rotinas_conclusoes: {
+        Row: {
+          concluida: boolean
+          created_at: string
+          created_by: string
+          data_conclusao: string
+          id: string
+          observacoes: string | null
+          rotina_id: string
+        }
+        Insert: {
+          concluida?: boolean
+          created_at?: string
+          created_by: string
+          data_conclusao: string
+          id?: string
+          observacoes?: string | null
+          rotina_id: string
+        }
+        Update: {
+          concluida?: boolean
+          created_at?: string
+          created_by?: string
+          data_conclusao?: string
+          id?: string
+          observacoes?: string | null
+          rotina_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_rotinas_conclusoes_rotina_id_fkey"
+            columns: ["rotina_id"]
+            isOneToOne: false
+            referencedRelation: "moveis_rotinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moveis_tarefas: {
         Row: {
           criado_por: string
