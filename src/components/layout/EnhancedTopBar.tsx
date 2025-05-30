@@ -8,10 +8,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { MobileNavMenu } from "./MobileNavMenu";
 import { BreadcrumbNav } from "./BreadcrumbNav";
 import { CompanyLogo } from "./CompanyLogo";
+import { SearchBar } from "./SearchBar";
 
 export function EnhancedTopBar() {
   const isMobile = useIsMobile();
@@ -48,32 +48,24 @@ export function EnhancedTopBar() {
           {!isMobile && <BreadcrumbNav />}
         </div>
 
-        {/* Center Section - Search (Desktop) */}
-        {!isMobile && !isSearchOpen && (
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar..."
-                className="pl-10 pr-4 w-full bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
-              />
-            </div>
-          </div>
+        {/* Center Section - Search */}
+        {!isSearchOpen && (
+          <SearchBar 
+            isMobile={isMobile}
+            isSearchOpen={isSearchOpen}
+            onSearchToggle={() => setIsSearchOpen(!isSearchOpen)}
+          />
         )}
 
         {/* Right Section - Actions */}
         <div className="flex items-center space-x-2">
           {/* Mobile Search Toggle */}
           {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="h-10 w-10"
-              aria-label="Buscar"
-            >
-              <Search className="h-4 w-4" />
-            </Button>
+            <SearchBar 
+              isMobile={isMobile}
+              isSearchOpen={isSearchOpen}
+              onSearchToggle={() => setIsSearchOpen(!isSearchOpen)}
+            />
           )}
 
           <ThemeToggle />
@@ -81,20 +73,6 @@ export function EnhancedTopBar() {
           <UserMenu />
         </div>
       </div>
-
-      {/* Mobile Search Bar */}
-      {isMobile && isSearchOpen && (
-        <div className="border-t bg-background/95 backdrop-blur-lg p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar..."
-              className="pl-10 pr-4 w-full"
-              autoFocus
-            />
-          </div>
-        </div>
-      )}
 
       {/* Mobile Navigation Menu */}
       <MobileNavMenu 
