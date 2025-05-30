@@ -1,5 +1,6 @@
+
 import { ReactNode } from "react";
-import { TopBar } from "./TopBar";
+import { EnhancedTopBar } from "./EnhancedTopBar";
 import { NavigationTabs } from "./NavigationTabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -12,7 +13,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   return (
     <div className="min-h-screen flex flex-col w-full bg-background">
-      <TopBar />
+      <EnhancedTopBar />
       <main className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : 'pb-24 md:pb-8'}`}>
         <div className={`container mx-auto max-w-7xl ${
           isMobile 
