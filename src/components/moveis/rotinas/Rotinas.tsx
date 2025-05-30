@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Filter, BarChart3, Download } from 'lucide-react';
 import { useRotinas } from './hooks/useRotinas';
+import { usePDFExport } from './hooks/usePDFExport';
 import { RotinasList } from './components/RotinasList';
 import { RotinasStats } from './components/RotinasStats';
 import { AddRotinaDialog } from './components/AddRotinaDialog';
@@ -13,6 +14,7 @@ import { PeriodicidadeFilter, StatusFilter } from './types';
 
 export function Rotinas() {
   const { rotinas, isLoading, addRotina, updateRotina, deleteRotina, toggleConclusao, duplicateRotina } = useRotinas();
+  const { exportToPDF } = usePDFExport();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [periodicidadeFilter, setPeriodicidadeFilter] = useState<PeriodicidadeFilter>('todos');
@@ -37,8 +39,7 @@ export function Rotinas() {
   });
 
   const handleExportPDF = () => {
-    // Esta funcionalidade seria implementada com uma biblioteca como jsPDF
-    console.log('Exportar rotinas para PDF');
+    exportToPDF(filteredRotinas);
   };
 
   return (
@@ -67,6 +68,7 @@ export function Rotinas() {
             size="sm"
             onClick={handleExportPDF}
             className="flex items-center gap-2"
+            disabled={isLoading || rotinas.length === 0}
           >
             <Download className="h-4 w-4" />
             Exportar PDF
