@@ -14,7 +14,6 @@ import { PersonalInfoForm } from "@/components/profile/PersonalInfoForm";
 import { EmailForm } from "@/components/profile/EmailForm";
 import { PasswordForm } from "@/components/profile/PasswordForm";
 import { SecuritySettingsForm } from "@/components/profile/SecuritySettingsForm";
-import { MFADebugPanel } from "@/components/profile/MFADebugPanel";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -82,8 +81,6 @@ export default function Profile() {
           </Card>
 
           <SecuritySettingsForm />
-
-          <MFADebugPanel />
 
           <Card className="border-destructive/20">
             <CardHeader>

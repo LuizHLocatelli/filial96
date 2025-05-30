@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { RotinasList } from './components/RotinasList';
 import { RotinasStats } from './components/RotinasStats';
 import { AddRotinaDialog } from './components/AddRotinaDialog';
 import { RotinaFilters } from './components/RotinaFilters';
+import { PDFExportDialog, PDFExportOptions } from './components/PDFExportDialog';
 import { PeriodicidadeFilter, StatusFilter } from './types';
 
 export function Rotinas() {
@@ -17,6 +17,8 @@ export function Rotinas() {
   const { exportToPDF } = usePDFExport();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [periodicidadeFilter, setPeriodicidadeFilter] = useState<PeriodicidadeFilter>('todos');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos');
   const [categoriaFilter, setCategoriaFilter] = useState<string>('todos');
@@ -38,8 +40,23 @@ export function Rotinas() {
     return true;
   });
 
-  const handleExportPDF = () => {
-    exportToPDF(filteredRotinas);
+  const handleExportPDF = async (options: PDFExportOptions) => {
+    setIsExporting(true);
+    try {
+      // Usar rotinas filtradas ou todas, dependendo da opção
+      const rotinasParaExportar = options.showOnlyFiltered ? filteredRotinas : rotinas;
+      
+      await exportToPDF(rotinasParaExportar, options);
+      setShowExportDialog(false);
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const openExportDialog = () => {
+    setShowExportDialog(true);
   };
 
   return (
@@ -66,7 +83,7 @@ export function Rotinas() {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleExportPDF}
+            onClick={openExportDialog}
             className="flex items-center gap-2"
             disabled={isLoading || rotinas.length === 0}
           >
@@ -96,31 +113,25 @@ export function Rotinas() {
         />
       )}
 
-      <Tabs defaultValue="checklist" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="checklist" className="flex items-center gap-2">
-            <div className="h-4 w-4 border border-current rounded-sm" />
-            Checklist
-          </TabsTrigger>
-          <TabsTrigger value="estatisticas" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Estatísticas
-          </TabsTrigger>
+      <Tabs defaultValue="lista" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="lista">Lista</TabsTrigger>
+          <TabsTrigger value="stats">Estatísticas</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="checklist" className="mt-6">
+        
+        <TabsContent value="lista" className="space-y-4">
           <RotinasList
             rotinas={filteredRotinas}
             isLoading={isLoading}
-            onToggleConclusao={toggleConclusao}
             onEditRotina={updateRotina}
             onDeleteRotina={deleteRotina}
+            onToggleConclusao={toggleConclusao}
             onDuplicateRotina={duplicateRotina}
           />
         </TabsContent>
-
-        <TabsContent value="estatisticas" className="mt-6">
-          <RotinasStats rotinas={rotinas} />
+        
+        <TabsContent value="stats" className="space-y-4">
+          <RotinasStats rotinas={filteredRotinas} />
         </TabsContent>
       </Tabs>
 
@@ -128,6 +139,14 @@ export function Rotinas() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSubmit={addRotina}
+      />
+
+      <PDFExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        rotinas={filteredRotinas}
+        onExport={handleExportPDF}
+        isExporting={isExporting}
       />
     </div>
   );

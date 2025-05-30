@@ -1,4 +1,3 @@
-
 import { CompanyLogo } from "@/components/layout/CompanyLogo";
 
 export function EnhancedAuthHeader() {
@@ -26,7 +25,7 @@ export function EnhancedAuthHeader() {
           Bem-vindo à Filial 96
         </h1>
         <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
-          Sistema de Gestão Integrado para Móveis e Crediário
+          Sistema de Gestão
         </p>
         <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
