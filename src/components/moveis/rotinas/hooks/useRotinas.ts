@@ -60,9 +60,10 @@ export function useRotinas() {
 
         return {
           ...rotina,
+          periodicidade: rotina.periodicidade as 'diario' | 'semanal' | 'mensal' | 'personalizado',
           status,
-          conclusao,
-        };
+          conclusao: conclusao as RotinaConclusao | undefined,
+        } as RotinaWithStatus;
       });
 
       setRotinas(rotinasWithStatus);
