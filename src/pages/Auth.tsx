@@ -12,46 +12,74 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { AuthHeader } from "@/components/auth/AuthHeader";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { SignupForm } from "@/components/auth/SignupForm";
+import { EnhancedAuthHeader } from "@/components/auth/EnhancedAuthHeader";
+import { EnhancedLoginForm } from "@/components/auth/EnhancedLoginForm";
+import { EnhancedSignupForm } from "@/components/auth/EnhancedSignupForm";
+import { AuthBackgroundElements } from "@/components/auth/AuthBackgroundElements";
+import { TrustIndicators } from "@/components/auth/TrustIndicators";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("login");
   
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
-      <div className="w-full max-w-md">
-        <AuthHeader />
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
+      <AuthBackgroundElements />
+      
+      <div className="w-full max-w-md relative z-10">
+        <EnhancedAuthHeader />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-muted">
-            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Login</TabsTrigger>
-            <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Criar conta</TabsTrigger>
-          </TabsList>
-          <TabsContent value="login">
-            <Card className="border-border shadow-lg">
-              <CardHeader className="bg-card rounded-t-md">
-                <CardTitle className="text-card-foreground">Login</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Acesse sua conta para gerenciar suas atividades na loja.
-                </CardDescription>
-              </CardHeader>
-              <LoginForm />
-            </Card>
-          </TabsContent>
-          <TabsContent value="signup">
-            <Card className="border-border shadow-lg">
-              <CardHeader className="bg-card rounded-t-md">
-                <CardTitle className="text-card-foreground">Criar conta</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Crie uma nova conta para acessar o sistema.
-                </CardDescription>
-              </CardHeader>
-              <SignupForm />
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <div className="glass-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="bg-gradient-to-r from-muted/50 to-muted/30 p-1 m-4 rounded-xl">
+              <TabsList className="grid w-full grid-cols-2 bg-transparent gap-1">
+                <TabsTrigger 
+                  value="login" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-200 data-[state=active]:shadow-lg"
+                >
+                  Entrar
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="signup" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-200 data-[state=active]:shadow-lg"
+                >
+                  Criar conta
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            
+            <TabsContent value="login" className="mt-0">
+              <Card className="border-0 shadow-none bg-transparent">
+                <CardHeader className="pb-4 px-6">
+                  <CardTitle className="text-xl font-semibold text-center">
+                    Faça login em sua conta
+                  </CardTitle>
+                  <CardDescription className="text-center text-muted-foreground">
+                    Acesse o sistema de gestão da Filial 96
+                  </CardDescription>
+                </CardHeader>
+                <EnhancedLoginForm />
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="signup" className="mt-0">
+              <Card className="border-0 shadow-none bg-transparent">
+                <CardHeader className="pb-4 px-6">
+                  <CardTitle className="text-xl font-semibold text-center">
+                    Crie sua conta
+                  </CardTitle>
+                  <CardDescription className="text-center text-muted-foreground">
+                    Junte-se à equipe da Filial 96
+                  </CardDescription>
+                </CardHeader>
+                <EnhancedSignupForm />
+              </Card>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="px-6 pb-6">
+            <TrustIndicators />
+          </div>
+        </div>
       </div>
     </div>
   );
