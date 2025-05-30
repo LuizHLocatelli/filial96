@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -54,11 +53,6 @@ export function EnhancedLoginForm() {
       if (rememberMe) {
         localStorage.setItem('remember-user', JSON.stringify({ email: values.email }));
       }
-
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Redirecionando para o dashboard...",
-      });
 
       navigate("/");
     } catch (error) {

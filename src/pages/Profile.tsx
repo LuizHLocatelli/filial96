@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -5,34 +7,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { User, Shield } from "lucide-react";
+import { User, Shield, Settings } from "lucide-react";
 
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { PersonalInfoForm } from "@/components/profile/PersonalInfoForm";
 import { EmailForm } from "@/components/profile/EmailForm";
 import { PasswordForm } from "@/components/profile/PasswordForm";
+import { SecuritySettingsForm } from "@/components/profile/SecuritySettingsForm";
+import { MFADebugPanel } from "@/components/profile/MFADebugPanel";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Profile() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "info";
+  
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
+
   const navigationTabs = [
     {
       value: "info",
       label: "Informações Pessoais",
       icon: User,
+      description: "Dados pessoais e configurações de conta",
       component: (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Informações Pessoais</CardTitle>
+              <CardTitle>Dados Pessoais</CardTitle>
               <CardDescription>
                 Atualize seus dados pessoais e como deseja ser chamado no sistema
               </CardDescription>
@@ -44,7 +50,7 @@ export default function Profile() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Alterar Email</CardTitle>
+              <CardTitle>Email da Conta</CardTitle>
               <CardDescription>
                 Atualize seu endereço de email. Você precisará confirmar o novo email.
               </CardDescription>
@@ -60,8 +66,9 @@ export default function Profile() {
       value: "security",
       label: "Segurança",
       icon: Shield,
+      description: "Senha e configurações de segurança",
       component: (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Alterar Senha</CardTitle>
@@ -74,11 +81,15 @@ export default function Profile() {
             </CardContent>
           </Card>
 
+          <SecuritySettingsForm />
+
+          <MFADebugPanel />
+
           <Card className="border-destructive/20">
             <CardHeader>
-              <CardTitle className="text-destructive">Excluir Conta</CardTitle>
+              <CardTitle className="text-destructive">Zona de Perigo</CardTitle>
               <CardDescription>
-                Esta ação é permanente e não pode ser desfeita.
+                Ações irreversíveis da conta. Proceda com cautela.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -91,9 +102,9 @@ export default function Profile() {
   ];
 
   return (
-    <PageLayout spacing="normal" maxWidth="md">
+    <PageLayout spacing="normal" maxWidth="2xl">
       <PageHeader
-        title="Perfil"
+        title="Configurações do Perfil"
         description="Gerencie suas informações pessoais e configurações de segurança"
         icon={User}
         iconColor="text-primary"
@@ -104,8 +115,8 @@ export default function Profile() {
 
       <PageNavigation
         tabs={navigationTabs}
-        activeTab="info"
-        onTabChange={() => {}}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
         variant="tabs"
       />
     </PageLayout>

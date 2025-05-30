@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { User as AppUser, UserRole } from "@/types";
@@ -114,10 +113,6 @@ export const useAuthEffects = ({
           setTimeout(() => {
             fetchUserProfile(session.user.id, session.user.email);
           }, 0);
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Bem-vindo de volta.",
-          });
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setSession(null);
