@@ -1129,6 +1129,7 @@ export type Database = {
           display_name: string | null
           id: string
           name: string
+          phone: string | null
           role: string
           updated_at: string
         }
@@ -1138,6 +1139,7 @@ export type Database = {
           display_name?: string | null
           id: string
           name: string
+          phone?: string | null
           role: string
           updated_at?: string
         }
@@ -1147,6 +1149,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           name?: string
+          phone?: string | null
           role?: string
           updated_at?: string
         }

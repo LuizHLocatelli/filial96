@@ -18,50 +18,42 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// Schema de validação para informações pessoais
-const personalInfoSchema = z.object({
-  fullName: z.string().min(3, "Nome completo deve ter pelo menos 3 caracteres"),
-  displayName: z.string().min(2, "Nome de exibição deve ter pelo menos 2 caracteres"),
+// Schema de validação para telefone
+const phoneSchema = z.object({
   phone: z.string()
     .min(10, "Telefone deve ter no mínimo 10 dígitos")
     .regex(/^[\d\s\(\)\-\+]+$/, "Formato de telefone inválido"),
 });
 
-export function PersonalInfoForm() {
+export function PhoneForm() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  // Formulário de informações pessoais
-  const form = useForm<z.infer<typeof personalInfoSchema>>({
-    resolver: zodResolver(personalInfoSchema),
+  // Formulário de telefone
+  const form = useForm<z.infer<typeof phoneSchema>>({
+    resolver: zodResolver(phoneSchema),
     defaultValues: {
-      fullName: profile?.name || "",
-      displayName: profile?.displayName || "",
       phone: profile?.phone || "",
     },
   });
 
   // Atualizar formulário quando o perfil for carregado
   useEffect(() => {
-    if (profile) {
+    if (profile?.phone) {
       form.reset({
-        fullName: profile.name,
-        displayName: profile.displayName || profile.name.split(" ")[0],
-        phone: profile.phone || "",
+        phone: profile.phone,
       });
     }
   }, [profile, form]);
 
-  // Função para atualizar informações pessoais
-  const onSubmit = async (data: z.infer<typeof personalInfoSchema>) => {
+  // Função para atualizar telefone
+  const onSubmit = async (data: z.infer<typeof phoneSchema>) => {
     try {
       setLoading(true);
       const { error } = await supabase
         .from("profiles")
         .update({
-          name: data.fullName,
-          display_name: data.displayName,
           phone: data.phone,
           updated_at: new Date().toISOString(),
         })
@@ -70,13 +62,13 @@ export function PersonalInfoForm() {
       if (error) throw error;
 
       toast({
-        title: "Perfil atualizado",
-        description: "Suas informações pessoais foram atualizadas com sucesso.",
+        title: "Telefone atualizado",
+        description: "Seu número de telefone foi atualizado com sucesso.",
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao atualizar perfil",
+        title: "Erro ao atualizar telefone",
         description: error.message,
       });
     } finally {
@@ -87,32 +79,6 @@ export function PersonalInfoForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome Completo</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite seu nome completo" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="displayName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Como deseja ser chamado</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite como deseja ser chamado" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="phone"
@@ -131,7 +97,7 @@ export function PersonalInfoForm() {
           )}
         />
         <Button type="submit" disabled={loading}>
-          Salvar Alterações
+          Salvar Telefone
         </Button>
       </form>
     </Form>

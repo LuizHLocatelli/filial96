@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -39,7 +40,7 @@ export default function Profile() {
             <CardHeader>
               <CardTitle>Dados Pessoais</CardTitle>
               <CardDescription>
-                Atualize seus dados pessoais e como deseja ser chamado no sistema
+                Atualize seus dados pessoais, telefone e como deseja ser chamado no sistema
               </CardDescription>
             </CardHeader>
             <CardContent>

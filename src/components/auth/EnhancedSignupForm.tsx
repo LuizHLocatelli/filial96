@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Lock, Mail, User, UserPlus, Shield } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, UserPlus, Shield, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +34,7 @@ export function EnhancedSignupForm() {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       password: "",
       role: "gerente",
     },
@@ -48,6 +49,7 @@ export function EnhancedSignupForm() {
         options: {
           data: {
             name: values.name,
+            phone: values.phone,
             role: values.role,
           }
         }
@@ -119,6 +121,29 @@ export function EnhancedSignupForm() {
                       type="email"
                       placeholder="seu@email.com"
                       autoComplete="email"
+                      className="pl-10 h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Telefone</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      {...field}
+                      type="tel"
+                      placeholder="(11) 99999-9999"
+                      autoComplete="tel"
                       className="pl-10 h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
