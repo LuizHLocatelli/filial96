@@ -1,3 +1,4 @@
+
 import { CompanyLogo } from "@/components/layout/CompanyLogo";
 
 export function EnhancedAuthHeader() {
@@ -10,7 +11,7 @@ export function EnhancedAuthHeader() {
           <div className="relative bg-gradient-to-r from-primary to-primary/90 p-4 rounded-full shadow-2xl">
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
               <img 
-                src="/lovable-uploads/c066d606-7e09-418e-a6ff-c3a603ac88c9.png" 
+                src="/lovable-uploads/4061bf61-813c-40ee-a09e-17b6f303bc20.png" 
                 alt="Filial 96 Logo" 
                 className="w-12 h-12 object-contain"
               />

@@ -1,5 +1,5 @@
+
 import { Link } from "react-router-dom";
-import { Building2 } from "lucide-react";
 
 export function CompanyLogo() {
   return (
@@ -7,7 +7,11 @@ export function CompanyLogo() {
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg blur-sm group-hover:blur-none transition-all duration-300" />
         <div className="relative bg-gradient-to-r from-primary to-primary/80 p-1.5 md:p-2 rounded-lg shadow-lg group-hover:shadow-xl transition-all duration-300">
-          <Building2 className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
+          <img 
+            src="/lovable-uploads/4061bf61-813c-40ee-a09e-17b6f303bc20.png" 
+            alt="Filial 96 Logo" 
+            className="h-5 w-5 md:h-6 md:w-6 object-contain"
+          />
         </div>
       </div>
       <div className="flex flex-col min-w-0">
