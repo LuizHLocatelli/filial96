@@ -384,10 +384,18 @@ export function useOfflineAutomation() {
 export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Detectar se é dispositivo móvel
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 768 && 'ontouchstart' in window);
+  }, []);
 
   // Verificar compatibilidade do navegador
   const isCompatible = useMemo(() => {
@@ -396,6 +404,83 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
               window.HTMLCanvasElement);
   }, []);
 
+  // Handler para input file (mobile nativo)
+  const handleFileCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Verificar se é imagem
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Arquivo Inválido",
+          description: "Por favor, capture uma imagem.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Verificar tamanho (máx 10MB para fotos de câmera)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Arquivo Muito Grande",
+          description: "A imagem deve ter no máximo 10MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      onCapture(file);
+      
+      // Limpar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Para dispositivos móveis - usar câmera nativa
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment" // Usar câmera traseira
+          onChange={handleFileCapture}
+          className="hidden"
+        />
+        
+        <Button 
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full"
+          size="lg"
+        >
+          <Camera className="h-4 w-4 mr-2" />
+          📱 Abrir Câmera do Celular
+        </Button>
+        
+        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <span className="text-green-600">📱</span>
+            <div>
+              <p className="text-sm text-green-800 font-medium">
+                Experiência Mobile Otimizada
+              </p>
+              <p className="text-xs text-green-700 mt-1">
+                Ao clicar, o aplicativo de câmera do seu celular será aberto para capturar a foto do comprovante.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-xs text-muted-foreground text-center">
+          💡 Dica: Use boa iluminação e mantenha o comprovante reto
+        </div>
+      </div>
+    );
+  }
+
+  // Para desktop - usar implementação web
   if (!isCompatible) {
     return (
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -419,19 +504,15 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
     );
   }
 
+  // Funcionalidade web para desktop
   const startCamera = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Verificar se o navegador suporta getUserMedia
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Seu navegador não suporta captura de câmera');
-      }
-
       const constraints = {
         video: { 
-          facingMode: 'environment', // Câmera traseira no mobile
+          facingMode: 'environment',
           width: { ideal: 1280, max: 1920 },
           height: { ideal: 720, max: 1080 }
         }
@@ -446,7 +527,6 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
         setStream(mediaStream);
         setIsCapturing(true);
         
-        // Aguardar o vídeo carregar com timeout
         await new Promise((resolve, reject) => {
           const video = videoRef.current;
           if (!video) {
@@ -456,7 +536,7 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
 
           const timeout = setTimeout(() => {
             reject(new Error('Timeout: Vídeo demorou muito para carregar'));
-          }, 10000); // 10 segundos timeout
+          }, 10000);
 
           video.onloadedmetadata = () => {
             clearTimeout(timeout);
@@ -504,7 +584,6 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
     const canvas = canvasRef.current;
     const video = videoRef.current;
     
-    // Verificar se o vídeo tem dimensões válidas
     if (video.videoWidth === 0 || video.videoHeight === 0) {
       toast({
         title: "Erro na Captura",
@@ -527,7 +606,6 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
       return;
     }
 
-    // Capturar frame do vídeo
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
     canvas.toBlob((blob) => {
@@ -601,10 +679,24 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
           ) : (
             <>
               <Camera className="h-4 w-4 mr-2" />
-              📸 Capturar com Câmera
+              🖥️ Capturar com Câmera Web
             </>
           )}
         </Button>
+        
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <span className="text-blue-600">🖥️</span>
+            <div>
+              <p className="text-sm text-blue-800 font-medium">
+                Modo Desktop
+              </p>
+              <p className="text-xs text-blue-700 mt-1">
+                Será aberta uma interface de câmera web no navegador. Permita o acesso quando solicitado.
+              </p>
+            </div>
+          </div>
+        </div>
         
         <div className="text-xs text-muted-foreground text-center">
           🔒 Será solicitada permissão para acessar sua câmera
@@ -622,10 +714,9 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
           playsInline
           muted
           className="w-full h-64 sm:h-80 object-cover"
-          style={{ transform: 'scaleX(-1)' }} // Espelhar para parecer mais natural
+          style={{ transform: 'scaleX(-1)' }}
         />
         
-        {/* Overlay com guias visuais */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-4 border-2 border-white/50 rounded-lg">
             <div className="absolute top-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">

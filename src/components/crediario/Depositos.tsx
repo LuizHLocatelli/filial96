@@ -511,12 +511,12 @@ export function Depositos() {
               <CardContent className="space-y-4">
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-sm text-blue-800 mb-2">
-                    📱 <strong>Instruções:</strong>
+                    📱 <strong>Experiência Otimizada:</strong>
                   </p>
                   <ul className="text-xs text-blue-700 space-y-1">
-                    <li>• Permita o acesso à câmera quando solicitado</li>
-                    <li>• Posicione o comprovante bem iluminado</li>
-                    <li>• Mantenha o dispositivo estável ao capturar</li>
+                    <li>• <strong>Mobile:</strong> Abre câmera nativa do celular</li>
+                    <li>• <strong>Desktop:</strong> Interface web no navegador</li>
+                    <li>• <strong>Automático:</strong> Análise inteligente após captura</li>
                   </ul>
                 </div>
                 
@@ -528,10 +528,14 @@ export function Depositos() {
                       ⚠️ Problemas? Clique aqui
                     </summary>
                     <div className="mt-2 space-y-1 text-xs">
-                      <p>• <strong>Câmera não funciona:</strong> Verifique se o site tem permissão</p>
-                      <p>• <strong>Tela preta:</strong> Aguarde alguns segundos para carregar</p>
-                      <p>• <strong>Não aparece vídeo:</strong> Tente atualizar a página</p>
-                      <p>• <strong>Chrome/Edge:</strong> Use HTTPS para melhor compatibilidade</p>
+                      <p><strong>Mobile:</strong></p>
+                      <p>• <strong>Android:</strong> Abre aplicativo de câmera nativo</p>
+                      <p>• <strong>iOS:</strong> Abre interface de câmera do Safari</p>
+                      <p>• <strong>Não funciona:</strong> Tente usar o upload manual</p>
+                      <p><strong>Desktop:</strong></p>
+                      <p>• <strong>Chrome/Edge:</strong> Melhor compatibilidade</p>
+                      <p>• <strong>Firefox:</strong> Também suportado</p>
+                      <p>• <strong>HTTPS:</strong> Necessário para câmera</p>
                     </div>
                   </details>
                 </div>
