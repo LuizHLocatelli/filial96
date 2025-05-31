@@ -323,7 +323,7 @@ export function Depositos() {
   const depositosForDay = selectedDay 
     ? depositos.filter(deposito => isSameDay(deposito.data, selectedDay))
     : [];
-
+  
   // Render loading states
   if (isLoading) {
     return (
@@ -336,7 +336,7 @@ export function Depositos() {
       </div>
     );
   }
-
+  
   return (
     <div className="space-y-6">
       {/* Indicador Offline */}
@@ -538,7 +538,7 @@ export function Depositos() {
                       <p>• <strong>HTTPS:</strong> Necessário para câmera</p>
                     </div>
                   </details>
-                </div>
+        </div>
               </CardContent>
             </Card>
           )}
