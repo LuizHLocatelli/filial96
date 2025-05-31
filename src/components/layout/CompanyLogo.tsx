@@ -6,7 +6,7 @@ export function CompanyLogo() {
     <Link to="/" className="flex items-center space-x-2 md:space-x-3 group">
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg blur-sm group-hover:blur-none transition-all duration-300" />
-        <div className="relative bg-gradient-to-r from-primary to-primary/80 p-1.5 md:p-2 rounded-lg shadow-lg group-hover:shadow-xl transition-all duration-300">
+        <div className="relative bg-white p-1.5 md:p-2 rounded-lg shadow-lg group-hover:shadow-xl transition-all duration-300 border border-border/20">
           <img 
             src="/lovable-uploads/4061bf61-813c-40ee-a09e-17b6f303bc20.png" 
             alt="Filial 96 Logo" 
