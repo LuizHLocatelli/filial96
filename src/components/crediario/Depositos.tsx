@@ -167,8 +167,9 @@ export function Depositos() {
     setShowAutomation(true);
     
     toast({
-      title: "Foto Capturada!",
+      title: "📸 Foto Capturada!",
       description: "Imagem capturada com sucesso. Analisando automaticamente...",
+      duration: 4000,
     });
   };
 
@@ -493,10 +494,47 @@ export function Depositos() {
           {showCamera && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Captura por Câmera</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Camera className="h-4 w-4" />
+                    Captura por Câmera
+                  </CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setShowCamera(false)}
+                  >
+                    ✕
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800 mb-2">
+                    📱 <strong>Instruções:</strong>
+                  </p>
+                  <ul className="text-xs text-blue-700 space-y-1">
+                    <li>• Permita o acesso à câmera quando solicitado</li>
+                    <li>• Posicione o comprovante bem iluminado</li>
+                    <li>• Mantenha o dispositivo estável ao capturar</li>
+                  </ul>
+                </div>
+                
                 <CameraCapture onCapture={handleCameraCapture} />
+                
+                <div className="text-xs text-muted-foreground">
+                  <details className="mt-2">
+                    <summary className="cursor-pointer font-medium">
+                      ⚠️ Problemas? Clique aqui
+                    </summary>
+                    <div className="mt-2 space-y-1 text-xs">
+                      <p>• <strong>Câmera não funciona:</strong> Verifique se o site tem permissão</p>
+                      <p>• <strong>Tela preta:</strong> Aguarde alguns segundos para carregar</p>
+                      <p>• <strong>Não aparece vídeo:</strong> Tente atualizar a página</p>
+                      <p>• <strong>Chrome/Edge:</strong> Use HTTPS para melhor compatibilidade</p>
+                    </div>
+                  </details>
+                </div>
               </CardContent>
             </Card>
           )}

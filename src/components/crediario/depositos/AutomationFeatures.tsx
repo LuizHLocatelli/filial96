@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -367,7 +367,7 @@ export function useOfflineAutomation() {
   useEffect(() => {
     // Verificar se o navegador suporta as APIs necessárias
     const hasCamera = 'getUserMedia' in navigator.mediaDevices;
-    const hasCanvas = 'OffscreenCanvas' in window;
+    const hasCanvas = 'HTMLCanvasElement' in window;
     const hasWorker = 'Worker' in window;
     
     setIsSupported(hasCamera && hasCanvas && hasWorker);
@@ -375,7 +375,7 @@ export function useOfflineAutomation() {
 
   return {
     isSupported,
-    canUseCamera: 'getUserMedia' in navigator.mediaDevices,
+    canUseCamera: 'getUserMedia' in (navigator.mediaDevices || {}),
     canProcessOffline: 'Worker' in window
   };
 }
@@ -386,87 +386,269 @@ export function CameraCapture({ onCapture }: { onCapture: (file: File) => void }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Verificar compatibilidade do navegador
+  const isCompatible = useMemo(() => {
+    return !!(navigator.mediaDevices && 
+              navigator.mediaDevices.getUserMedia && 
+              window.HTMLCanvasElement);
+  }, []);
+
+  if (!isCompatible) {
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="flex items-start space-x-3">
+          <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+          <div>
+            <h3 className="text-sm font-medium text-yellow-800">
+              Funcionalidade Não Disponível
+            </h3>
+            <p className="text-sm text-yellow-700 mt-1">
+              Seu navegador não suporta captura por câmera. Tente usar:
+            </p>
+            <ul className="text-sm text-yellow-700 mt-2 list-disc list-inside">
+              <li>Chrome ou Firefox atualizado</li>
+              <li>Conexão HTTPS (necessária para câmera)</li>
+              <li>Permitir acesso à câmera quando solicitado</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const startCamera = async () => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } // Câmera traseira no mobile
-      });
+      // Verificar se o navegador suporta getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Seu navegador não suporta captura de câmera');
+      }
+
+      const constraints = {
+        video: { 
+          facingMode: 'environment', // Câmera traseira no mobile
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 }
+        }
+      };
+
+      console.log('🎥 Solicitando acesso à câmera...');
+      const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('✅ Acesso à câmera concedido');
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         setStream(mediaStream);
         setIsCapturing(true);
+        
+        // Aguardar o vídeo carregar com timeout
+        await new Promise((resolve, reject) => {
+          const video = videoRef.current;
+          if (!video) {
+            reject(new Error('Elemento de vídeo não encontrado'));
+            return;
+          }
+
+          const timeout = setTimeout(() => {
+            reject(new Error('Timeout: Vídeo demorou muito para carregar'));
+          }, 10000); // 10 segundos timeout
+
+          video.onloadedmetadata = () => {
+            clearTimeout(timeout);
+            console.log('📹 Vídeo carregado, iniciando reprodução...');
+            video.play().then(() => {
+              console.log('▶️ Vídeo reproduzindo');
+              resolve(true);
+            }).catch((playError) => {
+              console.error('❌ Erro ao reproduzir vídeo:', playError);
+              reject(playError);
+            });
+          };
+
+          video.onerror = (error) => {
+            clearTimeout(timeout);
+            console.error('❌ Erro no vídeo:', error);
+            reject(new Error('Erro ao carregar stream de vídeo'));
+          };
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ Erro ao acessar câmera:', error);
+      setError(error.message || 'Erro ao acessar a câmera');
+      
       toast({
         title: "Erro na Câmera",
-        description: "Não foi possível acessar a câmera. Verifique as permissões.",
+        description: `Não foi possível acessar a câmera: ${error.message || 'Verifique as permissões'}`,
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      toast({
+        title: "Erro na Captura",
+        description: "Câmera não está pronta para captura.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     const canvas = canvasRef.current;
     const video = videoRef.current;
+    
+    // Verificar se o vídeo tem dimensões válidas
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      toast({
+        title: "Erro na Captura",
+        description: "Aguarde o vídeo carregar completamente.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      toast({
+        title: "Erro na Captura",
+        description: "Não foi possível processar a imagem.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    ctx.drawImage(video, 0, 0);
+    // Capturar frame do vídeo
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
     canvas.toBlob((blob) => {
       if (blob) {
-        const file = new File([blob], `comprovante_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const file = new File([blob], `comprovante_${Date.now()}.jpg`, { 
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        });
         onCapture(file);
         stopCamera();
+        
+        toast({
+          title: "Foto Capturada!",
+          description: "Imagem capturada com sucesso.",
+        });
+      } else {
+        toast({
+          title: "Erro na Captura",
+          description: "Não foi possível gerar a imagem.",
+          variant: "destructive"
+        });
       }
-    }, 'image/jpeg', 0.8);
+    }, 'image/jpeg', 0.9);
   };
 
   const stopCamera = () => {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
-      setIsCapturing(false);
     }
+    setIsCapturing(false);
+    setError(null);
   };
+
+  // Cleanup quando componente desmonta
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
+  if (error) {
+    return (
+      <div className="space-y-3">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800 mb-2">❌ {error}</p>
+          <Button onClick={startCamera} variant="outline" size="sm">
+            Tentar Novamente
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!isCapturing) {
     return (
-      <Button onClick={startCamera} variant="outline" className="w-full">
-        <Camera className="h-4 w-4 mr-2" />
-        Capturar com Câmera
-      </Button>
+      <div className="space-y-3">
+        <Button 
+          onClick={startCamera} 
+          variant="outline" 
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+              Acessando câmera...
+            </>
+          ) : (
+            <>
+              <Camera className="h-4 w-4 mr-2" />
+              📸 Capturar com Câmera
+            </>
+          )}
+        </Button>
+        
+        <div className="text-xs text-muted-foreground text-center">
+          🔒 Será solicitada permissão para acessar sua câmera
+        </div>
+      </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="relative">
+      <div className="relative bg-black rounded-lg overflow-hidden">
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          className="w-full rounded-lg"
+          muted
+          className="w-full h-64 sm:h-80 object-cover"
+          style={{ transform: 'scaleX(-1)' }} // Espelhar para parecer mais natural
         />
+        
+        {/* Overlay com guias visuais */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-4 border-2 border-white/50 rounded-lg">
+            <div className="absolute top-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+              📄 Posicione o comprovante dentro desta área
+            </div>
+          </div>
+        </div>
+        
         <canvas ref={canvasRef} className="hidden" />
       </div>
       
       <div className="flex gap-2">
-        <Button onClick={capturePhoto} className="flex-1">
+        <Button onClick={capturePhoto} className="flex-1" size="lg">
           <Camera className="h-4 w-4 mr-2" />
-          Capturar
+          📸 Capturar Foto
         </Button>
-        <Button onClick={stopCamera} variant="outline">
-          Cancelar
+        <Button onClick={stopCamera} variant="outline" size="lg">
+          ❌ Cancelar
         </Button>
+      </div>
+      
+      <div className="text-xs text-muted-foreground text-center">
+        💡 Dica: Mantenha o comprovante bem iluminado e dentro da área destacada
       </div>
     </div>
   );
