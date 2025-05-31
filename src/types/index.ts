@@ -1,4 +1,3 @@
-
 export type UserRole = 'gerente' | 'crediarista' | 'consultor_moveis' | 'consultor_moda';
 
 export interface User {
@@ -8,6 +7,7 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   displayName?: string;
+  phone?: string;
 }
 
 export type TaskStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada' | 'aguardando_cliente';
