@@ -46,8 +46,8 @@ export function PersonalInfoForm() {
   useEffect(() => {
     if (profile) {
       form.reset({
-        fullName: profile.name,
-        displayName: profile.displayName || profile.name.split(" ")[0],
+        fullName: profile.name || "",
+        displayName: profile.displayName || profile.name?.split(" ")[0] || "",
         phone: profile.phone || "",
       });
     }
@@ -68,6 +68,9 @@ export function PersonalInfoForm() {
         .eq("id", user?.id);
 
       if (error) throw error;
+
+      // Força uma atualização do perfil do usuário
+      window.location.reload();
 
       toast({
         title: "Perfil atualizado",
@@ -131,7 +134,7 @@ export function PersonalInfoForm() {
           )}
         />
         <Button type="submit" disabled={loading}>
-          Salvar Alterações
+          {loading ? "Salvando..." : "Salvar Alterações"}
         </Button>
       </form>
     </Form>

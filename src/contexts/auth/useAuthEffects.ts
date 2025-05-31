@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { User as AppUser, UserRole } from "@/types";
@@ -64,7 +65,8 @@ export const useAuthEffects = ({
                 id: userId,
                 name: userData.user.email || 'Usuário',
                 role: 'consultor_moveis' as UserRole,
-                email: userData.user.email || userEmail || ''
+                email: userData.user.email || userEmail || '',
+                phone: userData.user.user_metadata?.phone || ''
               };
               
               const { error: insertError } = await supabase
@@ -72,7 +74,8 @@ export const useAuthEffects = ({
                 .insert({
                   id: userId,
                   name: userData.user.email || 'Usuário',
-                  role: 'consultor_moveis'
+                  role: 'consultor_moveis',
+                  phone: userData.user.user_metadata?.phone || ''
                 });
                 
               if (insertError) {
@@ -92,7 +95,8 @@ export const useAuthEffects = ({
             role: profile.role as UserRole,
             email: userEmail || '',
             avatarUrl: profile.avatar_url,
-            displayName: profile.display_name
+            displayName: profile.display_name,
+            phone: profile.phone
           };
           setProfile(fullProfile);
         }
@@ -119,6 +123,12 @@ export const useAuthEffects = ({
           setProfile(null);
         } else if (event === 'TOKEN_REFRESHED' && session) {
           setSession(session);
+          // Refetch profile to ensure we have the latest data
+          if (session.user) {
+            setTimeout(() => {
+              fetchUserProfile(session.user.id, session.user.email);
+            }, 0);
+          }
         }
         
         setIsLoading(false);
