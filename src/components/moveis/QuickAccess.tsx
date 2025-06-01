@@ -1,4 +1,3 @@
-
 import { 
   FileText, 
   FolderOpen, 
@@ -10,10 +9,21 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export function QuickAccess() {
+interface QuickAccessProps {
+  variant?: "default" | "horizontal" | "minimal" | "compact";
+}
+
+export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -56,6 +66,130 @@ export function QuickAccess() {
     }
   ];
 
+  // Variante Horizontal Compacta
+  if (variant === "horizontal") {
+    return (
+      <div className="w-full p-2 bg-background border rounded-lg">
+        <ScrollArea className="w-full">
+          <div className="flex items-center space-x-2 px-2">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              return (
+                <TooltipProvider key={section.title} delayDuration={300}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-3 flex items-center gap-2 whitespace-nowrap"
+                        onClick={() => navigate(section.path)}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="text-xs">{section.title}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>{section.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
+          </div>
+        </ScrollArea>
+      </div>
+    );
+  }
+
+  // Variante Mínima (apenas ícones)
+  if (variant === "minimal") {
+    return (
+      <div className="flex items-center justify-center gap-1 p-2 bg-background border rounded-lg">
+        {sections.map((section) => {
+          const Icon = section.icon;
+          return (
+            <TooltipProvider key={section.title} delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-md"
+                    onClick={() => navigate(section.path)}
+                    aria-label={section.title}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <div className="text-center">
+                    <p className="font-medium">{section.title}</p>
+                    <p className="text-xs text-muted-foreground">{section.description}</p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Variante Compacta (cards menores)
+  if (variant === "compact") {
+    return (
+      <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
+        {sections.map((section, index) => {
+          const Icon = section.icon;
+          return (
+            <Card 
+              key={section.title}
+              className={`hover-lift cursor-pointer transition-all duration-300 border-0 shadow-soft hover:shadow-medium group ${section.bgColor}`}
+              style={{ animationDelay: `${index * 100}ms` }}
+              onClick={() => navigate(section.path)}
+            >
+              <CardContent className="p-3">
+                <div className="space-y-2">
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${section.color} group-hover:scale-110 transition-transform duration-200`}>
+                    <Icon className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold">{section.title}</h3>
+                    <div className="flex gap-1">
+                      {section.title === "Orientações" && (
+                        <>
+                          <Badge variant="outline" className="text-xs px-1 py-0">
+                            {section.stats.active}
+                          </Badge>
+                        </>
+                      )}
+                      {section.title === "Diretório" && (
+                        <Badge variant="outline" className="text-xs px-1 py-0">
+                          {section.stats.files}
+                        </Badge>
+                      )}
+                      {section.title === "Produto Foco" && (
+                        <Badge variant="outline" className="text-xs px-1 py-0 text-green-600">
+                          {section.stats.sales}
+                        </Badge>
+                      )}
+                      {section.title === "Folgas" && (
+                        <Badge variant="outline" className="text-xs px-1 py-0">
+                          {section.stats.thisMonth}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Variante Default (original)
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -106,7 +240,7 @@ export function QuickAccess() {
                   </div>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {section.title === "Orientações" && (
                       <>
                         <Badge variant="outline" className="bg-background/50">

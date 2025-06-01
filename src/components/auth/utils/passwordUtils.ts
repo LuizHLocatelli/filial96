@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { NavigateFunction } from "react-router-dom";
@@ -48,6 +47,7 @@ export async function handleUpdatePassword({
             variant: "destructive",
             title: "Erro ao validar token de recuperação",
             description: "O link de recuperação pode estar expirado ou inválido. Por favor, solicite um novo.",
+            duration: 6000,
           });
           setTimeout(() => navigate("/auth?tab=reset"), 2000);
           return false;
@@ -83,6 +83,7 @@ export async function handleUpdatePassword({
               variant: "destructive",
               title: "Erro ao redefinir senha",
               description: "E-mail não encontrado. Por favor, solicite um novo link de recuperação.",
+              duration: 6000,
             });
             setTimeout(() => navigate("/auth?tab=reset"), 2000);
             return false;
@@ -103,6 +104,7 @@ export async function handleUpdatePassword({
               variant: "destructive",
               title: "Erro ao redefinir senha",
               description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
+              duration: 6000,
             });
             setTimeout(() => navigate("/auth?tab=reset"), 2000);
             return false;
@@ -121,6 +123,7 @@ export async function handleUpdatePassword({
               variant: "destructive",
               title: "Erro ao redefinir senha",
               description: "Não foi possível atualizar sua senha. Por favor, solicite um novo link de recuperação.",
+              duration: 6000,
             });
             setTimeout(() => navigate("/auth?tab=reset"), 2000);
             return false;
@@ -131,6 +134,7 @@ export async function handleUpdatePassword({
             variant: "destructive",
             title: "Erro ao redefinir senha",
             description: "Erro ao processar sua solicitação. Por favor, tente novamente.",
+            duration: 5000,
           });
           setTimeout(() => navigate("/auth?tab=reset"), 2000);
           return false;
@@ -140,6 +144,7 @@ export async function handleUpdatePassword({
           variant: "destructive",
           title: "Erro ao atualizar senha",
           description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
+          duration: 6000,
         });
         setTimeout(() => navigate("/auth?tab=reset"), 2000);
         return false;
@@ -151,6 +156,7 @@ export async function handleUpdatePassword({
     toast({
       title: "Senha alterada com sucesso",
       description: "Sua senha foi redefinida. Você será redirecionado para o login.",
+      duration: 4000,
     });
     
     // Log out to ensure clean state
@@ -166,6 +172,7 @@ export async function handleUpdatePassword({
       variant: "destructive",
       title: "Erro ao redefinir senha",
       description: "Ocorreu um erro inesperado ao redefinir sua senha. Por favor, tente novamente.",
+      duration: 5000,
     });
     return false;
   }

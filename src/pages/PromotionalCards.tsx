@@ -26,7 +26,11 @@ export default function PromotionalCards() {
         description="Gestão completa dos materiais promocionais"
         icon={Sparkles}
         iconColor="text-primary"
-        variant="gradient"
+        variant="default"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/" },
+          { label: "Cards Promocionais" }
+        ]}
       />
 
       {/* Seletor de setor */}
@@ -40,22 +44,22 @@ export default function PromotionalCards() {
 
       {/* Layout principal */}
       <div className="space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Painel de pastas */}
-          <Card className="w-full lg:w-80 bg-gradient-to-br from-background to-muted/30 border-2 border-border/50">
-            <CardContent className={cn("p-4", !isMobile && "p-6")}>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Painel de pastas - mais compacto */}
+          <Card className="w-full lg:w-72 bg-gradient-to-br from-background to-muted/20 border border-border/50 shadow-sm">
+            <CardContent className={cn("p-3", !isMobile && "p-4")}>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
                   📁 Pastas
                 </h3>
                 <Button 
-                  size={isMobile ? "sm" : "default"} 
+                  size="sm"
                   variant="outline"
                   onClick={() => setIsCreateFolderOpen(true)}
-                  className="h-8 sm:h-10 text-xs sm:text-sm px-3 sm:px-4 bg-primary/5 hover:bg-primary/10 border-primary/20"
+                  className="h-7 text-xs px-2.5 bg-primary/5 hover:bg-primary/10 border-primary/20"
                 >
-                  <Plus className="h-3.5 w-3.5 mr-1.5" />
-                  Nova Pasta
+                  <Plus className="h-3 w-3 mr-1" />
+                  Nova
                 </Button>
               </div>
               
@@ -67,8 +71,8 @@ export default function PromotionalCards() {
             </CardContent>
           </Card>
 
-          {/* Área principal dos cards */}
-          <div className="flex-1 space-y-6">
+          {/* Área principal dos cards - mais espaço */}
+          <div className="flex-1 space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
                 🎨 Galeria de Cards

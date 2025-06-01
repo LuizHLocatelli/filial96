@@ -1,4 +1,3 @@
-
 import * as React from "react"
 
 import type {
@@ -14,6 +13,7 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  duration?: number
 }
 
 const actionTypes = {
@@ -155,7 +155,19 @@ export function toast(props: Omit<ToasterToast, "id">) {
       toast: { ...props, id },
     })
 
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+  const dismiss = () => {
+    // Limpar timeout se existir
+    if (toastTimeouts.has(id)) {
+      clearTimeout(toastTimeouts.get(id))
+      toastTimeouts.delete(id)
+    }
+    dispatch({ type: "DISMISS_TOAST", toastId: id })
+    
+    // Remover após delay
+    setTimeout(() => {
+      dispatch({ type: "REMOVE_TOAST", toastId: id })
+    }, TOAST_REMOVE_DELAY)
+  }
 
   dispatch({
     type: "ADD_TOAST",
@@ -163,13 +175,22 @@ export function toast(props: Omit<ToasterToast, "id">) {
       ...props,
       id,
       open: true,
-      onOpenChange: (open) => {
+      onOpenChange: (open: boolean) => {
         if (!open) {
           dismiss()
         }
       },
     },
   })
+
+  // Auto-dismiss se duration for especificada
+  if (props.duration && props.duration > 0) {
+    const timeoutId = setTimeout(() => {
+      dismiss()
+    }, props.duration)
+    
+    toastTimeouts.set(id, timeoutId)
+  }
 
   return {
     id,

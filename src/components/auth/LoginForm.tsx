@@ -42,6 +42,7 @@ export function LoginForm() {
           variant: "destructive",
           title: "Erro ao fazer login",
           description: error.message,
+          duration: 5000,
         });
         return;
       }
@@ -53,6 +54,7 @@ export function LoginForm() {
         variant: "destructive",
         title: "Erro ao fazer login",
         description: "Ocorreu um erro inesperado ao fazer login.",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);

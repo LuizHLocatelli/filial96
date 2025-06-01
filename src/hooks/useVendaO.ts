@@ -73,6 +73,7 @@ export function useVendaO() {
         title: "Erro ao carregar as vendas",
         description: "Ocorreu um erro ao carregar as vendas de outras filiais.",
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -142,6 +143,7 @@ export function useVendaO() {
       toast({
         title: "Venda adicionada",
         description: "A venda foi adicionada com sucesso.",
+        duration: 4000,
       });
 
       await fetchSales();
@@ -152,6 +154,7 @@ export function useVendaO() {
         title: "Erro ao adicionar venda",
         description: error.message || "Ocorreu um erro ao adicionar a venda.",
         variant: "destructive",
+        duration: 5000,
       });
       return false;
     }
@@ -169,6 +172,7 @@ export function useVendaO() {
       toast({
         title: "Status atualizado",
         description: "O status da venda foi atualizado com sucesso.",
+        duration: 4000,
       });
 
       await fetchSales();
@@ -179,6 +183,7 @@ export function useVendaO() {
         title: "Erro ao atualizar status",
         description: error.message || "Ocorreu um erro ao atualizar o status.",
         variant: "destructive",
+        duration: 5000,
       });
       return false;
     }
@@ -222,6 +227,7 @@ export function useVendaO() {
       toast({
         title: "Venda excluída",
         description: "A venda foi excluída com sucesso.",
+        duration: 4000,
       });
 
       await fetchSales();
@@ -232,6 +238,7 @@ export function useVendaO() {
         title: "Erro ao excluir venda",
         description: error.message || "Ocorreu um erro ao excluir a venda.",
         variant: "destructive",
+        duration: 5000,
       });
       return false;
     }

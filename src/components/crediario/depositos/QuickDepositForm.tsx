@@ -44,7 +44,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
       toast({
         title: "Tipo de arquivo inválido",
         description: "Por favor, selecione uma imagem.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 4000,
       });
       return false;
     }
@@ -54,7 +55,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
       toast({
         title: "Arquivo muito grande",
         description: "O arquivo deve ter no máximo 5MB.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 4000,
       });
       return false;
     }
@@ -114,7 +116,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
       toast({
         title: "Comprovante obrigatório",
         description: "Por favor, anexe o comprovante do depósito.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 4000,
       });
       return;
     }
@@ -135,14 +138,16 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
         
         toast({
           title: "Depósito registrado!",
-          description: `Depósito de hoje foi ${ja_incluido ? 'registrado e incluído no sistema' : 'registrado (pendente inclusão no sistema)'}.`,
+          description: `Depósito de hoje foi ${ja_incluido ? 'registrado e incluído na Tesouraria/P2K' : 'registrado (pendente inclusão na Tesouraria/P2K)'}.`,
+          duration: 4000,
         });
       }
     } catch (error) {
       toast({
         title: "Erro ao registrar",
         description: "Não foi possível registrar o depósito. Tente novamente.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 4000,
       });
     } finally {
       setIsSubmitting(false);
@@ -152,10 +157,10 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
   if (isWeekend) {
     return (
       <Card className="border-dashed border-2 deposit-card weekend">
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <Calendar className="h-12 w-12 text-muted-foreground mb-2" />
-          <h3 className="text-lg font-medium text-muted-foreground">Domingo</h3>
-          <p className="text-sm text-muted-foreground text-center">
+        <CardContent className="flex flex-col items-center justify-center py-8 sm:py-8 px-4 sm:px-6">
+          <Calendar className="h-12 w-12 sm:h-12 sm:w-12 text-muted-foreground mb-3" />
+          <h3 className="text-lg sm:text-lg font-medium text-muted-foreground">Domingo</h3>
+          <p className="text-sm sm:text-sm text-muted-foreground text-center mt-2">
             Não há necessidade de depósito aos domingos
           </p>
         </CardContent>
@@ -166,11 +171,11 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
   if (hasDepositToday && hasReceiptToday && isIncludedToday) {
     return (
       <Card className="deposit-card complete">
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <Check className="h-12 w-12 text-green-600 mb-2" />
-          <h3 className="text-lg font-medium text-green-800">Depósito Completo!</h3>
-          <p className="text-sm text-green-700 text-center">
-            O depósito de hoje foi registrado e incluído no sistema
+        <CardContent className="flex flex-col items-center justify-center py-8 sm:py-8 px-4 sm:px-6">
+          <Check className="h-12 w-12 sm:h-12 sm:w-12 text-green-600 dark:text-green-400 mb-3" />
+          <h3 className="text-lg sm:text-lg font-medium text-green-800 dark:text-green-200">Depósito Completo!</h3>
+          <p className="text-sm sm:text-sm text-green-700 dark:text-green-300 text-center mt-2">
+            O depósito de hoje foi registrado e incluído na Tesouraria/P2K
           </p>
         </CardContent>
       </Card>
@@ -179,42 +184,42 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
 
   return (
     <Card className="border-2 deposit-card">
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Upload className="h-5 w-5" />
-          Registro Rápido - Hoje
+      <CardHeader className="pb-4 sm:pb-4 px-4 sm:px-6">
+        <CardTitle className="text-base sm:text-lg flex items-center gap-2 sm:gap-3">
+          <Upload className="h-5 w-5 sm:h-5 sm:w-5 flex-shrink-0" />
+          <span>Registro Rápido - Hoje</span>
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 sm:space-y-4 px-4 sm:px-6">
         {/* Upload Area com Drag & Drop */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Comprovante do Depósito</Label>
+        <div className="space-y-3 sm:space-y-3">
+          <Label className="text-sm sm:text-sm font-medium">Comprovante do Depósito</Label>
           
           {!previewUrl && !hasReceiptToday ? (
             <div 
-              className={`upload-zone p-6 text-center cursor-pointer transition-all duration-300 ${
-                isDragOver ? 'dragover border-green-500 bg-green-50' : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+              className={`upload-zone p-6 sm:p-6 text-center cursor-pointer transition-all duration-300 border-2 border-dashed rounded-lg ${
+                isDragOver ? 'dragover border-green-500 bg-green-50 dark:bg-green-950/50 dark:border-green-400' : 'border-muted-foreground/25 hover:border-muted-foreground/50'
               }`}
               onClick={() => fileInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              <Upload className={`h-8 w-8 mx-auto mb-2 transition-colors ${
-                isDragOver ? 'text-green-600' : 'text-muted-foreground'
+              <Upload className={`h-8 w-8 sm:h-8 sm:w-8 mx-auto mb-3 transition-colors ${
+                isDragOver ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
               }`} />
-              <p className={`text-sm mb-1 transition-colors ${
-                isDragOver ? 'text-green-700' : 'text-muted-foreground'
+              <p className={`text-sm sm:text-sm mb-2 transition-colors ${
+                isDragOver ? 'text-green-700 dark:text-green-300' : 'text-muted-foreground'
               }`}>
-                {isDragOver ? 'Solte o arquivo aqui' : 'Clique para anexar ou arraste o comprovante'}
+                {isDragOver ? 'Solte o arquivo aqui' : 'Toque para anexar ou arraste o comprovante'}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs sm:text-xs text-muted-foreground">
                 Formatos: JPG, PNG, WEBP (máx. 5MB)
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(previewUrl || hasReceiptToday) && (
                 <div className="relative group">
                   {previewUrl ? (
@@ -222,15 +227,15 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
                       <img 
                         src={previewUrl} 
                         alt="Preview do comprovante" 
-                        className="w-full h-32 object-cover rounded-lg border transition-all duration-300 group-hover:brightness-90"
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg border transition-all duration-300 group-hover:brightness-90"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-lg"></div>
                     </div>
                   ) : (
-                    <div className="w-full h-32 bg-green-100 rounded-lg border flex items-center justify-center">
+                    <div className="w-full h-28 sm:h-32 bg-green-100 dark:bg-green-950/50 rounded-lg border flex items-center justify-center">
                       <div className="text-center">
-                        <ImageIcon className="h-8 w-8 mx-auto text-green-600 mb-1" />
-                        <p className="text-sm text-green-700">Comprovante já anexado</p>
+                        <ImageIcon className="h-8 w-8 sm:h-8 sm:w-8 mx-auto text-green-600 dark:text-green-400 mb-2" />
+                        <p className="text-sm sm:text-sm text-green-700 dark:text-green-300">Comprovante já anexado</p>
                       </div>
                     </div>
                   )}
@@ -240,10 +245,10 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
                       type="button"
                       variant="destructive"
                       size="sm"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="absolute top-2 right-2 sm:top-2 sm:right-2 h-8 w-8 sm:h-8 sm:w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       onClick={handleRemoveFile}
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4 sm:h-4 sm:w-4" />
                     </Button>
                   )}
                 </div>
@@ -255,7 +260,7 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
                   variant="outline"
                   size="sm"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full quick-action-btn"
+                  className="w-full quick-action-btn text-sm sm:text-sm h-10 sm:h-9"
                 >
                   {previewUrl ? "Trocar arquivo" : "Selecionar arquivo"}
                 </Button>
@@ -273,34 +278,33 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
         </div>
 
         {/* Checklist Aprimorada */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Confirmações</Label>
+        <div className="space-y-3 sm:space-y-3">
+          <Label className="text-sm sm:text-sm font-medium">Confirmações</Label>
           
-          <div className="space-y-3 p-3 bg-muted/20 rounded-lg">
-            <div className="flex items-center space-x-3">
+          <div className="space-y-3 sm:space-y-3 p-3 sm:p-3 bg-muted/20 rounded-lg">
+            <div className="flex items-center space-x-3 sm:space-x-3">
               <Checkbox 
-                id="comprovante-check" 
-                checked={hasReceiptToday || !!previewUrl}
+                id="comprovante"
+                checked={hasReceiptToday}
                 disabled
-                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                className="data-[state=checked]:bg-green-600 dark:data-[state=checked]:bg-green-500 data-[state=checked]:border-green-600 dark:data-[state=checked]:border-green-500 h-5 w-5 sm:h-5 sm:w-5"
               />
-              <Label htmlFor="comprovante-check" className="text-sm flex items-center gap-2">
-                <ImageIcon className="h-4 w-4" />
-                Comprovante anexado
+              <Label htmlFor="comprovante-check" className="text-sm sm:text-sm flex items-center gap-2 sm:gap-2 cursor-pointer">
+                {hasReceiptToday ? '✓ Comprovante anexado' : 'Anexar comprovante'}
               </Label>
             </div>
             
-            <div className="flex items-center space-x-3">
+            <div className="flex items-start space-x-3 sm:space-x-3">
               <Checkbox 
-                id="sistema-check" 
+                id="ja-incluido"
                 checked={ja_incluido || isIncludedToday}
                 onCheckedChange={(checked) => setJa_incluido(checked as boolean)}
                 disabled={isIncludedToday}
-                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                className="data-[state=checked]:bg-green-600 dark:data-[state=checked]:bg-green-500 data-[state=checked]:border-green-600 dark:data-[state=checked]:border-green-500 h-5 w-5 sm:h-5 sm:w-5 mt-0.5"
               />
-              <Label htmlFor="sistema-check" className="text-sm flex items-center gap-2">
-                <Check className="h-4 w-4" />
-                Depósito incluído no sistema de tesouraria
+              <Label htmlFor="ja-incluido" className="text-sm sm:text-sm flex items-start gap-2 sm:gap-2 cursor-pointer leading-normal">
+                <Check className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">Depósito incluído na Tesouraria/P2K</span>
               </Label>
             </div>
           </div>
@@ -310,28 +314,21 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || isUploading || (hasDepositToday && hasReceiptToday && isIncludedToday)}
-          className="w-full quick-action-btn"
+          className="w-full quick-action-btn text-sm sm:text-sm h-11 sm:h-10"
           size="lg"
         >
           {isSubmitting || isUploading ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Registrando...
+              <Loader2 className="h-4 w-4 sm:h-4 sm:w-4 mr-2 animate-spin" />
+              <span>Registrando...</span>
             </>
           ) : (
             <>
-              <Check className="h-4 w-4 mr-2" />
-              {hasDepositToday ? "Atualizar Depósito" : "Registrar Depósito"}
+              <Check className="h-4 w-4 sm:h-4 sm:w-4 mr-2" />
+              <span>{hasDepositToday ? "Atualizar Depósito" : "Registrar Depósito"}</span>
             </>
           )}
         </Button>
-
-        {/* Progress Indicator */}
-        {(isSubmitting || isUploading) && (
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div className="bg-primary h-2 rounded-full animate-pulse"></div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

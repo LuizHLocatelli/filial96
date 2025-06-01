@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,6 +57,7 @@ export function SignupForm() {
           variant: "destructive",
           title: "Erro ao criar conta",
           description: error.message,
+          duration: 5000,
         });
         return;
       }
@@ -65,6 +65,7 @@ export function SignupForm() {
       toast({
         title: "Conta criada com sucesso",
         description: "Verifique seu e-mail para confirmar sua conta.",
+        duration: 4000,
       });
       
       // Reset form after successful submission
@@ -74,6 +75,7 @@ export function SignupForm() {
         variant: "destructive",
         title: "Erro ao criar conta",
         description: "Ocorreu um erro inesperado ao criar sua conta.",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);

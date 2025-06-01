@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
@@ -89,6 +88,10 @@ export default function Moveis() {
           color: "bg-green-50 text-green-700 border-green-200"
         }}
         variant="default"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/" },
+          { label: "Móveis" }
+        ]}
       />
 
       <PageNavigation

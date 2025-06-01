@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,6 +51,7 @@ export function PasswordResetForm() {
           variant: "destructive",
           title: "Erro ao solicitar redefinição de senha",
           description: error.message,
+          duration: 5000,
         });
         return;
       }
@@ -60,6 +60,7 @@ export function PasswordResetForm() {
       toast({
         title: "Solicitação enviada",
         description: "Verifique seu e-mail para redefinir sua senha.",
+        duration: 4000,
       });
     } catch (error) {
       console.error("Erro inesperado durante a solicitação de redefinição de senha:", error);
@@ -67,6 +68,7 @@ export function PasswordResetForm() {
         variant: "destructive",
         title: "Erro ao solicitar redefinição de senha",
         description: "Ocorreu um erro inesperado ao solicitar redefinição de senha.",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);

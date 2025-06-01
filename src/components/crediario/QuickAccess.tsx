@@ -1,13 +1,21 @@
-
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ListTodo, Users, PiggyBank, Calendar, FolderArchive } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QuickAccessProps {
   onNavigate: (tab: string) => void;
   compact?: boolean;
+  variant?: "default" | "horizontal" | "minimal";
 }
 
 interface AccessCardProps {
@@ -60,7 +68,7 @@ const AccessCard = ({
   );
 };
 
-export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) => {
+export const QuickAccess = ({ onNavigate, compact = false, variant = "horizontal" }: QuickAccessProps) => {
   const { isDarkMode } = useTheme();
   const isMobile = useIsMobile();
   
@@ -73,6 +81,115 @@ export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) =
 
   const iconSize = compact ? (isMobile ? 20 : 18) : 24;
 
+  const quickAccessItems = [
+    {
+      title: "Listagens",
+      icon: <ListTodo size={iconSize} className={isDarkMode ? "text-green-300" : "text-green-700"} />,
+      onClick: () => handleNavigation("listagens"),
+      bgColor: "bg-green-100",
+      darkBgColor: "bg-green-900/40",
+      hoverColor: "bg-green-200",
+      darkHoverColor: "bg-green-800/60"
+    },
+    {
+      title: "Clientes",
+      icon: <Users size={iconSize} className={isDarkMode ? "text-blue-300" : "text-blue-700"} />,
+      onClick: () => handleNavigation("clientes"),
+      bgColor: "bg-blue-100",
+      darkBgColor: "bg-blue-900/40",
+      hoverColor: "bg-blue-200",
+      darkHoverColor: "bg-blue-800/60"
+    },
+    {
+      title: "Depósitos",
+      icon: <PiggyBank size={iconSize} className={isDarkMode ? "text-purple-300" : "text-purple-700"} />,
+      onClick: () => handleNavigation("depositos"),
+      bgColor: "bg-purple-100",
+      darkBgColor: "bg-purple-900/40",
+      hoverColor: "bg-purple-200",
+      darkHoverColor: "bg-purple-800/60"
+    },
+    {
+      title: "Folgas",
+      icon: <Calendar size={iconSize} className={isDarkMode ? "text-orange-300" : "text-orange-700"} />,
+      onClick: () => handleNavigation("folgas"),
+      bgColor: "bg-orange-100",
+      darkBgColor: "bg-orange-900/40",
+      hoverColor: "bg-orange-200",
+      darkHoverColor: "bg-orange-800/60"
+    },
+    {
+      title: "Diretório",
+      icon: <FolderArchive size={iconSize} className={isDarkMode ? "text-cyan-300" : "text-cyan-700"} />,
+      onClick: () => handleNavigation("diretorio"),
+      bgColor: "bg-cyan-100",
+      darkBgColor: "bg-cyan-900/40",
+      hoverColor: "bg-cyan-200",
+      darkHoverColor: "bg-cyan-800/60"
+    }
+  ];
+
+  // Variante Horizontal Compacta
+  if (variant === "horizontal") {
+    return (
+      <div className="w-full p-2 bg-background border rounded-lg">
+        <ScrollArea className="w-full">
+          <div className="flex items-center space-x-2 px-2">
+            {quickAccessItems.map((item) => (
+              <TooltipProvider key={item.title} delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-3 flex items-center gap-2 whitespace-nowrap"
+                      onClick={item.onClick}
+                    >
+                      {item.icon}
+                      <span className="text-xs">{item.title}</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Acessar {item.title}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    );
+  }
+
+  // Variante Mínima (apenas ícones)
+  if (variant === "minimal") {
+    return (
+      <div className="flex items-center justify-center gap-1 p-2 bg-background border rounded-lg">
+        {quickAccessItems.map((item) => (
+          <TooltipProvider key={item.title} delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-md"
+                  onClick={item.onClick}
+                  aria-label={item.title}
+                >
+                  {item.icon}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p>{item.title}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ))}
+      </div>
+    );
+  }
+
+  // Variante Default (original)
   return (
     <div className={compact ? "" : "animate-fade-in"}>
       {!compact && (
@@ -93,60 +210,19 @@ export const QuickAccess = ({ onNavigate, compact = false }: QuickAccessProps) =
       <div className={`grid ${compact ? 'grid-cols-3 sm:grid-cols-5 gap-2' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4'} 
         ${compact ? 'max-w-full' : 'max-w-4xl mx-auto'}`}
       >
-        <AccessCard
-          title="Listagens"
-          icon={<ListTodo size={iconSize} className={isDarkMode ? "text-green-300" : "text-green-700"} />}
-          onClick={() => handleNavigation("listagens")}
-          bgColor="bg-green-100"
-          darkBgColor="bg-green-900/40"
-          hoverColor="bg-green-200"
-          darkHoverColor="bg-green-800/60"
-          compact={compact}
-        />
-        
-        <AccessCard
-          title="Clientes"
-          icon={<Users size={iconSize} className={isDarkMode ? "text-blue-300" : "text-blue-700"} />}
-          onClick={() => handleNavigation("clientes")}
-          bgColor="bg-blue-100"
-          darkBgColor="bg-blue-900/40"
-          hoverColor="bg-blue-200"
-          darkHoverColor="bg-blue-800/60"
-          compact={compact}
-        />
-        
-        <AccessCard
-          title="Depósitos"
-          icon={<PiggyBank size={iconSize} className={isDarkMode ? "text-purple-300" : "text-purple-700"} />}
-          onClick={() => handleNavigation("depositos")}
-          bgColor="bg-purple-100"
-          darkBgColor="bg-purple-900/40"
-          hoverColor="bg-purple-200"
-          darkHoverColor="bg-purple-800/60"
-          compact={compact}
-        />
-        
-        <AccessCard
-          title="Folgas"
-          icon={<Calendar size={iconSize} className={isDarkMode ? "text-orange-300" : "text-orange-700"} />}
-          onClick={() => handleNavigation("folgas")}
-          bgColor="bg-orange-100"
-          darkBgColor="bg-orange-900/40"
-          hoverColor="bg-orange-200"
-          darkHoverColor="bg-orange-800/60"
-          compact={compact}
-        />
-        
-        <AccessCard
-          title="Diretório"
-          icon={<FolderArchive size={iconSize} className={isDarkMode ? "text-cyan-300" : "text-cyan-700"} />}
-          onClick={() => handleNavigation("diretorio")}
-          bgColor="bg-cyan-100"
-          darkBgColor="bg-cyan-900/40"
-          hoverColor="bg-cyan-200"
-          darkHoverColor="bg-cyan-800/60"
-          compact={compact}
-        />
+        {quickAccessItems.map((item) => (
+          <AccessCard
+            key={item.title}
+            title={item.title}
+            icon={item.icon}
+            onClick={item.onClick}
+            bgColor={item.bgColor}
+            darkBgColor={item.darkBgColor}
+            hoverColor={item.hoverColor}
+            darkHoverColor={item.darkHoverColor}
+            compact={compact}
+          />
+        ))}
       </div>
     </div>
   );

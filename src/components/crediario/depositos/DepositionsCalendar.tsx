@@ -2,7 +2,7 @@ import { format, isSameDay, isAfter, setHours, setMinutes, setSeconds } from "da
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ChevronLeft, ChevronRight, ImageIcon, Clock, AlertTriangle, XCircle } from "lucide-react";
+import { CheckCircle, ChevronLeft, ChevronRight, Clock, AlertTriangle, XCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -39,7 +39,7 @@ export function DepositionsCalendar({
     if (isWeekend) {
       return {
         status: 'weekend',
-        color: 'bg-gray-100 border-gray-200 text-gray-600',
+        color: 'bg-muted border-border text-muted-foreground dark:bg-muted dark:border-border dark:text-muted-foreground',
         icon: null,
         label: 'Domingo'
       };
@@ -49,21 +49,21 @@ export function DepositionsCalendar({
       if (hasPassed) {
         return {
           status: 'missed',
-          color: 'bg-red-50 border-red-300 text-red-700 hover:bg-red-100',
+          color: 'bg-red-50 border-red-300 text-red-700 hover:bg-red-100 dark:bg-red-950/50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/70',
           icon: XCircle,
           label: 'Perdeu prazo'
         };
       } else if (isToday) {
         return {
           status: 'pending-today',
-          color: 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100',
+          color: 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/70',
           icon: Clock,
           label: 'Pendente hoje'
         };
       } else {
         return {
           status: 'pending',
-          color: 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100',
+          color: 'bg-muted border-border text-muted-foreground hover:bg-muted/80 dark:bg-muted dark:border-border dark:text-muted-foreground dark:hover:bg-muted/80',
           icon: null,
           label: 'Pendente'
         };
@@ -76,22 +76,22 @@ export function DepositionsCalendar({
     if (hasReceipt && isIncluded) {
       return {
         status: 'complete',
-        color: 'bg-green-50 border-green-300 text-green-700 hover:bg-green-100',
+        color: 'bg-green-50 border-green-300 text-green-700 hover:bg-green-100 dark:bg-green-950/50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950/70',
         icon: CheckCircle,
         label: 'Completo'
       };
     } else if (hasReceipt && !isIncluded) {
       return {
         status: 'partial',
-        color: 'bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100',
+        color: 'bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100 dark:bg-yellow-950/50 dark:border-yellow-800 dark:text-yellow-400 dark:hover:bg-yellow-950/70',
         icon: AlertTriangle,
-        label: 'Pendente sistema'
+        label: 'Pendente tesouraria'
       };
     }
     
     return {
       status: 'incomplete',
-      color: 'bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100',
+      color: 'bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-950/70',
       icon: Clock,
       label: 'Incompleto'
     };
@@ -121,83 +121,101 @@ export function DepositionsCalendar({
 
   return (
     <Card className="w-full border shadow-soft">
-      <CardHeader className="pb-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <CardTitle className="text-lg sm:text-xl">Calendário de Depósitos</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
-              Acompanhamento diário dos depósitos bancários
-            </CardDescription>
+      <CardHeader className="pb-3 sm:pb-4 px-3 sm:px-6">
+        <div className="flex flex-col space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold">
+                Calendário de Depósitos
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm mt-1">
+                Acompanhamento diário dos depósitos bancários
+              </CardDescription>
+            </div>
+            
+            {/* Navigation Controls */}
+            <div className="flex items-center justify-center space-x-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePrevMonth}
+                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
+              >
+                <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+              <span className="font-medium min-w-[120px] sm:min-w-[140px] text-center text-xs sm:text-sm px-2">
+                {format(currentMonth, isMobile ? "MMM yyyy" : "MMMM yyyy", { locale: ptBR })}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleNextMonth}
+                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
+              >
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+            </div>
           </div>
-          
-          {/* Navigation Controls */}
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon" onClick={handlePrevMonth}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="font-medium min-w-[140px] text-center text-sm">
-              {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
-            </span>
-            <Button variant="outline" size="icon" onClick={handleNextMonth}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
 
-        {/* Monthly Statistics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 p-3 bg-muted/30 rounded-lg">
-          <div className="text-center">
-            <div className="text-lg font-bold text-primary">{stats.completion}%</div>
-            <div className="text-xs text-muted-foreground">Taxa de conclusão</div>
+          {/* Monthly Statistics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 p-3 sm:p-3 bg-muted/30 rounded-lg">
+            <div className="text-center">
+              <div className="text-lg sm:text-lg font-bold text-primary">{stats.completion}%</div>
+              <div className="text-xs sm:text-xs text-muted-foreground">Taxa de conclusão</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg sm:text-lg font-bold text-green-600 dark:text-green-400">{stats.completeDays}</div>
+              <div className="text-xs sm:text-xs text-muted-foreground">Dias completos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg sm:text-lg font-bold text-red-600 dark:text-red-400">{stats.missedDays}</div>
+              <div className="text-xs sm:text-xs text-muted-foreground">Dias perdidos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg sm:text-lg font-bold text-blue-600 dark:text-blue-400">{stats.workingDays}</div>
+              <div className="text-xs sm:text-xs text-muted-foreground">Dias úteis</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-green-600">{stats.completeDays}</div>
-            <div className="text-xs text-muted-foreground">Dias completos</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-red-600">{stats.missedDays}</div>
-            <div className="text-xs text-muted-foreground">Dias perdidos</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-blue-600">{stats.workingDays}</div>
-            <div className="text-xs text-muted-foreground">Dias úteis</div>
-          </div>
-        </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap gap-2 mt-3">
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Completo
-          </Badge>
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
-            <AlertTriangle className="h-3 w-3 mr-1" />
-            Pendente Sistema
-          </Badge>
-          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300">
-            <XCircle className="h-3 w-3 mr-1" />
-            Perdido
-          </Badge>
-          <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-300">
-            Domingo
-          </Badge>
+          {/* Legend - Responsiva */}
+          <div className="flex flex-wrap gap-1 sm:gap-2">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950/50 dark:text-green-400 dark:border-green-800 text-xs sm:text-xs px-2 sm:px-2 py-1">
+              <CheckCircle className="h-3 w-3 sm:h-3 sm:w-3 mr-1 sm:mr-1" />
+              <span className="hidden sm:inline">Completo</span>
+              <span className="sm:hidden">OK</span>
+            </Badge>
+            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 dark:bg-yellow-950/50 dark:text-yellow-400 dark:border-yellow-800 text-xs sm:text-xs px-2 sm:px-2 py-1">
+              <AlertTriangle className="h-3 w-3 sm:h-3 sm:w-3 mr-1 sm:mr-1" />
+              <span className="hidden md:inline">Pendente Tesouraria</span>
+              <span className="md:hidden">Pendente</span>
+            </Badge>
+            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300 dark:bg-red-950/50 dark:text-red-400 dark:border-red-800 text-xs sm:text-xs px-2 sm:px-2 py-1">
+              <XCircle className="h-3 w-3 sm:h-3 sm:w-3 mr-1 sm:mr-1" />
+              <span className="hidden sm:inline">Atraso</span>
+              <span className="sm:hidden">Atraso</span>
+            </Badge>
+            <Badge variant="outline" className="bg-muted text-muted-foreground border-border dark:bg-muted dark:text-muted-foreground dark:border-border text-xs sm:text-xs px-2 sm:px-2 py-1">
+              <span className="hidden sm:inline">Domingo</span>
+              <span className="sm:hidden">Domingo</span>
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       
-      <CardContent className="px-2 py-3 sm:px-4 sm:py-4">
-        <div className="grid grid-cols-7 gap-1">
+      <CardContent className="px-1 py-2 sm:px-4 sm:py-4">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {/* Header dos dias da semana */}
           {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day, index) => (
-            <div key={day} className={`text-center font-medium p-2 text-xs ${
+            <div key={day} className={`text-center font-medium p-2 sm:p-2 text-xs sm:text-xs ${
               index === 0 || index === 6 ? 'text-muted-foreground' : 'text-foreground'
             }`}>
-              {isMobile ? day.charAt(0) : day}
+              {isMobile ? day.substring(0, 3) : day}
             </div>
           ))}
           
           {/* Espaços vazios antes do primeiro dia do mês */}
           {Array.from({ length: diasDoMes[0].getDay() }).map((_, i) => (
-            <div key={`empty-start-${i}`} className="p-1"></div>
+            <div key={`empty-start-${i}`} className="p-0.5 sm:p-1"></div>
           ))}
           
           {/* Dias do mês */}
@@ -205,7 +223,6 @@ export function DepositionsCalendar({
             const dayStatus = getDayStatus(day);
             const depositosForDay = depositos.filter(deposito => isSameDay(deposito.data, day));
             const isToday = isSameDay(day, new Date());
-            const hasComprovantes = depositosForDay.some(d => d.comprovante);
             const StatusIcon = dayStatus.icon;
             
             // Get the earliest deposit time for the day
@@ -221,55 +238,43 @@ export function DepositionsCalendar({
                 type="button"
                 onClick={() => handleSelectDay(day)}
                 className={`
-                  relative p-1 h-16 sm:h-20 border-2 rounded-lg flex flex-col items-center justify-center
-                  transition-all duration-200 group
+                  relative p-0.5 sm:p-1 h-12 sm:h-16 md:h-20 border border-border rounded-md sm:rounded-lg 
+                  flex flex-col items-center justify-center
+                  transition-all duration-200 group active:scale-95
                   ${dayStatus.color}
-                  ${isToday ? 'ring-2 ring-primary ring-offset-1' : ''}
+                  ${isToday ? 'ring-1 sm:ring-2 ring-primary ring-offset-1' : ''}
+                  hover:scale-105 hover:z-10
                 `}
                 title={dayStatus.label}
               >
                 {/* Número do dia */}
-                <div className="font-semibold text-sm sm:text-base mb-1">
+                <div className="font-semibold text-xs sm:text-sm md:text-base mb-0.5 sm:mb-1">
                   {day.getDate()}
                 </div>
                 
                 {/* Status e informações */}
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center justify-center gap-0.5 sm:gap-1">
                   {StatusIcon && (
-                    <StatusIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <StatusIcon className="h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4" />
                   )}
                   
                   {depositosForDay.length > 1 && (
-                    <span className="text-[10px] font-bold bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="text-[8px] sm:text-[10px] font-bold bg-primary text-primary-foreground rounded-full w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center">
                       {depositosForDay.length}
                     </span>
                   )}
                 </div>
                 
-                {/* Horário do depósito */}
-                {earliestDeposit && (
-                  <div className="text-[9px] sm:text-[10px] opacity-70 mt-0.5">
+                {/* Horário do depósito - apenas em telas maiores */}
+                {earliestDeposit && !isMobile && (
+                  <div className="text-[8px] sm:text-[9px] md:text-[10px] opacity-70 mt-0.5">
                     {format(earliestDeposit.data, "HH:mm")}
                   </div>
                 )}
                 
-                {/* Thumbnail do comprovante */}
-                {hasComprovantes && (
-                  <ImageIcon 
-                    className="absolute top-1 right-1 h-3 w-3 text-blue-500 cursor-pointer opacity-70 hover:opacity-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const firstWithImage = depositosForDay.find(d => d.comprovante);
-                      if (firstWithImage?.comprovante) {
-                        setViewImage(firstWithImage.comprovante);
-                      }
-                    }}
-                  />
-                )}
-                
                 {/* Indicador de hoje */}
                 {isToday && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full"></div>
+                  <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-primary rounded-full"></div>
                 )}
               </button>
             );

@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Task, TaskType, TaskStatus } from "@/types";
@@ -156,6 +155,7 @@ export function useTaskDialogs() {
       description: isEditMode 
         ? "A tarefa foi atualizada com sucesso" 
         : "A nova tarefa foi criada com sucesso",
+      duration: 4000,
     });
     
     // Clear URL parameters

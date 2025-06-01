@@ -78,6 +78,10 @@ export default function Crediario() {
           color: "bg-green-50 text-green-700 border-green-200"
         }}
         variant="default"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/" },
+          { label: "Crediário" }
+        ]}
       />
 
       <PageNavigation

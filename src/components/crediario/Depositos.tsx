@@ -1,80 +1,49 @@
 import { useState, useEffect } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isSameMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Camera, Settings, Zap, Download, RefreshCw, Home, Calendar, BarChart3, FileText } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/use-toast";
 import { useDepositos } from "@/hooks/crediario/useDepositos";
+import { DailyStatusWidget } from "./depositos/DailyStatusWidget";
+import { QuickDepositForm } from "./depositos/QuickDepositForm";
 import { DepositionsCalendar } from "./depositos/DepositionsCalendar";
 import { DepositFormDialog } from "./depositos/DepositFormDialog";
 import { ImagePreviewDialog } from "./depositos/ImagePreviewDialog";
-import { DailyStatusWidget } from "./depositos/DailyStatusWidget";
-import { QuickDepositForm } from "./depositos/QuickDepositForm";
 import { NotificationSystem } from "./depositos/NotificationSystem";
 import { DepositAnalytics } from "./depositos/DepositAnalytics";
-import { AutomationFeatures, CameraCapture } from "./depositos/AutomationFeatures";
-import { 
-  DailyStatusSkeleton, 
-  QuickDepositFormSkeleton, 
-  CalendarSkeleton,
-  AnalyticsSkeleton,
-  OfflineIndicator,
-  SuccessAnimation,
-  UploadProgress
-} from "./depositos/LoadingStates";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "@/hooks/use-toast";
-import { 
-  Calendar, 
-  BarChart3, 
-  Settings, 
-  Zap, 
-  Camera, 
-  Wifi, 
-  WifiOff,
-  RefreshCw,
-  Download
-} from "lucide-react";
-
-interface ValidationResult {
-  isValid: boolean;
-  confidence: number;
-  detectedInfo: {
-    valor?: number;
-    dataDeposito?: Date;
-    banco?: string;
-    tipoComprovante?: 'deposito' | 'transferencia' | 'boleto' | 'outros';
-  };
-  issues: string[];
-  suggestions: string[];
-}
+import { UploadProgress, AnalyticsSkeleton } from "./depositos/LoadingStates";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export function Depositos() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const { depositos, isLoading, isUploading, saveDeposito } = useDepositos();
-  const [openDialog, setOpenDialog] = useState(false);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [depositoId, setDepositoId] = useState<string | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [depositoId, setDepositoId] = useState<string | null>(null);
   const [viewImage, setViewImage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [showAutomation, setShowAutomation] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [automationResult, setAutomationResult] = useState<ValidationResult | null>(null);
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ progress: number; fileName: string } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{progress: number, fileName: string} | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  
-  const isMobile = useIsMobile();
-  
-  const diasDoMes = eachDayOfInterval({
-    start: startOfMonth(currentMonth),
-    end: endOfMonth(currentMonth)
-  });
 
-  // Monitorar status de conexão
+  const { toast } = useToast();
+  const { 
+    depositos, 
+    isLoading, 
+    addDeposito, 
+    updateDeposito, 
+    deleteDeposito,
+    fetchDepositos 
+  } = useDepositos();
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -87,534 +56,699 @@ export function Depositos() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-  
+
+  useEffect(() => {
+    fetchDepositos();
+  }, []);
+
   const handlePrevMonth = () => {
-    setCurrentMonth((prev) => {
-      const newDate = new Date(prev);
-      newDate.setMonth(newDate.getMonth() - 1);
-      return newDate;
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      newMonth.setMonth(prev.getMonth() - 1);
+      return newMonth;
     });
   };
-  
+
   const handleNextMonth = () => {
-    setCurrentMonth((prev) => {
-      const newDate = new Date(prev);
-      newDate.setMonth(newDate.getMonth() + 1);
-      return newDate;
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      newMonth.setMonth(prev.getMonth() + 1);
+      return newMonth;
     });
   };
-  
+
   const handleSelectDay = (day: Date) => {
     setSelectedDay(day);
+    setOpenDialog(true);
     
-    // Verificar se já existe um depósito para este dia
-    const depositosForDay = depositos.filter(
-      (deposito) => isSameDay(deposito.data, day)
-    );
-    
-    if (depositosForDay.length > 0) {
-      // Mostrar lista de depósitos existentes
+    // Se já existe depósito para o dia, carregá-lo
+    const depositoExistente = depositos.find(d => isSameDay(d.data, day));
+    if (depositoExistente) {
+      setDepositoId(depositoExistente.id);
+      setPreviewUrl(depositoExistente.comprovante);
+    } else {
       setDepositoId(null);
       setPreviewUrl(null);
-    } else {
-      // Iniciar novo depósito
-      handleAddNewDeposito();
     }
+  };
+
+  const handleViewDeposito = (deposito: typeof depositos[0]) => {
+    console.log('🔧 Editando depósito:', {
+      id: deposito.id,
+      data: deposito.data,
+      ja_incluido: deposito.ja_incluido,
+      comprovante: deposito.comprovante
+    });
     
+    setSelectedDay(deposito.data);
+    setDepositoId(deposito.id);
+    setPreviewUrl(deposito.comprovante || null);
     setOpenDialog(true);
   };
-  
-  const handleViewDeposito = (deposito: typeof depositos[0]) => {
-    setDepositoId(deposito.id);
-    setPreviewUrl(deposito.comprovante);
-  };
-  
+
   const handleAddNewDeposito = () => {
     setDepositoId(null);
     setPreviewUrl(null);
     setSelectedFile(null);
-    setAutomationResult(null);
   };
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      
-      // Verifica se o arquivo é uma imagem
-      if (!file.type.startsWith('image/')) {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
         toast({
-          title: "Tipo de arquivo inválido",
-          description: "Por favor, selecione uma imagem.",
-          variant: "destructive"
+          title: "Arquivo muito grande",
+          description: "O arquivo deve ter no máximo 10MB.",
+          variant: "destructive",
+          duration: 4000,
         });
         return;
       }
-      
+
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      
-      // Auto-ativar análise de automação se disponível
-      if (file.size < 5 * 1024 * 1024) {
-        setShowAutomation(true);
-      }
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
   const handleCameraCapture = (file: File) => {
     setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
     setShowCamera(false);
-    setShowAutomation(true);
     
     toast({
-      title: "📸 Foto Capturada!",
-      description: "Imagem capturada com sucesso. Analisando automaticamente...",
-      duration: 4000,
+      title: "✅ Imagem Capturada",
+      description: "Imagem capturada com sucesso! Pronta para upload.",
+      duration: 3000,
     });
   };
 
-  const handleValidationResult = (result: ValidationResult) => {
-    setAutomationResult(result);
-    
-    // Se a validação foi bem-sucedida, preencher campos automaticamente
-    if (result.isValid && result.confidence > 0.8) {
-      toast({
-        title: "✨ Análise Automática Concluída",
-        description: `Comprovante validado com ${Math.round(result.confidence * 100)}% de confiança!`,
-        duration: 5000,
-      });
-    }
-  };
-  
   const handleRemoveFile = () => {
-    if (selectedFile && previewUrl) {
+    if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-    setSelectedFile(null);
     setPreviewUrl(null);
-    setAutomationResult(null);
-    setShowAutomation(false);
+    setSelectedFile(null);
   };
-  
+
+  const resetDialogState = () => {
+    setSelectedDay(null);
+    setDepositoId(null);
+    setPreviewUrl(null);
+    setSelectedFile(null);
+    setUploadProgress(null);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    // Resetar estado após um pequeno delay para permitir a animação de fechamento
+    setTimeout(resetDialogState, 200);
+  };
+
   const handleSubmit = async (jaIncluido: boolean) => {
-    if (!selectedDay) {
-      toast({
-        title: "Data não selecionada",
-        description: "Por favor, selecione uma data para o depósito.",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!selectedDay) return;
 
-    // Simular progresso de upload
-    if (selectedFile) {
-      setUploadProgress({ progress: 0, fileName: selectedFile.name });
+    try {
+      setIsUploading(true);
       
-      // Simular progresso
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (!prev || prev.progress >= 100) {
-            clearInterval(progressInterval);
-            return null;
-          }
-          return { ...prev, progress: prev.progress + 10 };
+      // Simular progresso de upload se há arquivo novo
+      if (selectedFile) {
+        setUploadProgress({ progress: 0, fileName: selectedFile.name });
+        
+        for (let i = 0; i <= 100; i += 20) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          setUploadProgress({ progress: i, fileName: selectedFile.name });
+        }
+      }
+
+      if (depositoId) {
+        // Atualizar depósito existente
+        const updateData: any = {
+          data: selectedDay,
+          ja_incluido: jaIncluido
+        };
+
+        // Se há um arquivo novo, usar ele; senão manter o URL existente se não for blob
+        if (selectedFile) {
+          updateData.comprovante = selectedFile;
+        } else if (previewUrl && !previewUrl.startsWith('blob:')) {
+          // Manter o comprovante existente se não há arquivo novo
+          updateData.comprovante = previewUrl;
+        }
+
+        console.log('📝 Atualizando depósito com dados:', updateData);
+        await updateDeposito(depositoId, updateData);
+      } else {
+        // Criar novo depósito
+        await addDeposito({
+          data: selectedDay,
+          comprovante: selectedFile || undefined,
+          ja_incluido: jaIncluido
         });
-      }, 200);
-    }
-    
-    const depositoData = {
-      id: depositoId || undefined,
-      data: selectedDay,
-      concluido: true,
-      jaIncluido: jaIncluido,
-      comprovante: previewUrl || undefined
-    };
-    
-    const success = await saveDeposito(depositoData, selectedFile);
-    
-    if (success) {
+      }
+
+      handleCloseDialog();
+      handleRemoveFile();
       setUploadProgress(null);
-      setShowSuccessAnimation(true);
-      
-      // Esconder animação de sucesso após 2 segundos
-      setTimeout(() => {
-        setShowSuccessAnimation(false);
-      }, 2000);
-      
-      setOpenDialog(false);
-      setSelectedDay(null);
-      setSelectedFile(null);
-      setPreviewUrl(null);
       setDepositoId(null);
-      setAutomationResult(null);
-      setShowAutomation(false);
-    } else {
+      setSelectedDay(null);
+      
+    } catch (error) {
+      console.error('Erro ao salvar depósito:', error);
+      toast({
+        title: "❌ Erro ao Salvar",
+        description: "Não foi possível salvar o depósito. Tente novamente.",
+        variant: "destructive",
+        duration: 4000,
+      });
       setUploadProgress(null);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  // Handler para o formulário rápido
   const handleQuickSubmit = async (data: {
     data: Date;
     comprovante?: string;
     ja_incluido: boolean;
-  }, file?: File) => {
-    // Simular progresso se houver arquivo
-    if (file) {
-      setUploadProgress({ progress: 0, fileName: file.name });
+  }, file?: File): Promise<boolean> => {
+    try {
+      setIsUploading(true);
       
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (!prev || prev.progress >= 100) {
-            clearInterval(progressInterval);
-            return null;
-          }
-          return { ...prev, progress: prev.progress + 15 };
-        });
-      }, 150);
-    }
+      if (file) {
+        setUploadProgress({ progress: 0, fileName: file.name });
+        
+        for (let i = 0; i <= 100; i += 25) {
+          await new Promise(resolve => setTimeout(resolve, 80));
+          setUploadProgress({ progress: i, fileName: file.name });
+        }
+      }
 
-    const depositoData = {
-      data: data.data,
-      concluido: true,
-      jaIncluido: data.ja_incluido,
-      comprovante: data.comprovante
-    };
-    
-    const success = await saveDeposito(depositoData, file);
-    
-    if (success) {
-      setUploadProgress(null);
-      setShowSuccessAnimation(true);
+      // Verificar se já existe depósito para o dia
+      const depositoExistente = depositos.find(d => isSameDay(d.data, data.data));
       
-      setTimeout(() => {
-        setShowSuccessAnimation(false);
-      }, 2000);
-    } else {
+      if (depositoExistente) {
+        await updateDeposito(depositoExistente.id, {
+          data: data.data,
+          comprovante: data.comprovante,
+          ja_incluido: data.ja_incluido
+        });
+      } else {
+        await addDeposito({
+          data: data.data,
+          comprovante: file,
+          ja_incluido: data.ja_incluido
+        });
+      }
+
+      handleCloseDialog();
+      handleRemoveFile();
       setUploadProgress(null);
+      
+      return true;
+      
+    } catch (error) {
+      console.error('Erro no quick submit:', error);
+      toast({
+        title: "❌ Erro",
+        description: "Erro ao registrar depósito.",
+        variant: "destructive",
+        duration: 4000,
+      });
+      setUploadProgress(null);
+      return false;
+    } finally {
+      setIsUploading(false);
     }
-    
-    return success;
   };
 
   const handleRefreshData = async () => {
-    // Implementar refresh manual dos dados
-    window.location.reload();
+    setIsRefreshing(true);
+    try {
+      await fetchDepositos();
+      toast({
+        title: "✅ Dados Atualizados",
+        description: "Informações carregadas com sucesso!",
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: "❌ Erro",
+        description: "Não foi possível atualizar os dados.",
+        variant: "destructive",
+        duration: 4000,
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleExportData = () => {
-    // Implementar exportação de dados
-    const data = JSON.stringify(depositos, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `depositos_${format(currentMonth, 'yyyy-MM')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Dados Exportados",
-      description: "Arquivo de backup foi baixado com sucesso.",
-    });
+    try {
+      const doc = new jsPDF();
+      
+      // Configurações do documento
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 20;
+      
+      // Cabeçalho do documento
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('RELATÓRIO DE DEPÓSITOS BANCÁRIOS', pageWidth / 2, 30, { align: 'center' });
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`FILIAL 96 - ${format(currentMonth, 'MMMM yyyy', { locale: ptBR }).toUpperCase()}`, pageWidth / 2, 45, { align: 'center' });
+      
+      // Linha separadora
+      doc.setLineWidth(0.5);
+      doc.line(margin, 55, pageWidth - margin, 55);
+      
+      // Informações gerais
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Data de geração: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, margin, 65);
+      
+      // Estatísticas do mês
+      const diasDoMes = eachDayOfInterval({
+        start: startOfMonth(currentMonth),
+        end: endOfMonth(currentMonth)
+      });
+      const diasUteis = diasDoMes.filter(day => day.getDay() !== 0); // Excluir apenas domingo
+      const depositosDoMes = depositos.filter(d => 
+        d.data >= startOfMonth(currentMonth) && d.data <= endOfMonth(currentMonth)
+      );
+      const depositosCompletos = depositosDoMes.filter(d => d.comprovante && d.ja_incluido);
+      const depositosPendentes = depositosDoMes.filter(d => d.comprovante && !d.ja_incluido);
+      const depositosPerdidos = diasUteis.filter(day => {
+        const hasDeposit = depositosDoMes.some(d => isSameDay(d.data, day));
+        return !hasDeposit && day < new Date();
+      });
+      
+      // Calcular depósitos atrasados (feitos após às 12h)
+      const depositosAtrasados = depositosDoMes.filter(d => {
+        // Verificar se o depósito foi feito no mesmo dia que deveria ser
+        const isDayDeposit = isSameDay(d.data, new Date(d.created_at));
+        if (!isDayDeposit) return false;
+        
+        // Verificar se foi criado após às 12h
+        const createdHour = new Date(d.created_at).getHours();
+        return createdHour >= 12;
+      });
+      
+      const taxaConclusao = diasUteis.length > 0 ? Math.round((depositosCompletos.length / diasUteis.length) * 100) : 0;
+      
+      // Resumo executivo
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('RESUMO EXECUTIVO', margin, 85);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const resumoY = 95;
+      doc.text(`• Total de dias úteis no mês: ${diasUteis.length}`, margin, resumoY);
+      doc.text(`• Depósitos realizados: ${depositosDoMes.length}`, margin, resumoY + 8);
+      doc.text(`• Depósitos completos (com comprovante e incluídos): ${depositosCompletos.length}`, margin, resumoY + 16);
+      doc.text(`• Depósitos pendentes no sistema: ${depositosPendentes.length}`, margin, resumoY + 24);
+      doc.text(`• Depósitos feitos com atraso (após 12h): ${depositosAtrasados.length}`, margin, resumoY + 32);
+      doc.text(`• Dias perdidos: ${depositosPerdidos.length}`, margin, resumoY + 40);
+      doc.text(`• Taxa de conclusão: ${taxaConclusao}%`, margin, resumoY + 48);
+      
+      // Tabela detalhada
+      const tableStartY = resumoY + 63;
+      
+      // Preparar dados da tabela
+      const tableData = diasDoMes.map(day => {
+        const isWeekend = day.getDay() === 0;
+        const depositoForDay = depositosDoMes.find(d => isSameDay(d.data, day));
+        
+        if (isWeekend) {
+          return [
+            format(day, 'dd/MM/yyyy'),
+            format(day, 'EEEE', { locale: ptBR }),
+            'DOMINGO',
+            '-',
+            '-',
+            'Não obrigatório'
+          ];
+        }
+        
+        if (!depositoForDay) {
+          const isPast = day < new Date();
+          return [
+            format(day, 'dd/MM/yyyy'),
+            format(day, 'EEEE', { locale: ptBR }),
+            isPast ? 'PERDIDO' : 'PENDENTE',
+            'Não',
+            'Não',
+            isPast ? 'Prazo expirado' : 'Aguardando depósito'
+          ];
+        }
+        
+        const hasComprovante = !!depositoForDay.comprovante;
+        const isIncluded = depositoForDay.ja_incluido;
+        
+        // Verificar se foi feito com atraso
+        const isDayDeposit = isSameDay(new Date(depositoForDay.created_at), day);
+        const createdHour = new Date(depositoForDay.created_at).getHours();
+        const isLate = isDayDeposit && createdHour >= 12;
+        
+        let status = 'INCOMPLETO';
+        if (hasComprovante && isIncluded) {
+          status = isLate ? 'COMPLETO (ATRASO)' : 'COMPLETO';
+        } else if (hasComprovante && !isIncluded) {
+          status = isLate ? 'PENDENTE TESOURARIA (ATRASO)' : 'PENDENTE TESOURARIA';
+        }
+        
+        const observacoes = isLate 
+          ? `Depósito registrado com atraso (${format(new Date(depositoForDay.created_at), 'HH:mm')})`
+          : `Depósito registrado (${format(new Date(depositoForDay.created_at), 'HH:mm')})`;
+        
+        return [
+          format(day, 'dd/MM/yyyy'),
+          format(day, 'EEEE', { locale: ptBR }),
+          status,
+          hasComprovante ? 'Sim' : 'Não',
+          isIncluded ? 'Sim' : 'Não',
+          observacoes
+        ];
+      });
+      
+      // Configurar tabela
+      autoTable(doc, {
+        head: [['Data', 'Dia da Semana', 'Status', 'Comprovante', 'Na Tesouraria/P2K', 'Observações']],
+        body: tableData,
+        startY: tableStartY,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: [255, 255, 255],
+          textColor: [0, 0, 0],
+          fontStyle: 'bold',
+          lineWidth: 0.2,
+        },
+        columnStyles: {
+          0: { cellWidth: 25, halign: 'center' },  // Data
+          1: { cellWidth: 25, halign: 'center' },  // Dia
+          2: { cellWidth: 30, halign: 'center' },  // Status
+          3: { cellWidth: 20, halign: 'center' },  // Comprovante
+          4: { cellWidth: 20, halign: 'center' },  // Sistema
+          5: { cellWidth: 50, halign: 'left' },    // Observações
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { left: margin, right: margin },
+        didParseCell: function(data) {
+          // Colorir células baseado no status (em tons de cinza para P&B)
+          if (data.column.index === 2 && data.cell.raw) {
+            const status = data.cell.raw.toString();
+            if (status.includes('COMPLETO')) {
+              data.cell.styles.fillColor = status.includes('ATRASO') ? [200, 200, 200] : [220, 220, 220]; // Cinza para atraso
+              data.cell.styles.fontStyle = 'bold';
+            } else if (status === 'PERDIDO') {
+              data.cell.styles.fillColor = [180, 180, 180]; // Cinza escuro
+              data.cell.styles.fontStyle = 'bold';
+            } else if (status.includes('PENDENTE TESOURARIA')) {
+              data.cell.styles.fillColor = status.includes('ATRASO') ? [190, 190, 190] : [200, 200, 200]; // Cinza para atraso
+            }
+          }
+        }
+      });
+      
+      // Rodapé
+      const finalY = (doc as any).lastAutoTable.finalY + 20;
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('Documento gerado automaticamente pelo Sistema de Gestão de Depósitos - Filial 96', pageWidth / 2, finalY, { align: 'center' });
+      doc.text(`Página 1 de 1`, pageWidth / 2, finalY + 8, { align: 'center' });
+      
+      // Salvar o arquivo
+      const fileName = `depositos_filial96_${format(currentMonth, 'MM-yyyy')}.pdf`;
+      doc.save(fileName);
+      
+      toast({
+        title: "✅ Relatório PDF Gerado",
+        description: `Arquivo ${fileName} baixado com sucesso!`,
+        duration: 3000,
+      });
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast({
+        title: "❌ Erro na Exportação",
+        description: "Não foi possível gerar o relatório PDF. Tente novamente.",
+        variant: "destructive",
+        duration: 4000,
+      });
+    }
   };
-  
-  // Obter todos os depósitos para o dia selecionado
+
+  const handleDeleteDeposito = async (depositoId: string) => {
+    try {
+      await deleteDeposito(depositoId);
+      
+      // Fechar dialog se não há mais depósitos para o dia
+      const remainingDeposits = depositos.filter(d => 
+        d.id !== depositoId && selectedDay && isSameDay(d.data, selectedDay)
+      );
+      
+      if (remainingDeposits.length === 0) {
+        setOpenDialog(false);
+        setSelectedDay(null);
+        setDepositoId(null);
+        setPreviewUrl(null);
+      }
+      
+    } catch (error) {
+      console.error('Erro ao excluir depósito:', error);
+      toast({
+        title: "❌ Erro ao Excluir",
+        description: "Não foi possível excluir o depósito. Tente novamente.",
+        variant: "destructive",
+        duration: 4000,
+      });
+    }
+  };
+
+  const diasDoMes = eachDayOfInterval({
+    start: startOfMonth(currentMonth),
+    end: endOfMonth(currentMonth)
+  });
+
   const depositosForDay = selectedDay 
-    ? depositos.filter(deposito => isSameDay(deposito.data, selectedDay))
+    ? depositos.filter(d => isSameDay(d.data, selectedDay))
     : [];
-  
-  // Render loading states
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DailyStatusSkeleton />
-          <QuickDepositFormSkeleton />
-        </div>
-        <CalendarSkeleton />
-      </div>
-    );
-  }
-  
+
   return (
-    <div className="space-y-6">
-      {/* Indicador Offline */}
-      <OfflineIndicator />
+    <div className="min-h-screen bg-background">
+      {/* Container principal com padding responsivo */}
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
+        
+        {/* Notificações Inteligentes */}
+        {notificationsEnabled && (
+          <NotificationSystem 
+            depositos={depositos} 
+          />
+        )}
 
-      {/* Sistema de Notificações */}
-      <NotificationSystem 
-        depositos={depositos} 
-        enabled={notificationsEnabled} 
-      />
+        {/* Indicador de Status Online/Offline */}
+        {!isOnline && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2 mx-1">
+            <div className="w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0"></div>
+            <span className="text-xs sm:text-sm text-yellow-800">
+              Modo offline - As alterações serão sincronizadas quando a conexão for restaurada
+            </span>
+          </div>
+        )}
 
-      {/* Barra Superior com Status */}
-      <Card className="border-l-4 border-l-blue-500">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Gerenciamento de Depósitos
-              </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Sistema inteligente para acompanhamento de depósitos bancários
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Status de Conexão */}
-              <Badge variant={isOnline ? "default" : "destructive"} className="flex items-center gap-1">
-                {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-                {isOnline ? "Online" : "Offline"}
-              </Badge>
-
-              {/* Controles */}
-              <div className="flex gap-2">
+        <Tabs defaultValue="dashboard" className="w-full">
+          {/* Header melhorado para mobile */}
+          <div className="flex flex-col space-y-4 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Depósitos Diários
+                </h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                  Gerencie seus depósitos bancários de forma inteligente
+                </p>
+              </div>
+              
+              {/* Botões de ação responsivos */}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleRefreshData}
-                  disabled={!isOnline}
+                  disabled={isRefreshing}
+                  className="flex-1 sm:flex-none text-sm sm:text-sm h-10 sm:h-9"
                 >
-                  <RefreshCw className="h-4 w-4 mr-1" />
-                  {!isMobile && "Atualizar"}
+                  <RefreshCw className={`h-4 w-4 sm:h-4 sm:w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span>Atualizar</span>
                 </Button>
                 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportData}
+                  className="flex-1 sm:flex-none text-sm sm:text-sm h-10 sm:h-9"
                 >
-                  <Download className="h-4 w-4 mr-1" />
-                  {!isMobile && "Exportar"}
+                  <FileText className="h-4 w-4 sm:h-4 sm:w-4 mr-2" />
+                  <span>Relatório</span>
                 </Button>
               </div>
             </div>
+
+            {/* Tabs com ícones responsivos */}
+            <div className="w-full overflow-x-auto">
+              <TabsList className="grid w-full grid-cols-3 min-w-[280px] sm:min-w-0 sm:w-[320px] mx-auto h-11 sm:h-11">
+                <TabsTrigger 
+                  value="dashboard" 
+                  className="flex items-center justify-center gap-2 sm:gap-2 px-3 sm:px-4 text-sm sm:text-sm"
+                  title="Dashboard Principal"
+                >
+                  <Home className="h-4 w-4 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline lg:inline">Início</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="calendar" 
+                  className="flex items-center justify-center gap-2 sm:gap-2 px-3 sm:px-4 text-sm sm:text-sm"
+                  title="Calendário de Depósitos"
+                >
+                  <Calendar className="h-4 w-4 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline lg:inline">Calendário</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analytics" 
+                  className="flex items-center justify-center gap-2 sm:gap-2 px-3 sm:px-4 text-sm sm:text-sm"
+                  title="Analytics e Relatórios"
+                >
+                  <BarChart3 className="h-4 w-4 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline lg:inline">Analytics</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
-        </CardHeader>
-      </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            {!isMobile && "Dashboard"}
-          </TabsTrigger>
-          <TabsTrigger value="calendar" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            {!isMobile && "Calendário"}
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            {!isMobile && "Analytics"}
-          </TabsTrigger>
-        </TabsList>
+          <TabsContent value="dashboard" className="space-y-4 sm:space-y-6 mt-4">
+            {/* Widget de Status Diário */}
+            <DailyStatusWidget 
+              depositos={depositos}
+            />
 
-        <TabsContent value="dashboard" className="space-y-6">
-          {/* Dashboard Principal */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DailyStatusWidget depositos={depositos} />
+            {/* Formulário Rápido */}
             <QuickDepositForm 
               depositos={depositos}
-              isUploading={isUploading}
               onSubmit={handleQuickSubmit}
+              isUploading={isUploading}
             />
-          </div>
 
-          {/* Funcionalidades de Automação */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recursos de IA */}
-            <Card className="border border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-purple-600" />
-                  Recursos Inteligentes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  onClick={() => setShowAutomation(!showAutomation)}
-                  variant="outline"
-                  className="w-full quick-action-btn automation"
-                >
-                  <Zap className="h-4 w-4 mr-2" />
-                  Análise Automática de Comprovantes
-                </Button>
-                
-                <Button
-                  onClick={() => setShowCamera(!showCamera)}
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Captura por Câmera
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Calendário Resumido */}
+            <DepositionsCalendar 
+              currentMonth={currentMonth}
+              diasDoMes={diasDoMes}
+              depositos={depositos}
+              handlePrevMonth={handlePrevMonth}
+              handleNextMonth={handleNextMonth}
+              handleSelectDay={handleSelectDay}
+              setViewImage={setViewImage}
+            />
 
             {/* Configurações */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
+            <Card className="border border-border">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-base sm:text-base flex items-center gap-2">
+                  <Settings className="h-5 w-5 sm:h-5 sm:w-5 flex-shrink-0" />
                   Configurações
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Notificações</span>
+                  <span className="text-sm sm:text-sm text-foreground">Notificações</span>
                   <Button
                     variant={notificationsEnabled ? "default" : "outline"}
                     size="sm"
                     onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                    className="text-xs h-8 px-3"
                   >
                     {notificationsEnabled ? "Ativas" : "Inativas"}
                   </Button>
                 </div>
                 
-                <div className="text-sm text-muted-foreground">
-                  Total de depósitos este mês: <strong>{depositos.filter(d => 
+                <div className="text-sm sm:text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                  Total de depósitos este mês: <strong className="text-foreground">{depositos.filter(d => 
                     d.data >= startOfMonth(currentMonth) && d.data <= endOfMonth(currentMonth)
                   ).length}</strong>
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </TabsContent>
 
-          {/* Análise Automática */}
-          {showAutomation && selectedFile && (
-            <AutomationFeatures
-              selectedFile={selectedFile}
-              onValidationResult={handleValidationResult}
-            />
-          )}
-
-          {/* Captura por Câmera */}
-          {showCamera && (
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Camera className="h-4 w-4" />
-                    Captura por Câmera
-                  </CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setShowCamera(false)}
-                  >
-                    ✕
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800 mb-2">
-                    📱 <strong>Experiência Otimizada:</strong>
-                  </p>
-                  <ul className="text-xs text-blue-700 space-y-1">
-                    <li>• <strong>Mobile:</strong> Abre câmera nativa do celular</li>
-                    <li>• <strong>Desktop:</strong> Interface web no navegador</li>
-                    <li>• <strong>Automático:</strong> Análise inteligente após captura</li>
-                  </ul>
-                </div>
-                
-                <CameraCapture onCapture={handleCameraCapture} />
-                
-                <div className="text-xs text-muted-foreground">
-                  <details className="mt-2">
-                    <summary className="cursor-pointer font-medium">
-                      ⚠️ Problemas? Clique aqui
-                    </summary>
-                    <div className="mt-2 space-y-1 text-xs">
-                      <p><strong>Mobile:</strong></p>
-                      <p>• <strong>Android:</strong> Abre aplicativo de câmera nativo</p>
-                      <p>• <strong>iOS:</strong> Abre interface de câmera do Safari</p>
-                      <p>• <strong>Não funciona:</strong> Tente usar o upload manual</p>
-                      <p><strong>Desktop:</strong></p>
-                      <p>• <strong>Chrome/Edge:</strong> Melhor compatibilidade</p>
-                      <p>• <strong>Firefox:</strong> Também suportado</p>
-                      <p>• <strong>HTTPS:</strong> Necessário para câmera</p>
-                    </div>
-                  </details>
-        </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Calendário Resumido */}
-          <DepositionsCalendar 
-            currentMonth={currentMonth}
-            diasDoMes={diasDoMes}
-            depositos={depositos}
-            handlePrevMonth={handlePrevMonth}
-            handleNextMonth={handleNextMonth}
-            handleSelectDay={handleSelectDay}
-            setViewImage={setViewImage}
-          />
-        </TabsContent>
-
-        <TabsContent value="calendar" className="space-y-6">
-          {/* Calendário Completo */}
-          <DepositionsCalendar 
-            currentMonth={currentMonth}
-            diasDoMes={diasDoMes}
-            depositos={depositos}
-            handlePrevMonth={handlePrevMonth}
-            handleNextMonth={handleNextMonth}
-            handleSelectDay={handleSelectDay}
-            setViewImage={setViewImage}
-          />
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-6">
-          {/* Analytics e Relatórios */}
-          {isLoading ? (
-            <AnalyticsSkeleton />
-          ) : (
-            <DepositAnalytics 
-              depositos={depositos}
+          <TabsContent value="calendar" className="space-y-4 sm:space-y-6 mt-4">
+            {/* Calendário Completo */}
+            <DepositionsCalendar 
               currentMonth={currentMonth}
+              diasDoMes={diasDoMes}
+              depositos={depositos}
+              handlePrevMonth={handlePrevMonth}
+              handleNextMonth={handleNextMonth}
+              handleSelectDay={handleSelectDay}
+              setViewImage={setViewImage}
             />
-          )}
-        </TabsContent>
-      </Tabs>
-      
-      {/* Dialog para adicionar comprovante */}
-      <DepositFormDialog
-        openDialog={openDialog}
-        selectedDay={selectedDay}
-        previewUrl={previewUrl}
-        isUploading={isUploading}
-        depositoId={depositoId}
-        depositosForDay={depositosForDay}
-        setOpenDialog={setOpenDialog}
-        handleFileChange={handleFileChange}
-        handleRemoveFile={handleRemoveFile}
-        handleSubmit={handleSubmit}
-        onAddNewDeposito={handleAddNewDeposito}
-        onViewDeposito={handleViewDeposito}
-      />
-      
-      {/* Dialog para visualizar imagem */}
-      <ImagePreviewDialog
-        viewImage={viewImage}
-        setViewImage={setViewImage}
-      />
+          </TabsContent>
 
-      {/* Animação de Sucesso */}
-      {showSuccessAnimation && (
-        <SuccessAnimation message="Depósito registrado com sucesso!" />
-      )}
-
-      {/* Progress de Upload */}
-      {uploadProgress && (
-        <UploadProgress 
-          progress={uploadProgress.progress} 
-          fileName={uploadProgress.fileName} 
+          <TabsContent value="analytics" className="space-y-4 sm:space-y-6 mt-4">
+            {/* Analytics e Relatórios */}
+            {isLoading ? (
+              <AnalyticsSkeleton />
+            ) : (
+              <DepositAnalytics 
+                depositos={depositos}
+                currentMonth={currentMonth}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
+        
+        {/* Dialog para adicionar comprovante */}
+        <DepositFormDialog
+          openDialog={openDialog}
+          selectedDay={selectedDay}
+          previewUrl={previewUrl}
+          isUploading={isUploading}
+          depositoId={depositoId}
+          depositosForDay={depositosForDay}
+          setOpenDialog={setOpenDialog}
+          handleFileChange={handleFileChange}
+          handleRemoveFile={handleRemoveFile}
+          handleSubmit={handleSubmit}
+          onAddNewDeposito={handleAddNewDeposito}
+          onViewDeposito={handleViewDeposito}
+          onDeleteDeposito={handleDeleteDeposito}
+          onCloseDialog={handleCloseDialog}
         />
-      )}
+        
+        {/* Dialog para visualizar imagem */}
+        <ImagePreviewDialog
+          viewImage={viewImage}
+          setViewImage={setViewImage}
+        />
+
+        {/* Progress de Upload */}
+        {uploadProgress && (
+          <UploadProgress 
+            progress={uploadProgress.progress} 
+            fileName={uploadProgress.fileName} 
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -107,6 +106,10 @@ export default function Profile() {
         icon={User}
         iconColor="text-primary"
         variant="minimal"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/" },
+          { label: "Perfil" }
+        ]}
       />
 
       <ProfileHeader />

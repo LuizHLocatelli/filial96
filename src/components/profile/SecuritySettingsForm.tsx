@@ -219,12 +219,14 @@ export function SecuritySettingsForm() {
       toast({
         title: "Configurações atualizadas",
         description: "Suas preferências de segurança foram salvas com sucesso.",
+        duration: 4000,
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erro ao salvar configurações",
         description: error.message,
+        duration: 5000,
       });
     } finally {
       setLoading(false);
@@ -240,6 +242,7 @@ export function SecuritySettingsForm() {
       toast({
         title: "Logout realizado com sucesso",
         description: "Você foi deslogado de todos os dispositivos. Redirecionando...",
+        duration: 3000,
       });
       
       // Aguardar um momento para mostrar o toast, depois redirecionar
@@ -252,6 +255,7 @@ export function SecuritySettingsForm() {
         variant: "destructive",
         title: "Erro ao fazer logout",
         description: error.message,
+        duration: 5000,
       });
       setLoading(false);
     }

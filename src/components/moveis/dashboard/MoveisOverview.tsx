@@ -1,4 +1,3 @@
-
 import { 
   Sofa, 
   FileText, 
@@ -11,11 +10,21 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
 
 export function MoveisOverview() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   const stats = [
     {
@@ -58,18 +67,18 @@ export function MoveisOverview() {
 
   const quickActions = [
     {
-      title: "Nova Orientação",
+      title: "Orientações",
       description: "Criar orientação ou tarefa",
       icon: FileText,
-      href: "/moveis/orientacoes",
+      path: "/moveis?tab=orientacoes",
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50 dark:bg-blue-950/20"
     },
     {
-      title: "Upload Arquivo",
+      title: "Diretório",
       description: "Adicionar ao diretório",
       icon: FolderOpen,
-      href: "/moveis/diretorio",
+      path: "/moveis?tab=diretorio",
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20"
     },
@@ -77,7 +86,7 @@ export function MoveisOverview() {
       title: "Produto Foco",
       description: "Gerenciar produtos",
       icon: Target,
-      href: "/moveis/produto-foco",
+      path: "/moveis?tab=produto-foco",
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50 dark:bg-purple-950/20"
     },
@@ -85,7 +94,7 @@ export function MoveisOverview() {
       title: "Folgas",
       description: "Calendário de folgas",
       icon: Calendar,
-      href: "/moveis/folgas",
+      path: "/moveis?tab=folgas",
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-950/20"
     }
@@ -145,7 +154,7 @@ export function MoveisOverview() {
       </div>
 
       {/* Stats Cards */}
-      <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -181,35 +190,39 @@ export function MoveisOverview() {
         })}
       </div>
 
-      {/* Quick Actions */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Ações Rápidas</h2>
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
-          {quickActions.map((action, index) => {
-            const Icon = action.icon;
-            return (
-              <Card 
-                key={action.title}
-                className={`hover-lift cursor-pointer transition-all duration-300 border-0 shadow-soft hover:shadow-medium group ${action.bgColor}`}
-                style={{ animationDelay: `${index * 100}ms` }}
-                onClick={() => window.location.href = action.href}
-              >
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-r ${action.color} group-hover:scale-110 transition-transform duration-200`}>
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="font-semibold">{action.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {action.description}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+      {/* Quick Actions - Versão Horizontal Compacta */}
+      <div className="space-y-3">
+        <h2 className="text-xl font-semibold">Acesso Rápido</h2>
+        <div className="w-full p-2 bg-background border rounded-lg">
+          <ScrollArea className="w-full">
+            <div className={`flex items-center gap-2 px-2 ${
+              quickActions.length > 3 ? 'grid grid-cols-2 sm:flex sm:flex-wrap' : 'flex flex-wrap'
+            }`}>
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <TooltipProvider key={action.title} delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-10 sm:h-8 px-2 sm:px-3 flex items-center gap-2 text-xs font-medium justify-center sm:justify-start"
+                          onClick={() => navigate(action.path)}
+                        >
+                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="text-xs leading-tight">{action.title}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{action.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </div>
       </div>
 

@@ -20,6 +20,33 @@ interface NotificationConfig {
 
 export function NotificationSystem({ depositos, enabled = true }: NotificationSystemProps) {
   const [lastNotification, setLastNotification] = useState<string>("");
+  
+  // Função para obter notificações do localStorage
+  const getStoredNotifications = (): Set<string> => {
+    try {
+      const stored = localStorage.getItem('depositNotifications');
+      const data = stored ? JSON.parse(stored) : {};
+      const today = new Date().toDateString();
+      return new Set<string>(data[today] || []);
+    } catch {
+      return new Set<string>();
+    }
+  };
+
+  // Função para salvar notificações no localStorage
+  const saveNotificationsToStorage = (notifications: Set<string>) => {
+    try {
+      const today = new Date().toDateString();
+      const stored = localStorage.getItem('depositNotifications');
+      const data = stored ? JSON.parse(stored) : {};
+      data[today] = Array.from(notifications);
+      localStorage.setItem('depositNotifications', JSON.stringify(data));
+    } catch {
+      // Falha silenciosa se localStorage não estiver disponível
+    }
+  };
+
+  const [shownNotifications, setShownNotifications] = useState<Set<string>>(getStoredNotifications);
   const [notificationConfig] = useState<NotificationConfig>({
     dailyReminder: "09:00",
     urgentAlert: "11:30", 
@@ -46,7 +73,7 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     const notificationKey = `${type}-${new Date().toDateString()}`;
     
     // Evitar notificações duplicadas no mesmo dia
-    if (lastNotification === notificationKey) return;
+    if (shownNotifications.has(notificationKey)) return;
     
     let variant: "default" | "destructive" = "default";
     let icon = Bell;
@@ -76,6 +103,9 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     });
 
     setLastNotification(notificationKey);
+    const newNotifications = new Set(shownNotifications).add(notificationKey);
+    setShownNotifications(newNotifications);
+    saveNotificationsToStorage(newNotifications);
   };
 
   const checkTimeBasedNotifications = () => {
@@ -89,7 +119,7 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
       showNotification(
         'reminder',
         '🔔 Lembrete: Depósito Bancário',
-        'Não esqueça de fazer o depósito até 12:00 e incluir no sistema.'
+        'Não esqueça de fazer o depósito até 12:00 e incluir na Tesouraria/P2K.'
       );
     }
     
@@ -116,20 +146,20 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     if (!enabled || isWeekend) return;
 
     // Notificação de sucesso quando completa o depósito
-    if (isCompleteToday && !lastNotification.includes('success')) {
+    if (isCompleteToday) {
       showNotification(
         'success',
         '✅ Depósito Completo!',
-        'Parabéns! O depósito foi registrado e incluído no sistema.'
+        'Parabéns! O depósito foi registrado e incluído na Tesouraria/P2K.'
       );
     }
 
     // Notificação quando só tem comprovante mas não incluiu no sistema
-    if (hasReceiptToday && !isIncludedToday && !lastNotification.includes('partial')) {
+    if (hasReceiptToday && !isIncludedToday) {
       showNotification(
         'reminder',
         '📋 Ação Pendente',
-        'Comprovante anexado! Não esqueça de marcar como incluído no sistema.'
+        'Comprovante anexado! Não esqueça de marcar como incluído na Tesouraria/P2K.'
       );
     }
   };
@@ -192,6 +222,27 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     }
   };
 
+  // Effect para limpar notificações quando o dia muda
+  useEffect(() => {
+    const today = new Date().toDateString();
+    
+    // Limpar notificações antigas do localStorage
+    try {
+      const stored = localStorage.getItem('depositNotifications');
+      if (stored) {
+        const data = JSON.parse(stored);
+        const cleanedData = { [today]: data[today] || [] };
+        localStorage.setItem('depositNotifications', JSON.stringify(cleanedData));
+      }
+    } catch {
+      // Falha silenciosa
+    }
+    
+    // Atualizar estado apenas com notificações de hoje
+    const todayNotifications = getStoredNotifications();
+    setShownNotifications(todayNotifications);
+  }, []); // Executa apenas uma vez no mount
+
   // Effect principal para monitoramento
   useEffect(() => {
     if (!enabled) return;
@@ -206,7 +257,9 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     // Verificação inicial
     checkStatusNotifications();
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [enabled, depositos, isCompleteToday, hasReceiptToday, isIncludedToday]);
 
   // Função para solicitar permissão de notificações do browser

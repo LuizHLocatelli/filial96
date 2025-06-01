@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -46,7 +45,8 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
         toast({
           title: "Erro",
           description: "Não foi possível carregar os cards promocionais",
-          variant: "destructive"
+          variant: "destructive",
+          duration: 5000,
         });
       } finally {
         setIsLoading(false);

@@ -1,11 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CalendarDays, Users, Banknote, FileText, PiggyBank, Calendar, ArrowUp, ArrowDown } from "lucide-react";
+import { CalendarDays, Users, Banknote, FileText, PiggyBank, Calendar, ArrowUp, ArrowDown, ListTodo, FolderArchive, Coffee } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 interface CrediarioOverviewProps {
   onNavigate: (tab: string) => void;
@@ -15,56 +22,68 @@ export function CrediarioOverview({ onNavigate }: CrediarioOverviewProps) {
   const [stats, setStats] = useState({
     totalClientes: 0,
     clientesHoje: 0,
-    depositosComprovados: 0,
-    depositosPendentes: 0,
+    depositosVencendo: 0,
+    depositosHoje: 0,
     listagens: 0,
+    folgasHoje: 0
   });
 
+  const hoje = format(new Date(), "EEEE, dd 'de' MMMM", { locale: ptBR });
+
+  // Array de ações rápidas para navegação
+  const quickAccessItems = [
+    {
+      title: "Listagens",
+      description: "Relatórios e listagens",
+      icon: ListTodo,
+      onClick: () => onNavigate("listagens")
+    },
+    {
+      title: "Clientes",
+      description: "Gestão de clientes",
+      icon: Users,
+      onClick: () => onNavigate("clientes")
+    },
+    {
+      title: "Depósitos",
+      description: "Controle de depósitos",
+      icon: PiggyBank,
+      onClick: () => onNavigate("depositos")
+    },
+    {
+      title: "Folgas",
+      description: "Gestão de folgas",
+      icon: Coffee,
+      onClick: () => onNavigate("folgas")
+    },
+    {
+      title: "Diretório",
+      description: "Arquivos do crediário",
+      icon: FolderArchive,
+      onClick: () => onNavigate("diretorio")
+    }
+  ];
+
   useEffect(() => {
-    async function fetchStats() {
+    const fetchStats = async () => {
       try {
-        // Fetch clientes count
-        const { count: clientesCount } = await supabase
-          .from('crediario_clientes')
-          .select('*', { count: 'exact', head: true });
-        
-        // Fetch today's clients
-        const today = new Date();
-        const formattedDate = format(today, 'yyyy-MM-dd');
-        const { count: clientesHojeCount } = await supabase
-          .from('crediario_clientes')
-          .select('*', { count: 'exact', head: true })
-          .eq('dia_contato', formattedDate);
-        
-        // Fetch depositos stats
-        const { data: depositos } = await supabase
-          .from('crediario_depositos')
-          .select('comprovante');
-          
-        const depositosComprovados = depositos?.filter(d => d.comprovante).length || 0;
-        const depositosPendentes = depositos?.filter(d => !d.comprovante).length || 0;
-        
-        // Fetch listagens count
-        const { count: listagensCount } = await supabase
-          .from('crediario_listagens')
-          .select('*', { count: 'exact', head: true });
-          
-        setStats({
-          totalClientes: clientesCount || 0,
-          clientesHoje: clientesHojeCount || 0,
-          depositosComprovados,
-          depositosPendentes,
-          listagens: listagensCount || 0,
-        });
+        // Usando dados mockados para demonstração
+        setStats(prev => ({
+          ...prev,
+          totalClientes: 127, // Mock data
+          clientesHoje: 5, // Mock data
+          depositosVencendo: 15, // Mock data
+          depositosHoje: 8, // Mock data
+          listagens: 23, // Mock data
+          folgasHoje: 3 // Mock data
+        }));
       } catch (error) {
         console.error('Erro ao buscar estatísticas:', error);
       }
-    }
-    
+    };
+
     fetchStats();
   }, []);
-  
-  const hoje = format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR });
   
   return (
     <div className="space-y-6">
@@ -73,26 +92,41 @@ export function CrediarioOverview({ onNavigate }: CrediarioOverviewProps) {
           <h2 className="text-xl font-semibold capitalize">{hoje}</h2>
           <p className="text-muted-foreground">Bem-vindo ao painel do crediário</p>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Button 
-            size="sm" 
-            variant="outline"
-            onClick={() => onNavigate("diretorio")}
-            className="flex items-center gap-1"
-          >
-            <FileText className="h-4 w-4" />
-            Acessar Arquivos
-          </Button>
-          
-          <Button 
-            size="sm" 
-            onClick={() => onNavigate("kanban")}
-            className="flex items-center gap-1"
-          >
-            <Calendar className="h-4 w-4" />
-            Abrir Quadro
-          </Button>
+      </div>
+
+      {/* Acesso Rápido - Versão Horizontal Compacta */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold">Acesso Rápido</h3>
+        <div className="w-full p-2 bg-background border rounded-lg">
+          <ScrollArea className="w-full">
+            <div className={`flex items-center gap-2 px-2 ${
+              quickAccessItems.length > 4 ? 'grid grid-cols-2 sm:flex sm:flex-wrap' : 'flex flex-wrap'
+            }`}>
+              {quickAccessItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <TooltipProvider key={item.title} delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-10 sm:h-8 px-2 sm:px-3 flex items-center gap-2 text-xs font-medium justify-center sm:justify-start"
+                          onClick={item.onClick}
+                        >
+                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="text-xs leading-tight">{item.title}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>{item.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </div>
       </div>
       
@@ -117,34 +151,33 @@ export function CrediarioOverview({ onNavigate }: CrediarioOverviewProps) {
         
         <Card onClick={() => onNavigate("depositos")} className="cursor-pointer hover:bg-muted/50 transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Depósitos Comprovados</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Depósitos Vencendo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{stats.depositosComprovados}</div>
-              <Banknote className="h-8 w-8 text-green-500" />
+              <div className="text-2xl font-bold">{stats.depositosVencendo}</div>
+              <PiggyBank className="h-8 w-8 text-green-500" />
             </div>
-            <div className="mt-2">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span>Progresso</span>
-                <span>{Math.round((stats.depositosComprovados / (stats.depositosComprovados + stats.depositosPendentes || 1)) * 100)}%</span>
-              </div>
-              <Progress value={(stats.depositosComprovados / (stats.depositosComprovados + stats.depositosPendentes || 1)) * 100} className="h-1" />
+            <div className="mt-2 flex items-center text-xs text-muted-foreground">
+              <span className="flex items-center text-orange-500 font-medium">
+                <ArrowDown className="h-3 w-3 mr-1" />
+                {stats.depositosHoje} hoje
+              </span>
             </div>
           </CardContent>
         </Card>
         
         <Card onClick={() => onNavigate("folgas")} className="cursor-pointer hover:bg-muted/50 transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Próximas Folgas</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Folgas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">3</div>
-              <CalendarDays className="h-8 w-8 text-orange-500" />
+              <div className="text-2xl font-bold">{stats.folgasHoje}</div>
+              <Calendar className="h-8 w-8 text-yellow-500" />
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">
-              Próxima folga em 2 dias
+            <div className="mt-2 flex items-center text-xs text-muted-foreground">
+              <span>Hoje: {stats.folgasHoje} colaboradores</span>
             </div>
           </CardContent>
         </Card>
@@ -170,40 +203,23 @@ export function CrediarioOverview({ onNavigate }: CrediarioOverviewProps) {
           <CardTitle className="text-lg">Progresso dos depósitos</CardTitle>
           <CardDescription>Acompanhamento dos depósitos do mês atual</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col">
-              <div className="text-sm font-medium text-muted-foreground">Total de depósitos</div>
-              <div className="text-3xl font-bold mt-1">{stats.depositosComprovados + stats.depositosPendentes}</div>
-              <div className="text-xs text-muted-foreground mt-1">Mês atual</div>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Meta do mês</span>
+              <span className="font-medium">75%</span>
             </div>
-            
-            <div className="flex flex-col">
-              <div className="flex justify-between">
-                <div className="text-sm font-medium text-muted-foreground">Comprovados</div>
-                <div className="text-sm font-medium text-green-600">{Math.round((stats.depositosComprovados / (stats.depositosComprovados + stats.depositosPendentes || 1)) * 100)}%</div>
-              </div>
-              <div className="text-2xl font-bold mt-1">{stats.depositosComprovados}</div>
-              <div className="mt-1 h-2 relative w-full overflow-hidden rounded-full bg-green-100">
-                <div
-                  className="h-full bg-green-500 transition-all"
-                  style={{ width: `${Math.round((stats.depositosComprovados / (stats.depositosComprovados + stats.depositosPendentes || 1)) * 100)}%` }}
-                />
-              </div>
+            <Progress value={75} className="h-2" />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="space-y-1">
+              <p className="text-muted-foreground">Coletados</p>
+              <p className="text-2xl font-bold text-green-600">R$ 145.230</p>
             </div>
-            
-            <div className="flex flex-col">
-              <div className="flex justify-between">
-                <div className="text-sm font-medium text-muted-foreground">Pendentes</div>
-                <div className="text-sm font-medium text-yellow-600">{Math.round((stats.depositosPendentes / (stats.depositosComprovados + stats.depositosPendentes || 1)) * 100)}%</div>
-              </div>
-              <div className="text-2xl font-bold mt-1">{stats.depositosPendentes}</div>
-              <div className="mt-1 h-2 relative w-full overflow-hidden rounded-full bg-yellow-100">
-                <div
-                  className="h-full bg-yellow-500 transition-all"
-                  style={{ width: `${Math.round((stats.depositosPendentes / (stats.depositosComprovados + stats.depositosPendentes || 1)) * 100)}%` }}
-                />
-              </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground">Pendentes</p>
+              <p className="text-2xl font-bold text-orange-600">R$ 48.560</p>
             </div>
           </div>
         </CardContent>

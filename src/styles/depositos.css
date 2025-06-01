@@ -22,11 +22,6 @@
   --deposit-neutral-light: #f3f4f6;
   --deposit-neutral-dark: #374151;
 
-  /* Cores para automação */
-  --deposit-automation: #8b5cf6;   /* Roxo para IA/automação */
-  --deposit-automation-light: #ede9fe;
-  --deposit-automation-dark: #7c3aed;
-
   /* Animações específicas */
   --deposit-animation-duration: 0.3s;
   --deposit-animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
@@ -83,22 +78,6 @@
   background-color: var(--deposit-neutral-light);
   border-color: var(--deposit-neutral);
   color: var(--deposit-neutral-dark);
-}
-
-.deposit-status-automation {
-  background-color: var(--deposit-automation-light);
-  border-color: var(--deposit-automation);
-  color: var(--deposit-automation-dark);
-  position: relative;
-}
-
-.deposit-status-automation::after {
-  content: '🤖';
-  position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
-  font-size: 0.75rem;
-  opacity: 0.8;
 }
 
 /* Animações para contador regressivo */
@@ -221,6 +200,7 @@
   box-shadow: var(--deposit-shadow-soft);
   position: relative;
   overflow: hidden;
+  background: white;
 }
 
 .deposit-card::before {
@@ -229,18 +209,16 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, 
-    var(--deposit-info) 0%, 
-    var(--deposit-success) 50%, 
-    var(--deposit-warning) 100%);
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%);
   opacity: 0;
-  transition: opacity var(--deposit-animation-duration);
+  transition: opacity var(--deposit-animation-duration) var(--deposit-animation-easing);
+  pointer-events: none;
 }
 
 .deposit-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--deposit-shadow-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--deposit-shadow-medium);
 }
 
 .deposit-card:hover::before {
@@ -248,90 +226,94 @@
 }
 
 .deposit-card.complete {
-  border-left: 4px solid var(--deposit-success);
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border-color: var(--deposit-success);
+  background: linear-gradient(135deg, var(--deposit-success-light) 0%, rgba(255, 255, 255, 0.9) 100%);
 }
 
 .deposit-card.partial {
-  border-left: 4px solid var(--deposit-warning);
-  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+  border-color: var(--deposit-warning);
+  background: linear-gradient(135deg, var(--deposit-warning-light) 0%, rgba(255, 255, 255, 0.9) 100%);
 }
 
 .deposit-card.missed {
-  border-left: 4px solid var(--deposit-danger);
-  background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+  border-color: var(--deposit-danger);
+  background: linear-gradient(135deg, var(--deposit-danger-light) 0%, rgba(255, 255, 255, 0.9) 100%);
 }
 
 .deposit-card.weekend {
-  opacity: 0.6;
-  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border-color: var(--deposit-neutral);
+  background: linear-gradient(135deg, var(--deposit-neutral-light) 0%, rgba(255, 255, 255, 0.9) 100%);
 }
 
-.deposit-card.automation {
-  border-left: 4px solid var(--deposit-automation);
-  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
-  position: relative;
-}
-
-/* Indicadores melhorados */
+/* Calendário responsivo */
 .calendar-day {
-  position: relative;
+  min-height: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
   transition: all var(--deposit-animation-duration) var(--deposit-animation-easing);
-  border-radius: 12px;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+  cursor: pointer;
+  position: relative;
 }
 
 .calendar-day:hover {
-  transform: scale(1.05) translateZ(0);
+  transform: scale(1.05);
   z-index: 10;
-  box-shadow: var(--deposit-shadow-glow);
+  box-shadow: var(--deposit-shadow-medium);
 }
 
 .calendar-day.today {
-  box-shadow: 0 0 0 2px var(--deposit-info), var(--deposit-shadow-medium);
-  animation: today-glow 2s infinite alternate;
+  position: relative;
+  animation: pulse-today 2s infinite;
 }
 
 .calendar-day.today::after {
   content: '';
   position: absolute;
   top: -2px;
+  left: -2px;
   right: -2px;
-  width: 12px;
-  height: 12px;
-  background: radial-gradient(circle, var(--deposit-info) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: pulse-today 2s infinite;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #3b82f6);
+  border-radius: inherit;
+  z-index: -1;
+  background-size: 400% 400%;
+  animation: today-glow 3s ease infinite;
 }
 
 @keyframes today-glow {
-  0% { box-shadow: 0 0 0 2px var(--deposit-info), var(--deposit-shadow-medium); }
-  100% { box-shadow: 0 0 0 3px var(--deposit-info), var(--deposit-shadow-strong); }
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes pulse-today {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1);
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
   }
-  50% { 
-    opacity: 0.7; 
-    transform: scale(1.3);
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
   }
 }
 
-/* Status indicators aprimorados */
+/* Indicadores de status */
 .status-indicator {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 14px;
-  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: var(--deposit-shadow-medium);
-  transition: all var(--deposit-animation-duration);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all var(--deposit-animation-duration) var(--deposit-animation-easing);
+  position: relative;
+  overflow: hidden;
 }
 
 .status-indicator:hover {
@@ -339,49 +321,55 @@
 }
 
 .status-indicator.complete {
-  background: radial-gradient(circle, var(--deposit-success) 0%, var(--deposit-success-dark) 100%);
-  animation: complete-glow 3s infinite;
+  background: var(--deposit-success);
+  color: white;
+  animation: complete-glow 2s ease-in-out infinite alternate;
 }
 
 .status-indicator.partial {
-  background: radial-gradient(circle, var(--deposit-warning) 0%, var(--deposit-warning-dark) 100%);
+  background: var(--deposit-warning);
+  color: white;
   animation: partial-blink 2s infinite;
 }
 
 .status-indicator.missed {
-  background: radial-gradient(circle, var(--deposit-danger) 0%, var(--deposit-danger-dark) 100%);
+  background: var(--deposit-danger);
+  color: white;
   animation: missed-pulse 1s infinite;
 }
 
 @keyframes complete-glow {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  from {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
   }
-  50% { 
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  to {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
   }
 }
 
 @keyframes partial-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 50% { opacity: 1; }
+  25%, 75% { opacity: 0.6; }
 }
 
 @keyframes missed-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
-  50% { 
-    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.3);
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
   }
 }
 
-/* Progress bars customizadas */
+/* Barras de progresso */
 .deposit-progress {
-  height: 10px;
-  border-radius: 6px;
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
   overflow: hidden;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
   position: relative;
 }
 
@@ -389,52 +377,50 @@
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  height: 100%;
+  left: -100%;
   width: 100%;
-  background: linear-gradient(90deg, 
-    rgba(255,255,255,0) 0%, 
-    rgba(255,255,255,0.3) 50%, 
-    rgba(255,255,255,0) 100%);
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
   animation: progress-shine 2s infinite;
 }
 
 .deposit-progress .progress-fill {
   height: 100%;
-  border-radius: 6px;
-  transition: width 0.5s var(--deposit-bounce-easing);
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+  transition: width 0.8s var(--deposit-bounce-easing);
+  animation: progress-fill 1s var(--deposit-bounce-easing);
 }
 
 .deposit-progress.success .progress-fill {
-  background: linear-gradient(135deg, var(--deposit-success-light) 0%, var(--deposit-success) 100%);
+  background: linear-gradient(90deg, var(--deposit-success), #22c55e);
 }
 
 .deposit-progress.warning .progress-fill {
-  background: linear-gradient(135deg, var(--deposit-warning-light) 0%, var(--deposit-warning) 100%);
+  background: linear-gradient(90deg, var(--deposit-warning), #fbbf24);
 }
 
 .deposit-progress.danger .progress-fill {
-  background: linear-gradient(135deg, var(--deposit-danger-light) 0%, var(--deposit-danger) 100%);
+  background: linear-gradient(90deg, var(--deposit-danger), #f87171);
 }
 
 @keyframes progress-shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 /* Badges melhorados */
 .deposit-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.375rem 0.75rem;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
   border: 1px solid transparent;
   transition: all var(--deposit-animation-duration) var(--deposit-animation-easing);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
 }
 
 .deposit-badge::before {
@@ -444,7 +430,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: left 0.5s;
 }
 
@@ -453,74 +439,59 @@
 }
 
 .deposit-badge.success {
-  background: linear-gradient(135deg, var(--deposit-success-light) 0%, #ecfccb 100%);
+  background: var(--deposit-success-light);
   color: var(--deposit-success-dark);
   border-color: var(--deposit-success);
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
 }
 
 .deposit-badge.success:hover {
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-  transform: translateY(-1px);
+  background: var(--deposit-success);
+  color: white;
 }
 
 .deposit-badge.warning {
-  background: linear-gradient(135deg, var(--deposit-warning-light) 0%, #fef3c7 100%);
+  background: var(--deposit-warning-light);
   color: var(--deposit-warning-dark);
   border-color: var(--deposit-warning);
 }
 
 .deposit-badge.danger {
-  background: linear-gradient(135deg, var(--deposit-danger-light) 0%, #fecaca 100%);
+  background: var(--deposit-danger-light);
   color: var(--deposit-danger-dark);
   border-color: var(--deposit-danger);
 }
 
 .deposit-badge.info {
-  background: linear-gradient(135deg, var(--deposit-info-light) 0%, #dbeafe 100%);
+  background: var(--deposit-info-light);
   color: var(--deposit-info-dark);
   border-color: var(--deposit-info);
 }
 
-.deposit-badge.automation {
-  background: linear-gradient(135deg, var(--deposit-automation-light) 0%, #ede9fe 100%);
-  color: var(--deposit-automation-dark);
-  border-color: var(--deposit-automation);
-  animation: ai-glow 3s infinite;
-}
-
-@keyframes ai-glow {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
-  }
-  50% { 
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-  }
-}
-
-/* Streak indicators melhorados */
+/* Streak indicator */
 .streak-indicator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-weight: 600;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .streak-indicator.high-streak {
-  animation: streak-celebration 2s infinite;
+  animation: streak-celebration 0.5s ease-in-out;
 }
 
 .streak-indicator::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: streak-shine 4s infinite;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: rotate(45deg);
+  animation: streak-shine 3s infinite;
 }
 
 @keyframes streak-celebration {
@@ -529,18 +500,18 @@
 }
 
 @keyframes streak-shine {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% { transform: rotate(45deg) translate(-100%, -100%); }
+  100% { transform: rotate(45deg) translate(100%, 100%); }
 }
 
-/* Upload zone melhorada */
+/* Upload zone */
 .upload-zone {
-  border: 2px dashed var(--deposit-neutral);
-  border-radius: 16px;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
   transition: all var(--deposit-animation-duration) var(--deposit-animation-easing);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
 }
 
 .upload-zone::before {
@@ -550,15 +521,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
   opacity: 0;
-  transition: opacity var(--deposit-animation-duration);
+  transition: opacity var(--deposit-animation-duration) var(--deposit-animation-easing);
 }
 
 .upload-zone:hover {
-  border-color: var(--deposit-info);
-  background-color: var(--deposit-info-light);
-  transform: scale(1.02);
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
 }
 
 .upload-zone:hover::before {
@@ -566,89 +536,63 @@
 }
 
 .upload-zone.dragover {
-  border-color: var(--deposit-success);
-  background-color: var(--deposit-success-light);
-  transform: scale(1.05);
-  box-shadow: var(--deposit-shadow-glow);
-  animation: dragover-pulse 0.5s infinite;
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+  transform: scale(1.02);
+  animation: dragover-pulse 0.6s ease-in-out infinite alternate;
 }
 
 @keyframes dragover-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  from {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
   }
-  50% { 
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.1);
+  to {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
   }
 }
 
-/* Quick actions melhoradas */
+/* Botões de ação rápida */
 .quick-action-btn {
-  transition: all var(--deposit-animation-duration) var(--deposit-animation-easing);
-  border-radius: 12px;
   position: relative;
   overflow: hidden;
+  transition: all var(--deposit-animation-duration) var(--deposit-animation-easing);
 }
 
 .quick-action-btn::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
 }
 
 .quick-action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--deposit-shadow-strong);
+  transform: translateY(-1px);
 }
 
 .quick-action-btn:hover::before {
-  left: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .quick-action-btn:active {
   transform: translateY(0);
-  transition: transform 0.1s;
 }
 
 .quick-action-btn.primary {
-  background: linear-gradient(135deg, var(--deposit-info) 0%, var(--deposit-info-dark) 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
 }
 
 .quick-action-btn.success {
-  background: linear-gradient(135deg, var(--deposit-success) 0%, var(--deposit-success-dark) 100%);
+  background: linear-gradient(135deg, var(--deposit-success) 0%, #22c55e 100%);
 }
 
-.quick-action-btn.automation {
-  background: linear-gradient(135deg, var(--deposit-automation) 0%, var(--deposit-automation-dark) 100%);
-  position: relative;
-}
-
-.quick-action-btn.automation::after {
-  content: '✨';
-  position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
-  font-size: 0.75rem;
-  animation: sparkle 2s infinite;
-}
-
-@keyframes sparkle {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1) rotate(0deg);
-  }
-  50% { 
-    opacity: 0.7; 
-    transform: scale(1.2) rotate(180deg);
-  }
-}
-
-/* Loading states */
+/* Skeleton loading */
 .skeleton-shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
@@ -657,94 +601,243 @@
 
 /* Toast animations */
 .toast-slide-in {
-  animation: slide-up 0.3s var(--deposit-bounce-easing);
+  animation: slide-down 0.3s var(--deposit-animation-easing);
 }
 
 .toast-slide-out {
-  animation: slide-down 0.3s ease-in;
+  animation: slide-up 0.3s var(--deposit-animation-easing) reverse;
 }
 
 @keyframes slide-down {
-  to {
+  from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* Responsive melhorado */
-@media (max-width: 768px) {
+/* Media Queries Responsivas Melhoradas */
+@media (max-width: 374px) {
+  .calendar-day {
+    min-height: 72px;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .deposit-card {
+    padding: 20px;
+    margin: 12px 0;
+  }
+
+  .countdown-timer {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .quick-action-btn {
+    height: 48px;
+    font-size: 15px;
+    padding: 0 20px;
+  }
+
+  .upload-zone {
+    padding: 24px;
+    min-height: 140px;
+  }
+
+  .deposit-badge {
+    font-size: 13px;
+    padding: 8px 16px;
+    min-height: 36px;
+  }
+  
+  /* Evitar textos extremamente pequenos */
+  .text-\[8px\] {
+    font-size: 12px !important;
+  }
+  
+  .text-\[9px\] {
+    font-size: 12px !important;
+  }
+  
+  .text-\[10px\] {
+    font-size: 13px !important;
+  }
+}
+
+@media (min-width: 375px) and (max-width: 767px) {
   .calendar-day {
     min-height: 64px;
-    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
   }
-  
+
   .deposit-card {
-    margin-bottom: 1rem;
-    border-radius: 12px;
+    padding: 18px;
+    margin: 10px 0;
   }
-  
+
   .countdown-timer {
-    font-size: 1.25rem;
+    font-size: 20px;
+    font-weight: 700;
   }
-  
+
   .quick-action-btn {
-    border-radius: 8px;
+    height: 44px;
+    font-size: 14px;
+    padding: 0 16px;
   }
-}
 
-@media (max-width: 480px) {
-  .calendar-day {
-    min-height: 56px;
-    font-size: 0.875rem;
-    border-radius: 6px;
+  .upload-zone {
+    padding: 20px;
+    min-height: 120px;
   }
-  
+
   .deposit-badge {
-    font-size: 0.625rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-  }
-  
-  .countdown-timer {
-    font-size: 1rem;
-  }
-  
-  .upload-zone {
-    border-radius: 12px;
+    font-size: 12px;
+    padding: 6px 12px;
+    min-height: 32px;
   }
 }
 
-/* Dark mode aprimorado */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --deposit-neutral-light: #374151;
-    --deposit-neutral-dark: #f3f4f6;
-    --deposit-shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-    --deposit-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-    --deposit-shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+@media (min-width: 768px) {
+  .calendar-day {
+    min-height: 80px;
+    padding: 12px;
+    font-size: 16px;
   }
-  
+
   .deposit-card {
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    margin: 16px 0;
   }
-  
-  .calendar-day.today::after {
-    border: 1px solid #1f2937;
+
+  .countdown-timer {
+    font-size: 24px;
+    font-weight: 700;
   }
-  
-  .status-indicator {
-    border-color: #1f2937;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  .quick-action-btn {
+    height: 40px;
+    font-size: 14px;
+    padding: 0 20px;
   }
-  
+
   .upload-zone {
-    backdrop-filter: blur(10px);
-    border-color: rgba(255, 255, 255, 0.2);
+    padding: 32px;
+    min-height: 160px;
+  }
+
+  .deposit-badge {
+    font-size: 14px;
+    padding: 8px 16px;
+    min-height: 36px;
   }
 }
 
-/* Accessibility melhorada */
+/* Melhorias para dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .calendar-day:hover {
+    transform: none;
+    box-shadow: var(--deposit-shadow-soft);
+  }
+
+  .deposit-card:hover {
+    transform: none;
+    box-shadow: var(--deposit-shadow-medium);
+  }
+
+  .quick-action-btn:hover {
+    transform: none;
+  }
+
+  .calendar-day {
+    padding: 12px;
+    min-height: 56px;
+  }
+
+  .quick-action-btn {
+    padding: 12px 20px;
+    min-height: 44px;
+  }
+
+  .deposit-badge {
+    padding: 8px 16px;
+    font-size: 14px;
+    min-height: 36px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dark .upload-zone {
+    border-color: hsl(var(--border));
+    background: transparent;
+  }
+  
+  .dark .upload-zone:hover {
+    border-color: hsl(var(--border)) / 0.7;
+    background: hsl(var(--muted)) / 0.1;
+  }
+  
+  .dark .upload-zone.dragover {
+    border-color: hsl(var(--green-400));
+    background: hsl(var(--green-950)) / 0.3;
+  }
+  
+  .dark .calendar-day {
+    border-color: hsl(var(--border));
+  }
+  
+  .dark .deposit-card {
+    border-color: hsl(var(--border));
+    background: hsl(var(--card));
+  }
+  
+  .dark .deposit-card.weekend {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .dark .deposit-card.complete {
+    background: hsl(var(--green-950)) / 0.2;
+    border-color: hsl(var(--green-800));
+  }
+  
+  .dark .deposit-card.pending {
+    background: hsl(var(--blue-950)) / 0.2;
+    border-color: hsl(var(--blue-800));
+  }
+  
+  .dark .deposit-card.missed {
+    background: hsl(var(--red-950)) / 0.2;
+    border-color: hsl(var(--red-800));
+  }
+  
+  .dark .countdown-timer {
+    color: hsl(var(--foreground));
+  }
+  
+  .dark .quick-action-btn {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  
+  .dark .quick-action-btn:hover {
+    background: hsl(var(--primary)) / 0.9;
+  }
+  
+  .dark .deposit-badge {
+    border-color: hsl(var(--border));
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -752,26 +845,44 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
   .deposit-card {
-    border: 2px solid;
+    border-width: 2px;
+    border-style: solid;
   }
   
   .deposit-badge {
-    border: 2px solid;
+    border-width: 2px;
     font-weight: 700;
   }
   
   .status-indicator {
-    border-width: 3px;
+    border: 2px solid;
+    font-weight: 700;
   }
 }
 
-/* Utilitários específicos para depósitos */
+/* Print styles */
+@media print {
+  .deposit-card,
+  .calendar-day,
+  .upload-zone {
+    box-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .quick-action-btn {
+    display: none;
+  }
+}
+
+/* Utility classes for gradients */
 .deposit-gradient-success {
   background: linear-gradient(135deg, var(--deposit-success-light) 0%, var(--deposit-success) 100%);
 }
@@ -788,17 +899,7 @@
   background: linear-gradient(135deg, var(--deposit-info-light) 0%, var(--deposit-info) 100%);
 }
 
-.deposit-gradient-automation {
-  background: linear-gradient(135deg, var(--deposit-automation-light) 0%, var(--deposit-automation) 100%);
-}
-
-.deposit-text-gradient {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
+/* Utility classes for shadows */
 .deposit-shadow-soft {
   box-shadow: var(--deposit-shadow-soft);
 }

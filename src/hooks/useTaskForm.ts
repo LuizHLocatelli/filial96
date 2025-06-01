@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/auth";
@@ -34,6 +33,7 @@ export function useTaskForm({
         title: "Erro",
         description: "Você precisa estar autenticado para criar uma tarefa.",
         variant: "destructive",
+        duration: 5000,
       });
       return null;
     }
@@ -57,6 +57,7 @@ export function useTaskForm({
           description: isEditMode 
             ? "A tarefa foi atualizada com sucesso." 
             : "A nova tarefa foi criada com sucesso.",
+          duration: 4000,
         });
         
         // Limpar o formulário
@@ -78,6 +79,7 @@ export function useTaskForm({
         title: "Erro",
         description: "Ocorreu um erro ao salvar a tarefa. Tente novamente.",
         variant: "destructive",
+        duration: 5000,
       });
       return null;
     } finally {

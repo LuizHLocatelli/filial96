@@ -1,5 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { ArrowRight } from "lucide-react";
 import type { NavigateFunction } from "react-router-dom"; // Embora não use navigate diretamente, é parte da estrutura de QuickAction
 
@@ -19,34 +26,41 @@ interface DashboardActionsTabProps {
 
 export function DashboardActionsTab({ actions, isMobile }: DashboardActionsTabProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {actions.map((action, index) => (
-        <Card 
-          key={index} 
-          className="cursor-pointer transition-all duration-300 border shadow-soft hover:shadow-strong hover:-translate-y-2 group"
-          onClick={action.action}
-        >
-          <CardContent className={isMobile ? "p-4" : "p-6"}>
-            <div className="space-y-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${action.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
-                <action.icon className="h-6 w-6 text-white" />
-              </div>
-              <div className="space-y-2">
-                <h3 className={`font-semibold ${isMobile ? 'text-sm' : 'text-base'}`}>
-                  {action.title}
-                </h3>
-                <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                  {action.description}
-                </p>
-              </div>
-              <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto font-medium group-hover:text-primary">
-                Acessar
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Ações Rápidas</h2>
+      
+      {/* Versão Horizontal Compacta */}
+      <div className="w-full p-2 bg-background border rounded-lg">
+        <ScrollArea className="w-full">
+          <div className={`flex items-center gap-2 px-2 ${
+            actions.length > 3 ? 'grid grid-cols-2 sm:flex sm:flex-wrap' : 'flex flex-wrap'
+          }`}>
+            {actions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <TooltipProvider key={action.title} delayDuration={300}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-10 sm:h-8 px-2 sm:px-3 flex items-center gap-2 text-xs font-medium justify-center sm:justify-start"
+                        onClick={action.action}
+                      >
+                        <Icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="text-xs leading-tight">{action.title}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>{action.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            })}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 } 
