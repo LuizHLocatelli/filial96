@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -173,29 +172,99 @@ export function useRotinas() {
   const toggleConclusao = async (rotinaId: string, concluida: boolean) => {
     if (!user) return false;
 
+    console.log('🔄 Iniciando toggle de conclusão:', { rotinaId, concluida, userId: user.id });
+
+    // Atualização otimista: atualizar o estado local imediatamente
+    const previousRotinas = [...rotinas];
+    const updatedRotinas = rotinas.map(rotina => {
+      if (rotina.id === rotinaId) {
+        return {
+          ...rotina,
+          status: concluida ? 'concluida' as const : 'pendente' as const,
+          conclusao: concluida ? {
+            id: 'temp',
+            rotina_id: rotinaId,
+            data_conclusao: format(new Date(), 'yyyy-MM-dd'),
+            concluida: true,
+            created_by: user.id,
+            created_at: new Date().toISOString(),
+            observacoes: null
+          } as RotinaConclusao : undefined
+        };
+      }
+      return rotina;
+    });
+
+    // Atualizar o estado imediatamente
+    setRotinas(updatedRotinas);
+
     try {
       const today = format(new Date(), 'yyyy-MM-dd');
+      console.log('📅 Data de hoje:', today);
       
-      const { error } = await supabase
+      // Primeiro, vamos verificar se já existe um registro
+      const { data: existingRecord, error: selectError } = await supabase
         .from('moveis_rotinas_conclusoes')
-        .upsert({
-          rotina_id: rotinaId,
-          data_conclusao: today,
-          concluida,
-          created_by: user.id,
-        }, {
-          onConflict: 'rotina_id,data_conclusao,created_by'
-        });
+        .select('*')
+        .eq('rotina_id', rotinaId)
+        .eq('data_conclusao', today)
+        .eq('created_by', user.id)
+        .single();
 
-      if (error) throw error;
+      if (selectError && selectError.code !== 'PGRST116') {
+        // PGRST116 é "Row not found", que é esperado se não existe registro
+        console.error('❌ Erro ao verificar registro existente:', selectError);
+        throw selectError;
+      }
 
+      console.log('📋 Registro existente:', existingRecord);
+
+      let result;
+      if (existingRecord) {
+        // Atualizar registro existente
+        console.log('🔄 Atualizando registro existente...');
+        result = await supabase
+          .from('moveis_rotinas_conclusoes')
+          .update({ concluida })
+          .eq('id', existingRecord.id);
+      } else {
+        // Criar novo registro
+        console.log('➕ Criando novo registro...');
+        result = await supabase
+          .from('moveis_rotinas_conclusoes')
+          .insert({
+            rotina_id: rotinaId,
+            data_conclusao: today,
+            concluida,
+            created_by: user.id,
+          });
+      }
+
+      if (result.error) {
+        console.error('❌ Erro na operação do banco:', result.error);
+        throw result.error;
+      }
+
+      console.log('✅ Operação realizada com sucesso:', result);
+
+      // Recarregar os dados para garantir consistência
       await fetchRotinas();
+      
+      toast({
+        title: "Sucesso",
+        description: concluida ? "Rotina marcada como concluída!" : "Rotina desmarcada como concluída!",
+      });
+      
       return true;
     } catch (error) {
-      console.error('Erro ao atualizar conclusão:', error);
+      console.error('❌ Erro ao atualizar conclusão:', error);
+      
+      // Reverter a mudança otimista em caso de erro
+      setRotinas(previousRotinas);
+      
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar o status da rotina.",
+        description: "Não foi possível atualizar o status da rotina. Tente novamente.",
         variant: "destructive",
       });
       return false;
@@ -208,6 +277,7 @@ export function useRotinas() {
       descricao: rotina.descricao,
       periodicidade: rotina.periodicidade,
       horario_preferencial: rotina.horario_preferencial,
+      dia_preferencial: rotina.dia_preferencial,
       categoria: rotina.categoria,
     };
 

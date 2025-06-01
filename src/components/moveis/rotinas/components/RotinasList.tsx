@@ -43,6 +43,8 @@ export function RotinasList({
 }: RotinasListProps) {
   const [editingRotina, setEditingRotina] = useState<RotinaWithStatus | null>(null);
   const [rotinasWithCreators, setRotinasWithCreators] = useState<RotinaWithCreator[]>([]);
+  const [loadingCheckboxes, setLoadingCheckboxes] = useState<Set<string>>(new Set());
+  const [recentlyClicked, setRecentlyClicked] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchCreatorNames = async () => {
@@ -129,6 +131,49 @@ export function RotinasList({
     return dias[dia as keyof typeof dias] || dia;
   };
 
+  const handleToggleConclusao = async (rotinaId: string, checked: boolean) => {
+    console.log('🎯 RotinasList: Iniciando toggle para rotina:', rotinaId, 'checked:', checked);
+    
+    // Prevenir cliques múltiplos muito rápidos
+    if (recentlyClicked.has(rotinaId)) {
+      console.log('⏰ RotinasList: Ignorando clique muito rápido para:', rotinaId);
+      return;
+    }
+
+    // Marcar como recentemente clicado
+    setRecentlyClicked(prev => new Set(prev).add(rotinaId));
+    
+    // Remover da lista após 1 segundo
+    setTimeout(() => {
+      setRecentlyClicked(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(rotinaId);
+        return newSet;
+      });
+    }, 1000);
+    
+    // Adicionar ao conjunto de checkboxes em loading
+    setLoadingCheckboxes(prev => new Set(prev).add(rotinaId));
+    
+    try {
+      const success = await onToggleConclusao(rotinaId, checked);
+      console.log('🎯 RotinasList: Resultado do toggle:', success);
+      
+      if (!success) {
+        console.warn('⚠️ RotinasList: Toggle falhou, mas não houve exceção');
+      }
+    } catch (error) {
+      console.error('❌ RotinasList: Erro no toggle:', error);
+    } finally {
+      // Remover do conjunto após completar (sucesso ou erro)
+      setLoadingCheckboxes(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(rotinaId);
+        return newSet;
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -200,18 +245,27 @@ export function RotinasList({
                     
                     {/* Primeira linha: checkbox + título */}
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <Checkbox
-                        checked={rotina.status === 'concluida'}
-                        onCheckedChange={(checked) => 
-                          onToggleConclusao(rotina.id, checked as boolean)
-                        }
-                        className="w-5 h-5 mt-0.5 flex-shrink-0"
-                      />
+                      <div className="relative flex-shrink-0">
+                        <Checkbox
+                          checked={rotina.status === 'concluida'}
+                          onCheckedChange={(checked) => 
+                            handleToggleConclusao(rotina.id, checked as boolean)
+                          }
+                          className="w-5 h-5 mt-0.5"
+                          disabled={loadingCheckboxes.has(rotina.id)}
+                        />
+                        {loadingCheckboxes.has(rotina.id) && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        )}
+                      </div>
                       
                       <div className="flex-1 min-w-0 space-y-1">
                         <h4 className={cn(
-                          "font-medium text-sm sm:text-base",
-                          rotina.status === 'concluida' && "line-through text-muted-foreground"
+                          "font-medium text-sm sm:text-base transition-all duration-200",
+                          rotina.status === 'concluida' && "line-through text-muted-foreground",
+                          loadingCheckboxes.has(rotina.id) && "opacity-50"
                         )}>
                           {rotina.nome}
                         </h4>
