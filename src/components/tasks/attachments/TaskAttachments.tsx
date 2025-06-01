@@ -25,13 +25,21 @@ export function TaskAttachments({ taskId, readOnly = false }: TaskAttachmentsPro
     if (taskId) {
       loadAttachments(taskId);
     }
-  }, [taskId, loadAttachments]);
+  }, [taskId]);
+
+  const handleUpload = async (file: File) => {
+    return await uploadAttachment(file, taskId);
+  };
+
+  const handleDelete = async (attachmentId: string) => {
+    return await deleteAttachment(attachmentId);
+  };
 
   return (
     <div className="space-y-4">
       {!readOnly && (
         <AttachmentUploader 
-          onUpload={(file) => uploadAttachment(file, taskId)}
+          onUpload={handleUpload}
           isUploading={isUploading}
           progress={progress}
         />
@@ -52,7 +60,7 @@ export function TaskAttachments({ taskId, readOnly = false }: TaskAttachmentsPro
               <AttachmentItem 
                 key={attachment.id}
                 attachment={attachment}
-                onDelete={readOnly ? undefined : () => deleteAttachment(attachment.id)}
+                onDelete={readOnly ? undefined : () => handleDelete(attachment.id)}
               />
             ))}
           </div>
