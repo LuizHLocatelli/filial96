@@ -46,6 +46,14 @@ export function RotinasList({
   const [loadingCheckboxes, setLoadingCheckboxes] = useState<Set<string>>(new Set());
   const [recentlyClicked, setRecentlyClicked] = useState<Set<string>>(new Set());
 
+  // Log sempre que as rotinas mudarem
+  useEffect(() => {
+    console.log('🔄 RotinasList: Rotinas atualizadas:', rotinas.length, 'itens');
+    rotinas.forEach(rotina => {
+      console.log(`📋 Rotina ${rotina.nome}: status = ${rotina.status}, concluida = ${rotina.conclusao?.concluida}`);
+    });
+  }, [rotinas]);
+
   useEffect(() => {
     const fetchCreatorNames = async () => {
       if (rotinas.length === 0) return;
@@ -248,9 +256,10 @@ export function RotinasList({
                       <div className="relative flex-shrink-0">
                         <Checkbox
                           checked={rotina.status === 'concluida'}
-                          onCheckedChange={(checked) => 
-                            handleToggleConclusao(rotina.id, checked as boolean)
-                          }
+                          onCheckedChange={(checked) => {
+                            console.log(`🎯 Checkbox ${rotina.nome}: checked=${checked}, currentStatus=${rotina.status}`);
+                            handleToggleConclusao(rotina.id, checked as boolean);
+                          }}
                           className="w-5 h-5 mt-0.5"
                           disabled={loadingCheckboxes.has(rotina.id)}
                         />

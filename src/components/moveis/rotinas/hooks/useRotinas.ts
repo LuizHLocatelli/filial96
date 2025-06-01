@@ -26,19 +26,24 @@ export function useRotinas() {
 
       if (rotinasError) throw rotinasError;
 
-      // Buscar conclusões de hoje
+      // Buscar conclusões de hoje do usuário atual
       const today = format(new Date(), 'yyyy-MM-dd');
       const { data: conclusoesData, error: conclusoesError } = await supabase
         .from('moveis_rotinas_conclusoes')
         .select('*')
-        .eq('data_conclusao', today);
+        .eq('data_conclusao', today)
+        .eq('created_by', user.id);
 
       if (conclusoesError) throw conclusoesError;
+
+      console.log('📊 Dados das rotinas:', rotinasData?.length, 'conclusões:', conclusoesData?.length);
 
       // Combinar dados e calcular status
       const rotinasWithStatus: RotinaWithStatus[] = (rotinasData || []).map(rotina => {
         const conclusao = conclusoesData?.find(c => c.rotina_id === rotina.id);
         let status: 'pendente' | 'concluida' | 'atrasada' = 'pendente';
+
+        console.log(`🔍 Rotina ${rotina.nome}: conclusao =`, conclusao);
 
         if (conclusao?.concluida) {
           status = 'concluida';
@@ -57,14 +62,18 @@ export function useRotinas() {
           }
         }
 
-        return {
+        const rotinaWithStatus = {
           ...rotina,
           periodicidade: rotina.periodicidade as 'diario' | 'semanal' | 'mensal' | 'personalizado',
           status,
           conclusao: conclusao as RotinaConclusao | undefined,
         } as RotinaWithStatus;
+
+        console.log(`📋 Status final da rotina ${rotina.nome}: ${status}`);
+        return rotinaWithStatus;
       });
 
+      console.log('✅ Total de rotinas processadas:', rotinasWithStatus.length);
       setRotinas(rotinasWithStatus);
     } catch (error) {
       console.error('Erro ao buscar rotinas:', error);
@@ -178,7 +187,7 @@ export function useRotinas() {
     const previousRotinas = [...rotinas];
     const updatedRotinas = rotinas.map(rotina => {
       if (rotina.id === rotinaId) {
-        return {
+        const newRotina = {
           ...rotina,
           status: concluida ? 'concluida' as const : 'pendente' as const,
           conclusao: concluida ? {
@@ -191,11 +200,14 @@ export function useRotinas() {
             observacoes: null
           } as RotinaConclusao : undefined
         };
+        console.log('🔄 Atualização otimista aplicada:', newRotina);
+        return newRotina;
       }
       return rotina;
     });
 
     // Atualizar o estado imediatamente
+    console.log('🔄 Aplicando estado otimista...');
     setRotinas(updatedRotinas);
 
     try {
@@ -247,8 +259,8 @@ export function useRotinas() {
 
       console.log('✅ Operação realizada com sucesso:', result);
 
-      // Recarregar os dados para garantir consistência
-      await fetchRotinas();
+      // NÃO recarregar os dados aqui - manter a atualização otimista
+      // await fetchRotinas();
       
       toast({
         title: "Sucesso",
@@ -260,6 +272,7 @@ export function useRotinas() {
       console.error('❌ Erro ao atualizar conclusão:', error);
       
       // Reverter a mudança otimista em caso de erro
+      console.log('🔄 Revertendo estado otimista devido ao erro...');
       setRotinas(previousRotinas);
       
       toast({
