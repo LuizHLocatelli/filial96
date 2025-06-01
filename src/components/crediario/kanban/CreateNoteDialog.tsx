@@ -58,7 +58,7 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
         description: "Não foi possível criar a nota",
         variant: "destructive"
       });
-      console.error("Error creating note:", error);
+      console.error("Erro ao criar nota:", error);
     } finally {
       setIsSubmitting(false);
     }

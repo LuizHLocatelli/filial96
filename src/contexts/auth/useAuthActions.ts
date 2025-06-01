@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { AuthActionsProps } from "./types";
+import { formatErrorForUser } from "@/utils/errorTranslations";
 
 export function useAuthActions({
   user,
@@ -30,78 +30,60 @@ export function useAuthActions({
   // Function for account deletion
   const deleteAccount = async (password: string) => {
     try {
-      console.log("Iniciando processo de exclusão de conta");
+      console.log("🗑️ Iniciando processo de exclusão de conta");
       
-      // 1. Verify the password first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user?.email || "",
-        password: password,
-      });
-
-      if (signInError) {
-        console.error("Erro ao verificar senha:", signInError);
-        throw new Error("Senha incorreta");
+      // Make sure the user ID is available
+      if (!user?.id) {
+        throw new Error("ID do usuário não disponível");
       }
       
-      console.log("Senha verificada com sucesso");
+      console.log(`🔍 Processando exclusão para usuário: ${user.id}`);
       
-      // 2. Call delete_user_account function to clean up user data
-      // This SQL function will delete all user data from the database
-      const { error: rpcError } = await supabase.rpc('delete_user_account');
-      
-      if (rpcError) {
-        console.error("Erro ao executar RPC delete_user_account:", rpcError);
-        throw new Error(`Erro ao excluir dados do usuário: ${rpcError.message}`);
-      }
-      
-      console.log("Dados do usuário limpos com sucesso via RPC");
-      
-      // 3. Delete the actual user account from auth.users
-      // We need to use admin.deleteUser which requires service role
+      // Delete account using the NEW service-based Edge Function
       try {
-        // Make sure the user ID is available
-        if (!user?.id) {
-          throw new Error("ID do usuário não disponível");
-        }
+        console.log("📡 Chamando Edge Function delete-account-service...");
         
-        // Delete from auth.users directly using the Edge Function
-        const { error: deleteError } = await supabase.functions.invoke('delete-user', {
-          body: { user_id: user.id }
+        const { data: result, error: deleteError } = await supabase.functions.invoke('delete-account-service', {
+          body: { 
+            user_id: user.id,
+            password: password
+          }
         });
         
         if (deleteError) {
-          throw deleteError;
+          console.error("❌ Erro da Edge Function:", deleteError);
+          throw new Error(`Falha na Edge Function: ${formatErrorForUser(deleteError, "Erro desconhecido")}`);
         }
         
-        console.log("Usuário excluído com sucesso");
+        console.log("✅ Edge Function executada com sucesso:", result);
+        
+        // Show success message
+        toast({
+          title: "Conta excluída",
+          description: "Sua conta foi excluída com sucesso.",
+        });
+        
+        // Clear local state immediately (auth.users was already deleted by Edge Function)
+        console.log("🧹 Limpando estado local...");
+        setUser(null);
+        setProfile(null);
+        setSession(null);
+        
+        // Redirect to login page
+        console.log("🔄 Redirecionando para login...");
+        window.location.href = '/auth';
+        
       } catch (deleteUserError: any) {
-        console.error("Erro ao excluir conta de autenticação:", deleteUserError);
-        throw new Error(`Falha ao excluir conta de autenticação: ${deleteUserError.message || "Erro desconhecido"}`);
+        console.error("❌ Erro ao excluir conta:", deleteUserError);
+        throw new Error(`Falha ao excluir conta: ${formatErrorForUser(deleteUserError, "Erro desconhecido")}`);
       }
       
-      // 4. Show success message
-      toast({
-        title: "Conta excluída",
-        description: "Sua conta foi excluída com sucesso.",
-      });
-      
-      // 5. Sign out and clear local state
-      await supabase.auth.signOut();
-      
-      // Clear context data
-      setUser(null);
-      setProfile(null);
-      setSession(null);
-      
-      // Redirect to login page
-      window.location.href = '/auth';
-      
     } catch (error: any) {
-      console.error("Erro completo ao excluir conta:", error);
+      console.error("💥 Erro completo ao excluir conta:", error);
       toast({
         variant: "destructive",
         title: "Erro ao excluir conta",
-        description: error.message || "Ocorreu um erro ao excluir sua conta.",
+        description: formatErrorForUser(error, "Ocorreu um erro ao excluir sua conta."),
       });
       throw error;
     }

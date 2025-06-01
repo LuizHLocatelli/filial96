@@ -45,7 +45,7 @@ export function OrientacoesFilters({
           placeholder="Buscar orientações..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-11 h-12 bg-gradient-to-r from-background to-muted/20 border-border/40 hover:border-border/60 focus:border-primary/50 transition-all duration-300 shadow-sm"
+          className="pl-11 h-12 bg-background border-border hover:border-border/80 focus:border-primary transition-all duration-300 shadow-sm"
         />
       </div>
       
@@ -53,7 +53,7 @@ export function OrientacoesFilters({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1">
           <Select value={filterType} onValueChange={onFilterChange}>
-            <SelectTrigger className={`${isMobile ? 'flex-1' : 'w-[200px]'} bg-gradient-to-r from-background to-muted/20 border-border/40 hover:border-border/60 transition-all duration-300 shadow-sm h-10`}>
+            <SelectTrigger className={`${isMobile ? 'flex-1' : 'w-[200px]'} bg-background border-border hover:border-border/80 transition-all duration-300 shadow-sm h-10`}>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <SelectValue placeholder="Filtrar por tipo" />
@@ -72,7 +72,7 @@ export function OrientacoesFilters({
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="flex items-center gap-1 bg-gradient-to-r from-muted/40 to-muted/20 rounded-lg p-1 border border-border/40 shadow-sm"
+            className="flex items-center gap-1 bg-muted/30 rounded-lg p-1 border border-border shadow-sm"
           >
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
@@ -80,7 +80,7 @@ export function OrientacoesFilters({
               onClick={() => onViewModeChange("grid")}
               className={`h-8 w-8 p-0 transition-all duration-300 ${
                 viewMode === "grid" 
-                  ? "bg-gradient-to-r from-primary to-primary/90 shadow-sm" 
+                  ? "bg-primary text-primary-foreground shadow-sm" 
                   : "hover:bg-muted/60"
               }`}
             >
@@ -92,7 +92,7 @@ export function OrientacoesFilters({
               onClick={() => onViewModeChange("list")}
               className={`h-8 w-8 p-0 transition-all duration-300 ${
                 viewMode === "list" 
-                  ? "bg-gradient-to-r from-primary to-primary/90 shadow-sm" 
+                  ? "bg-primary text-primary-foreground shadow-sm" 
                   : "hover:bg-muted/60"
               }`}
             >

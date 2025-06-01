@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Attachment } from "@/types/attachments";
@@ -23,7 +22,10 @@ export function useTaskAttachments(taskId?: string) {
       const loadedAttachments = await fetchAttachments(currentTaskId);
       setAttachments(loadedAttachments);
     } catch (error) {
-      console.error("Error loading attachments:", error);
+      console.error("Erro ao carregar anexos:", error);
+      setError("Erro ao carregar anexos");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
   
@@ -110,15 +112,16 @@ export function useTaskAttachments(taskId?: string) {
       
       return result.attachment;
     } catch (error) {
-      console.error("Error uploading file:", error);
-      finishUpload(false);
-      
+      console.error("Erro ao fazer upload do arquivo:", error);
       toast({
-        title: "Erro ao fazer upload",
-        description: "Não foi possível anexar o arquivo",
         variant: "destructive",
+        title: "Erro no upload",
+        description: "Não foi possível fazer upload do arquivo.",
       });
+      finishUpload(false);
       return null;
+    } finally {
+      setIsUploading(false);
     }
   };
   
@@ -143,12 +146,11 @@ export function useTaskAttachments(taskId?: string) {
       
       return success;
     } catch (error) {
-      console.error("Error deleting attachment:", error);
-      
+      console.error("Erro ao excluir anexo:", error);
       toast({
-        title: "Erro ao excluir anexo",
-        description: "Não foi possível remover o arquivo",
         variant: "destructive",
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir o anexo.",
       });
       return false;
     }

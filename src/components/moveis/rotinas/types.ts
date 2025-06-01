@@ -1,10 +1,10 @@
-
 export interface Rotina {
   id: string;
   nome: string;
   descricao?: string;
   periodicidade: 'diario' | 'semanal' | 'mensal' | 'personalizado';
   horario_preferencial?: string;
+  dia_preferencial: string;
   categoria: string;
   ativo: boolean;
   created_by: string;
@@ -36,5 +36,6 @@ export interface RotinaFormData {
   descricao?: string;
   periodicidade: 'diario' | 'semanal' | 'mensal' | 'personalizado';
   horario_preferencial?: string;
+  dia_preferencial: string;
   categoria: string;
 }

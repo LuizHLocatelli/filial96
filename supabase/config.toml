@@ -30,3 +30,10 @@ port = 54326
 [realtime]
 enabled = true
 port = 54327
+
+# Edge Functions Configuration
+[functions.delete-user-fixed]
+verify_jwt = false
+
+[functions.delete-account-no-jwt]
+verify_jwt = false

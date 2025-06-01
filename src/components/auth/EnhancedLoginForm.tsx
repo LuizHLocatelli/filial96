@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { loginSchema, type LoginFormValues } from "./schemas/loginSchema";
+import { formatErrorForUser } from "@/utils/errorTranslations";
 
 export function EnhancedLoginForm() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export function EnhancedLoginForm() {
         toast({
           variant: "destructive",
           title: "Erro ao fazer login",
-          description: error.message,
+          description: formatErrorForUser(error, "Verifique suas credenciais e tente novamente."),
         });
         return;
       }
@@ -59,7 +60,7 @@ export function EnhancedLoginForm() {
       toast({
         variant: "destructive",
         title: "Erro ao fazer login",
-        description: "Ocorreu um erro inesperado ao fazer login.",
+        description: formatErrorForUser(error, "Ocorreu um erro inesperado ao fazer login."),
       });
     } finally {
       setIsLoading(false);

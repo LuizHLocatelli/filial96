@@ -16,11 +16,11 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pendente":
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">Pendente</Badge>;
+        return <Badge variant="outline" className="bg-accent/50 text-accent-foreground border-accent/40 dark:bg-accent/30 dark:text-accent-foreground dark:border-accent/50">Pendente</Badge>;
       case "em_andamento":
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">Em andamento</Badge>;
+        return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary dark:border-primary/30">Em andamento</Badge>;
       case "concluida":
-        return <Badge variant="outline" className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">Concluída</Badge>;
+        return <Badge variant="outline" className="bg-muted/80 text-muted-foreground border-muted/60 dark:bg-muted/40 dark:text-muted-foreground dark:border-muted/70">Concluída</Badge>;
       default:
         return <Badge variant="outline">Desconhecido</Badge>;
     }
@@ -29,11 +29,11 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pendente":
-        return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />;
+        return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5 text-accent-foreground" />;
       case "em_andamento":
-        return <CircleEllipsis className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />;
+        return <CircleEllipsis className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />;
       case "concluida":
-        return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />;
+        return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />;
       default:
         return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5" />;
     }
@@ -71,7 +71,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
               <Button
                 size="sm"
                 variant="outline"
-                className="text-yellow-600 border-yellow-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 text-xs sm:text-sm flex-1 sm:flex-none"
+                className="text-accent-foreground border-accent/40 hover:bg-accent/20 dark:hover:bg-accent/30 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => onAtualizarStatus(tarefa.id, "pendente")}
               >
                 <CircleDashed className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -83,7 +83,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
               <Button
                 size="sm"
                 variant="outline"
-                className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-xs sm:text-sm flex-1 sm:flex-none"
+                className="text-primary border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/20 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => onAtualizarStatus(tarefa.id, "em_andamento")}
               >
                 <CircleEllipsis className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -95,7 +95,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
               <Button
                 size="sm"
                 variant="outline"
-                className="text-green-600 border-green-200 hover:bg-green-50 dark:hover:bg-green-900/20 text-xs sm:text-sm flex-1 sm:flex-none"
+                className="text-muted-foreground border-muted/50 hover:bg-muted/20 dark:hover:bg-muted/30 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => onAtualizarStatus(tarefa.id, "concluida")}
               >
                 <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -107,7 +107,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
           <Button
             size="sm"
             variant="ghost"
-            className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 w-full sm:w-auto"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 w-full sm:w-auto"
             onClick={() => onExcluirTarefa(tarefa.id)}
           >
             <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />

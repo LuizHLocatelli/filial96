@@ -16,7 +16,7 @@ const ensureProductsArray = (produtos: any): VendaOProduct[] => {
     }
     return JSON.parse(JSON.stringify(produtos));
   } catch (e) {
-    console.error("Error parsing produtos:", e);
+    console.error("Erro ao analisar produtos:", e);
     return [];
   }
 };
@@ -50,7 +50,7 @@ export function useVendaO() {
             .eq('sale_id', sale.id);
 
           if (attachmentsError) {
-            console.error("Error fetching attachments:", attachmentsError);
+            console.error("Erro ao buscar anexos:", attachmentsError);
             return { 
               ...sale, 
               produtos: ensureProductsArray(sale.produtos),
@@ -68,7 +68,7 @@ export function useVendaO() {
 
       setSales(salesWithAttachments as VendaO[]);
     } catch (error) {
-      console.error("Error loading Venda O sales:", error);
+      console.error("Erro ao carregar vendas Venda O:", error);
       toast({
         title: "Erro ao carregar as vendas",
         description: "Ocorreu um erro ao carregar as vendas de outras filiais.",

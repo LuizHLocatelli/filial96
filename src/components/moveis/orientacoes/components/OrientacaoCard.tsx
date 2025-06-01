@@ -20,19 +20,19 @@ export function OrientacaoCard({ orientacao, onView }: OrientacaoCardProps) {
     switch (tipo) {
       case "vm":
         return (
-          <Badge variant="outline" className="bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-green-200 dark:from-green-950/30 dark:to-green-950/20 dark:text-green-300 font-medium">
+          <Badge variant="outline" className="bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-primary/20 dark:from-primary/20 dark:to-primary/10 dark:text-primary dark:border-primary/30 font-medium">
             VM
           </Badge>
         );
       case "informativo":
         return (
-          <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-200 dark:from-blue-950/30 dark:to-blue-950/20 dark:text-blue-300 font-medium">
+          <Badge variant="outline" className="bg-gradient-to-r from-accent/50 to-accent/30 text-accent-foreground border-accent/40 dark:from-accent/30 dark:to-accent/20 dark:text-accent-foreground dark:border-accent/50 font-medium">
             Informativo
           </Badge>
         );
       default:
         return (
-          <Badge variant="outline" className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-gray-200 dark:from-gray-950/30 dark:to-gray-950/20 dark:text-gray-300 font-medium">
+          <Badge variant="outline" className="bg-gradient-to-r from-muted/50 to-muted/30 text-muted-foreground border-muted/40 dark:from-muted/30 dark:to-muted/20 dark:text-muted-foreground dark:border-muted/50 font-medium">
             Outro
           </Badge>
         );
@@ -40,9 +40,9 @@ export function OrientacaoCard({ orientacao, onView }: OrientacaoCardProps) {
   };
 
   const getFileIcon = (tipo: string) => {
-    if (tipo.includes("image")) return <Image className="h-4 w-4 text-blue-500" />;
-    if (tipo.includes("pdf")) return <FileText className="h-4 w-4 text-red-500" />;
-    return <File className="h-4 w-4 text-gray-500" />;
+    if (tipo.includes("image")) return <Image className="h-4 w-4 text-primary" />;
+    if (tipo.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
+    return <File className="h-4 w-4 text-muted-foreground" />;
   };
 
   const handleDownload = (e: React.MouseEvent) => {

@@ -59,7 +59,7 @@ export function OrientacoesHeader({ totalCount, vmCount, informativoCount, onNov
             >
               <Badge 
                 variant="outline" 
-                className="bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-green-200 dark:from-green-950/30 dark:to-green-950/20 dark:text-green-300 font-medium px-3 py-1.5 shadow-sm"
+                className="bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-primary/20 dark:from-primary/20 dark:to-primary/10 dark:text-primary dark:border-primary/30 font-medium px-3 py-1.5 shadow-sm"
               >
                 VM: {vmCount}
               </Badge>
@@ -72,7 +72,7 @@ export function OrientacoesHeader({ totalCount, vmCount, informativoCount, onNov
             >
               <Badge 
                 variant="outline" 
-                className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-200 dark:from-blue-950/30 dark:to-blue-950/20 dark:text-blue-300 font-medium px-3 py-1.5 shadow-sm"
+                className="bg-gradient-to-r from-accent/50 to-accent/30 text-accent-foreground border-accent/40 dark:from-accent/30 dark:to-accent/20 dark:text-accent-foreground dark:border-accent/50 font-medium px-3 py-1.5 shadow-sm"
               >
                 Informativo: {informativoCount}
               </Badge>

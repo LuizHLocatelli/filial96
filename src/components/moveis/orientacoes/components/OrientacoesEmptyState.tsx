@@ -96,7 +96,7 @@ export function OrientacoesEmptyState({ hasFilters, onNovaOrientacao }: Orientac
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 0.02, scale: 1 }}
           transition={{ delay: 1, duration: 1 }}
-          className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-blue-500 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-accent rounded-full blur-3xl"
         />
       </div>
     </motion.div>

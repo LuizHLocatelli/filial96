@@ -34,7 +34,7 @@ export function useFolgas() {
           .eq("role", "crediarista");
           
         if (error) {
-          console.error("Error fetching crediaristas:", error);
+          console.error("Erro ao buscar crediaristas:", error);
           toast({
             title: "Erro ao carregar crediaristas",
             description: error.message,
@@ -52,7 +52,7 @@ export function useFolgas() {
         
         setCrediaristas(formattedCrediaristas);
       } catch (error) {
-        console.error("Error fetching crediaristas:", error);
+        console.error("Erro ao buscar crediaristas:", error);
         toast({
           title: "Erro ao carregar crediaristas",
           description: "Não foi possível carregar a lista de crediaristas.",
@@ -76,7 +76,7 @@ export function useFolgas() {
           .select("id, name"); // Selecionar apenas id e name
           
         if (error) {
-          console.error("Error fetching all users:", error);
+          console.error("Erro ao buscar todos os usuários:", error);
           toast({
             title: "Erro ao carregar usuários",
             description: error.message,
@@ -96,7 +96,7 @@ export function useFolgas() {
           setAllUsers([]);
         }
       } catch (error) {
-        console.error("Error fetching all users:", error);
+        console.error("Erro ao buscar todos os usuários:", error);
         toast({
           title: "Erro ao carregar usuários",
           description: "Não foi possível carregar a lista de usuários.",
@@ -121,7 +121,7 @@ export function useFolgas() {
           .select("*");
           
         if (error) {
-          console.error("Error fetching folgas:", error);
+          console.error("Erro ao buscar folgas:", error);
           toast({
             title: "Erro ao carregar folgas",
             description: error.message,
@@ -142,7 +142,7 @@ export function useFolgas() {
         
         setFolgas(formattedFolgas);
       } catch (error) {
-        console.error("Error fetching folgas:", error);
+        console.error("Erro ao buscar folgas:", error);
         toast({
           title: "Erro ao carregar folgas",
           description: "Não foi possível carregar a lista de folgas.",
@@ -234,7 +234,7 @@ export function useFolgas() {
         .select();
         
       if (error) {
-        console.error("Error adding folga:", error);
+        console.error("Erro ao adicionar folga:", error);
         toast({
           title: "Erro ao adicionar folga",
           description: error.message,
@@ -271,7 +271,7 @@ export function useFolgas() {
         setMotivo("");
       }
     } catch (error) {
-      console.error("Error adding folga:", error);
+      console.error("Erro ao adicionar folga:", error);
       toast({
         title: "Erro ao adicionar folga",
         description: "Não foi possível adicionar a folga.",
@@ -288,7 +288,7 @@ export function useFolgas() {
         .eq("id", folgaId);
         
       if (error) {
-        console.error("Error deleting folga:", error);
+        console.error("Erro ao excluir folga:", error);
         toast({
           title: "Erro ao remover folga",
           description: error.message,
@@ -305,7 +305,7 @@ export function useFolgas() {
         description: "A folga foi removida com sucesso.",
       });
     } catch (error) {
-      console.error("Error deleting folga:", error);
+      console.error("Erro ao excluir folga:", error);
       toast({
         title: "Erro ao remover folga",
         description: "Não foi possível remover a folga.",

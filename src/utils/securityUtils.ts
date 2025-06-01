@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -18,7 +17,7 @@ export async function validateTaskAccess(taskId: string): Promise<AccessValidati
     const { data: currentUser } = await supabase.auth.getUser();
     
     if (!currentUser.user) {
-      return { hasAccess: false, error: "User not authenticated" };
+      return { hasAccess: false, error: "Usuário não autenticado" };
     }
 
     const { data: task, error } = await supabase
@@ -39,8 +38,8 @@ export async function validateTaskAccess(taskId: string): Promise<AccessValidati
       error: hasAccess ? undefined : "Access denied: You don't have permission to access this task" 
     };
   } catch (error) {
-    console.error("Error validating task access:", error);
-    return { hasAccess: false, error: "Failed to validate access" };
+    console.error("Erro ao validar acesso à tarefa:", error);
+    return { hasAccess: false, error: "Falha ao validar acesso" };
   }
 }
 
@@ -52,7 +51,7 @@ export async function validateTaskOwnership(taskId: string): Promise<AccessValid
     const { data: currentUser } = await supabase.auth.getUser();
     
     if (!currentUser.user) {
-      return { hasAccess: false, error: "User not authenticated" };
+      return { hasAccess: false, error: "Usuário não autenticado" };
     }
 
     const { data: task, error } = await supabase
@@ -73,8 +72,8 @@ export async function validateTaskOwnership(taskId: string): Promise<AccessValid
       error: hasAccess ? undefined : "Access denied: You don't own this task" 
     };
   } catch (error) {
-    console.error("Error validating task ownership:", error);
-    return { hasAccess: false, error: "Failed to validate ownership" };
+    console.error("Erro ao validar propriedade da tarefa:", error);
+    return { hasAccess: false, error: "Falha ao validar propriedade" };
   }
 }
 
@@ -86,7 +85,7 @@ export async function validateAttachmentOwnership(attachmentId: string): Promise
     const { data: currentUser } = await supabase.auth.getUser();
     
     if (!currentUser.user) {
-      return { hasAccess: false, error: "User not authenticated" };
+      return { hasAccess: false, error: "Usuário não autenticado" };
     }
 
     const { data: attachment, error } = await supabase
@@ -107,8 +106,8 @@ export async function validateAttachmentOwnership(attachmentId: string): Promise
       error: hasAccess ? undefined : "Access denied: You don't own this attachment" 
     };
   } catch (error) {
-    console.error("Error validating attachment ownership:", error);
-    return { hasAccess: false, error: "Failed to validate ownership" };
+    console.error("Erro ao validar propriedade do anexo:", error);
+    return { hasAccess: false, error: "Falha ao validar propriedade" };
   }
 }
 

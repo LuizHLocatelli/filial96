@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -45,6 +46,14 @@ export function AddFolgaDialog({
   getUserNameForFolga
 }: AddFolgaDialogProps) {
   const hasExistingFolgas = folgasNoDia && folgasNoDia.length > 0;
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+      setCalendarOpen(false); // Fechar o calendário automaticamente
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -122,7 +131,7 @@ export function AddFolgaDialog({
           
           <div className="space-y-1.5">
             <label className="text-xs font-medium">Data da Folga</label>
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -140,9 +149,7 @@ export function AddFolgaDialog({
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={(date) => {
-                    if (date) setSelectedDate(date);
-                  }}
+                  onSelect={handleDateSelect}
                   initialFocus
                   className="p-2"
                   disabled={hasExistingFolgas}

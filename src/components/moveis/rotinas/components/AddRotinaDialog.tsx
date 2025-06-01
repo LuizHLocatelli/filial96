@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,16 @@ const categoriasPredefinidas = [
   'Outros'
 ];
 
+const diasDaSemana = [
+  { value: 'segunda', label: 'Segunda-feira' },
+  { value: 'terca', label: 'Terça-feira' },
+  { value: 'quarta', label: 'Quarta-feira' },
+  { value: 'quinta', label: 'Quinta-feira' },
+  { value: 'sexta', label: 'Sexta-feira' },
+  { value: 'sabado', label: 'Sábado' },
+  { value: 'domingo', label: 'Domingo' }
+];
+
 export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<RotinaFormData>({
@@ -32,13 +41,14 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
     descricao: '',
     periodicidade: 'diario',
     horario_preferencial: '',
+    dia_preferencial: '',
     categoria: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.nome.trim() || !formData.categoria.trim()) {
+    if (!formData.nome.trim() || !formData.categoria.trim() || !formData.dia_preferencial.trim()) {
       return;
     }
 
@@ -57,6 +67,7 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
         descricao: '',
         periodicidade: 'diario',
         horario_preferencial: '',
+        dia_preferencial: '',
         categoria: '',
       });
       onOpenChange(false);
@@ -130,6 +141,25 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
                 onChange={(e) => handleInputChange('horario_preferencial', e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dia_preferencial">Dia Preferencial *</Label>
+            <Select
+              value={formData.dia_preferencial}
+              onValueChange={(value) => handleInputChange('dia_preferencial', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um dia" />
+              </SelectTrigger>
+              <SelectContent>
+                {diasDaSemana.map(dia => (
+                  <SelectItem key={dia.value} value={dia.value}>
+                    {dia.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

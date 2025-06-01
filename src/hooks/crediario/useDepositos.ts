@@ -512,8 +512,8 @@ export function useDepositos() {
       
       return true;
     } catch (error) {
-      console.error("Error saving deposit:", error);
-      return false;
+      console.error("Erro ao salvar depósito:", error);
+      throw error;
     }
   };
 

@@ -1,6 +1,7 @@
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +66,14 @@ export function AddFolgaDialog({
   getUserNameForFolga
 }: AddFolgaDialogProps) {
   const hasExistingFolgas = folgasNoDia && folgasNoDia.length > 0;
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+      setCalendarOpen(false); // Fechar o calendário automaticamente
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -131,7 +140,7 @@ export function AddFolgaDialog({
             <label htmlFor="date-dialog-moveis" className="text-xs font-medium">
               Data da Folga
             </label>
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   id="date-dialog-moveis"
@@ -147,7 +156,7 @@ export function AddFolgaDialog({
                 <Calendar
                   mode="single"
                   selected={selectedDate || undefined}
-                  onSelect={(date) => { if(date) setSelectedDate(date);}}
+                  onSelect={handleDateSelect}
                   locale={ptBR}
                   initialFocus
                   disabled={hasExistingFolgas}

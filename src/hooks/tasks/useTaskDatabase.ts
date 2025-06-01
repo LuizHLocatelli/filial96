@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/utils/activityLogger";
@@ -69,7 +68,7 @@ export async function saveTask(
         });
 
       if (error) {
-        console.error("Error creating task:", error);
+        console.error("Erro ao criar tarefa:", error);
         throw error;
       }
 
@@ -111,7 +110,7 @@ export async function saveTask(
         .eq("id", taskId);
 
       if (error) {
-        console.error("Error updating task:", error);
+        console.error("Erro ao atualizar tarefa:", error);
         throw error;
       }
 
@@ -139,7 +138,7 @@ export async function saveTask(
       taskId: taskId
     };
   } catch (error) {
-    console.error("Error saving task:", error);
+    console.error("Erro ao salvar tarefa:", error);
     return {
       success: false,
       error,

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sofa, Shirt, Wallet, Wrench } from "lucide-react";
+import { Sofa, Shirt, Wallet, Settings } from "lucide-react";
 
 interface SectorSelectorProps {
   selectedSector: "furniture" | "fashion" | "loan" | "service";
@@ -15,7 +15,7 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
     { title: "Móveis", value: "furniture", icon: Sofa },
     { title: "Moda", value: "fashion", icon: Shirt },
     { title: "Empréstimo", value: "loan", icon: Wallet },
-    { title: "Serviços", value: "service", icon: Wrench },
+    { title: "Geral e Serviços", value: "service", icon: Settings },
   ];
   
   return (

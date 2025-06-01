@@ -89,7 +89,7 @@ export function useTaskDialogs() {
         .single();
         
       if (error) {
-        console.error("Error fetching task:", error);
+        console.error("Erro ao buscar tarefa:", error);
         return null;
       }
       
@@ -134,8 +134,10 @@ export function useTaskDialogs() {
       
       return null;
     } catch (error) {
-      console.error("Error fetching task:", error);
+      console.error("Erro ao buscar tarefa:", error);
       return null;
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 

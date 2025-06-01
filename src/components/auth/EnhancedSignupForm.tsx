@@ -1,12 +1,9 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Lock, Mail, User, UserPlus, Shield, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import {
   Form,
@@ -24,10 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { signupSchema, type SignupFormValues } from "./schemas/signupSchema";
+import { useSupabaseSignup } from "@/hooks/useSupabaseSignup";
 
 export function EnhancedSignupForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { isLoading, signUp } = useSupabaseSignup();
   
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -41,43 +39,16 @@ export function EnhancedSignupForm() {
   });
 
   const handleSignUp = async (values: SignupFormValues) => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            name: values.name,
-            phone: values.phone,
-            role: values.role,
-          }
-        }
-      });
-
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao criar conta",
-          description: error.message,
-        });
-        return;
-      }
-
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Verifique seu e-mail para confirmar sua conta.",
-      });
-      
+    const success = await signUp({
+      email: values.email,
+      password: values.password,
+      name: values.name,
+      phone: values.phone,
+      role: values.role,
+    });
+    
+    if (success) {
       form.reset();
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao criar conta",
-        description: "Ocorreu um erro inesperado ao criar sua conta.",
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 

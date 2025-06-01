@@ -168,7 +168,7 @@ export function VmTarefas() {
                     className="absolute -top-2 -right-2"
                   >
                     <Badge 
-                      className="h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs rounded-full shadow-md"
+                      className="h-5 w-5 p-0 flex items-center justify-center bg-destructive text-destructive-foreground text-xs rounded-full shadow-md"
                       variant="destructive"
                     >
                       {unreadCount}

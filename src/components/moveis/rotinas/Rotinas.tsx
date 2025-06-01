@@ -60,40 +60,45 @@ export function Rotinas() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Rotinas</h1>
-          <p className="text-muted-foreground">
+    <div className="space-y-4 sm:space-y-6 px-1 sm:px-0">
+      {/* Header responsivo */}
+      <div className="flex flex-col gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl sm:text-2xl font-bold">Rotinas</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie suas rotinas obrigatórias e acompanhe o progresso
           </p>
         </div>
         
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Filtros
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={openExportDialog}
-            className="flex items-center gap-2"
-            disabled={isLoading || rotinas.length === 0}
-          >
-            <Download className="h-4 w-4" />
-            Exportar PDF
-          </Button>
+        {/* Botões de ação - empilhados em mobile */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="flex flex-row gap-2 sm:gap-3 flex-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 flex-1 sm:flex-none"
+            >
+              <Filter className="h-4 w-4" />
+              <span className="hidden xs:inline">Filtros</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openExportDialog}
+              className="flex items-center gap-2 flex-1 sm:flex-none"
+              disabled={isLoading || rotinas.length === 0}
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden xs:inline">Exportar PDF</span>
+            </Button>
+          </div>
           
           <Button
             onClick={() => setShowAddDialog(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
+            size="sm"
           >
             <Plus className="h-4 w-4" />
             Nova Rotina
@@ -101,6 +106,7 @@ export function Rotinas() {
         </div>
       </div>
 
+      {/* Filtros */}
       {showFilters && (
         <RotinaFilters
           periodicidadeFilter={periodicidadeFilter}
@@ -113,13 +119,18 @@ export function Rotinas() {
         />
       )}
 
+      {/* Tabs responsivas */}
       <Tabs defaultValue="lista" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="lista">Lista</TabsTrigger>
-          <TabsTrigger value="stats">Estatísticas</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 h-auto p-1">
+          <TabsTrigger value="lista" className="py-2 px-4 text-sm">
+            Lista
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="py-2 px-4 text-sm">
+            Estatísticas
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="lista" className="space-y-4">
+        <TabsContent value="lista" className="space-y-4 mt-4">
           <RotinasList
             rotinas={filteredRotinas}
             isLoading={isLoading}
@@ -130,11 +141,12 @@ export function Rotinas() {
           />
         </TabsContent>
         
-        <TabsContent value="stats" className="space-y-4">
+        <TabsContent value="stats" className="space-y-4 mt-4">
           <RotinasStats rotinas={filteredRotinas} />
         </TabsContent>
       </Tabs>
 
+      {/* Dialogs */}
       <AddRotinaDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}

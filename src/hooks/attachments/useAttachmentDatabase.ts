@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 import { Attachment, AttachmentUploadResult } from "@/types/attachments";
@@ -11,7 +10,7 @@ export async function fetchAttachments(taskId: string): Promise<Attachment[]> {
       .eq('task_id', taskId);
     
     if (error) {
-      console.error("Error fetching attachments:", error);
+      console.error("Erro ao buscar anexos:", error);
       return [];
     }
     
@@ -24,7 +23,7 @@ export async function fetchAttachments(taskId: string): Promise<Attachment[]> {
       createdAt: item.created_at
     }));
   } catch (error) {
-    console.error("Error fetching attachments:", error);
+    console.error("Erro ao buscar anexos:", error);
     return [];
   }
 }
@@ -91,7 +90,10 @@ export async function uploadAttachmentToStorage(
       .from('attachments')
       .insert(attachmentData);
     
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error("Erro na exclusão do banco de dados:", dbError);
+      return { success: false, error: dbError };
+    }
     
     // Return success with attachment data
     return {
@@ -105,10 +107,10 @@ export async function uploadAttachmentToStorage(
       }
     };
   } catch (error) {
-    console.error("Error uploading attachment:", error);
+    console.error("Erro ao fazer upload do anexo:", error);
     return {
       success: false,
-      error: error instanceof Error ? error : new Error("Unknown error during upload")
+      error: error instanceof Error ? error : new Error("Erro desconhecido durante upload")
     };
   }
 }
@@ -131,7 +133,7 @@ export async function deleteAttachmentFromStorage(
       .eq('id', attachmentId);
     
     if (dbError) {
-      console.error("Database deletion error:", dbError);
+      console.error("Erro na exclusão do banco de dados:", dbError);
       return false;
     }
     
@@ -147,7 +149,7 @@ export async function deleteAttachmentFromStorage(
     
     return true;
   } catch (error) {
-    console.error("Error deleting attachment:", error);
+    console.error("Erro ao excluir anexo:", error);
     return false;
   }
 }

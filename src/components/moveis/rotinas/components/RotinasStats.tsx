@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, Clock, AlertCircle, Target } from 'lucide-react';
@@ -48,53 +47,53 @@ export function RotinasStats({ rotinas }: RotinasStatsProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Resumo Geral */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Resumo Geral - 2 colunas em mobile, 4 em desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold">{totalRotinas}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total</p>
+                <p className="text-xl sm:text-2xl font-bold">{totalRotinas}</p>
               </div>
-              <Target className="h-8 w-8 text-blue-500" />
+              <Target className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Concluídas</p>
-                <p className="text-2xl font-bold text-green-600">{concluidas}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Concluídas</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">{concluidas}</p>
               </div>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
+              <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
-                <p className="text-2xl font-bold text-gray-600">{pendentes}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Pendentes</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-600">{pendentes}</p>
               </div>
-              <Clock className="h-8 w-8 text-gray-500" />
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Atrasadas</p>
-                <p className="text-2xl font-bold text-red-600">{atrasadas}</p>
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Atrasadas</p>
+                <p className="text-xl sm:text-2xl font-bold text-red-600">{atrasadas}</p>
               </div>
-              <AlertCircle className="h-8 w-8 text-red-500" />
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
@@ -102,60 +101,73 @@ export function RotinasStats({ rotinas }: RotinasStatsProps) {
 
       {/* Progresso Geral */}
       <Card>
-        <CardHeader>
-          <CardTitle>Progresso Geral</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Progresso Geral</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Conclusão do dia</span>
-              <span>{percentualConclusao.toFixed(1)}%</span>
+              <span className="font-medium">{percentualConclusao.toFixed(1)}%</span>
             </div>
             <Progress value={percentualConclusao} className="h-2" />
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Estatísticas detalhadas - stack em mobile */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Estatísticas por Categoria */}
         <Card>
-          <CardHeader>
-            <CardTitle>Por Categoria</CardTitle>
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Por Categoria</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {Object.entries(estatisticasPorCategoria).map(([categoria, stats]) => {
-              const percentual = (stats.concluidas / stats.total) * 100;
-              return (
-                <div key={categoria} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="capitalize">{categoria}</span>
-                    <span>{stats.concluidas}/{stats.total}</span>
+          <CardContent className="pt-0 space-y-3 sm:space-y-4">
+            {Object.entries(estatisticasPorCategoria).length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma categoria encontrada
+              </p>
+            ) : (
+              Object.entries(estatisticasPorCategoria).map(([categoria, stats]) => {
+                const percentual = (stats.concluidas / stats.total) * 100;
+                return (
+                  <div key={categoria} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="capitalize font-medium">{categoria}</span>
+                      <span className="text-muted-foreground">{stats.concluidas}/{stats.total}</span>
+                    </div>
+                    <Progress value={percentual} className="h-1.5" />
                   </div>
-                  <Progress value={percentual} className="h-1.5" />
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </CardContent>
         </Card>
 
         {/* Estatísticas por Periodicidade */}
         <Card>
-          <CardHeader>
-            <CardTitle>Por Periodicidade</CardTitle>
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Por Periodicidade</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {Object.entries(estatisticasPorPeriodicidade).map(([periodicidade, stats]) => {
-              const percentual = (stats.concluidas / stats.total) * 100;
-              return (
-                <div key={periodicidade} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{periodicidadeLabels[periodicidade as keyof typeof periodicidadeLabels]}</span>
-                    <span>{stats.concluidas}/{stats.total}</span>
+          <CardContent className="pt-0 space-y-3 sm:space-y-4">
+            {Object.entries(estatisticasPorPeriodicidade).length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma periodicidade encontrada
+              </p>
+            ) : (
+              Object.entries(estatisticasPorPeriodicidade).map(([periodicidade, stats]) => {
+                const percentual = (stats.concluidas / stats.total) * 100;
+                return (
+                  <div key={periodicidade} className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium">{periodicidadeLabels[periodicidade as keyof typeof periodicidadeLabels]}</span>
+                      <span className="text-muted-foreground">{stats.concluidas}/{stats.total}</span>
+                    </div>
+                    <Progress value={percentual} className="h-1.5" />
                   </div>
-                  <Progress value={percentual} className="h-1.5" />
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </CardContent>
         </Card>
       </div>

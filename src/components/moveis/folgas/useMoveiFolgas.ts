@@ -33,7 +33,7 @@ export function useMoveiFolgas() {
           .or('role.eq.consultor_moveis,role.eq.consultor_moda');
           
         if (error) {
-          console.error("Error fetching consultores:", error);
+          console.error("Erro ao buscar consultores:", error);
           toast({
             title: "Erro ao carregar consultores",
             description: error.message,
@@ -51,7 +51,7 @@ export function useMoveiFolgas() {
         
         setConsultores(formattedConsultores);
       } catch (error) {
-        console.error("Error fetching consultores:", error);
+        console.error("Erro ao buscar consultores:", error);
         toast({
           title: "Erro ao carregar consultores",
           description: "Não foi possível carregar a lista de consultores.",
@@ -75,7 +75,7 @@ export function useMoveiFolgas() {
           .select("id, name");
           
         if (error) {
-          console.error("Error fetching all users:", error);
+          console.error("Erro ao buscar todos os usuários:", error);
           toast({
             title: "Erro ao carregar usuários",
             description: error.message,
@@ -95,7 +95,7 @@ export function useMoveiFolgas() {
           setAllUsers([]);
         }
       } catch (error) {
-        console.error("Error fetching all users:", error);
+        console.error("Erro ao buscar todos os usuários:", error);
         toast({
           title: "Erro ao carregar usuários",
           description: "Não foi possível carregar a lista de usuários.",
@@ -120,7 +120,7 @@ export function useMoveiFolgas() {
           .select("*");
           
         if (error) {
-          console.error("Error fetching folgas:", error);
+          console.error("Erro ao buscar folgas:", error);
           toast({
             title: "Erro ao carregar folgas",
             description: error.message,
@@ -146,7 +146,7 @@ export function useMoveiFolgas() {
         
         setFolgas(formattedFolgas);
       } catch (error) {
-        console.error("Error fetching folgas:", error);
+        console.error("Erro ao buscar folgas:", error);
         toast({
           title: "Erro ao carregar folgas",
           description: "Não foi possível carregar a lista de folgas.",
@@ -236,7 +236,7 @@ export function useMoveiFolgas() {
         .select();
         
       if (error) {
-        console.error("Error adding folga:", error);
+        console.error("Erro ao adicionar folga:", error);
         toast({
           title: "Erro ao adicionar folga",
           description: error.message,
@@ -272,7 +272,7 @@ export function useMoveiFolgas() {
         setOpenDialog(false);
       }
     } catch (error) {
-      console.error("Error adding folga:", error);
+      console.error("Erro ao adicionar folga:", error);
       toast({
         title: "Erro ao adicionar folga",
         description: "Não foi possível adicionar a folga.",
@@ -289,7 +289,7 @@ export function useMoveiFolgas() {
         .eq("id", folgaId);
         
       if (error) {
-        console.error("Error deleting folga:", error);
+        console.error("Erro ao excluir folga:", error);
         toast({
           title: "Erro ao remover folga",
           description: error.message,
@@ -306,7 +306,7 @@ export function useMoveiFolgas() {
         description: "A folga foi removida com sucesso.",
       });
     } catch (error) {
-      console.error("Error deleting folga:", error);
+      console.error("Erro ao excluir folga:", error);
       toast({
         title: "Erro ao remover folga",
         description: "Não foi possível remover a folga.",
