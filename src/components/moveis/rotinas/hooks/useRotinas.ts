@@ -264,7 +264,7 @@ export function useRotinas() {
       
       toast({
         title: "Sucesso",
-        description: concluida ? "Rotina marcada como concluída!" : "Rotina desmarcada como concluída!",
+        description: concluida ? "Rotina marcada como concluída!" : "Rotina marcada como pendente!",
       });
       
       return true;
