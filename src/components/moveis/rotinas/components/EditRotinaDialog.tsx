@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { RotinaFormData, RotinaWithStatus } from '../types';
+import { X } from 'lucide-react';
 
 interface EditRotinaDialogProps {
   rotina: RotinaWithStatus;
@@ -62,18 +63,38 @@ export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditR
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.nome.trim() || !formData.categoria.trim() || !formData.dia_preferencial.trim()) {
+    console.log('📝 EditRotinaDialog - handleSubmit chamado:', { formData });
+    
+    // Para periodicidade diária, dia preferencial não é obrigatório
+    const isDiaPreferencialRequired = formData.periodicidade !== 'diario';
+    
+    if (!formData.nome.trim() || !formData.categoria.trim() || 
+        (isDiaPreferencialRequired && !formData.dia_preferencial.trim())) {
+      console.log('❌ Validação falhou:', {
+        nome: formData.nome.trim(),
+        categoria: formData.categoria.trim(),
+        dia_preferencial: formData.dia_preferencial.trim(),
+        isDiaPreferencialRequired
+      });
       return;
     }
 
     setIsSubmitting(true);
     
-    const success = await onSubmit({
+    const dataToSubmit = {
       ...formData,
       nome: formData.nome.trim(),
       descricao: formData.descricao?.trim() || undefined,
       horario_preferencial: formData.horario_preferencial || undefined,
-    });
+      // Para periodicidade diária, não enviar dia preferencial
+      dia_preferencial: formData.periodicidade === 'diario' ? 'diario' : formData.dia_preferencial,
+    };
+    
+    console.log('📡 Enviando dados:', dataToSubmit);
+    
+    const success = await onSubmit(dataToSubmit);
+    
+    console.log('📋 Resultado:', { success });
 
     if (success) {
       onOpenChange(false);
@@ -83,7 +104,20 @@ export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditR
   };
 
   const handleInputChange = (field: keyof RotinaFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      // Limpar dia preferencial quando mudar para periodicidade diária
+      if (field === 'periodicidade' && value === 'diario') {
+        newData.dia_preferencial = '';
+      }
+      
+      return newData;
+    });
+  };
+
+  const clearHorarioPreferencial = () => {
+    setFormData(prev => ({ ...prev, horario_preferencial: '' }));
   };
 
   return (
@@ -140,33 +174,50 @@ export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditR
 
             <div className="space-y-2">
               <Label htmlFor="horario">Horário Preferencial</Label>
-              <Input
-                id="horario"
-                type="time"
-                value={formData.horario_preferencial}
-                onChange={(e) => handleInputChange('horario_preferencial', e.target.value)}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="horario"
+                  type="time"
+                  value={formData.horario_preferencial}
+                  onChange={(e) => handleInputChange('horario_preferencial', e.target.value)}
+                  className="flex-1"
+                />
+                {formData.horario_preferencial && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={clearHorarioPreferencial}
+                    className="px-2"
+                    title="Limpar horário"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="dia_preferencial">Dia Preferencial *</Label>
-            <Select
-              value={formData.dia_preferencial}
-              onValueChange={(value) => handleInputChange('dia_preferencial', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um dia" />
-              </SelectTrigger>
-              <SelectContent>
-                {diasDaSemana.map(dia => (
-                  <SelectItem key={dia.value} value={dia.value}>
-                    {dia.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {formData.periodicidade !== 'diario' && (
+            <div className="space-y-2">
+              <Label htmlFor="dia_preferencial">Dia Preferencial *</Label>
+              <Select
+                value={formData.dia_preferencial}
+                onValueChange={(value) => handleInputChange('dia_preferencial', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um dia" />
+                </SelectTrigger>
+                <SelectContent>
+                  {diasDaSemana.map(dia => (
+                    <SelectItem key={dia.value} value={dia.value}>
+                      {dia.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="categoria">Categoria *</Label>

@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -957,6 +957,7 @@ export type Database = {
           created_at: string
           created_by: string
           descricao: string | null
+          dia_preferencial: string
           horario_preferencial: string | null
           id: string
           nome: string
@@ -969,6 +970,7 @@ export type Database = {
           created_at?: string
           created_by: string
           descricao?: string | null
+          dia_preferencial?: string
           horario_preferencial?: string | null
           id?: string
           nome: string
@@ -981,6 +983,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           descricao?: string | null
+          dia_preferencial?: string
           horario_preferencial?: string | null
           id?: string
           nome?: string
@@ -1119,6 +1122,39 @@ export type Database = {
           id?: string
           read?: boolean
           user_id?: string
+        }
+        Relationships: []
+      }
+      ocr_logs: {
+        Row: {
+          confidence: number
+          created_at: string | null
+          fields_detected: number
+          file_name: string
+          file_size: number
+          id: string
+          provider: string
+          user_id: string | null
+        }
+        Insert: {
+          confidence: number
+          created_at?: string | null
+          fields_detected: number
+          file_name: string
+          file_size: number
+          id?: string
+          provider?: string
+          user_id?: string | null
+        }
+        Update: {
+          confidence?: number
+          created_at?: string | null
+          fields_detected?: number
+          file_name?: string
+          file_size?: number
+          id?: string
+          provider?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1370,7 +1406,11 @@ export type Database = {
     Functions: {
       delete_user_account: {
         Args: Record<PropertyKey, never>
-        Returns: undefined
+        Returns: Json
+      }
+      ensure_user_profile: {
+        Args: { user_id: string }
+        Returns: Json
       }
       get_featured_directory_files: {
         Args: { limit_count?: number }
