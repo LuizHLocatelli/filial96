@@ -31,7 +31,9 @@ export function UserMenu() {
   const { user, profile, signOut } = useAuth();
   
   const handleSignOut = async () => {
+    console.log("🔵 UserMenu: handleSignOut chamado");
     await signOut();
+    console.log("🔵 UserMenu: signOut executado, fechando menu");
     setOpen(false);
   };
 

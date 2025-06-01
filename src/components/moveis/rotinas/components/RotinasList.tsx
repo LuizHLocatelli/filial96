@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -12,11 +12,13 @@ import {
   Copy,
   CheckCircle2,
   Circle,
-  AlertCircle 
+  AlertCircle,
+  User
 } from 'lucide-react';
 import { RotinaWithStatus, RotinaFormData } from '../types';
 import { EditRotinaDialog } from './EditRotinaDialog';
 import { cn } from '@/lib/utils';
+import { supabase } from "@/integrations/supabase/client";
 
 interface RotinasListProps {
   rotinas: RotinaWithStatus[];
@@ -25,6 +27,10 @@ interface RotinasListProps {
   onEditRotina: (id: string, data: Partial<RotinaFormData>) => Promise<boolean>;
   onDeleteRotina: (id: string) => Promise<boolean>;
   onDuplicateRotina: (rotina: RotinaWithStatus) => Promise<boolean>;
+}
+
+interface RotinaWithCreator extends RotinaWithStatus {
+  criador_nome?: string;
 }
 
 export function RotinasList({
@@ -36,6 +42,35 @@ export function RotinasList({
   onDuplicateRotina
 }: RotinasListProps) {
   const [editingRotina, setEditingRotina] = useState<RotinaWithStatus | null>(null);
+  const [rotinasWithCreators, setRotinasWithCreators] = useState<RotinaWithCreator[]>([]);
+
+  useEffect(() => {
+    const fetchCreatorNames = async () => {
+      if (rotinas.length === 0) return;
+
+      const creatorIds = [...new Set(rotinas.map(r => r.created_by))];
+      
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', creatorIds);
+
+      if (error) {
+        console.error('Erro ao buscar nomes dos criadores:', error);
+        setRotinasWithCreators(rotinas);
+        return;
+      }
+
+      const rotinasWithNames = rotinas.map(rotina => ({
+        ...rotina,
+        criador_nome: profiles?.find(p => p.id === rotina.created_by)?.name || 'Usuário desconhecido'
+      }));
+
+      setRotinasWithCreators(rotinasWithNames);
+    };
+
+    fetchCreatorNames();
+  }, [rotinas]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -135,13 +170,13 @@ export function RotinasList({
   }
 
   // Agrupar por categoria
-  const rotinasPorCategoria = rotinas.reduce((acc, rotina) => {
+  const rotinasPorCategoria = rotinasWithCreators.reduce((acc, rotina) => {
     if (!acc[rotina.categoria]) {
       acc[rotina.categoria] = [];
     }
     acc[rotina.categoria].push(rotina);
     return acc;
-  }, {} as Record<string, RotinaWithStatus[]>);
+  }, {} as Record<string, RotinaWithCreator[]>);
 
   return (
     <div className="space-y-6">
@@ -186,6 +221,14 @@ export function RotinasList({
                             {rotina.descricao}
                           </p>
                         )}
+                        
+                        {/* Criador da rotina */}
+                        <div className="flex items-center gap-1 mt-1">
+                          <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs text-muted-foreground">
+                            Criado por: {rotina.criador_nome}
+                          </span>
+                        </div>
                         
                         {/* Dia e Horário */}
                         <div className="space-y-1">

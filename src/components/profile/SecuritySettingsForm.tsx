@@ -134,7 +134,7 @@ const useLocationDetection = () => {
 };
 
 export function SecuritySettingsForm() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [sessions, setSessions] = useState<LoginSession[]>([]);
   const [loading, setLoading] = useState(false);
@@ -233,33 +233,31 @@ export function SecuritySettingsForm() {
     }
   };
 
-  const handleSignOutAllDevices = async () => {
+  const handleSignOut = async () => {
+    console.log("🔵 SecuritySettingsForm: handleSignOut chamado");
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      if (error) throw error;
+      console.log("🔵 SecuritySettingsForm: Chamando signOut do contexto...");
+      // Usando a função signOut do contexto de autenticação
+      await signOut();
       
-      toast({
-        title: "Logout realizado com sucesso",
-        description: "Você foi deslogado de todos os dispositivos. Redirecionando...",
-        duration: 3000,
-      });
-      
-      // Aguardar um momento para mostrar o toast, depois redirecionar
+      console.log("🔵 SecuritySettingsForm: signOut do contexto executado com sucesso");
+      // O signOut do contexto já mostra o toast de sucesso, então só redirecionamos
       setTimeout(() => {
+        console.log("🔵 SecuritySettingsForm: Redirecionando para /auth");
         window.location.href = '/auth';
-      }, 2000);
+      }, 1000);
       
     } catch (error: any) {
+      console.error("🔴 SecuritySettingsForm: Erro no logout:", error);
       toast({
         variant: "destructive",
         title: "Erro ao fazer logout",
-        description: error.message,
+        description: "Ocorreu um erro ao tentar fazer logout. Tente novamente.",
         duration: 5000,
       });
       setLoading(false);
     }
-    // Não definir setLoading(false) aqui porque a página vai redirecionar
   };
 
   return (
@@ -353,25 +351,25 @@ export function SecuritySettingsForm() {
                       className="w-full"
                       size="sm"
                     >
-                      Desconectar de todos os dispositivos
+                      Fazer logout desta sessão
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Desconectar de todos os dispositivos?</AlertDialogTitle>
+                      <AlertDialogTitle>Fazer logout desta sessão?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta ação irá desconectar sua conta de todos os dispositivos, incluindo este dispositivo atual. 
+                        Esta ação irá desconectar sua conta deste dispositivo. 
                         Você será redirecionado para a página de login.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
                       <AlertDialogAction 
-                        onClick={handleSignOutAllDevices}
+                        onClick={handleSignOut}
                         disabled={loading}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
-                        {loading ? "Desconectando..." : "Sim, desconectar"}
+                        {loading ? "Fazendo logout..." : "Sim, fazer logout"}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

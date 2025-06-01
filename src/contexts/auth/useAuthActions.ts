@@ -11,19 +11,62 @@ export function useAuthActions({
 }: AuthActionsProps) {
   // Function for logout
   const signOut = async () => {
+    console.log("🚪 Iniciando processo de logout...");
+    
     try {
-      await supabase.auth.signOut();
+      // Primeiro, tenta o logout normal do Supabase
+      console.log("📡 Tentando logout via Supabase...");
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("❌ Erro no logout do Supabase:", error);
+      } else {
+        console.log("✅ Logout do Supabase bem-sucedido");
+      }
+    } catch (error) {
+      console.error("💥 Erro crítico no logout do Supabase:", error);
+    }
+    
+    // Independentemente de sucesso ou erro, força limpeza completa
+    console.log("🧹 Executando limpeza completa da sessão...");
+    
+    try {
+      // Limpa todos os tokens do localStorage relacionados ao Supabase
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.includes('sb-') || key.includes('supabase') || key.includes('auth')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Limpa sessionStorage também
+      sessionStorage.clear();
+      
+      // Limpa estados locais
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      
+      console.log("✅ Limpeza completa realizada com sucesso");
+      
       toast({
         title: "Logout realizado",
         description: "Você saiu da sua conta com sucesso.",
       });
-    } catch (error) {
+      
+    } catch (cleanupError) {
+      console.error("❌ Erro na limpeza:", cleanupError);
+      
+      // Último recurso: recarregar a página
+      console.log("🔄 Forçando recarregamento da página...");
       toast({
-        variant: "destructive",
-        title: "Erro ao sair",
-        description: "Ocorreu um erro ao tentar fazer logout.",
+        title: "Logout forçado",
+        description: "Recarregando página para completar logout...",
       });
-      console.error("Erro ao fazer logout:", error);
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
   

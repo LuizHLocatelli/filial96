@@ -1,10 +1,13 @@
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, CheckCircle2, CircleDashed, CircleEllipsis, Trash2 } from "lucide-react";
+import { CalendarIcon, CheckCircle2, CircleDashed, CircleEllipsis, Trash2, User } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tarefa } from "../types";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TarefaCardProps {
   tarefa: Tarefa;
@@ -12,7 +15,38 @@ interface TarefaCardProps {
   onExcluirTarefa: (tarefaId: string) => void;
 }
 
+// Add new interface for tarefa with creator name
+interface TarefaWithCreator extends Tarefa {
+  criador_nome?: string;
+}
+
 export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: TarefaCardProps) {
+  const [tarefaWithCreator, setTarefaWithCreator] = useState<TarefaWithCreator>(tarefa);
+
+  useEffect(() => {
+    const fetchCreatorName = async () => {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', tarefa.criado_por)
+        .single();
+
+      if (!error && profile) {
+        setTarefaWithCreator({
+          ...tarefa,
+          criador_nome: profile.name
+        });
+      } else {
+        setTarefaWithCreator({
+          ...tarefa,
+          criador_nome: 'Usuário desconhecido'
+        });
+      }
+    };
+
+    fetchCreatorName();
+  }, [tarefa]);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pendente":
@@ -63,6 +97,11 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
           <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">
             {tarefa.descricao}
           </p>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+          <User className="h-4 w-4" />
+          <span>Criado por: {tarefaWithCreator.criador_nome}</span>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t">
