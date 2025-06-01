@@ -9,7 +9,7 @@ export const signupSchema = z.object({
     .min(10, "Telefone deve ter no mínimo 10 dígitos")
     .regex(/^[\d\s\(\)\-\+]+$/, "Formato de telefone inválido"),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
-  role: z.enum(["gerente", "crediarista", "consultor_moveis", "consultor_moda"] as const),
+  role: z.enum(["gerente", "crediarista", "consultor_moveis", "consultor_moda", "jovem_aprendiz"] as const),
 });
 
 export type SignupFormValues = z.infer<typeof signupSchema>;

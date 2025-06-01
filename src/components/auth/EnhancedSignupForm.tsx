@@ -183,6 +183,7 @@ export function EnhancedSignupForm() {
                     <SelectItem value="crediarista">Crediarista</SelectItem>
                     <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
                     <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
+                    <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

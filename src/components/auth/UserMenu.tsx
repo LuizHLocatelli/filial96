@@ -121,7 +121,8 @@ export function UserMenu() {
         'consultor_moveis': 'Consultor Móveis',
         'consultor_moda': 'Consultor Moda',
         'crediarista': 'Crediarista',
-        'gerente': 'Gerente'
+        'gerente': 'Gerente',
+        'jovem_aprendiz': 'Jovem Aprendiz'
       };
       return { text: roleMap[profile.role] || profile.role, variant: 'outline' as const };
     }

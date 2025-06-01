@@ -119,7 +119,7 @@ export const useAuthEffects = ({
               const newProfile: AppUser = {
                 id: userId,
                 name: userData.user.email || 'Usuário',
-                role: 'consultor_moveis' as UserRole,
+                role: 'jovem_aprendiz' as UserRole, // Changed default role
                 email: userData.user.email || userEmail || '',
                 phone: userData.user.user_metadata?.phone || ''
               };
@@ -129,7 +129,7 @@ export const useAuthEffects = ({
                 .insert({
                   id: userId,
                   name: userData.user.email || 'Usuário',
-                  role: 'consultor_moveis',
+                  role: 'jovem_aprendiz', // Changed default role
                   phone: userData.user.user_metadata?.phone || ''
                 });
                 
