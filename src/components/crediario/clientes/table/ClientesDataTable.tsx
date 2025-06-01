@@ -342,7 +342,7 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
           {selectedClienteForTemplate && (
             <MessageTemplates
               clienteName={selectedClienteForTemplate.nome}
-              valorDevido={selectedClienteForTemplate.valorParcelas}
+              valorDevido={parseFloat(selectedClienteForTemplate.valorParcelas || "0")}
               diasAtraso={calcularDiasAtraso(selectedClienteForTemplate)}
             />
           )}
