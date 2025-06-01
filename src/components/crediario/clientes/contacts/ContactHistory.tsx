@@ -173,7 +173,7 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
                   </Select>
                 </div>
 
-                {newContact.result === "promise" && (
+                {(newContact.result === "promise") && (
                   <>
                     <div>
                       <label className="text-sm font-medium">Valor Prometido (R$)</label>
