@@ -7,6 +7,7 @@ import type {
 
 const TOAST_LIMIT = 20
 const TOAST_REMOVE_DELAY = 1000
+const TOAST_DEBOUNCE_DELAY = 1000 // Evitar toasts duplicados
 
 type ToasterToast = ToastProps & {
   id: string
@@ -55,6 +56,7 @@ interface State {
 }
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+const recentToasts = new Map<string, number>() // Para controlar toasts duplicados
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -126,6 +128,32 @@ function dispatch(action: Action) {
   })
 }
 
+// Função para gerar hash do toast para evitar duplicados
+function getToastHash(props: Omit<ToasterToast, "id">): string {
+  try {
+    const content = JSON.stringify({
+      title: props.title,
+      description: props.description,
+      variant: props.variant
+    });
+    
+    // Usar uma função de hash simples que funciona com caracteres Unicode
+    let hash = 0;
+    for (let i = 0; i < content.length; i++) {
+      const char = content.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Converter para 32bit int
+    }
+    
+    // Converter para string positiva e limitar tamanho
+    return Math.abs(hash).toString(36).substring(0, 20);
+  } catch (error) {
+    console.warn('Erro ao gerar hash do toast:', error);
+    // Fallback: usar timestamp como identificador
+    return Date.now().toString(36);
+  }
+}
+
 export function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -147,6 +175,31 @@ export function useToast() {
 }
 
 export function toast(props: Omit<ToasterToast, "id">) {
+  // Verificar se é um toast duplicado
+  const toastHash = getToastHash(props);
+  const now = Date.now();
+  const lastToastTime = recentToasts.get(toastHash);
+  
+  if (lastToastTime && (now - lastToastTime) < TOAST_DEBOUNCE_DELAY) {
+    console.log('🚫 Toast duplicado ignorado:', props.title);
+    return {
+      id: '',
+      dismiss: () => {},
+      update: () => {}
+    };
+  }
+
+  // Registrar este toast
+  recentToasts.set(toastHash, now);
+
+  // Limpar toasts antigos do cache
+  const cutoffTime = now - (TOAST_DEBOUNCE_DELAY * 2);
+  for (const [hash, time] of recentToasts.entries()) {
+    if (time < cutoffTime) {
+      recentToasts.delete(hash);
+    }
+  }
+
   const id = genId()
 
   const update = (props: Omit<Partial<ToasterToast>, "id">) =>
@@ -183,11 +236,12 @@ export function toast(props: Omit<ToasterToast, "id">) {
     },
   })
 
-  // Auto-dismiss se duration for especificada
-  if (props.duration && props.duration > 0) {
+  // Auto-dismiss se duration for especificada ou usar padrão de 5 segundos
+  const duration = props.duration !== undefined ? props.duration : 5000;
+  if (duration > 0) {
     const timeoutId = setTimeout(() => {
       dismiss()
-    }, props.duration)
+    }, duration)
     
     toastTimeouts.set(id, timeoutId)
   }

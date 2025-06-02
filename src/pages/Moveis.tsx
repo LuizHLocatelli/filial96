@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
@@ -100,7 +99,7 @@ export default function Moveis() {
 
       {/* Renderizar o componente da aba ativa */}
       <div className="mt-6">
-        {activeTabConfig?.component || <HubProdutividade />}
+        {activeTabConfig?.component}
       </div>
     </PageLayout>
   );

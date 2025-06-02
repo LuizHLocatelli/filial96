@@ -1,10 +1,10 @@
-
 import { 
   Activity,
   CheckSquare, 
   FileText, 
   List, 
-  BarChart3
+  BarChart3,
+  Users
 } from 'lucide-react';
 import { HubSection } from '../types/hubTypes';
 
@@ -26,6 +26,12 @@ export const HUB_SECTIONS: HubSection[] = [
     title: 'Orientações',
     icon: FileText,
     description: 'Documentos e orientações'
+  },
+  {
+    id: 'monitoramento',
+    title: 'Monitoramento',
+    icon: Users,
+    description: 'Monitoramento de visualizações por cargo'
   },
   {
     id: 'tarefas',

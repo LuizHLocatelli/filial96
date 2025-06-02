@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { HubViewMode } from '../types';
 import { HubHandlers } from '../types/hubTypes';
@@ -58,6 +57,10 @@ export function useHubHandlers({
     setShowFilters(true);
   };
 
+  const handleNavigateToSection = (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'tarefas') => {
+    setCurrentSection(section);
+  };
+
   return {
     onNovaRotina: handleNovaRotina,
     onNovaOrientacao: handleNovaOrientacao,
@@ -66,6 +69,7 @@ export function useHubHandlers({
     onSearch: handleSearch,
     onRefreshData: handleRefreshData,
     onShowMobileSearch: handleShowMobileSearch,
-    onShowFilters: handleShowFilters
+    onShowFilters: handleShowFilters,
+    onNavigateToSection: handleNavigateToSection
   };
 }

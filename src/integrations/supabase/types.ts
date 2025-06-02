@@ -796,6 +796,41 @@ export type Database = {
         }
         Relationships: []
       }
+      moveis_orientacoes_visualizacoes: {
+        Row: {
+          created_at: string | null
+          id: string
+          orientacao_id: string
+          user_id: string
+          user_role: string
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          orientacao_id: string
+          user_id: string
+          user_role: string
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          orientacao_id?: string
+          user_id?: string
+          user_role?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moveis_orientacoes_visualizacoes_orientacao_id_fkey"
+            columns: ["orientacao_id"]
+            isOneToOne: false
+            referencedRelation: "moveis_orientacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moveis_produto_foco: {
         Row: {
           argumentos_venda: string[] | null
@@ -1404,6 +1439,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_orientacao_completion_by_role: {
+        Args: { p_orientacao_id: string; p_target_roles: string[] }
+        Returns: Json
+      }
       delete_user_account: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1427,6 +1466,14 @@ export type Database = {
           name: string
           updated_at: string
         }[]
+      }
+      get_orientacoes_viewing_stats: {
+        Args: { p_target_roles?: string[] }
+        Returns: Json
+      }
+      register_orientacao_view: {
+        Args: { p_orientacao_id: string; p_user_id?: string }
+        Returns: Json
       }
       search_directory_files: {
         Args: { search_term: string }

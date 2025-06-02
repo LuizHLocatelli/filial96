@@ -79,17 +79,17 @@ export function MobileStatsCard({
           {title === 'Rotinas' || title === 'Tarefas' ? (
             <div className="space-y-3">
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="text-center p-2 bg-green-50 rounded">
-                  <div className="font-semibold text-green-700">{stats.concluidas}</div>
-                  <div className="text-green-600">Concluídas</div>
+                <div className="text-center p-2 bg-green-50 dark:bg-green-950/50 rounded">
+                  <div className="font-semibold text-green-700 dark:text-green-400">{stats.concluidas}</div>
+                  <div className="text-green-600 dark:text-green-500">Concluídas</div>
                 </div>
-                <div className="text-center p-2 bg-yellow-50 rounded">
-                  <div className="font-semibold text-yellow-700">{stats.pendentes}</div>
-                  <div className="text-yellow-600">Pendentes</div>
+                <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-950/50 rounded">
+                  <div className="font-semibold text-yellow-700 dark:text-yellow-400">{stats.pendentes}</div>
+                  <div className="text-yellow-600 dark:text-yellow-500">Pendentes</div>
                 </div>
-                <div className="text-center p-2 bg-red-50 rounded">
-                  <div className="font-semibold text-red-700">{stats.atrasadas}</div>
-                  <div className="text-red-600">Atrasadas</div>
+                <div className="text-center p-2 bg-red-50 dark:bg-red-950/50 rounded">
+                  <div className="font-semibold text-red-700 dark:text-red-400">{stats.atrasadas}</div>
+                  <div className="text-red-600 dark:text-red-500">Atrasadas</div>
                 </div>
               </div>
               <div className="text-center">
@@ -100,13 +100,13 @@ export function MobileStatsCard({
           ) : (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="text-center p-2 bg-orange-50 rounded">
-                  <div className="font-semibold text-orange-700">{stats.naoLidas}</div>
-                  <div className="text-orange-600">Não Lidas</div>
+                <div className="text-center p-2 bg-orange-50 dark:bg-orange-950/50 rounded">
+                  <div className="font-semibold text-orange-700 dark:text-orange-400">{stats.naoLidas}</div>
+                  <div className="text-orange-600 dark:text-orange-500">Não Lidas</div>
                 </div>
-                <div className="text-center p-2 bg-blue-50 rounded">
-                  <div className="font-semibold text-blue-700">{stats.recentes}</div>
-                  <div className="text-blue-600">Recentes</div>
+                <div className="text-center p-2 bg-blue-50 dark:bg-blue-950/50 rounded">
+                  <div className="font-semibold text-blue-700 dark:text-blue-400">{stats.recentes}</div>
+                  <div className="text-blue-600 dark:text-blue-500">Recentes</div>
                 </div>
               </div>
             </div>
@@ -204,15 +204,30 @@ export function MobileStatsOverview({ stats, isLoading }: MobileStatsOverviewPro
       {compactMode ? (
         /* Modo Compacto - Cards menores */
         <div className="grid grid-cols-3 gap-2">
-          {cards.map((card) => (
-            <Card key={card.id} className="p-3">
-              <div className="text-center space-y-1">
-                <card.icon className={cn("h-4 w-4 mx-auto", `text-${card.color}-600`)} />
-                <div className="text-lg font-bold">{card.stats.total}</div>
-                <div className="text-xs text-muted-foreground">{card.title}</div>
-              </div>
-            </Card>
-          ))}
+          {cards.map((card) => {
+            const getColorClasses = (color: string) => {
+              switch (color) {
+                case 'blue':
+                  return 'text-blue-600 dark:text-blue-400';
+                case 'green':
+                  return 'text-green-600 dark:text-green-400';
+                case 'purple':
+                  return 'text-purple-600 dark:text-purple-400';
+                default:
+                  return 'text-muted-foreground';
+              }
+            };
+            
+            return (
+              <Card key={card.id} className="p-3">
+                <div className="text-center space-y-1">
+                  <card.icon className={cn("h-4 w-4 mx-auto", getColorClasses(card.color))} />
+                  <div className="text-lg font-bold">{card.stats.total}</div>
+                  <div className="text-xs text-muted-foreground">{card.title}</div>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       ) : (
         /* Modo Normal - Cards expansíveis */
@@ -232,20 +247,20 @@ export function MobileStatsOverview({ stats, isLoading }: MobileStatsOverviewPro
       )}
 
       {/* Resumo rápido sempre visível */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50">
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30">
         <CardContent className="p-4">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-lg font-bold text-green-700">
+              <div className="text-lg font-bold text-green-700 dark:text-green-400">
                 {stats.rotinas.concluidas + stats.tarefas.concluidas}
               </div>
-              <div className="text-xs text-green-600">Total Concluído</div>
+              <div className="text-xs text-green-600 dark:text-green-500">Total Concluído</div>
             </div>
             <div>
-              <div className="text-lg font-bold text-red-700">
+              <div className="text-lg font-bold text-red-700 dark:text-red-400">
                 {stats.rotinas.atrasadas + stats.tarefas.atrasadas}
               </div>
-              <div className="text-xs text-red-600">Total Atrasado</div>
+              <div className="text-xs text-red-600 dark:text-red-500">Total Atrasado</div>
             </div>
           </div>
         </CardContent>

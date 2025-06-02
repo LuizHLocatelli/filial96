@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -11,9 +11,19 @@ import {
   RotinaConclusao
 } from '../types';
 
+// Interface para usuários
+interface User {
+  id: string;
+  name: string;
+}
+
 export function useHubData() {
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Ref para controlar se é a primeira carga
+  const isInitialLoadRef = useRef(true);
+  const lastRefreshRef = useRef<number>(0);
   
   const [stats, setStats] = useState<ProductivityStats>({
     rotinas: {
@@ -41,6 +51,7 @@ export function useHubData() {
   const [rotinas, setRotinas] = useState<RotinaWithStatus[]>([]);
   const [orientacoes, setOrientacoes] = useState<Orientacao[]>([]);
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -54,6 +65,38 @@ export function useHubData() {
     orientacoes: null as string | null,
     tarefas: null as string | null
   });
+
+  // ===== BUSCAR USUÁRIOS =====
+  const fetchUsers = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name');
+
+      if (error) {
+        console.error('❌ Erro ao buscar usuários:', error);
+        return;
+      }
+
+      const formattedUsers = data.map(profile => ({
+        id: profile.id,
+        name: profile.name || 'Usuário Desconhecido'
+      }));
+
+      setUsers(formattedUsers);
+      console.log('👥 Usuários carregados:', formattedUsers.length);
+    } catch (error) {
+      console.error('❌ Erro inesperado ao buscar usuários:', error);
+    }
+  }, []);
+
+  // ===== FUNÇÃO PARA RESOLVER NOME DO USUÁRIO =====
+  const getUserName = useCallback((userId: string): string => {
+    if (!userId) return 'Usuário Desconhecido';
+    
+    const foundUser = users.find(u => u.id === userId);
+    return foundUser?.name || userId;
+  }, [users]);
 
   // ===== FETCH ROTINAS COM RETRY =====
   const fetchRotinas = useCallback(async (retryCount = 0) => {
@@ -129,7 +172,8 @@ export function useHubData() {
       if (retryCount < 2) {
         console.log(`🔄 Tentativa ${retryCount + 1} de recarregar rotinas...`);
         setTimeout(() => fetchRotinas(retryCount + 1), 2000);
-      } else {
+      } else if (!isInitialLoadRef.current) {
+        // Só mostra toast em caso de erro se não for carga inicial
         toast({
           title: "⚠️ Erro ao carregar rotinas",
           description: "Não foi possível carregar as rotinas. Tente atualizar a página.",
@@ -139,7 +183,7 @@ export function useHubData() {
     } finally {
       setIsLoadingRotinas(false);
     }
-  }, [user, toast]);
+  }, [user]);
 
   // ===== FETCH ORIENTAÇÕES COM RETRY =====
   const fetchOrientacoes = useCallback(async (retryCount = 0) => {
@@ -185,7 +229,8 @@ export function useHubData() {
       if (retryCount < 2) {
         console.log(`🔄 Tentativa ${retryCount + 1} de recarregar orientações...`);
         setTimeout(() => fetchOrientacoes(retryCount + 1), 2000);
-      } else {
+      } else if (!isInitialLoadRef.current) {
+        // Só mostra toast em caso de erro se não for carga inicial
         toast({
           title: "⚠️ Erro ao carregar orientações",
           description: "Não foi possível carregar as orientações. Tente atualizar a página.",
@@ -195,7 +240,7 @@ export function useHubData() {
     } finally {
       setIsLoadingOrientacoes(false);
     }
-  }, [user, toast]);
+  }, [user]);
 
   // ===== FETCH TAREFAS COM RETRY =====
   const fetchTarefas = useCallback(async (retryCount = 0) => {
@@ -224,7 +269,8 @@ export function useHubData() {
       if (retryCount < 2) {
         console.log(`🔄 Tentativa ${retryCount + 1} de recarregar tarefas...`);
         setTimeout(() => fetchTarefas(retryCount + 1), 2000);
-      } else {
+      } else if (!isInitialLoadRef.current) {
+        // Só mostra toast em caso de erro se não for carga inicial
         toast({
           title: "⚠️ Erro ao carregar tarefas",
           description: "Não foi possível carregar as tarefas. Tente atualizar a página.",
@@ -234,7 +280,7 @@ export function useHubData() {
     } finally {
       setIsLoadingTarefas(false);
     }
-  }, [user, toast]);
+  }, [user]);
 
   // ===== CALCULAR ESTATÍSTICAS (OTIMIZADA) =====
   const calculateStats = useCallback(() => {
@@ -311,7 +357,7 @@ export function useHubData() {
           description: rotina.descricao,
           timestamp: rotina.conclusao.created_at,
           status: 'concluida',
-          user: rotina.created_by,
+          user: getUserName(rotina.created_by),
           action: 'concluida'
         });
       } else {
@@ -322,7 +368,7 @@ export function useHubData() {
           description: rotina.descricao,
           timestamp: rotina.created_at,
           status: rotina.status,
-          user: rotina.created_by,
+          user: getUserName(rotina.created_by),
           action: 'criada'
         });
       }
@@ -337,7 +383,7 @@ export function useHubData() {
         description: orientacao.descricao,
         timestamp: orientacao.data_criacao,
         status: 'nova',
-        user: orientacao.criado_por_nome || 'Usuário',
+        user: orientacao.criado_por_nome || getUserName(orientacao.criado_por || ''),
         action: 'criada'
       });
     });
@@ -356,7 +402,7 @@ export function useHubData() {
         description: tarefa.descricao,
         timestamp: tarefa.data_criacao,
         status,
-        user: tarefa.criado_por,
+        user: getUserName(tarefa.criado_por),
         action: tarefa.status === 'concluida' ? 'concluida' : 'criada'
       });
     });
@@ -367,15 +413,27 @@ export function useHubData() {
       .slice(0, 20);
 
     setActivities(sortedActivities);
-  }, [rotinas, orientacoes, tarefas]);
+  }, [rotinas, orientacoes, tarefas, getUserName]);
 
-  // ===== REFRESH DADOS COM FEEDBACK =====
+  // ===== REFRESH DADOS COM FEEDBACK CONTROLADO =====
   const refreshData = useCallback(async () => {
+    // Evitar refresh múltiplo em pouco tempo
+    const now = Date.now();
+    if (now - lastRefreshRef.current < 2000) {
+      console.log('🚫 Refresh muito recente, pulando...');
+      return;
+    }
+    lastRefreshRef.current = now;
+
     console.log('🔄 Atualizando dados do hub...');
-    toast({
-      title: "🔄 Atualizando dados...",
-      description: "Carregando informações mais recentes",
-    });
+    
+    // Só mostra toast de loading se não for a primeira carga
+    if (!isInitialLoadRef.current) {
+      toast({
+        title: "🔄 Atualizando dados...",
+        description: "Carregando informações mais recentes",
+      });
+    }
     
     try {
       await Promise.all([
@@ -384,35 +442,46 @@ export function useHubData() {
         fetchTarefas()
       ]);
       
-      toast({
-        title: "✅ Dados atualizados",
-        description: "Informações carregadas com sucesso",
-      });
+      // Só mostra toast de sucesso se não for a primeira carga
+      if (!isInitialLoadRef.current) {
+        toast({
+          title: "✅ Dados atualizados",
+          description: "Informações carregadas com sucesso",
+        });
+      }
     } catch (error) {
-      toast({
-        title: "❌ Erro na atualização",
-        description: "Alguns dados podem não ter sido atualizados",
-        variant: "destructive",
-      });
+      console.error('❌ Erro no refresh:', error);
+      if (!isInitialLoadRef.current) {
+        toast({
+          title: "❌ Erro na atualização",
+          description: "Alguns dados podem não ter sido atualizados",
+          variant: "destructive",
+        });
+      }
     }
-  }, [fetchRotinas, fetchOrientacoes, fetchTarefas, toast]);
+  }, [fetchRotinas, fetchOrientacoes, fetchTarefas]);
 
   // ===== EFFECTS =====
   useEffect(() => {
     if (user) {
-      refreshData();
+      // Buscar usuários primeiro, depois atualizar dados
+      fetchUsers().then(() => {
+        refreshData().finally(() => {
+          isInitialLoadRef.current = false;
+        });
+      });
     }
-  }, [user, refreshData]);
+  }, [user, fetchUsers]);
 
   useEffect(() => {
-    if (!isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas) {
+    if (!isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas && users.length > 0) {
       setIsLoadingStats(true);
       calculateStats();
       generateActivities();
       setIsLoadingStats(false);
       setIsLoadingActivities(false);
     }
-  }, [isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, calculateStats, generateActivities]);
+  }, [isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, users.length, calculateStats, generateActivities]);
 
   return {
     // Data

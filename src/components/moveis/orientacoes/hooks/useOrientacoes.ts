@@ -1,11 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useOrientacoesMonitoring } from "../../hub-produtividade/hooks/useOrientacoesMonitoring";
 import { Orientacao } from "../types";
 
 export function useOrientacoes() {
   const { toast } = useToast();
+  const { registerView, fetchMonitoringStats } = useOrientacoesMonitoring();
   const [orientacoes, setOrientacoes] = useState<Orientacao[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,6 +48,24 @@ export function useOrientacoes() {
     }
   };
 
+  /**
+   * Registra visualização de uma orientação e atualiza o monitoramento
+   */
+  const handleViewOrientacao = async (orientacaoId: string) => {
+    try {
+      const success = await registerView(orientacaoId);
+      if (success) {
+        // Atualizar estatísticas de monitoramento após registrar visualização
+        await fetchMonitoringStats();
+        console.log('✅ Visualização registrada e monitoramento atualizado');
+      }
+      return success;
+    } catch (error) {
+      console.error('❌ Erro ao registrar visualização:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchOrientacoes();
   }, []);
@@ -54,6 +73,7 @@ export function useOrientacoes() {
   return {
     orientacoes,
     isLoading,
-    refetch: fetchOrientacoes
+    refetch: fetchOrientacoes,
+    handleViewOrientacao
   };
 }

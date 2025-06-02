@@ -9,6 +9,7 @@ import {
   CheckSquare,
   FileText,
   List,
+  Users,
   Search,
   Filter,
   Bell,
@@ -24,6 +25,7 @@ interface MobileNavigationProps {
     dashboard?: number;
     rotinas?: number;
     orientacoes?: number;
+    monitoramento?: number;
     tarefas?: number;
   };
   onSearch: () => void;
@@ -55,28 +57,35 @@ export function MobileNavigation({
       label: 'Dashboard',
       icon: BarChart3,
       badge: badges.dashboard,
-      color: 'text-blue-600'
+      color: 'text-blue-600 dark:text-blue-400'
     },
     {
       id: 'rotinas',
       label: 'Rotinas',
       icon: CheckSquare,
       badge: badges.rotinas,
-      color: 'text-green-600'
+      color: 'text-green-600 dark:text-green-400'
     },
     {
       id: 'orientacoes',
       label: 'Orientações',
       icon: FileText,
       badge: badges.orientacoes,
-      color: 'text-purple-600'
+      color: 'text-purple-600 dark:text-purple-400'
+    },
+    {
+      id: 'monitoramento',
+      label: 'Monitoramento',
+      icon: Users,
+      badge: badges.monitoramento,
+      color: 'text-cyan-600 dark:text-cyan-400'
     },
     {
       id: 'tarefas',
       label: 'Tarefas',
       icon: List,
       badge: badges.tarefas,
-      color: 'text-orange-600'
+      color: 'text-orange-600 dark:text-orange-400'
     }
   ];
 
@@ -236,43 +245,6 @@ export function MobileNavigation({
             )}
             <span className="sr-only">Filtros</span>
           </Button>
-        </div>
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t z-50">
-        <div className="grid grid-cols-4 h-16">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 px-2 py-2",
-                "transition-colors duration-200 relative",
-                currentSection === item.id
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <div className="relative">
-                <item.icon className="h-5 w-5" />
-                {item.badge && item.badge > 0 && (
-                  <Badge 
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs flex items-center justify-center"
-                  >
-                    {item.badge > 9 ? '9+' : item.badge}
-                  </Badge>
-                )}
-              </div>
-              <span className="text-xs font-medium truncate max-w-full">
-                {item.label}
-              </span>
-              {currentSection === item.id && (
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full" />
-              )}
-            </button>
-          ))}
         </div>
       </div>
     </>

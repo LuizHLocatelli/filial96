@@ -80,11 +80,11 @@ export function VmTarefas() {
   }, [user, refreshKey]);
   
   // Quando o usuário clica na aba de listagem, marcamos as orientações como lidas
-  const handleTabChange = (value: string) => {
+  const handleTabChange = async (value: string) => {
     setSelectedTab(value);
     
     if (value === "listar" && unreadCount > 0 && user) {
-      // Marcar todas as orientações como lidas
+      // Marcar todas as orientações como lidas no sistema antigo e novo
       const markAsRead = async () => {
         try {
           const thirtyDaysAgo = new Date();
@@ -97,7 +97,7 @@ export function VmTarefas() {
             
           if (!orientacoes || orientacoes.length === 0) return;
           
-          // Para cada orientação não lida, inserir um registro na tabela notification_read_status
+          // Sistema antigo - notification_read_status
           const orientacaoIds = orientacoes.map(o => o.id);
           
           // Primeiro, verificar quais já estão marcadas como lidas
@@ -110,7 +110,7 @@ export function VmTarefas() {
           const readIds = readStatus?.map(s => s.activity_id) || [];
           const unreadIds = orientacaoIds.filter(id => !readIds.includes(id));
           
-          // Para cada orientação não lida, inserir um registro
+          // Para cada orientação não lida, inserir um registro no sistema antigo
           for (const id of unreadIds) {
             await supabase
               .from('notification_read_status')
@@ -121,14 +121,23 @@ export function VmTarefas() {
               });
           }
           
+          // Sistema novo - registrar visualizações no monitoramento
+          for (const id of unreadIds) {
+            await supabase.rpc('register_orientacao_view', {
+              p_orientacao_id: id,
+              p_user_id: user.id
+            });
+          }
+          
           // Atualizar o contador
           setUnreadCount(0);
+          console.log('✅ Orientações marcadas como lidas em ambos os sistemas');
         } catch (error) {
           console.error("Erro ao marcar orientações como lidas:", error);
         }
       };
       
-      markAsRead();
+      await markAsRead();
     }
   };
   

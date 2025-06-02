@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -21,7 +20,10 @@ interface QuickActionsProps {
   onNovaTarefa: () => void;
   onRefreshData: () => void;
   onExportData: () => void;
-  onShowFilters: () => void;
+  onShowFilters?: () => void;
+  onBuscaAvancada: () => void;
+  onFiltrosPorData: () => void;
+  onRelatorios: () => void;
   isRefreshing?: boolean;
 }
 
@@ -32,6 +34,9 @@ export function QuickActions({
   onRefreshData,
   onExportData,
   onShowFilters,
+  onBuscaAvancada,
+  onFiltrosPorData,
+  onRelatorios,
   isRefreshing = false
 }: QuickActionsProps) {
   const { isMobile } = useResponsive();
@@ -60,13 +65,13 @@ export function QuickActions({
     }
   ];
 
-  const secondaryActions: QuickAction[] = [
+  const secondaryActions = [
     {
       id: 'refresh',
       label: 'Atualizar',
       icon: RefreshCw,
       action: onRefreshData,
-      variant: 'outline',
+      variant: 'ghost',
       disabled: isRefreshing
     },
     {
@@ -74,13 +79,6 @@ export function QuickActions({
       label: 'Exportar',
       icon: Download,
       action: onExportData,
-      variant: 'outline'
-    },
-    {
-      id: 'filters',
-      label: 'Filtros',
-      icon: Filter,
-      action: onShowFilters,
       variant: 'outline'
     }
   ];
@@ -90,19 +88,22 @@ export function QuickActions({
       id: 'search',
       label: 'Busca Avançada',
       icon: Search,
-      description: 'Pesquisar em todos os itens'
+      description: 'Pesquisar em todos os itens',
+      action: onBuscaAvancada
     },
     {
       id: 'calendar',
       label: 'Por Data',
       icon: Calendar,
-      description: 'Ver itens por período'
+      description: 'Ver itens por período',
+      action: onFiltrosPorData
     },
     {
       id: 'analytics',
       label: 'Relatórios',
       icon: BarChart3,
-      description: 'Análises detalhadas'
+      description: 'Análises detalhadas',
+      action: onRelatorios
     }
   ];
 
@@ -146,6 +147,33 @@ export function QuickActions({
                     <action.icon className="h-4 w-4" />
                   )}
                   <span className="text-xs">{action.label}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Funcionalidades - Mobile */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Funcionalidades</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {utilityActions.map((action) => (
+                <Button
+                  key={action.id}
+                  variant="ghost"
+                  onClick={action.action}
+                  className="w-full justify-start gap-3 h-auto p-3"
+                >
+                  <div className="p-1.5 rounded-md bg-muted">
+                    <action.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 text-left space-y-0.5">
+                    <h5 className="font-medium text-sm">{action.label}</h5>
+                    <p className="text-xs text-muted-foreground">{action.description}</p>
+                  </div>
                 </Button>
               ))}
             </div>
@@ -215,18 +243,20 @@ export function QuickActions({
         <CardContent>
           <div className="space-y-2">
             {utilityActions.map((action) => (
-              <div
+              <Button
                 key={action.id}
-                className="flex items-center gap-3 p-2 rounded-lg border border-border/50 hover:border-border transition-colors cursor-pointer"
+                variant="ghost"
+                onClick={action.action}
+                className="w-full justify-start gap-3 h-auto p-3 hover:bg-muted/50 transition-colors"
               >
                 <div className="p-1.5 rounded-md bg-muted">
                   <action.icon className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
-                <div className="flex-1 space-y-0.5">
+                <div className="flex-1 text-left space-y-0.5">
                   <h5 className="font-medium text-sm">{action.label}</h5>
                   <p className="text-xs text-muted-foreground">{action.description}</p>
                 </div>
-              </div>
+              </Button>
             ))}
           </div>
         </CardContent>

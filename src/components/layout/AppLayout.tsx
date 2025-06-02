@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { EnhancedTopBar } from "./EnhancedTopBar";
 import { NavigationTabs } from "./NavigationTabs";
@@ -15,10 +14,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className="min-h-screen flex flex-col w-full bg-background">
       <EnhancedTopBar />
       <main className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : 'pb-24 md:pb-8'}`}>
-        <div className={`container mx-auto max-w-7xl ${
+        <div className={`container mx-auto max-w-[1600px] ${
           isMobile 
             ? 'px-2 py-3' 
-            : 'px-2 sm:px-3 md:px-6 py-3 sm:py-4 md:py-6'
+            : 'px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 md:py-6'
         }`}>
           {children}
         </div>

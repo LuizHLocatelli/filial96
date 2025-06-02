@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,12 @@ import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
 import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
+import { BuscaAvancada } from '../funcionalidades/BuscaAvancada';
+import { FiltrosPorData } from '../funcionalidades/FiltrosPorData';
+import { Relatorios } from '../funcionalidades/Relatorios';
+import OrientacoesMonitoramento from '../OrientacoesMonitoramento';
 import { cn } from '@/lib/utils';
+import { LayoutControls } from '../dashboard/LayoutControls';
 
 interface HubDesktopLayoutProps {
   currentSection: HubViewMode;
@@ -38,6 +43,9 @@ interface HubDesktopLayoutProps {
   handlers: HubHandlers;
   onFiltersChange: (filters: FilterState) => void;
   onClearFilters: () => void;
+  rotinas?: Array<any>;
+  orientacoes?: Array<any>;
+  tarefas?: Array<any>;
 }
 
 export function HubDesktopLayout({
@@ -57,16 +65,35 @@ export function HubDesktopLayout({
   mobileFilters,
   handlers,
   onFiltersChange,
-  onClearFilters
+  onClearFilters,
+  rotinas = [],
+  orientacoes = [],
+  tarefas = []
 }: HubDesktopLayoutProps) {
+  const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
+  const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
+  const [showRelatorios, setShowRelatorios] = useState(false);
+
+  const handleBuscaAvancada = () => setShowBuscaAvancada(true);
+  const handleFiltrosPorData = () => setShowFiltrosPorData(true);
+  const handleRelatorios = () => setShowRelatorios(true);
+
+  const handleSearchResults = (results: any) => {
+    console.log('Resultados da busca avançada:', results);
+  };
+
+  const handleDateFilters = (filters: any) => {
+    console.log('Filtros por data aplicados:', filters);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-5">
       {/* Header */}
-      <div className="space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="space-y-3">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
           <div className="space-y-1">
-            <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
-              <Activity className="h-6 w-6 lg:h-7 lg:w-7 text-primary" />
+            <h1 className="text-xl lg:text-2xl font-bold flex items-center gap-2">
+              <Activity className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
               Hub de Produtividade
             </h1>
             <p className="text-muted-foreground text-sm lg:text-base">
@@ -75,7 +102,7 @@ export function HubDesktopLayout({
           </div>
 
           {/* Busca e filtros */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -109,6 +136,10 @@ export function HubDesktopLayout({
                   </Button>
                 }
               />
+              
+              {/* Controles de Densidade - Novo */}
+              <LayoutControls className="hidden md:flex" />
+              
               <Button
                 variant="outline"
                 size="sm"
@@ -125,15 +156,15 @@ export function HubDesktopLayout({
 
         {/* Indicadores de filtros ativos */}
         {hasActiveFilters && (
-          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <span className="text-sm text-blue-800">
+          <div className="flex items-center gap-2 p-2.5 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <span className="text-sm text-blue-800 dark:text-blue-400">
               Mostrando {totalResults} de {totalItems} itens
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClearFilters}
-              className="text-blue-800 hover:text-blue-900"
+              className="text-blue-800 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 h-6 px-2"
             >
               Limpar filtros
             </Button>
@@ -145,13 +176,13 @@ export function HubDesktopLayout({
       <Tabs value={currentSection} onValueChange={(value) => onSectionChange(value as HubViewMode)}>
         <TabsList className={cn(
           "grid w-full h-auto p-1",
-          isTablet ? "grid-cols-2 gap-1" : "grid-cols-4 gap-1"
+          isTablet ? "grid-cols-3 gap-1" : "grid-cols-5 gap-1"
         )}>
           {sections.map((section) => (
             <TabsTrigger
               key={section.id}
               value={section.id}
-              className="flex flex-col items-center gap-1 py-3 px-2 relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="flex flex-col items-center gap-1 py-2.5 px-2 relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               <div className="flex items-center gap-2">
                 <section.icon className="h-4 w-4" />
@@ -160,7 +191,7 @@ export function HubDesktopLayout({
               {section.badge && (
                 <Badge
                   variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center"
+                  className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center"
                 >
                   {section.badge}
                 </Badge>
@@ -170,14 +201,19 @@ export function HubDesktopLayout({
         </TabsList>
 
         {/* Conteúdo das Tabs */}
-        <div className="mt-6">
+        <div className="mt-4">
           {/* Dashboard */}
           <TabsContent value="dashboard" className="mt-0">
             <HubDashboard
               stats={stats}
               activities={activities}
               isLoading={isLoading}
-              handlers={handlers}
+              handlers={{
+                ...handlers,
+                onBuscaAvancada: handleBuscaAvancada,
+                onFiltrosPorData: handleFiltrosPorData,
+                onRelatorios: handleRelatorios
+              }}
             />
           </TabsContent>
 
@@ -195,6 +231,13 @@ export function HubDesktopLayout({
             </div>
           </TabsContent>
 
+          {/* Monitoramento */}
+          <TabsContent value="monitoramento" className="mt-0">
+            <div className="border border-border/40 rounded-lg overflow-hidden">
+              <OrientacoesMonitoramento />
+            </div>
+          </TabsContent>
+
           {/* Tarefas */}
           <TabsContent value="tarefas" className="mt-0">
             <div className="border border-border/40 rounded-lg overflow-hidden">
@@ -203,6 +246,33 @@ export function HubDesktopLayout({
           </TabsContent>
         </div>
       </Tabs>
+
+      <BuscaAvancada
+        open={showBuscaAvancada}
+        onOpenChange={setShowBuscaAvancada}
+        rotinas={rotinas}
+        orientacoes={orientacoes}
+        tarefas={tarefas}
+        onResultsSelect={handleSearchResults}
+      />
+
+      <FiltrosPorData
+        open={showFiltrosPorData}
+        onOpenChange={setShowFiltrosPorData}
+        rotinas={rotinas}
+        orientacoes={orientacoes}
+        tarefas={tarefas}
+        onFiltersApply={handleDateFilters}
+      />
+
+      <Relatorios
+        open={showRelatorios}
+        onOpenChange={setShowRelatorios}
+        rotinas={rotinas}
+        orientacoes={orientacoes}
+        tarefas={tarefas}
+        stats={stats}
+      />
     </div>
   );
 }

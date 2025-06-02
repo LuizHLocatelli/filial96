@@ -49,32 +49,32 @@ export function ModernStatsCard({
     blue: {
       gradient: 'from-blue-500/10 to-cyan-500/10',
       iconBg: 'bg-blue-500/10',
-      iconColor: 'text-blue-600',
-      border: 'border-blue-200/50'
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      border: 'border-blue-200/50 dark:border-blue-800/50'
     },
     green: {
       gradient: 'from-green-500/10 to-emerald-500/10',
       iconBg: 'bg-green-500/10',
-      iconColor: 'text-green-600',
-      border: 'border-green-200/50'
+      iconColor: 'text-green-600 dark:text-green-400',
+      border: 'border-green-200/50 dark:border-green-800/50'
     },
     purple: {
       gradient: 'from-purple-500/10 to-violet-500/10',
       iconBg: 'bg-purple-500/10',
-      iconColor: 'text-purple-600',
-      border: 'border-purple-200/50'
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      border: 'border-purple-200/50 dark:border-purple-800/50'
     },
     orange: {
       gradient: 'from-orange-500/10 to-yellow-500/10',
       iconBg: 'bg-orange-500/10',
-      iconColor: 'text-orange-600',
-      border: 'border-orange-200/50'
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      border: 'border-orange-200/50 dark:border-orange-800/50'
     },
     red: {
       gradient: 'from-red-500/10 to-pink-500/10',
       iconBg: 'bg-red-500/10',
-      iconColor: 'text-red-600',
-      border: 'border-red-200/50'
+      iconColor: 'text-red-600 dark:text-red-400',
+      border: 'border-red-200/50 dark:border-red-800/50'
     }
   };
 
@@ -170,28 +170,28 @@ export function ActivityCard({
   const statusConfig = {
     pendente: {
       icon: Clock,
-      color: 'text-yellow-600',
+      color: 'text-yellow-600 dark:text-yellow-400',
       bg: 'bg-yellow-100 dark:bg-yellow-900/30',
       label: 'Pendente'
     },
     concluida: {
       icon: CheckCircle2,
-      color: 'text-green-600',
+      color: 'text-green-600 dark:text-green-400',
       bg: 'bg-green-100 dark:bg-green-900/30',
       label: 'Concluída'
     },
     atrasada: {
       icon: AlertTriangle,
-      color: 'text-red-600',
+      color: 'text-red-600 dark:text-red-400',
       bg: 'bg-red-100 dark:bg-red-900/30',
       label: 'Atrasada'
     }
   };
 
   const typeConfig = {
-    rotina: { color: 'bg-blue-500', label: 'Rotina' },
-    orientacao: { color: 'bg-purple-500', label: 'Orientação' },
-    tarefa: { color: 'bg-orange-500', label: 'Tarefa' }
+    rotina: { color: 'bg-blue-500 dark:bg-blue-600', label: 'Rotina' },
+    orientacao: { color: 'bg-purple-500 dark:bg-purple-600', label: 'Orientação' },
+    tarefa: { color: 'bg-orange-500 dark:bg-orange-600', label: 'Tarefa' }
   };
 
   const config = statusConfig[status];
@@ -480,7 +480,7 @@ export function MetricCard({
         {trend && (
           <div className={cn(
             "flex items-center gap-1 text-xs font-medium",
-            trend.isPositive ? "text-green-600" : "text-red-600"
+            trend.isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
           )}>
             {trend.isPositive ? (
               <TrendingUp className="h-3 w-3" />

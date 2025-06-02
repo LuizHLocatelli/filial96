@@ -137,7 +137,7 @@ export interface QuickAction {
 // ===== TIPOS DE FILTROS =====
 export type PeriodicidadeFilter = 'todos' | 'hoje' | 'semana' | 'mes';
 export type StatusFilter = 'todos' | 'pendente' | 'concluida' | 'atrasada';
-export type HubViewMode = 'dashboard' | 'rotinas' | 'orientacoes' | 'tarefas';
+export type HubViewMode = 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento' | 'tarefas';
 
 // ===== TIPOS DE FORM DATA =====
 export interface RotinaFormData {
@@ -177,4 +177,47 @@ export interface HubContextType {
   // Actions
   refreshData: () => Promise<void>;
   exportData: (format: 'pdf' | 'excel') => Promise<void>;
-} 
+}
+
+// ===== NOVOS TIPOS PARA MONITORAMENTO =====
+export interface OrientacaoVisualizacao {
+  id: string;
+  orientacao_id: string;
+  user_id: string;
+  user_role: string;
+  viewed_at: string;
+  created_at: string;
+}
+
+export interface UserPendente {
+  id: string;
+  name: string;
+  role: string;
+}
+
+export interface RoleCompletionStats {
+  role: string;
+  total_users: number;
+  viewed_users: number;
+  completion_percentage: number;
+  is_complete: boolean;
+  pending_users: UserPendente[];
+}
+
+export interface OrientacaoMonitoramento {
+  orientacao_id: string;
+  titulo: string;
+  tipo: string;
+  data_criacao: string;
+  viewing_stats: RoleCompletionStats[];
+}
+
+export interface MonitoramentoStats {
+  total_orientacoes: number;
+  orientacoes_completas: number;
+  orientacoes_pendentes: number;
+  percentage_complete: number;
+  orientacoes: OrientacaoMonitoramento[];
+}
+
+export type TargetRole = 'consultor_moveis' | 'consultor_moda' | 'jovem_aprendiz'; 

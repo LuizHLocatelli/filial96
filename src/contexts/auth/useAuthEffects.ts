@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { User as AppUser, UserRole } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,15 +60,26 @@ export const useAuthEffects = ({
   setIsLoading,
   toast,
 }: UseAuthEffectsProps) => {
+  // Ref para controle de estado e evitar múltiplas chamadas
+  const isInitializedRef = useRef(false);
+  const profileFetchingRef = useRef(false);
+  const lastProfileFetchRef = useRef<string | null>(null);
+
   useEffect(() => {
+    // Evitar múltiplas inicializações
+    if (isInitializedRef.current) {
+      return;
+    }
+    isInitializedRef.current = true;
+
     const initializeAuth = async () => {
       try {
         // Get initial session with retry
         const sessionResult = await retryWithBackoff(async () => {
           console.log('🔐 Inicializando autenticação...');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (sessionError) {
+          if (sessionError) {
             console.error("❌ Session error:", sessionError);
             throw sessionError;
           }
@@ -100,51 +111,59 @@ export const useAuthEffects = ({
     };
 
     const fetchUserProfile = async (userId: string, userEmail?: string) => {
+      // Evitar múltiplas chamadas para o mesmo usuário
+      if (profileFetchingRef.current || lastProfileFetchRef.current === userId) {
+        return;
+      }
+      
+      profileFetchingRef.current = true;
+      lastProfileFetchRef.current = userId;
+
       try {
         const profile = await retryWithBackoff(async () => {
           console.log('👤 Buscando perfil do usuário...');
           
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
 
-        if (error) {
-          if (error.code === 'PGRST116') {
-            // Profile doesn't exist, create one
+          if (error) {
+            if (error.code === 'PGRST116') {
+              // Profile doesn't exist, create one
               console.log('📝 Criando novo perfil...');
-            const { data: userData } = await supabase.auth.getUser();
-            if (userData.user) {
-              const newProfile: AppUser = {
-                id: userId,
-                name: userData.user.email || 'Usuário',
-                role: 'jovem_aprendiz' as UserRole, // Changed default role
-                email: userData.user.email || userEmail || '',
-                phone: userData.user.user_metadata?.phone || ''
-              };
-              
-              const { error: insertError } = await supabase
-                .from('profiles')
-                .insert({
+              const { data: userData } = await supabase.auth.getUser();
+              if (userData.user) {
+                const newProfile: AppUser = {
                   id: userId,
                   name: userData.user.email || 'Usuário',
-                  role: 'jovem_aprendiz', // Changed default role
+                  role: 'jovem_aprendiz' as UserRole, // Changed default role
+                  email: userData.user.email || userEmail || '',
                   phone: userData.user.user_metadata?.phone || ''
-                });
+                };
                 
-              if (insertError) {
+                const { error: insertError } = await supabase
+                  .from('profiles')
+                  .insert({
+                    id: userId,
+                    name: userData.user.email || 'Usuário',
+                    role: 'jovem_aprendiz', // Changed default role
+                    phone: userData.user.user_metadata?.phone || ''
+                  });
+                  
+                if (insertError) {
                   console.error("❌ Erro ao criar perfil:", insertError);
                   throw insertError;
-              } else {
+                } else {
                   console.log('✅ Perfil criado com sucesso');
                   return newProfile;
+                }
               }
-            }
-          } else {
+            } else {
               console.error("❌ Erro ao buscar perfil:", error);
               throw error;
-          }
+            }
           }
           
           return profile;
@@ -169,6 +188,8 @@ export const useAuthEffects = ({
         
         // Não mostrar toast para erros de perfil, pois não impedem o uso básico do app
         // O usuário ainda pode usar o sistema mesmo sem o perfil completo
+      } finally {
+        profileFetchingRef.current = false;
       }
     };
 
@@ -180,21 +201,33 @@ export const useAuthEffects = ({
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user);
           setSession(session);
-          // Use setTimeout to prevent deadlocks
+          // Use setTimeout to prevent deadlocks and debounce
           setTimeout(() => {
             fetchUserProfile(session.user.id, session.user.email);
-          }, 0);
+          }, 100);
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setSession(null);
           setProfile(null);
+          // Reset refs
+          lastProfileFetchRef.current = null;
+          profileFetchingRef.current = false;
         } else if (event === 'TOKEN_REFRESHED' && session) {
           setSession(session);
-          // Refetch profile to ensure we have the latest data
-          if (session.user) {
+          // Só refetch profile se for um usuário diferente
+          if (session.user && lastProfileFetchRef.current !== session.user.id) {
             setTimeout(() => {
               fetchUserProfile(session.user.id, session.user.email);
-            }, 0);
+            }, 100);
+          }
+        } else if (event === 'INITIAL_SESSION' && session?.user) {
+          // Evitar duplicar a busca de perfil se já foi feita
+          if (lastProfileFetchRef.current !== session.user.id) {
+            setUser(session.user);
+            setSession(session);
+            setTimeout(() => {
+              fetchUserProfile(session.user.id, session.user.email);
+            }, 100);
           }
         }
         
@@ -206,6 +239,10 @@ export const useAuthEffects = ({
 
     return () => {
       subscription.unsubscribe();
+      // Reset refs on cleanup
+      isInitializedRef.current = false;
+      profileFetchingRef.current = false;
+      lastProfileFetchRef.current = null;
     };
-  }, [setUser, setSession, setProfile, setIsLoading, toast]);
+  }, []); // Array vazio para executar apenas uma vez
 };

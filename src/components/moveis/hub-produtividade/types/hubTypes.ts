@@ -1,6 +1,5 @@
-
 export interface HubSection {
-  id: 'dashboard' | 'rotinas' | 'orientacoes' | 'tarefas';
+  id: 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento' | 'tarefas';
   title: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
@@ -11,6 +10,7 @@ export interface NavigationBadges {
   dashboard?: number;
   rotinas?: number;
   orientacoes?: number;
+  monitoramento?: number;
   tarefas?: number;
 }
 
@@ -23,4 +23,8 @@ export interface HubHandlers {
   onRefreshData: () => Promise<void>;
   onShowMobileSearch: () => void;
   onShowFilters: () => void;
+  onBuscaAvancada?: () => void;
+  onFiltrosPorData?: () => void;
+  onRelatorios?: () => void;
+  onNavigateToSection?: (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento' | 'tarefas') => void;
 }

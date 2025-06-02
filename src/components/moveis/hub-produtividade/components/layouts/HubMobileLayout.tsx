@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -12,6 +12,10 @@ import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
 import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
+import OrientacoesMonitoramento from '../OrientacoesMonitoramento';
+import { BuscaAvancada } from '../funcionalidades/BuscaAvancada';
+import { FiltrosPorData } from '../funcionalidades/FiltrosPorData';
+import { Relatorios } from '../funcionalidades/Relatorios';
 
 interface HubMobileLayoutProps {
   currentSection: HubViewMode;
@@ -31,6 +35,9 @@ interface HubMobileLayoutProps {
   handlers: HubHandlers;
   onFiltersChange: (filters: FilterState) => void;
   onClearFilters: () => void;
+  rotinas?: Array<any>;
+  orientacoes?: Array<any>;
+  tarefas?: Array<any>;
 }
 
 export function HubMobileLayout({
@@ -50,10 +57,29 @@ export function HubMobileLayout({
   mobileFilters,
   handlers,
   onFiltersChange,
-  onClearFilters
+  onClearFilters,
+  rotinas = [],
+  orientacoes = [],
+  tarefas = []
 }: HubMobileLayoutProps) {
+  const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
+  const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
+  const [showRelatorios, setShowRelatorios] = useState(false);
+
+  const handleBuscaAvancada = () => setShowBuscaAvancada(true);
+  const handleFiltrosPorData = () => setShowFiltrosPorData(true);
+  const handleRelatorios = () => setShowRelatorios(true);
+
+  const handleSearchResults = (results: any) => {
+    console.log('Resultados da busca avançada (mobile):', results);
+  };
+
+  const handleDateFilters = (filters: any) => {
+    console.log('Filtros por data aplicados (mobile):', filters);
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background">
       <MobileNavigation
         currentSection={currentSection}
         onSectionChange={onSectionChange}
@@ -63,7 +89,6 @@ export function HubMobileLayout({
         hasActiveFilters={hasActiveFilters}
       />
 
-      {/* Busca Mobile */}
       {showMobileSearch && (
         <div className="p-4 border-b bg-background sticky top-0 z-10">
           <div className="relative">
@@ -87,18 +112,17 @@ export function HubMobileLayout({
         </div>
       )}
 
-      {/* Indicadores de filtros ativos */}
       {hasActiveFilters && (
-        <div className="mx-4 mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mx-4 mt-4 p-3 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-blue-800">
+            <span className="text-sm text-blue-800 dark:text-blue-400">
               {totalResults} resultados filtrados
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClearFilters}
-              className="text-blue-800 hover:text-blue-900 p-1"
+              className="text-blue-800 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-1"
             >
               Limpar
             </Button>
@@ -106,14 +130,18 @@ export function HubMobileLayout({
         </div>
       )}
 
-      {/* Conteúdo das Seções */}
       <div className="p-4">
         {currentSection === 'dashboard' && (
           <HubDashboard
             stats={stats}
             activities={activities}
             isLoading={isLoading}
-            handlers={handlers}
+            handlers={{
+              ...handlers,
+              onBuscaAvancada: handleBuscaAvancada,
+              onFiltrosPorData: handleFiltrosPorData,
+              onRelatorios: handleRelatorios
+            }}
           />
         )}
 
@@ -129,6 +157,12 @@ export function HubMobileLayout({
           </div>
         )}
 
+        {currentSection === 'monitoramento' && (
+          <div className="border border-border/40 rounded-lg overflow-hidden">
+            <OrientacoesMonitoramento />
+          </div>
+        )}
+
         {currentSection === 'tarefas' && (
           <div className="border border-border/40 rounded-lg overflow-hidden">
             <OrientacaoTarefas />
@@ -136,7 +170,6 @@ export function HubMobileLayout({
         )}
       </div>
 
-      {/* Mobile Filters */}
       <MobileFilters
         isOpen={showFilters}
         onOpenChange={onShowFiltersChange}
@@ -144,6 +177,34 @@ export function HubMobileLayout({
         onFiltersChange={onFiltersChange}
         onClearFilters={onClearFilters}
         hasActiveFilters={hasActiveFilters}
+        trigger={<div style={{ display: 'none' }} />}
+      />
+
+      <BuscaAvancada
+        open={showBuscaAvancada}
+        onOpenChange={setShowBuscaAvancada}
+        rotinas={rotinas}
+        orientacoes={orientacoes}
+        tarefas={tarefas}
+        onResultsSelect={handleSearchResults}
+      />
+
+      <FiltrosPorData
+        open={showFiltrosPorData}
+        onOpenChange={setShowFiltrosPorData}
+        rotinas={rotinas}
+        orientacoes={orientacoes}
+        tarefas={tarefas}
+        onFiltersApply={handleDateFilters}
+      />
+
+      <Relatorios
+        open={showRelatorios}
+        onOpenChange={setShowRelatorios}
+        rotinas={rotinas}
+        orientacoes={orientacoes}
+        tarefas={tarefas}
+        stats={stats}
       />
     </div>
   );

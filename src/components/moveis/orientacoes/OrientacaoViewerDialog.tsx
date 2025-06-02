@@ -6,6 +6,8 @@ import { Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { PDFViewer } from "@/components/ui/pdf-viewer";
+import { useEffect } from "react";
+import { useOrientacoesMonitoring } from "../hub-produtividade/hooks/useOrientacoesMonitoring";
 
 interface OrientacaoViewerDialogProps {
   open: boolean;
@@ -18,8 +20,16 @@ export function OrientacaoViewerDialog({
   onOpenChange,
   orientacao
 }: OrientacaoViewerDialogProps) {
+  const { registerView } = useOrientacoesMonitoring();
   const isPdf = orientacao.arquivo_tipo.includes("pdf");
   const isImage = orientacao.arquivo_tipo.includes("image");
+  
+  // Registrar visualização quando o dialog for aberto
+  useEffect(() => {
+    if (open && orientacao?.id) {
+      registerView(orientacao.id);
+    }
+  }, [open, orientacao?.id, registerView]);
   
   const renderContent = () => {
     if (isImage) {
