@@ -8,10 +8,7 @@ import { NavigationBadges, HubHandlers } from '../../types/hubTypes';
 import { FilterState } from '../mobile/MobileFilters';
 import { MobileNavigation } from '../mobile/MobileNavigation';
 import { MobileFilters } from '../mobile/MobileFilters';
-import { StatsGrid } from '../mobile/ResponsiveGrid';
-import { StatsOverview } from '../dashboard/StatsOverview';
-import { QuickActions } from '../dashboard/QuickActions';
-import { ActivityTimeline } from '../unified/ActivityTimeline';
+import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
 import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
@@ -66,9 +63,9 @@ export function HubMobileLayout({
         hasActiveFilters={hasActiveFilters}
       />
 
-      {/* Busca Mobile Expansível */}
+      {/* Busca Mobile */}
       {showMobileSearch && (
-        <div className="p-4 border-b bg-background">
+        <div className="p-4 border-b bg-background sticky top-0 z-10">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -109,30 +106,15 @@ export function HubMobileLayout({
         </div>
       )}
 
-      {/* Conteúdo das Seções Mobile */}
-      <div className="p-4 space-y-6">
+      {/* Conteúdo das Seções */}
+      <div className="p-4">
         {currentSection === 'dashboard' && (
-          <div className="space-y-6">
-            <StatsGrid>
-              <StatsOverview stats={stats} isLoading={isLoading} />
-            </StatsGrid>
-            
-            <QuickActions
-              onNovaRotina={handlers.onNovaRotina}
-              onNovaOrientacao={handlers.onNovaOrientacao}
-              onNovaTarefa={handlers.onNovaTarefa}
-              onRefreshData={handlers.onRefreshData}
-              onExportData={handlers.onExportData}
-              onShowFilters={handlers.onShowFilters}
-              isRefreshing={isLoading}
-            />
-            
-            <ActivityTimeline
-              activities={activities}
-              isLoading={isLoading}
-              maxItems={10}
-            />
-          </div>
+          <HubDashboard
+            stats={stats}
+            activities={activities}
+            isLoading={isLoading}
+            handlers={handlers}
+          />
         )}
 
         {currentSection === 'rotinas' && (

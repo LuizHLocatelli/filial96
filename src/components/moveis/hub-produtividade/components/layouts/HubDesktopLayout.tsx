@@ -14,10 +14,7 @@ import { ActivityItem } from '../../types';
 import { HubSection, HubHandlers } from '../../types/hubTypes';
 import { FilterState } from '../mobile/MobileFilters';
 import { MobileFilters } from '../mobile/MobileFilters';
-import { DashboardGrid } from '../mobile/ResponsiveGrid';
-import { StatsOverview } from '../dashboard/StatsOverview';
-import { QuickActions } from '../dashboard/QuickActions';
-import { ActivityTimeline } from '../unified/ActivityTimeline';
+import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
 import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
@@ -63,23 +60,23 @@ export function HubDesktopLayout({
   onClearFilters
 }: HubDesktopLayoutProps) {
   return (
-    <div className="space-y-6 px-1 sm:px-0">
-      {/* Header do Hub */}
+    <div className="space-y-6">
+      {/* Header */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-              <Activity className="h-7 w-7 text-primary" />
+            <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
+              <Activity className="h-6 w-6 lg:h-7 lg:w-7 text-primary" />
               Hub de Produtividade
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm lg:text-base">
               Centralize suas rotinas, orientações e tarefas em um só lugar
             </p>
           </div>
 
           {/* Busca e filtros */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1 sm:w-80">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar em tudo..."
@@ -148,17 +145,17 @@ export function HubDesktopLayout({
       <Tabs value={currentSection} onValueChange={(value) => onSectionChange(value as HubViewMode)}>
         <TabsList className={cn(
           "grid w-full h-auto p-1",
-          isTablet ? "grid-cols-2" : "grid-cols-4"
+          isTablet ? "grid-cols-2 gap-1" : "grid-cols-4 gap-1"
         )}>
           {sections.map((section) => (
             <TabsTrigger
               key={section.id}
               value={section.id}
-              className="flex flex-col items-center gap-1 py-3 px-2 sm:px-4 relative"
+              className="flex flex-col items-center gap-1 py-3 px-2 relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               <div className="flex items-center gap-2">
                 <section.icon className="h-4 w-4" />
-                <span className="text-xs sm:text-sm font-medium">{section.title}</span>
+                <span className="text-xs font-medium hidden sm:inline">{section.title}</span>
               </div>
               {section.badge && (
                 <Badge
@@ -173,49 +170,33 @@ export function HubDesktopLayout({
         </TabsList>
 
         {/* Conteúdo das Tabs */}
-        <div className="space-y-6">
+        <div className="mt-6">
           {/* Dashboard */}
-          <TabsContent value="dashboard" className="space-y-6">
-            <DashboardGrid
-              main={<StatsOverview stats={stats} isLoading={isLoading} />}
-              sidebar={
-                <div className="space-y-6">
-                  <QuickActions
-                    onNovaRotina={handlers.onNovaRotina}
-                    onNovaOrientacao={handlers.onNovaOrientacao}
-                    onNovaTarefa={handlers.onNovaTarefa}
-                    onRefreshData={handlers.onRefreshData}
-                    onExportData={handlers.onExportData}
-                    onShowFilters={handlers.onShowFilters}
-                    isRefreshing={isLoading}
-                  />
-                  
-                  <ActivityTimeline
-                    activities={activities}
-                    isLoading={isLoading}
-                    maxItems={10}
-                  />
-                </div>
-              }
+          <TabsContent value="dashboard" className="mt-0">
+            <HubDashboard
+              stats={stats}
+              activities={activities}
+              isLoading={isLoading}
+              handlers={handlers}
             />
           </TabsContent>
 
           {/* Rotinas */}
-          <TabsContent value="rotinas" className="space-y-4">
+          <TabsContent value="rotinas" className="mt-0">
             <div className="border border-border/40 rounded-lg overflow-hidden">
               <Rotinas />
             </div>
           </TabsContent>
 
           {/* Orientações */}
-          <TabsContent value="orientacoes" className="space-y-4">
+          <TabsContent value="orientacoes" className="mt-0">
             <div className="border border-border/40 rounded-lg overflow-hidden">
               <VmTarefas />
             </div>
           </TabsContent>
 
           {/* Tarefas */}
-          <TabsContent value="tarefas" className="space-y-4">
+          <TabsContent value="tarefas" className="mt-0">
             <div className="border border-border/40 rounded-lg overflow-hidden">
               <OrientacaoTarefas />
             </div>

@@ -1,3 +1,4 @@
+
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/hooks/use-responsive';
@@ -19,7 +20,7 @@ interface ResponsiveGridProps {
 }
 
 const gapClasses = {
-  sm: 'gap-2',
+  sm: 'gap-3',
   md: 'gap-4',
   lg: 'gap-6',
   xl: 'gap-8'
@@ -38,11 +39,10 @@ export function ResponsiveGrid({
     xxl: 5
   },
   autoFit = false,
-  minColWidth = '300px'
+  minColWidth = '280px'
 }: ResponsiveGridProps) {
   const { breakpoints } = useResponsive();
 
-  // Determinar número de colunas baseado no breakpoint atual
   const getCurrentColumns = () => {
     if (breakpoints.xxl && columns.xxl) return columns.xxl;
     if (breakpoints.xl && columns.xl) return columns.xl;
@@ -52,9 +52,6 @@ export function ResponsiveGrid({
     return columns.xs || 1;
   };
 
-  const currentColumns = getCurrentColumns();
-
-  // Classes de grid baseadas no breakpoint
   const getGridClasses = () => {
     if (autoFit) {
       return `grid-cols-[repeat(auto-fit,minmax(${minColWidth},1fr))]`;
@@ -75,23 +72,21 @@ export function ResponsiveGrid({
   return (
     <div
       className={cn(
-        'grid',
+        'grid w-full',
         getGridClasses(),
         gapClasses[gap],
-        'w-full',
         className
       )}
       style={autoFit ? {
         gridTemplateColumns: `repeat(auto-fit, minmax(${minColWidth}, 1fr))`
       } : undefined}
-      data-columns={currentColumns}
     >
       {children}
     </div>
   );
 }
 
-// Grid para stats específico
+// Grid otimizado para stats
 interface StatsGridProps {
   children: ReactNode;
   className?: string;
@@ -103,9 +98,8 @@ export function StatsGrid({ children, className }: StatsGridProps) {
       columns={{
         xs: 1,
         sm: 2,
-        md: 2,
-        lg: 3,
-        xl: 4
+        md: 3,
+        lg: 4
       }}
       gap="md"
       className={className}
@@ -115,7 +109,7 @@ export function StatsGrid({ children, className }: StatsGridProps) {
   );
 }
 
-// Grid para dashboard layout
+// Grid simplificado para dashboard
 interface DashboardGridProps {
   sidebar?: ReactNode;
   main: ReactNode;
@@ -123,20 +117,11 @@ interface DashboardGridProps {
 }
 
 export function DashboardGrid({ sidebar, main, className }: DashboardGridProps) {
-  const { isMobile, isTablet } = useResponsive();
+  const { isMobile } = useResponsive();
 
   if (isMobile) {
     return (
-      <div className={cn('space-y-6', className)}>
-        {main}
-        {sidebar}
-      </div>
-    );
-  }
-
-  if (isTablet) {
-    return (
-      <div className={cn('space-y-6', className)}>
+      <div className={cn('space-y-4', className)}>
         {main}
         {sidebar}
       </div>
@@ -148,36 +133,39 @@ export function DashboardGrid({ sidebar, main, className }: DashboardGridProps) 
       <div className="lg:col-span-2">
         {main}
       </div>
-      <div className="lg:col-span-1">
-        {sidebar}
-      </div>
+      {sidebar && (
+        <div className="lg:col-span-1">
+          {sidebar}
+        </div>
+      )}
     </div>
   );
 }
 
-// Grid para cards compactos mobile
+// Grid compacto otimizado
 interface CompactGridProps {
   children: ReactNode;
   className?: string;
 }
 
 export function CompactGrid({ children, className }: CompactGridProps) {
-  const { isMobile } = useResponsive();
-
   return (
-    <div
-      className={cn(
-        'grid gap-3',
-        isMobile ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
-        className
-      )}
+    <ResponsiveGrid
+      columns={{
+        xs: 1,
+        sm: 2,
+        md: 3,
+        lg: 4
+      }}
+      gap="sm"
+      className={className}
     >
       {children}
-    </div>
+    </ResponsiveGrid>
   );
 }
 
-// Grid flexível com auto-sizing
+// Grid flexível otimizado
 interface FlexGridProps {
   children: ReactNode;
   minWidth?: string;
@@ -188,7 +176,7 @@ interface FlexGridProps {
 
 export function FlexGrid({
   children,
-  minWidth = '280px',
+  minWidth = '250px',
   maxWidth = '1fr',
   gap = 'md',
   className
@@ -196,7 +184,7 @@ export function FlexGrid({
   return (
     <div
       className={cn(
-        'grid',
+        'grid w-full',
         gapClasses[gap],
         className
       )}
@@ -208,35 +196,3 @@ export function FlexGrid({
     </div>
   );
 }
-
-// Grid de masonry para layouts irregulares
-interface MasonryGridProps {
-  children: ReactNode;
-  columns?: number;
-  gap?: string;
-  className?: string;
-}
-
-export function MasonryGrid({
-  children,
-  columns = 3,
-  gap = '1rem',
-  className
-}: MasonryGridProps) {
-  const { isMobile, isTablet } = useResponsive();
-  
-  const cols = isMobile ? 1 : isTablet ? 2 : columns;
-
-  return (
-    <div
-      className={cn('columns-1 md:columns-2 lg:columns-3', className)}
-      style={{
-        columnCount: cols,
-        columnGap: gap,
-        columnFill: 'balance'
-      }}
-    >
-      {children}
-    </div>
-  );
-} 
