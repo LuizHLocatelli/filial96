@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,6 @@ import {
   Clock, 
   AlertTriangle, 
   ListTodo,
-  FileText,
   Target,
   TrendingUp,
   Activity
@@ -57,19 +55,6 @@ export function StatsOverview({
       gradient: 'from-purple-50 to-purple-100 dark:from-purple-950/50 dark:to-purple-900/50'
     },
     {
-      title: 'Orientações',
-      value: stats.orientacoes.total,
-      subtitle: 'Orientações disponíveis',
-      icon: FileText,
-      progress: stats.orientacoes.total > 0 ? ((stats.orientacoes.lidas / stats.orientacoes.total) * 100) : 0,
-      sections: [
-        { label: 'Lidas', value: stats.orientacoes.lidas, color: 'bg-emerald-500' },
-        { label: 'Não lidas', value: stats.orientacoes.naoLidas, color: 'bg-orange-500' }
-      ],
-      onClick: () => onNavigateToSection?.('orientacoes'),
-      gradient: 'from-green-50 to-green-100 dark:from-green-950/50 dark:to-green-900/50'
-    },
-    {
       title: 'Produtividade',
       value: `${Math.round(stats.produtividade.score)}%`,
       subtitle: 'Score geral',
@@ -86,8 +71,8 @@ export function StatsOverview({
   if (isLoading) {
     return (
       <div className="w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="space-y-4">
@@ -127,7 +112,7 @@ export function StatsOverview({
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (

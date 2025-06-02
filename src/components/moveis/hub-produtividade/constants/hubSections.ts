@@ -11,7 +11,7 @@ import { HubSection } from '../types/hubTypes';
 export const HUB_SECTIONS: HubSection[] = [
   {
     id: 'dashboard',
-    title: 'Dashboard',
+    title: 'Hub de Produtividade',
     icon: BarChart3,
     description: 'Visão geral da produtividade'
   },

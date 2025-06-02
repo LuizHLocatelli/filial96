@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,8 @@ export function CollapsibleSection({
   compact = false,
   persistStateKey
 }: CollapsibleSectionProps) {
+  const headerRef = useRef<HTMLDivElement>(null);
+
   // Carregar estado persistido se disponível
   const getInitialState = () => {
     if (!persistStateKey) return defaultExpanded;
@@ -46,6 +48,11 @@ export function CollapsibleSection({
     const newState = !isExpanded;
     setIsExpanded(newState);
     
+    // Remover foco do elemento para evitar cor persistente
+    if (headerRef.current) {
+      headerRef.current.blur();
+    }
+    
     // Persistir estado se key fornecida
     if (persistStateKey) {
       try {
@@ -59,11 +66,22 @@ export function CollapsibleSection({
   return (
     <Card className={cn("transition-all duration-200", className)}>
       <CardHeader 
+        ref={headerRef}
+        tabIndex={0}
         className={cn(
-          "cursor-pointer select-none transition-colors hover:bg-accent/50",
+          "cursor-pointer select-none outline-none",
+          "transition-colors duration-200",
+          "hover:bg-accent/40 active:bg-accent/60",
+          "dark:transition-none dark:hover:bg-transparent dark:active:bg-transparent dark:focus:bg-transparent",
           compact ? "pb-2 px-3 py-2" : "pb-3"
         )}
         onClick={toggleExpanded}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleExpanded();
+          }
+        }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -104,10 +122,14 @@ export function CollapsibleSection({
               variant="ghost"
               size="sm"
               className={cn(
-                "transition-transform duration-200",
+                "transition-all duration-200 outline-none",
+                "hover:bg-muted/50 active:bg-muted",
+                "dark:transition-none dark:hover:bg-transparent dark:active:bg-transparent dark:focus:bg-transparent",
                 compact ? "h-6 w-6 p-0" : "h-7 w-7 p-0"
               )}
               aria-label={isExpanded ? "Minimizar seção" : "Expandir seção"}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.preventDefault()}
             >
               {isExpanded ? (
                 <ChevronUp className={cn(

@@ -1,25 +1,19 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useHubData } from './hooks/useHubData';
-import { useHubFilters } from './hooks/useHubFilters';
 import { useHubHandlers } from './hooks/useHubHandlers';
-import { useResponsive } from '@/hooks/use-responsive';
 import { HubViewMode } from './types';
 import { HUB_SECTIONS } from './constants/hubSections';
-import { convertToMobileFilters, convertFromMobileFilters } from './utils/filterConversions';
-import { HubMobileLayout } from './components/layouts/HubMobileLayout';
-import { HubDesktopLayout } from './components/layouts/HubDesktopLayout';
+import { HubUnifiedLayout } from './components/layouts/HubUnifiedLayout';
 
 export function HubProdutividade() {
   // Estados locais
   const [currentSection, setCurrentSection] = useState<HubViewMode>('dashboard');
-  const [showFilters, setShowFilters] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterSearchTerm, setFilterSearchTerm] = useState('');
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Hook de responsividade
-  const { isMobile, isTablet } = useResponsive();
-
-  // Hooks para dados e filtros
+  // Hooks para dados
   const {
     stats,
     activities,
@@ -29,22 +23,6 @@ export function HubProdutividade() {
     isLoading,
     refreshData
   } = useHubData();
-
-  const {
-    filters,
-    filteredRotinas,
-    filteredOrientacoes,
-    filteredTarefas,
-    filteredActivities,
-    filterStats,
-    setSearchTerm: setFilterSearchTerm,
-    clearFilters
-  } = useHubFilters({
-    rotinas,
-    orientacoes,
-    tarefas,
-    activities
-  });
 
   // Hook para handlers
   const handlers = useHubHandlers({
@@ -56,87 +34,25 @@ export function HubProdutividade() {
     refreshData
   });
 
-  // Configuração das seções com badges
-  const sectionsWithBadges = HUB_SECTIONS.map(section => ({
-    ...section,
-    badge: section.id === 'dashboard' 
-      ? (filterStats.hasActiveFilters ? filterStats.total : undefined)
-      : section.id === 'rotinas' 
-      ? (stats.rotinas.atrasadas > 0 ? stats.rotinas.atrasadas : undefined)
-      : section.id === 'orientacoes'
-      ? (stats.orientacoes.naoLidas > 0 ? stats.orientacoes.naoLidas : undefined)
-      : section.id === 'tarefas'
-      ? (stats.tarefas.atrasadas > 0 ? stats.tarefas.atrasadas : undefined)
-      : undefined
-  }));
-
-  // Badges para navegação mobile
+  // Badges para navegação
   const navigationBadges = {
-    dashboard: filterStats.hasActiveFilters ? filterStats.total : undefined,
+    dashboard: undefined,
     rotinas: stats.rotinas.atrasadas > 0 ? stats.rotinas.atrasadas : undefined,
     orientacoes: stats.orientacoes.naoLidas > 0 ? stats.orientacoes.naoLidas : undefined,
-    monitoramento: undefined, // Será implementado com estatísticas específicas
+    monitoramento: undefined,
     tarefas: stats.tarefas.atrasadas > 0 ? stats.tarefas.atrasadas : undefined
   };
 
-  // Conversões de filtros
-  const mobileFilters = convertToMobileFilters(searchTerm, filters);
-  
-  const handleFiltersChange = (newFilters: typeof mobileFilters) => {
-    convertFromMobileFilters(newFilters, setSearchTerm, setFilterSearchTerm);
-  };
-
-  // Dados para props
-  const totalItems = stats.rotinas.total + stats.orientacoes.total + stats.tarefas.total;
-
-  // Layout Mobile
-  if (isMobile) {
-    return (
-      <HubMobileLayout
-        currentSection={currentSection}
-        onSectionChange={setCurrentSection}
-        showMobileSearch={showMobileSearch}
-        onCloseMobileSearch={() => setShowMobileSearch(false)}
-        showFilters={showFilters}
-        onShowFiltersChange={setShowFilters}
-        searchTerm={searchTerm}
-        navigationBadges={navigationBadges}
-        hasActiveFilters={filterStats.hasActiveFilters}
-        totalResults={filterStats.total}
-        stats={stats}
-        activities={filteredActivities}
-        isLoading={isLoading}
-        mobileFilters={mobileFilters}
-        handlers={handlers}
-        onFiltersChange={handleFiltersChange}
-        onClearFilters={clearFilters}
-        rotinas={rotinas}
-        orientacoes={orientacoes}
-        tarefas={tarefas}
-      />
-    );
-  }
-
-  // Layout Desktop/Tablet
+  // Sempre usar o layout unificado com navegação na header
   return (
-    <HubDesktopLayout
+    <HubUnifiedLayout
       currentSection={currentSection}
       onSectionChange={setCurrentSection}
-      showFilters={showFilters}
-      onShowFiltersChange={setShowFilters}
-      searchTerm={searchTerm}
-      sections={sectionsWithBadges}
-      hasActiveFilters={filterStats.hasActiveFilters}
-      totalResults={filterStats.total}
-      totalItems={totalItems}
+      navigationBadges={navigationBadges}
       stats={stats}
-      activities={filteredActivities}
+      activities={activities}
       isLoading={isLoading}
-      isTablet={isTablet}
-      mobileFilters={mobileFilters}
       handlers={handlers}
-      onFiltersChange={handleFiltersChange}
-      onClearFilters={clearFilters}
       rotinas={rotinas}
       orientacoes={orientacoes}
       tarefas={tarefas}

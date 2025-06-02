@@ -1,16 +1,26 @@
-
 import { Link } from "react-router-dom";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function CompanyLogo() {
+  const { isDarkMode } = useTheme();
+
   return (
     <Link to="/" className="flex items-center space-x-2 md:space-x-3 group">
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg blur-sm group-hover:blur-none transition-all duration-300" />
-        <div className="relative bg-white p-1.5 md:p-2 rounded-lg shadow-lg group-hover:shadow-xl transition-all duration-300 border border-border/20">
+        <div className={`relative p-1.5 md:p-2 rounded-lg shadow-lg group-hover:shadow-xl transition-all duration-300 border border-border/20 ${
+          isDarkMode 
+            ? 'bg-gray-800/50 backdrop-blur-sm' 
+            : 'bg-white'
+        }`}>
           <img 
             src="/lovable-uploads/4061bf61-813c-40ee-a09e-17b6f303bc20.png" 
             alt="Filial 96 Logo" 
-            className="h-5 w-5 md:h-6 md:w-6 object-contain"
+            className={`h-5 w-5 md:h-6 md:w-6 object-contain transition-all duration-300 ${
+              isDarkMode 
+                ? 'filter brightness-0 invert' 
+                : ''
+            }`}
           />
         </div>
       </div>

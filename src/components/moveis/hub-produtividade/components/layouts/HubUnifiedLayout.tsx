@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { HubViewMode, ProductivityStats } from '../../types';
 import { ActivityItem } from '../../types';
 import { NavigationBadges, HubHandlers } from '../../types/hubTypes';
-import { MobileNavigation } from '../mobile/MobileNavigation';
+import { HubHeaderNavigation } from '../navigation/HubHeaderNavigation';
 import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
@@ -10,7 +10,7 @@ import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
 import OrientacoesMonitoramento from '../OrientacoesMonitoramento';
 import { Relatorios } from '../funcionalidades/Relatorios';
 
-interface HubMobileLayoutProps {
+interface HubUnifiedLayoutProps {
   currentSection: HubViewMode;
   onSectionChange: (section: HubViewMode) => void;
   navigationBadges: NavigationBadges;
@@ -23,7 +23,7 @@ interface HubMobileLayoutProps {
   tarefas?: Array<any>;
 }
 
-export function HubMobileLayout({
+export function HubUnifiedLayout({
   currentSection,
   onSectionChange,
   navigationBadges,
@@ -34,7 +34,7 @@ export function HubMobileLayout({
   rotinas = [],
   orientacoes = [],
   tarefas = []
-}: HubMobileLayoutProps) {
+}: HubUnifiedLayoutProps) {
   const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
   const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
   const [showRelatorios, setShowRelatorios] = useState(false);
@@ -43,24 +43,17 @@ export function HubMobileLayout({
   const handleFiltrosPorData = () => setShowFiltrosPorData(true);
   const handleRelatorios = () => setShowRelatorios(true);
 
-  const handleSearchResults = (results: any) => {
-    console.log('Resultados da busca avançada (mobile):', results);
-  };
-
-  const handleDateFilters = (filters: any) => {
-    console.log('Filtros por data aplicados (mobile):', filters);
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <MobileNavigation
+      {/* Header com Navegação */}
+      <HubHeaderNavigation
         currentSection={currentSection}
         onSectionChange={onSectionChange}
         badges={navigationBadges}
-        hasActiveFilters={false}
       />
 
-      <div className="px-3 py-4">
+      {/* Conteúdo Principal */}
+      <div className="px-3 sm:px-4 lg:px-6 py-4">
         {currentSection === 'dashboard' && (
           <HubDashboard
             stats={stats}
@@ -100,6 +93,7 @@ export function HubMobileLayout({
         )}
       </div>
 
+      {/* Modais e Dialogs */}
       <Relatorios
         open={showRelatorios}
         onOpenChange={setShowRelatorios}
@@ -110,4 +104,4 @@ export function HubMobileLayout({
       />
     </div>
   );
-}
+} 

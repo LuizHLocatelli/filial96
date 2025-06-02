@@ -9,25 +9,19 @@ import {
   CheckSquare,
   FileText,
   List,
+  Users,
   Search,
   Filter,
   RefreshCw,
   Plus,
-  Download,
-  Upload,
   Settings,
   Bell,
-  User,
-  Calendar,
   Clock,
   Target,
   TrendingUp,
-  Archive,
-  Bookmark,
-  Star,
+  Calendar,
   ChevronRight,
-  ChevronDown,
-  Home,
+  Activity,
   Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -59,7 +53,6 @@ interface NavItem {
   badge?: number;
   color: string;
   description: string;
-  shortcut?: string;
 }
 
 interface QuickActionItem {
@@ -67,7 +60,6 @@ interface QuickActionItem {
   label: string;
   icon: React.ElementType;
   action: () => void;
-  shortcut?: string;
   variant?: 'default' | 'outline' | 'ghost';
 }
 
@@ -76,7 +68,6 @@ interface MetricItem {
   value: number | string;
   icon: React.ElementType;
   color: string;
-  trend?: 'up' | 'down' | 'stable';
 }
 
 export function DesktopSidebar({
@@ -93,17 +84,15 @@ export function DesktopSidebar({
   onToggleCollapse
 }: DesktopSidebarProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedSections, setExpandedSections] = useState<string[]>(['navigation', 'actions']);
 
   const navItems: NavItem[] = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      label: 'Hub de Produtividade',
       icon: BarChart3,
       badge: badges.dashboard,
       color: 'text-blue-600',
-      description: 'Visão geral completa',
-      shortcut: '⌘D'
+      description: 'Visão geral completa'
     },
     {
       id: 'rotinas',
@@ -111,8 +100,7 @@ export function DesktopSidebar({
       icon: CheckSquare,
       badge: badges.rotinas,
       color: 'text-green-600',
-      description: 'Rotinas obrigatórias',
-      shortcut: '⌘R'
+      description: 'Rotinas obrigatórias'
     },
     {
       id: 'orientacoes',
@@ -120,8 +108,15 @@ export function DesktopSidebar({
       icon: FileText,
       badge: badges.orientacoes,
       color: 'text-purple-600',
-      description: 'Documentos e guias',
-      shortcut: '⌘O'
+      description: 'Documentos e guias'
+    },
+    {
+      id: 'monitoramento',
+      label: 'Monitoramento',
+      icon: Users,
+      badge: badges.dashboard, // Usando badge do dashboard como placeholder
+      color: 'text-cyan-600',
+      description: 'Análises e relatórios'
     },
     {
       id: 'tarefas',
@@ -129,8 +124,7 @@ export function DesktopSidebar({
       icon: List,
       badge: badges.tarefas,
       color: 'text-orange-600',
-      description: 'Gestão de tarefas',
-      shortcut: '⌘T'
+      description: 'Gestão de tarefas'
     }
   ];
 
@@ -140,7 +134,6 @@ export function DesktopSidebar({
       label: 'Buscar',
       icon: Search,
       action: onSearch,
-      shortcut: '⌘K',
       variant: 'ghost'
     },
     {
@@ -155,7 +148,6 @@ export function DesktopSidebar({
       label: 'Atualizar',
       icon: RefreshCw,
       action: onRefresh,
-      shortcut: '⌘⇧R',
       variant: 'ghost'
     },
     {
@@ -163,14 +155,13 @@ export function DesktopSidebar({
       label: 'Nova Rotina',
       icon: Plus,
       action: () => onNewItem('rotina'),
-      shortcut: '⌘N',
       variant: 'default'
     }
   ];
 
   const metrics: MetricItem[] = [
     {
-      label: 'Total Itens',
+      label: 'Total',
       value: (stats.rotinas?.total || 0) + (stats.orientacoes?.total || 0) + (stats.tarefas?.total || 0),
       icon: Target,
       color: 'text-blue-600'
@@ -179,8 +170,7 @@ export function DesktopSidebar({
       label: 'Concluídas',
       value: `${stats.rotinas?.percentualConclusao || 0}%`,
       icon: TrendingUp,
-      color: 'text-green-600',
-      trend: 'up'
+      color: 'text-green-600'
     },
     {
       label: 'Pendentes',
@@ -195,14 +185,6 @@ export function DesktopSidebar({
       color: 'text-red-600'
     }
   ];
-
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(id => id !== sectionId)
-        : [...prev, sectionId]
-    );
-  };
 
   const handleNavigation = (sectionId: HubViewMode) => {
     onSectionChange(sectionId);
@@ -254,7 +236,7 @@ export function DesktopSidebar({
             size="sm"
             onClick={onSearch}
             className="w-full p-2"
-            title="Buscar (⌘K)"
+            title="Buscar"
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -276,17 +258,17 @@ export function DesktopSidebar({
   }
 
   return (
-    <div className="w-80 h-full bg-background border-r flex flex-col">
+    <div className="w-72 h-full bg-background border-r flex flex-col">
       {/* Header */}
       <div className="p-6 border-b">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Zap className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl">
+              <Activity className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-lg">Hub Produtividade</h2>
-              <p className="text-xs text-muted-foreground">Painel de controle</p>
+              <h2 className="font-bold text-lg leading-none">Hub Produtividade</h2>
+              <p className="text-xs text-muted-foreground mt-1">Filial 96</p>
             </div>
           </div>
           {onToggleCollapse && (
@@ -294,7 +276,7 @@ export function DesktopSidebar({
               variant="ghost"
               size="sm"
               onClick={onToggleCollapse}
-              className="p-1"
+              className="p-1.5 rounded-lg"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -305,10 +287,10 @@ export function DesktopSidebar({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar tudo (⌘K)"
+            placeholder="Buscar..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 text-sm"
+            className="pl-10 text-sm rounded-xl border-muted"
             onFocus={onSearch}
           />
         </div>
@@ -318,175 +300,115 @@ export function DesktopSidebar({
         <div className="p-4 space-y-6">
           {/* Navigation */}
           <div>
-            <button
-              onClick={() => toggleSection('navigation')}
-              className="flex items-center justify-between w-full mb-3 text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              <span>NAVEGAÇÃO</span>
-              {expandedSections.includes('navigation') ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </button>
-            
-            {expandedSections.includes('navigation') && (
-              <div className="space-y-1">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNavigation(item.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all duration-200",
-                      "hover:bg-accent hover:text-accent-foreground group",
-                      currentSection === item.id
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    <div className={cn("p-1.5 rounded-md", 
-                      currentSection === item.id 
-                        ? "bg-primary-foreground/20" 
-                        : "bg-muted group-hover:bg-accent-foreground/10"
-                    )}>
-                      <item.icon className={cn("h-4 w-4",
-                        currentSection === item.id ? "text-primary-foreground" : item.color
-                      )} />
+            <h3 className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
+              Navegação
+            </h3>
+            <div className="space-y-1">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 group",
+                    currentSection === item.id
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                  )}
+                >
+                  <div className={cn("p-2 rounded-lg transition-colors", 
+                    currentSection === item.id 
+                      ? "bg-primary-foreground/20" 
+                      : "bg-muted/50 group-hover:bg-muted"
+                  )}>
+                    <item.icon className={cn("h-4 w-4",
+                      currentSection === item.id ? "text-primary-foreground" : item.color
+                    )} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium truncate">{item.label}</span>
+                      {item.badge && item.badge > 0 && (
+                        <Badge 
+                          variant={currentSection === item.id ? "secondary" : "destructive"}
+                          className="ml-2 h-5 px-2 text-xs font-semibold"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium truncate">{item.label}</span>
-                        {item.badge && item.badge > 0 && (
-                          <Badge 
-                            variant={currentSection === item.id ? "secondary" : "destructive"}
-                            className="ml-2 h-5 px-2 text-xs"
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs opacity-70 truncate">{item.description}</p>
-                    </div>
-                    {item.shortcut && (
-                      <span className="text-xs opacity-50">{item.shortcut}</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+                    <p className="text-xs opacity-70 truncate">{item.description}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           <Separator />
 
           {/* Quick Actions */}
           <div>
-            <button
-              onClick={() => toggleSection('actions')}
-              className="flex items-center justify-between w-full mb-3 text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              <span>AÇÕES RÁPIDAS</span>
-              {expandedSections.includes('actions') ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </button>
-            
-            {expandedSections.includes('actions') && (
-              <div className="space-y-2">
-                {quickActions.map((action) => (
-                  <Button
-                    key={action.id}
-                    variant={action.variant}
-                    size="sm"
-                    onClick={action.action}
-                    className="w-full justify-start gap-3 relative"
-                  >
-                    <action.icon className="h-4 w-4" />
-                    <span className="flex-1 text-left">{action.label}</span>
-                    {action.id === 'filters' && hasActiveFilters && (
-                      <div className="h-2 w-2 bg-destructive rounded-full" />
-                    )}
-                    {action.shortcut && (
-                      <span className="text-xs opacity-60">{action.shortcut}</span>
-                    )}
-                  </Button>
-                ))}
-              </div>
-            )}
+            <h3 className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
+              Ações Rápidas
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {quickActions.map((action) => (
+                <Button
+                  key={action.id}
+                  variant={action.variant}
+                  size="sm"
+                  onClick={action.action}
+                  className={cn(
+                    "h-16 flex-col gap-1.5 rounded-xl relative",
+                    action.variant === 'default' && "col-span-2"
+                  )}
+                >
+                  <action.icon className="h-4 w-4" />
+                  <span className="text-xs font-medium">{action.label}</span>
+                  {action.id === 'filters' && hasActiveFilters && (
+                    <div className="absolute top-2 right-2 h-2 w-2 bg-destructive rounded-full" />
+                  )}
+                </Button>
+              ))}
+            </div>
           </div>
 
           <Separator />
 
           {/* Metrics */}
           <div>
-            <button
-              onClick={() => toggleSection('metrics')}
-              className="flex items-center justify-between w-full mb-3 text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              <span>MÉTRICAS</span>
-              {expandedSections.includes('metrics') ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </button>
-            
-            {expandedSections.includes('metrics') && (
-              <div className="grid grid-cols-2 gap-3">
-                {metrics.map((metric, index) => (
-                  <div
-                    key={index}
-                    className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <metric.icon className={cn("h-3 w-3", metric.color)} />
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {metric.label}
-                      </span>
-                    </div>
-                    <div className="text-lg font-bold">{metric.value}</div>
+            <h3 className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
+              Resumo
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {metrics.map((metric, index) => (
+                <div
+                  key={index}
+                  className="p-3 rounded-xl border bg-gradient-to-br from-background to-muted/20 hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <metric.icon className={cn("h-3.5 w-3.5", metric.color)} />
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {metric.label}
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          {/* Recent/Favorites */}
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">RECENTES</h4>
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent cursor-pointer">
-                <Star className="h-4 w-4 text-yellow-500" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">Rotina de Abertura</p>
-                  <p className="text-xs text-muted-foreground">Há 2 horas</p>
+                  <div className="text-lg font-bold">{metric.value}</div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent cursor-pointer">
-                <Bookmark className="h-4 w-4 text-blue-500" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">Manual Vendas</p>
-                  <p className="text-xs text-muted-foreground">Ontem</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </ScrollArea>
 
       {/* Footer */}
-      <div className="p-4 border-t bg-muted/30">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="flex-1">
-            <Settings className="h-4 w-4 mr-2" />
-            Configurações
+      <div className="p-4 border-t">
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="ghost" size="sm" className="h-12 flex-col gap-1 rounded-xl">
+            <Bell className="h-4 w-4" />
+            <span className="text-xs">Notificações</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex-1">
-            <Bell className="h-4 w-4 mr-2" />
-            Notificações
+          <Button variant="ghost" size="sm" className="h-12 flex-col gap-1 rounded-xl">
+            <Settings className="h-4 w-4" />
+            <span className="text-xs">Configurações</span>
           </Button>
         </div>
       </div>
