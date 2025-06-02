@@ -77,6 +77,7 @@ export interface ProductivityStats {
   };
   orientacoes: {
     total: number;
+    lidas: number;
     naoLidas: number;
     recentes: number;
   };
@@ -86,6 +87,10 @@ export interface ProductivityStats {
     pendentes: number;
     atrasadas: number;
     percentualConclusao: number;
+  };
+  produtividade: {
+    score: number;
+    meta: number;
   };
 }
 
@@ -220,4 +225,4 @@ export interface MonitoramentoStats {
   orientacoes: OrientacaoMonitoramento[];
 }
 
-export type TargetRole = 'consultor_moveis' | 'consultor_moda' | 'jovem_aprendiz'; 
+export type TargetRole = 'consultor_moveis' | 'consultor_moda' | 'jovem_aprendiz';
