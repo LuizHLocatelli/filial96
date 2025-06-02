@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,6 +33,14 @@ interface ContactHistoryProps {
   clienteName: string;
 }
 
+interface NewContactForm {
+  type: "phone" | "whatsapp" | "email" | "visit";
+  description: string;
+  result: "success" | "no_answer" | "promise" | "refused";
+  nextContact: string;
+  amount: string;
+}
+
 export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) {
   const [contacts, setContacts] = useState<Contact[]>([
     {
@@ -54,10 +61,10 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
     }
   ]);
 
-  const [newContact, setNewContact] = useState({
-    type: "phone" as const,
+  const [newContact, setNewContact] = useState<NewContactForm>({
+    type: "phone",
     description: "",
-    result: "success" as const,
+    result: "success",
     nextContact: "",
     amount: ""
   });
@@ -136,7 +143,7 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">Tipo de Contato</label>
-                  <Select value={newContact.type} onValueChange={(value: any) => setNewContact(prev => ({ ...prev, type: value }))}>
+                  <Select value={newContact.type} onValueChange={(value: "phone" | "whatsapp" | "email" | "visit") => setNewContact(prev => ({ ...prev, type: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -160,7 +167,7 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
 
                 <div>
                   <label className="text-sm font-medium">Resultado</label>
-                  <Select value={newContact.result} onValueChange={(value: any) => setNewContact(prev => ({ ...prev, result: value }))}>
+                  <Select value={newContact.result} onValueChange={(value: "success" | "no_answer" | "promise" | "refused") => setNewContact(prev => ({ ...prev, result: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -173,7 +180,7 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
                   </Select>
                 </div>
 
-                {(newContact.result === "promise") && (
+                {newContact.result === "promise" && (
                   <>
                     <div>
                       <label className="text-sm font-medium">Valor Prometido (R$)</label>
