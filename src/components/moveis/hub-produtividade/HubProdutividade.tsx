@@ -23,7 +23,7 @@ import { QuickActions } from './components/dashboard/QuickActions';
 import { ActivityTimeline } from './components/unified/ActivityTimeline';
 import { MobileNavigation } from './components/mobile/MobileNavigation';
 import { ResponsiveGrid, DashboardGrid, StatsGrid } from './components/mobile/ResponsiveGrid';
-import { MobileFilters } from './components/mobile/MobileFilters';
+import { MobileFilters, FilterState } from './components/mobile/MobileFilters';
 import { HubViewMode } from './types';
 import { cn } from '@/lib/utils';
 
@@ -146,21 +146,29 @@ export function HubProdutividade() {
     setShowFilters(true);
   };
 
-  // Filtros adaptados para mobile
-  const adaptedFilters = {
-    search: searchTerm,
-    status: Array.isArray(filters.status) ? filters.status : [filters.status || 'todos'],
-    dateRange: filters.dateRange || { from: null, to: null },
-    categoria: Array.isArray(filters.categoria) ? filters.categoria : [filters.categoria || ''],
-    sortBy: 'data',
-    sortOrder: 'desc' as const
+  // Converter filtros do hub para formato do MobileFilters
+  const convertToMobileFilters = (): FilterState => {
+    return {
+      search: searchTerm,
+      status: filters.status === 'todos' ? [] : [filters.status],
+      dateRange: {
+        from: filters.dateRange.start,
+        to: filters.dateRange.end
+      },
+      categoria: filters.categoria === 'todos' ? [] : [filters.categoria],
+      sortBy: 'data',
+      sortOrder: 'desc' as const
+    };
   };
 
-  const handleFiltersChange = (newFilters: typeof adaptedFilters) => {
-    // Atualizar filtros no hook
-    setSearchTerm(newFilters.search);
-    setFilterSearchTerm(newFilters.search);
-    // TODO: Implementar outros filtros no hook useHubFilters
+  // Converter filtros do MobileFilters para formato do hub
+  const convertFromMobileFilters = (mobileFilters: FilterState) => {
+    setSearchTerm(mobileFilters.search);
+    setFilterSearchTerm(mobileFilters.search);
+    
+    // TODO: Implementar conversão completa dos outros filtros
+    // quando o hook useHubFilters for atualizado para suportar
+    console.log('Mobile filters updated:', mobileFilters);
   };
 
   // Layout Mobile
@@ -268,8 +276,8 @@ export function HubProdutividade() {
         <MobileFilters
           isOpen={showFilters}
           onOpenChange={setShowFilters}
-          filters={adaptedFilters}
-          onFiltersChange={handleFiltersChange}
+          filters={convertToMobileFilters()}
+          onFiltersChange={convertFromMobileFilters}
           onClearFilters={clearFilters}
           hasActiveFilters={filterStats.hasActiveFilters}
         />
@@ -308,8 +316,8 @@ export function HubProdutividade() {
               <MobileFilters
                 isOpen={showFilters}
                 onOpenChange={setShowFilters}
-                filters={adaptedFilters}
-                onFiltersChange={handleFiltersChange}
+                filters={convertToMobileFilters()}
+                onFiltersChange={convertFromMobileFilters}
                 onClearFilters={clearFilters}
                 hasActiveFilters={filterStats.hasActiveFilters}
                 trigger={
