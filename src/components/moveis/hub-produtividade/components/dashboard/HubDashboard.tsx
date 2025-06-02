@@ -1,3 +1,4 @@
+
 import { ProductivityStats, ActivityItem } from '../../types';
 import { HubHandlers } from '../../types/hubTypes';
 import { useResponsive } from '@/hooks/use-responsive';
@@ -26,172 +27,196 @@ export function HubDashboard({
 
   if (isMobile) {
     return (
-      <CollapsibleGroup spacing="tight">
-        <CollapsibleSection
-          title="Estatísticas"
-          icon={Activity}
-          defaultExpanded={true}
-          compact={isCompact}
-          persistStateKey="mobile-stats"
-        >
-          <StatsOverview 
-            stats={stats} 
-            isLoading={isLoading}
-            onNavigateToSection={handlers.onNavigateToSection}
-          />
-        </CollapsibleSection>
-        
-        <CollapsibleSection
-          title="Ações Rápidas"
-          icon={Zap}
-          defaultExpanded={false}
-          compact={isCompact}
-          persistStateKey="mobile-actions"
-        >
-          <QuickActions
-            onNovaRotina={handlers.onNovaRotina}
-            onNovaOrientacao={handlers.onNovaOrientacao}
-            onNovaTarefa={handlers.onNovaTarefa}
-            onRefreshData={handlers.onRefreshData}
-            onExportData={handlers.onExportData}
-            onShowFilters={handlers.onShowFilters}
-            onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
-            onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
-            onRelatorios={handlers.onRelatorios || (() => {})}
-            isRefreshing={isLoading}
-          />
-        </CollapsibleSection>
-        
-        <CollapsibleSection
-          title="Atividades Recentes"
-          icon={Clock}
-          badge={activities.length}
-          defaultExpanded={true}
-          compact={isCompact}
-          persistStateKey="mobile-timeline"
-        >
-          <ActivityTimeline
-            activities={activities}
-            isLoading={isLoading}
-            maxItems={8}
-          />
-        </CollapsibleSection>
-      </CollapsibleGroup>
-    );
-  }
-
-  if (isTablet) {
-    return (
-      <CollapsibleGroup spacing={isCompact ? 'tight' : 'normal'}>
-        <CollapsibleSection
-          title="Visão Geral"
-          icon={Activity}
-          defaultExpanded={true}
-          compact={isCompact}
-          persistStateKey="tablet-stats"
-        >
-          <StatsOverview 
-            stats={stats} 
-            isLoading={isLoading}
-            onNavigateToSection={handlers.onNavigateToSection}
-          />
-        </CollapsibleSection>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="space-y-4">
+        <CollapsibleGroup spacing="tight">
           <CollapsibleSection
-            title="Ações Rápidas"
-            icon={Zap}
+            title="Estatísticas"
+            icon={Activity}
             defaultExpanded={true}
             compact={isCompact}
-            persistStateKey="tablet-actions"
+            persistStateKey="mobile-stats"
           >
-            <QuickActions
-              onNovaRotina={handlers.onNovaRotina}
-              onNovaOrientacao={handlers.onNovaOrientacao}
-              onNovaTarefa={handlers.onNovaTarefa}
-              onRefreshData={handlers.onRefreshData}
-              onExportData={handlers.onExportData}
-              onShowFilters={handlers.onShowFilters}
-              onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
-              onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
-              onRelatorios={handlers.onRelatorios || (() => {})}
-              isRefreshing={isLoading}
-            />
+            <div className="px-1">
+              <StatsOverview 
+                stats={stats} 
+                isLoading={isLoading}
+                onNavigateToSection={handlers.onNavigateToSection}
+              />
+            </div>
           </CollapsibleSection>
           
           <CollapsibleSection
-            title="Timeline de Atividades"
-            icon={Clock}
-            badge={activities.length}
-            defaultExpanded={true}
+            title="Ações Rápidas"
+            icon={Zap}
+            defaultExpanded={false}
             compact={isCompact}
-            persistStateKey="tablet-timeline"
+            persistStateKey="mobile-actions"
           >
-            <ActivityTimeline
-              activities={activities}
-              isLoading={isLoading}
-              maxItems={10}
-            />
+            <div className="px-1">
+              <QuickActions
+                onNovaRotina={handlers.onNovaRotina}
+                onNovaOrientacao={handlers.onNovaOrientacao}
+                onNovaTarefa={handlers.onNovaTarefa}
+                onRefreshData={handlers.onRefreshData}
+                onExportData={handlers.onExportData}
+                onShowFilters={handlers.onShowFilters}
+                onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
+                onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
+                onRelatorios={handlers.onRelatorios || (() => {})}
+                isRefreshing={isLoading}
+              />
+            </div>
           </CollapsibleSection>
-        </div>
-      </CollapsibleGroup>
-    );
-  }
-
-  // Desktop layout - Melhor aproveitamento horizontal com seções colapsáveis
-  return (
-    <CollapsibleGroup spacing={layoutConfig.spacing.replace('space-y-', '') as 'tight' | 'normal' | 'relaxed'}>
-      {/* Stats em toda a largura - sempre visível */}
-      <StatsOverview 
-        stats={stats} 
-        isLoading={isLoading}
-        onNavigateToSection={handlers.onNavigateToSection}
-      />
-      
-      {/* Layout horizontal otimizado com seções colapsáveis */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        {/* Área principal - Timeline expandida */}
-        <div className="xl:col-span-2">
+          
           <CollapsibleSection
             title="Atividades Recentes"
             icon={Clock}
             badge={activities.length}
             defaultExpanded={true}
             compact={isCompact}
-            persistStateKey="desktop-timeline"
+            persistStateKey="mobile-timeline"
           >
-            <ActivityTimeline
-              activities={activities}
-              isLoading={isLoading}
-              maxItems={15}
-            />
+            <div className="px-1">
+              <ActivityTimeline
+                activities={activities}
+                isLoading={isLoading}
+                maxItems={8}
+              />
+            </div>
           </CollapsibleSection>
-        </div>
-        
-        {/* Sidebar compacta - Quick Actions */}
-        <div className="xl:col-span-1">
+        </CollapsibleGroup>
+      </div>
+    );
+  }
+
+  if (isTablet) {
+    return (
+      <div className="space-y-6">
+        <CollapsibleGroup spacing={isCompact ? 'tight' : 'normal'}>
           <CollapsibleSection
-            title="Ações Rápidas"
-            icon={Zap}
+            title="Visão Geral"
+            icon={Activity}
             defaultExpanded={true}
             compact={isCompact}
-            persistStateKey="desktop-actions"
+            persistStateKey="tablet-stats"
           >
-            <QuickActions
-              onNovaRotina={handlers.onNovaRotina}
-              onNovaOrientacao={handlers.onNovaOrientacao}
-              onNovaTarefa={handlers.onNovaTarefa}
-              onRefreshData={handlers.onRefreshData}
-              onExportData={handlers.onExportData}
-              onShowFilters={handlers.onShowFilters}
-              onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
-              onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
-              onRelatorios={handlers.onRelatorios || (() => {})}
-              isRefreshing={isLoading}
-            />
+            <div className="px-2">
+              <StatsOverview 
+                stats={stats} 
+                isLoading={isLoading}
+                onNavigateToSection={handlers.onNavigateToSection}
+              />
+            </div>
           </CollapsibleSection>
-        </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CollapsibleSection
+              title="Ações Rápidas"
+              icon={Zap}
+              defaultExpanded={true}
+              compact={isCompact}
+              persistStateKey="tablet-actions"
+            >
+              <div className="px-2">
+                <QuickActions
+                  onNovaRotina={handlers.onNovaRotina}
+                  onNovaOrientacao={handlers.onNovaOrientacao}
+                  onNovaTarefa={handlers.onNovaTarefa}
+                  onRefreshData={handlers.onRefreshData}
+                  onExportData={handlers.onExportData}
+                  onShowFilters={handlers.onShowFilters}
+                  onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
+                  onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
+                  onRelatorios={handlers.onRelatorios || (() => {})}
+                  isRefreshing={isLoading}
+                />
+              </div>
+            </CollapsibleSection>
+            
+            <CollapsibleSection
+              title="Timeline de Atividades"
+              icon={Clock}
+              badge={activities.length}
+              defaultExpanded={true}
+              compact={isCompact}
+              persistStateKey="tablet-timeline"
+            >
+              <div className="px-2">
+                <ActivityTimeline
+                  activities={activities}
+                  isLoading={isLoading}
+                  maxItems={10}
+                />
+              </div>
+            </CollapsibleSection>
+          </div>
+        </CollapsibleGroup>
       </div>
-    </CollapsibleGroup>
+    );
+  }
+
+  // Desktop layout - Melhor aproveitamento horizontal com espaçamento otimizado
+  return (
+    <div className="space-y-8">
+      <CollapsibleGroup spacing={layoutConfig.spacing.replace('space-y-', '') as 'tight' | 'normal' | 'relaxed'}>
+        {/* Stats em toda a largura - sempre visível */}
+        <div className="mb-8">
+          <StatsOverview 
+            stats={stats} 
+            isLoading={isLoading}
+            onNavigateToSection={handlers.onNavigateToSection}
+          />
+        </div>
+        
+        {/* Layout horizontal otimizado com seções colapsáveis */}
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+          {/* Área principal - Timeline expandida */}
+          <div className="xl:col-span-3">
+            <CollapsibleSection
+              title="Atividades Recentes"
+              icon={Clock}
+              badge={activities.length}
+              defaultExpanded={true}
+              compact={isCompact}
+              persistStateKey="desktop-timeline"
+            >
+              <div className="px-2">
+                <ActivityTimeline
+                  activities={activities}
+                  isLoading={isLoading}
+                  maxItems={15}
+                />
+              </div>
+            </CollapsibleSection>
+          </div>
+          
+          {/* Sidebar expandida - Quick Actions */}
+          <div className="xl:col-span-2">
+            <CollapsibleSection
+              title="Ações Rápidas"
+              icon={Zap}
+              defaultExpanded={true}
+              compact={isCompact}
+              persistStateKey="desktop-actions"
+            >
+              <div className="px-2">
+                <QuickActions
+                  onNovaRotina={handlers.onNovaRotina}
+                  onNovaOrientacao={handlers.onNovaOrientacao}
+                  onNovaTarefa={handlers.onNovaTarefa}
+                  onRefreshData={handlers.onRefreshData}
+                  onExportData={handlers.onExportData}
+                  onShowFilters={handlers.onShowFilters}
+                  onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
+                  onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
+                  onRelatorios={handlers.onRelatorios || (() => {})}
+                  isRefreshing={isLoading}
+                />
+              </div>
+            </CollapsibleSection>
+          </div>
+        </div>
+      </CollapsibleGroup>
+    </div>
   );
 }

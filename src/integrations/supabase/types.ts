@@ -1441,7 +1441,14 @@ export type Database = {
     Functions: {
       check_orientacao_completion_by_role: {
         Args: { p_orientacao_id: string; p_target_roles: string[] }
-        Returns: Json
+        Returns: {
+          role: string
+          total_users: number
+          viewed_users: number
+          completion_percentage: number
+          is_complete: boolean
+          pending_users: Json
+        }[]
       }
       delete_user_account: {
         Args: Record<PropertyKey, never>
@@ -1469,7 +1476,13 @@ export type Database = {
       }
       get_orientacoes_viewing_stats: {
         Args: { p_target_roles?: string[] }
-        Returns: Json
+        Returns: {
+          orientacao_id: string
+          titulo: string
+          tipo: string
+          data_criacao: string
+          viewing_stats: Json
+        }[]
       }
       register_orientacao_view: {
         Args: { p_orientacao_id: string; p_user_id?: string }

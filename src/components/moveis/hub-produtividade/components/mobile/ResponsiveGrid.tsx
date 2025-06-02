@@ -20,10 +20,10 @@ interface ResponsiveGridProps {
 }
 
 const gapClasses = {
-  sm: 'gap-3',
-  md: 'gap-4',
-  lg: 'gap-6',
-  xl: 'gap-8'
+  sm: 'gap-4',
+  md: 'gap-6',
+  lg: 'gap-8',
+  xl: 'gap-10'
 };
 
 export function ResponsiveGrid({
@@ -39,7 +39,7 @@ export function ResponsiveGrid({
     xxl: 5
   },
   autoFit = false,
-  minColWidth = '280px'
+  minColWidth = '320px'
 }: ResponsiveGridProps) {
   const { breakpoints } = useResponsive();
 
@@ -98,10 +98,10 @@ export function StatsGrid({ children, className }: StatsGridProps) {
       columns={{
         xs: 1,
         sm: 2,
-        md: 3,
+        md: 2,
         lg: 4
       }}
-      gap="md"
+      gap="lg"
       className={className}
     >
       {children}
@@ -121,7 +121,7 @@ export function DashboardGrid({ sidebar, main, className }: DashboardGridProps) 
 
   if (isMobile) {
     return (
-      <div className={cn('space-y-4', className)}>
+      <div className={cn('space-y-6', className)}>
         {main}
         {sidebar}
       </div>
@@ -129,7 +129,7 @@ export function DashboardGrid({ sidebar, main, className }: DashboardGridProps) 
   }
 
   return (
-    <div className={cn('grid grid-cols-1 lg:grid-cols-3 gap-6', className)}>
+    <div className={cn('grid grid-cols-1 lg:grid-cols-3 gap-8', className)}>
       <div className="lg:col-span-2">
         {main}
       </div>
@@ -157,7 +157,7 @@ export function CompactGrid({ children, className }: CompactGridProps) {
         md: 3,
         lg: 4
       }}
-      gap="sm"
+      gap="md"
       className={className}
     >
       {children}
@@ -176,7 +176,7 @@ interface FlexGridProps {
 
 export function FlexGrid({
   children,
-  minWidth = '250px',
+  minWidth = '300px',
   maxWidth = '1fr',
   gap = 'md',
   className
