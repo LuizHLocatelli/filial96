@@ -35,6 +35,7 @@ export function useHubData() {
     },
     orientacoes: {
       total: 0,
+      lidas: 0,
       naoLidas: 0,
       recentes: 0
     },
@@ -44,6 +45,10 @@ export function useHubData() {
       pendentes: 0,
       atrasadas: 0,
       percentualConclusao: 0
+    },
+    produtividade: {
+      score: 0,
+      meta: 85
     }
   });
   
@@ -306,7 +311,8 @@ export function useHubData() {
 
       const orientacoesStats = {
         total: orientacoes.length,
-        naoLidas: 0, // TODO: Implementar lógica de leitura
+        lidas: 0, // TODO: Implementar lógica de leitura
+        naoLidas: orientacoes.length, // Por enquanto, todas são consideradas não lidas
         recentes: orientacoesRecentes.length
       };
 
@@ -327,16 +333,26 @@ export function useHubData() {
           Math.round((tarefasConcluidas.length / tarefas.length) * 100) : 0
       };
 
+      // Calcular score de produtividade
+      const totalItens = rotinasStats.total + tarefasStats.total;
+      const itensConcluidos = rotinasStats.concluidas + tarefasStats.concluidas;
+      const produtividadeScore = totalItens > 0 ? Math.round((itensConcluidos / totalItens) * 100) : 0;
+
       setStats({
         rotinas: rotinasStats,
         orientacoes: orientacoesStats,
-        tarefas: tarefasStats
+        tarefas: tarefasStats,
+        produtividade: {
+          score: produtividadeScore,
+          meta: 85
+        }
       });
 
       console.log('📊 Estatísticas calculadas:', {
         rotinas: rotinasStats,
         orientacoes: orientacoesStats,
-        tarefas: tarefasStats
+        tarefas: tarefasStats,
+        produtividade: { score: produtividadeScore, meta: 85 }
       });
     } catch (error) {
       console.error('❌ Erro ao calcular estatísticas:', error);
@@ -508,4 +524,4 @@ export function useHubData() {
     fetchOrientacoes,
     fetchTarefas
   };
-} 
+}
