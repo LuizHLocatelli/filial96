@@ -5,7 +5,6 @@ import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
-import { HubProdutividade } from "@/components/moveis/hub-produtividade/HubProdutividade";
 import { 
   FileText, 
   FolderArchive, 
@@ -13,8 +12,7 @@ import {
   Sofa,
   TrendingUp,
   Calendar,
-  Star,
-  Activity
+  Star
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -24,20 +22,13 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "hub-produtividade";
+  const activeTab = searchParams.get("tab") || "diretorio";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
   const tabsConfig = [
-    {
-      value: "hub-produtividade",
-      label: "Hub de Produtividade",
-      icon: Activity,
-      description: "Rotinas, orientações e tarefas centralizadas",
-      component: <HubProdutividade />
-    },
     {
       value: "diretorio",
       label: "Diretório",
@@ -68,9 +59,6 @@ export default function Moveis() {
     }
   ];
 
-  // Encontrar a aba ativa e seu componente
-  const activeTabConfig = tabsConfig.find(tab => tab.value === activeTab);
-
   return (
     <PageLayout spacing="normal" maxWidth="full">
       <PageHeader
@@ -96,11 +84,6 @@ export default function Moveis() {
         variant="cards"
         maxColumns={3}
       />
-
-      {/* Renderizar o componente da aba ativa */}
-      <div className="mt-6">
-        {activeTabConfig?.component}
-      </div>
     </PageLayout>
   );
 }

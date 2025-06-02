@@ -1,6 +1,5 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { Home, Building2, CreditCard, Image, User, ChevronRight } from "lucide-react";
+import { Home, Building2, CreditCard, Image, User, ChevronRight, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +14,12 @@ const navigationItems = [
     href: "/",
     icon: Home,
     description: "Visão geral do sistema"
+  },
+  {
+    title: "Hub de Produtividade",
+    href: "/hub-produtividade",
+    icon: Activity,
+    description: "Central de rotinas e tarefas"
   },
   {
     title: "Móveis",

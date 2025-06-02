@@ -88,21 +88,11 @@ export function HubDesktopLayout({
 
   return (
     <div className="space-y-4 lg:space-y-5">
-      {/* Header */}
+      {/* Controles de busca e filtros */}
       <div className="space-y-3">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-          <div className="space-y-1">
-            <h1 className="text-xl lg:text-2xl font-bold flex items-center gap-2">
-              <Activity className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
-              Hub de Produtividade
-            </h1>
-            <p className="text-muted-foreground text-sm lg:text-base">
-              Centralize suas rotinas, orientações e tarefas em um só lugar
-            </p>
-          </div>
-
           {/* Busca e filtros */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input

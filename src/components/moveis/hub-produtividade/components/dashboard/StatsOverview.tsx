@@ -21,7 +21,7 @@ interface StatsOverviewProps {
   isLoading?: boolean;
   compact?: boolean;
   overrideLayoutConfig?: boolean;
-  onNavigateToSection?: (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'tarefas') => void;
+  onNavigateToSection?: (section: 'dashboard' | 'rotinas' | 'tarefas') => void;
 }
 
 interface StatCardProps {
@@ -37,7 +37,7 @@ interface StatCardProps {
   progress?: number;
   badges?: Array<{ label: string; count: number; variant?: 'default' | 'secondary' | 'destructive' | 'outline' }>;
   onClick?: () => void;
-  section?: 'dashboard' | 'rotinas' | 'orientacoes' | 'tarefas';
+  section?: 'dashboard' | 'rotinas' | 'tarefas';
 }
 
 function StatCard({ 
@@ -199,7 +199,7 @@ export function StatsOverview({
   if (isLoading) {
     return (
       <div className={`grid gap-3 lg:gap-4 ${effectiveLayoutConfig.statsGrid}`}>
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 2 }).map((_, i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader className="space-y-0 pb-2">
               <div className="h-4 bg-muted rounded w-3/4"></div>
@@ -231,21 +231,6 @@ export function StatsOverview({
     }
   ];
 
-  const orientacoesCards = [
-    {
-      title: 'Orientações',
-      value: stats.orientacoes.total,
-      subtitle: 'Documentos disponíveis',
-      icon: FileText,
-      color: 'green' as const,
-      section: 'orientacoes' as const,
-      badges: [
-        { label: 'Não lidas', count: stats.orientacoes.naoLidas, variant: 'destructive' as const },
-        { label: 'Recentes', count: stats.orientacoes.recentes, variant: 'secondary' as const }
-      ]
-    }
-  ];
-
   const tarefasCards = [
     {
       title: 'Tarefas',
@@ -263,22 +248,7 @@ export function StatsOverview({
     }
   ];
 
-  const produtividadeCards = [
-    {
-      title: 'Produtividade Geral',
-      value: `${Math.round((stats.rotinas.percentualConclusao + stats.tarefas.percentualConclusao) / 2)}%`,
-      subtitle: 'Média de conclusão',
-      icon: Activity,
-      color: 'orange' as const,
-      section: 'dashboard' as const,
-      trend: {
-        value: 12,
-        direction: 'up' as const
-      }
-    }
-  ];
-
-  const allCards = [...rotinasCards, ...orientacoesCards, ...tarefasCards, ...produtividadeCards];
+  const allCards = [...rotinasCards, ...tarefasCards];
 
   return (
     <div className={effectiveLayoutConfig.spacing}>
@@ -356,22 +326,6 @@ export function StatsOverview({
                   effectiveCompact ? "text-xs" : layoutConfig.fontSize
                 )}>
                   {stats.tarefas.pendentes} tarefas aguardando
-                </p>
-              </div>
-              
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <FileText className={cn(
-                    "text-green-600 dark:text-green-400",
-                    effectiveCompact ? "h-3.5 w-3.5" : layoutConfig.iconSize
-                  )} />
-                  <span className="font-medium">Orientações</span>
-                </div>
-                <p className={cn(
-                  "text-muted-foreground",
-                  effectiveCompact ? "text-xs" : layoutConfig.fontSize
-                )}>
-                  {stats.orientacoes.naoLidas} não lidas
                 </p>
               </div>
             </div>

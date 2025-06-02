@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useHubData } from './hooks/useHubData';
 import { useHubFilters } from './hooks/useHubFilters';
 import { useHubHandlers } from './hooks/useHubHandlers';
@@ -9,87 +9,7 @@ import { convertToMobileFilters, convertFromMobileFilters } from './utils/filter
 import { HubMobileLayout } from './components/layouts/HubMobileLayout';
 import { HubDesktopLayout } from './components/layouts/HubDesktopLayout';
 
-// Sistema melhorado de controle de instâncias
-class InstanceManager {
-  private static activeInstance: string | null = null;
-  private static pendingInstances = new Set<string>();
-  private static listeners = new Map<string, () => void>();
-
-  static register(instanceId: string): boolean {
-    // Se não há instância ativa, esta se torna a ativa
-    if (!this.activeInstance) {
-      this.activeInstance = instanceId;
-      this.pendingInstances.delete(instanceId);
-      return true;
-    }
-
-    // Se é a instância ativa atual, continua ativa
-    if (this.activeInstance === instanceId) {
-      return true;
-    }
-
-    // Adiciona às pendentes sem log excessivo
-    this.pendingInstances.add(instanceId);
-    return false;
-  }
-
-  static unregister(instanceId: string): void {
-    if (this.activeInstance === instanceId) {
-      this.activeInstance = null;
-      
-      // Ativar próxima instância pendente, se houver
-      const nextInstance = this.pendingInstances.values().next().value;
-      if (nextInstance) {
-        this.activeInstance = nextInstance;
-        this.pendingInstances.delete(nextInstance);
-        
-        // Notificar a nova instância ativa
-        const listener = this.listeners.get(nextInstance);
-        if (listener) {
-          listener();
-        }
-      }
-    } else {
-      this.pendingInstances.delete(instanceId);
-    }
-    
-    this.listeners.delete(instanceId);
-  }
-
-  static setListener(instanceId: string, listener: () => void): void {
-    this.listeners.set(instanceId, listener);
-  }
-
-  static isActive(instanceId: string): boolean {
-    return this.activeInstance === instanceId;
-  }
-}
-
 export function HubProdutividade() {
-  const instanceId = useRef(Math.random().toString(36).substring(7));
-  const [isActiveInstance, setIsActiveInstance] = useState(false);
-
-  // Callback para quando esta instância se tornar ativa
-  const onBecomeActive = useCallback(() => {
-    setIsActiveInstance(true);
-  }, []);
-
-  // Controle de instância melhorado
-  useEffect(() => {
-    const id = instanceId.current;
-    
-    // Registrar listener
-    InstanceManager.setListener(id, onBecomeActive);
-    
-    // Verificar se pode ser ativa
-    const canBeActive = InstanceManager.register(id);
-    setIsActiveInstance(canBeActive);
-
-    return () => {
-      InstanceManager.unregister(id);
-    };
-  }, [onBecomeActive]);
-
   // Estados locais
   const [currentSection, setCurrentSection] = useState<HubViewMode>('dashboard');
   const [showFilters, setShowFilters] = useState(false);
@@ -99,7 +19,7 @@ export function HubProdutividade() {
   // Hook de responsividade
   const { isMobile, isTablet } = useResponsive();
 
-  // Hooks para dados e filtros (só executar se for a instância ativa)
+  // Hooks para dados e filtros
   const {
     stats,
     activities,
@@ -135,11 +55,6 @@ export function HubProdutividade() {
     setShowFilters,
     refreshData
   });
-
-  // Se não for a instância ativa, não renderizar (sem log excessivo)
-  if (!isActiveInstance) {
-    return null;
-  }
 
   // Configuração das seções com badges
   const sectionsWithBadges = HUB_SECTIONS.map(section => ({

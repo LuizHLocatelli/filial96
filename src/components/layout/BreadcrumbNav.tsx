@@ -1,4 +1,3 @@
-
 import { useLocation, Link } from "react-router-dom";
 import { Home, ChevronRight } from "lucide-react";
 import {
@@ -13,6 +12,7 @@ import {
 // Breadcrumb mapping
 const breadcrumbMap: Record<string, string> = {
   '/': 'Dashboard',
+  '/hub-produtividade': 'Hub de Produtividade',
   '/moveis': 'Móveis',
   '/crediario': 'Crediário',
   '/cards-promocionais': 'Cards Promocionais',

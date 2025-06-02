@@ -29,7 +29,7 @@ const getQuickActions = (navigate: NavigateFunction): QuickAction[] => [
     title: "Hub Produtividade",
     description: "Acessar rotinas, orientações e tarefas",
     icon: CheckCircle2,
-    action: () => navigate("/moveis?tab=hub-produtividade"),
+    action: () => navigate("/hub-produtividade"),
     gradient: "from-green-500 to-emerald-600"
   }, 
   {
