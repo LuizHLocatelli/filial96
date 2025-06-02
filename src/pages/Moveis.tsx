@@ -5,6 +5,7 @@ import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
+import { MoveisOverview } from "@/components/moveis/dashboard/MoveisOverview";
 import { 
   FileText, 
   FolderArchive, 
@@ -22,13 +23,24 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "diretorio";
+  const activeTab = searchParams.get("tab") || "overview";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
+  const handleNavigate = (tab: string) => {
+    setSearchParams({ tab: tab });
+  };
+
   const tabsConfig = [
+    {
+      value: "overview",
+      label: "Visão Geral",
+      icon: Sofa,
+      description: "Dashboard e acesso rápido",
+      component: <MoveisOverview onNavigate={handleNavigate} />
+    },
     {
       value: "diretorio",
       label: "Diretório",
@@ -82,7 +94,7 @@ export default function Moveis() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={3}
+        maxColumns={4}
       />
     </PageLayout>
   );

@@ -89,7 +89,7 @@ export default function Crediario() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={3}
+        maxColumns={4}
       />
     </PageLayout>
   );

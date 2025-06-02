@@ -21,36 +21,48 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QuickAccessProps {
   variant?: "default" | "horizontal" | "minimal" | "compact";
+  onNavigate?: (tab: string) => void;
 }
 
-export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
+export function QuickAccess({ variant = "horizontal", onNavigate }: QuickAccessProps) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  const handleNavigateToSection = (path: string, tab?: string) => {
+    if (onNavigate && tab) {
+      onNavigate(tab);
+    } else {
+      navigate(path);
+    }
+  };
+
   const sections = [
-    {
-      title: "Orientações",
-      description: "Gerencie orientações e tarefas",
-      icon: FileText,
-      path: "/moveis/orientacoes",
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
-      stats: { active: 12, pending: 3 }
-    },
     {
       title: "Diretório",
       description: "Arquivos e documentos",
       icon: FolderOpen,
-      path: "/moveis/diretorio",
+      path: "/moveis?tab=diretorio",
+      tab: "diretorio",
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/20",
       stats: { files: 48, recent: 5 }
     },
     {
+      title: "Venda O",
+      description: "Vendas de outras filiais",
+      icon: TrendingUp,
+      path: "/moveis?tab=vendao",
+      tab: "vendao",
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+      stats: { active: 12, pending: 3 }
+    },
+    {
       title: "Produto Foco",
       description: "Produtos em destaque",
       icon: Target,
-      path: "/moveis/produto-foco",
+      path: "/moveis?tab=produto-foco",
+      tab: "produto-foco",
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50 dark:bg-purple-950/20",
       stats: { products: 3, sales: 24 }
@@ -59,7 +71,8 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
       title: "Folgas",
       description: "Calendário de folgas",
       icon: Calendar,
-      path: "/moveis/folgas",
+      path: "/moveis?tab=folgas",
+      tab: "folgas",
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-950/20",
       stats: { thisMonth: 8, pending: 2 }
@@ -82,7 +95,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
                         variant="ghost"
                         size="sm"
                         className="h-8 px-3 flex items-center gap-2 whitespace-nowrap"
-                        onClick={() => navigate(section.path)}
+                        onClick={() => handleNavigateToSection(section.path, section.tab)}
                       >
                         <Icon className="h-4 w-4" />
                         <span className="text-xs">{section.title}</span>
@@ -115,7 +128,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
                     variant="ghost"
                     size="icon"
                     className="h-9 w-9 rounded-md"
-                    onClick={() => navigate(section.path)}
+                    onClick={() => handleNavigateToSection(section.path, section.tab)}
                     aria-label={section.title}
                   >
                     <Icon className="h-4 w-4" />
@@ -146,7 +159,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
               key={section.title}
               className={`hover-lift cursor-pointer transition-all duration-300 border-0 shadow-soft hover:shadow-medium group ${section.bgColor}`}
               style={{ animationDelay: `${index * 100}ms` }}
-              onClick={() => navigate(section.path)}
+              onClick={() => handleNavigateToSection(section.path, section.tab)}
             >
               <CardContent className="p-3">
                 <div className="space-y-2">
@@ -156,7 +169,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
                   <div className="space-y-1">
                     <h3 className="text-sm font-semibold">{section.title}</h3>
                     <div className="flex gap-1">
-                      {section.title === "Orientações" && (
+                      {section.title === "Venda O" && (
                         <>
                           <Badge variant="outline" className="text-xs px-1 py-0">
                             {section.stats.active}
@@ -211,7 +224,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
               key={section.title}
               className={`hover-lift cursor-pointer transition-all duration-300 border-0 shadow-soft hover:shadow-medium group ${section.bgColor}`}
               style={{ animationDelay: `${index * 150}ms` }}
-              onClick={() => navigate(section.path)}
+              onClick={() => handleNavigateToSection(section.path, section.tab)}
             >
               <CardContent className="p-6">
                 <div className="space-y-4">
@@ -226,7 +239,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
                       className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(section.path);
+                        handleNavigateToSection(section.path, section.tab);
                       }}
                     >
                       <Plus className="h-4 w-4" />
@@ -241,7 +254,7 @@ export function QuickAccess({ variant = "horizontal" }: QuickAccessProps) {
 
                   {/* Stats */}
                   <div className="flex flex-wrap gap-2">
-                    {section.title === "Orientações" && (
+                    {section.title === "Venda O" && (
                       <>
                         <Badge variant="outline" className="bg-background/50">
                           {section.stats.active} Ativas
