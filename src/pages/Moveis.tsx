@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
-import { VmTarefas } from "@/components/moveis/orientacoes/Orientacoes";
 import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
-import { Rotinas } from "@/components/moveis/rotinas/Rotinas";
+import { HubProdutividade } from "@/components/moveis/hub-produtividade/HubProdutividade";
 import { 
   FileText, 
   FolderArchive, 
@@ -15,7 +14,7 @@ import {
   TrendingUp,
   Calendar,
   Star,
-  CheckSquare
+  Activity
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -25,7 +24,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "orientacoes";
+  const activeTab = searchParams.get("tab") || "hub-produtividade";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -33,11 +32,11 @@ export default function Moveis() {
 
   const tabsConfig = [
     {
-      value: "orientacoes",
-      label: "Orientações",
-      icon: FileText,
-      description: "Documentos e orientações",
-      component: <VmTarefas />
+      value: "hub-produtividade",
+      label: "Hub de Produtividade",
+      icon: Activity,
+      description: "Rotinas, orientações e tarefas centralizadas",
+      component: <HubProdutividade />
     },
     {
       value: "diretorio",
@@ -59,13 +58,6 @@ export default function Moveis() {
       icon: Star,
       description: "Produtos prioritários",
       component: <ProdutoFoco />
-    },
-    {
-      value: "rotinas",
-      label: "Rotinas",
-      icon: CheckSquare,
-      description: "Rotinas obrigatórias",
-      component: <Rotinas />
     },
     {
       value: "folgas",

@@ -26,10 +26,10 @@ interface QuickAction {
 
 const getQuickActions = (navigate: NavigateFunction): QuickAction[] => [
   {
-    title: "Nova Tarefa",
-    description: "Criar nova tarefa de móveis",
+    title: "Hub Produtividade",
+    description: "Acessar rotinas, orientações e tarefas",
     icon: CheckCircle2,
-    action: () => navigate("/moveis?tab=orientacoes"),
+    action: () => navigate("/moveis?tab=hub-produtividade"),
     gradient: "from-green-500 to-emerald-600"
   }, 
   {

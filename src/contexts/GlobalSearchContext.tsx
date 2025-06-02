@@ -70,13 +70,13 @@ const searchableItems: SearchResult[] = [
     icon: 'Sofa'
   },
   {
-    id: 'moveis-orientacoes',
-    title: 'Orientações - Móveis',
-    description: 'Documentos e orientações para o setor de móveis',
+    id: 'moveis-hub-produtividade',
+    title: 'Hub de Produtividade - Móveis',
+    description: 'Rotinas, orientações e tarefas centralizadas',
     type: 'section',
-    path: '/moveis?tab=orientacoes',
+    path: '/moveis?tab=hub-produtividade',
     section: 'Móveis',
-    icon: 'FileText'
+    icon: 'Activity'
   },
   {
     id: 'moveis-diretorio',
@@ -104,15 +104,6 @@ const searchableItems: SearchResult[] = [
     path: '/moveis?tab=produto-foco',
     section: 'Móveis',
     icon: 'Star'
-  },
-  {
-    id: 'moveis-rotinas',
-    title: 'Rotinas - Móveis',
-    description: 'Rotinas obrigatórias do setor de móveis',
-    type: 'section',
-    path: '/moveis?tab=rotinas',
-    section: 'Móveis',
-    icon: 'CheckSquare'
   },
   {
     id: 'moveis-folgas',
@@ -243,12 +234,36 @@ const searchableItems: SearchResult[] = [
     icon: 'ShoppingCart'
   },
   {
+    id: 'hub-produtividade',
+    title: 'Hub de Produtividade',
+    description: 'Central de rotinas, orientações e tarefas',
+    type: 'feature',
+    path: '/moveis?tab=hub-produtividade',
+    icon: 'Activity'
+  },
+  {
     id: 'orientacoes',
     title: 'Orientações',
     description: 'Documentos de orientação e procedimentos',
     type: 'feature',
-    path: '/moveis?tab=orientacoes',
+    path: '/moveis?tab=hub-produtividade',
     icon: 'FileText'
+  },
+  {
+    id: 'rotinas',
+    title: 'Rotinas',
+    description: 'Gestão de rotinas obrigatórias',
+    type: 'feature',
+    path: '/moveis?tab=hub-produtividade',
+    icon: 'CheckSquare'
+  },
+  {
+    id: 'tarefas',
+    title: 'Tarefas',
+    description: 'Gestão e acompanhamento de tarefas',
+    type: 'feature',
+    path: '/moveis?tab=hub-produtividade',
+    icon: 'List'
   },
   {
     id: 'gestao-pessoas',
