@@ -1,7 +1,8 @@
+
 import { useState, useEffect, ReactNode, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Loader2 } from 'lucide-react';
 
 // Variantes de animação base
@@ -43,6 +44,7 @@ interface AnimatedContainerProps {
   delay?: number;
   duration?: number;
   stagger?: number;
+  reduceMotion?: boolean;
 }
 
 export function AnimatedContainer({
@@ -51,11 +53,11 @@ export function AnimatedContainer({
   variant = 'fadeInUp',
   delay = 0,
   duration = 0.3,
-  stagger = 0.1
+  stagger = 0.1,
+  reduceMotion = false
 }: AnimatedContainerProps) {
-  const { config } = useTheme();
   
-  if (config.animationLevel === 'none') {
+  if (reduceMotion) {
     return <div className={className}>{children}</div>;
   }
 
@@ -82,7 +84,7 @@ export function AnimatedContainer({
       animate="animate"
       exit="exit"
       variants={containerVariants}
-      transition={{ duration: config.animationLevel === 'reduced' ? duration * 0.5 : duration }}
+      transition={{ duration }}
     >
       {children}
     </motion.div>
@@ -97,6 +99,7 @@ interface AnimatedCardProps {
   hoverRotate?: number;
   onClick?: () => void;
   isActive?: boolean;
+  reduceMotion?: boolean;
 }
 
 export function AnimatedCard({
@@ -105,17 +108,17 @@ export function AnimatedCard({
   hoverScale = 1.02,
   hoverRotate = 0,
   onClick,
-  isActive = false
+  isActive = false,
+  reduceMotion = false
 }: AnimatedCardProps) {
-  const { config } = useTheme();
   
-  const hoverAnimation = config.animationLevel !== 'none' ? {
+  const hoverAnimation = !reduceMotion ? {
     scale: hoverScale,
     rotate: hoverRotate,
     transition: { duration: 0.2, ease: "easeOut" }
   } : {};
 
-  const tapAnimation = config.animationLevel !== 'none' ? {
+  const tapAnimation = !reduceMotion ? {
     scale: 0.98,
     transition: { duration: 0.1 }
   } : {};
@@ -132,7 +135,7 @@ export function AnimatedCard({
       whileTap={tapAnimation}
       onClick={onClick}
       variants={fadeInScale}
-      layout={config.animationLevel === 'full'}
+      layout={!reduceMotion}
     >
       {children}
     </motion.div>
@@ -148,6 +151,7 @@ interface AnimatedButtonProps {
   isLoading?: boolean;
   onClick?: () => void;
   disabled?: boolean;
+  reduceMotion?: boolean;
 }
 
 export function AnimatedButton({
@@ -157,21 +161,21 @@ export function AnimatedButton({
   size = 'md',
   isLoading = false,
   onClick,
-  disabled = false
+  disabled = false,
+  reduceMotion = false
 }: AnimatedButtonProps) {
-  const { config } = useTheme();
 
   const buttonVariants = {
     idle: { scale: 1 },
-    hover: config.animationLevel !== 'none' ? { 
+    hover: !reduceMotion ? { 
       scale: 1.05,
       transition: { duration: 0.2, ease: "easeOut" }
     } : {},
-    tap: config.animationLevel !== 'none' ? { 
+    tap: !reduceMotion ? { 
       scale: 0.95,
       transition: { duration: 0.1 }
     } : {},
-    loading: config.animationLevel !== 'none' ? {
+    loading: !reduceMotion ? {
       scale: [1, 1.02, 1],
       transition: { duration: 1, repeat: Infinity, ease: "easeInOut" }
     } : {}
@@ -225,19 +229,20 @@ interface AnimatedListProps {
   children: ReactNode[];
   className?: string;
   staggerDelay?: number;
+  reduceMotion?: boolean;
 }
 
 export function AnimatedList({
   children,
   className,
-  staggerDelay = 0.1
+  staggerDelay = 0.1,
+  reduceMotion = false
 }: AnimatedListProps) {
-  const { config } = useTheme();
 
   const listVariants = {
     animate: {
       transition: {
-        staggerChildren: config.animationLevel === 'none' ? 0 : staggerDelay
+        staggerChildren: reduceMotion ? 0 : staggerDelay
       }
     }
   };
@@ -247,7 +252,7 @@ export function AnimatedList({
     animate: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: config.animationLevel === 'reduced' ? 0.15 : 0.3 }
+      transition: { duration: reduceMotion ? 0.15 : 0.3 }
     }
   };
 
@@ -274,6 +279,7 @@ interface AnimatedBadgeProps {
   count?: number;
   showPulse?: boolean;
   color?: 'primary' | 'secondary' | 'destructive' | 'warning';
+  reduceMotion?: boolean;
 }
 
 export function AnimatedBadge({
@@ -281,11 +287,11 @@ export function AnimatedBadge({
   className,
   count,
   showPulse = false,
-  color = 'primary'
+  color = 'primary',
+  reduceMotion = false
 }: AnimatedBadgeProps) {
-  const { config } = useTheme();
 
-  const pulseAnimation = config.animationLevel === 'full' && showPulse ? {
+  const pulseAnimation = !reduceMotion && showPulse ? {
     scale: [1, 1.1, 1],
     transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
   } : {};
@@ -328,6 +334,7 @@ interface AnimatedProgressProps {
   className?: string;
   showPercentage?: boolean;
   color?: string;
+  reduceMotion?: boolean;
 }
 
 export function AnimatedProgress({
@@ -335,9 +342,9 @@ export function AnimatedProgress({
   max = 100,
   className,
   showPercentage = true,
-  color = "hsl(var(--primary))"
+  color = "hsl(var(--primary))",
+  reduceMotion = false
 }: AnimatedProgressProps) {
-  const { config } = useTheme();
   const percentage = Math.min((value / max) * 100, 100);
 
   return (
@@ -361,8 +368,7 @@ export function AnimatedProgress({
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{
-            duration: config.animationLevel === 'none' ? 0 : 
-                     config.animationLevel === 'reduced' ? 0.5 : 1,
+            duration: reduceMotion ? 0 : 1,
             ease: "easeOut"
           }}
         />
@@ -376,16 +382,17 @@ interface AnimatedSkeletonProps {
   className?: string;
   lines?: number;
   avatar?: boolean;
+  reduceMotion?: boolean;
 }
 
 export function AnimatedSkeleton({
   className,
   lines = 3,
-  avatar = false
+  avatar = false,
+  reduceMotion = false
 }: AnimatedSkeletonProps) {
-  const { config } = useTheme();
 
-  const shimmerAnimation = config.animationLevel !== 'none' ? {
+  const shimmerAnimation = !reduceMotion ? {
     x: [-100, 100],
     transition: {
       duration: 1.5,
@@ -432,15 +439,16 @@ interface FloatingActionButtonProps {
   onClick: () => void;
   className?: string;
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  reduceMotion?: boolean;
 }
 
 export function FloatingActionButton({
   children,
   onClick,
   className,
-  position = 'bottom-right'
+  position = 'bottom-right',
+  reduceMotion = false
 }: FloatingActionButtonProps) {
-  const { config } = useTheme();
 
   const positionClasses = {
     'bottom-right': 'fixed bottom-4 right-4',
@@ -451,12 +459,12 @@ export function FloatingActionButton({
 
   const fabVariants = {
     idle: { scale: 1, y: 0 },
-    hover: config.animationLevel !== 'none' ? {
+    hover: !reduceMotion ? {
       scale: 1.1,
       y: -2,
       transition: { duration: 0.2, ease: "easeOut" }
     } : {},
-    tap: config.animationLevel !== 'none' ? {
+    tap: !reduceMotion ? {
       scale: 0.95,
       transition: { duration: 0.1 }
     } : {}
@@ -498,4 +506,4 @@ export function useScrollAnimation() {
   }, [controls, isInView]);
 
   return { ref, controls };
-} 
+}

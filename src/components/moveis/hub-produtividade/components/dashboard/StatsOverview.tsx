@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -7,359 +8,294 @@ import {
   List, 
   TrendingUp, 
   TrendingDown,
-  Minus,
+  Activity,
   Clock,
-  AlertTriangle,
-  CheckCircle2,
-  Target,
-  Calendar,
-  Users,
-  Zap
+  AlertTriangle
 } from 'lucide-react';
 import { ProductivityStats } from '../../types';
+import { AnimatedCard, AnimatedProgress } from '../visual/AnimationComponents';
 import { cn } from '@/lib/utils';
-import { useResponsive } from '@/hooks/use-responsive';
-import { ModernStatsCard, MetricCard, ProgressCard } from '../visual/ModernCards';
-import { AnimatedContainer, AnimatedSkeleton } from '../visual/AnimationComponents';
-import { StatsGrid } from '../mobile/ResponsiveGrid';
 
 interface StatsOverviewProps {
   stats: ProductivityStats;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-export function StatsOverview({ stats, isLoading }: StatsOverviewProps) {
-  const { isMobile } = useResponsive();
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  trend?: {
+    value: number;
+    direction: 'up' | 'down' | 'stable';
+  };
+  color: 'blue' | 'green' | 'orange' | 'purple' | 'red';
+  progress?: number;
+  badges?: Array<{ label: string; count: number; variant?: 'default' | 'secondary' | 'destructive' | 'outline' }>;
+}
 
+function StatCard({ 
+  title, 
+  value, 
+  subtitle, 
+  icon: Icon, 
+  trend, 
+  color, 
+  progress,
+  badges 
+}: StatCardProps) {
+  const colorClasses = {
+    blue: {
+      icon: 'text-blue-600',
+      bg: 'bg-blue-50',
+      border: 'border-blue-200',
+      progress: 'bg-blue-500'
+    },
+    green: {
+      icon: 'text-green-600',
+      bg: 'bg-green-50',
+      border: 'border-green-200',
+      progress: 'bg-green-500'
+    },
+    orange: {
+      icon: 'text-orange-600',
+      bg: 'bg-orange-50',
+      border: 'border-orange-200',
+      progress: 'bg-orange-500'
+    },
+    purple: {
+      icon: 'text-purple-600',
+      bg: 'bg-purple-50',
+      border: 'border-purple-200',
+      progress: 'bg-purple-500'
+    },
+    red: {
+      icon: 'text-red-600',
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      progress: 'bg-red-500'
+    }
+  };
+
+  const classes = colorClasses[color];
+
+  return (
+    <AnimatedCard className="h-full">
+      <Card className={cn("h-full", classes.bg, classes.border, "border")}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
+          </CardTitle>
+          <div className={cn("p-2 rounded-md", classes.bg)}>
+            <Icon className={cn("h-4 w-4", classes.icon)} />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-1">
+            <div className="text-2xl font-bold">
+              {value}
+            </div>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
+          </div>
+
+          {/* Trend */}
+          {trend && (
+            <div className="flex items-center gap-1">
+              {trend.direction === 'up' && (
+                <TrendingUp className="h-3 w-3 text-green-600" />
+              )}
+              {trend.direction === 'down' && (
+                <TrendingDown className="h-3 w-3 text-red-600" />
+              )}
+              <span className={cn(
+                "text-xs font-medium",
+                trend.direction === 'up' && "text-green-600",
+                trend.direction === 'down' && "text-red-600",
+                trend.direction === 'stable' && "text-muted-foreground"
+              )}>
+                {trend.value > 0 ? '+' : ''}{trend.value}%
+              </span>
+            </div>
+          )}
+
+          {/* Progress */}
+          {typeof progress === 'number' && (
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Progresso</span>
+                <span className="font-medium">{Math.round(progress)}%</span>
+              </div>
+              <AnimatedProgress 
+                value={progress} 
+                className="h-1.5"
+                color={`hsl(var(--${color}-500))`}
+                showPercentage={false}
+              />
+            </div>
+          )}
+
+          {/* Badges */}
+          {badges && badges.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {badges.map((badge, index) => (
+                <Badge key={index} variant={badge.variant || 'secondary'} className="text-xs">
+                  {badge.label}: {badge.count}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </AnimatedCard>
+  );
+}
+
+export function StatsOverview({ stats, isLoading = false }: StatsOverviewProps) {
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <StatsGrid>
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Card key={index} className="p-6">
-              <AnimatedSkeleton lines={3} />
-            </Card>
-          ))}
-        </StatsGrid>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <Card key={index} className="p-6">
-              <AnimatedSkeleton lines={4} />
-            </Card>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardHeader className="space-y-0 pb-2">
+              <div className="h-4 bg-muted rounded w-3/4"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-8 bg-muted rounded w-1/2 mb-2"></div>
+              <div className="h-3 bg-muted rounded w-full"></div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
 
-  // Calcular métricas consolidadas
-  const totalItems = stats.rotinas.total + stats.orientacoes.total + stats.tarefas.total;
-  const totalConcluidas = stats.rotinas.concluidas + stats.tarefas.concluidas;
-  const totalPendentes = stats.rotinas.pendentes + stats.tarefas.pendentes;
-  const totalAtrasadas = stats.rotinas.atrasadas + stats.tarefas.atrasadas;
-  
-  const overallProgress = totalItems > 0 ? Math.round((totalConcluidas / totalItems) * 100) : 0;
-  const productivityScore = Math.round((overallProgress + (100 - (totalAtrasadas / totalItems * 100))) / 2);
-
-  // Cards principais de estatísticas
-  const mainStatsCards = [
+  const rotinasCards = [
     {
-      id: 'rotinas',
-      title: 'Rotinas',
+      title: 'Rotinas Totais',
       value: stats.rotinas.total,
-      description: `${stats.rotinas.concluidas} concluídas de ${stats.rotinas.total}`,
+      subtitle: 'Rotinas cadastradas',
       icon: CheckSquare,
-      color: 'green' as const,
-      trend: stats.rotinas.total > 0 ? {
-        value: stats.rotinas.percentualConclusao,
-        isPositive: stats.rotinas.percentualConclusao >= 70,
-        label: `${stats.rotinas.percentualConclusao}% concluídas`
-      } : undefined,
-      onClick: () => console.log('Navegar para Rotinas')
-    },
+      color: 'blue' as const,
+      progress: stats.rotinas.percentualConclusao,
+      badges: [
+        { label: 'Concluídas', count: stats.rotinas.concluidas, variant: 'default' as const },
+        { label: 'Pendentes', count: stats.rotinas.pendentes, variant: 'secondary' as const },
+        { label: 'Atrasadas', count: stats.rotinas.atrasadas, variant: 'destructive' as const }
+      ]
+    }
+  ];
+
+  const orientacoesCards = [
     {
-      id: 'orientacoes',
       title: 'Orientações',
       value: stats.orientacoes.total,
-      description: `${stats.orientacoes.naoLidas} não lidas`,
+      subtitle: 'Documentos disponíveis',
       icon: FileText,
-      color: 'purple' as const,
-      trend: stats.orientacoes.naoLidas > 0 ? {
-        value: Math.round((stats.orientacoes.naoLidas / stats.orientacoes.total) * 100),
-        isPositive: false,
-        label: 'Pendentes de leitura'
-      } : {
-        value: 100,
-        isPositive: true,
-        label: 'Todas lidas'
-      },
-      onClick: () => console.log('Navegar para Orientações')
-    },
+      color: 'green' as const,
+      badges: [
+        { label: 'Não lidas', count: stats.orientacoes.naoLidas, variant: 'destructive' as const },
+        { label: 'Recentes', count: stats.orientacoes.recentes, variant: 'secondary' as const }
+      ]
+    }
+  ];
+
+  const tarefasCards = [
     {
-      id: 'tarefas',
       title: 'Tarefas',
       value: stats.tarefas.total,
-      description: `${stats.tarefas.concluidas} concluídas de ${stats.tarefas.total}`,
+      subtitle: 'Tarefas em andamento',
       icon: List,
-      color: 'orange' as const,
-      trend: stats.tarefas.total > 0 ? {
-        value: stats.tarefas.percentualConclusao,
-        isPositive: stats.tarefas.percentualConclusao >= 70,
-        label: `${stats.tarefas.percentualConclusao}% concluídas`
-      } : undefined,
-      onClick: () => console.log('Navegar para Tarefas')
-    },
+      color: 'purple' as const,
+      progress: stats.tarefas.percentualConclusao,
+      badges: [
+        { label: 'Concluídas', count: stats.tarefas.concluidas, variant: 'default' as const },
+        { label: 'Pendentes', count: stats.tarefas.pendentes, variant: 'secondary' as const },
+        { label: 'Atrasadas', count: stats.tarefas.atrasadas, variant: 'destructive' as const }
+      ]
+    }
+  ];
+
+  const produtividadeCards = [
     {
-      id: 'productivity',
-      title: 'Produtividade',
-      value: `${productivityScore}%`,
-      description: 'Score geral de eficiência',
-      icon: Zap,
-      color: productivityScore >= 80 ? 'green' : productivityScore >= 60 ? 'blue' : 'red' as const,
+      title: 'Produtividade Geral',
+      value: `${Math.round((stats.rotinas.percentualConclusao + stats.tarefas.percentualConclusao) / 2)}%`,
+      subtitle: 'Média de conclusão',
+      icon: Activity,
+      color: 'orange' as const,
       trend: {
-        value: productivityScore,
-        isPositive: productivityScore >= 70,
-        label: productivityScore >= 80 ? 'Excelente' : productivityScore >= 60 ? 'Bom' : 'Precisa melhorar'
+        value: 12,
+        direction: 'up' as const
       }
     }
   ];
 
-  // Métricas detalhadas
-  const detailedMetrics = [
-    {
-      label: 'Total de Itens',
-      value: totalItems,
-      subValue: 'no sistema',
-      icon: Target,
-      color: '#3b82f6'
-    },
-    {
-      label: 'Concluídas',
-      value: totalConcluidas,
-      subValue: `${Math.round((totalConcluidas / totalItems) * 100)}%`,
-      icon: CheckCircle2,
-      color: '#10b981',
-      trend: {
-        value: Math.round((totalConcluidas / totalItems) * 100),
-        isPositive: totalConcluidas > totalPendentes
-      }
-    },
-    {
-      label: 'Pendentes',
-      value: totalPendentes,
-      subValue: `${Math.round((totalPendentes / totalItems) * 100)}%`,
-      icon: Clock,
-      color: '#f59e0b'
-    },
-    {
-      label: 'Atrasadas',
-      value: totalAtrasadas,
-      subValue: totalAtrasadas > 0 ? 'Atenção!' : 'Nenhuma',
-      icon: AlertTriangle,
-      color: '#ef4444',
-      trend: totalAtrasadas > 0 ? {
-        value: Math.round((totalAtrasadas / totalItems) * 100),
-        isPositive: false
-      } : undefined
-    }
-  ];
+  const allCards = [...rotinasCards, ...orientacoesCards, ...tarefasCards, ...produtividadeCards];
 
   return (
-    <AnimatedContainer className="space-y-6" variant="fadeInUp" stagger={0.1}>
-      {/* Cards Principais */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">Visão Geral</h2>
-          <p className="text-sm text-muted-foreground">
-            Resumo da sua produtividade e progresso atual
-          </p>
-        </div>
-        
-        <StatsGrid>
-          {mainStatsCards.map((card) => (
-            <ModernStatsCard
-              key={card.id}
-              title={card.title}
-              value={card.value}
-              description={card.description}
-              icon={card.icon}
-              color={card.color}
-              trend={card.trend}
-              onClick={card.onClick}
-              isLoading={isLoading}
-            />
-          ))}
-        </StatsGrid>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Visão Geral da Produtividade</h2>
+        <Badge variant="outline" className="gap-1">
+          <Activity className="h-3 w-3" />
+          Atualizado agora
+        </Badge>
       </div>
 
-      {/* Métricas Detalhadas e Progress */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Métricas Compactas */}
-        <div className="lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-4">Métricas Detalhadas</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {detailedMetrics.map((metric, index) => (
-              <MetricCard
-                key={index}
-                label={metric.label}
-                value={metric.value}
-                subValue={metric.subValue}
-                icon={metric.icon}
-                color={metric.color}
-                trend={metric.trend}
-                size="sm"
-              />
-            ))}
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {allCards.map((card, index) => (
+          <StatCard key={index} {...card} />
+        ))}
+      </div>
+
+      {/* Resumo Rápido */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-green-600" />
+            Resumo do Dia
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="h-4 w-4 text-blue-600" />
+                <span className="font-medium">Rotinas</span>
+              </div>
+              <p className="text-muted-foreground">
+                {stats.rotinas.concluidas} de {stats.rotinas.total} concluídas hoje
+              </p>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <List className="h-4 w-4 text-purple-600" />
+                <span className="font-medium">Tarefas</span>
+              </div>
+              <p className="text-muted-foreground">
+                {stats.tarefas.pendentes} tarefas aguardando
+              </p>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-green-600" />
+                <span className="font-medium">Orientações</span>
+              </div>
+              <p className="text-muted-foreground">
+                {stats.orientacoes.naoLidas} não lidas
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* Progress Card */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Progresso</h3>
-          <ProgressCard
-            title="Conclusão Geral"
-            description="Acompanhe seu progresso"
-            totalProgress={overallProgress}
-            icon={Target}
-            progress={[
-              {
-                label: 'Rotinas',
-                value: stats.rotinas.concluidas,
-                max: stats.rotinas.total,
-                color: '#10b981'
-              },
-              {
-                label: 'Tarefas',
-                value: stats.tarefas.concluidas,
-                max: stats.tarefas.total,
-                color: '#f59e0b'
-              }
-            ]}
-            actions={[
-              {
-                label: 'Ver Detalhes',
-                onClick: () => console.log('Ver detalhes')
-              }
-            ]}
-          />
-        </div>
-      </div>
-
-      {/* Status Cards por Categoria */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Status por Categoria</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Rotinas Detalhadas */}
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                  <CheckSquare className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Rotinas</CardTitle>
-                  <p className="text-sm text-muted-foreground">Obrigatórias diárias</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Progresso</span>
-                <span className="text-sm font-medium">{stats.rotinas.percentualConclusao}%</span>
-              </div>
-              <Progress value={stats.rotinas.percentualConclusao} className="h-2" />
-              
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <p className="text-lg font-bold text-green-600">{stats.rotinas.concluidas}</p>
-                  <p className="text-xs text-muted-foreground">Concluídas</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-yellow-600">{stats.rotinas.pendentes}</p>
-                  <p className="text-xs text-muted-foreground">Pendentes</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-red-600">{stats.rotinas.atrasadas}</p>
-                  <p className="text-xs text-muted-foreground">Atrasadas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Orientações Detalhadas */}
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                  <FileText className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Orientações</CardTitle>
-                  <p className="text-sm text-muted-foreground">Documentos e guias</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold">{stats.orientacoes.total}</p>
-                  <p className="text-sm text-muted-foreground">Total</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-600">{stats.orientacoes.naoLidas}</p>
-                  <p className="text-sm text-muted-foreground">Não lidas</p>
-                </div>
-              </div>
-              
-              {stats.orientacoes.recentes > 0 && (
-                <div className="mt-3 p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <p className="text-sm text-purple-800 dark:text-purple-200">
-                    {stats.orientacoes.recentes} novas orientações esta semana
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Tarefas Detalhadas */}
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
-                  <List className="h-5 w-5 text-orange-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Tarefas</CardTitle>
-                  <p className="text-sm text-muted-foreground">Gestão de atividades</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Progresso</span>
-                <span className="text-sm font-medium">{stats.tarefas.percentualConclusao}%</span>
-              </div>
-              <Progress value={stats.tarefas.percentualConclusao} className="h-2" />
-              
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <p className="text-lg font-bold text-green-600">{stats.tarefas.concluidas}</p>
-                  <p className="text-xs text-muted-foreground">Concluídas</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-yellow-600">{stats.tarefas.pendentes}</p>
-                  <p className="text-xs text-muted-foreground">Pendentes</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-red-600">{stats.tarefas.atrasadas}</p>
-                  <p className="text-xs text-muted-foreground">Atrasadas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </AnimatedContainer>
+        </CardContent>
+      </Card>
+    </div>
   );
-} 
+}

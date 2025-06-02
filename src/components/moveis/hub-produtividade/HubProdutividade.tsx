@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -148,14 +149,11 @@ export function HubProdutividade() {
   // Filtros adaptados para mobile
   const adaptedFilters = {
     search: searchTerm,
-    status: filters.status || [],
-    dateRange: filters.dateRange || {},
-    categoria: filters.categoria || [],
-    prioridade: filters.prioridade || [],
-    responsavel: filters.responsavel || [],
-    showCompleted: filters.showCompleted ?? true,
-    sortBy: filters.sortBy || 'data',
-    sortOrder: filters.sortOrder || 'desc' as const
+    status: Array.isArray(filters.status) ? filters.status : [filters.status || 'todos'],
+    dateRange: filters.dateRange || { from: null, to: null },
+    categoria: Array.isArray(filters.categoria) ? filters.categoria : [filters.categoria || ''],
+    sortBy: 'data',
+    sortOrder: 'desc' as const
   };
 
   const handleFiltersChange = (newFilters: typeof adaptedFilters) => {
@@ -442,4 +440,4 @@ export function HubProdutividade() {
       </Tabs>
     </div>
   );
-} 
+}
