@@ -1,164 +1,114 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Filter, BarChart3, Download } from 'lucide-react';
-import { useRotinas } from './hooks/useRotinas';
-import { usePDFExport } from './hooks/usePDFExport';
-import { RotinasList } from './components/RotinasList';
-import { RotinasStats } from './components/RotinasStats';
-import { AddRotinaDialog } from './components/AddRotinaDialog';
-import { RotinaFilters } from './components/RotinaFilters';
-import { PDFExportDialog, PDFExportOptions } from './components/PDFExportDialog';
-import { PeriodicidadeFilter, StatusFilter } from './types';
+
+import { useState, useEffect } from 'react';
+import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RotinasList } from "./components/RotinasList";
+import { RotinasStats } from "./components/RotinasStats";
+import { AddRotinaDialog } from "./components/AddRotinaDialog";
+import { PDFExportDialog } from "./components/PDFExportDialog";
+import { Badge } from "@/components/ui/badge";
+import { CheckSquare, Plus, Calendar, FileDown } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { motion, AnimatePresence } from "framer-motion";
+import { OrientacaoTarefas } from "../orientacoes/OrientacaoTarefas";
 
 export function Rotinas() {
-  const { rotinas, isLoading, addRotina, updateRotina, deleteRotina, toggleConclusao, duplicateRotina } = useRotinas();
-  const { exportToPDF } = usePDFExport();
+  const isMobile = useIsMobile();
+  const [selectedTab, setSelectedTab] = useState("rotinas");
+  const [refreshKey, setRefreshKey] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showExportDialog, setShowExportDialog] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [periodicidadeFilter, setPeriodicidadeFilter] = useState<PeriodicidadeFilter>('todos');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos');
-  const [categoriaFilter, setCategoriaFilter] = useState<string>('todos');
-
-  const categorias = [...new Set(rotinas.map(r => r.categoria))];
-
-  const filteredRotinas = rotinas.filter(rotina => {
-    // Filtro por periodicidade
-    if (periodicidadeFilter === 'hoje' && rotina.periodicidade !== 'diario') return false;
-    if (periodicidadeFilter === 'semana' && rotina.periodicidade !== 'semanal') return false;
-    if (periodicidadeFilter === 'mes' && rotina.periodicidade !== 'mensal') return false;
-
-    // Filtro por status
-    if (statusFilter !== 'todos' && rotina.status !== statusFilter) return false;
-
-    // Filtro por categoria
-    if (categoriaFilter !== 'todos' && rotina.categoria !== categoriaFilter) return false;
-
-    return true;
-  });
-
-  const handleExportPDF = async (options: PDFExportOptions) => {
-    setIsExporting(true);
-    try {
-      // Usar rotinas filtradas ou todas, dependendo da opção
-      const rotinasParaExportar = options.showOnlyFiltered ? filteredRotinas : rotinas;
-      
-      await exportToPDF(rotinasParaExportar, options);
-      setShowExportDialog(false);
-    } catch (error) {
-      console.error('Erro ao exportar PDF:', error);
-    } finally {
-      setIsExporting(false);
-    }
+  const [showPDFDialog, setShowPDFDialog] = useState(false);
+  
+  const handleSuccess = () => {
+    setRefreshKey(prev => prev + 1);
+    setShowAddDialog(false);
   };
 
-  const openExportDialog = () => {
-    setShowExportDialog(true);
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
   };
-
+  
   return (
-    <div className="space-y-4 sm:space-y-6 px-1 sm:px-0">
-      {/* Header responsivo */}
-      <div className="flex flex-col gap-4">
-        <div className="space-y-1">
-          <h1 className="text-xl sm:text-2xl font-bold">Rotinas</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gerencie suas rotinas obrigatórias e acompanhe o progresso
-          </p>
-        </div>
-        
-        {/* Botões de ação - empilhados em mobile */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <div className="flex flex-row gap-2 sm:gap-3 flex-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 flex-1 sm:flex-none"
-            >
-              <Filter className="h-4 w-4" />
-              <span className="hidden xs:inline">Filtros</span>
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={openExportDialog}
-              className="flex items-center gap-2 flex-1 sm:flex-none"
-              disabled={isLoading || rotinas.length === 0}
-            >
-              <Download className="h-4 w-4" />
-              <span className="hidden xs:inline">Exportar PDF</span>
-            </Button>
+    <div className="w-full max-w-full">
+      <Tabs 
+        value={selectedTab} 
+        onValueChange={handleTabChange} 
+        className="space-y-6 w-full"
+      >
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border/40">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-foreground">Rotinas e Tarefas</h2>
+            <p className="text-sm text-muted-foreground">Gerencie rotinas obrigatórias e tarefas relacionadas</p>
           </div>
           
-          <Button
-            onClick={() => setShowAddDialog(true)}
-            className="flex items-center gap-2 w-full sm:w-auto"
-            size="sm"
-          >
-            <Plus className="h-4 w-4" />
-            Nova Rotina
-          </Button>
+          <TabsList className="grid grid-cols-2 w-full bg-muted/50 p-1 rounded-lg">
+            <TabsTrigger 
+              value="rotinas" 
+              className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="flex items-center gap-2"
+              >
+                <CheckSquare className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{isMobile ? "Rotinas" : "Rotinas"}</span>
+              </motion.div>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="tarefas" 
+              className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="flex items-center gap-2"
+              >
+                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{isMobile ? "Tarefas" : "Tarefas"}</span>
+              </motion.div>
+            </TabsTrigger>
+          </TabsList>
         </div>
-      </div>
-
-      {/* Filtros */}
-      {showFilters && (
-        <RotinaFilters
-          periodicidadeFilter={periodicidadeFilter}
-          statusFilter={statusFilter}
-          categoriaFilter={categoriaFilter}
-          categorias={categorias}
-          onPeriodicidadeChange={setPeriodicidadeFilter}
-          onStatusChange={setStatusFilter}
-          onCategoriaChange={setCategoriaFilter}
-        />
-      )}
-
-      {/* Tabs responsivas */}
-      <Tabs defaultValue="lista" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 h-auto p-1">
-          <TabsTrigger value="lista" className="py-2 px-4 text-sm">
-            Lista
-          </TabsTrigger>
-          <TabsTrigger value="stats" className="py-2 px-4 text-sm">
-            Estatísticas
-          </TabsTrigger>
-        </TabsList>
         
-        <TabsContent value="lista" className="space-y-4 mt-4">
-          <RotinasList
-            rotinas={filteredRotinas}
-            isLoading={isLoading}
-            onEditRotina={updateRotina}
-            onDeleteRotina={deleteRotina}
-            onToggleConclusao={toggleConclusao}
-            onDuplicateRotina={duplicateRotina}
-          />
-        </TabsContent>
-        
-        <TabsContent value="stats" className="space-y-4 mt-4">
-          <RotinasStats rotinas={filteredRotinas} />
-        </TabsContent>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full"
+          >
+            <TabsContent value="rotinas" className="space-y-4 w-full m-0">
+              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
+                <div className="p-4 sm:p-6">
+                  <RotinasStats />
+                  <RotinasList key={refreshKey} />
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="tarefas" className="space-y-4 w-full m-0">
+              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
+                <OrientacaoTarefas />
+              </div>
+            </TabsContent>
+          </motion.div>
+        </AnimatePresence>
       </Tabs>
 
-      {/* Dialogs */}
       <AddRotinaDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        onSubmit={addRotina}
+        onSuccess={handleSuccess}
       />
 
       <PDFExportDialog
-        open={showExportDialog}
-        onOpenChange={setShowExportDialog}
-        rotinas={filteredRotinas}
-        onExport={handleExportPDF}
-        isExporting={isExporting}
+        open={showPDFDialog}
+        onOpenChange={setShowPDFDialog}
       />
     </div>
   );
