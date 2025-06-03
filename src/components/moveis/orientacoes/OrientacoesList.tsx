@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OrientacaoViewerDialog } from "./OrientacaoViewerDialog";
@@ -21,7 +22,7 @@ export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
   const [selectedOrientacao, setSelectedOrientacao] = useState<Orientacao | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
 
-  const { orientacoes, isLoading, handleViewOrientacao } = useOrientacoes();
+  const { orientacoes, isLoading, handleViewOrientacao, refetch } = useOrientacoes();
   const {
     searchQuery,
     setSearchQuery,
@@ -49,6 +50,10 @@ export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
       setSelectedOrientacao(orientacao);
       setViewerOpen(true);
     }
+  };
+
+  const handleUpdate = () => {
+    refetch();
   };
 
   if (isLoading) {
@@ -80,6 +85,7 @@ export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
           orientacoes={filteredOrientacoes}
           viewMode={viewMode}
           onViewOrientacao={handleViewOrientacaoWrapper}
+          onUpdate={handleUpdate}
         />
       )}
 

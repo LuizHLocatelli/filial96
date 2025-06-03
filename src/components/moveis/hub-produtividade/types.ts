@@ -142,7 +142,7 @@ export interface QuickAction {
 // ===== TIPOS DE FILTROS =====
 export type PeriodicidadeFilter = 'todos' | 'hoje' | 'semana' | 'mes';
 export type StatusFilter = 'todos' | 'pendente' | 'concluida' | 'atrasada';
-export type HubViewMode = 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento' | 'tarefas';
+export type HubViewMode = 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento';
 
 // ===== TIPOS DE FORM DATA =====
 export interface RotinaFormData {

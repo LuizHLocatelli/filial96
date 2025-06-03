@@ -1,12 +1,12 @@
+
 import { useState, useEffect } from 'react';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrientacoesList } from "./OrientacoesList";
-import { OrientacaoTarefas } from "./OrientacaoTarefas";
 import { OrientacaoUploader } from "./OrientacaoUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { Badge } from "@/components/ui/badge";
-import { Bell, List, PlusCircle, CheckSquare, FileText } from "lucide-react";
+import { FileText, PlusCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -150,11 +150,11 @@ export function VmTarefas() {
       >
         <div className="bg-card rounded-xl p-4 shadow-sm border border-border/40">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-foreground">VM e Tarefas</h2>
-            <p className="text-sm text-muted-foreground">Gerencie orientações e tarefas relacionadas aos móveis</p>
+            <h2 className="text-xl font-semibold text-foreground">Informativos e VM</h2>
+            <p className="text-sm text-muted-foreground">Gerencie informativos e visual merchandising para a equipe</p>
           </div>
           
-          <TabsList className="grid grid-cols-3 w-full bg-muted/50 p-1 rounded-lg">
+          <TabsList className="grid grid-cols-2 w-full bg-muted/50 p-1 rounded-lg">
             <TabsTrigger 
               value="listar" 
               className="flex items-center gap-2 relative transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
@@ -166,7 +166,7 @@ export function VmTarefas() {
                 className="flex items-center gap-2"
               >
                 <FileText className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{isMobile ? "VM" : "Visualização de Móveis"}</span>
+                <span className="truncate">{isMobile ? "Lista" : "Visualizar"}</span>
               </motion.div>
               <AnimatePresence>
                 {unreadCount > 0 && (
@@ -198,22 +198,7 @@ export function VmTarefas() {
                 className="flex items-center gap-2"
               >
                 <PlusCircle className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{isMobile ? "Novo" : "Novo VM"}</span>
-              </motion.div>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="tarefas" 
-              className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary"
-            >
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className="flex items-center gap-2"
-              >
-                <CheckSquare className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Tarefas</span>
+                <span className="truncate">{isMobile ? "Novo" : "Adicionar"}</span>
               </motion.div>
             </TabsTrigger>
           </TabsList>
@@ -237,12 +222,6 @@ export function VmTarefas() {
             <TabsContent value="adicionar" className="space-y-4 w-full m-0">
               <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
                 <OrientacaoUploader onSuccess={handleUploadSuccess} />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="tarefas" className="space-y-4 w-full m-0">
-              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
-                <OrientacaoTarefas />
               </div>
             </TabsContent>
           </motion.div>

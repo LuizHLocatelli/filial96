@@ -1,3 +1,4 @@
+
 import { 
   Activity,
   CheckSquare, 
@@ -19,24 +20,18 @@ export const HUB_SECTIONS: HubSection[] = [
     id: 'rotinas',
     title: 'Rotinas',
     icon: CheckSquare,
-    description: 'Rotinas obrigatórias'
+    description: 'Rotinas obrigatórias e tarefas'
   },
   {
     id: 'orientacoes',
-    title: 'Orientações',
+    title: 'Informativos e VM',
     icon: FileText,
-    description: 'Documentos e orientações'
+    description: 'Documentos, orientações e visual merchandising'
   },
   {
     id: 'monitoramento',
     title: 'Monitoramento',
     icon: Users,
     description: 'Monitoramento de visualizações por cargo'
-  },
-  {
-    id: 'tarefas',
-    title: 'Tarefas',
-    icon: List,
-    description: 'Gestão de tarefas'
   }
 ];

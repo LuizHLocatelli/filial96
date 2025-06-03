@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,6 @@ import { HubSection, HubHandlers } from '../../types/hubTypes';
 import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
-import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
 import { Relatorios } from '../funcionalidades/Relatorios';
 import OrientacoesMonitoramento from '../OrientacoesMonitoramento';
 import { cn } from '@/lib/utils';
@@ -64,7 +64,7 @@ export function HubDesktopLayout({
       <Tabs value={currentSection} onValueChange={(value) => onSectionChange(value as HubViewMode)}>
         <TabsList className={cn(
           "grid w-full h-auto p-1",
-          isTablet ? "grid-cols-3 gap-1" : "grid-cols-5 gap-1"
+          isTablet ? "grid-cols-2 gap-1" : "grid-cols-4 gap-1"
         )}>
           {sections.map((section) => (
             <TabsTrigger
@@ -123,13 +123,6 @@ export function HubDesktopLayout({
           <TabsContent value="monitoramento" className="mt-0">
             <div className="border border-border/40 rounded-lg overflow-hidden">
               <OrientacoesMonitoramento />
-            </div>
-          </TabsContent>
-
-          {/* Tarefas */}
-          <TabsContent value="tarefas" className="mt-0">
-            <div className="border border-border/40 rounded-lg overflow-hidden">
-              <OrientacaoTarefas />
             </div>
           </TabsContent>
         </div>

@@ -1,3 +1,4 @@
+
 import { OrientacaoCard } from "./OrientacaoCard";
 import { Orientacao } from "../types";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -7,9 +8,10 @@ interface OrientacoesGridProps {
   orientacoes: Orientacao[];
   viewMode: "grid" | "list";
   onViewOrientacao: (orientacao: Orientacao) => void;
+  onUpdate?: () => void;
 }
 
-export function OrientacoesGrid({ orientacoes, viewMode, onViewOrientacao }: OrientacoesGridProps) {
+export function OrientacoesGrid({ orientacoes, viewMode, onViewOrientacao, onUpdate }: OrientacoesGridProps) {
   const isMobile = useIsMobile();
 
   const containerVariants = {
@@ -55,6 +57,7 @@ export function OrientacoesGrid({ orientacoes, viewMode, onViewOrientacao }: Ori
           <OrientacaoCard 
             orientacao={orientacao} 
             onView={onViewOrientacao}
+            onUpdate={onUpdate}
           />
         </motion.div>
       ))}

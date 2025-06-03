@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { HubViewMode, ProductivityStats } from '../../types';
 import { ActivityItem } from '../../types';
@@ -6,7 +7,6 @@ import { MobileNavigation } from '../mobile/MobileNavigation';
 import { HubDashboard } from '../dashboard/HubDashboard';
 import { Rotinas } from '../../../rotinas/Rotinas';
 import { VmTarefas } from '../../../orientacoes/Orientacoes';
-import { OrientacaoTarefas } from '../../../orientacoes/OrientacaoTarefas';
 import OrientacoesMonitoramento from '../OrientacoesMonitoramento';
 import { Relatorios } from '../funcionalidades/Relatorios';
 
@@ -90,12 +90,6 @@ export function HubMobileLayout({
         {currentSection === 'monitoramento' && (
           <div className="border border-border/40 rounded-lg overflow-hidden">
             <OrientacoesMonitoramento />
-          </div>
-        )}
-
-        {currentSection === 'tarefas' && (
-          <div className="border border-border/40 rounded-lg overflow-hidden">
-            <OrientacaoTarefas />
           </div>
         )}
       </div>
