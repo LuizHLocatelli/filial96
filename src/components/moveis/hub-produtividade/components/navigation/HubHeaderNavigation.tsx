@@ -76,26 +76,26 @@ export function HubHeaderNavigation({
     }
   ];
 
-  const iconSize = isMobile ? 20 : 24;
+  const iconSize = 20;
 
   return (
     <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b sticky top-0 z-40">
-      {/* Header Superior com Logo */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-xl">
-            <Activity className="h-5 w-5 text-primary" />
+      {/* Header Superior com Logo - Compacto */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-primary/10 rounded-lg">
+            <Activity className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-none">Hub de Produtividade</h1>
-            <p className="text-xs text-muted-foreground mt-1">Filial 96</p>
+            <h1 className="font-bold text-base leading-none">Hub de Produtividade</h1>
+            <p className="text-xs text-muted-foreground">Filial 96</p>
           </div>
         </div>
       </div>
 
-      {/* Navegação em Grid - Estilo Móveis/Crediário */}
-      <div className="px-4 py-4">
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-w-4xl mx-auto">
+      {/* Navegação em Grid Compacta */}
+      <div className="px-4 py-3">
+        <div className="grid gap-2 grid-cols-2 sm:grid-cols-4 max-w-3xl mx-auto">
           {allNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentSection === item.id;
@@ -104,10 +104,10 @@ export function HubHeaderNavigation({
               <motion.div
                 key={item.id}
                 className={cn(
-                  "relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 group",
-                  isMobile ? 'h-24' : 'h-28',
+                  "relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 group",
+                  isMobile ? 'h-16' : 'h-18',
                   isActive 
-                    ? "bg-gradient-to-br from-primary to-primary/90 text-white shadow-lg scale-105" 
+                    ? "bg-gradient-to-br from-primary to-primary/90 text-white shadow-md scale-105" 
                     : "bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
                 )}
                 whileHover={{ scale: isActive ? 1.05 : 1.02 }}
@@ -117,16 +117,16 @@ export function HubHeaderNavigation({
                 {/* Background Pattern - apenas para item ativo */}
                 {isActive && (
                   <div className="absolute inset-0 opacity-10">
-                    <div className="absolute -top-4 -right-4 w-16 h-16 bg-white/20 rounded-full" />
-                    <div className="absolute -bottom-2 -left-2 w-12 h-12 bg-white/10 rounded-full" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white/20 rounded-full" />
+                    <div className="absolute -bottom-1 -left-1 w-6 h-6 bg-white/10 rounded-full" />
                   </div>
                 )}
                 
                 {/* Conteúdo do Card */}
-                <div className="relative h-full flex flex-col items-center justify-center p-3">
+                <div className="relative h-full flex flex-col items-center justify-center p-2">
                   {/* Ícone */}
                   <div className={cn(
-                    "p-2 rounded-xl mb-2 relative transition-colors duration-300",
+                    "p-1.5 rounded-lg mb-1 relative transition-colors duration-300",
                     isActive 
                       ? "bg-white/20" 
                       : "bg-background/50 group-hover:bg-background/80"
@@ -143,7 +143,7 @@ export function HubHeaderNavigation({
                     {item.badge && item.badge > 0 && (
                       <Badge 
                         variant="destructive"
-                        className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center animate-pulse"
+                        className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center animate-pulse"
                       >
                         {item.badge}
                       </Badge>
@@ -152,7 +152,7 @@ export function HubHeaderNavigation({
                   
                   {/* Label */}
                   <span className={cn(
-                    "font-semibold text-center leading-tight transition-colors duration-300",
+                    "font-medium text-center leading-tight transition-colors duration-300",
                     isMobile ? 'text-xs' : 'text-sm',
                     isActive ? "text-white" : "text-foreground group-hover:text-foreground"
                   )}>
