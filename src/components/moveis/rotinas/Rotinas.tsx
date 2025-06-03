@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrientacaoTarefas } from "../orientacoes/OrientacaoTarefas";
 import { useRotinas } from "./hooks/useRotinas";
+import { usePDFExport } from "./hooks/usePDFExport";
 
 export function Rotinas() {
   const isMobile = useIsMobile();
@@ -23,14 +24,16 @@ export function Rotinas() {
   const {
     rotinas,
     isLoading,
-    createRotina,
+    addRotina,
     updateRotina,
     deleteRotina,
     duplicateRotina,
     toggleConclusao,
-    exportToPDF,
-    isExporting
+    refetch
   } = useRotinas();
+
+  // Hook para exportação PDF
+  const { exportToPDF, isExporting } = usePDFExport();
   
   const handleSuccess = () => {
     setRefreshKey(prev => prev + 1);
@@ -43,10 +46,18 @@ export function Rotinas() {
 
   const handleExportPDF = async () => {
     try {
-      await exportToPDF();
+      await exportToPDF(rotinas);
     } catch (error) {
       console.error('Erro ao exportar PDF:', error);
     }
+  };
+
+  const handleCreateRotina = async (data: any) => {
+    const success = await addRotina(data);
+    if (success) {
+      handleSuccess();
+    }
+    return success;
   };
   
   return (
@@ -133,7 +144,7 @@ export function Rotinas() {
       <AddRotinaDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        onSubmit={createRotina}
+        onSubmit={handleCreateRotina}
       />
 
       <PDFExportDialog
