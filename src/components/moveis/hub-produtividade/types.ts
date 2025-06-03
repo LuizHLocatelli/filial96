@@ -1,3 +1,4 @@
+
 import { LucideIcon } from 'lucide-react';
 
 // ===== TIPOS EXISTENTES (Rotinas) =====

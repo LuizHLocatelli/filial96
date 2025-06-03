@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,6 @@ import {
   BarChart3,
   CheckSquare,
   FileText,
-  List,
   Users,
   Activity,
   Bell,
@@ -27,7 +27,6 @@ interface MobileNavigationProps {
     rotinas?: number;
     orientacoes?: number;
     monitoramento?: number;
-    tarefas?: number;
   };
   hasActiveFilters: boolean;
 }
@@ -68,19 +67,11 @@ export function MobileNavigation({
     },
     {
       id: 'orientacoes',
-      label: 'Orientações',
-      shortLabel: 'Orientações',
+      label: 'Informativos e VM',
+      shortLabel: 'Informativos',
       icon: FileText,
       badge: badges.orientacoes,
       color: 'text-purple-600 dark:text-purple-400'
-    },
-    {
-      id: 'tarefas',
-      label: 'Tarefas',
-      shortLabel: 'Tarefas',
-      icon: List,
-      badge: badges.tarefas,
-      color: 'text-orange-600 dark:text-orange-400'
     },
     {
       id: 'monitoramento',

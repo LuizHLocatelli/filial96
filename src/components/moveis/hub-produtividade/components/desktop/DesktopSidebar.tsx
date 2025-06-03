@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +9,6 @@ import {
   BarChart3,
   CheckSquare,
   FileText,
-  List,
   Users,
   Search,
   Filter,
@@ -34,7 +34,7 @@ interface DesktopSidebarProps {
     dashboard?: number;
     rotinas?: number;
     orientacoes?: number;
-    tarefas?: number;
+    monitoramento?: number;
   };
   stats: any;
   onSearch: () => void;
@@ -104,7 +104,7 @@ export function DesktopSidebar({
     },
     {
       id: 'orientacoes',
-      label: 'Orientações',
+      label: 'Informativos e VM',
       icon: FileText,
       badge: badges.orientacoes,
       color: 'text-purple-600',
@@ -117,14 +117,6 @@ export function DesktopSidebar({
       badge: badges.dashboard, // Usando badge do dashboard como placeholder
       color: 'text-cyan-600',
       description: 'Análises e relatórios'
-    },
-    {
-      id: 'tarefas',
-      label: 'Tarefas',
-      icon: List,
-      badge: badges.tarefas,
-      color: 'text-orange-600',
-      description: 'Gestão de tarefas'
     }
   ];
 
@@ -162,7 +154,7 @@ export function DesktopSidebar({
   const metrics: MetricItem[] = [
     {
       label: 'Total',
-      value: (stats.rotinas?.total || 0) + (stats.orientacoes?.total || 0) + (stats.tarefas?.total || 0),
+      value: (stats.rotinas?.total || 0) + (stats.orientacoes?.total || 0),
       icon: Target,
       color: 'text-blue-600'
     },
@@ -174,13 +166,13 @@ export function DesktopSidebar({
     },
     {
       label: 'Pendentes',
-      value: (stats.rotinas?.pendentes || 0) + (stats.tarefas?.pendentes || 0),
+      value: (stats.rotinas?.pendentes || 0),
       icon: Clock,
       color: 'text-yellow-600'
     },
     {
       label: 'Atrasadas',
-      value: (stats.rotinas?.atrasadas || 0) + (stats.tarefas?.atrasadas || 0),
+      value: (stats.rotinas?.atrasadas || 0),
       icon: Calendar,
       color: 'text-red-600'
     }

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { HubViewMode } from '../types';
 import { HubHandlers } from '../types/hubTypes';
@@ -31,7 +32,7 @@ export function useHubHandlers({
   };
 
   const handleNovaTarefa = () => {
-    setCurrentSection('tarefas');
+    setCurrentSection('rotinas');
     // TODO: Abrir dialog de nova tarefa
   };
 
@@ -57,7 +58,7 @@ export function useHubHandlers({
     setShowFilters(true);
   };
 
-  const handleNavigateToSection = (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'tarefas') => {
+  const handleNavigateToSection = (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento') => {
     setCurrentSection(section);
   };
 

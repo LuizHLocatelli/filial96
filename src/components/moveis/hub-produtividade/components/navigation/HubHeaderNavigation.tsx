@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
@@ -6,7 +7,6 @@ import {
   BarChart3,
   CheckSquare,
   FileText,
-  List,
   Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,6 @@ interface HubHeaderNavigationProps {
     rotinas?: number;
     orientacoes?: number;
     monitoramento?: number;
-    tarefas?: number;
   };
 }
 
@@ -77,8 +76,8 @@ export function HubHeaderNavigation({
     },
     {
       id: 'orientacoes',
-      label: 'Orientações',
-      shortLabel: 'Orientações',
+      label: 'Informativos e VM',
+      shortLabel: 'Informativos',
       icon: FileText,
       badge: badges.orientacoes,
       bgColor: 'bg-green-100',
@@ -87,19 +86,6 @@ export function HubHeaderNavigation({
       darkHoverColor: 'bg-green-800/60',
       iconColor: isDarkMode ? 'text-green-300' : 'text-green-700',
       description: 'Documentos e orientações'
-    },
-    {
-      id: 'tarefas',
-      label: 'Tarefas',
-      shortLabel: 'Tarefas',
-      icon: List,
-      badge: badges.tarefas,
-      bgColor: 'bg-green-100',
-      darkBgColor: 'bg-green-900/40',
-      hoverColor: 'bg-green-200',
-      darkHoverColor: 'bg-green-800/60',
-      iconColor: isDarkMode ? 'text-green-300' : 'text-green-700',
-      description: 'Gestão de tarefas'
     },
     {
       id: 'monitoramento',
@@ -133,9 +119,9 @@ export function HubHeaderNavigation({
         </div>
       </div>
 
-      {/* Navegação em Grid - 3 por linha */}
+      {/* Navegação em Grid - 4 por linha */}
       <div className="px-4 py-3">
-        <div className="grid gap-3 grid-cols-3 sm:grid-cols-5 max-w-4xl mx-auto">
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-w-4xl mx-auto">
           {allNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentSection === item.id;
