@@ -1,3 +1,4 @@
+
 import { Home, Bell, Settings, Shield, User, Sofa, DollarSign, Image, Activity } from "lucide-react";
 import { ExpandableTabs } from "@/components/ui/expandable-tabs";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -11,8 +12,8 @@ export function NavigationTabs() {
   const isMobile = useIsMobile();
   
   const tabs = [
-    { title: "Dashboard", icon: Home, path: "/" },
-    { title: "Hub", icon: Activity, path: "/hub-produtividade" },
+    { title: "Hub", icon: Activity, path: "/" },
+    { title: "Dashboard", icon: Home, path: "/dashboard" },
     { title: "Móveis", icon: Sofa, path: "/moveis" },
     { title: "Crediário", icon: DollarSign, path: "/crediario" },
     { title: "Cards", icon: Image, path: "/cards-promocionais" },

@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
@@ -36,6 +37,14 @@ const AppRoutes = () => {
       {/* Rotas protegidas */}
       <Route 
         path="/" 
+        element={
+          <ProtectedRoute>
+            <AppLayout><HubProdutividade /></AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard" 
         element={
           <ProtectedRoute>
             <AppLayout><Dashboard /></AppLayout>
