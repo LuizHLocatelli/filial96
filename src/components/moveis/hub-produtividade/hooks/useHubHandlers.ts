@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HubViewMode } from '../types';
 import { HubHandlers } from '../types/hubTypes';
 
@@ -20,25 +20,40 @@ export function useHubHandlers({
   setShowFilters,
   refreshData
 }: UseHubHandlersProps): HubHandlers {
+  const navigate = useNavigate();
   
   const handleNovaRotina = () => {
+    // Navegar para a tab de rotinas e tentar abrir o dialog de criação
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('tab', 'rotinas');
+    currentUrl.searchParams.set('action', 'new');
+    navigate(currentUrl.pathname + currentUrl.search);
     setCurrentSection('rotinas');
-    // TODO: Abrir dialog de nova rotina
   };
 
   const handleNovaOrientacao = () => {
+    // Navegar para a tab de orientações e tentar abrir o dialog de criação
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('tab', 'orientacoes');
+    currentUrl.searchParams.set('action', 'new');
+    navigate(currentUrl.pathname + currentUrl.search);
     setCurrentSection('orientacoes');
-    // TODO: Abrir dialog de nova orientação
   };
 
   const handleNovaTarefa = () => {
-    setCurrentSection('rotinas');
-    // TODO: Abrir dialog de nova tarefa
+    // Navegar para a tab de orientações (onde estão as tarefas) e abrir dialog de criação
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('tab', 'orientacoes');
+    currentUrl.searchParams.set('action', 'new-task');
+    navigate(currentUrl.pathname + currentUrl.search);
+    setCurrentSection('orientacoes');
   };
 
   const handleExportData = () => {
-    // TODO: Implementar exportação
-    console.log('Exportar dados...');
+    // Abrir dialog de exportação/relatórios
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('tab', 'relatorios');
+    navigate(currentUrl.pathname + currentUrl.search);
   };
 
   const handleSearch = (term: string) => {
@@ -59,7 +74,32 @@ export function useHubHandlers({
   };
 
   const handleNavigateToSection = (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento') => {
+    const currentUrl = new URL(window.location.href);
+    const tabName = section === 'dashboard' ? 'overview' : section;
+    currentUrl.searchParams.set('tab', tabName);
+    navigate(currentUrl.pathname + currentUrl.search);
     setCurrentSection(section);
+  };
+
+  const handleBuscaAvancada = () => {
+    // Adicionar parâmetro para mostrar busca avançada
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('search', 'advanced');
+    navigate(currentUrl.pathname + currentUrl.search);
+  };
+
+  const handleFiltrosPorData = () => {
+    // Adicionar parâmetro para mostrar filtros por data
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('filters', 'date');
+    navigate(currentUrl.pathname + currentUrl.search);
+  };
+
+  const handleRelatorios = () => {
+    // Navegar para a aba de relatórios
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('tab', 'relatorios');
+    navigate(currentUrl.pathname + currentUrl.search);
   };
 
   return {
@@ -71,6 +111,9 @@ export function useHubHandlers({
     onRefreshData: handleRefreshData,
     onShowMobileSearch: handleShowMobileSearch,
     onShowFilters: handleShowFilters,
+    onBuscaAvancada: handleBuscaAvancada,
+    onFiltrosPorData: handleFiltrosPorData,
+    onRelatorios: handleRelatorios,
     onNavigateToSection: handleNavigateToSection
   };
 }

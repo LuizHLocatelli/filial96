@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RotinasList } from "./components/RotinasList";
 import { RotinasStats } from "./components/RotinasStats";
@@ -16,6 +16,7 @@ import { PDFExportOptions } from "./components/PDFExportDialog";
 
 export function Rotinas() {
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedTab, setSelectedTab] = useState("rotinas");
   const [refreshKey, setRefreshKey] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -36,6 +37,19 @@ export function Rotinas() {
 
   // Hook para exportação PDF
   const { exportToPDF } = usePDFExport();
+
+  // Verificar parâmetros de URL para abrir dialogs automaticamente
+  useEffect(() => {
+    const action = searchParams.get('action');
+    
+    if (action === 'new') {
+      setShowAddDialog(true);
+      // Limpar o parâmetro da URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('action');
+      setSearchParams(newParams);
+    }
+  }, [searchParams, setSearchParams]);
   
   const handleSuccess = () => {
     setRefreshKey(prev => prev + 1);

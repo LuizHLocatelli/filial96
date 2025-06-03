@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import UserManagement from "./pages/UserManagement";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
 import PromotionalCards from "./pages/PromotionalCards";
@@ -90,6 +91,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><Profile /></AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      {/* Nova rota para gerenciamento de usuários - apenas gerentes */}
+      <Route 
+        path="/gerenciar-usuarios" 
+        element={
+          <ProtectedRoute>
+            <AppLayout><UserManagement /></AppLayout>
           </ProtectedRoute>
         } 
       />

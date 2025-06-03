@@ -1,86 +1,178 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/auth';
+import { useModaTracking } from '@/hooks/useModaTracking';
 import { 
   Plus, 
-  Star,
-  Calendar,
-  Target,
-  TrendingUp,
-  AlertCircle
+  Star, 
+  Target, 
+  TrendingUp, 
+  Edit,
+  Trash2,
+  Eye,
+  ShoppingCart
 } from 'lucide-react';
-import { useProdutoFoco } from './hooks/useProdutoFoco';
+import { ProdutoFocoCard } from './components/ProdutoFocoCard';
+import { ProdutoFocoForm } from './components/ProdutoFocoForm';
+import { ProdutoFocoDetails } from './components/ProdutoFocoDetails';
+import { RegistrarVendaDialog } from './components/RegistrarVendaDialog';
+import { ConfirmDeleteDialog } from './components/ConfirmDeleteDialog';
 import { ProdutoFocoWithImages } from './types';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function ProdutoFoco() {
-  const {
-    produtos,
-    produtoAtivo,
-    isLoading,
-    createProduto,
-    updateProduto,
-    deleteProduto,
-    uploadImagem,
-    deleteImagem,
-    registrarVenda
-  } = useProdutoFoco();
-
+  const { trackProdutoFocoEvent } = useModaTracking();
+  const [produtos, setProdutos] = useState<ProdutoFocoWithImages[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoFocoWithImages | null>(null);
-  const [viewingProduto, setViewingProduto] = useState<ProdutoFocoWithImages | null>(null);
   const [deletingProduto, setDeletingProduto] = useState<string | null>(null);
+  const [viewingProduto, setViewingProduto] = useState<ProdutoFocoWithImages | null>(null);
+  const [vendaProduto, setVendaProduto] = useState<ProdutoFocoWithImages | null>(null);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleCreateProduto = async (dados: any) => {
-    const success = await createProduto(dados);
-    if (success) {
-      setShowForm(false);
+  useEffect(() => {
+    // Registrar acesso à seção de produto foco
+    trackProdutoFocoEvent('acesso_produto_foco');
+    fetchProdutos();
+  }, [trackProdutoFocoEvent]);
+
+  const fetchProdutos = async () => {
+    try {
+      setIsLoading(true);
+      const { data: produtosData, error } = await supabase
+        .from('moda_produto_foco')
+        .select(`
+          *,
+          imagens:moda_produto_foco_imagens(*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const produtosComImagens = produtosData?.map(produto => ({
+        ...produto,
+        imagens: produto.imagens || []
+      })) || [];
+      
+      setProdutos(produtosComImagens);
+      
+      // Rastrear dados carregados
+      trackProdutoFocoEvent('dados_carregados', {
+        total_produtos: produtosComImagens.length,
+        produtos_ativos: produtosComImagens.filter(p => p.ativo).length
+      });
+    } catch (error) {
+      console.error('Erro ao buscar produtos foco:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os produtos foco",
+        variant: "destructive"
+      });
+      trackProdutoFocoEvent('erro_carregamento', { erro: error });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleUpdateProduto = async (dados: any) => {
-    if (editingProduto) {
-      await updateProduto(editingProduto.id, dados);
-      setEditingProduto(null);
-      setShowForm(false);
-    }
+  const handleCreateProduto = () => {
+    trackProdutoFocoEvent('criar_produto_iniciado');
+    setEditingProduto(null);
+    setShowForm(true);
   };
 
   const handleEditProduto = (produto: ProdutoFocoWithImages) => {
+    trackProdutoFocoEvent('editar_produto_iniciado', produto);
     setEditingProduto(produto);
     setShowForm(true);
   };
 
-  const handleDeleteProduto = async () => {
-    if (deletingProduto) {
-      await deleteProduto(deletingProduto);
+  const handleDeleteProduto = (produtoId: string) => {
+    const produto = produtos.find(p => p.id === produtoId);
+    trackProdutoFocoEvent('deletar_produto_iniciado', produto);
+    setDeletingProduto(produtoId);
+  };
+
+  const confirmDeleteProduto = async () => {
+    if (!deletingProduto) return;
+
+    try {
+      const produto = produtos.find(p => p.id === deletingProduto);
+      
+      const { error } = await supabase
+        .from('moda_produto_foco')
+        .delete()
+        .eq('id', deletingProduto);
+
+      if (error) throw error;
+
+      setProdutos(produtos.filter(p => p.id !== deletingProduto));
       setDeletingProduto(null);
+      
+      trackProdutoFocoEvent('produto_deletado', produto);
+      toast({
+        title: "Sucesso",
+        description: "Produto foco excluído com sucesso"
+      });
+    } catch (error) {
+      console.error('Erro ao deletar produto:', error);
+      trackProdutoFocoEvent('erro_deletar_produto', { erro: error });
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o produto foco",
+        variant: "destructive"
+      });
     }
   };
 
-  const closeForm = () => {
-    setShowForm(false);
-    setEditingProduto(null);
+  const handleViewDetails = (produto: ProdutoFocoWithImages) => {
+    trackProdutoFocoEvent('produto_visualizado', produto);
+    setViewingProduto(produto);
   };
+
+  const handleRegistrarVenda = (produto: ProdutoFocoWithImages) => {
+    trackProdutoFocoEvent('registrar_venda_iniciado', produto);
+    setVendaProduto(produto);
+  };
+
+  const handleVendaRegistrada = () => {
+    trackProdutoFocoEvent('venda_registrada', vendaProduto);
+    setVendaProduto(null);
+    fetchProdutos(); // Recarregar para atualizar estatísticas
+  };
+
+  const handleFormSubmit = async (formData: any) => {
+    try {
+      const isEditing = !!editingProduto;
+      
+      if (isEditing) {
+        trackProdutoFocoEvent('produto_atualizado', { ...formData, id: editingProduto.id });
+      } else {
+        trackProdutoFocoEvent('produto_criado', formData);
+      }
+      
+      setShowForm(false);
+      setEditingProduto(null);
+      await fetchProdutos();
+    } catch (error) {
+      trackProdutoFocoEvent('erro_formulario', { erro: error, modo: isEditing ? 'edicao' : 'criacao' });
+    }
+  };
+
+  // Calcular produto ativo (mais prioritário e dentro do período)
+  const produtoAtivo = produtos.find(produto => {
+    const hoje = new Date();
+    const inicio = new Date(produto.periodo_inicio);
+    const fim = new Date(produto.periodo_fim);
+    return produto.ativo && hoje >= inicio && hoje <= fim;
+  });
 
   if (isLoading) {
     return (
@@ -100,12 +192,12 @@ export function ProdutoFoco() {
             Gerencie os produtos prioritários para vendas de moda
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={handleCreateProduto}>
+          <Plus className="h-4 w-4 mr-2" />
           Novo Produto Foco
-            </Button>
-              </div>
-              
+        </Button>
+      </div>
+
       {/* Produto Ativo em Destaque */}
       {produtoAtivo && (
         <div className="space-y-4">
@@ -113,56 +205,19 @@ export function ProdutoFoco() {
             <Star className="h-5 w-5 text-yellow-500" />
             <h2 className="text-xl font-semibold">Produto Foco Atual</h2>
           </div>
-          <Card className="border-2 border-yellow-200 bg-yellow-50">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-2">{produtoAtivo.nome_produto}</h3>
-                  <p className="text-muted-foreground mb-4">Código: {produtoAtivo.codigo_produto}</p>
-                  
-                  <div className="flex flex-wrap gap-4 mb-4">
-                    <Badge variant="secondary">{produtoAtivo.categoria}</Badge>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4" />
-                      <span>
-                        {format(new Date(produtoAtivo.periodo_inicio), 'dd/MM', { locale: ptBR })} - {' '}
-                        {format(new Date(produtoAtivo.periodo_fim), 'dd/MM/yyyy', { locale: ptBR })}
-                      </span>
-                    </div>
-              </div>
-              
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">De:</p>
-                      <p className="text-lg line-through text-muted-foreground">
-                        R$ {produtoAtivo.preco_de.toFixed(2)}
-                      </p>
-                    </div>
-              <div>
-                      <p className="text-sm text-muted-foreground">Por:</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        R$ {produtoAtivo.preco_por.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-              </div>
-              
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => handleEditProduto(produtoAtivo)}>
-                    Editar
-                </Button>
-                  <Button variant="outline" onClick={() => setViewingProduto(produtoAtivo)}>
-                    Ver Detalhes
-                </Button>
-              </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ProdutoFocoCard
+            produto={produtoAtivo}
+            isActive={true}
+            onEdit={handleEditProduto}
+            onDelete={handleDeleteProduto}
+            onViewDetails={handleViewDetails}
+            onRegistrarVenda={handleRegistrarVenda}
+          />
         </div>
       )}
 
       {/* Resumo/Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border shadow-soft">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -205,155 +260,85 @@ export function ProdutoFoco() {
       </div>
 
       {/* Lista de Todos os Produtos */}
-      {produtos.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Todos os Produtos Foco</h2>
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Todos os Produtos</h2>
+        {produtos.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Target className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">Nenhum produto foco cadastrado</h3>
+              <p className="text-muted-foreground text-center mb-4">
+                Crie seu primeiro produto foco para começar a gerenciar prioridades de vendas
+              </p>
+              <Button onClick={handleCreateProduto}>
+                <Plus className="h-4 w-4 mr-2" />
+                Criar Primeiro Produto
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {produtos
-              .filter(p => !produtoAtivo || p.id !== produtoAtivo.id)
-              .map((produto) => (
-              <Card key={produto.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-semibold truncate">{produto.nome_produto}</h4>
-                        <p className="text-sm text-muted-foreground">Código: {produto.codigo_produto}</p>
-                        <Badge variant="outline" className="mt-1">{produto.categoria}</Badge>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-xs text-muted-foreground">De: R$ {produto.preco_de.toFixed(2)}</p>
-                          <p className="font-bold text-green-600">Por: R$ {produto.preco_por.toFixed(2)}</p>
-                        </div>
-                        {!produto.ativo && (
-                          <Badge variant="secondary">Inativo</Badge>
-                        )}
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEditProduto(produto)}>
-                          Editar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setViewingProduto(produto)}>
-                          Ver
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => setDeletingProduto(produto.id)}
-                        >
-                          Remover
-                        </Button>
-                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-              ))}
+            {produtos.map((produto) => (
+              <ProdutoFocoCard
+                key={produto.id}
+                produto={produto}
+                onEdit={handleEditProduto}
+                onDelete={handleDeleteProduto}
+                onViewDetails={handleViewDetails}
+                onRegistrarVenda={handleRegistrarVenda}
+              />
+            ))}
           </div>
-        </div>
-      )}
-
-      {/* Estado Vazio */}
-      {produtos.length === 0 && (
-        <Card className="text-center py-12">
-          <CardContent>
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum produto foco encontrado</h3>
-            <p className="text-muted-foreground mb-4">
-              Comece criando seu primeiro produto foco para orientar as vendas.
-            </p>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Criar Primeiro Produto Foco
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Dialog de confirmação de exclusão */}
-      <AlertDialog open={!!deletingProduto} onOpenChange={() => setDeletingProduto(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar remoção</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja remover este produto do foco? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteProduto}>
-              Remover
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Dialog de visualização de detalhes */}
-      <Dialog open={!!viewingProduto} onOpenChange={() => setViewingProduto(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{viewingProduto?.nome_produto}</DialogTitle>
-            <DialogDescription>
-              Detalhes do produto foco
-            </DialogDescription>
-          </DialogHeader>
-          {viewingProduto && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold">Código:</p>
-                  <p>{viewingProduto.codigo_produto}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Categoria:</p>
-                  <p>{viewingProduto.categoria}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold">Preço Original:</p>
-                  <p>R$ {viewingProduto.preco_de.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Preço Promocional:</p>
-                  <p className="text-green-600 font-bold">R$ {viewingProduto.preco_por.toFixed(2)}</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="font-semibold">Período:</p>
-                <p>
-                  {format(new Date(viewingProduto.periodo_inicio), 'dd/MM/yyyy', { locale: ptBR })} - {' '}
-                  {format(new Date(viewingProduto.periodo_fim), 'dd/MM/yyyy', { locale: ptBR })}
-                </p>
-              </div>
-
-              {viewingProduto.meta_vendas && (
-                <div>
-                  <p className="font-semibold">Meta de Vendas:</p>
-                  <p>{viewingProduto.meta_vendas} unidades</p>
-                </div>
-              )}
-
-              {viewingProduto.motivo_foco && (
-                <div>
-                  <p className="font-semibold">Motivo do Foco:</p>
-                  <p>{viewingProduto.motivo_foco}</p>
-                </div>
-              )}
-
-              {viewingProduto.informacoes_adicionais && (
-                <div>
-                  <p className="font-semibold">Informações Adicionais:</p>
-                  <p>{viewingProduto.informacoes_adicionais}</p>
-                </div>
         )}
       </div>
-          )}
+
+      {/* Form Dialog */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingProduto ? 'Editar Produto Foco' : 'Novo Produto Foco'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingProduto 
+                ? 'Atualize as informações do produto foco'
+                : 'Adicione um novo produto às prioridades de vendas'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <ProdutoFocoForm
+            produto={editingProduto}
+            onSubmit={handleFormSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingProduto(null);
+            }}
+          />
         </DialogContent>
       </Dialog>
+
+      {/* Details Dialog */}
+      <ProdutoFocoDetails
+        produto={viewingProduto}
+        isOpen={!!viewingProduto}
+        onClose={() => setViewingProduto(null)}
+      />
+
+      {/* Registrar Venda Dialog */}
+      <RegistrarVendaDialog
+        produto={vendaProduto}
+        isOpen={!!vendaProduto}
+        onClose={() => setVendaProduto(null)}
+        onSuccess={handleVendaRegistrada}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDeleteDialog
+        isOpen={!!deletingProduto}
+        onClose={() => setDeletingProduto(null)}
+        onConfirm={confirmDeleteProduto}
+        itemName={produtos.find(p => p.id === deletingProduto)?.nome_produto || ''}
+      />
     </div>
   );
 } 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { PlusCircle, Calendar, Users, TrendingUp, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,8 +9,13 @@ import { FolgasSummary } from "./FolgasSummary";
 import { AddFolgaDialog } from "./AddFolgaDialog";
 import { useMemo } from "react";
 import { isSameMonth, addDays } from "date-fns";
+import { useFolgas } from './hooks/useFolgas';
+import { FolgasForm } from './components/FolgasForm';
+import { useModaTracking } from '@/hooks/useModaTracking';
+import { Badge } from '@/components/ui/badge';
 
 export function Folgas() {
+  const { trackFolgasEvent } = useModaTracking();
   const {
     currentMonth,
     consultores,
@@ -27,7 +33,7 @@ export function Folgas() {
     handlePrevMonth,
     handleNextMonth,
     handleAddFolga,
-    handleDeleteFolga,
+    handleDeleteFolga: handleDeleteFolgaHook,
     getConsultorById,
     getUserNameById,
     folgasDoDiaSelecionado,
@@ -36,12 +42,23 @@ export function Folgas() {
     isLoadingUsers,
   } = useModaFolgas();
 
+  const {
+    showForm,
+    setShowForm,
+    editingFolga,
+    setEditingFolga,
+    createFolga,
+    updateFolga,
+    deleteFolga,
+    estatisticas
+  } = useFolgas();
+
   const getConsultorName = (id: string): string | undefined => {
     return getConsultorById(id)?.nome;
   };
 
   // Estatísticas gerais
-  const estatisticas = useMemo(() => {
+  const estatisticasGerais = useMemo(() => {
     const folgasThisMonth = folgas.filter(folga => 
       isSameMonth(new Date(folga.data), currentMonth)
     );
@@ -65,6 +82,85 @@ export function Folgas() {
     };
   }, [folgas, currentMonth, consultores]);
 
+  useEffect(() => {
+    // Registrar acesso à seção de folgas
+    trackFolgasEvent('acesso_folgas');
+  }, [trackFolgasEvent]);
+
+  const handleCreateFolga = async (dadosFolga: any) => {
+    try {
+      trackFolgasEvent('criar_folga_iniciado', dadosFolga);
+      await createFolga(dadosFolga);
+      trackFolgasEvent('folga_criada', dadosFolga);
+      setShowForm(false);
+    } catch (error) {
+      trackFolgasEvent('erro_criar_folga', { erro: error, dados: dadosFolga });
+    }
+  };
+
+  const handleUpdateFolga = async (dadosFolga: any) => {
+    try {
+      trackFolgasEvent('editar_folga_iniciado', { ...dadosFolga, id: editingFolga?.id });
+      await updateFolga(editingFolga!.id, dadosFolga);
+      trackFolgasEvent('folga_editada', { ...dadosFolga, id: editingFolga?.id });
+      setEditingFolga(null);
+      setShowForm(false);
+    } catch (error) {
+      trackFolgasEvent('erro_editar_folga', { erro: error, dados: dadosFolga });
+    }
+  };
+
+  const handleDeleteFolgaWithTracking = async (folgaId: string) => {
+    try {
+      const folga = folgas.find(f => f.id === folgaId);
+      trackFolgasEvent('deletar_folga_iniciado', folga);
+      await deleteFolga(folgaId);
+      trackFolgasEvent('folga_deletada', folga);
+    } catch (error) {
+      trackFolgasEvent('erro_deletar_folga', { erro: error, folga_id: folgaId });
+    }
+  };
+
+  const handleEditFolga = (folga: any) => {
+    trackFolgasEvent('editar_folga_clicado', folga);
+    setEditingFolga(folga);
+    setShowForm(true);
+  };
+
+  const handleCalendarNavigation = (action: string, date?: Date) => {
+    trackFolgasEvent('navegacao_calendario', { acao: action, data: date?.toISOString() });
+  };
+
+  const handleFilterChange = (filtro: string, valor: any) => {
+    trackFolgasEvent('filtro_aplicado', { filtro, valor });
+  };
+
+  // Wrapper para adicionar tracking
+  const handleTrackedAddFolga = async () => {
+    trackFolgasEvent('folga_criada');
+    return await handleAddFolga();
+  };
+
+  const handleTrackedDeleteFolga = async (folgaId: string) => {
+    const folga = folgas.find(f => f.id === folgaId);
+    trackFolgasEvent('folga_deletada', folga);
+    return await handleDeleteFolgaWithTracking(folgaId);
+  };
+
+  const handleTrackedDateClick = (date: Date) => {
+    trackFolgasEvent('data_selecionada', { data: date.toISOString() });
+    handleDateClick(date);
+  };
+
+  const handleTrackedNavigation = (direction: 'prev' | 'next') => {
+    trackFolgasEvent('navegacao_calendario', { direcao: direction });
+    if (direction === 'prev') {
+      handlePrevMonth();
+    } else {
+      handleNextMonth();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -74,7 +170,10 @@ export function Folgas() {
             Gerenciamento de folgas dos consultores de moda
           </p>
         </div>
-        <Button onClick={() => handleDateClick(selectedDate || new Date())}>
+        <Button onClick={() => {
+          trackFolgasEvent('adicionar_folga_clicado');
+          handleDateClick(selectedDate || new Date());
+        }}>
           <PlusCircle className="h-4 w-4 mr-2" />
           Adicionar Folga
         </Button>
@@ -89,7 +188,7 @@ export function Folgas() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoadingFolgas ? "..." : estatisticas.totalFolgasNoMes}
+              {isLoadingFolgas ? "..." : estatisticasGerais.totalFolgasNoMes}
             </div>
             <p className="text-xs text-muted-foreground">
               Total registrado
@@ -104,14 +203,14 @@ export function Folgas() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoadingFolgas ? "..." : estatisticas.proximasFolgas}
+              {isLoadingFolgas ? "..." : estatisticasGerais.proximasFolgas}
             </div>
             <p className="text-xs text-muted-foreground">
               Folgas agendadas
             </p>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Consultores</CardTitle>
@@ -119,14 +218,14 @@ export function Folgas() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoadingConsultores ? "..." : `${estatisticas.consultoresComFolga}/${estatisticas.totalConsultores}`}
+              {isLoadingConsultores ? "..." : `${estatisticasGerais.consultoresComFolga}/${estatisticasGerais.totalConsultores}`}
             </div>
             <p className="text-xs text-muted-foreground">
               Com folgas no mês
             </p>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Taxa de Folgas</CardTitle>
@@ -135,8 +234,8 @@ export function Folgas() {
           <CardContent>
             <div className="text-2xl font-bold">
               {isLoadingConsultores || isLoadingFolgas ? "..." : 
-                estatisticas.totalConsultores > 0 ? 
-                  `${Math.round((estatisticas.consultoresComFolga / estatisticas.totalConsultores) * 100)}%` : 
+                estatisticasGerais.totalConsultores > 0 ? 
+                  `${Math.round((estatisticasGerais.consultoresComFolga / estatisticasGerais.totalConsultores) * 100)}%` : 
                   "0%"
               }
             </div>
@@ -147,27 +246,62 @@ export function Folgas() {
         </Card>
       </div>
 
-      <div className="space-y-2">
-        <FolgasCalendar
-          currentMonth={currentMonth}
-          folgas={folgas}
-          handlePrevMonth={handlePrevMonth}
-          handleNextMonth={handleNextMonth}
-          onDateClick={handleDateClick}
-          getConsultorById={getConsultorById}
-        />
+      {/* Layout principal */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Calendário */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Calendário de Folgas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FolgasCalendar
+                currentMonth={currentMonth}
+                folgas={folgas}
+                handlePrevMonth={handlePrevMonth}
+                handleNextMonth={handleNextMonth}
+                onDateClick={handleTrackedDateClick}
+                getConsultorById={getConsultorById}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
-        <div className="mt-8">
-          <h3 className="font-medium text-lg mb-4">Lista de Folgas</h3>
-          <FolgasList
-            folgas={folgas}
-            isLoading={isLoadingFolgas}
-            handleDeleteFolga={handleDeleteFolga}
-            getConsultorById={getConsultorById}
-            getUserNameById={getUserNameById}
-          />
+        {/* Lista de folgas */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Folgas Recentes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FolgasList
+                folgas={folgas}
+                handleDeleteFolga={handleTrackedDeleteFolga}
+                getConsultorById={getConsultorById}
+                getUserNameById={getUserNameById}
+                isLoading={isLoadingFolgas}
+              />
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      {/* Form Dialog */}
+      <FolgasForm
+        isOpen={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingFolga(null);
+        }}
+        onSubmit={editingFolga ? handleUpdateFolga : handleCreateFolga}
+        editingFolga={editingFolga}
+      />
 
       <AddFolgaDialog
         open={openDialog}
@@ -194,4 +328,4 @@ export function Folgas() {
       />
     </div>
   );
-}
+} 

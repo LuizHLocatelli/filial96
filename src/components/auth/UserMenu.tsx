@@ -10,7 +10,8 @@ import {
   AlertCircle,
   Crown,
   Calendar,
-  Clock
+  Clock,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -131,6 +132,9 @@ export function UserMenu() {
 
   const accountStatus = getAccountStatus();
 
+  // Verificar se é gerente
+  const isManager = profile?.role === 'gerente';
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -213,6 +217,20 @@ export function UserMenu() {
             Configurações da Conta
           </Link>
         </DropdownMenuItem>
+
+        {/* Menu exclusivo para gerentes */}
+        {isManager && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/gerenciar-usuarios" onClick={() => setOpen(false)} className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span>Gerenciar Usuários</span>
+                <Crown className="h-3 w-3 ml-auto text-yellow-600" />
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         
         <DropdownMenuSeparator />
         

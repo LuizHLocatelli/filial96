@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrientacoesList } from "./OrientacoesList";
 import { OrientacaoUploader } from "./OrientacaoUploader";
@@ -12,10 +12,32 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export function VmTarefas() {
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedTab, setSelectedTab] = useState("listar");
   const [refreshKey, setRefreshKey] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const { user } = useAuth();
+  
+  // Verificar parâmetros de URL para abrir dialogs automaticamente
+  useEffect(() => {
+    const action = searchParams.get('action');
+    
+    if (action === 'new') {
+      setSelectedTab('adicionar');
+      // Limpar o parâmetro da URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('action');
+      setSearchParams(newParams);
+    } else if (action === 'new-task') {
+      // Para nova tarefa, você pode implementar lógica específica
+      // Por enquanto, vai para a aba de adicionar
+      setSelectedTab('adicionar');
+      // Limpar o parâmetro da URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('action');
+      setSearchParams(newParams);
+    }
+  }, [searchParams, setSearchParams]);
   
   const handleUploadSuccess = () => {
     // Increment refresh key to trigger a refresh of the list

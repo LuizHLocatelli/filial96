@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { 
   Activity,
@@ -21,9 +21,19 @@ import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/comp
 import { useHubData } from "@/components/moveis/hub-produtividade/hooks/useHubData";
 import { useHubHandlers } from "@/components/moveis/hub-produtividade/hooks/useHubHandlers";
 
+// Componentes de funcionalidades
+import { BuscaAvancada } from "@/components/moveis/hub-produtividade/components/funcionalidades/BuscaAvancada";
+import { FiltrosPorData } from "@/components/moveis/hub-produtividade/components/funcionalidades/FiltrosPorData";
+import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
+
 export default function HubProdutividade() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
+  
+  // Estados para dialogs funcionais
+  const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
+  const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
+  const [showRelatorios, setShowRelatorios] = useState(false);
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -50,6 +60,39 @@ export default function HubProdutividade() {
     refreshData
   });
 
+  // Verificar parâmetros de URL para abrir dialogs
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    const filtersParam = searchParams.get('filters');
+    
+    if (searchParam === 'advanced') {
+      setShowBuscaAvancada(true);
+      // Limpar o parâmetro da URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('search');
+      setSearchParams(newParams);
+    }
+    
+    if (filtersParam === 'date') {
+      setShowFiltrosPorData(true);
+      // Limpar o parâmetro da URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('filters');
+      setSearchParams(newParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Handlers para os dialogs
+  const handleBuscaAvancadaResults = (results: any) => {
+    console.log('Resultados da busca avançada:', results);
+    // Aqui você pode implementar a lógica para exibir os resultados
+  };
+
+  const handleFiltrosPorDataApply = (filters: any) => {
+    console.log('Filtros por data aplicados:', filters);
+    // Aqui você pode implementar a lógica para aplicar os filtros
+  };
+
   const tabsConfig = [
     {
       value: "overview",
@@ -62,7 +105,12 @@ export default function HubProdutividade() {
             stats={stats}
             activities={activities}
             isLoading={isLoading}
-            handlers={handlers}
+            handlers={{
+              ...handlers,
+              onBuscaAvancada: () => setShowBuscaAvancada(true),
+              onFiltrosPorData: () => setShowFiltrosPorData(true),
+              onRelatorios: () => setShowRelatorios(true)
+            }}
           />
         </div>
       )
@@ -112,6 +160,14 @@ export default function HubProdutividade() {
             <div>
               <h3 className="text-lg font-semibold">Relatórios</h3>
               <p className="text-muted-foreground">Visualize relatórios e análises de produtividade</p>
+              <div className="mt-4">
+                <button 
+                  onClick={() => setShowRelatorios(true)}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Abrir Relatórios Completos
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -139,6 +195,34 @@ export default function HubProdutividade() {
         onTabChange={handleTabChange}
         variant="cards"
         maxColumns={4}
+      />
+
+      {/* Dialogs funcionais */}
+      <BuscaAvancada
+        open={showBuscaAvancada}
+        onOpenChange={setShowBuscaAvancada}
+        rotinas={rotinas || []}
+        orientacoes={orientacoes || []}
+        tarefas={tarefas || []}
+        onResultsSelect={handleBuscaAvancadaResults}
+      />
+
+      <FiltrosPorData
+        open={showFiltrosPorData}
+        onOpenChange={setShowFiltrosPorData}
+        rotinas={rotinas || []}
+        orientacoes={orientacoes || []}
+        tarefas={tarefas || []}
+        onFiltersApply={handleFiltrosPorDataApply}
+      />
+
+      <Relatorios
+        open={showRelatorios}
+        onOpenChange={setShowRelatorios}
+        rotinas={rotinas || []}
+        orientacoes={orientacoes || []}
+        tarefas={tarefas || []}
+        stats={stats}
       />
     </PageLayout>
   );
