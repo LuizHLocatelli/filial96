@@ -128,7 +128,7 @@ export function CollapsibleSection({
                 compact ? "h-6 w-6 p-0" : "h-7 w-7 p-0"
               )}
               aria-label={isExpanded ? "Minimizar seção" : "Expandir seção"}
-              onClick={(e) => e.stopPropagation()}
+              onClick={toggleExpanded}
               onMouseDown={(e) => e.preventDefault()}
             >
               {isExpanded ? (

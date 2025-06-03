@@ -1,18 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { 
   Plus, 
   Upload, 
-  Download,
-  RefreshCw,
-  Filter,
-  Search,
-  Calendar,
+  RefreshCw, 
+  Download, 
+  Search, 
+  Calendar, 
   BarChart3,
-  Settings
+  Target
 } from 'lucide-react';
-import { QuickAction } from '../../types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useResponsive } from '@/hooks/use-responsive';
+import { cn } from '@/lib/utils';
 
 interface QuickActionsProps {
   onNovaRotina: () => void;
@@ -41,226 +41,139 @@ export function QuickActions({
 }: QuickActionsProps) {
   const { isMobile } = useResponsive();
 
-  const primaryActions: QuickAction[] = [
+  const sections = [
     {
-      id: 'nova-rotina',
-      label: 'Nova Rotina',
+      title: "Nova Rotina",
       icon: Plus,
-      action: onNovaRotina,
-      variant: 'default'
+      onClick: onNovaRotina,
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50 dark:bg-green-950/20",
+      stats: { active: 12 }
     },
     {
-      id: 'nova-orientacao',
-      label: 'Nova Orientação',
+      title: "Nova Orientação",
       icon: Upload,
-      action: onNovaOrientacao,
-      variant: 'outline'
+      onClick: onNovaOrientacao,
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+      stats: { pending: 8 }
     },
     {
-      id: 'nova-tarefa',
-      label: 'Nova Tarefa',
-      icon: Plus,
-      action: onNovaTarefa,
-      variant: 'outline'
-    }
-  ];
-
-  const secondaryActions = [
-    {
-      id: 'refresh',
-      label: 'Atualizar',
-      icon: RefreshCw,
-      action: onRefreshData,
-      variant: 'ghost',
-      disabled: isRefreshing
+      title: "Nova Tarefa",
+      icon: Target,
+      onClick: onNovaTarefa,
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50 dark:bg-purple-950/20",
+      stats: { sales: 24 }
     },
     {
-      id: 'export',
-      label: 'Exportar',
-      icon: Download,
-      action: onExportData,
-      variant: 'outline'
-    }
-  ];
-
-  const utilityActions = [
-    {
-      id: 'search',
-      label: 'Busca Avançada',
+      title: "Busca Avançada",
       icon: Search,
-      description: 'Pesquisar em todos os itens',
-      action: onBuscaAvancada
+      onClick: onBuscaAvancada,
+      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50 dark:bg-orange-950/20",
+      stats: { thisMonth: 156 }
     },
     {
-      id: 'calendar',
-      label: 'Por Data',
+      title: "Por Data",
       icon: Calendar,
-      description: 'Ver itens por período',
-      action: onFiltrosPorData
+      onClick: onFiltrosPorData,
+      color: "from-indigo-500 to-indigo-600",
+      bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+      stats: { files: 7 }
     },
     {
-      id: 'analytics',
-      label: 'Relatórios',
+      title: "Relatórios",
       icon: BarChart3,
-      description: 'Análises detalhadas',
-      action: onRelatorios
+      onClick: onRelatorios,
+      color: "from-pink-500 to-pink-600",
+      bgColor: "bg-pink-50 dark:bg-pink-950/20",
+      stats: { active: 5 }
+    },
+    {
+      title: "Atualizar",
+      icon: RefreshCw,
+      onClick: onRefreshData,
+      color: "from-gray-500 to-gray-600",
+      bgColor: "bg-gray-50 dark:bg-gray-950/20",
+      stats: null,
+      isLoading: isRefreshing
+    },
+    {
+      title: "Exportar",
+      icon: Download,
+      onClick: onExportData,
+      color: "from-teal-500 to-teal-600",
+      bgColor: "bg-teal-50 dark:bg-teal-950/20",
+      stats: { pending: 3 }
     }
   ];
-
-  if (isMobile) {
-    return (
-      <div className="space-y-4">
-        {/* Ações Principais - Mobile */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Ações Rápidas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-1 gap-2">
-              {primaryActions.map((action) => (
-                <Button
-                  key={action.id}
-                  variant={action.variant}
-                  onClick={action.action}
-                  disabled={action.disabled}
-                  className="w-full justify-start gap-2 h-10"
-                >
-                  <action.icon className="h-4 w-4" />
-                  <span>{action.label}</span>
-                </Button>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t">
-              {secondaryActions.map((action) => (
-                <Button
-                  key={action.id}
-                  variant="ghost"
-                  size="sm"
-                  onClick={action.action}
-                  disabled={action.disabled}
-                  className="flex flex-col items-center gap-1 h-12 p-2"
-                >
-                  {action.id === 'refresh' && isRefreshing ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <action.icon className="h-4 w-4" />
-                  )}
-                  <span className="text-xs">{action.label}</span>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Funcionalidades - Mobile */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Funcionalidades</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {utilityActions.map((action) => (
-                <Button
-                  key={action.id}
-                  variant="ghost"
-                  onClick={action.action}
-                  className="w-full justify-start gap-3 h-auto p-3"
-                >
-                  <div className="p-1.5 rounded-md bg-muted">
-                    <action.icon className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 text-left space-y-0.5">
-                    <h5 className="font-medium text-sm">{action.label}</h5>
-                    <p className="text-xs text-muted-foreground">{action.description}</p>
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-4">
-      {/* Ações Principais */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Ações Rápidas</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Ações Primárias */}
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Criar Novo</h4>
-            <div className="grid grid-cols-1 gap-2">
-              {primaryActions.map((action) => (
-                <Button
-                  key={action.id}
-                  variant={action.variant}
-                  onClick={action.action}
-                  disabled={action.disabled}
-                  className="justify-start gap-2 h-10"
-                >
-                  <action.icon className="h-4 w-4" />
-                  <span>{action.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Ações Secundárias */}
-          <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">Ferramentas</h4>
-            <div className="grid grid-cols-1 gap-2">
-              {secondaryActions.map((action) => (
-                <Button
-                  key={action.id}
-                  variant="ghost"
-                  onClick={action.action}
-                  disabled={action.disabled}
-                  className="justify-start gap-2 h-9"
-                >
-                  {action.id === 'refresh' && isRefreshing ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
+    <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
+      {sections.map((section, index) => {
+        const Icon = section.icon;
+        return (
+          <Card 
+            key={section.title}
+            className={`hover-lift cursor-pointer transition-all duration-300 border-0 shadow-soft hover:shadow-medium group ${section.bgColor}`}
+            style={{ animationDelay: `${index * 100}ms` }}
+            onClick={section.onClick}
+          >
+            <CardContent className="p-3">
+              <div className="space-y-2">
+                <div className={`p-2 rounded-lg bg-gradient-to-r ${section.color} group-hover:scale-110 transition-transform duration-200`}>
+                  {section.isLoading ? (
+                    <RefreshCw className="h-4 w-4 text-white animate-spin" />
                   ) : (
-                    <action.icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 text-white" />
                   )}
-                  <span>{action.label}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Funcionalidades Avançadas */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Funcionalidades</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {utilityActions.map((action) => (
-              <Button
-                key={action.id}
-                variant="ghost"
-                onClick={action.action}
-                className="w-full justify-start gap-3 h-auto p-3 hover:bg-muted/50 transition-colors"
-              >
-                <div className="p-1.5 rounded-md bg-muted">
-                  <action.icon className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
-                <div className="flex-1 text-left space-y-0.5">
-                  <h5 className="font-medium text-sm">{action.label}</h5>
-                  <p className="text-xs text-muted-foreground">{action.description}</p>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold">{section.title}</h3>
+                  <div className="flex gap-1">
+                    {section.title === "Nova Rotina" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {section.stats.active}
+                      </Badge>
+                    )}
+                    {section.title === "Nova Orientação" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {section.stats.pending}
+                      </Badge>
+                    )}
+                    {section.title === "Nova Tarefa" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0 text-green-600">
+                        {section.stats.sales}
+                      </Badge>
+                    )}
+                    {section.title === "Busca Avançada" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {section.stats.thisMonth}
+                      </Badge>
+                    )}
+                    {section.title === "Por Data" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {section.stats.files}
+                      </Badge>
+                    )}
+                    {section.title === "Relatórios" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {section.stats.active}
+                      </Badge>
+                    )}
+                    {section.title === "Exportar" && section.stats && (
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {section.stats.pending}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
