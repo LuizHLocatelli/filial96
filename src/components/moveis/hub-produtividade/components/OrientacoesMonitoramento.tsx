@@ -33,11 +33,11 @@ function RoleStatsCard({ stats }: RoleStatsCardProps) {
 
   const getRoleColor = (role: string) => {
     const colors = {
-      'consultor_moveis': 'bg-blue-100 text-blue-800',
-      'consultor_moda': 'bg-pink-100 text-pink-800',
-      'jovem_aprendiz': 'bg-green-100 text-green-800'
+      'consultor_moveis': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+      'consultor_moda': 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
+      'jovem_aprendiz': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
     };
-    return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
   };
 
   return (
@@ -47,9 +47,9 @@ function RoleStatsCard({ stats }: RoleStatsCardProps) {
           {getRoleLabel(stats.role)}
         </Badge>
         {stats.is_complete ? (
-          <CheckCircle className="h-4 w-4 text-green-500" />
+          <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
         ) : (
-          <AlertCircle className="h-4 w-4 text-orange-500" />
+          <AlertCircle className="h-4 w-4 text-orange-500 dark:text-orange-400" />
         )}
       </div>
       
@@ -69,7 +69,7 @@ function RoleStatsCard({ stats }: RoleStatsCardProps) {
           <div className="mt-1 space-y-1">
             {stats.pending_users.slice(0, 3).map((user) => (
               <div key={user.id} className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full" />
+                <div className="w-1.5 h-1.5 bg-orange-400 dark:bg-orange-500 rounded-full" />
                 <span>{user.name}</span>
               </div>
             ))}
@@ -110,15 +110,15 @@ function OrientacaoCard({ orientacao, onRegisterView }: OrientacaoCardProps) {
 
   const getTipoColor = (tipo: string) => {
     const colors = {
-      'vm': 'bg-purple-100 text-purple-800',
-      'informativo': 'bg-blue-100 text-blue-800',
-      'outro': 'bg-gray-100 text-gray-800'
+      'vm': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+      'informativo': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+      'outro': 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400'
     };
-    return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
   };
 
   return (
-    <Card className={`transition-all duration-200 ${isComplete ? 'border-green-200 bg-green-50' : 'border-orange-200'}`}>
+    <Card className={`transition-all duration-200 ${isComplete ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50' : 'border-orange-200 dark:border-orange-800'}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -136,12 +136,12 @@ function OrientacaoCard({ orientacao, onRegisterView }: OrientacaoCardProps) {
           
           <div className="flex flex-col items-end gap-1">
             {isComplete ? (
-              <Badge variant="default" className="gap-1 bg-green-100 text-green-800 border-green-200">
+              <Badge variant="default" className="gap-1 bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
                 <CheckCircle className="h-3 w-3" />
                 Completo
               </Badge>
             ) : (
-              <Badge variant="outline" className="gap-1 border-orange-300 text-orange-700">
+              <Badge variant="outline" className="gap-1 border-orange-300 text-orange-700 dark:border-orange-800 dark:text-orange-400">
                 <AlertCircle className="h-3 w-3" />
                 Pendente
               </Badge>
@@ -222,8 +222,8 @@ export default function OrientacoesMonitoramento() {
       <Card>
         <CardContent className="pt-6">
           <div className="text-center space-y-2">
-            <AlertCircle className="h-8 w-8 text-red-500 mx-auto" />
-            <p className="text-red-600">Erro ao carregar monitoramento</p>
+            <AlertCircle className="h-8 w-8 text-red-500 dark:text-red-400 mx-auto" />
+            <p className="text-red-600 dark:text-red-400">Erro ao carregar monitoramento</p>
             <p className="text-sm text-muted-foreground">{error}</p>
             <Button onClick={fetchMonitoringStats} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -266,48 +266,48 @@ export default function OrientacoesMonitoramento() {
 
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-600" />
+                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 <div>
-                  <p className="text-sm text-blue-600 font-medium">Total Orientações</p>
-                  <p className="text-xl font-bold text-blue-700">
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Orientações</p>
+                  <p className="text-xl font-bold text-blue-700 dark:text-blue-400">
                     {monitoramentoStats.total_orientacoes}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="p-4 bg-green-50 dark:bg-green-950/50 rounded-lg border border-green-200 dark:border-green-800">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <div>
-                  <p className="text-sm text-green-600 font-medium">Completas</p>
-                  <p className="text-xl font-bold text-green-700">
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium">Completas</p>
+                  <p className="text-xl font-bold text-green-700 dark:text-green-400">
                     {monitoramentoStats.orientacoes_completas}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+            <div className="p-4 bg-orange-50 dark:bg-orange-950/50 rounded-lg border border-orange-200 dark:border-orange-800">
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-orange-600" />
+                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 <div>
-                  <p className="text-sm text-orange-600 font-medium">Pendentes</p>
-                  <p className="text-xl font-bold text-orange-700">
+                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">Pendentes</p>
+                  <p className="text-xl font-bold text-orange-700 dark:text-orange-400">
                     {monitoramentoStats.orientacoes_pendentes}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <div className="p-4 bg-purple-50 dark:bg-purple-950/50 rounded-lg border border-purple-200 dark:border-purple-800">
               <div className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-purple-600" />
+                <UserCheck className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 <div>
-                  <p className="text-sm text-purple-600 font-medium">% Completo</p>
-                  <p className="text-xl font-bold text-purple-700">
+                  <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">% Completo</p>
+                  <p className="text-xl font-bold text-purple-700 dark:text-purple-400">
                     {monitoramentoStats.percentage_complete}%
                   </p>
                 </div>

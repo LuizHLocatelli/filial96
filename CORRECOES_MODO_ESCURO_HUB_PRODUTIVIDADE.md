@@ -322,6 +322,150 @@ const tarefasCards = [{
 
 ---
 
+### **8. 👥 NOVO: OrientacoesMonitoramento.tsx**
+
+#### **Problemas Identificados:**
+- Badges de cargo com cores fixas sem variantes para modo escuro
+- Cards de orientação com fundos e bordas fixas
+- Badges de status (Completo/Pendente) sem suporte ao modo escuro
+- Cards de estatísticas principais com cores fixas
+- Ícones de status e indicadores visuais sem variantes escuras
+- Elementos de erro com cores fixas
+
+#### **Correções Implementadas:**
+
+##### **8.1 Sistema de Cores por Cargo**
+```tsx
+// ANTES - Cores fixas
+const getRoleColor = (role: string) => {
+  const colors = {
+    'consultor_moveis': 'bg-blue-100 text-blue-800',
+    'consultor_moda': 'bg-pink-100 text-pink-800',
+    'jovem_aprendiz': 'bg-green-100 text-green-800'
+  };
+  return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+};
+
+// DEPOIS - Com suporte ao modo escuro
+const getRoleColor = (role: string) => {
+  const colors = {
+    'consultor_moveis': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    'consultor_moda': 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
+    'jovem_aprendiz': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+  };
+  return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
+};
+```
+
+##### **8.2 Sistema de Cores por Tipo de Orientação**
+```tsx
+// ANTES - Cores fixas
+const getTipoColor = (tipo: string) => {
+  const colors = {
+    'vm': 'bg-purple-100 text-purple-800',
+    'informativo': 'bg-blue-100 text-blue-800',
+    'outro': 'bg-gray-100 text-gray-800'
+  };
+  return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+};
+
+// DEPOIS - Com suporte ao modo escuro
+const getTipoColor = (tipo: string) => {
+  const colors = {
+    'vm': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+    'informativo': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    'outro': 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400'
+  };
+  return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
+};
+```
+
+##### **8.3 Cards de Orientação com Status**
+```tsx
+// ANTES - Cores fixas para status dos cards
+className={`transition-all duration-200 ${isComplete ? 'border-green-200 bg-green-50' : 'border-orange-200'}`}
+
+// DEPOIS - Com suporte ao modo escuro
+className={`transition-all duration-200 ${isComplete ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50' : 'border-orange-200 dark:border-orange-800'}`}
+```
+
+##### **8.4 Badges de Status (Completo/Pendente)**
+```tsx
+// ANTES - Cores fixas
+<Badge variant="default" className="gap-1 bg-green-100 text-green-800 border-green-200">
+  <CheckCircle className="h-3 w-3" />
+  Completo
+</Badge>
+
+<Badge variant="outline" className="gap-1 border-orange-300 text-orange-700">
+  <AlertCircle className="h-3 w-3" />
+  Pendente
+</Badge>
+
+// DEPOIS - Com suporte ao modo escuro
+<Badge variant="default" className="gap-1 bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+  <CheckCircle className="h-3 w-3" />
+  Completo
+</Badge>
+
+<Badge variant="outline" className="gap-1 border-orange-300 text-orange-700 dark:border-orange-800 dark:text-orange-400">
+  <AlertCircle className="h-3 w-3" />
+  Pendente
+</Badge>
+```
+
+##### **8.5 Cards de Estatísticas Principais**
+```tsx
+// ANTES - Cores fixas nos cards de estatísticas
+<div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+  <FileText className="h-5 w-5 text-blue-600" />
+  <p className="text-sm text-blue-600 font-medium">Total Orientações</p>
+  <p className="text-xl font-bold text-blue-700">{monitoramentoStats.total_orientacoes}</p>
+</div>
+
+// DEPOIS - Com suporte ao modo escuro
+<div className="p-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
+  <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Orientações</p>
+  <p className="text-xl font-bold text-blue-700 dark:text-blue-400">{monitoramentoStats.total_orientacoes}</p>
+</div>
+```
+
+##### **8.6 Ícones de Status e Indicadores**
+```tsx
+// ANTES - Ícones sem variantes escuras
+<CheckCircle className="h-4 w-4 text-green-500" />
+<AlertCircle className="h-4 w-4 text-orange-500" />
+<div className="w-1.5 h-1.5 bg-orange-400 rounded-full" />
+
+// DEPOIS - Com suporte ao modo escuro
+<CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
+<AlertCircle className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+<div className="w-1.5 h-1.5 bg-orange-400 dark:bg-orange-500 rounded-full" />
+```
+
+##### **8.7 Estados de Erro**
+```tsx
+// ANTES - Estados de erro com cores fixas
+<AlertCircle className="h-8 w-8 text-red-500 mx-auto" />
+<p className="text-red-600">Erro ao carregar monitoramento</p>
+
+// DEPOIS - Com suporte ao modo escuro
+<AlertCircle className="h-8 w-8 text-red-500 dark:text-red-400 mx-auto" />
+<p className="text-red-600 dark:text-red-400">Erro ao carregar monitoramento</p>
+```
+
+**Mudanças específicas implementadas:**
+- ✅ **Badges de cargo**: Consultores Móveis (azul), Consultores Moda (rosa), Jovens Aprendizes (verde)
+- ✅ **Badges de tipo**: VM (roxo), Informativo (azul), Outro (cinza)
+- ✅ **Cards de status**: Verde para completo, laranja para pendente
+- ✅ **Estatísticas principais**: 4 cards com cores azul, verde, laranja e roxo
+- ✅ **Ícones de status**: Check verde e alerta laranja
+- ✅ **Indicadores visuais**: Pontos de status dos usuários pendentes
+- ✅ **Estados de erro**: Ícones e textos vermelhos com variantes escuras
+
+---
+
 ## 🎯 **PADRÕES APLICADOS**
 
 ### **Sistema de Cores Consistente:**
