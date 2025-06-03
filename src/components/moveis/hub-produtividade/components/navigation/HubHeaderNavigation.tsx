@@ -1,5 +1,4 @@
 
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { 
@@ -31,11 +30,6 @@ interface NavItem {
   shortLabel: string;
   icon: React.ElementType;
   badge?: number;
-  bgColor: string;
-  darkBgColor: string;
-  hoverColor: string;
-  darkHoverColor: string;
-  iconColor: string;
   description: string;
 }
 
@@ -54,11 +48,6 @@ export function HubHeaderNavigation({
       shortLabel: 'Hub',
       icon: BarChart3,
       badge: badges.dashboard,
-      bgColor: 'bg-green-100',
-      darkBgColor: 'bg-green-900/40',
-      hoverColor: 'bg-green-200',
-      darkHoverColor: 'bg-green-800/60',
-      iconColor: isDarkMode ? 'text-green-300' : 'text-green-700',
       description: 'Visão geral da produtividade'
     },
     {
@@ -67,11 +56,6 @@ export function HubHeaderNavigation({
       shortLabel: 'Rotinas',
       icon: CheckSquare,
       badge: badges.rotinas,
-      bgColor: 'bg-green-100',
-      darkBgColor: 'bg-green-900/40',
-      hoverColor: 'bg-green-200',
-      darkHoverColor: 'bg-green-800/60',
-      iconColor: isDarkMode ? 'text-green-300' : 'text-green-700',
       description: 'Rotinas obrigatórias'
     },
     {
@@ -80,11 +64,6 @@ export function HubHeaderNavigation({
       shortLabel: 'Informativos',
       icon: FileText,
       badge: badges.orientacoes,
-      bgColor: 'bg-green-100',
-      darkBgColor: 'bg-green-900/40',
-      hoverColor: 'bg-green-200',
-      darkHoverColor: 'bg-green-800/60',
-      iconColor: isDarkMode ? 'text-green-300' : 'text-green-700',
       description: 'Documentos e orientações'
     },
     {
@@ -93,11 +72,6 @@ export function HubHeaderNavigation({
       shortLabel: 'Monitor',
       icon: Users,
       badge: badges.monitoramento,
-      bgColor: 'bg-green-100',
-      darkBgColor: 'bg-green-900/40',
-      hoverColor: 'bg-green-200',
-      darkHoverColor: 'bg-green-800/60',
-      iconColor: isDarkMode ? 'text-green-300' : 'text-green-700',
       description: 'Monitoramento de visualizações'
     }
   ];
@@ -119,8 +93,8 @@ export function HubHeaderNavigation({
         </div>
       </div>
 
-      {/* Navegação em Grid - 4 por linha */}
-      <div className="px-4 py-3">
+      {/* Navegação em Grid - Estilo Móveis/Crediário */}
+      <div className="px-4 py-4">
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-w-4xl mx-auto">
           {allNavItems.map((item) => {
             const Icon = item.icon;
@@ -130,46 +104,62 @@ export function HubHeaderNavigation({
               <motion.div
                 key={item.id}
                 className={cn(
-                  isDarkMode ? item.darkBgColor : item.bgColor,
-                  "rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300",
-                  isMobile ? 'p-3 h-20' : 'p-2 h-20',
-                  isActive && "ring-2 ring-primary scale-105"
+                  "relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 group",
+                  isMobile ? 'h-24' : 'h-28',
+                  isActive 
+                    ? "bg-gradient-to-br from-primary to-primary/90 text-white shadow-lg scale-105" 
+                    : "bg-muted/30 hover:bg-muted/50 text-muted-foreground hover:text-foreground"
                 )}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: isActive ? 1.05 : 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => onSectionChange(item.id)}
               >
-                {/* Ícone com fundo */}
-                <div className={cn(
-                  isDarkMode ? item.darkHoverColor : item.hoverColor,
-                  isMobile ? 'p-2 mb-2' : 'p-1.5 mb-1',
-                  "rounded-full relative"
-                )}>
-                  <Icon 
-                    size={iconSize} 
-                    className={item.iconColor}
-                  />
-                  
-                  {/* Badge de notificação */}
-                  {item.badge && item.badge > 0 && (
-                    <Badge 
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs flex items-center justify-center"
-                    >
-                      {item.badge}
-                    </Badge>
-                  )}
-                </div>
+                {/* Background Pattern - apenas para item ativo */}
+                {isActive && (
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute -top-4 -right-4 w-16 h-16 bg-white/20 rounded-full" />
+                    <div className="absolute -bottom-2 -left-2 w-12 h-12 bg-white/10 rounded-full" />
+                  </div>
+                )}
                 
-                {/* Label */}
-                <span className={cn(
-                  "font-medium text-center",
-                  isMobile ? 'text-sm' : 'text-xs',
-                  isDarkMode ? 'text-white' : 'text-gray-800'
-                )}>
-                  <span className="hidden sm:inline">{item.label}</span>
-                  <span className="sm:hidden">{item.shortLabel}</span>
-                </span>
+                {/* Conteúdo do Card */}
+                <div className="relative h-full flex flex-col items-center justify-center p-3">
+                  {/* Ícone */}
+                  <div className={cn(
+                    "p-2 rounded-xl mb-2 relative transition-colors duration-300",
+                    isActive 
+                      ? "bg-white/20" 
+                      : "bg-background/50 group-hover:bg-background/80"
+                  )}>
+                    <Icon 
+                      size={iconSize} 
+                      className={cn(
+                        "transition-colors duration-300",
+                        isActive ? "text-white" : "text-primary"
+                      )}
+                    />
+                    
+                    {/* Badge de notificação */}
+                    {item.badge && item.badge > 0 && (
+                      <Badge 
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center animate-pulse"
+                      >
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Label */}
+                  <span className={cn(
+                    "font-semibold text-center leading-tight transition-colors duration-300",
+                    isMobile ? 'text-xs' : 'text-sm',
+                    isActive ? "text-white" : "text-foreground group-hover:text-foreground"
+                  )}>
+                    <span className="hidden sm:inline">{item.label}</span>
+                    <span className="sm:hidden">{item.shortLabel}</span>
+                  </span>
+                </div>
               </motion.div>
             );
           })}
@@ -177,4 +167,4 @@ export function HubHeaderNavigation({
       </div>
     </div>
   );
-} 
+}
