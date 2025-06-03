@@ -107,7 +107,7 @@ export default function Profile() {
         iconColor="text-primary"
         variant="minimal"
         breadcrumbs={[
-          { label: "Dashboard", href: "/" },
+          { label: "Hub de Produtividade", href: "/" },
           { label: "Perfil" }
         ]}
       />

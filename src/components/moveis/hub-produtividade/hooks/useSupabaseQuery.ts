@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { handleError } from '../utils/errorHandler';
@@ -24,12 +23,20 @@ export function useSupabaseQuery<T>(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Usar refs para evitar loops infinitos
+  const queryBuilderRef = useRef(queryBuilder);
+  const dependenciesRef = useRef(dependencies);
+  
+  // Atualizar refs quando mudarem
+  queryBuilderRef.current = queryBuilder;
+  dependenciesRef.current = dependencies;
+
   const executeQuery = useCallback(async (attempt = 0): Promise<void> => {
     try {
       setError(null);
       console.log(`🔄 Carregando ${table}...`);
       
-      const query = queryBuilder(supabase);
+      const query = queryBuilderRef.current(supabase);
       const { data: result, error: queryError } = await query;
       
       if (queryError) throw queryError;
@@ -55,11 +62,12 @@ export function useSupabaseQuery<T>(
         setIsLoading(false);
       }
     }
-  }, dependencies);
+  }, [table, retryCount, retryDelay, showErrorToast]); // Dependências estáveis
 
+  // Effect para executar query quando dependências mudarem
   useEffect(() => {
     executeQuery();
-  }, [executeQuery]);
+  }, [executeQuery, JSON.stringify(dependencies)]); // Usar JSON.stringify para comparar arrays
 
   const refetch = useCallback(() => {
     setIsLoading(true);

@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -76,24 +75,15 @@ export function useHubData() {
 
   const { getUserName, isLoading: isLoadingUsers } = useUsersCache();
 
-  // ===== CALCULAR ESTATÍSTICAS =====
-  const calculateStats = useCallback(() => {
-    if (!rotinas.length && !orientacoes.length && !tarefas.length) return;
+  // Usar useMemo para evitar recálculos desnecessários
+  const allDataLoaded = useMemo(() => {
+    return !isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas && !isLoadingUsers;
+  }, [isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers]);
 
-    try {
-      const newStats = calculateProductivityStats(rotinas, orientacoes, tarefas);
-      setStats(newStats);
-      console.log('📊 Estatísticas calculadas:', newStats);
-    } catch (error) {
-      console.error('❌ Erro ao calcular estatísticas:', error);
-    }
-  }, [rotinas, orientacoes, tarefas]);
-
-  // ===== GERAR TIMELINE DE ATIVIDADES =====
-  const generateActivities = useCallback(() => {
-    const newActivities = generateActivityTimeline(rotinas, orientacoes, tarefas, getUserName);
-    setActivities(newActivities);
-  }, [rotinas, orientacoes, tarefas, getUserName]);
+  // Memoizar os dados para evitar recalculos
+  const memoizedRotinas = useMemo(() => rotinas, [JSON.stringify(rotinas)]);
+  const memoizedOrientacoes = useMemo(() => orientacoes, [JSON.stringify(orientacoes)]);
+  const memoizedTarefas = useMemo(() => tarefas, [JSON.stringify(tarefas)]);
 
   // ===== REFRESH DADOS COM FEEDBACK CONTROLADO =====
   const refreshData = useCallback(async () => {
@@ -142,23 +132,45 @@ export function useHubData() {
   }, [refetchRotinas, refetchOrientacoes, refetchTarefas, toast]);
 
   // ===== EFFECTS =====
+  // Effect apenas para primeira carga quando user está disponível
   useEffect(() => {
-    if (user) {
+    if (user && isInitialLoadRef.current) {
       refreshData().finally(() => {
         isInitialLoadRef.current = false;
       });
     }
-  }, [user, refreshData]);
+  }, [user]); // Removido refreshData das dependências para evitar loop
 
+  // Effect para calcular estatísticas quando os dados mudarem (usando useMemo para quebrar ciclos)
   useEffect(() => {
-    if (!isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas && !isLoadingUsers) {
+    if (!allDataLoaded) return;
+
+    // Só processa se tiver dados válidos
+    if (!memoizedRotinas.length && !memoizedOrientacoes.length && !memoizedTarefas.length) {
+      return;
+    }
+
+    try {
       setIsLoadingStats(true);
-      calculateStats();
-      generateActivities();
+      
+      // Calcular estatísticas
+      const newStats = calculateProductivityStats(memoizedRotinas, memoizedOrientacoes, memoizedTarefas);
+      setStats(newStats);
+      
+      // Gerar atividades
+      const newActivities = generateActivityTimeline(memoizedRotinas, memoizedOrientacoes, memoizedTarefas, getUserName);
+      setActivities(newActivities);
+      
+      console.log('📊 Estatísticas calculadas:', newStats);
+      
+      setIsLoadingStats(false);
+      setIsLoadingActivities(false);
+    } catch (error) {
+      console.error('❌ Erro ao calcular estatísticas:', error);
       setIsLoadingStats(false);
       setIsLoadingActivities(false);
     }
-  }, [isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers, calculateStats, generateActivities]);
+  }, [allDataLoaded, memoizedRotinas, memoizedOrientacoes, memoizedTarefas, getUserName]);
 
   // Estados de erro consolidados
   const errors = {
@@ -171,9 +183,9 @@ export function useHubData() {
     // Data
     stats,
     activities,
-    rotinas,
-    orientacoes,
-    tarefas,
+    rotinas: memoizedRotinas,
+    orientacoes: memoizedOrientacoes,
+    tarefas: memoizedTarefas,
     
     // Loading states
     isLoadingStats,

@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
-import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
-import { VendaO } from "@/components/moveis/vendao/VendaO";
-import { Folgas } from "@/components/moveis/folgas/Folgas";
-import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
-import { MoveisOverview } from "@/components/moveis/dashboard/MoveisOverview";
+import { Diretorio } from "@/components/moda/diretorio/Diretorio";
+import { Folgas } from "@/components/moda/folgas/Folgas";
+import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
+import { ModaOverview } from "@/components/moda/dashboard/ModaOverview";
+import { Monitoramento } from "@/components/moda/monitoramento/Monitoramento";
 import { 
   FileText, 
   FolderArchive, 
-  ShoppingCart,
-  Sofa,
+  BarChart3,
+  Shirt,
   TrendingUp,
   Calendar,
   Star
@@ -21,7 +21,7 @@ import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
 
-export default function Moveis() {
+export default function Moda() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
   
@@ -37,9 +37,9 @@ export default function Moveis() {
     {
       value: "overview",
       label: "Visão Geral",
-      icon: Sofa,
+      icon: Shirt,
       description: "Dashboard e acesso rápido",
-      component: <MoveisOverview onNavigate={handleNavigate} />
+      component: <ModaOverview onNavigate={handleNavigate} />
     },
     {
       value: "diretorio",
@@ -47,13 +47,6 @@ export default function Moveis() {
       icon: FolderArchive,
       description: "Arquivos organizados",
       component: <Diretorio />
-    },
-    {
-      value: "vendao",
-      label: "Venda O",
-      icon: ShoppingCart,
-      description: "Vendas de outras filiais",
-      component: <VendaO />
     },
     {
       value: "produto-foco",
@@ -68,16 +61,23 @@ export default function Moveis() {
       icon: Calendar,
       description: "Controle de folgas",
       component: <Folgas />
+    },
+    {
+      value: "monitoramento",
+      label: "Monitoramento",
+      icon: BarChart3,
+      description: "Monitoramento de uso",
+      component: <Monitoramento />
     }
   ];
 
   return (
     <PageLayout spacing="normal" maxWidth="full">
       <PageHeader
-        title="Móveis"
-        description="Gestão completa do setor de móveis"
-        icon={Sofa}
-        iconColor="text-primary"
+        title="Moda"
+        description="Gestão completa do setor de moda"
+        icon={Shirt}
+        iconColor="text-purple-600"
         status={{
           label: "Ativo",
           color: "bg-green-50 text-green-700 border-green-200"
@@ -85,7 +85,7 @@ export default function Moveis() {
         variant="default"
         breadcrumbs={[
           { label: "Hub de Produtividade", href: "/" },
-          { label: "Móveis" }
+          { label: "Moda" }
         ]}
       />
 
@@ -98,4 +98,4 @@ export default function Moveis() {
       />
     </PageLayout>
   );
-}
+} 

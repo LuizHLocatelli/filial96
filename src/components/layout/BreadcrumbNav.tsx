@@ -11,7 +11,7 @@ import {
 
 // Breadcrumb mapping
 const breadcrumbMap: Record<string, string> = {
-  '/': 'Dashboard',
+  '/': 'Hub de Produtividade',
   '/hub-produtividade': 'Hub de Produtividade',
   '/moveis': 'Móveis',
   '/crediario': 'Crediário',
@@ -25,7 +25,7 @@ export function BreadcrumbNav() {
   const getBreadcrumbs = () => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const breadcrumbs = [{
-      label: 'Dashboard',
+      label: 'Hub de Produtividade',
       path: '/'
     }];
     

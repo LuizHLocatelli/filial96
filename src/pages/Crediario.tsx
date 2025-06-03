@@ -79,7 +79,7 @@ export default function Crediario() {
         }}
         variant="default"
         breadcrumbs={[
-          { label: "Dashboard", href: "/" },
+          { label: "Hub de Produtividade", href: "/" },
           { label: "Crediário" }
         ]}
       />

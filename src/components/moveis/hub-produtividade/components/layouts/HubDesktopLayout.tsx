@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -74,7 +73,7 @@ export function HubDesktopLayout({
             >
               <div className="flex items-center gap-2">
                 <section.icon className="h-4 w-4" />
-                <span className="text-xs font-medium hidden sm:inline">{section.title}</span>
+                <span className="text-xs font-medium">{section.title}</span>
               </div>
               {section.badge && (
                 <Badge

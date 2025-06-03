@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,7 @@ import { Orientacao } from "../types";
 import { EditOrientacaoDialog } from "./EditOrientacaoDialog";
 import { DeleteOrientacaoDialog } from "./DeleteOrientacaoDialog";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface OrientacaoCardProps {
   orientacao: Orientacao;
@@ -33,6 +33,7 @@ interface OrientacaoCardProps {
 export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const isMobile = useIsMobile();
 
   const getTipoLabel = (tipo: string) => {
     const labels = {
@@ -45,11 +46,11 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
 
   const getTipoColor = (tipo: string) => {
     const colors = {
-      'vm': 'bg-purple-100 text-purple-800 border-purple-200',
-      'informativo': 'bg-blue-100 text-blue-800 border-blue-200',
-      'outro': 'bg-gray-100 text-gray-800 border-gray-200'
+      'vm': 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800',
+      'informativo': 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800',
+      'outro': 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800'
     };
-    return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800';
   };
 
   const getFileIcon = (tipo: string) => {
@@ -91,19 +92,24 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className={`h-8 w-8 p-0 transition-all duration-200 ${
+                      isMobile 
+                        ? 'opacity-100 hover:bg-muted/80 border border-border/50' 
+                        : 'opacity-70 hover:opacity-100 group-hover:opacity-100 hover:bg-muted/60'
+                    }`}
                   >
                     <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Opções</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-[160px]">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                     <Edit2 className="h-4 w-4 mr-2" />
                     Editar
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setShowDeleteDialog(true)}
-                    className="text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive dark:text-red-400 dark:focus:text-red-300"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Excluir
@@ -146,6 +152,7 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
                 size="sm"
                 onClick={() => window.open(orientacao.arquivo_url, '_blank')}
                 className="border-border/60 hover:border-border"
+                title="Download"
               >
                 <Download className="h-4 w-4" />
               </Button>

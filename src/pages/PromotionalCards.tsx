@@ -28,7 +28,7 @@ export default function PromotionalCards() {
         iconColor="text-primary"
         variant="default"
         breadcrumbs={[
-          { label: "Dashboard", href: "/" },
+          { label: "Hub de Produtividade", href: "/" },
           { label: "Cards Promocionais" }
         ]}
       />

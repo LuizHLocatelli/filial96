@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { useSupabaseQuery } from './useSupabaseQuery';
 import { calculateRotinaStatus } from '../utils/statusCalculator';
@@ -63,9 +62,16 @@ export function useRotinasData() {
     } as RotinaWithStatus;
   });
 
+  // Função de refetch mais estável
   const refetch = useCallback(async () => {
-    await Promise.all([refetchRotinas(), refetchConclusoes()]);
-  }, [refetchRotinas, refetchConclusoes]);
+    const promises = [];
+    if (refetchRotinas) promises.push(refetchRotinas());
+    if (refetchConclusoes) promises.push(refetchConclusoes());
+    
+    if (promises.length > 0) {
+      await Promise.all(promises);
+    }
+  }, []); // Array vazio para manter estável
 
   return {
     rotinas,

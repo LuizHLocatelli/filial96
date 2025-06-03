@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Building2, CreditCard, Image, User, ChevronRight, Activity } from "lucide-react";
+import { Building2, CreditCard, Image, User, ChevronRight, Activity, Shirt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -10,14 +10,8 @@ interface MobileNavMenuProps {
 
 const navigationItems = [
   {
-    title: "Dashboard",
-    href: "/",
-    icon: Home,
-    description: "Visão geral do sistema"
-  },
-  {
     title: "Hub de Produtividade",
-    href: "/hub-produtividade",
+    href: "/",
     icon: Activity,
     description: "Central de rotinas e tarefas"
   },
@@ -26,6 +20,12 @@ const navigationItems = [
     href: "/moveis",
     icon: Building2,
     description: "Gestão do setor de móveis"
+  },
+  {
+    title: "Moda",
+    href: "/moda",
+    icon: Shirt,
+    description: "Gestão do setor de moda"
   },
   {
     title: "Crediário",

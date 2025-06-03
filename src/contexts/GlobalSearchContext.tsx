@@ -23,41 +23,14 @@ const GlobalSearchContext = createContext<GlobalSearchContextType | undefined>(u
 
 // Dados de pesquisa estáticos para as páginas e funcionalidades do sistema
 const searchableItems: SearchResult[] = [
-  // Dashboard
+  // Hub de Produtividade (página principal)
   {
-    id: 'dashboard',
-    title: 'Dashboard',
-    description: 'Visão geral do sistema e estatísticas',
+    id: 'hub-produtividade',
+    title: 'Hub de Produtividade',
+    description: 'Central de rotinas, tarefas e orientações',
     type: 'page',
     path: '/',
-    icon: 'LayoutDashboard'
-  },
-  {
-    id: 'dashboard-overview',
-    title: 'Visão Geral - Dashboard',
-    description: 'Estatísticas e métricas principais do sistema',
-    type: 'section',
-    path: '/',
-    section: 'Dashboard',
     icon: 'Activity'
-  },
-  {
-    id: 'dashboard-actions',
-    title: 'Ações Rápidas - Dashboard',
-    description: 'Acesso rápido às principais funcionalidades',
-    type: 'section',
-    path: '/',
-    section: 'Dashboard',
-    icon: 'Zap'
-  },
-  {
-    id: 'dashboard-recent',
-    title: 'Atividade Recente - Dashboard',
-    description: 'Histórico de ações e atividades recentes',
-    type: 'section',
-    path: '/',
-    section: 'Dashboard',
-    icon: 'Clock'
   },
   
   // Móveis
@@ -234,14 +207,6 @@ const searchableItems: SearchResult[] = [
     icon: 'ShoppingCart'
   },
   {
-    id: 'hub-produtividade',
-    title: 'Hub de Produtividade',
-    description: 'Central de rotinas, orientações e tarefas',
-    type: 'feature',
-    path: '/moveis?tab=hub-produtividade',
-    icon: 'Activity'
-  },
-  {
     id: 'orientacoes',
     title: 'Orientações',
     description: 'Documentos de orientação e procedimentos',
@@ -272,6 +237,61 @@ const searchableItems: SearchResult[] = [
     type: 'feature',
     path: '/moveis?tab=folgas',
     icon: 'Users'
+  },
+  
+  // Moda
+  {
+    id: 'moda',
+    title: 'Moda',
+    description: 'Gestão completa do setor de moda',
+    type: 'page',
+    path: '/moda',
+    icon: 'Shirt'
+  },
+  {
+    id: 'moda-visao-geral',
+    title: 'Visão Geral - Moda',
+    description: 'Dashboard e acesso rápido do setor de moda',
+    type: 'section',
+    path: '/moda?tab=overview',
+    section: 'Moda',
+    icon: 'Shirt'
+  },
+  {
+    id: 'moda-diretorio',
+    title: 'Diretório - Moda',
+    description: 'Arquivos e documentos do setor de moda',
+    type: 'section',
+    path: '/moda?tab=diretorio',
+    section: 'Moda',
+    icon: 'FolderArchive'
+  },
+  {
+    id: 'moda-produto-foco',
+    title: 'Produto Foco - Moda',
+    description: 'Produtos prioritários e metas de vendas',
+    type: 'section',
+    path: '/moda?tab=produto-foco',
+    section: 'Moda',
+    icon: 'Star'
+  },
+  {
+    id: 'moda-folgas',
+    title: 'Folgas - Moda',
+    description: 'Controle de folgas do setor de moda',
+    type: 'section',
+    path: '/moda?tab=folgas',
+    section: 'Moda',
+    icon: 'Calendar'
+  },
+  {
+    id: 'moda-monitoramento',
+    title: 'Monitoramento - Moda',
+    description: 'Analytics e métricas de uso da seção Moda',
+    type: 'section',
+    path: '/moda?tab=monitoramento',
+    section: 'Moda',
+    icon: 'BarChart3'
   }
 ];
 

@@ -1,8 +1,8 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
 import Crediario from "./pages/Crediario";
 import Moveis from "./pages/Moveis";
+import Moda from "./pages/Moda";
 import HubProdutividade from "./pages/HubProdutividade";
 import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
@@ -67,12 +67,12 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      {/* Nova rota para o Hub de Produtividade */}
+      {/* Nova rota para a página Moda */}
       <Route 
-        path="/hub-produtividade" 
+        path="/moda" 
         element={
           <ProtectedRoute>
-            <AppLayout><HubProdutividade /></AppLayout>
+            <AppLayout><Moda /></AppLayout>
           </ProtectedRoute>
         } 
       />

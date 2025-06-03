@@ -1,4 +1,3 @@
-
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { 
@@ -156,8 +155,7 @@ export function HubHeaderNavigation({
                     isMobile ? 'text-xs' : 'text-sm',
                     isActive ? "text-white" : "text-foreground group-hover:text-foreground"
                   )}>
-                    <span className="hidden sm:inline">{item.label}</span>
-                    <span className="sm:hidden">{item.shortLabel}</span>
+                    {item.label}
                   </span>
                 </div>
               </motion.div>
