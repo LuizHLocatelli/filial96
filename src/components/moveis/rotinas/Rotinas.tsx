@@ -10,6 +10,7 @@ import { CheckSquare, Plus, Calendar, FileDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrientacaoTarefas } from "../orientacoes/OrientacaoTarefas";
+import { useRotinas } from "./hooks/useRotinas";
 
 export function Rotinas() {
   const isMobile = useIsMobile();
@@ -17,6 +18,19 @@ export function Rotinas() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showPDFDialog, setShowPDFDialog] = useState(false);
+
+  // Usar o hook de rotinas para obter dados e operações
+  const {
+    rotinas,
+    isLoading,
+    createRotina,
+    updateRotina,
+    deleteRotina,
+    duplicateRotina,
+    toggleConclusao,
+    exportToPDF,
+    isExporting
+  } = useRotinas();
   
   const handleSuccess = () => {
     setRefreshKey(prev => prev + 1);
@@ -25,6 +39,14 @@ export function Rotinas() {
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      await exportToPDF();
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+    }
   };
   
   return (
@@ -85,8 +107,16 @@ export function Rotinas() {
             <TabsContent value="rotinas" className="space-y-4 w-full m-0">
               <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
                 <div className="p-4 sm:p-6">
-                  <RotinasStats />
-                  <RotinasList key={refreshKey} />
+                  <RotinasStats rotinas={rotinas} />
+                  <RotinasList 
+                    key={refreshKey}
+                    rotinas={rotinas}
+                    isLoading={isLoading}
+                    onToggleConclusao={toggleConclusao}
+                    onEditRotina={updateRotina}
+                    onDeleteRotina={deleteRotina}
+                    onDuplicateRotina={duplicateRotina}
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -103,12 +133,15 @@ export function Rotinas() {
       <AddRotinaDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        onSuccess={handleSuccess}
+        onSubmit={createRotina}
       />
 
       <PDFExportDialog
         open={showPDFDialog}
         onOpenChange={setShowPDFDialog}
+        rotinas={rotinas}
+        onExport={handleExportPDF}
+        isExporting={isExporting}
       />
     </div>
   );
