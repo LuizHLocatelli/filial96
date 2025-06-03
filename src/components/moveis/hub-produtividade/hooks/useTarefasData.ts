@@ -8,7 +8,7 @@ export function useTarefasData() {
     isLoading, 
     error,
     refetch 
-  } = useSupabaseQuery(
+  } = useSupabaseQuery<Tarefa>(
     'tarefas',
     (supabase) => supabase
       .from('moveis_tarefas')

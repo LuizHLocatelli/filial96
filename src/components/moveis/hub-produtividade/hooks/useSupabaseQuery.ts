@@ -14,7 +14,7 @@ type SupabaseQueryFunction<T> = (client: SupabaseClient) => Promise<{ data: T[] 
 
 export function useSupabaseQuery<T>(
   table: string,
-  query: SupabaseQueryFunction<T>,
+  queryBuilder: (client: SupabaseClient) => any,
   dependencies: any[] = [],
   options: QueryOptions = {}
 ) {
@@ -29,7 +29,8 @@ export function useSupabaseQuery<T>(
       setError(null);
       console.log(`🔄 Carregando ${table}...`);
       
-      const { data: result, error: queryError } = await query(supabase);
+      const query = queryBuilder(supabase);
+      const { data: result, error: queryError } = await query;
       
       if (queryError) throw queryError;
       
