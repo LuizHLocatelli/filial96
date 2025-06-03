@@ -1,0 +1,66 @@
+
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { handleError } from '../utils/errorHandler';
+
+export interface QueryOptions {
+  retryCount?: number;
+  retryDelay?: number;
+  showErrorToast?: boolean;
+}
+
+export function useSupabaseQuery<T>(
+  table: string,
+  query: (supabase: typeof supabase) => Promise<{ data: T[] | null; error: any }>,
+  dependencies: any[] = [],
+  options: QueryOptions = {}
+) {
+  const { retryCount = 2, retryDelay = 2000, showErrorToast = true } = options;
+  
+  const [data, setData] = useState<T[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const executeQuery = useCallback(async (attempt = 0): Promise<void> => {
+    try {
+      setError(null);
+      console.log(`🔄 Carregando ${table}...`);
+      
+      const { data: result, error: queryError } = await query(supabase);
+      
+      if (queryError) throw queryError;
+      
+      setData(result || []);
+      console.log(`✅ ${table} carregados:`, result?.length || 0);
+    } catch (queryError: any) {
+      console.error(`❌ Erro ao carregar ${table}:`, queryError);
+      
+      if (attempt < retryCount) {
+        console.log(`🔄 Tentativa ${attempt + 1} de recarregar ${table}...`);
+        setTimeout(() => executeQuery(attempt + 1), retryDelay);
+      } else {
+        const errorMessage = handleError(
+          queryError, 
+          `carregar ${table}`, 
+          { showToast: showErrorToast }
+        );
+        setError(errorMessage);
+      }
+    } finally {
+      if (attempt === 0) {
+        setIsLoading(false);
+      }
+    }
+  }, dependencies);
+
+  useEffect(() => {
+    executeQuery();
+  }, [executeQuery]);
+
+  const refetch = useCallback(() => {
+    setIsLoading(true);
+    executeQuery();
+  }, [executeQuery]);
+
+  return { data, isLoading, error, refetch };
+}
