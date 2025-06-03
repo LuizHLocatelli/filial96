@@ -41,7 +41,7 @@ export function ResponsiveGrid({
   autoFit = false,
   minColWidth = '320px'
 }: ResponsiveGridProps) {
-  const { breakpoints } = useResponsive();
+  const breakpoints = useResponsive();
 
   const getCurrentColumns = () => {
     if (breakpoints.xxl && columns.xxl) return columns.xxl;

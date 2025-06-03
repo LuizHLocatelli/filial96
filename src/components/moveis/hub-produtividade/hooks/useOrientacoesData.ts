@@ -2,13 +2,30 @@
 import { useSupabaseQuery } from './useSupabaseQuery';
 import { Orientacao } from '../types';
 
+interface OrientacaoRaw {
+  id: string;
+  titulo: string;
+  descricao: string;
+  tipo: string;
+  arquivo_url: string;
+  arquivo_nome: string;
+  arquivo_tipo: string;
+  data_criacao: string;
+  criado_por: string;
+}
+
+interface ProfileRaw {
+  id: string;
+  name: string;
+}
+
 export function useOrientacoesData() {
   const { 
     data: orientacoesRaw, 
     isLoading, 
     error,
     refetch 
-  } = useSupabaseQuery(
+  } = useSupabaseQuery<Orientacao>(
     'orientações',
     async (supabase) => {
       const { data: orientacoesData, error } = await supabase
@@ -28,7 +45,7 @@ export function useOrientacoesData() {
 
         const orientacoesFormatted: Orientacao[] = orientacoesData?.map(item => ({
           ...item,
-          criado_por_nome: profiles?.find(p => p.id === item.criado_por)?.name || 'Usuário'
+          criado_por_nome: profiles?.find((p: ProfileRaw) => p.id === item.criado_por)?.name || 'Usuário'
         })) || [];
 
         return { data: orientacoesFormatted, error: null };

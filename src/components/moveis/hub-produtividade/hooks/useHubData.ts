@@ -139,7 +139,7 @@ export function useHubData() {
         });
       }
     }
-  }, [refetchRotinas, refetchOrientacoes, refetchTarefas]);
+  }, [refetchRotinas, refetchOrientacoes, refetchTarefas, toast]);
 
   // ===== EFFECTS =====
   useEffect(() => {
@@ -148,7 +148,7 @@ export function useHubData() {
         isInitialLoadRef.current = false;
       });
     }
-  }, [user]);
+  }, [user, refreshData]);
 
   useEffect(() => {
     if (!isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas && !isLoadingUsers) {

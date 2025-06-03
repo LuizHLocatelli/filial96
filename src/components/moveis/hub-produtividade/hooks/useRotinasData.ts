@@ -4,6 +4,20 @@ import { useSupabaseQuery } from './useSupabaseQuery';
 import { calculateRotinaStatus } from '../utils/statusCalculator';
 import { RotinaWithStatus, RotinaConclusao } from '../types';
 
+interface RotinaRaw {
+  id: string;
+  nome: string;
+  descricao?: string;
+  periodicidade: 'diario' | 'semanal' | 'mensal' | 'personalizado';
+  horario_preferencial?: string;
+  dia_preferencial: string;
+  categoria: string;
+  ativo: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useRotinasData() {
   // Buscar rotinas
   const { 
@@ -11,7 +25,7 @@ export function useRotinasData() {
     isLoading: isLoadingRotinas, 
     error: rotinasError,
     refetch: refetchRotinas 
-  } = useSupabaseQuery(
+  } = useSupabaseQuery<RotinaRaw>(
     'rotinas',
     (supabase) => supabase
       .from('moveis_rotinas')
@@ -25,7 +39,7 @@ export function useRotinasData() {
     data: conclusoes, 
     isLoading: isLoadingConclusoes,
     refetch: refetchConclusoes 
-  } = useSupabaseQuery(
+  } = useSupabaseQuery<RotinaConclusao>(
     'conclusões de rotinas',
     (supabase) => supabase
       .from('moveis_rotinas_conclusoes')

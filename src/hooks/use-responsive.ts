@@ -6,6 +6,11 @@ interface ResponsiveBreakpoints {
   isTablet: boolean;
   isDesktop: boolean;
   isLarge: boolean;
+  xxl: boolean;
+  xl: boolean;
+  lg: boolean;
+  md: boolean;
+  sm: boolean;
 }
 
 export function useResponsive(): ResponsiveBreakpoints {
@@ -14,6 +19,11 @@ export function useResponsive(): ResponsiveBreakpoints {
     isTablet: false,
     isDesktop: false,
     isLarge: false,
+    xxl: false,
+    xl: false,
+    lg: false,
+    md: false,
+    sm: false,
   });
 
   useEffect(() => {
@@ -25,6 +35,11 @@ export function useResponsive(): ResponsiveBreakpoints {
         isTablet: width >= 768 && width < 1024,
         isDesktop: width >= 1024 && width < 1440,
         isLarge: width >= 1440,
+        xxl: width >= 1536,
+        xl: width >= 1280 && width < 1536,
+        lg: width >= 1024 && width < 1280,
+        md: width >= 768 && width < 1024,
+        sm: width >= 640 && width < 768,
       });
     };
 

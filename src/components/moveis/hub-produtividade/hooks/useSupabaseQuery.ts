@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { handleError } from '../utils/errorHandler';
 
@@ -9,9 +10,11 @@ export interface QueryOptions {
   showErrorToast?: boolean;
 }
 
+type SupabaseQueryFunction<T> = (client: SupabaseClient) => Promise<{ data: T[] | null; error: any }>;
+
 export function useSupabaseQuery<T>(
   table: string,
-  query: (supabase: typeof supabase) => Promise<{ data: T[] | null; error: any }>,
+  query: SupabaseQueryFunction<T>,
   dependencies: any[] = [],
   options: QueryOptions = {}
 ) {
