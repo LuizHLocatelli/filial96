@@ -1,7 +1,6 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayout";
-import Dashboard from "./pages/Dashboard";
 import Crediario from "./pages/Crediario";
 import Moveis from "./pages/Moveis";
 import HubProdutividade from "./pages/HubProdutividade";
@@ -40,14 +39,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><HubProdutividade /></AppLayout>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <AppLayout><Dashboard /></AppLayout>
           </ProtectedRoute>
         } 
       />

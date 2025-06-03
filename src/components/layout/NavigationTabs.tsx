@@ -13,7 +13,6 @@ export function NavigationTabs() {
   
   const tabs = [
     { title: "Hub", icon: Activity, path: "/" },
-    { title: "Dashboard", icon: Home, path: "/dashboard" },
     { title: "Móveis", icon: Sofa, path: "/moveis" },
     { title: "Crediário", icon: DollarSign, path: "/crediario" },
     { title: "Cards", icon: Image, path: "/cards-promocionais" },
