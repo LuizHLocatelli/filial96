@@ -16,20 +16,22 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ProdutoFocoWithImages } from '../types';
+import { useProdutoFocoSales } from '../hooks/useProdutoFocoSales';
 
 interface RegistrarVendaDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  produto: ProdutoFocoWithImages;
-  onRegistrarVenda: (dadosVenda: any) => Promise<void>;
+  produto: ProdutoFocoWithImages | null;
+  onSuccess: () => void;
 }
 
 export function RegistrarVendaDialog({ 
   isOpen, 
   onClose, 
   produto, 
-  onRegistrarVenda 
+  onSuccess 
 }: RegistrarVendaDialogProps) {
+  const { registrarVenda } = useProdutoFocoSales();
   const [formData, setFormData] = useState({
     cliente_nome: '',
     cliente_telefone: '',
@@ -42,34 +44,46 @@ export function RegistrarVendaDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!produto) return;
+    
     setIsSubmitting(true);
     
     try {
-      await onRegistrarVenda({
-        ...formData,
+      const result = await registrarVenda({
         produto_foco_id: produto.id,
         produto_nome: produto.nome_produto,
         produto_codigo: produto.codigo_produto,
+        cliente_nome: formData.cliente_nome,
+        cliente_telefone: formData.cliente_telefone || null,
         quantidade: parseInt(formData.quantidade) || 1,
         valor_total: parseFloat(formData.valor_total) || 0,
-        data_venda: formData.data_venda.toISOString().split('T')[0]
+        data_venda: formData.data_venda.toISOString().split('T')[0],
+        observacoes: formData.observacoes || null
       });
-      
-      // Reset form
-      setFormData({
-        cliente_nome: '',
-        cliente_telefone: '',
-        quantidade: '',
-        valor_total: '',
-        data_venda: new Date(),
-        observacoes: ''
-      });
-      
-      onClose();
+
+      if (result) {
+        // Reset form
+        setFormData({
+          cliente_nome: '',
+          cliente_telefone: '',
+          quantidade: '',
+          valor_total: '',
+          data_venda: new Date(),
+          observacoes: ''
+        });
+        
+        onSuccess();
+        onClose();
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Se não há produto, não renderizar o dialog
+  if (!produto) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

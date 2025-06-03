@@ -31,6 +31,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 import { useModaTracking } from "@/hooks/useModaTracking";
+import { MonitoramentoIndividual } from "./MonitoramentoIndividual";
+import { PDFExportDialog } from "./components/PDFExportDialog";
+import { usePDFExport, PDFExportOptions } from "./hooks/usePDFExport";
 
 interface MonitoringStats {
   totalUsuarios: number;
@@ -76,6 +79,8 @@ interface HourlyData {
 
 export function Monitoramento() {
   const { trackEvent } = useModaTracking();
+  const { exportToPDF } = usePDFExport();
+  
   const [stats, setStats] = useState<MonitoringStats>({
     totalUsuarios: 0,
     usuariosAtivosHoje: 0,
@@ -94,6 +99,10 @@ export function Monitoramento() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [activeTab, setActiveTab] = useState('visao-geral');
+  const [isPDFExportDialogOpen, setIsPDFExportDialogOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [allMonitoringData, setAllMonitoringData] = useState<AccessEvent[]>([]);
+  
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -163,6 +172,8 @@ export function Monitoramento() {
       ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
       setRecentEvents(combinedEvents.slice(0, 20));
+      // Armazenar todos os dados para exportação
+      setAllMonitoringData(combinedEvents);
       
       // Calcular uso por seção
       calculateSectionUsage(monitoringData || []);
@@ -348,51 +359,53 @@ export function Monitoramento() {
     try {
       trackEvent({
         secao: 'monitoramento',
-        acao: 'exportar_dados',
-        detalhes: { formato: 'csv', periodo: selectedTimeRange }
+        acao: 'abrir_exportacao_pdf',
+        detalhes: { periodo: selectedTimeRange }
       });
 
-      const { data, error } = await supabase
-        .from('moda_monitoramento')
-        .select('*')
-        .order('timestamp', { ascending: false });
-
-      if (error) throw error;
-
-      // Criar CSV com dados mais detalhados
-      const csvContent = [
-        ['Data/Hora', 'Usuário', 'Seção', 'Ação', 'Duração (s)', 'Session ID', 'Detalhes'].join(','),
-        ...(data || []).map(event => [
-          format(new Date(event.timestamp), 'dd/MM/yyyy HH:mm:ss'),
-          event.user_id,
-          getSectionName(event.secao),
-          event.acao || 'N/A',
-          event.duracao_segundos || 0,
-          event.session_id,
-          event.detalhes ? JSON.stringify(event.detalhes) : 'N/A'
-        ].join(','))
-      ].join('\n');
-
-      // Download do arquivo
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `moda_monitoramento_detalhado_${format(new Date(), 'yyyy-MM-dd_HH-mm')}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Sucesso",
-        description: "Dados exportados com sucesso!",
-      });
+      // Abrir o diálogo de exportação PDF
+      setIsPDFExportDialogOpen(true);
     } catch (error) {
-      console.error('Erro ao exportar dados:', error);
+      console.error('Erro ao abrir exportação:', error);
       toast({
         title: "Erro",
-        description: "Falha ao exportar dados",
+        description: "Não foi possível abrir a exportação",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleExportPDF = async (options: PDFExportOptions) => {
+    try {
+      setIsExporting(true);
+      
+      trackEvent({
+        secao: 'monitoramento',
+        acao: 'exportar_pdf',
+        detalhes: { 
+          formato: 'pdf', 
+          periodo: selectedTimeRange,
+          template: options.template,
+          includeStats: options.includeStats,
+          groupBySection: options.groupBySection
+        }
+      });
+
+      // Usar os dados já carregados
+      const success = await exportToPDF(allMonitoringData, stats, options);
+      
+      if (success) {
+        setIsPDFExportDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao exportar PDF",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -473,15 +486,16 @@ export function Monitoramento() {
             onClick={exportData}
           >
             <Download className="h-4 w-4 mr-2" />
-            Exportar
+            Exportar PDF
           </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
+          <TabsTrigger value="individual">Individual</TabsTrigger>
           <TabsTrigger value="tempo-real">Tempo Real</TabsTrigger>
           <TabsTrigger value="analises">Análises</TabsTrigger>
           <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
@@ -636,6 +650,10 @@ export function Monitoramento() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="individual">
+          <MonitoramentoIndividual />
         </TabsContent>
 
         <TabsContent value="tempo-real" className="space-y-6">
@@ -836,6 +854,17 @@ export function Monitoramento() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Diálogo de Exportação PDF */}
+      <PDFExportDialog
+        open={isPDFExportDialogOpen}
+        onOpenChange={setIsPDFExportDialogOpen}
+        data={allMonitoringData}
+        stats={stats}
+        onExport={handleExportPDF}
+        isExporting={isExporting}
+        selectedTimeRange={selectedTimeRange}
+      />
     </div>
   );
 } 
