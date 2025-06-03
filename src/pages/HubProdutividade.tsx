@@ -26,6 +26,9 @@ import { BuscaAvancada } from "@/components/moveis/hub-produtividade/components/
 import { FiltrosPorData } from "@/components/moveis/hub-produtividade/components/funcionalidades/FiltrosPorData";
 import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
 
+// Chatbot
+import { ProductivityAssistant } from "@/components/moveis/hub-produtividade/components/chatbot/ProductivityAssistant";
+
 export default function HubProdutividade() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
@@ -188,6 +191,11 @@ export default function HubProdutividade() {
         }}
         variant="default"
       />
+
+      {/* Assistente de Produtividade - Integrado na página principal */}
+      <div className="mb-6">
+        <ProductivityAssistant />
+      </div>
 
       <PageNavigation
         tabs={tabsConfig}
