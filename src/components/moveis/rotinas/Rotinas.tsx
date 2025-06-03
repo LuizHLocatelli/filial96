@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { OrientacaoTarefas } from "../orientacoes/OrientacaoTarefas";
 import { useRotinas } from "./hooks/useRotinas";
 import { usePDFExport } from "./hooks/usePDFExport";
+import { PDFExportOptions } from "./components/PDFExportDialog";
 
 export function Rotinas() {
   const isMobile = useIsMobile();
@@ -19,6 +20,7 @@ export function Rotinas() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showPDFDialog, setShowPDFDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Usar o hook de rotinas para obter dados e operações
   const {
@@ -33,7 +35,7 @@ export function Rotinas() {
   } = useRotinas();
 
   // Hook para exportação PDF
-  const { exportToPDF, isExporting } = usePDFExport();
+  const { exportToPDF } = usePDFExport();
   
   const handleSuccess = () => {
     setRefreshKey(prev => prev + 1);
@@ -44,11 +46,14 @@ export function Rotinas() {
     setSelectedTab(value);
   };
 
-  const handleExportPDF = async () => {
+  const handleExportPDF = async (options: PDFExportOptions) => {
     try {
-      await exportToPDF(rotinas);
+      setIsExporting(true);
+      await exportToPDF(rotinas, options);
     } catch (error) {
       console.error('Erro ao exportar PDF:', error);
+    } finally {
+      setIsExporting(false);
     }
   };
 
