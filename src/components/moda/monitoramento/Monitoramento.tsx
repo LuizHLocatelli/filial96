@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ interface AccessEvent {
   secao: string;
   acao?: string;
   timestamp: string;
-  session_id?: string; // Make optional since some events don't have it
+  session_id?: string;
   duracao_segundos?: number;
   detalhes?: any;
   metadata?: any;
@@ -156,33 +157,44 @@ export function Monitoramento() {
 
       if (detailedError) throw detailedError;
 
-      // Calcular estatísticas
-      calculateStats(monitoringData || []);
-      calculateHourlyData(monitoringData || []);
+      // Converter dados para AccessEvent format
+      const monitoringEvents: AccessEvent[] = (monitoringData || []).map(event => ({
+        id: event.id,
+        user_id: event.user_id || '',
+        secao: event.secao,
+        acao: event.acao,
+        timestamp: event.timestamp,
+        session_id: event.session_id,
+        duracao_segundos: event.duracao_segundos,
+        detalhes: event.detalhes,
+        metadata: event.metadata,
+        ip_address: event.ip_address ? String(event.ip_address) : undefined,
+        user_agent: event.user_agent
+      }));
+
+      const detailedAccessEvents: AccessEvent[] = (detailedEvents || []).map(event => ({
+        id: event.id,
+        user_id: event.user_id || '',
+        secao: event.secao,
+        acao: event.evento_tipo,
+        timestamp: event.created_at || new Date().toISOString(),
+        session_id: undefined,
+        ip_address: undefined
+      }));
+
+      // Combinar eventos
+      const combinedEvents = [...monitoringEvents, ...detailedAccessEvents]
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
-      // Buscar eventos recentes (combinando ambas as fontes) - converting to AccessEvent format
-      const combinedEvents: AccessEvent[] = [
-        ...(monitoringData || []).map(event => ({
-          ...event,
-          ip_address: event.ip_address ? String(event.ip_address) : undefined
-        })),
-        ...(detailedEvents || []).map(event => ({
-          id: event.id,
-          user_id: event.user_id || '',
-          secao: event.secao,
-          acao: event.evento_tipo,
-          timestamp: event.created_at || new Date().toISOString(),
-          session_id: undefined, // Events from detailed events don't have session_id
-          ip_address: undefined
-        }))
-      ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      // Calcular estatísticas
+      calculateStats(combinedEvents);
+      calculateHourlyData(combinedEvents);
       
       setRecentEvents(combinedEvents.slice(0, 20));
-      // Armazenar todos os dados para exportação
       setAllMonitoringData(combinedEvents);
       
       // Calcular uso por seção
-      calculateSectionUsage(monitoringData || []);
+      calculateSectionUsage(combinedEvents);
       
     } catch (error) {
       console.error('Erro ao buscar dados de monitoramento:', error);
@@ -397,8 +409,14 @@ export function Monitoramento() {
         }
       });
 
-      // Usar os dados já carregados
-      const success = await exportToPDF(allMonitoringData, stats, options);
+      // Converter AccessEvent[] para o formato esperado pelo PDF export
+      const monitoringDataForExport = allMonitoringData.map(event => ({
+        ...event,
+        session_id: event.session_id || '', // Garantir que session_id nunca seja undefined
+        ip_address: event.ip_address || '' // Garantir que ip_address nunca seja undefined
+      }));
+
+      const success = await exportToPDF(monitoringDataForExport, stats, options);
       
       if (success) {
         setIsPDFExportDialogOpen(false);
@@ -865,7 +883,11 @@ export function Monitoramento() {
       <PDFExportDialog
         open={isPDFExportDialogOpen}
         onOpenChange={setIsPDFExportDialogOpen}
-        data={allMonitoringData}
+        data={allMonitoringData.map(event => ({
+          ...event,
+          session_id: event.session_id || '',
+          ip_address: event.ip_address || ''
+        }))}
         stats={stats}
         onExport={handleExportPDF}
         isExporting={isExporting}
