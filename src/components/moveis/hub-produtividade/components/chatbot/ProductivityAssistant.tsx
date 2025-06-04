@@ -128,6 +128,37 @@ export function ProductivityAssistant({
   // N8N Webhook URL - USANDO PROXY SUPABASE (RESOLVE CORS)
   const N8N_WEBHOOK_URL = API_ENDPOINTS.N8N_PROXY;
 
+  // Função para processar markdown básico nas respostas
+  const processMarkdown = (text: string): React.ReactNode => {
+    // Processa **texto** para negrito
+    let processedText = text;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    
+    // Regex para encontrar **texto**
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    let match;
+    
+    while ((match = boldRegex.exec(text)) !== null) {
+      // Adiciona texto antes do match
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      
+      // Adiciona texto em negrito
+      parts.push(<strong key={match.index}>{match[1]}</strong>);
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Adiciona texto restante
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
+  };
+
   // Função para enviar mensagem para o N8N
   const sendToN8N = async (userMessage: string): Promise<string> => {
     try {
@@ -144,10 +175,19 @@ export function ProductivityAssistant({
       if (!response.ok) {
         // Melhor tratamento de erro com informações específicas
         const errorText = await response.text();
+        console.error(`❌ Erro na requisição (${response.status}):`, errorText);
         throw new Error(`Erro na requisição (${response.status}): ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('📝 Resposta da Edge Function:', data);
+      
+      // Verifica se a resposta veio do fallback
+      if (data.source === "fallback") {
+        console.warn('⚠️ Usando resposta de fallback:', data.debug);
+        // Ainda retorna a mensagem de fallback, que é válida
+        return data.message;
+      }
       
       // Verifica se o N8N retornou uma resposta válida
       // Primeiro tenta acessar 'output' (formato atual)
@@ -171,6 +211,8 @@ export function ProductivityAssistant({
       // Log específico para problema de CORS (se ainda existir)
       if (error.message.includes('CORS') || error.message.includes('blocked')) {
         console.error('⚠️  Problema de CORS detectado - verifique se a Edge Function está funcionando:', error);
+      } else if (error.message.includes('NetworkError') || error.message.includes('fetch')) {
+        console.error('🌐 Erro de rede detectado:', error);
       } else {
         console.error('❌ Erro ao enviar mensagem para N8N via proxy:', error);
       }
@@ -370,7 +412,7 @@ export function ProductivityAssistant({
                     )}
                     <div className="flex flex-col w-full">
                       <ChatBubbleMessage variant={msg.isUser ? "sent" : "received"}>
-                        <p className="whitespace-pre-line">{msg.text}</p>
+                        <p className="whitespace-pre-line">{processMarkdown(msg.text)}</p>
                       </ChatBubbleMessage>
                       
                       {!msg.isUser && (

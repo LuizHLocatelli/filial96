@@ -1,10 +1,8 @@
 @import './styles/design-tokens.css';
 @import './styles/base.css';
 @import './styles/components.css';
+@import './styles/depositos.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Importar estilos específicos */
-@import './styles/depositos.css';
