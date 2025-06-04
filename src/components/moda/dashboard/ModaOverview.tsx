@@ -165,43 +165,6 @@ export function ModaOverview({ onNavigate }: ModaOverviewProps) {
         })}
       </div>
 
-      {/* Recent Activity */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Atividade Recente</h2>
-        <Card className="border-0 shadow-soft">
-          <CardContent className="p-0">
-            <div className="divide-y divide-border">
-              {recentActivity.map((activity, index) => (
-                <div 
-                  key={activity.id} 
-                  className="p-4 hover:bg-muted/50 transition-colors duration-200"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      {activity.type === 'sistema' && <CheckCircle2 className="h-4 w-4 text-primary" />}
-                      {activity.type === 'arquivo' && <FolderOpen className="h-4 w-4 text-primary" />}
-                      {activity.type === 'meta' && <Target className="h-4 w-4 text-primary" />}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <h4 className="font-medium">{activity.title}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{activity.time}</span>
-                        <span>•</span>
-                        <span>{activity.user}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Quick Access Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Acesso Rápido</h2>
@@ -258,6 +221,43 @@ export function ModaOverview({ onNavigate }: ModaOverviewProps) {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Atividade Recente</h2>
+        <Card className="border-0 shadow-soft">
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {recentActivity.map((activity, index) => (
+                <div 
+                  key={activity.id} 
+                  className="p-4 hover:bg-muted/50 transition-colors duration-200"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      {activity.type === 'sistema' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                      {activity.type === 'arquivo' && <FolderOpen className="h-4 w-4 text-primary" />}
+                      {activity.type === 'meta' && <Target className="h-4 w-4 text-primary" />}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <h4 className="font-medium">{activity.title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {activity.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{activity.time}</span>
+                        <span>•</span>
+                        <span>{activity.user}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

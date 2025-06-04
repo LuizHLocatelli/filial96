@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { useGlobalSearch } from "@/contexts/GlobalSearchContext";
 import { GlobalSearchResults } from "./GlobalSearchResults";
 import { useOnClickOutside } from "usehooks-ts";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export function EnhancedTopBar() {
   const isMobile = useIsMobile();
@@ -78,47 +80,95 @@ export function EnhancedTopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60 shadow-lg">
-      <div className="container flex items-center justify-between h-16 px-3 md:px-6">
+    <motion.header 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="sticky top-0 z-50 border-b bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-lg"
+    >
+      <div className={cn(
+        "container flex items-center justify-between h-16",
+        isMobile ? "px-3" : "px-6"
+      )}>
         {/* Left Section - Logo and Navigation */}
-        <div className="flex items-center space-x-2 md:space-x-4 flex-1 min-w-0">
-          {/* Mobile Menu Button */}
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          {/* Mobile Menu Button com animação melhorada */}
           {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="h-10 w-10 flex-shrink-0"
-              aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+            <motion.div
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
             >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={cn(
+                  "h-10 w-10 flex-shrink-0 rounded-xl transition-all duration-300",
+                  isMobileMenuOpen 
+                    ? "bg-primary/10 text-primary border border-primary/20" 
+                    : "hover:bg-accent/80"
+                )}
+                aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+              >
+                <motion.div
+                  animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Menu className="h-5 w-5" />
+                  )}
+                </motion.div>
+              </Button>
+            </motion.div>
           )}
 
-          {/* Company Logo and Name */}
+          {/* Company Logo and Name com espaçamento otimizado */}
           <div className="min-w-0 flex-1 md:flex-initial">
-            <CompanyLogo />
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CompanyLogo />
+            </motion.div>
           </div>
 
           {/* Desktop Breadcrumbs */}
-          {!isMobile && <BreadcrumbNav />}
+          {!isMobile && (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1, duration: 0.3 }}
+            >
+              <BreadcrumbNav />
+            </motion.div>
+          )}
         </div>
 
         {/* Center Section - Search (Desktop only) */}
         {!isMobile && (
-          <SearchBar 
-            isMobile={isMobile}
-            isSearchOpen={isSearchOpen}
-            onSearchToggle={() => setIsSearchOpen(!isSearchOpen)}
-          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="hidden md:flex"
+          >
+            <SearchBar 
+              isMobile={isMobile}
+              isSearchOpen={isSearchOpen}
+              onSearchToggle={() => setIsSearchOpen(!isSearchOpen)}
+            />
+          </motion.div>
         )}
 
-        {/* Right Section - Actions */}
-        <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0">
+        {/* Right Section - Actions com melhor espaçamento */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="flex items-center space-x-1 flex-shrink-0"
+        >
           {/* Mobile Search Toggle */}
           {isMobile && (
             <SearchBar 
@@ -128,13 +178,22 @@ export function EnhancedTopBar() {
             />
           )}
 
-          <ThemeToggle />
-          <NotificationsMenu />
-          <UserMenu />
-        </div>
+          {/* Action buttons com animações */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <ThemeToggle />
+          </motion.div>
+          
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <NotificationsMenu />
+          </motion.div>
+          
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <UserMenu />
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Navigation Menu com ref */}
       <div ref={mobileMenuRef}>
         <MobileNavMenu 
           isOpen={isMobileMenuOpen} 
@@ -142,23 +201,58 @@ export function EnhancedTopBar() {
         />
       </div>
 
-      {/* Mobile Search Expandable */}
-      {isMobile && isSearchOpen && (
-        <div className="border-t bg-background/95 backdrop-blur-lg p-4 relative" ref={mobileSearchRef}>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar páginas, seções..."
-              className="pl-10 pr-4 w-full"
-              value={searchTerm}
-              onChange={(e) => performSearch(e.target.value)}
-              onKeyDown={handleMobileSearchKeyDown}
-              autoFocus
-            />
-          </div>
-          <GlobalSearchResults onResultClick={handleMobileSearchClose} />
-        </div>
-      )}
-    </header>
+      {/* Mobile Search Expandable com design melhorado */}
+      <AnimatePresence>
+        {isMobile && isSearchOpen && (
+          <motion.div 
+            ref={mobileSearchRef}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="border-t bg-background/98 backdrop-blur-xl shadow-lg overflow-hidden"
+          >
+            <div className="p-4">
+              {/* Header da busca */}
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground">Busca</h3>
+                  <p className="text-xs text-muted-foreground">Encontre páginas e seções</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleMobileSearchClose}
+                  className="h-8 w-8 rounded-full hover:bg-accent"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Campo de busca melhorado */}
+              <div className="relative">
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar páginas, seções..."
+                    className="pl-10 pr-4 w-full rounded-xl border-2 focus:border-primary/50"
+                    value={searchTerm}
+                    onChange={(e) => performSearch(e.target.value)}
+                    onKeyDown={handleMobileSearchKeyDown}
+                    autoFocus
+                  />
+                </motion.div>
+              </div>
+              
+              <GlobalSearchResults onResultClick={handleMobileSearchClose} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
