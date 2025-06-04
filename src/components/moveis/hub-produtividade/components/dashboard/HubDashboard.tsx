@@ -1,4 +1,3 @@
-
 import { ProductivityStats, ActivityItem } from '../../types';
 import { HubHandlers } from '../../types/hubTypes';
 import { useResponsive } from '@/hooks/use-responsive';
@@ -157,10 +156,10 @@ export function HubDashboard({
 
   // Desktop layout - Melhor aproveitamento horizontal com espaçamento otimizado
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <CollapsibleGroup spacing={layoutConfig.spacing.replace('space-y-', '') as 'tight' | 'normal' | 'relaxed'}>
         {/* Stats em toda a largura - sempre visível */}
-        <div className="mb-8">
+        <div className="mb-6">
           <StatsOverview 
             stats={stats} 
             isLoading={isLoading}
@@ -168,30 +167,10 @@ export function HubDashboard({
           />
         </div>
         
-        {/* Layout horizontal otimizado com seções colapsáveis */}
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
-          {/* Área principal - Timeline expandida */}
-          <div className="xl:col-span-3">
-            <CollapsibleSection
-              title="Atividades Recentes"
-              icon={Clock}
-              badge={activities.length}
-              defaultExpanded={true}
-              compact={isCompact}
-              persistStateKey="desktop-timeline"
-            >
-              <div className="px-2">
-                <ActivityTimeline
-                  activities={activities}
-                  isLoading={isLoading}
-                  maxItems={15}
-                />
-              </div>
-            </CollapsibleSection>
-          </div>
-          
-          {/* Sidebar expandida - Quick Actions */}
-          <div className="xl:col-span-2">
+        {/* Layout horizontal otimizado - Prioridade para ações rápidas */}
+        <div className="grid grid-cols-1 lg:grid-cols-7 xl:grid-cols-3 gap-6">
+          {/* Ações Rápidas - Área expandida */}
+          <div className="lg:col-span-4 xl:col-span-2">
             <CollapsibleSection
               title="Ações Rápidas"
               icon={Zap}
@@ -211,6 +190,26 @@ export function HubDashboard({
                   onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
                   onRelatorios={handlers.onRelatorios || (() => {})}
                   isRefreshing={isLoading}
+                />
+              </div>
+            </CollapsibleSection>
+          </div>
+          
+          {/* Timeline de Atividades */}
+          <div className="lg:col-span-3 xl:col-span-1">
+            <CollapsibleSection
+              title="Atividades Recentes"
+              icon={Clock}
+              badge={activities.length}
+              defaultExpanded={true}
+              compact={isCompact}
+              persistStateKey="desktop-timeline"
+            >
+              <div className="px-2">
+                <ActivityTimeline
+                  activities={activities}
+                  isLoading={isLoading}
+                  maxItems={12}
                 />
               </div>
             </CollapsibleSection>

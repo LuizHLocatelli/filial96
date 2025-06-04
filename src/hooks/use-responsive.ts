@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 interface ResponsiveBreakpoints {
@@ -33,8 +32,8 @@ export function useResponsive(): ResponsiveBreakpoints {
       setBreakpoints({
         isMobile: width < 768,
         isTablet: width >= 768 && width < 1024,
-        isDesktop: width >= 1024 && width < 1440,
-        isLarge: width >= 1440,
+        isDesktop: width >= 1024 && width < 1920,
+        isLarge: width >= 1920,
         xxl: width >= 1536,
         xl: width >= 1280 && width < 1536,
         lg: width >= 1024 && width < 1280,

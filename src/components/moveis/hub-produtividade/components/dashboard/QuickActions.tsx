@@ -312,7 +312,11 @@ export function QuickActions({
       </div>
 
       {/* Grid de ações */}
-      <div className={`grid gap-3 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'}`}>
+      <div className={`grid gap-3 ${
+        isMobile 
+          ? 'grid-cols-2' 
+          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
+      }`}>
         {visibleSections.map((section, index) => {
           const Icon = section.icon;
           const isActionFavorite = isFavorite(section.id);
@@ -324,7 +328,7 @@ export function QuickActions({
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={section.onClick}
             >
-              <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
+              <CardContent className={`${isMobile ? 'p-3' : 'p-4 lg:p-5'}`}>
                 {/* Indicador de favorito */}
                 {isActionFavorite && (
                   <div className="absolute top-2 right-2">
@@ -333,55 +337,55 @@ export function QuickActions({
                 )}
                 
                 <div className="space-y-2">
-                  <div className={`p-2 rounded-lg bg-gradient-to-r ${section.color} group-hover:scale-110 transition-transform duration-200`}>
+                  <div className={`p-2 lg:p-3 rounded-lg bg-gradient-to-r ${section.color} group-hover:scale-110 transition-transform duration-200`}>
                     {section.isLoading ? (
-                      <RefreshCw className="h-4 w-4 text-white animate-spin" />
+                      <RefreshCw className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5 lg:h-6 lg:w-6'} text-white animate-spin`} />
                     ) : (
-                      <Icon className="h-4 w-4 text-white" />
+                      <Icon className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5 lg:h-6 lg:w-6'} text-white`} />
                     )}
                   </div>
                   <div className="space-y-1">
-                    <h3 className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold leading-tight`}>
+                    <h3 className={`${isMobile ? 'text-xs' : 'text-sm lg:text-base'} font-semibold leading-tight`}>
                       {section.title}
                     </h3>
                     {!isMobile && section.subtitle && (
-                      <p className="text-xs text-muted-foreground leading-tight">
+                      <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
                         {section.subtitle}
                       </p>
                     )}
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                       {section.title === "Nova Rotina" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                           {section.stats.active}
                         </Badge>
                       )}
                       {section.title === "Nova Orientação" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                           {section.stats.pending}
                         </Badge>
                       )}
                       {section.title === "Nova Tarefa" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0 text-green-600">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5 text-green-600">
                           {section.stats.sales}
                         </Badge>
                       )}
                       {section.title === "Busca Avançada" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                           {section.stats.thisMonth}
                         </Badge>
                       )}
                       {section.title === "Por Data" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                           {section.stats.files}
                         </Badge>
                       )}
                       {section.title === "Relatórios" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                           {section.stats.active}
                         </Badge>
                       )}
                       {section.title === "Exportar" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
+                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                           {section.stats.pending}
                         </Badge>
                       )}
