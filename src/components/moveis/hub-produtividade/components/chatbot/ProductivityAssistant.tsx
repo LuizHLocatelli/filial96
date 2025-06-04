@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Loader2, RefreshCcw, Copy, Minimize2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -127,7 +126,7 @@ export function ProductivityAssistant({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // N8N Webhook URL - ATUALIZADA
-  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook-test/44a765ab-fb44-44c3-ab75-5ec334b9cda0";
+  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook/44a765ab-fb44-44c3-ab75-5ec334b9cda0";
 
   // Função para enviar mensagem para o N8N
   const sendToN8N = async (userMessage: string): Promise<string> => {
