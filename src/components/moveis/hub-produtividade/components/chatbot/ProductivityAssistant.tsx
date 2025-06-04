@@ -3,6 +3,7 @@ import { Send, Sparkles, Loader2, RefreshCcw, Copy, Minimize2, Maximize2 } from 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { API_ENDPOINTS, CORS_CONFIG } from "@/lib/constants";
 
 // Message Loading Animation Component
 function MessageLoading() {
@@ -124,17 +125,15 @@ export function ProductivityAssistant({
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // N8N Webhook URL - ATUALIZADA
-  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook/44a765ab-fb44-44c3-ab75-5ec334b9cda0";
+  // N8N Webhook URL - USANDO PROXY SUPABASE (RESOLVE CORS)
+  const N8N_WEBHOOK_URL = API_ENDPOINTS.N8N_PROXY;
 
   // Função para enviar mensagem para o N8N
   const sendToN8N = async (userMessage: string): Promise<string> => {
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: CORS_CONFIG.headers,
         body: JSON.stringify({
           message: userMessage,
           timestamp: new Date().toISOString(),
@@ -143,7 +142,9 @@ export function ProductivityAssistant({
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na requisição: ${response.status}`);
+        // Melhor tratamento de erro com informações específicas
+        const errorText = await response.text();
+        throw new Error(`Erro na requisição (${response.status}): ${errorText}`);
       }
 
       const data = await response.json();
@@ -167,7 +168,12 @@ export function ProductivityAssistant({
       }
       
     } catch (error) {
-      console.error('Erro ao enviar mensagem para N8N:', error);
+      // Log específico para problema de CORS (se ainda existir)
+      if (error.message.includes('CORS') || error.message.includes('blocked')) {
+        console.error('⚠️  Problema de CORS detectado - verifique se a Edge Function está funcionando:', error);
+      } else {
+        console.error('❌ Erro ao enviar mensagem para N8N via proxy:', error);
+      }
       throw error;
     }
   };
