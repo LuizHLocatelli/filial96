@@ -122,51 +122,10 @@ export function ProductivityAssistant({
   const [messages, setMessages] = useState<{ text: string; isUser: boolean; timestamp: Date }[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // N8N Webhook URL
-  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook-test/AssistentedeProdutividade";
-
-  // Função para enviar mensagem para o N8N
-  const sendToN8N = async (userMessage: string): Promise<string> => {
-    try {
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          timestamp: new Date().toISOString(),
-          source: 'ProductivityAssistant'
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro na requisição: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      // Verifica se o N8N retornou uma resposta válida
-      if (data && data.response) {
-        return data.response;
-      } else if (data && data.message) {
-        return data.message;
-      } else {
-        // Se não há resposta estruturada, usa o conteúdo da resposta
-        return typeof data === 'string' ? data : JSON.stringify(data);
-      }
-      
-    } catch (error) {
-      console.error('Erro ao enviar mensagem para N8N:', error);
-      throw error;
-    }
-  };
-
-  // Função de fallback para respostas locais (caso o N8N falhe)
-  const getFallbackResponse = (userMessage: string): string => {
+  // Respostas predefinidas mais inteligentes
+  const getSmartResponse = (userMessage: string): string => {
     const msg = userMessage.toLowerCase();
     
     if (msg.includes("olá") || msg.includes("oi") || msg.includes("bom dia") || msg.includes("boa tarde")) {
@@ -177,45 +136,62 @@ export function ProductivityAssistant({
       return "Estou aqui para ajudar! Posso responder perguntas sobre:\n• Rotinas e tarefas\n• Dicas de produtividade\n• Organização do trabalho\n• Orientações da empresa\n\nO que você gostaria de saber?";
     }
     
-    return "Desculpe, estou com dificuldades para processar sua mensagem no momento. Por favor, tente novamente em alguns instantes.";
+    if (msg.includes("rotina") || msg.includes("rotinas")) {
+      return "Para gerenciar suas rotinas:\n• Acesse a aba 'Rotinas' no Hub\n• Marque as tarefas concluídas\n• Defina prioridades\n• Mantenha um cronograma consistente";
+    }
+    
+    if (msg.includes("produtividade") || msg.includes("produtivo")) {
+      return "Dicas para aumentar sua produtividade:\n• Use a técnica Pomodoro (25min foco + 5min pausa)\n• Priorize tarefas importantes\n• Elimine distrações\n• Faça pausas regulares\n• Mantenha sua área de trabalho organizada";
+    }
+    
+    if (msg.includes("tarefa") || msg.includes("tarefas")) {
+      return "Para organizar suas tarefas:\n• Use listas de prioridades\n• Defina prazos realistas\n• Divida tarefas grandes em menores\n• Acompanhe o progresso regularmente";
+    }
+    
+    if (msg.includes("relatório") || msg.includes("relatórios")) {
+      return "Para acessar relatórios:\n• Vá até a aba 'Relatórios' no Hub\n• Filtre por período ou categoria\n• Export dados quando necessário\n• Analise métricas de performance";
+    }
+    
+    if (msg.includes("monitoramento") || msg.includes("acompanhar")) {
+      return "O monitoramento está na aba específica do Hub. Lá você pode:\n• Acompanhar indicadores por cargo\n• Visualizar métricas de performance\n• Receber orientações personalizadas";
+    }
+    
+    if (msg.includes("como") && msg.includes("usar")) {
+      return "Para usar o Hub de Produtividade:\n\n1. **Visão Geral**: Veja métricas e atividades\n2. **Rotinas**: Gerencie suas tarefas diárias\n3. **Informativos**: Acesse orientações e documentos\n4. **Monitoramento**: Acompanhe indicadores\n5. **Relatórios**: Analise dados e performance";
+    }
+    
+    if (msg.includes("obrigado") || msg.includes("valeu") || msg.includes("thanks")) {
+      return "De nada! Fico feliz em ajudar. Há mais alguma coisa em que eu possa auxiliar?";
+    }
+    
+    if (msg.includes("tchau") || msg.includes("bye") || msg.includes("até logo")) {
+      return "Até logo! Estarei aqui sempre que precisar. Tenha um dia produtivo! 🚀";
+    }
+    
+    // Resposta padrão mais inteligente
+    return "Entendi sua pergunta! Como assistente de produtividade, posso ajudar com:\n\n• Organização de rotinas e tarefas\n• Dicas para aumentar eficiência\n• Navegação no Hub de Produtividade\n• Orientações sobre relatórios e monitoramento\n\nPoderia reformular sua pergunta ou me dizer especificamente o que precisa?";
   };
 
-  // Processar resposta do usuário
-  const processUserMessage = async (userMessage: string) => {
+  // Simulate AI typing effect
+  const simulateResponse = (userMessage: string) => {
     setIsTyping(true);
-    setError(null);
     
-    try {
-      // Tenta enviar para o N8N primeiro
-      const response = await sendToN8N(userMessage);
-      
+    const response = getSmartResponse(userMessage);
+    
+    setTimeout(() => {
+      setIsTyping(false);
       setMessages((prev) => [...prev, { 
         text: response, 
         isUser: false, 
         timestamp: new Date() 
       }]);
-      
-    } catch (error) {
-      console.error('Erro ao obter resposta do N8N:', error);
-      
-      // Em caso de erro, usa resposta de fallback
-      const fallbackResponse = getFallbackResponse(userMessage);
-      setMessages((prev) => [...prev, { 
-        text: fallbackResponse + "\n\n⚠️ Usando modo offline - conexão com IA temporariamente indisponível.", 
-        isUser: false, 
-        timestamp: new Date() 
-      }]);
-      
-      setError("Conexão com o assistente IA temporariamente indisponível");
-    } finally {
-      setIsTyping(false);
-    }
+    }, Math.random() * 1000 + 1000); // Random delay between 1-2 seconds
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     
-    if (input.trim() === "" || isTyping) return;
+    if (input.trim() === "") return;
     
     const userMessage = input;
     setMessages((prev) => [...prev, { 
@@ -225,12 +201,11 @@ export function ProductivityAssistant({
     }]);
     setInput("");
     
-    processUserMessage(userMessage);
+    simulateResponse(userMessage);
   };
 
   const clearChat = () => {
     setMessages([]);
-    setError(null);
   };
 
   const copyMessage = (text: string) => {
@@ -249,16 +224,11 @@ export function ProductivityAssistant({
         <div className="flex items-center space-x-3">
           <div className="relative">
             <Sparkles className="text-primary h-5 w-5" />
-            <div className={cn(
-              "absolute -top-1 -right-1 w-2 h-2 rounded-full border border-background",
-              error ? "bg-yellow-500" : "bg-green-500"
-            )}></div>
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full border border-background"></div>
           </div>
           <div>
             <h3 className="text-foreground font-semibold text-sm">Assistente de Produtividade</h3>
-            <p className="text-xs text-muted-foreground">
-              {error ? "Modo offline ativo" : "Conectado à IA • Online"}
-            </p>
+            <p className="text-xs text-muted-foreground">Seu assistente inteligente sempre disponível</p>
           </div>
         </div>
         <div className="flex gap-1">
@@ -286,15 +256,6 @@ export function ProductivityAssistant({
       {/* Content - conditionally rendered based on minimized state */}
       {!isMinimized && (
         <>
-          {/* Error Banner */}
-          {error && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800 p-2">
-              <p className="text-xs text-yellow-800 dark:text-yellow-200 text-center">
-                {error}
-              </p>
-            </div>
-          )}
-          
           {/* Messages container */}
           <div className="p-3 h-[300px] overflow-y-auto bg-background">
             {messages.length === 0 ? (
@@ -383,7 +344,6 @@ export function ProductivityAssistant({
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Digite sua mensagem..."
                 className="w-full bg-background border border-input rounded-lg py-2 pl-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                disabled={isTyping}
               />
               <button
                 type="submit"
