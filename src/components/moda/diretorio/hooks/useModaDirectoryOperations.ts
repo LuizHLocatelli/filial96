@@ -1,21 +1,21 @@
 
 import { useState } from 'react';
-import { useDirectoryFiles } from '../../moda/diretorio/hooks/useDirectoryFiles';
-import { useDirectoryCategories } from '../../moda/diretorio/hooks/useDirectoryCategories';
-import { useCategoryOperations } from '../../moda/diretorio/hooks/useCategoryOperations';
-import { useFileOperations } from '../../moda/diretorio/hooks/useFileOperations';
+import { useModaDirectoryFiles } from './useModaDirectoryFiles';
+import { useModaDirectoryCategories } from './useModaDirectoryCategories';
+import { useModaCategoryOperations } from './useModaCategoryOperations';
+import { useFileOperations } from './useFileOperations';
 import { toast } from 'sonner';
 
 export function useModaDirectoryOperations() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isUploading, setIsUploading] = useState(false);
 
-  // Usar nomes de tabelas fixos que existem no banco
-  const { files, isLoading: isLoadingFiles, refetch: refetchFiles } = useDirectoryFiles('moda_arquivos');
-  const { categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useDirectoryCategories('moda_categorias');
+  // Usar hooks específicos do moda
+  const { files, isLoading: isLoadingFiles, refetch: refetchFiles } = useModaDirectoryFiles();
+  const { categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useModaDirectoryCategories();
 
   // Operações de categoria
-  const categoryOps = useCategoryOperations('moda_categorias', refetchCategories);
+  const categoryOps = useModaCategoryOperations(refetchCategories);
 
   // Operações de arquivo
   const fileOps = useFileOperations('moda_arquivos', files, refetchFiles);
