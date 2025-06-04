@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { DirectoryFile, SortBy, SortDirection } from '../types';
@@ -87,19 +88,19 @@ export function useFileOperations(tableName: string, files: DirectoryFile[], ref
         // Upload para o storage
         const fileName = `${Date.now()}_${file.name}`;
         const { data: storageData, error: storageError } = await supabase.storage
-          .from(tableName)
+          .from('moda_arquivos')
           .upload(fileName, file);
 
         if (storageError) throw storageError;
 
         // Obter URL pública
         const { data: { publicUrl } } = supabase.storage
-          .from(tableName)
+          .from('moda_arquivos')
           .getPublicUrl(fileName);
 
         // Inserir no banco
         const { error: dbError } = await supabase
-          .from(tableName)
+          .from('moda_arquivos')
           .insert([{
             name: file.name,
             file_url: publicUrl,
@@ -120,7 +121,7 @@ export function useFileOperations(tableName: string, files: DirectoryFile[], ref
 
   const handleUpdateFile = async (id: string, name: string, description?: string, categoryId?: string) => {
     const { error } = await supabase
-      .from(tableName)
+      .from('moda_arquivos')
       .update({ name, description, category_id: categoryId })
       .eq('id', id);
 
@@ -135,7 +136,7 @@ export function useFileOperations(tableName: string, files: DirectoryFile[], ref
     try {
       // Excluir do banco
       const { error: dbError } = await supabase
-        .from(tableName)
+        .from('moda_arquivos')
         .delete()
         .eq('id', selectedFile.id);
 
@@ -147,7 +148,7 @@ export function useFileOperations(tableName: string, files: DirectoryFile[], ref
           const fileName = selectedFile.file_url.split('/').pop();
           if (fileName) {
             await supabase.storage
-              .from(tableName)
+              .from('moda_arquivos')
               .remove([fileName]);
           }
         } catch (storageError) {
@@ -188,4 +189,4 @@ export function useFileOperations(tableName: string, files: DirectoryFile[], ref
     setDeleteDialogOpen,
     setViewerOpen
   };
-} 
+}
