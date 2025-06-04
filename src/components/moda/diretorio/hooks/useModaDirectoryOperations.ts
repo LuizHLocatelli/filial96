@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
-import { useDirectoryFiles } from './useDirectoryFiles';
-import { useDirectoryCategories } from './useDirectoryCategories';
-import { useCategoryOperations } from './useCategoryOperations';
+import { useModaDirectoryFiles } from './useModaDirectoryFiles';
+import { useModaDirectoryCategories } from './useModaDirectoryCategories';
+import { useModaCategoryOperations } from './useModaCategoryOperations';
 import { useFileOperations } from './useFileOperations';
 import { toast } from 'sonner';
 
@@ -9,12 +10,12 @@ export function useModaDirectoryOperations() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isUploading, setIsUploading] = useState(false);
 
-  // Buscar arquivos e categorias
-  const { files, isLoading: isLoadingFiles, refetch: refetchFiles } = useDirectoryFiles('moda_arquivos');
-  const { categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useDirectoryCategories('moda_categorias');
+  // Usar hooks específicos do moda
+  const { files, isLoading: isLoadingFiles, refetch: refetchFiles } = useModaDirectoryFiles();
+  const { categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useModaDirectoryCategories();
 
   // Operações de categoria
-  const categoryOps = useCategoryOperations('moda_categorias', refetchCategories);
+  const categoryOps = useModaCategoryOperations(refetchCategories);
 
   // Operações de arquivo
   const fileOps = useFileOperations('moda_arquivos', files, refetchFiles);
@@ -93,4 +94,4 @@ export function useModaDirectoryOperations() {
     handleDeleteFileConfirm,
     handleFileUpload,
   };
-} 
+}

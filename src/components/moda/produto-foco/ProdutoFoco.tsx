@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -150,9 +151,9 @@ export function ProdutoFoco() {
 
   const handleFormSubmit = async (formData: any) => {
     try {
-      const isEditing = !!editingProduto;
+      const isEditingMode = !!editingProduto;
       
-      if (isEditing) {
+      if (isEditingMode) {
         trackProdutoFocoEvent('produto_atualizado', { ...formData, id: editingProduto.id });
       } else {
         trackProdutoFocoEvent('produto_criado', formData);
@@ -162,7 +163,7 @@ export function ProdutoFoco() {
       setEditingProduto(null);
       await fetchProdutos();
     } catch (error) {
-      trackProdutoFocoEvent('erro_formulario', { erro: error, modo: isEditing ? 'edicao' : 'criacao' });
+      trackProdutoFocoEvent('erro_formulario', { erro: error, modo: editingProduto ? 'edicao' : 'criacao' });
     }
   };
 
@@ -337,8 +338,8 @@ export function ProdutoFoco() {
         isOpen={!!deletingProduto}
         onClose={() => setDeletingProduto(null)}
         onConfirm={confirmDeleteProduto}
-        itemName={produtos.find(p => p.id === deletingProduto)?.nome_produto || ''}
+        produtoNome={produtos.find(p => p.id === deletingProduto)?.nome_produto || ''}
       />
     </div>
   );
-} 
+}

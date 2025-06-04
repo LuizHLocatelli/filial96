@@ -124,8 +124,56 @@ export function ProductivityAssistant({
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Respostas predefinidas mais inteligentes
-  const getSmartResponse = (userMessage: string): string => {
+  // N8N Webhook URL - ATUALIZADA
+  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook/44a765ab-fb44-44c3-ab75-5ec334b9cda0";
+
+  // Função para enviar mensagem para o N8N
+  const sendToN8N = async (userMessage: string): Promise<string> => {
+    try {
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          timestamp: new Date().toISOString(),
+          source: 'ProductivityAssistant'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Verifica se o N8N retornou uma resposta válida
+      // Primeiro tenta acessar 'output' (formato atual)
+      if (data && data.output) {
+        return data.output;
+      }
+      // Fallback para 'response' (formato anterior)
+      else if (data && data.response) {
+        return data.response;
+      }
+      // Fallback para 'message'
+      else if (data && data.message) {
+        return data.message;
+      }
+      // Se não há resposta estruturada, usa o conteúdo da resposta
+      else {
+        return typeof data === 'string' ? data : JSON.stringify(data);
+      }
+      
+    } catch (error) {
+      console.error('Erro ao enviar mensagem para N8N:', error);
+      throw error;
+    }
+  };
+
+  // Função de fallback para respostas locais (caso o N8N falhe)
+  const getFallbackResponse = (userMessage: string): string => {
     const msg = userMessage.toLowerCase();
     
     if (msg.includes("olá") || msg.includes("oi") || msg.includes("bom dia") || msg.includes("boa tarde")) {
@@ -173,19 +221,36 @@ export function ProductivityAssistant({
   };
 
   // Simulate AI typing effect
-  const simulateResponse = (userMessage: string) => {
+  const simulateResponse = async (userMessage: string) => {
     setIsTyping(true);
     
-    const response = getSmartResponse(userMessage);
-    
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages((prev) => [...prev, { 
-        text: response, 
-        isUser: false, 
-        timestamp: new Date() 
-      }]);
-    }, Math.random() * 1000 + 1000); // Random delay between 1-2 seconds
+    try {
+      // Tenta enviar para o N8N primeiro
+      const response = await sendToN8N(userMessage);
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        setMessages((prev) => [...prev, { 
+          text: response, 
+          isUser: false, 
+          timestamp: new Date() 
+        }]);
+      }, Math.random() * 1000 + 1000); // Random delay between 1-2 seconds
+      
+    } catch (error) {
+      // Se falhar, usa a resposta local
+      console.warn('Falha na comunicação com N8N, usando resposta local:', error);
+      const fallbackResponse = getFallbackResponse(userMessage);
+      
+      setTimeout(() => {
+        setIsTyping(false);
+        setMessages((prev) => [...prev, { 
+          text: fallbackResponse, 
+          isUser: false, 
+          timestamp: new Date() 
+        }]);
+      }, Math.random() * 1000 + 1000);
+    }
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -366,4 +431,4 @@ export function ProductivityAssistant({
       )}
     </div>
   );
-} 
+}
