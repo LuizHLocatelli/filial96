@@ -125,8 +125,8 @@ export function ProductivityAssistant({
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // N8N Webhook URL
-  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook-test/AssistentedeProdutividade";
+  // N8N Webhook URL - ATUALIZADA
+  const N8N_WEBHOOK_URL = "https://filial96.app.n8n.cloud/webhook-test/44a765ab-fb44-44c3-ab75-5ec334b9cda0";
 
   // Função para enviar mensagem para o N8N
   const sendToN8N = async (userMessage: string): Promise<string> => {
@@ -406,4 +406,4 @@ export function ProductivityAssistant({
       )}
     </div>
   );
-} 
+}
