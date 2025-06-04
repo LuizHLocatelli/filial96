@@ -15,11 +15,12 @@ Os elementos dentro da NavigationTabs não se enquadravam adequadamente na tela 
 const tabs = [
   { title: "Hub", icon: Activity, path: "/" },
   { title: "Móveis", icon: Sofa, path: "/moveis" },
+  { title: "Moda", icon: Shirt, path: "/moda" },
   { title: "Crediário", icon: DollarSign, path: "/crediario" },
   { title: "Cards", icon: Image, path: "/cards-promocionais" },
 ];
 
-// Sempre usa o título completo
+// Sempre usa o título completo - AGORA SUPORTA 5 ELEMENTOS
 {tab.title}
 ```
 

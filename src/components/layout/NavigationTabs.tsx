@@ -70,7 +70,7 @@ export function NavigationTabs() {
         <div className={cn(
           "relative flex items-center",
           isMobile 
-            ? "justify-center gap-7" // Gap ligeiramente maior para ajuste final
+            ? "justify-between gap-1 px-1" // Mudança para justify-between e gap menor
             : "justify-around gap-1"
         )}>
           {tabs.map((tab, index) => {
@@ -85,7 +85,7 @@ export function NavigationTabs() {
                   "relative flex flex-col items-center justify-center rounded-xl transition-all duration-300",
                   "group cursor-pointer select-none shrink-0", // shrink-0 para evitar compressão
                   isMobile 
-                    ? "w-[76px] h-16 px-3.5 py-2" // Largura e padding extremos
+                    ? "flex-1 max-w-[68px] min-w-[52px] h-16 px-2 py-2" // Flex-1 para distribuir igualmente o espaço
                     : "min-w-[56px] h-16 px-3 py-2.5",
                   // Usar classes personalizadas para estados
                   isActive
@@ -131,7 +131,7 @@ export function NavigationTabs() {
                     "relative flex items-center justify-center transition-all duration-300",
                     "rounded-lg", // rounded-lg para mobile
                     isMobile 
-                      ? "w-6 h-6 mb-1" // Ícones ainda menores para dar espaço aos textos
+                      ? "w-5 h-5 mb-1" // Ícones ainda menores para 5 elementos
                       : "w-8 h-8 mb-2",
                     isActive 
                       ? "bg-primary/35 shadow-lg shadow-primary/50 border border-primary/40" 
@@ -143,7 +143,7 @@ export function NavigationTabs() {
                   <Icon 
                     className={cn(
                       "transition-all duration-300",
-                      isMobile ? "h-3.5 w-3.5" : "h-4 w-4", // Ícones menores para dar espaço ao texto
+                      isMobile ? "h-3 w-3" : "h-4 w-4", // Ícones ainda menores para 5 elementos
                       isActive 
                         ? "nav-icon-active font-bold" 
                         : "nav-icon-inactive group-hover:font-medium",
@@ -156,9 +156,9 @@ export function NavigationTabs() {
                 {/* Label com melhor contraste e responsividade aprimorada */}
                 <span className={cn(
                   "font-semibold transition-all duration-300 text-center leading-tight",
-                  "tracking-tighter overflow-hidden text-ellipsis whitespace-nowrap", // Melhor handling de overflow
+                  "tracking-tighter overflow-hidden text-ellipsis whitespace-nowrap w-full", // w-full para usar todo espaço disponível
                   isMobile 
-                    ? "text-[9px] max-w-full" // Fonte menor para acomodar nomes completos
+                    ? "text-[8px] max-w-full" // Fonte ainda menor para 5 elementos
                     : "text-[11px]",
                   isActive 
                     ? "text-primary-foreground filter drop-shadow-sm" 

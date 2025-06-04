@@ -173,9 +173,9 @@
 
 /* Responsividade Mobile - NavigationTabs */
 @layer utilities {
-  /* Proteção contra textos muito pequenos em mobile - agora incluindo 9px */
+  /* Proteção contra textos muito pequenos em mobile - agora incluindo 8px */
   @media (max-width: 374px) {
-    .text-\[8px\] { font-size: 10px !important; }
+    .text-\[8px\] { font-size: 9px !important; }
     .text-\[9px\] { font-size: 10px !important; }
     .text-\[10px\] { font-size: 11px !important; }
     
@@ -186,11 +186,12 @@
   }
 
   @media (max-width: 767px) {
-    /* Garantir que os botões da navegação tenham tamanho mínimo adequado */
+    /* Garantir que os botões da navegação tenham tamanho mínimo adequado para 5 elementos */
     .nav-tab-inactive,
     .nav-tab-active {
       min-height: 64px;
-      min-width: 50px; /* Reduzido para espaçamento menor */
+      min-width: 48px; /* Reduzido para comportar 5 elementos */
+      max-width: 68px; /* Máximo para evitar muito espaço */
     }
     
     /* Proteção contra overflow horizontal */
@@ -199,30 +200,59 @@
     }
     
     /* Texto da navegação - tamanho mínimo legível para nomes completos */
+    .text-\[8px\] { font-size: 9px !important; }
     .text-\[9px\] { font-size: 10px !important; }
     .text-\[10px\] { font-size: 11px !important; }
   }
 
-  /* Telas extra pequenas - iPhone SE e similares */
+  /* Telas extra pequenas - iPhone SE e similares com 5 elementos */
   @media (max-width: 320px) {
     .nav-glass-effect {
-      padding: 0.5rem 0.25rem !important; /* Padding ajustado para espaçamento menor */
+      padding: 0.5rem 0.125rem !important; /* Padding ainda menor para 5 elementos */
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
-      min-width: 46px !important; /* Reduzido ainda mais */
-      max-width: 58px !important; /* Reduzido para espaçamento menor */
-      font-size: 9px !important;
+      min-width: 44px !important; /* Ainda menor para 5 elementos */
+      max-width: 56px !important; /* Máximo menor para telas pequenas */
+      font-size: 8px !important;
     }
     
-    /* Para textos muito longos em telas pequenas */
+    /* Para textos muito longos em telas pequenas - melhor ellipsis */
     .nav-tab-inactive span,
     .nav-tab-active span {
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 700 !important; /* Mais pesada para legibilidade com fonte pequena */
+    }
+  }
+
+  /* Telas ultra pequenas - Galaxy Fold e similares */
+  @media (max-width: 280px) {
+    .nav-glass-effect {
+      padding: 0.375rem 0.125rem !important;
+    }
+    
+    .nav-tab-inactive,
+    .nav-tab-active {
+      min-width: 40px !important;
+      max-width: 50px !important;
+      font-size: 7px !important;
+    }
+    
+    /* Ícones ainda menores para telas muito pequenas */
+    .nav-tab-inactive .w-5,
+    .nav-tab-active .w-5 {
+      width: 1rem !important;
+      height: 1rem !important;
+    }
+    
+    .nav-tab-inactive .h-3,
+    .nav-tab-active .h-3 {
+      width: 0.625rem !important;
+      height: 0.625rem !important;
     }
   }
 
@@ -239,6 +269,11 @@
 
   /* Melhoria para legibilidade de textos pequenos - CONTRASTE MELHORADO PARA MODO CLARO */
   @media (max-width: 767px) {
+    .text-\[8px\] {
+      font-weight: 700 !important; /* Fonte mais pesada para melhor legibilidade */
+      letter-spacing: -0.05em !important; /* Tracking mais apertado */
+    }
+    
     .text-\[9px\] {
       font-weight: 600 !important; /* Fonte mais pesada para melhor legibilidade */
       letter-spacing: -0.025em !important; /* Tracking mais apertado */
