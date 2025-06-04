@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Loader2, RefreshCcw, Copy, Minimize2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -150,12 +151,20 @@ export function ProductivityAssistant({
       const data = await response.json();
       
       // Verifica se o N8N retornou uma resposta válida
-      if (data && data.response) {
+      // Primeiro tenta acessar 'output' (formato atual)
+      if (data && data.output) {
+        return data.output;
+      }
+      // Fallback para 'response' (formato anterior)
+      else if (data && data.response) {
         return data.response;
-      } else if (data && data.message) {
+      }
+      // Fallback para 'message'
+      else if (data && data.message) {
         return data.message;
-      } else {
-        // Se não há resposta estruturada, usa o conteúdo da resposta
+      }
+      // Se não há resposta estruturada, usa o conteúdo da resposta
+      else {
         return typeof data === 'string' ? data : JSON.stringify(data);
       }
       
