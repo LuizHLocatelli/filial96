@@ -58,7 +58,7 @@ interface AccessEvent {
   duracao_segundos?: number;
   detalhes?: any;
   metadata?: any;
-  ip_address?: string;
+  ip_address?: string | unknown; // Allow unknown type from database
   user_agent?: string;
 }
 
@@ -160,14 +160,18 @@ export function Monitoramento() {
       calculateStats(monitoringData || []);
       calculateHourlyData(monitoringData || []);
       
-      // Buscar eventos recentes (combinando ambas as fontes)
-      const combinedEvents = [
-        ...(monitoringData || []),
+      // Buscar eventos recentes (combinando ambas as fontes) - converting to AccessEvent format
+      const combinedEvents: AccessEvent[] = [
+        ...(monitoringData || []).map(event => ({
+          ...event,
+          ip_address: event.ip_address ? String(event.ip_address) : undefined
+        })),
         ...(detailedEvents || []).map(event => ({
           ...event,
           timestamp: event.created_at,
           secao: event.secao,
-          acao: event.evento_tipo
+          acao: event.evento_tipo,
+          ip_address: undefined
         }))
       ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
@@ -867,4 +871,4 @@ export function Monitoramento() {
       />
     </div>
   );
-} 
+}
