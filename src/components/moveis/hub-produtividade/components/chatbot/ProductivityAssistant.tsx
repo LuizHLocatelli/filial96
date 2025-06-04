@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Loader2, RefreshCcw, Copy, Minimize2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -133,7 +134,6 @@ export function ProductivityAssistant({
     try {
       const response = await fetch(N8N_WEBHOOK_URL, {
         method: 'POST',
-        mode: 'no-cors', // Adiciona mode no-cors para contornar CORS
         headers: {
           'Content-Type': 'application/json',
         },
@@ -144,9 +144,29 @@ export function ProductivityAssistant({
         }),
       });
 
-      // Com mode: 'no-cors', não conseguimos ler a resposta
-      // Então vamos simular uma resposta padrão
-      return "Obrigado pela sua mensagem! Recebi sua pergunta sobre: \"" + userMessage + "\". Estou processando e em breve você terá uma resposta mais detalhada.";
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Verifica se o N8N retornou uma resposta válida
+      // Primeiro tenta acessar 'output' (formato atual)
+      if (data && data.output) {
+        return data.output;
+      }
+      // Fallback para 'response' (formato anterior)
+      else if (data && data.response) {
+        return data.response;
+      }
+      // Fallback para 'message'
+      else if (data && data.message) {
+        return data.message;
+      }
+      // Se não há resposta estruturada, usa o conteúdo da resposta
+      else {
+        return typeof data === 'string' ? data : JSON.stringify(data);
+      }
       
     } catch (error) {
       console.error('Erro ao enviar mensagem para N8N:', error);
