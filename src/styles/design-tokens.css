@@ -48,19 +48,19 @@
     --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
-    /* Navigation Enhanced Tokens */
-    --nav-bg-primary: rgba(255, 255, 255, 0.95);
-    --nav-bg-glass: rgba(255, 255, 255, 0.85);
-    --nav-border: rgba(255, 255, 255, 0.3);
-    --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --nav-glow: rgba(var(--primary), 0.3);
-    --nav-text-active: hsl(var(--primary-foreground));
-    --nav-text-inactive: rgba(var(--foreground), 0.9);
-    --nav-icon-active: hsl(var(--primary-foreground));
-    --nav-icon-inactive: rgba(var(--foreground), 0.85);
-    --nav-tab-active-bg: rgba(var(--primary), 0.4);
-    --nav-tab-hover-bg: rgba(255, 255, 255, 0.2);
-    --nav-indicator-shadow: 0 4px 16px rgba(var(--primary), 0.6);
+    /* Navigation Enhanced Tokens - MODO CLARO MENOS BRILHANTE */
+    --nav-bg-primary: rgba(255, 255, 255, 0.70); /* Reduzido para menos brilho */
+    --nav-bg-glass: rgba(255, 255, 255, 0.60); /* Muito mais sutil */
+    --nav-border: rgba(0, 0, 0, 0.04); /* Borda ainda mais sutil */
+    --nav-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); /* Shadow bem reduzida */
+    --nav-glow: rgba(34, 197, 94, 0.3); /* Glow reduzido */
+    --nav-text-active: hsl(150 40% 98%); /* Texto ativo mantido */
+    --nav-text-inactive: rgba(30, 30, 30, 0.85); /* Texto inativo mais escuro */
+    --nav-icon-active: hsl(150 40% 98%); /* Ícone ativo mantido */
+    --nav-icon-inactive: rgba(30, 30, 30, 0.75); /* Ícone inativo mais escuro */
+    --nav-tab-active-bg: rgba(34, 197, 94, 0.6); /* Verde mantido */
+    --nav-tab-hover-bg: rgba(0, 0, 0, 0.03); /* Hover muito sutil */
+    --nav-indicator-shadow: 0 2px 8px rgba(34, 197, 94, 0.5); /* Shadow verde reduzida */
   }
 
   .dark {
@@ -97,19 +97,19 @@
     --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
-    /* Dark Navigation Enhanced Tokens */
-    --nav-bg-primary: rgba(20, 20, 20, 0.95);
-    --nav-bg-glass: rgba(20, 20, 20, 0.85);
-    --nav-border: rgba(255, 255, 255, 0.2);
-    --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    --nav-glow: rgba(var(--primary), 0.4);
+    /* Dark Navigation Enhanced Tokens - MODO ESCURO MENOS BRILHANTE */
+    --nav-bg-primary: rgba(20, 20, 20, 0.80); /* Reduzido para menos brilho */
+    --nav-bg-glass: rgba(20, 20, 20, 0.65); /* Mais sutil */
+    --nav-border: rgba(255, 255, 255, 0.08); /* Borda bem sutil */
+    --nav-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); /* Shadow reduzida */
+    --nav-glow: rgba(34, 197, 94, 0.4); /* Glow um pouco reduzido */
     --nav-text-active: hsl(var(--primary-foreground));
     --nav-text-inactive: rgba(var(--foreground), 0.9);
     --nav-icon-active: hsl(var(--primary-foreground));
     --nav-icon-inactive: rgba(var(--foreground), 0.85);
-    --nav-tab-active-bg: rgba(var(--primary), 0.4);
-    --nav-tab-hover-bg: rgba(255, 255, 255, 0.15);
-    --nav-indicator-shadow: 0 4px 16px rgba(var(--primary), 0.6);
+    --nav-tab-active-bg: rgba(34, 197, 94, 0.5); /* Verde mantido */
+    --nav-tab-hover-bg: rgba(255, 255, 255, 0.06); /* Hover mais sutil */
+    --nav-indicator-shadow: 0 2px 8px rgba(34, 197, 94, 0.6); /* Shadow verde reduzida */
   }
 }
 
@@ -117,8 +117,8 @@
 @layer components {
   .nav-glass-effect {
     background: var(--nav-bg-glass);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(12px); /* Blur reduzido de 24px para 12px */
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--nav-border);
     box-shadow: var(--nav-shadow);
   }
@@ -142,7 +142,7 @@
 
   .nav-icon-active {
     color: var(--nav-icon-active);
-    filter: drop-shadow(0 2px 4px rgba(var(--primary), 0.3));
+    filter: drop-shadow(0 1px 3px rgba(34, 197, 94, 0.3)); /* Drop shadow mais sutil */
   }
 
   .nav-icon-inactive {
@@ -152,7 +152,7 @@
 
   .nav-icon-inactive:hover {
     color: var(--nav-icon-active);
-    filter: drop-shadow(0 2px 4px rgba(var(--primary), 0.2));
+    filter: drop-shadow(0 1px 3px rgba(34, 197, 94, 0.2)); /* Drop shadow mais sutil no hover */
   }
 
   .nav-glow {
@@ -165,8 +165,103 @@
     inset: 0;
     border-radius: inherit;
     background: var(--nav-glow);
-    opacity: 0.7;
-    filter: blur(16px);
+    opacity: 0.5; /* Opacidade reduzida de 0.7 para 0.5 */
+    filter: blur(12px); /* Blur reduzido de 16px para 12px */
     z-index: -1;
+  }
+}
+
+/* Responsividade Mobile - NavigationTabs */
+@layer utilities {
+  /* Proteção contra textos muito pequenos em mobile - agora incluindo 9px */
+  @media (max-width: 374px) {
+    .text-\[8px\] { font-size: 10px !important; }
+    .text-\[9px\] { font-size: 10px !important; }
+    .text-\[10px\] { font-size: 11px !important; }
+    
+    /* Ajustes específicos para NavigationTabs em telas muito pequenas */
+    .nav-glass-effect {
+      padding: 0.5rem 0.25rem !important;
+    }
+  }
+
+  @media (max-width: 767px) {
+    /* Garantir que os botões da navegação tenham tamanho mínimo adequado */
+    .nav-tab-inactive,
+    .nav-tab-active {
+      min-height: 64px;
+      min-width: 50px; /* Reduzido para espaçamento menor */
+    }
+    
+    /* Proteção contra overflow horizontal */
+    .nav-glass-effect {
+      overflow-x: hidden;
+    }
+    
+    /* Texto da navegação - tamanho mínimo legível para nomes completos */
+    .text-\[9px\] { font-size: 10px !important; }
+    .text-\[10px\] { font-size: 11px !important; }
+  }
+
+  /* Telas extra pequenas - iPhone SE e similares */
+  @media (max-width: 320px) {
+    .nav-glass-effect {
+      padding: 0.5rem 0.25rem !important; /* Padding ajustado para espaçamento menor */
+    }
+    
+    .nav-tab-inactive,
+    .nav-tab-active {
+      min-width: 46px !important; /* Reduzido ainda mais */
+      max-width: 58px !important; /* Reduzido para espaçamento menor */
+      font-size: 9px !important;
+    }
+    
+    /* Para textos muito longos em telas pequenas */
+    .nav-tab-inactive span,
+    .nav-tab-active span {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  /* Utility para escala responsiva reduzida em mobile */
+  @media (max-width: 767px) {
+    .hover\:scale-102:hover {
+      transform: scale(1.02);
+    }
+    
+    .scale-105 {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Melhoria para legibilidade de textos pequenos - CONTRASTE MELHORADO PARA MODO CLARO */
+  @media (max-width: 767px) {
+    .text-\[9px\] {
+      font-weight: 600 !important; /* Fonte mais pesada para melhor legibilidade */
+      letter-spacing: -0.025em !important; /* Tracking mais apertado */
+    }
+  }
+
+  /* Melhorias específicas para modo claro */
+  @media (prefers-color-scheme: light) {
+    .nav-tab-inactive {
+      color: rgba(30, 30, 30, 0.85) !important; /* Força cor mais escura no modo claro */
+    }
+    
+    .nav-icon-inactive {
+      color: rgba(30, 30, 30, 0.75) !important; /* Força ícone mais escuro no modo claro */
+    }
+  }
+
+  /* Para garantir que funcione também com classes explícitas */
+  :root:not(.dark) .nav-tab-inactive {
+    color: rgba(30, 30, 30, 0.85) !important;
+  }
+  
+  :root:not(.dark) .nav-icon-inactive {
+    color: rgba(30, 30, 30, 0.75) !important;
   }
 }
