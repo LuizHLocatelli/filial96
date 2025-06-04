@@ -1,14 +1,11 @@
-import { useEffect } from 'react';
+
 import { useModaDirectoryOperations } from './hooks/useModaDirectoryOperations';
 import { FileUploadSection } from './components/FileUploadSection';
 import { FileDisplaySection } from './components/FileDisplaySection';
 import { DirectoryDialogs } from './components/DirectoryDialogs';
 import { Separator } from '@/components/ui/separator';
-import { useModaTracking } from '@/hooks/useModaTracking';
 
 export function Diretorio() {
-  const { trackDiretorioEvent } = useModaTracking();
-  
   const {
     // Estado
     viewMode,
@@ -31,80 +28,6 @@ export function Diretorio() {
     isLoading
   } = useModaDirectoryOperations();
 
-  useEffect(() => {
-    // Registrar acesso à seção de diretório
-    trackDiretorioEvent('acesso_diretorio');
-  }, [trackDiretorioEvent]);
-
-  // Wrapper functions para rastrear ações
-  const handleTrackedFileUpload = async (files: FileList, categoryId?: string) => {
-    trackDiretorioEvent('upload_iniciado', { 
-      quantidade_arquivos: files.length,
-      categoria_id: categoryId 
-    });
-    
-    try {
-      await handleFileUpload(files, categoryId);
-      trackDiretorioEvent('upload_concluido', { 
-        quantidade_arquivos: files.length,
-        categoria_id: categoryId 
-      });
-    } catch (error) {
-      trackDiretorioEvent('upload_erro', { 
-        quantidade_arquivos: files.length,
-        categoria_id: categoryId,
-        erro: error 
-      });
-    }
-  };
-
-  const handleTrackedViewFile = (file: any) => {
-    trackDiretorioEvent('arquivo_visualizado', file);
-    fileOps.handleViewFile(file);
-  };
-
-  const handleTrackedDeleteFile = (file: any) => {
-    trackDiretorioEvent('arquivo_deletado', file);
-    fileOps.handleDeleteFile(file);
-  };
-
-  const handleTrackedEditFile = (file: any) => {
-    trackDiretorioEvent('arquivo_editado', file);
-    fileOps.handleEditFile(file);
-  };
-
-  const handleTrackedAddCategory = (categoryData: any) => {
-    trackDiretorioEvent('categoria_criada', categoryData);
-    handleAddCategory(categoryData);
-  };
-
-  const handleTrackedUpdateCategory = (categoryData: any) => {
-    trackDiretorioEvent('categoria_atualizada', categoryData);
-    handleUpdateCategory(categoryData);
-  };
-
-  const handleTrackedSortChange = (field: string) => {
-    trackDiretorioEvent('ordenacao_alterada', { campo: field });
-    fileOps.handleSortChange(field);
-  };
-
-  const handleTrackedSearchChange = (query: string) => {
-    if (query.length > 2) { // Só rastreia buscas com mais de 2 caracteres
-      trackDiretorioEvent('busca_realizada', { termo_busca: query });
-    }
-    fileOps.setSearchQuery(query);
-  };
-
-  const handleTrackedViewModeChange = (mode: string) => {
-    trackDiretorioEvent('modo_visualizacao_alterado', { modo: mode });
-    setViewMode(mode);
-  };
-
-  const handleTrackedCategoryFilter = (categoryId: string) => {
-    trackDiretorioEvent('filtro_categoria_aplicado', { categoria_id: categoryId });
-    categoryOps.setSelectedCategoryId(categoryId);
-  };
-
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -118,30 +41,30 @@ export function Diretorio() {
         {/* Seção de upload de arquivos */}
         <FileUploadSection
           isUploading={isUploading}
-          onUpload={handleTrackedFileUpload}
+          onUpload={handleFileUpload}
           categories={categories}
         />
         
         {/* Seção de exibição de arquivos */}
         <FileDisplaySection
           viewMode={viewMode}
-          setViewMode={handleTrackedViewModeChange}
+          setViewMode={setViewMode}
           sortBy={fileOps.sortBy}
           sortDirection={fileOps.sortDirection}
-          handleSortChange={handleTrackedSortChange}
+          handleSortChange={fileOps.handleSortChange}
           setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
           categories={categories}
-          setSelectedCategoryId={handleTrackedCategoryFilter}
+          setSelectedCategoryId={categoryOps.setSelectedCategoryId}
           handleEditCategory={categoryOps.handleEditCategory}
           searchQuery={fileOps.searchQuery}
-          setSearchQuery={handleTrackedSearchChange}
+          setSearchQuery={fileOps.setSearchQuery}
           selectedCategoryId={categoryOps.selectedCategoryId}
           handleClearCategory={categoryOps.handleClearCategory}
           isLoading={isLoading}
           sortedFiles={fileOps.sortedFiles}
-          onViewFile={handleTrackedViewFile}
-          onDeleteFile={handleTrackedDeleteFile}
-          onEditFile={handleTrackedEditFile}
+          onViewFile={fileOps.handleViewFile}
+          onDeleteFile={fileOps.handleDeleteFile}
+          onEditFile={fileOps.handleEditFile}
         />
       </div>
 
@@ -149,11 +72,11 @@ export function Diretorio() {
       <DirectoryDialogs
         categoryDialogOpen={categoryOps.categoryDialogOpen}
         setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
-        onAddCategory={handleTrackedAddCategory}
+        onAddCategory={(name: string, color: string, description?: string) => handleAddCategory(name, color, description)}
         
         editCategoryDialogOpen={categoryOps.editCategoryDialogOpen}
         setEditCategoryDialogOpen={categoryOps.setEditCategoryDialogOpen}
-        onUpdateCategory={handleTrackedUpdateCategory}
+        onUpdateCategory={(id: string, name: string, color: string, description?: string) => handleUpdateCategory(id, name, color, description)}
         selectedCategory={categoryOps.selectedCategory}
         
         fileDialogOpen={fileOps.fileDialogOpen}
@@ -172,4 +95,4 @@ export function Diretorio() {
       />
     </div>
   );
-} 
+}

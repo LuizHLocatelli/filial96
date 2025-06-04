@@ -1,15 +1,16 @@
+
 import { useState } from 'react';
-import { useDirectoryFiles } from './useDirectoryFiles';
-import { useDirectoryCategories } from './useDirectoryCategories';
-import { useCategoryOperations } from './useCategoryOperations';
-import { useFileOperations } from './useFileOperations';
+import { useDirectoryFiles } from '../../moda/diretorio/hooks/useDirectoryFiles';
+import { useDirectoryCategories } from '../../moda/diretorio/hooks/useDirectoryCategories';
+import { useCategoryOperations } from '../../moda/diretorio/hooks/useCategoryOperations';
+import { useFileOperations } from '../../moda/diretorio/hooks/useFileOperations';
 import { toast } from 'sonner';
 
 export function useModaDirectoryOperations() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isUploading, setIsUploading] = useState(false);
 
-  // Buscar arquivos e categorias
+  // Usar nomes de tabelas fixos que existem no banco
   const { files, isLoading: isLoadingFiles, refetch: refetchFiles } = useDirectoryFiles('moda_arquivos');
   const { categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useDirectoryCategories('moda_categorias');
 
@@ -93,4 +94,4 @@ export function useModaDirectoryOperations() {
     handleDeleteFileConfirm,
     handleFileUpload,
   };
-} 
+}
