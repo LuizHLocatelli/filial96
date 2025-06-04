@@ -12,6 +12,12 @@ Response to preflight request doesn't pass access control check:
 No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
 
+### Erro de Autenticação (Resolvido):
+```
+POST https://abpsafkioslfjqtgtvbi.supabase.co/functions/v1/n8n-proxy 401 (Unauthorized)
+{"code":401,"message":"Missing authorization header"}
+```
+
 ## ✅ Solução Implementada
 
 ### 1. Edge Function do Supabase como Proxy
@@ -27,6 +33,7 @@ Criamos uma **Edge Function no Supabase** que funciona como proxy entre o fronte
 - ✅ **Proxy transparente** para o webhook original do N8N
 - ✅ **Tratamento de erros** adequado
 - ✅ **Logging** para debugging
+- ✅ **Autenticação Supabase** configurada
 
 ### 2. Atualização do Frontend
 
@@ -34,6 +41,7 @@ Modificamos o componente `ProductivityAssistant.tsx`:
 
 - ✅ **Nova URL**: Agora usa a Edge Function ao invés do webhook direto
 - ✅ **Constantes centralizadas**: Criamos `src/lib/constants.ts` para organizar URLs
+- ✅ **Headers de autorização**: Incluímos as chaves anônimas do Supabase
 - ✅ **Melhor tratamento de erro**: Detecta e reporta problemas de CORS especificamente
 - ✅ **Fallback local**: Mantém respostas locais quando o N8N não está disponível
 
@@ -55,16 +63,18 @@ graph TD
 ```
 
 ### Fluxo de Requisição:
-1. **Frontend** faz requisição para Edge Function
-2. **Edge Function** adiciona headers CORS e faz proxy para N8N
-3. **N8N** processa a requisição e retorna resposta
-4. **Edge Function** retorna resposta com headers CORS para o frontend
-5. Se falhar, **Frontend** usa resposta local de fallback
+1. **Frontend** faz requisição para Edge Function com headers de autorização
+2. **Edge Function** valida autorização e adiciona headers CORS
+3. **Edge Function** faz proxy para N8N
+4. **N8N** processa a requisição e retorna resposta
+5. **Edge Function** retorna resposta com headers CORS para o frontend
+6. Se falhar, **Frontend** usa resposta local de fallback
 
 ## 📁 Arquivos Modificados/Criados
 
 ### Criados:
 - `supabase/functions/n8n-proxy/index.ts` - Edge Function proxy
+- `supabase/functions/n8n-proxy/import_map.json` - Configurações da Edge Function
 - `src/lib/constants.ts` - Constantes centralizadas
 
 ### Modificados:
@@ -77,6 +87,7 @@ graph TD
 3. **Envie uma mensagem** (ex: "Olá")
 4. **Verifique no console do navegador**:
    - ✅ Não deve aparecer erros de CORS
+   - ✅ Não deve aparecer erros 401 (Unauthorized)
    - ✅ Deve mostrar logs da requisição bem-sucedida
    - ❌ Se houver erro, deve mostrar log específico
 
@@ -96,9 +107,11 @@ graph TD
 
 ### Como Verificar se a Edge Function está funcionando:
 ```bash
-# Teste direto da Edge Function
+# Teste direto da Edge Function (com autorização)
 curl -X POST https://abpsafkioslfjqtgtvbi.supabase.co/functions/v1/n8n-proxy \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFicHNhZmtpb3NsZmpxdGd0dmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5Njg3ODIsImV4cCI6MjA2MTU0NDc4Mn0.UTF4Gi6rDxQ2a3Pf4J2-7J0yPokcks6J8xO93GEhk-w" \
+  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFicHNhZmtpb3NsZmpxdGd0dmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5Njg3ODIsImV4cCI6MjA2MTU0NDc4Mn0.UTF4Gi6rDxQ2a3Pf4J2-7J0yPokcks6J8xO93GEhk-w" \
   -d '{"message": "teste", "timestamp": "2024-01-01T00:00:00.000Z", "source": "test"}'
 ```
 
@@ -110,6 +123,7 @@ curl -X POST https://abpsafkioslfjqtgtvbi.supabase.co/functions/v1/n8n-proxy \
 4. **🛠️ Manutenabilidade**: Centraliza configuração de proxy
 5. **📊 Monitoramento**: Logs detalhados para debugging
 6. **🔄 Fallback**: Sistema ainda funciona se N8N estiver indisponível
+7. **🔐 Autenticação**: Usa chaves do Supabase para autorização segura
 
 ## 🔧 Configurações Técnicas
 
@@ -122,6 +136,15 @@ const corsHeaders = {
 };
 ```
 
+### Headers de Autorização do Frontend:
+```javascript
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer [SUPABASE_ANON_KEY]',
+  'apikey': '[SUPABASE_ANON_KEY]'
+}
+```
+
 ### Timeout:
 - **30 segundos** para requisições ao N8N
 
@@ -129,9 +152,11 @@ const corsHeaders = {
 
 ### Se ainda houver problemas:
 
-1. **Verifique se a Edge Function está ativa**:
+1. **Verifique se a Edge Function está ativa** (com autorização):
    ```bash
-   curl https://abpsafkioslfjqtgtvbi.supabase.co/functions/v1/n8n-proxy
+   curl -H "Authorization: Bearer [ANON_KEY]" \
+        -H "apikey: [ANON_KEY]" \
+        https://abpsafkioslfjqtgtvbi.supabase.co/functions/v1/n8n-proxy
    ```
 
 2. **Verifique logs da Edge Function** no painel do Supabase
@@ -152,4 +177,5 @@ const corsHeaders = {
 - A Edge Function foi deployada automaticamente no Supabase
 - O projeto está usando o ID: `abpsafkioslfjqtgtvbi`
 - A solução é retrocompatível e mantém o fallback local
-- Não há custos adicionais significativos (Edge Functions têm free tier generoso) 
+- Não há custos adicionais significativos (Edge Functions têm free tier generoso)
+- **IMPORTANTE**: As chaves anônimas do Supabase são públicas e seguras para uso no frontend 
