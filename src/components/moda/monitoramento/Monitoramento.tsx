@@ -54,11 +54,11 @@ interface AccessEvent {
   secao: string;
   acao?: string;
   timestamp: string;
-  session_id: string;
+  session_id?: string; // Make optional since some events don't have it
   duracao_segundos?: number;
   detalhes?: any;
   metadata?: any;
-  ip_address?: string | unknown; // Allow unknown type from database
+  ip_address?: string;
   user_agent?: string;
 }
 
@@ -167,10 +167,12 @@ export function Monitoramento() {
           ip_address: event.ip_address ? String(event.ip_address) : undefined
         })),
         ...(detailedEvents || []).map(event => ({
-          ...event,
-          timestamp: event.created_at,
+          id: event.id,
+          user_id: event.user_id || '',
           secao: event.secao,
           acao: event.evento_tipo,
+          timestamp: event.created_at || new Date().toISOString(),
+          session_id: undefined, // Events from detailed events don't have session_id
           ip_address: undefined
         }))
       ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -258,7 +260,7 @@ export function Monitoramento() {
     setStats({
       totalUsuarios: usuariosUnicos,
       usuariosAtivosHoje: usuariosHoje,
-      totalSessoes: new Set(data.map(event => event.session_id)).size,
+      totalSessoes: new Set(data.map(event => event.session_id).filter(Boolean)).size,
       tempoMedioSessao,
       secaoMaisAcessada,
       secaoMenosAcessada,
