@@ -10,7 +10,20 @@ export function NavigationTabs() {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedTab, setSelectedTab] = useState<number | null>(null);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Verificar se é tela muito pequena
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth <= 360);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   
   // Títulos completos mantidos - sem abreviações
   const tabs = [
@@ -48,7 +61,7 @@ export function NavigationTabs() {
       className={cn(
         "fixed z-50",
         isMobile 
-          ? "bottom-6 left-0 right-0 flex justify-center px-4" // Usando left-0 right-0 e flex justify-center para centralizar
+          ? "bottom-4 left-2 right-2 flex justify-center" // Removendo px-4, usando left-2 right-2 para mais espaço
           : "bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md"
       )}
     >
@@ -56,7 +69,10 @@ export function NavigationTabs() {
       <div className={cn(
         "relative overflow-hidden nav-glass-effect nav-glow",
         isMobile 
-          ? "rounded-full px-4 py-4 shadow-2xl shadow-black/25 ring-1 ring-white/20 w-fit" // Aumentando padding significativamente
+          ? cn(
+              "rounded-full shadow-2xl shadow-black/25 ring-1 ring-white/20 w-full max-w-sm",
+              isSmallScreen ? "px-1 py-2" : "px-2 py-3" // Padding ainda menor em telas pequenas
+            )
           : "rounded-3xl px-5 py-4"
       )}>
         
@@ -70,7 +86,10 @@ export function NavigationTabs() {
         <div className={cn(
           "relative flex items-center",
           isMobile 
-            ? "justify-center gap-3 px-2" // Aumentando gap e padding para mais espaço
+            ? cn(
+                "justify-between px-1",
+                isSmallScreen ? "gap-0" : "gap-1" // Gap zero em telas muito pequenas
+              )
             : "justify-around gap-1"
         )}>
           {tabs.map((tab, index) => {
@@ -85,16 +104,21 @@ export function NavigationTabs() {
                   "relative flex flex-col items-center justify-center rounded-xl transition-all duration-300",
                   "group cursor-pointer select-none shrink-0", // shrink-0 para evitar compressão
                   isMobile 
-                    ? "w-16 h-[72px] rounded-2xl px-2 py-2" // Usando altura válida no Tailwind
+                    ? cn(
+                        "flex-1 min-w-0 rounded-2xl",
+                        isSmallScreen 
+                          ? "h-14 px-0.5 py-1.5" // Ultra compacto para telas pequenas
+                          : "h-16 px-1 py-2" // Compacto normal
+                      )
                     : "min-w-[56px] h-16 px-3 py-2.5",
                   // Usar classes personalizadas para estados
                   isActive
-                    ? "nav-tab-active scale-110 transform-gpu" // Scale maior para destacar no formato flutuante
-                    : "nav-tab-inactive hover:scale-105 transform-gpu"
+                    ? "nav-tab-active scale-105 transform-gpu" // Scale menor para economizar espaço
+                    : "nav-tab-inactive hover:scale-[1.02] transform-gpu" // Hover mais sutil
                 )}
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.95 }} // Toque mais sutil
                 style={{
-                  filter: isActive ? 'drop-shadow(0 6px 16px var(--nav-glow))' : 'none'
+                  filter: isActive ? 'drop-shadow(0 4px 12px var(--nav-glow))' : 'none'
                 }}
               >
                 {/* Background do botão ativo com classe personalizada */}
@@ -130,19 +154,26 @@ export function NavigationTabs() {
                   className={cn(
                     "relative flex items-center justify-center transition-all duration-300",
                     isMobile 
-                      ? "w-8 h-8 rounded-xl mb-1.5" // Aumentando margem inferior do ícone
+                      ? cn(
+                          "rounded-lg",
+                          isSmallScreen 
+                            ? "w-5 h-5 mb-0.5" // Ainda menor para telas pequenas
+                            : "w-6 h-6 mb-1" // Tamanhos menores para economizar espaço
+                        )
                       : "rounded-lg w-8 h-8 mb-2",
                     isActive 
                       ? "bg-primary/35 shadow-lg shadow-primary/50 border border-primary/40" 
                       : "group-hover:bg-white/25 group-hover:shadow-lg group-hover:border group-hover:border-white/30"
                   )}
-                  whileHover={{ scale: isMobile ? 1.1 : 1.05 }}
+                  whileHover={{ scale: isMobile ? 1.05 : 1.05 }} // Escala menor para mobile
                   whileTap={{ scale: 0.9 }}
                 >
                   <Icon 
                     className={cn(
                       "transition-all duration-300",
-                      isMobile ? "h-4 w-4" : "h-4 w-4", // Ícones otimizados para o novo layout
+                      isMobile 
+                        ? (isSmallScreen ? "h-3 w-3" : "h-3.5 w-3.5") // Ícones ainda menores em telas pequenas
+                        : "h-4 w-4", 
                       isActive 
                         ? "nav-icon-active font-bold" 
                         : "nav-icon-inactive group-hover:font-medium",
@@ -156,7 +187,10 @@ export function NavigationTabs() {
                 <span className={cn(
                   "font-semibold transition-all duration-300 text-center leading-tight",
                   isMobile 
-                    ? "text-[10px] px-1" // Aumentando texto de 9px para 10px para melhor legibilidade
+                    ? cn(
+                        "px-0.5 truncate w-full",
+                        isSmallScreen ? "text-[7px]" : "text-[9px]" // Texto ainda menor em telas pequenas
+                      )
                     : "text-[11px]",
                   isActive 
                     ? "text-primary-foreground filter drop-shadow-sm" 
