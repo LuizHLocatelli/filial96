@@ -1,0 +1,144 @@
+
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { TabButtonProps } from "./types";
+
+export function TabButton({ 
+  tab, 
+  index, 
+  isActive, 
+  isSmallScreen, 
+  isMobile, 
+  onTabClick 
+}: TabButtonProps) {
+  const Icon = tab.icon;
+
+  return (
+    <motion.button
+      key={tab.path}
+      onClick={() => onTabClick(index)}
+      className={cn(
+        "relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300",
+        "group cursor-pointer select-none shrink-0",
+        isMobile 
+          ? cn(
+              "flex-1 min-w-0",
+              isSmallScreen 
+                ? "h-16 px-1 py-2"
+                : "h-18 px-2 py-3"
+            )
+          : "min-w-[56px] h-16 px-3 py-2.5",
+        isActive
+          ? "nav-tab-active scale-105 transform-gpu"
+          : "nav-tab-inactive hover:scale-[1.03] transform-gpu"
+      )}
+      whileTap={{ scale: 0.96 }}
+      style={{
+        filter: isActive ? 'drop-shadow(0 4px 16px var(--nav-glow))' : 'none'
+      }}
+    >
+      {/* Background do botão ativo */}
+      {isActive && (
+        <motion.div
+          layoutId="activeTabBackground"
+          className={cn(
+            "absolute inset-0 rounded-2xl",
+            "bg-gradient-to-br from-primary/50 via-primary/35 to-primary/50",
+            "backdrop-blur-lg border border-primary/50",
+            "shadow-2xl shadow-primary/30",
+            "before:absolute before:inset-0 before:rounded-2xl",
+            "before:bg-primary/20 before:blur-xl before:-z-10"
+          )}
+          initial={false}
+          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+        />
+      )}
+      
+      {/* Hover effect */}
+      {!isActive && (
+        <div className={cn(
+          "absolute inset-0 rounded-2xl opacity-0 transition-all duration-300",
+          "bg-gradient-to-br from-white/20 to-white/10 dark:from-white/15 dark:to-white/8",
+          "group-hover:opacity-100",
+          "border border-transparent group-hover:border-white/25 dark:group-hover:border-white/15",
+          "group-hover:shadow-xl group-hover:shadow-white/15"
+        )} />
+      )}
+      
+      {/* Container do ícone */}
+      <motion.div 
+        className={cn(
+          "relative flex items-center justify-center transition-all duration-300",
+          isMobile 
+            ? cn(
+                "rounded-xl mb-2",
+                isSmallScreen 
+                  ? "w-6 h-6"
+                  : "w-7 h-7"
+              )
+            : "rounded-lg w-8 h-8 mb-2",
+          isActive 
+            ? "bg-primary/30 shadow-xl shadow-primary/40 border border-primary/30" 
+            : "group-hover:bg-white/20 group-hover:shadow-xl group-hover:border group-hover:border-white/25"
+        )}
+        whileHover={{ scale: isMobile ? 1.08 : 1.1 }}
+        whileTap={{ scale: 0.92 }}
+      >
+        <Icon 
+          className={cn(
+            "transition-all duration-300",
+            isMobile 
+              ? (isSmallScreen ? "h-4 w-4" : "h-4.5 w-4.5")
+              : "h-4 w-4", 
+            isActive 
+              ? "nav-icon-active font-bold" 
+              : "nav-icon-inactive group-hover:font-medium",
+            !isActive && "text-gray-600 dark:text-gray-300"
+          )} 
+        />
+      </motion.div>
+      
+      {/* Label */}
+      <span className={cn(
+        "font-semibold transition-all duration-300 text-center leading-tight",
+        isMobile 
+          ? cn(
+              "px-1 truncate w-full",
+              isSmallScreen ? "text-[10px]" : "text-[11px]"
+            )
+          : "text-[11px]",
+        isActive 
+          ? "text-primary-foreground filter drop-shadow-sm font-bold" 
+          : "group-hover:text-foreground group-hover:drop-shadow-sm text-gray-600 dark:text-foreground/90 font-medium"
+      )}>
+        {tab.title}
+      </span>
+      
+      {/* Dot indicator premium apenas no desktop */}
+      {!isMobile && isActive && (
+        <motion.div
+          initial={{ scale: 0, rotate: 0 }}
+          animate={{ scale: 1, rotate: 360 }}
+          transition={{ duration: 0.5, ease: "backOut" }}
+          className={cn(
+            "absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full",
+            "bg-gradient-to-br from-primary to-primary/90",
+            "border-2 border-background shadow-xl",
+            "shadow-primary/60",
+            "before:absolute before:inset-0 before:rounded-full",
+            "before:bg-primary/50 before:blur-md before:-z-10"
+          )}
+        />
+      )}
+      
+      {/* Ripple effect */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl"
+        whileTap={{
+          background: "radial-gradient(circle, var(--nav-glow) 0%, transparent 70%)"
+        }}
+        transition={{ duration: 0.3 }}
+      />
+    </motion.button>
+  );
+}
