@@ -24,8 +24,8 @@ export function TabButton({
           ? cn(
               "flex-1 min-w-0",
               isSmallScreen 
-                ? "h-16 px-1 py-2"
-                : "h-18 px-2 py-3"
+                ? "h-16 px-0.5 py-2"
+                : "h-18 px-1 py-3"
             )
           : "min-w-[56px] h-16 px-3 py-2.5",
         isActive
@@ -71,10 +71,10 @@ export function TabButton({
           "relative flex items-center justify-center transition-all duration-300",
           isMobile 
             ? cn(
-                "rounded-xl mb-2",
+                "rounded-xl mb-1",
                 isSmallScreen 
-                  ? "w-6 h-6"
-                  : "w-7 h-7"
+                  ? "w-5 h-5"
+                  : "w-6 h-6"
               )
             : "rounded-lg w-8 h-8 mb-2",
           isActive 
@@ -88,7 +88,7 @@ export function TabButton({
           className={cn(
             "transition-all duration-300",
             isMobile 
-              ? (isSmallScreen ? "h-4 w-4" : "h-4.5 w-4.5")
+              ? (isSmallScreen ? "h-3 w-3" : "h-3.5 w-3.5")
               : "h-4 w-4", 
             isActive 
               ? "nav-icon-active font-bold" 
@@ -98,13 +98,13 @@ export function TabButton({
         />
       </motion.div>
       
-      {/* Label */}
+      {/* Label - sem truncamento */}
       <span className={cn(
         "font-semibold transition-all duration-300 text-center leading-tight",
         isMobile 
           ? cn(
-              "px-1 truncate w-full",
-              isSmallScreen ? "text-[10px]" : "text-[11px]"
+              "px-0.5 w-full",
+              isSmallScreen ? "text-[9px]" : "text-[10px]"
             )
           : "text-[11px]",
         isActive 

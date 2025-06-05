@@ -21,8 +21,8 @@ export function NavigationTabs() {
         "relative flex items-center",
         isMobile 
           ? cn(
-              "justify-between gap-2 px-2",
-              isSmallScreen ? "gap-1 px-1" : "gap-2 px-2"
+              "justify-between",
+              isSmallScreen ? "gap-0.5 px-1" : "gap-1 px-2"
             )
           : "justify-around gap-1"
       )}>

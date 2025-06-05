@@ -18,11 +18,11 @@ export function TabContainer({ children, isMobile, isSmallScreen }: TabContainer
     >
       {/* Container Glass Morphism Premium */}
       <div className={cn(
-        "relative overflow-hidden nav-glass-effect nav-glow",
+        "relative overflow-visible nav-glass-effect nav-glow",
         isMobile 
           ? cn(
               "rounded-3xl shadow-2xl shadow-black/20 ring-1 ring-white/30 w-full max-w-lg",
-              isSmallScreen ? "px-3 py-4" : "px-4 py-5"
+              isSmallScreen ? "px-2 py-4" : "px-3 py-5"
             )
           : "rounded-3xl px-5 py-4"
       )}>
