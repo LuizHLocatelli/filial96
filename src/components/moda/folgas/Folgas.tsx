@@ -40,6 +40,7 @@ export function Folgas() {
     handleDateClick,
     allUsers,
     isLoadingUsers,
+    refetchFolgas,
   } = useModaFolgas();
 
   const {
@@ -93,6 +94,9 @@ export function Folgas() {
       await createFolga(dadosFolga);
       trackFolgasEvent('folga_criada', dadosFolga);
       setShowForm(false);
+      if (refetchFolgas) {
+        await refetchFolgas();
+      }
     } catch (error) {
       trackFolgasEvent('erro_criar_folga', { erro: error, dados: dadosFolga });
     }
@@ -105,19 +109,29 @@ export function Folgas() {
       trackFolgasEvent('folga_editada', { ...dadosFolga, id: editingFolga?.id });
       setEditingFolga(null);
       setShowForm(false);
+      if (refetchFolgas) {
+        await refetchFolgas();
+      }
     } catch (error) {
       trackFolgasEvent('erro_editar_folga', { erro: error, dados: dadosFolga });
     }
   };
 
-  const handleDeleteFolgaWithTracking = async (folgaId: string) => {
+  const handleDeleteFolgaUnified = async (folgaId: string) => {
     try {
       const folga = folgas.find(f => f.id === folgaId);
       trackFolgasEvent('deletar_folga_iniciado', folga);
-      await deleteFolga(folgaId);
+      
+      await handleDeleteFolgaHook(folgaId);
+      
       trackFolgasEvent('folga_deletada', folga);
+      
+      if (refetchFolgas) {
+        setTimeout(() => refetchFolgas(), 100);
+      }
     } catch (error) {
       trackFolgasEvent('erro_deletar_folga', { erro: error, folga_id: folgaId });
+      throw error;
     }
   };
 
@@ -133,18 +147,6 @@ export function Folgas() {
 
   const handleFilterChange = (filtro: string, valor: any) => {
     trackFolgasEvent('filtro_aplicado', { filtro, valor });
-  };
-
-  // Wrapper para adicionar tracking
-  const handleTrackedAddFolga = async () => {
-    trackFolgasEvent('folga_criada');
-    return await handleAddFolga();
-  };
-
-  const handleTrackedDeleteFolga = async (folgaId: string) => {
-    const folga = folgas.find(f => f.id === folgaId);
-    trackFolgasEvent('folga_deletada', folga);
-    return await handleDeleteFolgaWithTracking(folgaId);
   };
 
   const handleTrackedDateClick = (date: Date) => {
@@ -282,7 +284,7 @@ export function Folgas() {
             <CardContent>
               <FolgasList
                 folgas={folgas}
-                handleDeleteFolga={handleTrackedDeleteFolga}
+                handleDeleteFolga={handleDeleteFolgaUnified}
                 getConsultorById={getConsultorById}
                 getUserNameById={getUserNameById}
                 isLoading={isLoadingFolgas}

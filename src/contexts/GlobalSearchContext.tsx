@@ -32,6 +32,52 @@ const searchableItems: SearchResult[] = [
     path: '/',
     icon: 'Activity'
   },
+  // Subpáginas do Hub de Produtividade
+  {
+    id: 'hub-produtividade-visao-geral',
+    title: 'Visão Geral - Hub',
+    description: 'Dashboard e métricas do Hub de Produtividade',
+    type: 'section',
+    path: '/?tab=overview',
+    section: 'Hub de Produtividade',
+    icon: 'Activity'
+  },
+  {
+    id: 'hub-produtividade-rotinas',
+    title: 'Rotinas - Hub',
+    description: 'Rotinas obrigatórias centralizadas',
+    type: 'section',
+    path: '/?tab=rotinas',
+    section: 'Hub de Produtividade',
+    icon: 'CheckSquare'
+  },
+  {
+    id: 'hub-produtividade-orientacoes',
+    title: 'Informativos e VM - Hub',
+    description: 'Orientações e visual merchandising',
+    type: 'section',
+    path: '/?tab=orientacoes',
+    section: 'Hub de Produtividade',
+    icon: 'FileText'
+  },
+  {
+    id: 'hub-produtividade-monitoramento',
+    title: 'Monitoramento - Hub',
+    description: 'Acompanhamento por cargo no Hub',
+    type: 'section',
+    path: '/?tab=monitoramento',
+    section: 'Hub de Produtividade',
+    icon: 'Users'
+  },
+  {
+    id: 'hub-produtividade-relatorios',
+    title: 'Relatórios - Hub',
+    description: 'Relatórios e análises de produtividade',
+    type: 'section',
+    path: '/?tab=relatorios',
+    section: 'Hub de Produtividade',
+    icon: 'BarChart3'
+  },
   
   // Móveis
   {
@@ -42,14 +88,15 @@ const searchableItems: SearchResult[] = [
     path: '/moveis',
     icon: 'Sofa'
   },
+  // Subpáginas dos Móveis
   {
-    id: 'moveis-hub-produtividade',
-    title: 'Hub de Produtividade - Móveis',
-    description: 'Rotinas, orientações e tarefas centralizadas',
+    id: 'moveis-visao-geral',
+    title: 'Visão Geral - Móveis',
+    description: 'Dashboard e acesso rápido do setor de móveis',
     type: 'section',
-    path: '/moveis?tab=hub-produtividade',
+    path: '/moveis?tab=overview',
     section: 'Móveis',
-    icon: 'Activity'
+    icon: 'Sofa'
   },
   {
     id: 'moveis-diretorio',
@@ -187,7 +234,7 @@ const searchableItems: SearchResult[] = [
     title: 'Relatórios',
     description: 'Relatórios e listagens do sistema',
     type: 'feature',
-    path: '/crediario?tab=listagens',
+    path: '/?tab=relatorios',
     icon: 'BarChart3'
   },
   {
@@ -211,7 +258,7 @@ const searchableItems: SearchResult[] = [
     title: 'Orientações',
     description: 'Documentos de orientação e procedimentos',
     type: 'feature',
-    path: '/moveis?tab=hub-produtividade',
+    path: '/?tab=orientacoes',
     icon: 'FileText'
   },
   {
@@ -219,7 +266,7 @@ const searchableItems: SearchResult[] = [
     title: 'Rotinas',
     description: 'Gestão de rotinas obrigatórias',
     type: 'feature',
-    path: '/moveis?tab=hub-produtividade',
+    path: '/?tab=rotinas',
     icon: 'CheckSquare'
   },
   {
@@ -227,7 +274,7 @@ const searchableItems: SearchResult[] = [
     title: 'Tarefas',
     description: 'Gestão e acompanhamento de tarefas',
     type: 'feature',
-    path: '/moveis?tab=hub-produtividade',
+    path: '/?tab=orientacoes',
     icon: 'List'
   },
   {

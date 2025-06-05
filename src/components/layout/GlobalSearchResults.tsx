@@ -21,7 +21,9 @@ import {
   Users,
   Coffee,
   Shield,
-  BarChart3
+  BarChart3,
+  Shirt,
+  List
 } from "lucide-react";
 
 const iconMap = {
@@ -43,7 +45,9 @@ const iconMap = {
   Coffee,
   Shield,
   BarChart3,
-  Clock
+  Clock,
+  Shirt,
+  List
 } as any;
 
 interface GlobalSearchResultsProps {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { useModaTracking } from '@/hooks/useModaTracking';
+import { useProdutoFoco } from './hooks/useProdutoFoco';
 import { 
   Plus, 
   Star, 
@@ -29,8 +29,18 @@ import { ptBR } from 'date-fns/locale';
 
 export function ProdutoFoco() {
   const { trackProdutoFocoEvent } = useModaTracking();
-  const [produtos, setProdutos] = useState<ProdutoFocoWithImages[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    produtos,
+    produtoAtivo,
+    isLoading,
+    createProduto,
+    updateProduto,
+    deleteProduto,
+    uploadImagem,
+    deleteImagem,
+    refetch
+  } = useProdutoFoco();
+  
   const [showForm, setShowForm] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoFocoWithImages | null>(null);
   const [deletingProduto, setDeletingProduto] = useState<string | null>(null);
@@ -42,46 +52,17 @@ export function ProdutoFoco() {
   useEffect(() => {
     // Registrar acesso à seção de produto foco
     trackProdutoFocoEvent('acesso_produto_foco');
-    fetchProdutos();
   }, [trackProdutoFocoEvent]);
 
-  const fetchProdutos = async () => {
-    try {
-      setIsLoading(true);
-      const { data: produtosData, error } = await supabase
-        .from('moda_produto_foco')
-        .select(`
-          *,
-          imagens:moda_produto_foco_imagens(*)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      const produtosComImagens = produtosData?.map(produto => ({
-        ...produto,
-        imagens: produto.imagens || []
-      })) || [];
-      
-      setProdutos(produtosComImagens);
-      
+  useEffect(() => {
+    if (produtos.length > 0) {
       // Rastrear dados carregados
       trackProdutoFocoEvent('dados_carregados', {
-        total_produtos: produtosComImagens.length,
-        produtos_ativos: produtosComImagens.filter(p => p.ativo).length
+        total_produtos: produtos.length,
+        produtos_ativos: produtos.filter(p => p.ativo).length
       });
-    } catch (error) {
-      console.error('Erro ao buscar produtos foco:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os produtos foco",
-        variant: "destructive"
-      });
-      trackProdutoFocoEvent('erro_carregamento', { erro: error });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [produtos, trackProdutoFocoEvent]);
 
   const handleCreateProduto = () => {
     trackProdutoFocoEvent('criar_produto_iniciado');
@@ -104,33 +85,10 @@ export function ProdutoFoco() {
   const confirmDeleteProduto = async () => {
     if (!deletingProduto) return;
 
-    try {
-      const produto = produtos.find(p => p.id === deletingProduto);
-      
-      const { error } = await supabase
-        .from('moda_produto_foco')
-        .delete()
-        .eq('id', deletingProduto);
-
-      if (error) throw error;
-
-      setProdutos(produtos.filter(p => p.id !== deletingProduto));
-      setDeletingProduto(null);
-      
-      trackProdutoFocoEvent('produto_deletado', produto);
-      toast({
-        title: "Sucesso",
-        description: "Produto foco excluído com sucesso"
-      });
-    } catch (error) {
-      console.error('Erro ao deletar produto:', error);
-      trackProdutoFocoEvent('erro_deletar_produto', { erro: error });
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o produto foco",
-        variant: "destructive"
-      });
-    }
+    const produto = produtos.find(p => p.id === deletingProduto);
+    await deleteProduto(deletingProduto);
+    setDeletingProduto(null);
+    trackProdutoFocoEvent('produto_deletado', produto);
   };
 
   const handleViewDetails = (produto: ProdutoFocoWithImages) => {
@@ -146,34 +104,37 @@ export function ProdutoFoco() {
   const handleVendaRegistrada = () => {
     trackProdutoFocoEvent('venda_registrada', vendaProduto);
     setVendaProduto(null);
-    fetchProdutos(); // Recarregar para atualizar estatísticas
+    refetch(); // Recarregar para atualizar estatísticas
   };
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: any, imagens?: File[]) => {
     try {
       const isEditingMode = !!editingProduto;
       
       if (isEditingMode) {
+        await updateProduto(editingProduto.id, formData);
         trackProdutoFocoEvent('produto_atualizado', { ...formData, id: editingProduto.id });
       } else {
+        await createProduto(formData, imagens);
         trackProdutoFocoEvent('produto_criado', formData);
       }
       
       setShowForm(false);
       setEditingProduto(null);
-      await fetchProdutos();
     } catch (error) {
       trackProdutoFocoEvent('erro_formulario', { erro: error, modo: editingProduto ? 'edicao' : 'criacao' });
     }
   };
 
-  // Calcular produto ativo (mais prioritário e dentro do período)
-  const produtoAtivo = produtos.find(produto => {
-    const hoje = new Date();
-    const inicio = new Date(produto.periodo_inicio);
-    const fim = new Date(produto.periodo_fim);
-    return produto.ativo && hoje >= inicio && hoje <= fim;
-  });
+  const handleUploadImagem = async (file: File) => {
+    if (editingProduto) {
+      await uploadImagem(editingProduto.id, file);
+    }
+  };
+
+  const handleDeleteImagem = async (imagemId: string, imagemUrl: string) => {
+    await deleteImagem(imagemId, imagemUrl);
+  };
 
   if (isLoading) {
     return (
@@ -314,6 +275,8 @@ export function ProdutoFoco() {
               setShowForm(false);
               setEditingProduto(null);
             }}
+            onUploadImagem={handleUploadImagem}
+            onDeleteImagem={handleDeleteImagem}
           />
         </DialogContent>
       </Dialog>

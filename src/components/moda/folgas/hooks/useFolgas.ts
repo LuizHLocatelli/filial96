@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
@@ -30,7 +30,7 @@ export function useFolgas() {
     fetchFolgas();
   }, []);
 
-  const fetchFolgas = async () => {
+  const fetchFolgas = useCallback(async () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -61,7 +61,7 @@ export function useFolgas() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const createFolga = async (dadosFolga: FolgaFormValues) => {
     try {
@@ -80,7 +80,7 @@ export function useFolgas() {
 
       if (error) throw error;
 
-      // Adicionar a nova folga ao estado
+      // Adicionar a nova folga ao estado imediatamente
       const novaFolga: Folga = {
         id: data.id,
         data: new Date(data.data),
@@ -93,8 +93,9 @@ export function useFolgas() {
       setFolgas(prev => [novaFolga, ...prev]);
 
       toast({
-        title: "Folga criada",
-        description: "A folga foi registrada com sucesso.",
+        title: "Folga criada com sucesso!",
+        description: "A folga foi registrada e será refletida imediatamente.",
+        duration: 3000,
       });
 
       return novaFolga;
@@ -111,6 +112,18 @@ export function useFolgas() {
 
   const updateFolga = async (folgaId: string, dadosFolga: FolgaFormValues) => {
     try {
+      // Atualizar otimisticamente o estado local primeiro
+      const folgaOriginal = folgas.find(f => f.id === folgaId);
+      const folgaAtualizada: Folga = {
+        ...(folgaOriginal || {} as Folga),
+        id: folgaId,
+        data: dadosFolga.data,
+        consultorId: dadosFolga.consultorId,
+        motivo: dadosFolga.motivo || undefined,
+      };
+
+      setFolgas(prev => prev.map(f => f.id === folgaId ? folgaAtualizada : f));
+
       const { data, error } = await supabase
         .from("moda_folgas")
         .update({
@@ -122,10 +135,16 @@ export function useFolgas() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Reverter em caso de erro
+        if (folgaOriginal) {
+          setFolgas(prev => prev.map(f => f.id === folgaId ? folgaOriginal : f));
+        }
+        throw error;
+      }
 
-      // Atualizar a folga no estado
-      const folgaAtualizada: Folga = {
+      // Atualizar com dados do servidor
+      const folgaFinal: Folga = {
         id: data.id,
         data: new Date(data.data),
         consultorId: data.consultor_id,
@@ -134,14 +153,15 @@ export function useFolgas() {
         createdBy: data.created_by,
       };
 
-      setFolgas(prev => prev.map(f => f.id === folgaId ? folgaAtualizada : f));
+      setFolgas(prev => prev.map(f => f.id === folgaId ? folgaFinal : f));
 
       toast({
-        title: "Folga atualizada",
-        description: "A folga foi atualizada com sucesso.",
+        title: "Folga atualizada com sucesso!",
+        description: "As alterações foram salvas e refletidas imediatamente.",
+        duration: 3000,
       });
 
-      return folgaAtualizada;
+      return folgaFinal;
     } catch (error: any) {
       console.error("Erro ao atualizar folga:", error);
       toast({
@@ -155,19 +175,35 @@ export function useFolgas() {
 
   const deleteFolga = async (folgaId: string) => {
     try {
+      // Encontrar a folga para backup
+      const folgaParaExcluir = folgas.find(f => f.id === folgaId);
+      if (!folgaParaExcluir) {
+        toast({
+          title: "Erro",
+          description: "Folga não encontrada.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Remover imediatamente do estado local para resposta instantânea
+      setFolgas(prev => prev.filter(f => f.id !== folgaId));
+
       const { error } = await supabase
         .from("moda_folgas")
         .delete()
         .eq('id', folgaId);
 
-      if (error) throw error;
-
-      // Remover a folga do estado
-      setFolgas(prev => prev.filter(f => f.id !== folgaId));
+      if (error) {
+        // Reverter a remoção em caso de erro
+        setFolgas(prev => [folgaParaExcluir, ...prev]);
+        throw error;
+      }
 
       toast({
-        title: "Folga excluída",
-        description: "A folga foi excluída com sucesso.",
+        title: "Folga excluída com sucesso!",
+        description: "A folga foi removida e a lista foi atualizada.",
+        duration: 3000,
       });
     } catch (error: any) {
       console.error("Erro ao excluir folga:", error);

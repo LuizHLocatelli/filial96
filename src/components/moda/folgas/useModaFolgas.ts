@@ -112,53 +112,95 @@ export function useModaFolgas() {
   
   // Fetch folgas from database
   useEffect(() => {
-    async function fetchFolgas() {
+    fetchFolgas();
+  }, [toast]);
+  
+  // Função para recarregar folgas manualmente
+  const refetchFolgas = async () => {
+    try {
       setIsLoadingFolgas(true);
-      try {
-        const { data, error } = await supabase
-          .from("moda_folgas")
-          .select("*");
-          
-        if (error) {
-          console.error("Erro ao buscar folgas:", error);
-          toast({
-            title: "Erro ao carregar folgas",
-            description: error.message,
-            variant: "destructive",
-          });
-          return;
-        }
+      const { data, error } = await supabase
+        .from("moda_folgas")
+        .select("*");
         
-        if (!data) {
-          setFolgas([]);
-          return;
-        }
+      if (error) {
+        console.error("Erro ao recarregar folgas:", error);
+        return;
+      }
+      
+      if (!data) {
+        setFolgas([]);
+        return;
+      }
+      
+      // Transform the data to match the Folga interface
+      const formattedFolgas: Folga[] = data.map((folga) => ({
+        id: folga.id,
+        data: new Date(folga.data),
+        consultorId: folga.consultor_id,
+        motivo: folga.motivo || undefined,
+        createdAt: folga.created_at,
+        createdBy: folga.created_by || undefined,
+      }));
+      
+      setFolgas(formattedFolgas);
+      
+      // Atualizar também as folgas do dia selecionado se necessário
+      if (selectedDate) {
+        const folgasParaEsteDia = formattedFolgas.filter(f => isSameDay(new Date(f.data), selectedDate));
+        setFolgasDoDiaSelecionado(folgasParaEsteDia);
+      }
+    } catch (error) {
+      console.error("Erro ao recarregar folgas:", error);
+    } finally {
+      setIsLoadingFolgas(false);
+    }
+  };
+
+  async function fetchFolgas() {
+    setIsLoadingFolgas(true);
+    try {
+      const { data, error } = await supabase
+        .from("moda_folgas")
+        .select("*");
         
-        // Transform the data to match the Folga interface
-        const formattedFolgas: Folga[] = data.map((folga) => ({
-          id: folga.id,
-          data: new Date(folga.data),
-          consultorId: folga.consultor_id,
-          motivo: folga.motivo || undefined,
-          createdAt: folga.created_at,
-          createdBy: folga.created_by || undefined,
-        }));
-        
-        setFolgas(formattedFolgas);
-      } catch (error) {
+      if (error) {
         console.error("Erro ao buscar folgas:", error);
         toast({
           title: "Erro ao carregar folgas",
-          description: "Não foi possível carregar a lista de folgas.",
+          description: error.message,
           variant: "destructive",
         });
-      } finally {
-        setIsLoadingFolgas(false);
+        return;
       }
+      
+      if (!data) {
+        setFolgas([]);
+        return;
+      }
+      
+      // Transform the data to match the Folga interface
+      const formattedFolgas: Folga[] = data.map((folga) => ({
+        id: folga.id,
+        data: new Date(folga.data),
+        consultorId: folga.consultor_id,
+        motivo: folga.motivo || undefined,
+        createdAt: folga.created_at,
+        createdBy: folga.created_by || undefined,
+      }));
+      
+      setFolgas(formattedFolgas);
+    } catch (error) {
+      console.error("Erro ao buscar folgas:", error);
+      toast({
+        title: "Erro ao carregar folgas",
+        description: "Não foi possível carregar a lista de folgas.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingFolgas(false);
     }
-    
-    fetchFolgas();
-  }, [toast]);
+  }
   
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
@@ -274,6 +316,23 @@ export function useModaFolgas() {
   
   const handleDeleteFolga = async (folgaId: string) => {
     try {
+      // Atualizar estado local ANTES da requisição para responsividade imediata
+      const folgaParaExcluir = folgas.find(f => f.id === folgaId);
+      if (!folgaParaExcluir) {
+        toast({
+          title: "Erro",
+          description: "Folga não encontrada.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const consultor = getConsultorById(folgaParaExcluir.consultorId);
+      const consultorNome = consultor?.nome || "Consultor desconhecido";
+      
+      setFolgas(prev => prev.filter(folga => folga.id !== folgaId));
+      setFolgasDoDiaSelecionado(prev => prev.filter(folga => folga.id !== folgaId));
+
       const { error } = await supabase
         .from("moda_folgas")
         .delete()
@@ -281,6 +340,13 @@ export function useModaFolgas() {
         
       if (error) {
         console.error("Erro ao excluir folga:", error);
+        
+        // Reverter o estado local em caso de erro
+        setFolgas(prev => [...prev, folgaParaExcluir]);
+        if (selectedDate && isSameDay(new Date(folgaParaExcluir.data), selectedDate)) {
+          setFolgasDoDiaSelecionado(prev => [...prev, folgaParaExcluir]);
+        }
+        
         toast({
           title: "Erro ao excluir folga",
           description: error.message,
@@ -289,12 +355,10 @@ export function useModaFolgas() {
         return;
       }
       
-      setFolgas(prev => prev.filter(folga => folga.id !== folgaId));
-      setFolgasDoDiaSelecionado(prev => prev.filter(folga => folga.id !== folgaId));
-      
       toast({
-        title: "Folga excluída",
-        description: "A folga foi removida com sucesso.",
+        title: "Folga excluída com sucesso!",
+        description: `A folga de ${consultorNome} foi removida.`,
+        duration: 3000,
       });
     } catch (error) {
       console.error("Erro ao excluir folga:", error);
@@ -359,5 +423,6 @@ export function useModaFolgas() {
     allUsers,
     isLoadingUsers,
     getWeeks,
+    refetchFolgas,
   };
 } 
