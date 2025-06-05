@@ -117,22 +117,21 @@
 @layer components {
   .nav-glass-effect {
     background: var(--nav-bg-glass);
-    backdrop-filter: blur(12px); /* Blur reduzido de 24px para 12px */
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px); /* Aumentado blur para melhor efeito glass */
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--nav-border);
     box-shadow: var(--nav-shadow);
   }
 
-  /* Específico para barra flutuante circular no mobile */
+  /* Específico para barra flutuante circular no mobile - aprimorado */
   @media (max-width: 767px) {
     .nav-glass-effect {
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(24px); /* Blur mais intenso no mobile */
+      -webkit-backdrop-filter: blur(24px);
       box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.12),
-        0 2px 16px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      /* Garantir centralização perfeita */
+        0 12px 40px rgba(0, 0, 0, 0.15), /* Sombra mais profunda */
+        0 4px 20px rgba(0, 0, 0, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15); /* Highlight interno mais visível */
       margin: 0 auto;
       transform: none;
     }
@@ -152,12 +151,12 @@
   .nav-tab-inactive:hover {
     background: var(--nav-tab-hover-bg);
     color: var(--nav-text-active);
-    transform: scale(1.05);
+    transform: scale(1.03); /* Hover mais sutil */
   }
 
   .nav-icon-active {
     color: var(--nav-icon-active);
-    filter: drop-shadow(0 1px 3px rgba(34, 197, 94, 0.3)); /* Drop shadow mais sutil */
+    filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.4)); /* Drop shadow mais visível */
   }
 
   .nav-icon-inactive {
@@ -167,7 +166,7 @@
 
   .nav-icon-inactive:hover {
     color: var(--nav-icon-active);
-    filter: drop-shadow(0 1px 3px rgba(34, 197, 94, 0.2)); /* Drop shadow mais sutil no hover */
+    filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.3));
   }
 
   .nav-glow {
@@ -180,55 +179,49 @@
     inset: 0;
     border-radius: inherit;
     background: var(--nav-glow);
-    opacity: 0.5; /* Opacidade reduzida de 0.7 para 0.5 */
-    filter: blur(12px); /* Blur reduzido de 16px para 12px */
+    opacity: 0.6; /* Aumentado para melhor visibilidade */
+    filter: blur(16px); /* Blur mais intenso */
     z-index: -1;
   }
 
   /* Efeito glow mais intenso para o formato flutuante no mobile */
   @media (max-width: 767px) {
     .nav-glow::before {
-      opacity: 0.7;
-      filter: blur(16px);
+      opacity: 0.8;
+      filter: blur(20px);
     }
   }
 }
 
-/* Responsividade Mobile - NavigationTabs */
+/* Responsividade Mobile aprimorada - NavigationTabs */
 @layer utilities {
   /* Regras específicas para barra circular flutuante no mobile */
   @media (max-width: 767px) {
     .nav-tab-inactive,
     .nav-tab-active {
-      min-height: 64px !important; /* Altura reduzida para economizar espaço vertical */
-      min-width: 48px !important;  /* Largura mínima mais compacta */
-      border-radius: 1rem; /* rounded-2xl equivalente */
+      min-height: 72px !important; /* Aumentado altura mínima */
+      min-width: 52px !important;
+      border-radius: 1rem;
     }
     
-    /* Efeito de escala mais suave para o formato circular */
-    .hover\:scale-105:hover {
-      transform: scale(1.02) !important; /* Reduzindo escala para economizar espaço */
+    /* Texto responsivo para mobile otimizado */
+    .text-\[11px\] {
+      font-size: 11px !important;
+      line-height: 1.2 !important;
+      font-weight: 600 !important;
+      letter-spacing: -0.01em !important;
     }
     
-    .hover\:scale-\[1\.02\]:hover {
-      transform: scale(1.02) !important;
-    }
-    
-    .scale-105 {
-      transform: scale(1.05) !important;
-    }
-    
-    /* Texto responsivo para mobile - tamanho otimizado */
-    .text-\[9px\] {
-      font-size: 9px !important;
-      line-height: 1.1 !important;
+    .text-\[10px\] {
+      font-size: 10px !important;
+      line-height: 1.2 !important;
       font-weight: 700 !important;
       letter-spacing: -0.01em !important;
     }
     
-    /* Container principal mais compacto */
+    /* Container principal mais espaçoso */
     .nav-glass-effect {
-      max-width: 20rem !important; /* 320px máximo */
+      max-width: 24rem !important; /* Aumentado para 384px */
       margin: 0 auto !important;
     }
   }
@@ -236,64 +229,39 @@
   /* Telas pequenas - 480px e abaixo */
   @media (max-width: 480px) {
     .nav-glass-effect {
-      padding: 0.5rem 0.75rem !important; /* Padding ainda mais compacto */
-      max-width: 18rem !important; /* 288px máximo */
+      padding: 1rem 1rem !important; /* Padding mais generoso */
+      max-width: 22rem !important;
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
-      min-height: 60px !important; /* Altura ainda mais compacta */
-      min-width: 44px !important;  /* Largura ainda mais compacta */
-    }
-    
-    /* Ícones proporcionalmente menores */
-    .nav-tab-inactive .h-3\.5,
-    .nav-tab-active .h-3\.5,
-    .nav-tab-inactive .w-3\.5,
-    .nav-tab-active .w-3\.5 {
-      width: 0.75rem !important; /* 12px */
-      height: 0.75rem !important;
-    }
-    
-    /* Texto ainda mais compacto */
-    .text-\[9px\] {
-      font-size: 8px !important;
-      font-weight: 800 !important;
+      min-height: 68px !important;
+      min-width: 48px !important;
     }
   }
 
   /* Telas extra pequenas - 360px e abaixo */
   @media (max-width: 360px) {
     .nav-glass-effect {
-      padding: 0.5rem 0.5rem !important; /* Padding mínimo */
-      max-width: 16rem !important; /* 256px máximo */
+      padding: 0.75rem 0.75rem !important;
+      max-width: 20rem !important;
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
-      min-height: 56px !important; /* Altura mínima confortável */
-      min-width: 40px !important;  /* Largura mínima */
+      min-height: 64px !important;
+      min-width: 44px !important;
     }
     
-    /* Container de navegação com gap mínimo */
-    .justify-between.gap-1 {
-      gap: 0.125rem !important; /* gap-0.5 equivalente */
+    /* Container de navegação com gap otimizado */
+    .justify-between.gap-2 {
+      gap: 0.25rem !important;
     }
     
-    /* Ícones ainda menores */
-    .nav-tab-inactive .h-3\.5,
-    .nav-tab-active .h-3\.5,
-    .nav-tab-inactive .w-3\.5,
-    .nav-tab-active .w-3\.5 {
-      width: 0.625rem !important; /* 10px */
-      height: 0.625rem !important;
-    }
-    
-    /* Texto ultra compacto mas ainda legível */
-    .text-\[9px\] {
-      font-size: 7px !important;
-      font-weight: 900 !important;
-      letter-spacing: -0.02em !important;
+    /* Texto compacto mas legível */
+    .text-\[10px\] {
+      font-size: 9px !important;
+      font-weight: 800 !important;
     }
   }
 
@@ -403,7 +371,7 @@
     color: rgba(30, 30, 30, 0.75) !important;
   }
   
-  /* Scroll horizontal prevention - garante que não haja overflow */
+  /* Scroll horizontal prevention e overflow otimizado */
   @media (max-width: 767px) {
     .nav-glass-effect {
       overflow: hidden !important;
@@ -424,5 +392,18 @@
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
     }
+  }
+
+  /* Novas classes para alturas aprimoradas */
+  .h-18 {
+    height: 4.5rem !important; /* 72px */
+  }
+  
+  .w-4\.5 {
+    width: 1.125rem !important; /* 18px */
+  }
+  
+  .h-4\.5 {
+    height: 1.125rem !important; /* 18px */
   }
 }
