@@ -48,7 +48,7 @@ export function NavigationTabs() {
       className={cn(
         "fixed z-50",
         isMobile 
-          ? "bottom-0 left-0 right-0 pb-safe" 
+          ? "bottom-6 left-0 right-0 flex justify-center px-4" // Usando left-0 right-0 e flex justify-center para centralizar
           : "bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md"
       )}
     >
@@ -56,7 +56,7 @@ export function NavigationTabs() {
       <div className={cn(
         "relative overflow-hidden nav-glass-effect nav-glow",
         isMobile 
-          ? "rounded-t-[1.5rem] px-1 py-2.5 border-b-0" // Padding horizontal e vertical reduzidos
+          ? "rounded-full px-3 py-3 shadow-2xl shadow-black/25 ring-1 ring-white/20 w-fit" // Aumentando px para melhor espaçamento interno
           : "rounded-3xl px-5 py-4"
       )}>
         
@@ -70,7 +70,7 @@ export function NavigationTabs() {
         <div className={cn(
           "relative flex items-center",
           isMobile 
-            ? "justify-between gap-1 px-1" // Mudança para justify-between e gap menor
+            ? "justify-center gap-2 px-1" // Aumentando o gap para melhor espaçamento
             : "justify-around gap-1"
         )}>
           {tabs.map((tab, index) => {
@@ -85,16 +85,16 @@ export function NavigationTabs() {
                   "relative flex flex-col items-center justify-center rounded-xl transition-all duration-300",
                   "group cursor-pointer select-none shrink-0", // shrink-0 para evitar compressão
                   isMobile 
-                    ? "flex-1 max-w-[68px] min-w-[52px] h-16 px-2 py-2" // Flex-1 para distribuir igualmente o espaço
+                    ? "w-12 h-12 rounded-full" // Formato circular compacto para cada botão no mobile
                     : "min-w-[56px] h-16 px-3 py-2.5",
                   // Usar classes personalizadas para estados
                   isActive
-                    ? "nav-tab-active scale-105 transform-gpu" // Scale reduzido para mobile
-                    : "nav-tab-inactive hover:scale-102 transform-gpu"
+                    ? "nav-tab-active scale-110 transform-gpu" // Scale maior para destacar no formato flutuante
+                    : "nav-tab-inactive hover:scale-105 transform-gpu"
                 )}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.9 }}
                 style={{
-                  filter: isActive ? 'drop-shadow(0 4px 12px var(--nav-glow))' : 'none'
+                  filter: isActive ? 'drop-shadow(0 6px 16px var(--nav-glow))' : 'none'
                 }}
               >
                 {/* Background do botão ativo com classe personalizada */}
@@ -129,21 +129,20 @@ export function NavigationTabs() {
                 <motion.div 
                   className={cn(
                     "relative flex items-center justify-center transition-all duration-300",
-                    "rounded-lg", // rounded-lg para mobile
                     isMobile 
-                      ? "w-5 h-5 mb-1" // Ícones ainda menores para 5 elementos
-                      : "w-8 h-8 mb-2",
+                      ? "w-full h-full rounded-full" // Ocupa todo o espaço circular no mobile
+                      : "rounded-lg w-8 h-8 mb-2",
                     isActive 
                       ? "bg-primary/35 shadow-lg shadow-primary/50 border border-primary/40" 
                       : "group-hover:bg-white/25 group-hover:shadow-lg group-hover:border group-hover:border-white/30"
                   )}
-                  whileHover={{ scale: 1.05 }} // Scale reduzido para mobile
+                  whileHover={{ scale: isMobile ? 1.1 : 1.05 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   <Icon 
                     className={cn(
                       "transition-all duration-300",
-                      isMobile ? "h-3 w-3" : "h-4 w-4", // Ícones ainda menores para 5 elementos
+                      isMobile ? "h-5 w-5" : "h-4 w-4", // Ícones maiores no mobile circular
                       isActive 
                         ? "nav-icon-active font-bold" 
                         : "nav-icon-inactive group-hover:font-medium",
@@ -151,37 +150,45 @@ export function NavigationTabs() {
                       !isActive && "text-gray-700 dark:text-gray-300"
                     )} 
                   />
+                  
+                  {/* Tooltip flutuante para mobile quando ativo */}
+                  {isMobile && isActive && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap backdrop-blur-sm border border-white/20"
+                    >
+                      {tab.title}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-4 border-l-transparent border-r-transparent border-t-black/90"></div>
+                    </motion.div>
+                  )}
                 </motion.div>
                 
-                {/* Label com melhor contraste e responsividade aprimorada */}
-                <span className={cn(
-                  "font-semibold transition-all duration-300 text-center leading-tight",
-                  "tracking-tighter overflow-hidden text-ellipsis whitespace-nowrap w-full", // w-full para usar todo espaço disponível
-                  isMobile 
-                    ? "text-[8px] max-w-full" // Fonte ainda menor para 5 elementos
-                    : "text-[11px]",
-                  isActive 
-                    ? "text-primary-foreground filter drop-shadow-sm" 
-                    : cn(
-                        "group-hover:text-foreground group-hover:drop-shadow-sm",
-                        // Melhor contraste para modo claro
-                        "text-gray-700 dark:text-foreground/95"
-                      )
-                )}>
-                  {/* Usa título completo sempre */}
-                  {tab.title}
-                </span>
+                {/* Label com melhor contraste e responsividade aprimorada - apenas no desktop */}
+                {!isMobile && (
+                  <span className={cn(
+                    "font-semibold transition-all duration-300 text-center leading-tight",
+                    "text-[11px]",
+                    isActive 
+                      ? "text-primary-foreground filter drop-shadow-sm" 
+                      : "group-hover:text-foreground group-hover:drop-shadow-sm text-gray-700 dark:text-foreground/95"
+                  )}>
+                    {tab.title}
+                  </span>
+                )}
                 
-                {/* Dot indicator premium com melhor visibilidade - ajustado para mobile */}
-                {isMobile && isActive && (
+                {/* Dot indicator premium com melhor visibilidade - apenas no desktop agora */}
+                {!isMobile && isActive && (
                   <motion.div
                     initial={{ scale: 0, rotate: 0 }}
                     animate={{ scale: 1, rotate: 360 }}
                     transition={{ duration: 0.5, ease: "backOut" }}
                     className={cn(
-                      "absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full", // Tamanho reduzido
+                      "absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full",
                       "bg-gradient-to-br from-primary to-primary/90",
-                      "border border-background shadow-lg", // Shadow reduzido
+                      "border border-background shadow-lg",
                       "shadow-primary/70",
                       "before:absolute before:inset-0 before:rounded-full",
                       "before:bg-primary/60 before:blur-sm before:-z-10"

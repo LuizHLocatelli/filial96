@@ -123,6 +123,21 @@
     box-shadow: var(--nav-shadow);
   }
 
+  /* Específico para barra flutuante circular no mobile */
+  @media (max-width: 767px) {
+    .nav-glass-effect {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 16px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      /* Garantir centralização perfeita */
+      margin: 0 auto;
+      transform: none;
+    }
+  }
+
   .nav-tab-active {
     background: var(--nav-tab-active-bg);
     color: var(--nav-text-active);
@@ -169,125 +184,89 @@
     filter: blur(12px); /* Blur reduzido de 16px para 12px */
     z-index: -1;
   }
+
+  /* Efeito glow mais intenso para o formato flutuante no mobile */
+  @media (max-width: 767px) {
+    .nav-glow::before {
+      opacity: 0.7;
+      filter: blur(16px);
+    }
+  }
 }
 
 /* Responsividade Mobile - NavigationTabs */
 @layer utilities {
-  /* Proteção contra textos muito pequenos em mobile - agora incluindo 8px */
-  @media (max-width: 374px) {
-    .text-\[8px\] { font-size: 9px !important; }
-    .text-\[9px\] { font-size: 10px !important; }
-    .text-\[10px\] { font-size: 11px !important; }
-    
-    /* Ajustes específicos para NavigationTabs em telas muito pequenas */
-    .nav-glass-effect {
-      padding: 0.5rem 0.25rem !important;
-    }
-  }
-
+  /* Regras específicas para barra circular flutuante no mobile */
   @media (max-width: 767px) {
-    /* Garantir que os botões da navegação tenham tamanho mínimo adequado para 5 elementos */
     .nav-tab-inactive,
     .nav-tab-active {
-      min-height: 64px;
-      min-width: 48px; /* Reduzido para comportar 5 elementos */
-      max-width: 68px; /* Máximo para evitar muito espaço */
+      min-height: 48px;
+      min-width: 48px;
+      max-width: 48px;
+      border-radius: 50%;
     }
     
-    /* Proteção contra overflow horizontal */
-    .nav-glass-effect {
-      overflow-x: hidden;
+    /* Efeito de escala mais suave para o formato circular */
+    .hover\:scale-105:hover {
+      transform: scale(1.05);
     }
     
-    /* Texto da navegação - tamanho mínimo legível para nomes completos */
-    .text-\[8px\] { font-size: 9px !important; }
-    .text-\[9px\] { font-size: 10px !important; }
-    .text-\[10px\] { font-size: 11px !important; }
+    .scale-110 {
+      transform: scale(1.1);
+    }
+    
+    /* Tooltip responsivo */
+    .nav-tooltip {
+      font-size: 10px;
+      padding: 4px 8px;
+    }
   }
 
-  /* Telas extra pequenas - iPhone SE e similares com 5 elementos */
+  /* Telas extra pequenas - ajustes para o formato circular */
   @media (max-width: 320px) {
     .nav-glass-effect {
-      padding: 0.5rem 0.125rem !important; /* Padding ainda menor para 5 elementos */
+      padding: 0.5rem 0.75rem !important;
+      max-width: 280px !important;
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
-      min-width: 44px !important; /* Ainda menor para 5 elementos */
-      max-width: 56px !important; /* Máximo menor para telas pequenas */
-      font-size: 8px !important;
-    }
-    
-    /* Para textos muito longos em telas pequenas - melhor ellipsis */
-    .nav-tab-inactive span,
-    .nav-tab-active span {
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-weight: 700 !important; /* Mais pesada para legibilidade com fonte pequena */
+      min-height: 44px !important;
+      min-width: 44px !important;
+      max-width: 44px !important;
     }
   }
 
   /* Telas ultra pequenas - Galaxy Fold e similares */
   @media (max-width: 280px) {
     .nav-glass-effect {
-      padding: 0.375rem 0.125rem !important;
+      padding: 0.375rem 0.5rem !important;
+      max-width: 240px !important;
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
+      min-height: 40px !important;
       min-width: 40px !important;
-      max-width: 50px !important;
-      font-size: 7px !important;
+      max-width: 40px !important;
     }
     
-    /* Ícones ainda menores para telas muito pequenas */
-    .nav-tab-inactive .w-5,
-    .nav-tab-active .w-5 {
+    /* Ícones menores para telas muito pequenas */
+    .nav-tab-inactive .h-5,
+    .nav-tab-active .h-5 {
       width: 1rem !important;
       height: 1rem !important;
-    }
-    
-    .nav-tab-inactive .h-3,
-    .nav-tab-active .h-3 {
-      width: 0.625rem !important;
-      height: 0.625rem !important;
-    }
-  }
-
-  /* Utility para escala responsiva reduzida em mobile */
-  @media (max-width: 767px) {
-    .hover\:scale-102:hover {
-      transform: scale(1.02);
-    }
-    
-    .scale-105 {
-      transform: scale(1.05);
-    }
-  }
-
-  /* Melhoria para legibilidade de textos pequenos - CONTRASTE MELHORADO PARA MODO CLARO */
-  @media (max-width: 767px) {
-    .text-\[8px\] {
-      font-weight: 700 !important; /* Fonte mais pesada para melhor legibilidade */
-      letter-spacing: -0.05em !important; /* Tracking mais apertado */
-    }
-    
-    .text-\[9px\] {
-      font-weight: 600 !important; /* Fonte mais pesada para melhor legibilidade */
-      letter-spacing: -0.025em !important; /* Tracking mais apertado */
     }
   }
 
   /* Melhorias específicas para modo claro */
   @media (prefers-color-scheme: light) {
     .nav-tab-inactive {
-      color: rgba(30, 30, 30, 0.85) !important; /* Força cor mais escura no modo claro */
+      color: rgba(30, 30, 30, 0.85) !important;
     }
     
     .nav-icon-inactive {
-      color: rgba(30, 30, 30, 0.75) !important; /* Força ícone mais escuro no modo claro */
+      color: rgba(30, 30, 30, 0.75) !important;
     }
   }
 
