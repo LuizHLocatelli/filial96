@@ -56,7 +56,7 @@ export function NavigationTabs() {
       <div className={cn(
         "relative overflow-hidden nav-glass-effect nav-glow",
         isMobile 
-          ? "rounded-full px-3 py-3 shadow-2xl shadow-black/25 ring-1 ring-white/20 w-fit" // Aumentando px para melhor espaçamento interno
+          ? "rounded-full px-4 py-4 shadow-2xl shadow-black/25 ring-1 ring-white/20 w-fit" // Aumentando padding significativamente
           : "rounded-3xl px-5 py-4"
       )}>
         
@@ -70,7 +70,7 @@ export function NavigationTabs() {
         <div className={cn(
           "relative flex items-center",
           isMobile 
-            ? "justify-center gap-2 px-1" // Aumentando o gap para melhor espaçamento
+            ? "justify-center gap-3 px-2" // Aumentando gap e padding para mais espaço
             : "justify-around gap-1"
         )}>
           {tabs.map((tab, index) => {
@@ -85,7 +85,7 @@ export function NavigationTabs() {
                   "relative flex flex-col items-center justify-center rounded-xl transition-all duration-300",
                   "group cursor-pointer select-none shrink-0", // shrink-0 para evitar compressão
                   isMobile 
-                    ? "w-12 h-12 rounded-full" // Formato circular compacto para cada botão no mobile
+                    ? "w-16 h-[72px] rounded-2xl px-2 py-2" // Usando altura válida no Tailwind
                     : "min-w-[56px] h-16 px-3 py-2.5",
                   // Usar classes personalizadas para estados
                   isActive
@@ -130,7 +130,7 @@ export function NavigationTabs() {
                   className={cn(
                     "relative flex items-center justify-center transition-all duration-300",
                     isMobile 
-                      ? "w-full h-full rounded-full" // Ocupa todo o espaço circular no mobile
+                      ? "w-8 h-8 rounded-xl mb-1.5" // Aumentando margem inferior do ícone
                       : "rounded-lg w-8 h-8 mb-2",
                     isActive 
                       ? "bg-primary/35 shadow-lg shadow-primary/50 border border-primary/40" 
@@ -142,7 +142,7 @@ export function NavigationTabs() {
                   <Icon 
                     className={cn(
                       "transition-all duration-300",
-                      isMobile ? "h-5 w-5" : "h-4 w-4", // Ícones maiores no mobile circular
+                      isMobile ? "h-4 w-4" : "h-4 w-4", // Ícones otimizados para o novo layout
                       isActive 
                         ? "nav-icon-active font-bold" 
                         : "nav-icon-inactive group-hover:font-medium",
@@ -150,34 +150,20 @@ export function NavigationTabs() {
                       !isActive && "text-gray-700 dark:text-gray-300"
                     )} 
                   />
-                  
-                  {/* Tooltip flutuante para mobile quando ativo */}
-                  {isMobile && isActive && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.8 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded-lg whitespace-nowrap backdrop-blur-sm border border-white/20"
-                    >
-                      {tab.title}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-4 border-l-transparent border-r-transparent border-t-black/90"></div>
-                    </motion.div>
-                  )}
                 </motion.div>
                 
-                {/* Label com melhor contraste e responsividade aprimorada - apenas no desktop */}
-                {!isMobile && (
-                  <span className={cn(
-                    "font-semibold transition-all duration-300 text-center leading-tight",
-                    "text-[11px]",
-                    isActive 
-                      ? "text-primary-foreground filter drop-shadow-sm" 
-                      : "group-hover:text-foreground group-hover:drop-shadow-sm text-gray-700 dark:text-foreground/95"
-                  )}>
-                    {tab.title}
-                  </span>
-                )}
+                {/* Label - agora mostrado tanto no mobile quanto no desktop */}
+                <span className={cn(
+                  "font-semibold transition-all duration-300 text-center leading-tight",
+                  isMobile 
+                    ? "text-[10px] px-1" // Aumentando texto de 9px para 10px para melhor legibilidade
+                    : "text-[11px]",
+                  isActive 
+                    ? "text-primary-foreground filter drop-shadow-sm" 
+                    : "group-hover:text-foreground group-hover:drop-shadow-sm text-gray-700 dark:text-foreground/95"
+                )}>
+                  {tab.title}
+                </span>
                 
                 {/* Dot indicator premium com melhor visibilidade - apenas no desktop agora */}
                 {!isMobile && isActive && (
