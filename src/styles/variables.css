@@ -1,0 +1,115 @@
+
+@layer base {
+  :root {
+    --background: 0 0% 97.3%;
+    --foreground: 142 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 142 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 84% 4.9%;
+
+    --primary: 142 70% 40%;
+    --primary-foreground: 150 40% 98%;
+
+    --secondary: 150 40% 96.1%;
+    --secondary-foreground: 142 47.4% 11.2%;
+
+    --muted: 150 40% 96.1%;
+    --muted-foreground: 145 16.3% 46.9%;
+
+    --accent: 150 40% 96.1%;
+    --accent-foreground: 142 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 150 40% 98%;
+
+    --border: 144 31.8% 91.4%;
+    --input: 144 31.8% 91.4%;
+    --ring: 142 70% 40%;
+
+    --radius: 0.5rem;
+
+    /* Design Tokens - Spacing */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem;  /* 8px */
+    --spacing-md: 1rem;    /* 16px */
+    --spacing-lg: 1.5rem;  /* 24px */
+    --spacing-xl: 2rem;    /* 32px */
+    --spacing-2xl: 3rem;   /* 48px */
+
+    /* Shadows */
+    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.1), 0 4px 16px -4px rgba(0, 0, 0, 0.06);
+    --shadow-medium: 0 4px 12px -2px rgba(0, 0, 0, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+    --shadow-strong: 0 8px 24px -4px rgba(0, 0, 0, 0.16), 0 16px 48px -8px rgba(0, 0, 0, 0.12);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(142 70% 40%) 0%, hsl(142 70% 50%) 100%);
+    --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+
+    /* Navigation Enhanced Tokens - MODO CLARO MENOS BRILHANTE */
+    --nav-bg-primary: rgba(255, 255, 255, 0.70); /* Reduzido para menos brilho */
+    --nav-bg-glass: rgba(255, 255, 255, 0.60); /* Muito mais sutil */
+    --nav-border: rgba(0, 0, 0, 0.04); /* Borda ainda mais sutil */
+    --nav-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); /* Shadow bem reduzida */
+    --nav-glow: rgba(34, 197, 94, 0.3); /* Glow reduzido */
+    --nav-text-active: hsl(150 40% 98%); /* Texto ativo mantido */
+    --nav-text-inactive: rgba(30, 30, 30, 0.85); /* Texto inativo mais escuro */
+    --nav-icon-active: hsl(150 40% 98%); /* Ícone ativo mantido */
+    --nav-icon-inactive: rgba(30, 30, 30, 0.75); /* Ícone inativo mais escuro */
+    --nav-tab-active-bg: rgba(34, 197, 94, 0.6); /* Verde mantido */
+    --nav-tab-hover-bg: rgba(0, 0, 0, 0.03); /* Hover muito sutil */
+    --nav-indicator-shadow: 0 2px 8px rgba(34, 197, 94, 0.5); /* Shadow verde reduzida */
+  }
+
+  .dark {
+    --background: 144 71% 4%;
+    --foreground: 153 31% 91%;
+
+    --card: 144 71% 4%;
+    --card-foreground: 153 31% 91%;
+
+    --popover: 144 71% 4%;
+    --popover-foreground: 153 31% 91%;
+
+    --primary: 142 70% 40%;
+    --primary-foreground: 150 40% 98%;
+
+    --secondary: 142 47.4% 11.2%;
+    --secondary-foreground: 150 40% 98%;
+
+    --muted: 143 47% 11%;
+    --muted-foreground: 145 16.3% 56.9%;
+
+    --accent: 156 34% 17%;
+    --accent-foreground: 150 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 150 40% 98%;
+
+    --border: 156 34% 17%;
+    --input: 156 34% 17%;
+    --ring: 144.3 76.3% 48%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(142 70% 40%) 0%, hsl(142 70% 50%) 100%);
+    --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+
+    /* Dark Navigation Enhanced Tokens - MODO ESCURO MENOS BRILHANTE */
+    --nav-bg-primary: rgba(20, 20, 20, 0.80); /* Reduzido para menos brilho */
+    --nav-bg-glass: rgba(20, 20, 20, 0.65); /* Mais sutil */
+    --nav-border: rgba(255, 255, 255, 0.08); /* Borda bem sutil */
+    --nav-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); /* Shadow reduzida */
+    --nav-glow: rgba(34, 197, 94, 0.4); /* Glow um pouco reduzido */
+    --nav-text-active: hsl(var(--primary-foreground));
+    --nav-text-inactive: rgba(var(--foreground), 0.9);
+    --nav-icon-active: hsl(var(--primary-foreground));
+    --nav-icon-inactive: rgba(var(--foreground), 0.85);
+    --nav-tab-active-bg: rgba(34, 197, 94, 0.5); /* Verde mantido */
+    --nav-tab-hover-bg: rgba(255, 255, 255, 0.06); /* Hover mais sutil */
+    --nav-indicator-shadow: 0 2px 8px rgba(34, 197, 94, 0.6); /* Shadow verde reduzida */
+  }
+}
