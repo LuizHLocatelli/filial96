@@ -1,3 +1,4 @@
+
 import { 
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { DirectoryFile, DirectoryCategory } from '../types';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface DirectoryDialogsProps {
   categoryDialogOpen: boolean;
@@ -49,23 +51,28 @@ export function DirectoryDialogs({
   setViewerOpen,
   selectedFile
 }: DirectoryDialogsProps) {
+  const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
+  
   return (
     <>
       {/* Dialog de confirmação de exclusão */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] sm:max-w-[500px] mx-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base sm:text-lg">Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               Tem certeza que deseja excluir o arquivo "{selectedFile?.name}"? 
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
+            <AlertDialogCancel {...getMobileButtonProps()}>
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction 
               onClick={onDeleteFile}
               className="bg-red-600 hover:bg-red-700"
+              {...getMobileButtonProps()}
             >
               Excluir
             </AlertDialogAction>
@@ -75,20 +82,20 @@ export function DirectoryDialogs({
 
       {/* Dialog de visualização */}
       <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent {...getMobileDialogProps("6xl")} className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedFile?.name}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">{selectedFile?.name}</DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
+          <div className="mt-4 max-h-[70vh] overflow-y-auto">
             {selectedFile?.file_type.startsWith('image/') ? (
               <img 
                 src={selectedFile.file_url} 
                 alt={selectedFile.name}
-                className="max-w-full h-auto rounded-lg"
+                className="max-w-full h-auto rounded-lg object-contain"
               />
             ) : (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Visualização não disponível para este tipo de arquivo.
                 </p>
               </div>
@@ -98,4 +105,4 @@ export function DirectoryDialogs({
       </Dialog>
     </>
   );
-} 
+}

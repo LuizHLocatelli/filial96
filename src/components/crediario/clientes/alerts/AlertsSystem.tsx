@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -129,10 +130,12 @@ export function AlertsSystem({ clientes }: AlertsSystemProps) {
   return (
     <Card className="border-orange-500/20 bg-orange-500/5 dark:border-orange-500/30 dark:bg-orange-500/10">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
-          <Bell className="h-5 w-5" />
-          Alertas e Notificações
-          <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 border-orange-500/20 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-orange-600 dark:text-orange-400">
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            <span className="text-sm sm:text-base">Alertas e Notificações</span>
+          </div>
+          <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 border-orange-500/20 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30 w-fit">
             {alerts.length}
           </Badge>
         </CardTitle>
@@ -143,12 +146,12 @@ export function AlertsSystem({ clientes }: AlertsSystemProps) {
           return (
             <div
               key={alert.id}
-              className={`p-3 rounded-lg border ${getPriorityColor(alert.priority)} flex items-start justify-between`}
+              className={`p-3 rounded-lg border ${getPriorityColor(alert.priority)} flex flex-col sm:flex-row items-start justify-between gap-3`}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 min-w-0 flex-1">
                 <Icon className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
                     <Badge variant="outline" className="text-xs">
                       {getTypeLabel(alert.type)}
                     </Badge>
@@ -158,14 +161,14 @@ export function AlertsSystem({ clientes }: AlertsSystemProps) {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm font-medium">{alert.message}</p>
+                  <p className="text-sm font-medium break-words">{alert.message}</p>
                   <p className="text-xs text-muted-foreground">
                     Conta: {alert.cliente.conta}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className="flex items-center gap-1 flex-shrink-0 self-start sm:self-center">
                 <Button
                   variant="ghost"
                   size="sm"

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import { Trash2, X, AlertTriangle, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Orientacao } from "../types";
 import { useOrientacoesCrud } from "../hooks/useOrientacoesCrud";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface DeleteOrientacaoDialogProps {
   orientacao: Orientacao;
@@ -28,6 +30,7 @@ export function DeleteOrientacaoDialog({
   onSuccess
 }: DeleteOrientacaoDialogProps) {
   const { deleteOrientacao, isLoading } = useOrientacoesCrud();
+  const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
   const [tarefasRelacionadas, setTarefasRelacionadas] = useState<any[]>([]);
   const [carregandoTarefas, setCarregandoTarefas] = useState(false);
 
@@ -72,18 +75,18 @@ export function DeleteOrientacaoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent {...getMobileDialogProps("lg")} className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
+          <DialogTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
             <Trash2 className="h-5 w-5" />
             Excluir {tipoLabel}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Tem certeza que deseja excluir "{orientacao.titulo}"?
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[50vh] overflow-y-auto">
           {carregandoTarefas ? (
             <div className="flex items-center justify-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
@@ -94,23 +97,23 @@ export function DeleteOrientacaoDialog({
               <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               <AlertDescription className="text-amber-800 dark:text-amber-200">
                 <div className="space-y-2">
-                  <p className="font-medium">
+                  <p className="font-medium text-sm">
                     Esta orientação possui {tarefasRelacionadas.length} tarefa(s) relacionada(s):
                   </p>
-                  <ul className="list-disc list-inside space-y-1 text-sm">
+                  <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
                     {tarefasRelacionadas.slice(0, 3).map((tarefa) => (
                       <li key={tarefa.id} className="flex items-center gap-2">
                         <FileText className="h-3 w-3 flex-shrink-0" />
-                        {tarefa.titulo}
+                        <span className="break-words">{tarefa.titulo}</span>
                       </li>
                     ))}
                     {tarefasRelacionadas.length > 3 && (
-                      <li className="text-muted-foreground">
+                      <li className="text-muted-foreground text-xs">
                         ... e mais {tarefasRelacionadas.length - 3} tarefa(s)
                       </li>
                     )}
                   </ul>
-                  <p className="text-sm font-medium">
+                  <p className="text-xs sm:text-sm font-medium">
                     Ao excluir esta orientação, a relação com essas tarefas será removida, mas as tarefas serão mantidas.
                   </p>
                 </div>
@@ -118,19 +121,20 @@ export function DeleteOrientacaoDialog({
             </Alert>
           ) : (
             <Alert>
-              <AlertDescription>
+              <AlertDescription className="text-sm">
                 Esta ação não pode ser desfeita.
               </AlertDescription>
             </Alert>
           )}
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 sm:gap-0">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
+            {...getMobileButtonProps()}
           >
             <X className="h-4 w-4 mr-2" />
             Cancelar
@@ -139,6 +143,7 @@ export function DeleteOrientacaoDialog({
             variant="destructive"
             onClick={handleDelete}
             disabled={isLoading || carregandoTarefas}
+            {...getMobileButtonProps()}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {isLoading ? "Excluindo..." : "Excluir"}

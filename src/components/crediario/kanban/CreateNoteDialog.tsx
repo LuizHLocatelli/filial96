@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { NoteFolder } from './types';
 import { useToast } from '@/components/ui/use-toast';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface CreateNoteDialogProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
   const [color, setColor] = useState(getRandomColor());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { getMobileDialogProps, getMobileButtonProps, getMobileFormProps } = useMobileDialog();
 
   const colors = [
     { value: '#FEF7CD', label: 'Amarelo', textColor: '#5B4D00' },
@@ -72,23 +75,23 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent {...getMobileDialogProps("md")} className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nova Nota</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-base sm:text-lg">Nova Nota</DialogTitle>
+          <DialogDescription className="text-sm">
             Crie uma nova nota para o quadro Kanban com conteúdo personalizado
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-2">
+        <div {...getMobileFormProps()} className="py-2 max-h-[60vh] overflow-y-auto">
           <div className="space-y-2">
-            <Label htmlFor="content">Conteúdo</Label>
+            <Label htmlFor="content" className="text-sm font-medium">Conteúdo</Label>
             <Textarea 
               id="content"
               value={content} 
               onChange={(e) => setContent(e.target.value)} 
               placeholder="Digite o conteúdo da nota"
-              className="min-h-[120px]"
+              className="min-h-[120px] text-base sm:text-sm resize-none"
               style={{ 
                 backgroundColor: color, 
                 color: getTextColor() 
@@ -97,7 +100,7 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="color">Cor</Label>
+            <Label htmlFor="color" className="text-sm font-medium">Cor</Label>
             <div className="flex flex-wrap gap-2">
               {colors.map((colorOption) => (
                 <button
@@ -115,12 +118,12 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="folder">Pasta</Label>
+            <Label htmlFor="folder" className="text-sm font-medium">Pasta</Label>
             <Select
               value={selectedFolder || "no-folder"}
               onValueChange={(value) => setSelectedFolder(value === "no-folder" ? null : value)}
             >
-              <SelectTrigger id="folder">
+              <SelectTrigger id="folder" className="text-base sm:text-sm">
                 <SelectValue placeholder="Selecione uma pasta (opcional)" />
               </SelectTrigger>
               <SelectContent>
@@ -133,9 +136,20 @@ export function CreateNoteDialog({ isOpen, onClose, onCreateNote, folders }: Cre
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={isSubmitting}
+            {...getMobileButtonProps()}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting}
+            {...getMobileButtonProps()}
+          >
             {isSubmitting ? 'Criando...' : 'Criar Nota'}
           </Button>
         </DialogFooter>

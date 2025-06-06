@@ -1,3 +1,4 @@
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,12 +9,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface DeleteSaleDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onConfirmDelete: () => void;
-  itemName?: string; // Para tornar a mensagem mais genérica, ex: "esta venda", "este item"
+  itemName?: string;
 }
 
 export function DeleteSaleDialog({
@@ -22,20 +24,29 @@ export function DeleteSaleDialog({
   onConfirmDelete,
   itemName = "esta venda",
 }: DeleteSaleDialogProps) {
+  const { getMobileButtonProps } = useMobileDialog();
+  
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[90vw] sm:max-w-[500px]">
+      <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] sm:max-w-[500px] mx-auto">
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-base sm:text-lg">Confirmar exclusão</AlertDialogTitle>
+          <AlertDialogDescription className="text-sm">
             Tem certeza que deseja excluir {itemName}? Esta ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-          <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirmDelete} className="w-full sm:w-auto">Excluir</AlertDialogAction>
+        <AlertDialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
+          <AlertDialogCancel {...getMobileButtonProps()}>
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={onConfirmDelete} 
+            {...getMobileButtonProps()}
+          >
+            Excluir
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
-} 
+}

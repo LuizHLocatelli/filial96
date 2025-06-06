@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ProdutoFocoWithImages } from '../types';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface RegistroVendaDialogProps {
   isOpen: boolean;
@@ -39,6 +41,7 @@ export function RegistroVendaDialog({
     observacoes: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { getMobileDialogProps, getMobileButtonProps, getMobileFormProps } = useMobileDialog();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,40 +76,42 @@ export function RegistroVendaDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent {...getMobileDialogProps("md")} className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrar Venda - {produto.nome_produto}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-base sm:text-lg">
+            Registrar Venda - {produto.nome_produto}
+          </DialogTitle>
+          <DialogDescription className="text-sm">
             Registre uma nova venda deste produto foco
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} {...getMobileFormProps()} className="max-h-[60vh] overflow-y-auto">
           <div>
-            <Label htmlFor="cliente_nome" className="text-sm">Nome do Cliente *</Label>
+            <Label htmlFor="cliente_nome" className="text-sm font-medium">Nome do Cliente *</Label>
             <Input
               id="cliente_nome"
               value={formData.cliente_nome}
               onChange={(e) => setFormData(prev => ({ ...prev, cliente_nome: e.target.value }))}
               required
-              className="mt-1"
+              className="mt-1 text-base sm:text-sm"
             />
           </div>
 
           <div>
-            <Label htmlFor="cliente_telefone" className="text-sm">Telefone do Cliente</Label>
+            <Label htmlFor="cliente_telefone" className="text-sm font-medium">Telefone do Cliente</Label>
             <Input
               id="cliente_telefone"
               value={formData.cliente_telefone}
               onChange={(e) => setFormData(prev => ({ ...prev, cliente_telefone: e.target.value }))}
               placeholder="(00) 00000-0000"
-              className="mt-1"
+              className="mt-1 text-base sm:text-sm"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="quantidade" className="text-sm">Quantidade *</Label>
+              <Label htmlFor="quantidade" className="text-sm font-medium">Quantidade *</Label>
               <Input
                 id="quantidade"
                 type="number"
@@ -114,12 +119,12 @@ export function RegistroVendaDialog({
                 value={formData.quantidade}
                 onChange={(e) => setFormData(prev => ({ ...prev, quantidade: e.target.value }))}
                 required
-                className="mt-1"
+                className="mt-1 text-base sm:text-sm"
                 placeholder="1"
               />
             </div>
             <div>
-              <Label htmlFor="valor_total" className="text-sm">Valor Total (R$) *</Label>
+              <Label htmlFor="valor_total" className="text-sm font-medium">Valor Total (R$) *</Label>
               <Input
                 id="valor_total"
                 type="number"
@@ -128,17 +133,17 @@ export function RegistroVendaDialog({
                 value={formData.valor_total}
                 onChange={(e) => setFormData(prev => ({ ...prev, valor_total: e.target.value }))}
                 required
-                className="mt-1"
+                className="mt-1 text-base sm:text-sm"
                 placeholder="0,00"
               />
             </div>
           </div>
 
           <div>
-            <Label className="text-sm">Data da Venda *</Label>
+            <Label className="text-sm font-medium">Data da Venda *</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal mt-1">
+                <Button variant="outline" className="w-full justify-start text-left font-normal mt-1 text-base sm:text-sm">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(formData.data_venda, 'dd/MM/yyyy', { locale: ptBR })}
                 </Button>
@@ -149,27 +154,37 @@ export function RegistroVendaDialog({
                   selected={formData.data_venda}
                   onSelect={(date) => date && setFormData(prev => ({ ...prev, data_venda: date }))}
                   initialFocus
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
           <div>
-            <Label htmlFor="observacoes" className="text-sm">Observações</Label>
+            <Label htmlFor="observacoes" className="text-sm font-medium">Observações</Label>
             <Textarea
               id="observacoes"
               value={formData.observacoes}
               onChange={(e) => setFormData(prev => ({ ...prev, observacoes: e.target.value }))}
               rows={2}
-              className="mt-1 resize-none"
+              className="mt-1 resize-none text-base sm:text-sm"
             />
           </div>
 
-          <div className="flex gap-3 justify-end pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex flex-col sm:flex-row gap-3 justify-end pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              {...getMobileButtonProps()}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              {...getMobileButtonProps()}
+            >
               {isSubmitting ? 'Registrando...' : 'Registrar Venda'}
             </Button>
           </div>

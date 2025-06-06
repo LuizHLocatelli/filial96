@@ -1,3 +1,4 @@
+
 import { 
   Dialog, 
   DialogContent, 
@@ -30,6 +31,7 @@ import {
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface ProdutoFocoDetailsProps {
   produto: ProdutoFocoWithImages | null;
@@ -39,6 +41,7 @@ interface ProdutoFocoDetailsProps {
 
 export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDetailsProps) {
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null);
+  const { getMobileDialogProps } = useMobileDialog();
 
   if (!produto) return null;
 
@@ -66,24 +69,27 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
+        <DialogContent 
+          {...getMobileDialogProps("6xl")}
+          className="max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto"
+        >
           <DialogHeader className="px-2 sm:px-0">
-            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-xl">
               {produto.ativo && <Star className="h-5 w-5 text-yellow-500" />}
-              {produto.nome_produto}
+              <span className="break-words">{produto.nome_produto}</span>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+          <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 max-h-[70vh] overflow-y-auto">
             {/* Informações Básicas */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground">Código</p>
-                <Badge variant="outline" className="text-xs">{produto.codigo_produto}</Badge>
+                <Badge variant="outline" className="text-xs break-all">{produto.codigo_produto}</Badge>
               </div>
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground">Categoria</p>
-                <Badge variant="secondary" className="text-xs">{produto.categoria}</Badge>
+                <Badge variant="secondary" className="text-xs break-all">{produto.categoria}</Badge>
               </div>
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground">Status</p>
@@ -100,11 +106,11 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
             {/* Galeria de Imagens com proporção 4:5 */}
             {produto.imagens.length > 0 && (
               <div>
-                <h3 className="font-semibold mb-3 text-base sm:text-lg">Imagens do Produto</h3>
+                <h3 className="font-semibold mb-3 text-sm sm:text-lg">Imagens do Produto</h3>
                 <Carousel className="w-full">
                   <CarouselContent>
                     {produto.imagens.map((imagem) => (
-                      <CarouselItem key={imagem.id} className="sm:basis-1/2 lg:basis-1/3">
+                      <CarouselItem key={imagem.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
                         <div className="space-y-2">
                           <AspectRatio ratio={4/5}>
                             <div 
@@ -136,8 +142,8 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
                   </CarouselContent>
                   {produto.imagens.length > 1 && (
                     <>
-                      <CarouselPrevious />
-                      <CarouselNext />
+                      <CarouselPrevious className="hidden sm:flex" />
+                      <CarouselNext className="hidden sm:flex" />
                     </>
                   )}
                 </Carousel>
@@ -146,17 +152,17 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
 
             {/* Informações de Preço */}
             <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-              <h3 className="font-semibold mb-3 text-base sm:text-lg">Informações de Preço</h3>
+              <h3 className="font-semibold mb-3 text-sm sm:text-lg">Informações de Preço</h3>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Preço Original</p>
-                  <p className="text-base sm:text-lg line-through text-muted-foreground">
+                  <p className="text-sm sm:text-lg line-through text-muted-foreground">
                     R$ {produto.preco_de.toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Preço Promocional</p>
-                  <p className="text-xl sm:text-2xl font-bold text-green-600">
+                  <p className="text-lg sm:text-2xl font-bold text-green-600">
                     R$ {produto.preco_por.toFixed(2)}
                   </p>
                 </div>
@@ -168,9 +174,9 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
               <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="h-4 w-4" />
-                  <h3 className="font-semibold text-sm sm:text-base">Período do Foco</h3>
+                  <h3 className="font-semibold text-xs sm:text-base">Período do Foco</h3>
                 </div>
-                <p className="text-xs sm:text-sm">
+                <p className="text-xs sm:text-sm break-words">
                   De {format(new Date(produto.periodo_inicio), 'dd/MM/yyyy', { locale: ptBR })} {' '}
                   até {format(new Date(produto.periodo_fim), 'dd/MM/yyyy', { locale: ptBR })}
                 </p>
@@ -180,9 +186,9 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
                 <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Target className="h-4 w-4" />
-                    <h3 className="font-semibold text-sm sm:text-base">Meta de Vendas</h3>
+                    <h3 className="font-semibold text-xs sm:text-base">Meta de Vendas</h3>
                   </div>
-                  <p className="text-xl sm:text-2xl font-bold">{produto.meta_vendas} unidades</p>
+                  <p className="text-lg sm:text-2xl font-bold">{produto.meta_vendas} unidades</p>
                 </div>
               )}
             </div>
@@ -192,17 +198,17 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
               <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Info className="h-4 w-4" />
-                  <h3 className="font-semibold text-sm sm:text-base">Motivo do Foco</h3>
+                  <h3 className="font-semibold text-xs sm:text-base">Motivo do Foco</h3>
                 </div>
-                <p className="text-xs sm:text-sm">{produto.motivo_foco}</p>
+                <p className="text-xs sm:text-sm break-words">{produto.motivo_foco}</p>
               </div>
             )}
 
             {/* Informações Adicionais */}
             {produto.informacoes_adicionais && (
               <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-                <h3 className="font-semibold mb-2 text-sm sm:text-base">Informações Adicionais</h3>
-                <p className="text-xs sm:text-sm whitespace-pre-wrap">{produto.informacoes_adicionais}</p>
+                <h3 className="font-semibold mb-2 text-xs sm:text-base">Informações Adicionais</h3>
+                <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{produto.informacoes_adicionais}</p>
               </div>
             )}
 
@@ -211,13 +217,13 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
               <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-4 w-4" />
-                  <h3 className="font-semibold text-sm sm:text-base">Argumentos de Venda</h3>
+                  <h3 className="font-semibold text-xs sm:text-base">Argumentos de Venda</h3>
                 </div>
                 <div className="space-y-2">
                   {produto.argumentos_venda.map((argumento, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <p className="text-xs sm:text-sm">{argumento}</p>
+                      <p className="text-xs sm:text-sm break-words">{argumento}</p>
                     </div>
                   ))}
                 </div>
@@ -230,27 +236,19 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {/* Modal de Zoom da Imagem */}
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] p-0 sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
-            <DialogHeader className="sr-only">
-              <DialogTitle>Visualização Ampliada</DialogTitle>
-              <DialogDescription>
-                Imagem do produto em tamanho ampliado para melhor visualização
-              </DialogDescription>
+          <DialogContent 
+            {...getMobileDialogProps("6xl")}
+            className="max-h-[90vh] p-2 sm:p-6 mx-2 sm:mx-auto overflow-hidden"
+          >
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-sm sm:text-base">Visualizar Imagem</DialogTitle>
             </DialogHeader>
-            <div className="relative">
+            <div className="flex-1 overflow-hidden flex items-center justify-center max-h-[70vh]">
               <img 
                 src={imagemSelecionada} 
-                alt="Imagem ampliada"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl sm:rounded-xl"
+                alt="Imagem ampliada" 
+                className="max-w-full max-h-full object-contain"
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-2 right-2 bg-black/50 text-white hover:bg-black/70 rounded-full"
-                onClick={() => setImagemSelecionada(null)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
           </DialogContent>
         </Dialog>
