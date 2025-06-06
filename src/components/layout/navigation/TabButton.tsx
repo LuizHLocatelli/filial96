@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TabButtonProps } from "./types";
@@ -18,7 +17,7 @@ export function TabButton({
       key={tab.path}
       onClick={() => onTabClick(index)}
       className={cn(
-        "relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300",
+        "relative flex flex-col items-center justify-center rounded-3xl transition-all duration-300",
         "group cursor-pointer select-none shrink-0",
         isMobile 
           ? cn(
@@ -42,11 +41,11 @@ export function TabButton({
         <motion.div
           layoutId="activeTabBackground"
           className={cn(
-            "absolute inset-0 rounded-2xl",
+            "absolute inset-0 rounded-3xl",
             "bg-gradient-to-br from-primary/50 via-primary/35 to-primary/50",
             "backdrop-blur-lg border border-primary/50",
             "shadow-2xl shadow-primary/30",
-            "before:absolute before:inset-0 before:rounded-2xl",
+            "before:absolute before:inset-0 before:rounded-3xl",
             "before:bg-primary/20 before:blur-xl before:-z-10"
           )}
           initial={false}
@@ -57,7 +56,7 @@ export function TabButton({
       {/* Hover effect */}
       {!isActive && (
         <div className={cn(
-          "absolute inset-0 rounded-2xl opacity-0 transition-all duration-300",
+          "absolute inset-0 rounded-3xl opacity-0 transition-all duration-300",
           "bg-gradient-to-br from-white/20 to-white/10 dark:from-white/15 dark:to-white/8",
           "group-hover:opacity-100",
           "border border-transparent group-hover:border-white/25 dark:group-hover:border-white/15",
@@ -71,12 +70,12 @@ export function TabButton({
           "relative flex items-center justify-center transition-all duration-300",
           isMobile 
             ? cn(
-                "rounded-xl mb-1",
+                "rounded-2xl mb-1",
                 isSmallScreen 
                   ? "w-5 h-5"
                   : "w-6 h-6"
               )
-            : "rounded-lg w-8 h-8 mb-2",
+            : "rounded-xl w-8 h-8 mb-2",
           isActive 
             ? "bg-primary/30 shadow-xl shadow-primary/40 border border-primary/30" 
             : "group-hover:bg-white/20 group-hover:shadow-xl group-hover:border group-hover:border-white/25"
@@ -133,7 +132,7 @@ export function TabButton({
       
       {/* Ripple effect */}
       <motion.div
-        className="absolute inset-0 rounded-2xl"
+        className="absolute inset-0 rounded-3xl"
         whileTap={{
           background: "radial-gradient(circle, var(--nav-glow) 0%, transparent 70%)"
         }}

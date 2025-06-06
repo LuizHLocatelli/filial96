@@ -1,4 +1,3 @@
-
 /* Responsividade Mobile aprimorada - NavigationTabs */
 @layer utilities {
   /* Regras específicas para barra circular flutuante no mobile */
@@ -7,7 +6,7 @@
     .nav-tab-active {
       min-height: 64px !important;
       min-width: 52px !important;
-      border-radius: 1rem;
+      border-radius: 1.5rem !important;
     }
     
     /* Texto responsivo para mobile otimizado - SEM TRUNCAMENTO */
@@ -33,6 +32,7 @@
     .nav-glass-effect {
       max-width: 26rem !important; /* Aumentado para 416px */
       margin: 0 auto !important;
+      border-radius: 2rem !important;
     }
   }
 
@@ -41,12 +41,14 @@
     .nav-glass-effect {
       padding: 1rem 0.75rem !important;
       max-width: 24rem !important;
+      border-radius: 1.75rem !important;
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
       min-height: 64px !important;
       min-width: 48px !important;
+      border-radius: 1.25rem !important;
     }
   }
 
@@ -55,12 +57,14 @@
     .nav-glass-effect {
       padding: 0.75rem 0.5rem !important;
       max-width: 22rem !important;
+      border-radius: 1.5rem !important;
     }
     
     .nav-tab-inactive,
     .nav-tab-active {
       min-height: 64px !important;
       min-width: 44px !important;
+      border-radius: 1rem !important;
     }
     
     /* Container de navegação com gap mínimo */
@@ -73,6 +77,18 @@
       font-size: 8px !important;
       font-weight: 800 !important;
       letter-spacing: -0.02em !important;
+    }
+  }
+
+  /* Desktop - garantir bordas arredondadas também */
+  @media (min-width: 768px) {
+    .nav-tab-inactive,
+    .nav-tab-active {
+      border-radius: 1.5rem !important;
+    }
+    
+    .nav-glass-effect {
+      border-radius: 2rem !important;
     }
   }
 
