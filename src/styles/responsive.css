@@ -80,7 +80,7 @@
     }
   }
 
-  /* Desktop - garantir bordas arredondadas também */
+  /* Desktop - garantir bordas arredondadas e posicionamento centralizado */
   @media (min-width: 768px) {
     .nav-tab-inactive,
     .nav-tab-active {
@@ -89,6 +89,8 @@
     
     .nav-glass-effect {
       border-radius: 2rem !important;
+      margin: 0 auto !important;
+      position: relative !important;
     }
   }
 

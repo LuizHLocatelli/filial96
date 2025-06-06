@@ -12,7 +12,7 @@ export function TabContainer({ children, isMobile, isSmallScreen }: TabContainer
         "fixed z-50",
         isMobile 
           ? "bottom-6 left-4 right-4 flex justify-center"
-          : "bottom-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-md"
+          : "bottom-4 left-0 right-0 flex justify-center"
       )}
     >
       {/* Container Glass Morphism Premium */}
@@ -23,7 +23,7 @@ export function TabContainer({ children, isMobile, isSmallScreen }: TabContainer
               "rounded-[2rem] shadow-2xl shadow-black/20 ring-1 ring-white/30 w-full max-w-lg",
               isSmallScreen ? "px-2 py-4" : "px-3 py-5"
             )
-          : "rounded-[2rem] px-5 py-4"
+          : "rounded-[2rem] px-5 py-4 w-auto max-w-md mx-auto"
       )}>
         
         {/* Gradiente decorativo premium */}
