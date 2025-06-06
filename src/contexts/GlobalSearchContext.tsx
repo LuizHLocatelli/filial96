@@ -290,9 +290,14 @@ export function GlobalSearchProvider({ children }: { children: ReactNode }) {
     setSearchTerm(term);
     setIsSearching(true);
     
+    // Console log para debug mobile
+    console.log('🔍 [MOBILE DEBUG] Pesquisando por:', term);
+    console.log('📱 [MOBILE DEBUG] Total de itens pesquisáveis:', searchableItems.length);
+    
     if (!term.trim()) {
       setSearchResults([]);
       setIsSearching(false);
+      console.log('❌ [MOBILE DEBUG] Termo vazio, limpando resultados');
       return;
     }
 
@@ -300,11 +305,17 @@ export function GlobalSearchProvider({ children }: { children: ReactNode }) {
     setTimeout(() => {
       const searchLower = term.toLowerCase();
       const results = searchableItems.filter(item => {
-        return (
+        const isMatch = (
           item.title.toLowerCase().includes(searchLower) ||
           item.description.toLowerCase().includes(searchLower) ||
           (item.section && item.section.toLowerCase().includes(searchLower))
         );
+        
+        if (isMatch) {
+          console.log('✅ [MOBILE DEBUG] Encontrado:', item.title, '| Tipo:', item.type);
+        }
+        
+        return isMatch;
       });
       
       // Ordenar por relevância - exact matches primeiro
@@ -317,6 +328,9 @@ export function GlobalSearchProvider({ children }: { children: ReactNode }) {
         const bStartsWith = b.title.toLowerCase().startsWith(searchLower) ? 1 : 0;
         return bStartsWith - aStartsWith;
       });
+      
+      console.log(`🎯 [MOBILE DEBUG] Resultados encontrados: ${results.length} de ${searchableItems.length} itens`);
+      console.log('📋 [MOBILE DEBUG] Resultados:', results.map(r => r.title));
       
       setSearchResults(results);
       setIsSearching(false);

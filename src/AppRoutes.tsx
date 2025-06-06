@@ -4,6 +4,7 @@ import Crediario from "./pages/Crediario";
 import Moveis from "./pages/Moveis";
 import Moda from "./pages/Moda";
 import HubProdutividade from "./pages/HubProdutividade";
+import Atividades from "./pages/Atividades";
 import PdfViewerPage from "./pages/PdfViewerPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -74,6 +75,15 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AppLayout><Moda /></AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      {/* Nova rota para a página de Atividades */}
+      <Route 
+        path="/atividades" 
+        element={
+          <ProtectedRoute>
+            <AppLayout><Atividades /></AppLayout>
           </ProtectedRoute>
         } 
       />

@@ -35,6 +35,7 @@ interface QuickActionsProps {
   onFiltrosPorData: () => void;
   onRelatorios: () => void;
   isRefreshing?: boolean;
+  hideHeader?: boolean;
 }
 
 export function QuickActions({ 
@@ -47,7 +48,8 @@ export function QuickActions({
   onBuscaAvancada,
   onFiltrosPorData,
   onRelatorios,
-  isRefreshing = false
+  isRefreshing = false,
+  hideHeader = false
 }: QuickActionsProps) {
   const { isMobile } = useResponsive();
   
@@ -296,26 +298,28 @@ export function QuickActions({
 
   return (
     <div className="space-y-4">
-      {/* Header com título e botão de configurações */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Ações Rápidas</h3>
-          <p className="text-sm text-muted-foreground">
-            {preferences.showOnlyFavorites && preferences.favorites.length > 0 
-              ? `Mostrando ${visibleSections.length} favoritos`
-              : `${visibleSections.length} ações disponíveis`
-            }
-            {preferences.enableKeyboardShortcuts && " • Atalhos habilitados"}
-          </p>
+      {/* Header com título e botão de configurações - condicional */}
+      {!hideHeader && (
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Ações Rápidas</h3>
+            <p className="text-sm text-muted-foreground">
+              {preferences.showOnlyFavorites && preferences.favorites.length > 0 
+                ? `Mostrando ${visibleSections.length} favoritos`
+                : `${visibleSections.length} ações disponíveis`
+              }
+              {preferences.enableKeyboardShortcuts && " • Atalhos habilitados"}
+            </p>
+          </div>
+          <QuickActionsSettings handlers={keyboardHandlers} />
         </div>
-        <QuickActionsSettings handlers={keyboardHandlers} />
-      </div>
+      )}
 
-      {/* Grid de ações */}
+      {/* Grid de ações - Layout melhorado para desktop */}
       <div className={`grid gap-3 ${
         isMobile 
           ? 'grid-cols-2' 
-          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
+          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'
       }`}>
         {visibleSections.map((section, index) => {
           const Icon = section.icon;

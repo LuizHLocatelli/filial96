@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Home, ChevronRight, Search, Menu, X } from "lucide-react";
+import { Home, ChevronRight, Search, X } from "lucide-react";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
 import { UserMenu } from "../auth/UserMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -7,7 +7,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MobileNavMenu } from "./MobileNavMenu";
 import { BreadcrumbNav } from "./BreadcrumbNav";
 import { CompanyLogo } from "./CompanyLogo";
 import { SearchBar } from "./SearchBar";
@@ -21,13 +20,11 @@ import { cn } from "@/lib/utils";
 export function EnhancedTopBar() {
   const isMobile = useIsMobile();
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { searchTerm, performSearch, clearSearch } = useGlobalSearch();
   
   // Refs para controle de click outside
   const mobileSearchRef = useRef<HTMLDivElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Fechar pesquisa mobile ao clicar fora
   useOnClickOutside(mobileSearchRef, () => {
@@ -37,39 +34,24 @@ export function EnhancedTopBar() {
     }
   });
 
-  // Fechar menu mobile ao clicar fora
-  useOnClickOutside(mobileMenuRef, () => {
-    if (isMobile && isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-    }
-  });
-
   // Fechar modais ao pressionar Escape
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (isMobile) {
-          if (isSearchOpen) {
-            setIsSearchOpen(false);
-            clearSearch();
-          } else if (isMobileMenuOpen) {
-            setIsMobileMenuOpen(false);
-          }
+        if (isMobile && isSearchOpen) {
+          setIsSearchOpen(false);
+          clearSearch();
         }
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isMobile, isSearchOpen, isMobileMenuOpen, clearSearch]);
+  }, [isMobile, isSearchOpen, clearSearch]);
 
   const handleMobileSearchClose = () => {
     setIsSearchOpen(false);
     clearSearch();
-  };
-
-  const handleMobileMenuClose = () => {
-    setIsMobileMenuOpen(false);
   };
 
   const handleMobileSearchKeyDown = (event: React.KeyboardEvent) => {
@@ -87,45 +69,16 @@ export function EnhancedTopBar() {
       className="sticky top-0 z-50 border-b bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-lg"
     >
       <div className={cn(
-        "container flex items-center justify-between h-16",
-        isMobile ? "px-3" : "px-6"
+        "container flex items-center h-16",
+        isMobile ? "px-3 justify-between" : "px-6"
       )}>
         {/* Left Section - Logo and Navigation */}
-        <div className="flex items-center space-x-3 flex-1 min-w-0">
-          {/* Mobile Menu Button com animação melhorada */}
-          {isMobile && (
-            <motion.div
-              whileTap={{ scale: 0.95 }}
-              whileHover={{ scale: 1.05 }}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={cn(
-                  "h-10 w-10 flex-shrink-0 rounded-xl transition-all duration-300",
-                  isMobileMenuOpen 
-                    ? "bg-primary/10 text-primary border border-primary/20" 
-                    : "hover:bg-accent/80"
-                )}
-                aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
-              >
-                <motion.div
-                  animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                  {isMobileMenuOpen ? (
-                    <X className="h-5 w-5" />
-                  ) : (
-                    <Menu className="h-5 w-5" />
-                  )}
-                </motion.div>
-              </Button>
-            </motion.div>
-          )}
-
+        <div className={cn(
+          "flex items-center space-x-3",
+          isMobile ? "flex-1 min-w-0" : "flex-shrink-0"
+        )}>
           {/* Company Logo and Name com espaçamento otimizado */}
-          <div className="min-w-0 flex-1 md:flex-initial">
+          <div className="min-w-0">
             <motion.div
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2 }}
@@ -152,7 +105,7 @@ export function EnhancedTopBar() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
-            className="hidden md:flex"
+            className="hidden md:flex flex-1 justify-center px-4"
           >
             <SearchBar 
               isMobile={isMobile}
@@ -167,7 +120,10 @@ export function EnhancedTopBar() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1, duration: 0.3 }}
-          className="flex items-center space-x-1 flex-shrink-0"
+          className={cn(
+            "flex items-center space-x-1 flex-shrink-0",
+            !isMobile && "ml-4"
+          )}
         >
           {/* Mobile Search Toggle */}
           {isMobile && (
@@ -191,14 +147,6 @@ export function EnhancedTopBar() {
             <UserMenu />
           </motion.div>
         </motion.div>
-      </div>
-
-      {/* Mobile Navigation Menu com ref */}
-      <div ref={mobileMenuRef}>
-        <MobileNavMenu 
-          isOpen={isMobileMenuOpen} 
-          onClose={handleMobileMenuClose} 
-        />
       </div>
 
       {/* Mobile Search Expandable com design melhorado */}
@@ -239,7 +187,7 @@ export function EnhancedTopBar() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Buscar páginas, seções..."
-                    className="pl-10 pr-4 w-full rounded-xl border-2 focus:border-primary/50"
+                    className="pl-10 pr-4 w-full rounded-xl border-2 focus:border-primary/50 bg-background"
                     value={searchTerm}
                     onChange={(e) => performSearch(e.target.value)}
                     onKeyDown={handleMobileSearchKeyDown}
@@ -248,7 +196,10 @@ export function EnhancedTopBar() {
                 </motion.div>
               </div>
               
-              <GlobalSearchResults onResultClick={handleMobileSearchClose} />
+              {/* Resultados da pesquisa mobile com estilo específico */}
+              <div className="mt-4">
+                <GlobalSearchResults onResultClick={handleMobileSearchClose} isMobile={true} />
+              </div>
             </div>
           </motion.div>
         )}

@@ -111,8 +111,8 @@ export function StatsOverview({
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* Stats Grid - Layout otimizado para desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
@@ -126,8 +126,8 @@ export function StatsOverview({
               )}
               onClick={card.onClick}
             >
-              <CardContent className="p-6">
-                <div className="space-y-4">
+              <CardContent className="p-4 lg:p-5">
+                <div className="space-y-3">
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-muted-foreground">
@@ -190,10 +190,10 @@ export function StatsOverview({
         })}
       </div>
 
-      {/* Resumo do Dia */}
-      <div className="mt-8">
+      {/* Resumo do Dia - Layout compacto */}
+      <div className="mt-6">
         <Card className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/20 dark:to-blue-950/20 border-0">
-          <CardContent className="p-6">
+          <CardContent className="p-4 lg:p-5">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
                 <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -201,7 +201,7 @@ export function StatsOverview({
               <h3 className="text-lg font-semibold">Resumo do Dia</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {stats.rotinas.concluidas + stats.tarefas.concluidas}

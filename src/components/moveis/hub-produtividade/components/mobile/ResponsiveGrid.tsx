@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/hooks/use-responsive';
@@ -42,15 +41,6 @@ export function ResponsiveGrid({
   minColWidth = '320px'
 }: ResponsiveGridProps) {
   const breakpoints = useResponsive();
-
-  const getCurrentColumns = () => {
-    if (breakpoints.xxl && columns.xxl) return columns.xxl;
-    if (breakpoints.xl && columns.xl) return columns.xl;
-    if (breakpoints.lg && columns.lg) return columns.lg;
-    if (breakpoints.md && columns.md) return columns.md;
-    if (breakpoints.sm && columns.sm) return columns.sm;
-    return columns.xs || 1;
-  };
 
   const getGridClasses = () => {
     if (autoFit) {
@@ -111,33 +101,14 @@ export function StatsGrid({ children, className }: StatsGridProps) {
 
 // Grid simplificado para dashboard
 interface DashboardGridProps {
-  sidebar?: ReactNode;
   main: ReactNode;
   className?: string;
 }
 
-export function DashboardGrid({ sidebar, main, className }: DashboardGridProps) {
-  const { isMobile } = useResponsive();
-
-  if (isMobile) {
-    return (
-      <div className={cn('space-y-6', className)}>
-        {main}
-        {sidebar}
-      </div>
-    );
-  }
-
+export function DashboardGrid({ main, className }: DashboardGridProps) {
   return (
-    <div className={cn('grid grid-cols-1 lg:grid-cols-3 gap-8', className)}>
-      <div className="lg:col-span-2">
-        {main}
-      </div>
-      {sidebar && (
-        <div className="lg:col-span-1">
-          {sidebar}
-        </div>
-      )}
+    <div className={cn('w-full', className)}>
+      {main}
     </div>
   );
 }

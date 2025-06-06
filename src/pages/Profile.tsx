@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { User, Shield, Settings } from "lucide-react";
+import { User, Shield, Settings, Bug } from "lucide-react";
 
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { PersonalInfoForm } from "@/components/profile/PersonalInfoForm";
@@ -15,6 +15,7 @@ import { EmailForm } from "@/components/profile/EmailForm";
 import { PasswordForm } from "@/components/profile/PasswordForm";
 import { SecuritySettingsForm } from "@/components/profile/SecuritySettingsForm";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
+import { NotificationsDebug } from "@/components/notifications/NotificationsDebug";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
@@ -91,6 +92,28 @@ export default function Profile() {
             </CardHeader>
             <CardContent>
               <DeleteAccountForm />
+            </CardContent>
+          </Card>
+        </div>
+      )
+    },
+    {
+      value: "debug",
+      label: "Debug Notificações",
+      icon: Bug,
+      description: "Diagnóstico do sistema de notificações",
+      component: (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Diagnóstico de Notificações</CardTitle>
+              <CardDescription>
+                Esta ferramenta ajuda a identificar e resolver problemas com as notificações em tempo real.
+                Use este diagnóstico para verificar se o sistema está funcionando corretamente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NotificationsDebug />
             </CardContent>
           </Card>
         </div>

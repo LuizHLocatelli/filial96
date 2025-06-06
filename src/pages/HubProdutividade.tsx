@@ -179,7 +179,7 @@ export default function HubProdutividade() {
   ];
 
   return (
-    <PageLayout spacing="normal" maxWidth="full">
+    <PageLayout spacing="compact" maxWidth="full">
       <PageHeader
         title="Hub de Produtividade"
         description="Central de rotinas, tarefas e orientações"
@@ -192,8 +192,8 @@ export default function HubProdutividade() {
         variant="default"
       />
 
-      {/* Assistente de Produtividade - Integrado na página principal */}
-      <div className="mb-6">
+      {/* Assistente de Produtividade - Layout otimizado */}
+      <div className="mb-4">
         <ProductivityAssistant />
       </div>
 
@@ -202,7 +202,7 @@ export default function HubProdutividade() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={4}
+        maxColumns={5}
       />
 
       {/* Dialogs funcionais */}

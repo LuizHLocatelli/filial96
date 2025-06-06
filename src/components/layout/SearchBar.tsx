@@ -80,13 +80,13 @@ export function SearchBar({ isMobile, isSearchOpen, onSearchToggle }: SearchBarP
   }
 
   return (
-    <div className="flex-1 max-w-md mx-8 relative" ref={searchContainerRef}>
+    <div className="w-full max-w-lg lg:max-w-2xl xl:max-w-3xl relative" ref={searchContainerRef}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           ref={inputRef}
           placeholder="Buscar páginas, seções..."
-          className="pl-10 pr-4 w-full bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors"
+          className="pl-10 pr-4 w-full bg-muted/50 border-muted-foreground/20 focus:bg-background transition-colors h-10"
           value={searchTerm}
           onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={handleKeyDown}

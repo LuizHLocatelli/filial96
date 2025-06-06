@@ -53,22 +53,33 @@ const iconMap = {
 
 interface GlobalSearchResultsProps {
   onResultClick?: () => void;
+  isMobile?: boolean;
 }
 
-export function GlobalSearchResults({ onResultClick }: GlobalSearchResultsProps) {
+export function GlobalSearchResults({ onResultClick, isMobile = false }: GlobalSearchResultsProps) {
   const { searchResults, isSearching, searchTerm, clearSearch } = useGlobalSearch();
   const navigate = useNavigate();
 
   const handleResultClick = (path: string) => {
+    console.log('🚀 [MOBILE DEBUG] Navegando para:', path);
     navigate(path);
     clearSearch();
     onResultClick?.();
   };
 
+  // Debug para mobile
+  console.log('📋 [MOBILE DEBUG] GlobalSearchResults - searchTerm:', searchTerm);
+  console.log('🔍 [MOBILE DEBUG] GlobalSearchResults - isSearching:', isSearching);
+  console.log('📊 [MOBILE DEBUG] GlobalSearchResults - resultados:', searchResults.length);
+
   if (!searchTerm) return null;
 
+  const containerClasses = isMobile 
+    ? "w-full bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto"
+    : "absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-[9999] backdrop-blur-sm";
+
   return (
-    <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+    <div className={containerClasses}>
       {isSearching ? (
         <div className="p-4 text-center text-muted-foreground">
           <Clock className="h-4 w-4 animate-spin mx-auto mb-2" />

@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export type LayoutDensity = 'compact' | 'normal' | 'comfortable';
-export type SidebarState = 'expanded' | 'collapsed' | 'auto';
 
 interface LayoutPreferences {
   density: LayoutDensity;
-  sidebarState: SidebarState;
   autoCompactOnSmallScreen: boolean;
   statsPerRow: number;
   showResumoRapido: boolean;
@@ -22,7 +20,6 @@ interface LayoutConfig {
 
 const DEFAULT_PREFERENCES: LayoutPreferences = {
   density: 'normal',
-  sidebarState: 'auto',
   autoCompactOnSmallScreen: true,
   statsPerRow: 4,
   showResumoRapido: true
@@ -126,10 +123,6 @@ export function useLayoutPreferences() {
     savePreferences({ density });
   }, [savePreferences]);
 
-  const setSidebarState = useCallback((sidebarState: SidebarState) => {
-    savePreferences({ sidebarState });
-  }, [savePreferences]);
-
   const toggleResumoRapido = useCallback(() => {
     savePreferences({ showResumoRapido: !preferences.showResumoRapido });
   }, [savePreferences, preferences.showResumoRapido]);
@@ -146,7 +139,6 @@ export function useLayoutPreferences() {
 
     // Ações
     setDensity,
-    setSidebarState,
     toggleResumoRapido,
     setStatsPerRow,
     savePreferences,

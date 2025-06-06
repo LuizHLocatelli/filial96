@@ -46,7 +46,6 @@ export function LayoutControls({ className, showFullControls = false }: LayoutCo
     preferences, 
     layoutConfig,
     setDensity, 
-    setSidebarState, 
     toggleResumoRapido,
     setStatsPerRow,
     resetPreferences,
