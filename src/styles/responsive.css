@@ -143,4 +143,17 @@
   .h-4\.5 {
     height: 1.125rem !important; /* 18px */
   }
+
+  /* Garantir espaço adequado no final das páginas para evitar sobreposição das NavigationTabs */
+  @media (max-width: 767px) {
+    .pb-32 {
+      padding-bottom: 8rem !important; /* 128px - espaço adequado para NavigationTabs mobile */
+    }
+  }
+
+  @media (min-width: 768px) {
+    .pb-28 {
+      padding-bottom: 7rem !important; /* 112px - espaço adequado para NavigationTabs desktop */
+    }
+  }
 }

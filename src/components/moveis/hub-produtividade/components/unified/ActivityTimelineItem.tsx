@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -107,103 +106,72 @@ export function ActivityTimelineItem({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className={cn(
-        "group relative",
-        onItemClick && "cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+        "group relative py-1.5 px-1",
+        onItemClick && "cursor-pointer hover:bg-muted/50 rounded-md transition-colors"
       )}
       onClick={() => onItemClick?.(activity)}
     >
       {/* Linha conectora */}
       {!isLast && (
-        <div className="absolute left-4 top-10 w-0.5 h-8 bg-border group-hover:bg-primary/30 transition-colors"></div>
+        <div className="absolute left-4 top-8 w-0.5 h-3 bg-border"></div>
       )}
       
-      <div className="flex gap-3">
-        {/* Avatar/Ícone com prioridade */}
-        <div className="relative">
-          <motion.div 
+      <div className="flex gap-2.5">
+        {/* Avatar compacto */}
+        <div className="relative flex-shrink-0 mt-0.5">
+          <div 
             className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center shadow-sm",
-              getActionColor(activity.action),
-              priority === 'high' && "ring-2 ring-red-400 ring-offset-2",
-              priority === 'medium' && "ring-2 ring-yellow-400 ring-offset-1"
+              "w-6 h-6 rounded-full flex items-center justify-center",
+              getActionColor(activity.action)
             )}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
           >
-            <Icon className="h-4 w-4 text-white" />
-          </motion.div>
-          
-          {/* Micro ícone de ação */}
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-background rounded-full border-2 border-border flex items-center justify-center">
-            <ActionIcon className="h-2 w-2 text-muted-foreground" />
+            <Icon className="h-3 w-3 text-white" />
           </div>
         </div>
 
-        {/* Conteúdo */}
-        <div className="flex-1 space-y-2 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="space-y-1 min-w-0 flex-1">
-              {/* Cabeçalho da ação */}
-              <div className="flex items-center gap-2 text-sm">
-                <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium truncate">{activity.user}</span>
-                <span className="text-muted-foreground">
-                  {getActionText(activity.action, activity.type)}
-                </span>
-              </div>
-              
-              {/* Título da atividade */}
-              <h4 className="font-medium text-sm leading-tight group-hover:text-primary transition-colors">
-                {activity.title}
-              </h4>
-              
-              {/* Descrição */}
-              {activity.description && (
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                  {activity.description}
-                </p>
-              )}
-            </div>
+        {/* Conteúdo ultra compacto */}
+        <div className="flex-1 min-w-0 space-y-1">
+          {/* Header: Status + User + Action */}
+          <div className="flex items-center gap-1.5">
+            <Badge 
+              variant="outline" 
+              className={cn("text-3xs px-1 py-0 h-3.5 leading-none", getStatusColor(activity.status))}
+            >
+              {activity.status === 'concluida' ? 'OK' :
+               activity.status === 'pendente' ? 'P' :
+               activity.status === 'atrasada' ? 'A' :
+               activity.status === 'nova' ? 'N' : '?'}
+            </Badge>
             
-            {/* Status e ações */}
-            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <Badge 
-                variant="outline" 
-                className={cn("text-xs", getStatusColor(activity.status))}
-              >
-                {activity.status}
-              </Badge>
-              
-              {onItemClick && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
-          </div>
-          
-          {/* Informações temporais */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              <span>
-                {formatDistanceToNow(new Date(activity.timestamp), {
-                  addSuffix: true,
-                  locale: ptBR
-                })}
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              <span className="text-3xs font-medium truncate">{activity.user}</span>
+              <span className="text-3xs text-muted-foreground">
+                {activity.action === 'criada' ? '→' : 
+                 activity.action === 'concluida' ? '✓' : 
+                 activity.action === 'atualizada' ? '↻' : 
+                 activity.action === 'deletada' ? '✕' : '•'}
               </span>
             </div>
             
-            <span className="opacity-60">•</span>
-            
-            <span className="opacity-75">
-              {format(new Date(activity.timestamp), 'dd/MM HH:mm', { locale: ptBR })}
-            </span>
+            <div className="flex items-center gap-1 text-3xs text-muted-foreground">
+              <Clock className="h-2 w-2" />
+              <span className="truncate">
+                {format(new Date(activity.timestamp), 'HH:mm')}
+              </span>
+            </div>
           </div>
+          
+          {/* Título principal */}
+          <h4 className="text-2xs font-medium leading-tight line-clamp-2">
+            {activity.title}
+          </h4>
+          
+          {/* Descrição opcional */}
+          {activity.description && activity.description.length > 0 && (
+            <p className="text-3xs text-muted-foreground line-clamp-1 leading-tight">
+              {activity.description}
+            </p>
+          )}
         </div>
       </div>
     </motion.div>

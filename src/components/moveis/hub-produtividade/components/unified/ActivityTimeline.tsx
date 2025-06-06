@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -110,27 +109,27 @@ export function ActivityTimeline({
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 animate-pulse" />
+      <Card className="w-full">
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Activity className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse" />
             Timeline de Atividades
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="px-3 sm:px-6">
+          <div className="space-y-3 sm:space-y-4">
             {Array.from({ length: 5 }).map((_, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex gap-3 animate-pulse"
+                className="flex gap-2 sm:gap-3 animate-pulse"
               >
-                <div className="w-8 h-8 bg-muted rounded-full"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-muted rounded-full flex-shrink-0"></div>
+                <div className="flex-1 space-y-1 sm:space-y-2 min-w-0">
+                  <div className="h-3 sm:h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-2 sm:h-3 bg-muted rounded w-1/2"></div>
                 </div>
               </motion.div>
             ))}
@@ -141,29 +140,29 @@ export function ActivityTimeline({
   }
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Timeline de Atividades
+    <Card className="overflow-hidden w-full">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Activity className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            <span className="truncate">Timeline de Atividades</span>
           </CardTitle>
           
-          <div className="flex items-center gap-2">
-            {/* Estatísticas rápidas */}
-            <div className="hidden sm:flex items-center gap-2">
+          <div className="flex items-center justify-between sm:justify-end gap-2">
+            {/* Estatísticas rápidas - melhor responsividade */}
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
               {stats.total > 0 && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs whitespace-nowrap">
                   {stats.total} total
                 </Badge>
               )}
               {stats.completed > 0 && (
-                <Badge className="text-xs bg-green-100 text-green-800 hover:bg-green-100">
+                <Badge className="text-xs bg-green-100 text-green-800 hover:bg-green-100 whitespace-nowrap dark:bg-green-900/30 dark:text-green-400">
                   {stats.completed} concluídas
                 </Badge>
               )}
               {stats.overdue > 0 && (
-                <Badge className="text-xs bg-red-100 text-red-800 hover:bg-red-100">
+                <Badge className="text-xs bg-red-100 text-red-800 hover:bg-red-100 whitespace-nowrap dark:bg-red-900/30 dark:text-red-400">
                   {stats.overdue} atrasadas
                 </Badge>
               )}
@@ -175,6 +174,7 @@ export function ActivityTimeline({
                 size="sm"
                 onClick={onRefresh}
                 disabled={isLoading}
+                className="flex-shrink-0"
               >
                 <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
               </Button>
@@ -182,12 +182,12 @@ export function ActivityTimeline({
           </div>
         </div>
 
-        {/* Indicador de progresso */}
+        {/* Indicador de progresso - melhor layout mobile */}
         {stats.total > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 mt-3">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Progresso geral</span>
-              <span>{Math.round((stats.completed / stats.total) * 100)}%</span>
+              <span className="font-medium">{Math.round((stats.completed / stats.total) * 100)}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <motion.div
@@ -201,10 +201,10 @@ export function ActivityTimeline({
         )}
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 px-3">
         {/* Filtros */}
         {showFilters && (
-          <div className="mb-6">
+          <div className="mb-4">
             <ActivityTimelineFilters
               onFilterChange={setFilters}
               activities={activities}
@@ -214,15 +214,15 @@ export function ActivityTimeline({
 
         {/* Lista de atividades */}
         {displayedActivities.length === 0 ? (
-          <div className="text-center py-12">
-            <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-medium text-muted-foreground mb-2">
+          <div className="text-center py-8 sm:py-12">
+            <Activity className="h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <h3 className="font-medium text-sm sm:text-base text-muted-foreground mb-2">
               {filters.search || filters.type !== 'all' || filters.action !== 'all' || filters.status !== 'all' || filters.dateRange !== 'all'
                 ? 'Nenhuma atividade encontrada'
                 : 'Nenhuma atividade recente'
               }
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground px-4">
               {filters.search || filters.type !== 'all' || filters.action !== 'all' || filters.status !== 'all' || filters.dateRange !== 'all'
                 ? 'Tente ajustar os filtros para ver mais resultados'
                 : 'As atividades aparecerão aqui conforme você usa o sistema'
@@ -230,14 +230,14 @@ export function ActivityTimeline({
             </p>
           </div>
         ) : (
-          <ScrollArea className="h-[600px] pr-4">
+          <ScrollArea className="h-[calc(100vh-20rem)] max-h-[400px] pr-1">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${filters.search}-${filters.type}-${filters.action}-${filters.status}-${filters.dateRange}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-6"
+                className="space-y-2 pb-2"
               >
                 {displayedActivities.map((activity, index) => (
                   <ActivityTimelineItem
@@ -254,9 +254,9 @@ export function ActivityTimeline({
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-center py-4 border-t"
+                    className="text-center py-3 sm:py-4 border-t"
                   >
-                    <p className="text-sm text-muted-foreground mb-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                       Mostrando {displayedActivities.length} de {filteredActivities.length} atividades
                     </p>
                     <Badge variant="outline" className="text-xs">

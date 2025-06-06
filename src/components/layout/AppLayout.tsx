@@ -23,7 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
         className={cn(
           "flex-1 overflow-y-auto",
-          isMobile ? 'pb-20' : 'pb-24 md:pb-8'
+          isMobile ? 'pb-32' : 'pb-28'
         )}
       >
         <div className={cn(
