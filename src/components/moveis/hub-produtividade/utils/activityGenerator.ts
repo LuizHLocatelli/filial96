@@ -24,7 +24,10 @@ export function generateActivityTimeline(
       });
     } else {
       // Verificar se está atrasada (mais de 1 dia sem conclusão)
-      const isOverdue = new Date() > new Date(new Date(rotina.created_at).getTime() + 24 * 60 * 60 * 1000);
+      const now = new Date();
+      const createdAt = new Date(rotina.created_at);
+      const timeDiff = now.getTime() - createdAt.getTime();
+      const isOverdue = timeDiff > 24 * 60 * 60 * 1000;
       
       allActivities.push({
         id: `rotina-${rotina.id}`,
@@ -41,7 +44,10 @@ export function generateActivityTimeline(
 
   // Atividades de Orientações com informações de visualização
   orientacoes.slice(0, 15).forEach(orientacao => {
-    const isRecent = new Date() - new Date(orientacao.data_criacao) < 48 * 60 * 60 * 1000; // 48h
+    const now = new Date();
+    const createdAt = new Date(orientacao.data_criacao);
+    const timeDiff = now.getTime() - createdAt.getTime();
+    const isRecent = timeDiff < 48 * 60 * 60 * 1000; // 48h
     
     allActivities.push({
       id: `orientacao-${orientacao.id}`,
@@ -61,15 +67,15 @@ export function generateActivityTimeline(
     const dataEntrega = new Date(tarefa.data_entrega);
     const dataCriacao = new Date(tarefa.data_criacao);
     
-    let status: string;
-    let action = 'criada';
+    let status: 'concluida' | 'pendente' | 'atrasada' | 'nova';
+    let action: 'criada' | 'concluida' | 'atualizada' | 'deletada' = 'criada';
     
     if (tarefa.status === 'concluida') {
       status = 'concluida';
       action = 'concluida';
     } else if (dataEntrega < hoje) {
       status = 'atrasada';
-    } else if (dataEntrega - hoje.getTime() < 24 * 60 * 60 * 1000) {
+    } else if (dataEntrega.getTime() - hoje.getTime() < 24 * 60 * 60 * 1000) {
       status = 'pendente'; // Vence em menos de 24h
     } else {
       status = 'nova';
