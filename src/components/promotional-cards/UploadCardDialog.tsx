@@ -1,6 +1,8 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface UploadCardDialogProps {
   open: boolean;
@@ -10,6 +12,7 @@ interface UploadCardDialogProps {
 }
 
 export function UploadCardDialog({ open, onOpenChange, sector, folderId }: UploadCardDialogProps) {
+  const { getMobileDialogProps } = useMobileDialog();
   const {
     title,
     code,
@@ -37,30 +40,32 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId }: Uploa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent {...getMobileDialogProps("2xl")} className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Card Promocional</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-base sm:text-lg">Adicionar Novo Card Promocional</DialogTitle>
+          <DialogDescription className="text-sm">
             Faça upload de um novo card promocional e preencha as informações necessárias
           </DialogDescription>
         </DialogHeader>
-        <CardUploadForm 
-          sector={sector}
-          title={title}
-          setTitle={setTitle}
-          code={code}
-          setCode={setCode}
-          promotionDate={promotionDate}
-          setPromotionDate={setPromotionDate}
-          folderId={folderId}
-          setFolderId={setFolderId}
-          previewUrl={previewUrl}
-          handleFileChange={handleFileChange}
-          removeImage={removeImage}
-          handleSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          onCancel={handleCancel}
-        />
+        <div className="max-h-[70vh] overflow-y-auto">
+          <CardUploadForm 
+            sector={sector}
+            title={title}
+            setTitle={setTitle}
+            code={code}
+            setCode={setCode}
+            promotionDate={promotionDate}
+            setPromotionDate={setPromotionDate}
+            folderId={folderId}
+            setFolderId={setFolderId}
+            previewUrl={previewUrl}
+            handleFileChange={handleFileChange}
+            removeImage={removeImage}
+            handleSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            onCancel={handleCancel}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/auth";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface CreateFolderDialogProps {
   open: boolean;
@@ -17,6 +19,7 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
   const [folderName, setFolderName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
+  const { getMobileDialogProps, getMobileButtonProps, getMobileFormProps } = useMobileDialog();
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,34 +69,43 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit}>
+      <DialogContent {...getMobileDialogProps("md")}>
+        <form onSubmit={handleSubmit} {...getMobileFormProps()}>
           <DialogHeader>
-            <DialogTitle>Criar Nova Pasta</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">Criar Nova Pasta</DialogTitle>
+            <DialogDescription className="text-sm">
               Crie uma nova pasta para organizar seus cards promocionais
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+            <div className="grid gap-2">
+              <Label htmlFor="name" className="text-sm font-medium">
                 Nome
               </Label>
               <Input
                 id="name"
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
-                className="col-span-3"
                 placeholder="Nome da pasta"
                 autoFocus
+                className="text-base sm:text-sm"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              variant="outline" 
+              type="button" 
+              onClick={() => onOpenChange(false)}
+              {...getMobileButtonProps()}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              {...getMobileButtonProps()}
+            >
               {isSubmitting ? "Criando..." : "Criar Pasta"}
             </Button>
           </DialogFooter>

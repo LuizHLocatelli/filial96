@@ -1,8 +1,10 @@
+
 import { CategoryDialog } from './CategoryDialog';
 import { FileDialog } from './FileDialog';
 import { DeleteFileDialog } from './DeleteFileDialog';
 import { FileViewer } from './FileViewer';
 import { DirectoryCategory, DirectoryFile } from '../types';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface DirectoryDialogsProps {
   // Category dialogs
