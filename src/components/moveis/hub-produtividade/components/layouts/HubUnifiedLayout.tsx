@@ -35,12 +35,8 @@ export function HubUnifiedLayout({
   orientacoes = [],
   tarefas = []
 }: HubUnifiedLayoutProps) {
-  const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
-  const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
   const [showRelatorios, setShowRelatorios] = useState(false);
 
-  const handleBuscaAvancada = () => setShowBuscaAvancada(true);
-  const handleFiltrosPorData = () => setShowFiltrosPorData(true);
   const handleRelatorios = () => setShowRelatorios(true);
 
   return (
@@ -61,8 +57,6 @@ export function HubUnifiedLayout({
             isLoading={isLoading}
             handlers={{
               ...handlers,
-              onBuscaAvancada: handleBuscaAvancada,
-              onFiltrosPorData: handleFiltrosPorData,
               onRelatorios: handleRelatorios
             }}
           />
@@ -87,7 +81,7 @@ export function HubUnifiedLayout({
         )}
       </div>
 
-      {/* Modais e Dialogs */}
+      {/* Modal de Relatórios */}
       <Relatorios
         open={showRelatorios}
         onOpenChange={setShowRelatorios}
@@ -98,4 +92,4 @@ export function HubUnifiedLayout({
       />
     </div>
   );
-} 
+}

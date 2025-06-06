@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useGlobalSearch } from "@/contexts/GlobalSearchContext";
 import { Button } from "@/components/ui/button";
@@ -121,4 +122,4 @@ export function GlobalSearchResults({ onResultClick }: GlobalSearchResultsProps)
       )}
     </div>
   );
-} 
+}

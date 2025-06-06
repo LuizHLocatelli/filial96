@@ -34,11 +34,11 @@ const searchableItems: SearchResult[] = [
   },
   // Subpáginas do Hub de Produtividade
   {
-    id: 'hub-produtividade-visao-geral',
-    title: 'Visão Geral - Hub',
-    description: 'Dashboard e métricas do Hub de Produtividade',
+    id: 'hub-produtividade-dashboard',
+    title: 'Dashboard - Hub',
+    description: 'Visão geral e métricas do Hub de Produtividade',
     type: 'section',
-    path: '/?tab=overview',
+    path: '/?tab=dashboard',
     section: 'Hub de Produtividade',
     icon: 'Activity'
   },
@@ -69,15 +69,6 @@ const searchableItems: SearchResult[] = [
     section: 'Hub de Produtividade',
     icon: 'Users'
   },
-  {
-    id: 'hub-produtividade-relatorios',
-    title: 'Relatórios - Hub',
-    description: 'Relatórios e análises de produtividade',
-    type: 'section',
-    path: '/?tab=relatorios',
-    section: 'Hub de Produtividade',
-    icon: 'BarChart3'
-  },
   
   // Móveis
   {
@@ -88,7 +79,6 @@ const searchableItems: SearchResult[] = [
     path: '/moveis',
     icon: 'Sofa'
   },
-  // Subpáginas dos Móveis
   {
     id: 'moveis-visao-geral',
     title: 'Visão Geral - Móveis',
@@ -209,26 +199,8 @@ const searchableItems: SearchResult[] = [
     path: '/perfil',
     icon: 'User'
   },
-  {
-    id: 'perfil-info',
-    title: 'Informações Pessoais - Perfil',
-    description: 'Dados pessoais e informações do usuário',
-    type: 'section',
-    path: '/perfil',
-    section: 'Perfil',
-    icon: 'User'
-  },
-  {
-    id: 'perfil-security',
-    title: 'Segurança - Perfil',
-    description: 'Configurações de senha e segurança da conta',
-    type: 'section',
-    path: '/perfil',
-    section: 'Perfil',
-    icon: 'Shield'
-  },
   
-  // Funcionalidades específicas adicionais
+  // Funcionalidades específicas
   {
     id: 'relatorios',
     title: 'Relatórios',
@@ -236,22 +208,6 @@ const searchableItems: SearchResult[] = [
     type: 'feature',
     path: '/?tab=relatorios',
     icon: 'BarChart3'
-  },
-  {
-    id: 'arquivos',
-    title: 'Arquivos',
-    description: 'Gerenciamento de arquivos e documentos',
-    type: 'feature',
-    path: '/moveis?tab=diretorio',
-    icon: 'FolderArchive'
-  },
-  {
-    id: 'vendas',
-    title: 'Vendas',
-    description: 'Gestão de vendas e operações comerciais',
-    type: 'feature',
-    path: '/moveis?tab=vendao',
-    icon: 'ShoppingCart'
   },
   {
     id: 'orientacoes',
@@ -276,14 +232,6 @@ const searchableItems: SearchResult[] = [
     type: 'feature',
     path: '/?tab=orientacoes',
     icon: 'List'
-  },
-  {
-    id: 'gestao-pessoas',
-    title: 'Gestão de Pessoas',
-    description: 'Controle de folgas e gestão de equipe',
-    type: 'feature',
-    path: '/moveis?tab=folgas',
-    icon: 'Users'
   },
   
   // Moda
@@ -330,15 +278,6 @@ const searchableItems: SearchResult[] = [
     path: '/moda?tab=folgas',
     section: 'Moda',
     icon: 'Calendar'
-  },
-  {
-    id: 'moda-monitoramento',
-    title: 'Monitoramento - Moda',
-    description: 'Analytics e métricas de uso da seção Moda',
-    type: 'section',
-    path: '/moda?tab=monitoramento',
-    section: 'Moda',
-    icon: 'BarChart3'
   }
 ];
 
@@ -359,13 +298,24 @@ export function GlobalSearchProvider({ children }: { children: ReactNode }) {
 
     // Simular delay de pesquisa
     setTimeout(() => {
+      const searchLower = term.toLowerCase();
       const results = searchableItems.filter(item => {
-        const searchLower = term.toLowerCase();
         return (
           item.title.toLowerCase().includes(searchLower) ||
           item.description.toLowerCase().includes(searchLower) ||
           (item.section && item.section.toLowerCase().includes(searchLower))
         );
+      });
+      
+      // Ordenar por relevância - exact matches primeiro
+      results.sort((a, b) => {
+        const aExact = a.title.toLowerCase() === searchLower ? 1 : 0;
+        const bExact = b.title.toLowerCase() === searchLower ? 1 : 0;
+        if (aExact !== bExact) return bExact - aExact;
+        
+        const aStartsWith = a.title.toLowerCase().startsWith(searchLower) ? 1 : 0;
+        const bStartsWith = b.title.toLowerCase().startsWith(searchLower) ? 1 : 0;
+        return bStartsWith - aStartsWith;
       });
       
       setSearchResults(results);
@@ -401,4 +351,4 @@ export function useGlobalSearch() {
     throw new Error('useGlobalSearch must be used within a GlobalSearchProvider');
   }
   return context;
-} 
+}
