@@ -1,9 +1,7 @@
+
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Activity
-} from 'lucide-react';
 import { HubViewMode, ProductivityStats } from '../../types';
 import { ActivityItem } from '../../types';
 import { HubSection, HubHandlers } from '../../types/hubTypes';
