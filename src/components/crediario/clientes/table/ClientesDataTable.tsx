@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,7 @@ import { ptBR } from "date-fns/locale";
 import { Cliente, getIndicatorColor } from "@/components/crediario/types";
 import { ContactHistory } from "../contacts/ContactHistory";
 import { MessageTemplates } from "../templates/MessageTemplates";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ClientesDataTableProps {
   clientes: Cliente[];
@@ -48,12 +48,153 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
   const [selectedClienteForTemplate, setSelectedClienteForTemplate] = useState<Cliente | null>(null);
   const [sortField, setSortField] = useState<keyof Cliente | "diasAtraso">("nome");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const { toast } = useToast();
 
   // Função para calcular dias em atraso (simulado baseado na data de pagamento)
   const calcularDiasAtraso = (cliente: Cliente): number => {
     const hoje = new Date();
     const diasAtraso = differenceInDays(hoje, cliente.diaPagamento);
     return Math.max(0, diasAtraso);
+  };
+
+  // Função para envio em massa do WhatsApp
+  const handleWhatsAppMassa = () => {
+    if (selectedClientes.length === 0) {
+      toast({
+        title: "Nenhum cliente selecionado",
+        description: "Selecione pelo menos um cliente para enviar mensagens.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const clientesSelecionados = clientes.filter(cliente => 
+      selectedClientes.includes(cliente.id)
+    );
+
+    // Template padrão para envio em massa
+    const templateMassa = (cliente: Cliente) => {
+      const diasAtraso = calcularDiasAtraso(cliente);
+      const valorDevido = parseFloat(cliente.valorParcelas || "0");
+      
+      return `Olá ${cliente.nome}! 
+
+Esperamos que esteja tudo bem. Este é um lembrete sobre seu pagamento${diasAtraso > 0 ? ` que está em atraso há ${diasAtraso} dias` : ' que vence hoje'}.
+
+💰 Valor: R$ ${valorDevido.toFixed(2)}
+📅 Vencimento: ${format(cliente.diaPagamento, "dd/MM/yyyy", { locale: ptBR })}
+
+Para regularizar, você pode:
+✅ Pagar via PIX
+✅ Entrar em contato para renegociar
+
+Estamos aqui para ajudar! Responda esta mensagem ou ligue para nós.
+
+Atenciosamente,
+Equipe Filial 96`;
+    };
+
+    let sucessos = 0;
+    
+    try {
+      clientesSelecionados.forEach((cliente) => {
+        const mensagem = templateMassa(cliente);
+        const encodedMessage = encodeURIComponent(mensagem);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        
+        // Abrir WhatsApp em nova aba (com delay para não sobrecarregar)
+        setTimeout(() => {
+          window.open(whatsappUrl, '_blank');
+          sucessos++;
+        }, sucessos * 1000); // 1 segundo de delay entre cada envio
+      });
+
+      toast({
+        title: "WhatsApp em massa iniciado",
+        description: `Enviando mensagens para ${clientesSelecionados.length} clientes. Uma nova aba será aberta para cada cliente.`,
+        duration: 5000
+      });
+
+      // Limpar seleção após envio
+      setSelectedClientes([]);
+      
+    } catch (error) {
+      console.error('Erro no envio em massa:', error);
+      toast({
+        title: "Erro no envio",
+        description: "Ocorreu um erro ao tentar enviar as mensagens.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Função para gerar lista de ligações
+  const handleListaLigacoes = () => {
+    if (selectedClientes.length === 0) {
+      toast({
+        title: "Nenhum cliente selecionado",
+        description: "Selecione pelo menos um cliente para gerar a lista de ligações.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const clientesSelecionados = clientes.filter(cliente => 
+      selectedClientes.includes(cliente.id)
+    );
+
+    // Gerar lista formatada
+    const listaLigacoes = clientesSelecionados.map((cliente, index) => {
+      const diasAtraso = calcularDiasAtraso(cliente);
+      const valorDevido = parseFloat(cliente.valorParcelas || "0");
+      
+      return `${index + 1}. ${cliente.nome}
+   📞 Conta: ${cliente.conta}
+   💰 Valor: R$ ${valorDevido.toFixed(2)}
+   ⏰ ${diasAtraso > 0 ? `${diasAtraso} dias em atraso` : 'Vence hoje'}
+   📅 Vencimento: ${format(cliente.diaPagamento, "dd/MM/yyyy", { locale: ptBR })}
+   📝 Observação: ${cliente.observacao || 'Nenhuma'}
+   `;
+    }).join('\n');
+
+    const conteudoCompleto = `LISTA DE LIGAÇÕES - ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+========================================
+
+Total de clientes: ${clientesSelecionados.length}
+
+${listaLigacoes}
+
+========================================
+Gerado automaticamente pelo Sistema Filial 96`;
+
+    // Copiar para clipboard
+    navigator.clipboard.writeText(conteudoCompleto).then(() => {
+      toast({
+        title: "Lista de ligações gerada",
+        description: `Lista com ${clientesSelecionados.length} clientes copiada para a área de transferência.`,
+        duration: 5000
+      });
+    }).catch(() => {
+      // Fallback: criar arquivo para download
+      const blob = new Blob([conteudoCompleto], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `lista-ligacoes-${format(new Date(), "yyyy-MM-dd-HHmm")}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Lista de ligações baixada",
+        description: `Arquivo com ${clientesSelecionados.length} clientes foi baixado.`,
+        duration: 5000
+      });
+    });
+
+    // Limpar seleção após gerar lista
+    setSelectedClientes([]);
   };
 
   // Filtrar e ordenar clientes
@@ -132,13 +273,13 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
     const diasAtraso = calcularDiasAtraso(cliente);
     
     if (diasAtraso === 0) {
-      return <Badge className="bg-green-100 text-green-800">Em dia</Badge>;
+      return <Badge className="bg-green-500/10 text-green-600 border-green-500/20 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30">Em dia</Badge>;
     } else if (diasAtraso <= 7) {
-      return <Badge className="bg-yellow-100 text-yellow-800">{diasAtraso}d atraso</Badge>;
+      return <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30">{diasAtraso}d atraso</Badge>;
     } else if (diasAtraso <= 30) {
-      return <Badge className="bg-orange-100 text-orange-800">{diasAtraso}d atraso</Badge>;
+      return <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/20 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30">{diasAtraso}d atraso</Badge>;
     } else {
-      return <Badge className="bg-red-100 text-red-800">{diasAtraso}d atraso</Badge>;
+      return <Badge className="bg-red-500/10 text-red-600 border-red-500/20 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30">{diasAtraso}d atraso</Badge>;
     }
   };
 
@@ -180,15 +321,15 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
 
           {/* Ações em Massa */}
           {selectedClientes.length > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg mb-4">
+            <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/10 rounded-lg mb-4 dark:bg-primary/10 dark:border-primary/20">
               <span className="text-sm font-medium">
                 {selectedClientes.length} cliente(s) selecionado(s)
               </span>
-              <Button variant="outline" size="sm" className="gap-1">
+              <Button variant="outline" size="sm" className="gap-1" onClick={handleWhatsAppMassa}>
                 <MessageSquare className="h-3 w-3" />
                 WhatsApp em Massa
               </Button>
-              <Button variant="outline" size="sm" className="gap-1">
+              <Button variant="outline" size="sm" className="gap-1" onClick={handleListaLigacoes}>
                 <Phone className="h-3 w-3" />
                 Lista de Ligações
               </Button>

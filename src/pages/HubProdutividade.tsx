@@ -26,8 +26,7 @@ import { BuscaAvancada } from "@/components/moveis/hub-produtividade/components/
 import { FiltrosPorData } from "@/components/moveis/hub-produtividade/components/funcionalidades/FiltrosPorData";
 import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
 
-// Chatbot
-import { ProductivityAssistant } from "@/components/moveis/hub-produtividade/components/chatbot/ProductivityAssistant";
+
 
 export default function HubProdutividade() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -179,7 +178,7 @@ export default function HubProdutividade() {
   ];
 
   return (
-    <PageLayout spacing="compact" maxWidth="full">
+    <PageLayout spacing="tight" maxWidth="full">
       <PageHeader
         title="Hub de Produtividade"
         description="Central de rotinas, tarefas e orientações"
@@ -191,11 +190,6 @@ export default function HubProdutividade() {
         }}
         variant="default"
       />
-
-      {/* Assistente de Produtividade - Layout otimizado */}
-      <div className="mb-4">
-        <ProductivityAssistant />
-      </div>
 
       <PageNavigation
         tabs={tabsConfig}

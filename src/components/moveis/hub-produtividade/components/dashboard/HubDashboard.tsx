@@ -7,6 +7,7 @@ import { QuickActions } from './QuickActions';
 import { ActivityTimeline } from '../unified/ActivityTimeline';
 import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSection';
 import { DesktopLayout } from './DesktopLayout';
+import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
 import { Activity, Zap, Clock, TrendingUp } from 'lucide-react';
 
 interface HubDashboardProps {
@@ -28,6 +29,10 @@ export function HubDashboard({
   if (isMobile) {
     return (
       <div className="space-y-4">
+        <div className="mb-4">
+          <ProductivityAssistant />
+        </div>
+
         <CollapsibleGroup spacing="tight">
           <CollapsibleSection
             title="Estatísticas"
@@ -92,6 +97,11 @@ export function HubDashboard({
   if (isTablet) {
     return (
       <div className="space-y-6">
+        {/* Assistente de Produtividade - Layout otimizado */}
+        <div className="mb-4">
+          <ProductivityAssistant />
+        </div>
+
         <CollapsibleGroup spacing={isCompact ? 'tight' : 'normal'}>
           <CollapsibleSection
             title="Visão Geral"

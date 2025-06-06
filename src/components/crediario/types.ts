@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Define the form schema
@@ -47,11 +46,11 @@ export const indicatorOptions = [
 
 export const getIndicatorColor = (indicator: string | null) => {
   switch(indicator) {
-    case "FPD": return "bg-red-500";
-    case "Pontual": return "bg-green-500";
-    case "M1": return "bg-yellow-500";
-    case "M2": return "bg-orange-500";
-    case "M3": return "bg-purple-500";
-    default: return "bg-gray-500";
+    case "FPD": return "bg-red-500 dark:bg-red-600";
+    case "Pontual": return "bg-green-500 dark:bg-green-600";
+    case "M1": return "bg-yellow-500 dark:bg-yellow-600";
+    case "M2": return "bg-orange-500 dark:bg-orange-600";
+    case "M3": return "bg-purple-500 dark:bg-purple-600";
+    default: return "bg-gray-500 dark:bg-gray-600";
   }
 };

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,10 +95,10 @@ export function AlertsSystem({ clientes }: AlertsSystemProps) {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high": return "bg-red-100 text-red-800 border-red-200";
-      case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "low": return "bg-blue-100 text-blue-800 border-blue-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "high": return "bg-red-500/10 text-red-600 border-red-500/20 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30";
+      case "medium": return "bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/30";
+      case "low": return "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30";
+      default: return "bg-gray-500/10 text-gray-600 border-gray-500/20 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/30";
     }
   };
 
@@ -128,12 +127,12 @@ export function AlertsSystem({ clientes }: AlertsSystemProps) {
   }
 
   return (
-    <Card className="border-orange-200 bg-orange-50/50">
+    <Card className="border-orange-500/20 bg-orange-500/5 dark:border-orange-500/30 dark:bg-orange-500/10">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-orange-800">
+        <CardTitle className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
           <Bell className="h-5 w-5" />
           Alertas e Notificações
-          <Badge variant="secondary" className="bg-orange-200 text-orange-800">
+          <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 border-orange-500/20 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30">
             {alerts.length}
           </Badge>
         </CardTitle>
