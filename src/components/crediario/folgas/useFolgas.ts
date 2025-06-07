@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays, isSameDay } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -51,6 +52,7 @@ export function useFolgas() {
         }));
         
         setCrediaristas(formattedCrediaristas);
+        console.log("Crediaristas carregados:", formattedCrediaristas.length);
       } catch (error) {
         console.error("Erro ao buscar crediaristas:", error);
         toast({
@@ -73,7 +75,7 @@ export function useFolgas() {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, name"); // Selecionar apenas id e name
+          .select("id, name");
           
         if (error) {
           console.error("Erro ao buscar todos os usuários:", error);
@@ -82,14 +84,14 @@ export function useFolgas() {
             description: error.message,
             variant: "destructive",
           });
-          setAllUsers([]); // Definir como array vazio em caso de erro
+          setAllUsers([]);
           return;
         }
         
         if (data) {
           const formattedUsers = data.map(profile => ({
             id: profile.id,
-            name: profile.name || "Usuário Desconhecido", // Fallback para nome desconhecido
+            name: profile.name || "Usuário Desconhecido",
           }));
           setAllUsers(formattedUsers);
         } else {
@@ -141,6 +143,7 @@ export function useFolgas() {
         }));
         
         setFolgas(formattedFolgas);
+        console.log("Folgas carregadas:", formattedFolgas.length);
       } catch (error) {
         console.error("Erro ao buscar folgas:", error);
         toast({
@@ -254,7 +257,7 @@ export function useFolgas() {
           createdBy: data[0].created_by,
         };
         
-        setFolgas([...folgas, newFolga]);
+        setFolgas(prevFolgas => [...prevFolgas, newFolga]);
         // Atualizar também as folgasDoDiaSelecionado se a nova folga for do dia atualmente selecionado
         if (selectedDate && isSameDay(newFolga.data, selectedDate)) {
           setFolgasDoDiaSelecionado(prevFolgas => [...prevFolgas, newFolga]);
@@ -313,12 +316,13 @@ export function useFolgas() {
       
       console.log("Folga excluída com sucesso do banco. Atualizando estado...");
       
-      // Remove folga from state
-      const folgasAtualizadas = folgas.filter((folga) => folga.id !== folgaId);
-      console.log("Folgas antes da exclusão:", folgas.length);
-      console.log("Folgas após a exclusão:", folgasAtualizadas.length);
-      
-      setFolgas(folgasAtualizadas);
+      // Remove folga from state - usando função de callback para garantir estado atual
+      setFolgas(prevFolgas => {
+        const folgasAtualizadas = prevFolgas.filter((folga) => folga.id !== folgaId);
+        console.log("Folgas antes da exclusão:", prevFolgas.length);
+        console.log("Folgas após a exclusão:", folgasAtualizadas.length);
+        return folgasAtualizadas;
+      });
       
       // Atualizar também as folgas do dia selecionado se necessário
       setFolgasDoDiaSelecionado(prevFolgas => prevFolgas.filter(folga => folga.id !== folgaId));
@@ -340,7 +344,9 @@ export function useFolgas() {
   };
   
   const getCrediaristaById = (id: string) => {
-    return crediaristas.find((c) => c.id === id);
+    const crediarista = crediaristas.find((c) => c.id === id);
+    console.log(`Buscando crediarista ${id}:`, crediarista);
+    return crediarista;
   };
   
   // Função para obter o nome do usuário pelo ID

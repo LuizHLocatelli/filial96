@@ -1,3 +1,4 @@
+
 import { PlusCircle, Calendar, Users, TrendingUp, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -192,15 +193,15 @@ export function Folgas() {
       />
       
       <ImagePreviewDialog
-        imageUrl={viewImage}
-        onClose={() => setViewImage(null)}
+        viewImage={viewImage}
+        setViewImage={setViewImage}
       />
 
       <FolgasSummary
         crediaristas={crediaristas}
         folgas={folgas}
         currentMonth={currentMonth}
-        isLoading={isLoadingCrediaristas}
+        isLoading={isLoadingCrediaristas || isLoadingFolgas}
         getCrediaristaById={getCrediaristaById}
       />
     </div>
