@@ -41,6 +41,22 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
     }).sort((a, b) => b.data.getTime() - a.data.getTime());
   }, [folgas, searchTerm, selectedCrediarista, getCrediaristaById]);
 
+  const handleDeleteClick = async (folgaId: string) => {
+    console.log("Clique no botão de deletar folga:", folgaId);
+    
+    if (!folgaId) {
+      console.error("ID da folga é inválido");
+      return;
+    }
+
+    try {
+      await onDeleteFolga(folgaId);
+      console.log("Exclusão concluída");
+    } catch (error) {
+      console.error("Erro ao executar onDeleteFolga:", error);
+    }
+  };
+
   return (
     <Card className="border shadow-soft">
       <CardHeader>
@@ -161,7 +177,7 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
                           size="sm"
                           variant="ghost"
                           className="text-destructive hover:bg-destructive/10 h-9 w-9 p-0"
-                          onClick={() => onDeleteFolga(folga.id)}
+                          onClick={() => handleDeleteClick(folga.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Excluir</span>

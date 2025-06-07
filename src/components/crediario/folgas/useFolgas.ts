@@ -281,34 +281,59 @@ export function useFolgas() {
   };
   
   const handleDeleteFolga = async (folgaId: string) => {
+    console.log("Iniciando exclusão de folga:", folgaId);
+    
+    if (!folgaId) {
+      console.error("ID da folga não fornecido");
+      toast({
+        title: "Erro",
+        description: "ID da folga não encontrado.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      console.log("Tentando excluir folga do Supabase...");
+      
       const { error } = await supabase
         .from("crediario_folgas")
         .delete()
         .eq("id", folgaId);
         
       if (error) {
-        console.error("Erro ao excluir folga:", error);
+        console.error("Erro do Supabase ao excluir folga:", error);
         toast({
           title: "Erro ao remover folga",
-          description: error.message,
+          description: `Erro: ${error.message}`,
           variant: "destructive",
         });
         return;
       }
       
+      console.log("Folga excluída com sucesso do banco. Atualizando estado...");
+      
       // Remove folga from state
-      setFolgas(folgas.filter((folga) => folga.id !== folgaId));
+      const folgasAtualizadas = folgas.filter((folga) => folga.id !== folgaId);
+      console.log("Folgas antes da exclusão:", folgas.length);
+      console.log("Folgas após a exclusão:", folgasAtualizadas.length);
+      
+      setFolgas(folgasAtualizadas);
+      
+      // Atualizar também as folgas do dia selecionado se necessário
+      setFolgasDoDiaSelecionado(prevFolgas => prevFolgas.filter(folga => folga.id !== folgaId));
       
       toast({
         title: "Folga removida",
         description: "A folga foi removida com sucesso.",
       });
+      
+      console.log("Estado atualizado com sucesso");
     } catch (error) {
       console.error("Erro ao excluir folga:", error);
       toast({
         title: "Erro ao remover folga",
-        description: "Não foi possível remover a folga.",
+        description: "Não foi possível remover a folga. Tente novamente.",
         variant: "destructive",
       });
     }
