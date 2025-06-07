@@ -52,6 +52,15 @@ export function useFolgasOperations(
       });
       return;
     }
+
+    if (!user?.id) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Usuário não autenticado. Por favor, faça login novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Debug logs para timezone
     console.log("🚀 handleAddFolga - Data selecionada:", {
@@ -80,6 +89,24 @@ export function useFolgasOperations(
     }
     
     try {
+      // Verificar se o usuário existe na tabela profiles antes de inserir
+      console.log("🔍 Verificando se o usuário existe:", user.id);
+      const { data: userProfile, error: userError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+
+      if (userError || !userProfile) {
+        console.error("❌ Usuário não encontrado na tabela profiles:", userError);
+        toast({
+          title: "Erro de usuário",
+          description: "Perfil de usuário não encontrado. Por favor, faça logout e login novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Format date for Supabase preservando timezone local
       const formattedDate = formatDateForDatabase(selectedDate);
       console.log("📅 Data formatada para banco:", formattedDate);
@@ -91,7 +118,7 @@ export function useFolgasOperations(
           data: formattedDate,
           crediarista_id: selectedCrediarista,
           motivo: motivo || null,
-          created_by: user?.id,
+          created_by: user.id,
         })
         .select();
         
@@ -159,6 +186,15 @@ export function useFolgasOperations(
       toast({
         title: "Erro",
         description: "ID da folga não encontrado.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Usuário não autenticado. Por favor, faça login novamente.",
         variant: "destructive",
       });
       return;
