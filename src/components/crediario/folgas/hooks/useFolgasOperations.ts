@@ -13,6 +13,12 @@ const formatDateForDatabase = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Função para converter string de data do banco para Date local
+const parseLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day); // month - 1 porque Date() usa mês base 0
+};
+
 export function useFolgasOperations(
   folgas: Folga[],
   setFolgas: React.Dispatch<React.SetStateAction<Folga[]>>,
@@ -102,10 +108,10 @@ export function useFolgasOperations(
       if (data && data.length > 0) {
         console.log("📝 Dados retornados do banco:", data[0]);
         
-        // Add the new folga to the state
+        // Add the new folga to the state - usando parseLocalDate para manter timezone
         const newFolga: Folga = {
           id: data[0].id,
-          data: new Date(data[0].data), // Converter de volta para Date
+          data: parseLocalDate(data[0].data), // Usar parseLocalDate para manter timezone local
           crediaristaId: data[0].crediarista_id,
           motivo: data[0].motivo || undefined,
           createdAt: data[0].created_at,
@@ -115,7 +121,8 @@ export function useFolgasOperations(
         console.log("🔄 Nova folga convertida:", {
           data_string: data[0].data,
           data_converted: newFolga.data,
-          data_converted_toString: newFolga.data.toString()
+          data_converted_toString: newFolga.data.toString(),
+          data_converted_toDateString: newFolga.data.toDateString()
         });
         
         setFolgas(prevFolgas => [...prevFolgas, newFolga]);

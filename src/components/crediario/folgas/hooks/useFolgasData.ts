@@ -1,65 +1,66 @@
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Folga } from "../types";
 import { isSameDay } from "date-fns";
 
-export function useFolgasData() {
-  const { toast } = useToast();
-  const [folgas, setFolgas] = useState<Folga[]>([]);
-  const [isLoadingFolgas, setIsLoadingFolgas] = useState<boolean>(true);
+// Função para converter string de data do banco para Date local
+const parseLocalDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day); // month - 1 porque Date() usa mês base 0
+};
 
-  // Fetch folgas from database
+export function useFolgasData() {
+  const [folgas, setFolgas] = useState<Folga[]>([]);
+  const [isLoadingFolgas, setIsLoadingFolgas] = useState(true);
+
   useEffect(() => {
-    async function fetchFolgas() {
-      setIsLoadingFolgas(true);
+    const fetchFolgas = async () => {
       try {
+        setIsLoadingFolgas(true);
+        console.log("🔄 Carregando folgas...");
+        
         const { data, error } = await supabase
           .from("crediario_folgas")
-          .select("*");
-          
+          .select("*")
+          .order("data", { ascending: true });
+
         if (error) {
           console.error("Erro ao buscar folgas:", error);
-          toast({
-            title: "Erro ao carregar folgas",
-            description: error.message,
-            variant: "destructive",
-          });
           return;
         }
-        
-        // Transform the data to match the Folga interface
-        const formattedFolgas: Folga[] = data.map((folga) => ({
+
+        console.log("📊 Dados brutos das folgas:", data);
+
+        // Converter dados do banco para formato esperado
+        const folgasFormatadas: Folga[] = (data || []).map((folga) => ({
           id: folga.id,
-          data: new Date(folga.data),
+          data: parseLocalDate(folga.data), // Usar parseLocalDate para manter timezone local
           crediaristaId: folga.crediarista_id,
           motivo: folga.motivo || undefined,
           createdAt: folga.created_at,
           createdBy: folga.created_by,
         }));
-        
-        setFolgas(formattedFolgas);
-        console.log("Folgas carregadas:", formattedFolgas.length);
+
+        console.log("✅ Folgas formatadas:", folgasFormatadas.map(f => ({
+          id: f.id,
+          data_string: f.data.toDateString(),
+          data_iso: f.data.toISOString()
+        })));
+
+        setFolgas(folgasFormatadas);
       } catch (error) {
-        console.error("Erro ao buscar folgas:", error);
-        toast({
-          title: "Erro ao carregar folgas",
-          description: "Não foi possível carregar a lista de folgas.",
-          variant: "destructive",
-        });
+        console.error("Erro ao carregar folgas:", error);
       } finally {
         setIsLoadingFolgas(false);
       }
-    }
-    
-    fetchFolgas();
-  }, [toast]);
+    };
 
-  const getFolgasForDay = (day: Date) => {
-    return folgas.filter(folga => 
-      isSameDay(folga.data, day)
-    );
+    fetchFolgas();
+  }, []);
+
+  const getFolgasForDay = (date: Date): Folga[] => {
+    return folgas.filter(folga => isSameDay(folga.data, date));
   };
 
   return {
