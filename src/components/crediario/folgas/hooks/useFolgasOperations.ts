@@ -5,6 +5,14 @@ import { useAuth } from "@/contexts/auth";
 import { Folga } from "../types";
 import { isSameDay } from "date-fns";
 
+// Função para formatar data preservando timezone local
+const formatDateForDatabase = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export function useFolgasOperations(
   folgas: Folga[],
   setFolgas: React.Dispatch<React.SetStateAction<Folga[]>>,
@@ -39,6 +47,16 @@ export function useFolgasOperations(
       return;
     }
     
+    // Debug logs para timezone
+    console.log("🚀 handleAddFolga - Data selecionada:", {
+      data_original: selectedDate,
+      data_toString: selectedDate.toString(),
+      data_toISOString: selectedDate.toISOString(),
+      data_formatDateForDatabase: formatDateForDatabase(selectedDate),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timezoneOffset: selectedDate.getTimezoneOffset()
+    });
+    
     // Verificar se já existe folga para este crediarista nesta data
     const existingFolga = folgas.find(
       (folga) =>
@@ -56,8 +74,9 @@ export function useFolgasOperations(
     }
     
     try {
-      // Format date for Supabase (YYYY-MM-DD format)
-      const formattedDate = selectedDate.toISOString().split('T')[0];
+      // Format date for Supabase preservando timezone local
+      const formattedDate = formatDateForDatabase(selectedDate);
+      console.log("📅 Data formatada para banco:", formattedDate);
       
       // Insert folga into Supabase
       const { data, error } = await supabase
@@ -81,15 +100,23 @@ export function useFolgasOperations(
       }
       
       if (data && data.length > 0) {
+        console.log("📝 Dados retornados do banco:", data[0]);
+        
         // Add the new folga to the state
         const newFolga: Folga = {
           id: data[0].id,
-          data: new Date(data[0].data),
+          data: new Date(data[0].data), // Converter de volta para Date
           crediaristaId: data[0].crediarista_id,
           motivo: data[0].motivo || undefined,
           createdAt: data[0].created_at,
           createdBy: data[0].created_by,
         };
+        
+        console.log("🔄 Nova folga convertida:", {
+          data_string: data[0].data,
+          data_converted: newFolga.data,
+          data_converted_toString: newFolga.data.toString()
+        });
         
         setFolgas(prevFolgas => [...prevFolgas, newFolga]);
         // Atualizar também as folgasDoDiaSelecionado se a nova folga for do dia atualmente selecionado
