@@ -1,205 +1,203 @@
-
-import {
-  FileText,
-  FolderArchive,
-  ShoppingCart,
-  Sofa,
-  TrendingUp,
+import { 
+  FolderOpen, 
+  Target, 
   Calendar,
-  Star,
-  Clock
+  CheckCircle2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MoveisOverviewProps {
-  onNavigate: (tab: string) => void;
+  onNavigate?: (tab: string) => void;
 }
 
-import { MoveisAssistant } from './MoveisAssistant';
+interface MoveisStats {
+  totalArquivos: number;
+  produtosFoco: number;
+  folgas: number;
+}
 
 export function MoveisOverview({ onNavigate }: MoveisOverviewProps) {
+  const isMobile = useIsMobile();
+  const [stats, setStats] = useState<MoveisStats>({
+    totalArquivos: 0,
+    produtosFoco: 0,
+    folgas: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Buscar dados reais do banco de dados
+  useEffect(() => {
+    const fetchRealStats = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Buscar dados em paralelo
+        const [
+          { count: arquivosCount },
+          { count: produtosFocoCount },
+          { count: folgasCount }
+        ] = await Promise.all([
+          supabase.from('moveis_arquivos').select('*', { count: 'exact', head: true }),
+          supabase.from('moveis_produto_foco').select('*', { count: 'exact', head: true }),
+          supabase.from('moveis_folgas').select('*', { count: 'exact', head: true })
+        ]);
+
+        setStats({
+          totalArquivos: arquivosCount || 0,
+          produtosFoco: produtosFocoCount || 0,
+          folgas: folgasCount || 0
+        });
+      } catch (error) {
+        console.error('Erro ao buscar estatísticas dos móveis:', error);
+        // Manter valores padrão em caso de erro
+        setStats({
+          totalArquivos: 0,
+          produtosFoco: 0,
+          folgas: 0
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRealStats();
+  }, []);
+
+  const statsCards = [
+    {
+      title: "Arquivos no Diretório",
+      value: isLoading ? "..." : stats.totalArquivos.toString(),
+      change: "",
+      trend: "stable",
+      icon: FolderOpen,
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50 dark:bg-green-950/20"
+    },
+    {
+      title: "Produtos em Foco",
+      value: isLoading ? "..." : stats.produtosFoco.toString(),
+      change: "",
+      trend: "stable",
+      icon: Target,
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50 dark:bg-purple-950/20"
+    },
+    {
+      title: "Folgas Registradas",
+      value: isLoading ? "..." : stats.folgas.toString(),
+      change: "",
+      trend: "stable",
+      icon: Calendar,
+      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50 dark:bg-orange-950/20"
+    }
+  ];
+
+  const recentActivity = [
+    {
+      id: 1,
+      title: "Sistema iniciado",
+      description: "Dashboard dos móveis carregado com sucesso",
+      time: "Agora",
+      type: "sistema",
+      user: "Sistema"
+    },
+    {
+      id: 2,
+      title: "Dados atualizados",
+      description: `${stats.totalArquivos} arquivos disponíveis no diretório`,
+      time: "Agora",
+      type: "arquivo",
+      user: "Sistema"
+    },
+    {
+      id: 3,
+      title: "Produtos em foco",
+      description: `${stats.produtosFoco} produtos configurados`,
+      time: "Agora",
+      type: "meta",
+      user: "Sistema"
+    }
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Estatísticas Rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="hover-lift">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Orientações Ativas
-            </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              +2 desde ontem
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Arquivos no Diretório
-            </CardTitle>
-            <FolderArchive className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">48</div>
-            <p className="text-xs text-muted-foreground">
-              +5 esta semana
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Vendas O (Mês)
-            </CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">156</div>
-            <p className="text-xs text-muted-foreground">
-              +12% vs mês anterior
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Produtos Foco
-            </CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">
-              3 com vendas hoje
-            </p>
-          </CardContent>
-        </Card>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        {statsCards.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card 
+              key={stat.title}
+              className={`hover-lift transition-all duration-300 border-0 shadow-soft hover:shadow-medium ${stat.bgColor}`}
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${stat.color}`}>
+                    <Icon className="h-4 w-4 text-white" />
+                  </div>
+                  {stat.trend === "up" && (
+                    <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 dark:bg-green-950/20">
+                      {stat.change}
+                    </Badge>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-1">
+                  <div className={`font-bold ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+                    {stat.value}
+                  </div>
+                  <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                    {stat.title}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Área Principal com Dashboard e Chatbot */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Dashboard Principal */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Acesso Rápido */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Acesso Rápido
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Navegue rapidamente pelas funcionalidades mais utilizadas
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <Button
-                  variant="outline"
-                  className="h-20 flex flex-col gap-2 hover-lift"
-                  onClick={() => onNavigate("diretorio")}
+      {/* Recent Activity */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Atividade Recente</h2>
+        <Card className="border-0 shadow-soft">
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {recentActivity.map((activity, index) => (
+                <div 
+                  key={activity.id} 
+                  className="p-4 hover:bg-muted/50 transition-colors duration-200"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <FolderArchive className="h-6 w-6" />
-                  <span className="text-sm">Diretório</span>
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="h-20 flex flex-col gap-2 hover-lift"
-                  onClick={() => onNavigate("vendao")}
-                >
-                  <ShoppingCart className="h-6 w-6" />
-                  <span className="text-sm">Venda O</span>
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="h-20 flex flex-col gap-2 hover-lift"
-                  onClick={() => onNavigate("produto-foco")}
-                >
-                  <Star className="h-6 w-6" />
-                  <span className="text-sm">Produto Foco</span>
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="h-20 flex flex-col gap-2 hover-lift"
-                  onClick={() => onNavigate("folgas")}
-                >
-                  <Calendar className="h-6 w-6" />
-                  <span className="text-sm">Folgas</span>
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="h-20 flex flex-col gap-2 hover-lift"
-                  onClick={() => window.open('/hub-produtividade', '_blank')}
-                >
-                  <Sofa className="h-6 w-6" />
-                  <span className="text-sm">Hub</span>
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="h-20 flex flex-col gap-2 hover-lift"
-                  onClick={() => window.open('/promotional-cards', '_blank')}
-                >
-                  <FileText className="h-6 w-6" />
-                  <span className="text-sm">Cards</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Atividades Recentes */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Atividades Recentes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Nova orientação adicionada</p>
-                    <p className="text-xs text-muted-foreground">Procedimentos de montagem - Há 2 horas</p>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      {activity.type === 'sistema' && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                      {activity.type === 'arquivo' && <FolderOpen className="h-4 w-4 text-primary" />}
+                      {activity.type === 'meta' && <Target className="h-4 w-4 text-primary" />}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <h4 className="font-medium">{activity.title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {activity.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{activity.time}</span>
+                        <span>•</span>
+                        <span>{activity.user}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Arquivo carregado no diretório</p>
-                    <p className="text-xs text-muted-foreground">Manual_Mesa_Jantar.pdf - Há 4 horas</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Venda O registrada</p>
-                    <p className="text-xs text-muted-foreground">Sofá 3 lugares - Filial Centro - Há 6 horas</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chatbot Assistant */}
-        <div className="lg:col-span-1">
-          <MoveisAssistant />
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
