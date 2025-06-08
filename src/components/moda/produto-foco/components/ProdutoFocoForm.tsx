@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, Upload, X, Plus, ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { ProdutoFocoWithImages } from '../types';
+import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { Badge } from '@/components/ui/badge';
 
 interface ProdutoFocoFormProps {

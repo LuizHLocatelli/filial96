@@ -14,7 +14,7 @@ import { useProdutoFoco } from './hooks/useProdutoFoco';
 import { ProdutoFocoCard } from './components/ProdutoFocoCard';
 import { ProdutoFocoForm } from './components/ProdutoFocoForm';
 import { ProdutoFocoDetails } from './components/ProdutoFocoDetails';
-import { ProdutoFocoWithImages } from './types';
+import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { 
   Dialog, 
   DialogContent,

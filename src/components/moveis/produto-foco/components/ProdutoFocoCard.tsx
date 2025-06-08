@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import {
   ImageIcon,
   ShoppingCart
 } from 'lucide-react';
-import { ProdutoFocoWithImages } from '../types';
+import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 

@@ -23,7 +23,7 @@ import { ProdutoFocoForm } from './components/ProdutoFocoForm';
 import { ProdutoFocoDetails } from './components/ProdutoFocoDetails';
 import { RegistrarVendaDialog } from './components/RegistrarVendaDialog';
 import { ConfirmDeleteDialog } from './components/ConfirmDeleteDialog';
-import { ProdutoFocoWithImages } from './types';
+import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

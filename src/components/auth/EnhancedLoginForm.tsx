@@ -85,7 +85,7 @@ export function EnhancedLoginForm() {
                       type="email"
                       placeholder="seu@email.com"
                       autoComplete="email"
-                      className="pl-10 h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
+                      className="pl-10 h-12 bg-input border-muted-foreground/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
                 </FormControl>
@@ -108,7 +108,7 @@ export function EnhancedLoginForm() {
                       type={showPassword ? "text" : "password"}
                       placeholder="******"
                       autoComplete="current-password"
-                      className="pl-10 pr-10 h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
+                      className="pl-10 pr-10 h-12 bg-input border-muted-foreground/20 focus:border-primary transition-all duration-200"
                     />
                     <Button
                       type="button"

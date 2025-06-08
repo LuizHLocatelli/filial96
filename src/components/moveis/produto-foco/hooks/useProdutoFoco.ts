@@ -1,9 +1,8 @@
-
 import { useProdutoFocoData } from './useProdutoFocoData';
 import { useProdutoFocoCRUD } from './useProdutoFocoCRUD';
 import { useProdutoFocoImages } from './useProdutoFocoImages';
 import { useProdutoFocoSales } from './useProdutoFocoSales';
-import { ProdutoFoco } from '../types';
+import { ProdutoFoco } from '@/types/produto-foco';
 
 export function useProdutoFoco() {
   const { produtos, produtoAtivo, isLoading, fetchProdutos, refetch } = useProdutoFocoData();
