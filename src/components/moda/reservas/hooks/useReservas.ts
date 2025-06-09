@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -69,6 +70,10 @@ export function useReservas() {
       // For backwards compatibility, also include old fields from first product
       const firstProduct = formData.produtos[0];
       
+      // Calculate expiration date (72 hours from now)
+      const dataReserva = new Date();
+      const dataExpiracao = new Date(dataReserva.getTime() + (72 * 60 * 60 * 1000));
+      
       const insertData = {
         // New format
         produtos: formData.produtos,
@@ -87,8 +92,9 @@ export function useReservas() {
         consultora_id: user.id,
         created_by: user.id,
         
-        // Required fields - let the database handle data_expiracao via trigger
-        data_reserva: new Date().toISOString()
+        // Required date fields
+        data_reserva: dataReserva.toISOString(),
+        data_expiracao: dataExpiracao.toISOString()
       };
 
       const { error } = await supabase

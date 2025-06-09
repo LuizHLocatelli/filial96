@@ -31,7 +31,8 @@ export function useProdutoFoco() {
     const validProduto = produto as ProdutoFoco & { id: string };
     
     if (imagens && imagens.length > 0) {
-      await uploadMultipleImages(String(validProduto.id), imagens);
+      // Use non-null assertion since we've already checked validProduto has id
+      await uploadMultipleImages(validProduto.id!, imagens);
     }
     
     return validProduto;
