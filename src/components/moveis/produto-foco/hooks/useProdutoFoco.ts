@@ -18,10 +18,9 @@ export function useProdutoFoco() {
     const produto = await createProduto(dadosProduto);
     
     // Check if produto is valid and has an id before proceeding
-    if (produto !== null && produto !== undefined && typeof produto === 'object' && 'id' in produto) {
-      const produtoId = (produto as any).id;
-      if (produtoId && imagens && imagens.length > 0) {
-        await uploadMultipleImages(produtoId as string, imagens);
+    if (produto && typeof produto === 'object' && 'id' in produto && produto.id) {
+      if (imagens && imagens.length > 0) {
+        await uploadMultipleImages(produto.id as string, imagens);
       }
     }
     
