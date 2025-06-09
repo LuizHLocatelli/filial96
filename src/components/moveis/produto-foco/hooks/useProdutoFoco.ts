@@ -18,7 +18,7 @@ export function useProdutoFoco() {
   ) => {
     const produto = await createProduto(dadosProduto);
     
-    if (produto && typeof produto === 'object' && 'id' in produto && imagens && imagens.length > 0) {
+    if (produto && typeof produto === 'object' && 'id' in produto && produto.id && imagens && imagens.length > 0) {
       await uploadMultipleImages(produto.id as string, imagens);
     }
     
