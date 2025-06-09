@@ -1013,6 +1013,66 @@ export type Database = {
           },
         ]
       }
+      moda_reservas: {
+        Row: {
+          cliente_cpf: string
+          cliente_nome: string
+          consultora_id: string
+          created_at: string | null
+          created_by: string
+          data_expiracao: string
+          data_reserva: string
+          forma_pagamento: string
+          id: string
+          observacoes: string | null
+          produto_codigo: string
+          produto_nome: string
+          quantidade: number
+          status: string
+          tamanho: string | null
+          updated_at: string | null
+          venda_id: string | null
+        }
+        Insert: {
+          cliente_cpf: string
+          cliente_nome: string
+          consultora_id: string
+          created_at?: string | null
+          created_by: string
+          data_expiracao: string
+          data_reserva?: string
+          forma_pagamento: string
+          id?: string
+          observacoes?: string | null
+          produto_codigo: string
+          produto_nome: string
+          quantidade: number
+          status?: string
+          tamanho?: string | null
+          updated_at?: string | null
+          venda_id?: string | null
+        }
+        Update: {
+          cliente_cpf?: string
+          cliente_nome?: string
+          consultora_id?: string
+          created_at?: string | null
+          created_by?: string
+          data_expiracao?: string
+          data_reserva?: string
+          forma_pagamento?: string
+          id?: string
+          observacoes?: string | null
+          produto_codigo?: string
+          produto_nome?: string
+          quantidade?: number
+          status?: string
+          tamanho?: string | null
+          updated_at?: string | null
+          venda_id?: string | null
+        }
+        Relationships: []
+      }
       moda_sessoes_usuario: {
         Row: {
           acoes_realizadas: number | null

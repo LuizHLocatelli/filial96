@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Diretorio } from "@/components/moda/diretorio/Diretorio";
 import { Folgas } from "@/components/moda/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
+import { Reservas } from "@/components/moda/reservas/Reservas";
 import { ModaOverview } from "@/components/moda/dashboard/ModaOverview";
 import { Monitoramento } from "@/components/moda/monitoramento/Monitoramento";
 import { useModaTracking } from "@/hooks/useModaTracking";
@@ -14,7 +16,8 @@ import {
   Shirt,
   TrendingUp,
   Calendar,
-  Star
+  Star,
+  Clock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -93,6 +96,14 @@ export default function Moda() {
       component: <ProdutoFoco />
     },
     {
+      value: "reservas",
+      label: "Reservas",
+      icon: Clock,
+      description: "Controle de reservas",
+      mobileLabel: "Reservas",
+      component: <Reservas />
+    },
+    {
       value: "folgas",
       label: "Folgas",
       icon: Calendar,
@@ -135,4 +146,4 @@ export default function Moda() {
       />
     </PageLayout>
   );
-} 
+}
