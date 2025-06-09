@@ -1,10 +1,14 @@
 
-export interface ModaReserva {
-  id: string;
-  produto_nome: string;
-  produto_codigo: string;
+export interface ProdutoReserva {
+  nome: string;
+  codigo: string;
   tamanho?: string;
   quantidade: number;
+}
+
+export interface ModaReserva {
+  id: string;
+  produtos: ProdutoReserva[];
   cliente_nome: string;
   cliente_cpf: string;
   consultora_id: string;
@@ -20,10 +24,7 @@ export interface ModaReserva {
 }
 
 export interface ReservaFormData {
-  produto_nome: string;
-  produto_codigo: string;
-  tamanho?: string;
-  quantidade: number;
+  produtos: ProdutoReserva[];
   cliente_nome: string;
   cliente_cpf: string;
   forma_pagamento: 'crediario' | 'cartao_credito' | 'cartao_debito' | 'pix';

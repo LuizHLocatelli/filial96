@@ -24,12 +24,30 @@ export function useReservas() {
 
       if (error) throw error;
       
-      // Type assertion para garantir que os tipos estão corretos
-      const typedReservas = (data || []).map(reserva => ({
-        ...reserva,
-        forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
-        status: reserva.status as ModaReserva['status']
-      }));
+      // Convert old single product format to new multiple products format
+      const typedReservas = (data || []).map(reserva => {
+        let produtos;
+        
+        // Check if produtos field exists (new format)
+        if (reserva.produtos && Array.isArray(reserva.produtos)) {
+          produtos = reserva.produtos;
+        } else {
+          // Convert old format to new format
+          produtos = [{
+            nome: reserva.produto_nome || '',
+            codigo: reserva.produto_codigo || '',
+            tamanho: reserva.tamanho || '',
+            quantidade: reserva.quantidade || 1
+          }];
+        }
+
+        return {
+          ...reserva,
+          produtos,
+          forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
+          status: reserva.status as ModaReserva['status']
+        };
+      });
       
       setReservas(typedReservas);
     } catch (err: any) {
@@ -52,7 +70,11 @@ export function useReservas() {
       const { error } = await supabase
         .from('moda_reservas' as any)
         .insert({
-          ...formData,
+          produtos: formData.produtos,
+          cliente_nome: formData.cliente_nome,
+          cliente_cpf: formData.cliente_cpf,
+          forma_pagamento: formData.forma_pagamento,
+          observacoes: formData.observacoes,
           consultora_id: user.id,
           created_by: user.id
         });

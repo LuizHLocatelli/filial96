@@ -29,10 +29,9 @@ export function useProdutoFoco() {
     
     // At this point, TypeScript knows produto is non-null and has an id property
     const validProduto = produto as ProdutoFoco;
-    const produtoId = validProduto.id;
     
     if (imagens && imagens.length > 0) {
-      await uploadMultipleImages(String(produtoId), imagens);
+      await uploadMultipleImages(String(validProduto.id), imagens);
     }
     
     return validProduto;

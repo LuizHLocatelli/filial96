@@ -1,139 +1,149 @@
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, User, CreditCard, Package, Calendar, ShoppingBag, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock, User, CreditCard, ShoppingBag, Package, Hash } from "lucide-react";
 import { ModaReserva } from "../types";
 import { ReservaCountdown } from "./ReservaCountdown";
-import { useReservas } from "../hooks/useReservas";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 interface ReservaCardProps {
   reserva: ModaReserva;
+  onUpdateStatus: (id: string, status: ModaReserva['status']) => void;
+  onDelete: (id: string) => void;
 }
 
-export function ReservaCard({ reserva }: ReservaCardProps) {
-  const { updateReservaStatus, deleteReserva } = useReservas();
+const statusColors = {
+  ativa: "bg-green-500/20 text-green-700 border-green-200",
+  expirada: "bg-red-500/20 text-red-700 border-red-200", 
+  convertida: "bg-blue-500/20 text-blue-700 border-blue-200",
+  cancelada: "bg-gray-500/20 text-gray-700 border-gray-200"
+};
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      ativa: { variant: "default" as const, label: "Ativa", color: "bg-green-100 text-green-800" },
-      expirada: { variant: "secondary" as const, label: "Expirada", color: "bg-gray-100 text-gray-800" },
-      convertida: { variant: "default" as const, label: "Convertida", color: "bg-blue-100 text-blue-800" },
-      cancelada: { variant: "destructive" as const, label: "Cancelada", color: "bg-red-100 text-red-800" }
-    };
-    const config = variants[status as keyof typeof variants];
-    return (
-      <Badge variant={config.variant} className={config.color}>
-        {config.label}
-      </Badge>
-    );
-  };
+const statusLabels = {
+  ativa: "Ativa",
+  expirada: "Expirada",
+  convertida: "Convertida",
+  cancelada: "Cancelada"
+};
 
-  const getFormaPagamentoLabel = (forma: string) => {
-    const labels = {
-      crediario: "Crediário",
-      cartao_credito: "Cartão de Crédito",
-      cartao_debito: "Cartão de Débito",
-      pix: "PIX"
-    };
-    return labels[forma as keyof typeof labels] || forma;
-  };
+const pagamentoLabels = {
+  crediario: "Crediário",
+  cartao_credito: "Cartão de Crédito",
+  cartao_debito: "Cartão de Débito",
+  pix: "PIX"
+};
 
-  const handleConvertToSale = async () => {
-    // Por enquanto, apenas marca como convertida
-    // No futuro, pode abrir um modal para criar a venda
-    await updateReservaStatus(reserva.id, 'convertida');
-  };
-
-  const handleCancel = async () => {
-    await updateReservaStatus(reserva.id, 'cancelada');
-  };
-
-  const handleDelete = async () => {
-    if (confirm('Tem certeza que deseja excluir esta reserva?')) {
-      await deleteReserva(reserva.id);
-    }
-  };
+export function ReservaCard({ reserva, onUpdateStatus, onDelete }: ReservaCardProps) {
+  const totalQuantidade = reserva.produtos.reduce((sum, produto) => sum + produto.quantidade, 0);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="w-full shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold text-lg">{reserva.produto_nome}</h3>
-            <p className="text-sm text-muted-foreground">Código: {reserva.produto_codigo}</p>
+        <div className="flex justify-between items-start">
+          <div className="space-y-1">
+            <CardTitle className="text-lg">
+              {reserva.produtos.length === 1 
+                ? reserva.produtos[0].nome 
+                : `${reserva.produtos.length} produtos`
+              }
+            </CardTitle>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Package className="h-4 w-4" />
+              <span>{totalQuantidade} {totalQuantidade === 1 ? 'item' : 'itens'}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <ReservaCountdown 
-              dataExpiracao={reserva.data_expiracao} 
-              status={reserva.status} 
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {reserva.status === 'ativa' && (
-                  <>
-                    <DropdownMenuItem onClick={handleConvertToSale}>
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Converter em Venda
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleCancel}>
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Cancelar Reserva
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <Badge className={statusColors[reserva.status]}>
+            {statusLabels[reserva.status]}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <Package className="h-4 w-4 text-muted-foreground" />
-            <span>
-              Qtd: {reserva.quantidade}
-              {reserva.tamanho && ` • Tam: ${reserva.tamanho}`}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span>{reserva.cliente_nome}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-            <span>{getFormaPagamentoLabel(reserva.forma_pagamento)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{format(new Date(reserva.data_reserva), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</span>
+
+      <CardContent className="space-y-4">
+        {/* Lista de Produtos */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground">Produtos:</h4>
+          <div className="space-y-2">
+            {reserva.produtos.map((produto, index) => (
+              <div key={index} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
+                <div className="flex-1">
+                  <div className="font-medium">{produto.nome}</div>
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                    <Hash className="h-3 w-3" />
+                    <span>{produto.codigo}</span>
+                    {produto.tamanho && (
+                      <>
+                        <span>•</span>
+                        <span>Tam: {produto.tamanho}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-medium">Qtd: {produto.quantidade}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {reserva.observacoes && (
-          <div className="text-sm text-muted-foreground bg-gray-50 p-2 rounded">
-            <p>{reserva.observacoes}</p>
+        {/* Informações do Cliente */}
+        <div className="flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium">{reserva.cliente_nome}</span>
+          <span className="text-muted-foreground">• {reserva.cliente_cpf}</span>
+        </div>
+
+        {/* Forma de Pagamento */}
+        <div className="flex items-center gap-2 text-sm">
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <span>{pagamentoLabels[reserva.forma_pagamento]}</span>
+        </div>
+
+        {/* Countdown */}
+        {reserva.status === 'ativa' && (
+          <div className="flex items-center gap-2 text-sm">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <ReservaCountdown dataExpiracao={reserva.data_expiracao} />
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          {getStatusBadge(reserva.status)}
-          <span className="text-xs text-muted-foreground">
-            CPF: {reserva.cliente_cpf}
-          </span>
-        </div>
+        {/* Observações */}
+        {reserva.observacoes && (
+          <div className="text-sm text-muted-foreground p-2 bg-muted/30 rounded">
+            <span className="font-medium">Obs:</span> {reserva.observacoes}
+          </div>
+        )}
+
+        {/* Actions */}
+        {reserva.status === 'ativa' && (
+          <div className="flex gap-2 pt-2">
+            <Button
+              size="sm"
+              onClick={() => onUpdateStatus(reserva.id, 'convertida')}
+              className="flex-1"
+            >
+              Converter em Venda
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onUpdateStatus(reserva.id, 'cancelada')}
+            >
+              Cancelar
+            </Button>
+          </div>
+        )}
+
+        {(reserva.status === 'cancelada' || reserva.status === 'expirada') && (
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => onDelete(reserva.id)}
+            className="w-full"
+          >
+            Remover Reserva
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
