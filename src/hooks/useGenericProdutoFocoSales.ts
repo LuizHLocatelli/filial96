@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
@@ -10,7 +11,7 @@ export function useGenericProdutoFocoSales(tableName: string) {
 
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .insert({
           ...dadosVenda,
           created_by: user.id
@@ -32,7 +33,7 @@ export function useGenericProdutoFocoSales(tableName: string) {
   const getVendasPorProduto = async (produtoId: string) => {
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .select('*')
         .eq('produto_foco_id', produtoId)
         .order('data_venda', { ascending: false });
@@ -49,4 +50,4 @@ export function useGenericProdutoFocoSales(tableName: string) {
     registrarVenda,
     getVendasPorProduto
   };
-} 
+}

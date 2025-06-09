@@ -50,7 +50,7 @@ export function useReservas() {
 
     try {
       const { error } = await supabase
-        .from('moda_reservas')
+        .from('moda_reservas' as any)
         .insert({
           ...formData,
           consultora_id: user.id,

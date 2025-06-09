@@ -38,7 +38,7 @@ export function useGenericProdutoFocoData(tableName: string, imageTableName: str
         produtosComImagens.push({
           ...produto,
           imagens: imagensData || []
-        });
+        } as ProdutoFocoWithImages);
       }
 
       setProdutos(produtosComImagens);

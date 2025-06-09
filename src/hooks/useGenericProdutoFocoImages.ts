@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
@@ -27,7 +28,7 @@ export function useGenericProdutoFocoImages(
         .getPublicUrl(fileName);
 
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .insert({
           produto_foco_id: produtoId,
           imagem_url: publicUrl,
@@ -66,7 +67,7 @@ export function useGenericProdutoFocoImages(
 
       // Deletar do banco
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .delete()
         .eq('id', imagemId);
 
@@ -102,4 +103,4 @@ export function useGenericProdutoFocoImages(
     deleteImagem,
     uploadMultipleImages
   };
-} 
+}
