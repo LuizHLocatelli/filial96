@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
@@ -7,18 +6,18 @@ import { ProdutoFoco } from '@/types/produto-foco';
 export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Promise<void>) {
   const { user } = useAuth();
 
-  const createProduto = async (dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
+  const createProduto = async (dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<ProdutoFoco | null> => {
     if (!user) return null;
 
     try {
       const { data, error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .insert({
           ...dadosProduto,
           created_by: user.id
         })
         .select()
-        .single();
+        .single<ProdutoFoco>();
 
       if (error) throw error;
 

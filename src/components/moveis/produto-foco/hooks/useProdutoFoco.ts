@@ -1,4 +1,3 @@
-
 import { useProdutoFocoData } from './useProdutoFocoData';
 import { useProdutoFocoCRUD } from './useProdutoFocoCRUD';
 import { useProdutoFocoImages } from './useProdutoFocoImages';
@@ -17,25 +16,13 @@ export function useProdutoFoco() {
   ) => {
     const produto = await createProduto(dadosProduto);
     
-    // Check if produto is valid and not null
-    if (!produto) {
-      return produto;
+    if (produto && produto.id) {
+      if (imagens && imagens.length > 0) {
+        await uploadMultipleImages(produto.id, imagens);
+      }
     }
     
-    // Type guard to ensure produto has id property - using non-null assertion after checks
-    if (typeof produto !== 'object' || !('id' in produto) || !produto.id) {
-      return produto;
-    }
-    
-    // At this point, we know produto is valid and has an id - explicit type assertion
-    const validProduto = produto as ProdutoFoco & { id: string };
-    
-    if (imagens && imagens.length > 0) {
-      // Use non-null assertion since we've already checked validProduto has id
-      await uploadMultipleImages(validProduto.id!, imagens);
-    }
-    
-    return validProduto;
+    return produto;
   };
 
   return {
