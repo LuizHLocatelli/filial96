@@ -1,9 +1,35 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ModaReserva, ReservaFormData } from '../types';
+
+const processReservaData = (data: any[]): ModaReserva[] => {
+  // Convert old single product format to new multiple products format
+  return (data || []).map((reserva: any) => {
+    let produtos;
+    
+    // Check if produtos field exists (new format)
+    if (reserva.produtos && Array.isArray(reserva.produtos)) {
+      produtos = reserva.produtos;
+    } else {
+      // Convert old format to new format
+      produtos = [{
+        nome: reserva.produto_nome || '',
+        codigo: reserva.produto_codigo || '',
+        tamanho: reserva.tamanho || '',
+        quantidade: reserva.quantidade || 1
+      }];
+    }
+
+    return {
+      ...reserva,
+      produtos,
+      forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
+      status: reserva.status as ModaReserva['status']
+    } as ModaReserva;
+  });
+};
 
 export function useReservas() {
   const [reservas, setReservas] = useState<ModaReserva[]>([]);
@@ -24,31 +50,7 @@ export function useReservas() {
 
       if (error) throw error;
       
-      // Convert old single product format to new multiple products format
-      const typedReservas = (data || []).map((reserva: any) => {
-        let produtos;
-        
-        // Check if produtos field exists (new format)
-        if (reserva.produtos && Array.isArray(reserva.produtos)) {
-          produtos = reserva.produtos;
-        } else {
-          // Convert old format to new format
-          produtos = [{
-            nome: reserva.produto_nome || '',
-            codigo: reserva.produto_codigo || '',
-            tamanho: reserva.tamanho || '',
-            quantidade: reserva.quantidade || 1
-          }];
-        }
-
-        return {
-          ...reserva,
-          produtos,
-          forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
-          status: reserva.status as ModaReserva['status']
-        } as ModaReserva;
-      });
-      
+      const typedReservas = processReservaData(data);
       setReservas(typedReservas);
     } catch (err: any) {
       console.error('Erro ao carregar reservas:', err);
@@ -67,9 +69,6 @@ export function useReservas() {
     if (!user) return false;
 
     try {
-      // For backwards compatibility, also include old fields from first product
-      const firstProduct = formData.produtos[0];
-      
       // Calculate expiration date (72 hours from now)
       const dataReserva = new Date();
       const dataExpiracao = new Date(dataReserva.getTime() + (72 * 60 * 60 * 1000));
@@ -77,12 +76,6 @@ export function useReservas() {
       const insertData = {
         // New format
         produtos: formData.produtos,
-        
-        // Old format fields for backwards compatibility
-        produto_nome: firstProduct?.nome || '',
-        produto_codigo: firstProduct?.codigo || '',
-        tamanho: firstProduct?.tamanho || '',
-        quantidade: firstProduct?.quantidade || 1,
         
         // Other fields
         cliente_nome: formData.cliente_nome,
@@ -179,7 +172,37 @@ export function useReservas() {
   };
 
   useEffect(() => {
+    if (!user) {
+      setReservas([]);
+      return;
+    }
+
     fetchReservas();
+
+    const handleRealtimeUpdate = (payload: any) => {
+      if (payload.eventType === 'INSERT') {
+        const [processed] = processReservaData([payload.new]);
+        setReservas(current => [processed, ...current].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+      } else if (payload.eventType === 'UPDATE') {
+        const [processed] = processReservaData([payload.new]);
+        setReservas(current => current.map(r => r.id === processed.id ? processed : r));
+      } else if (payload.eventType === 'DELETE') {
+        setReservas(current => current.filter(r => r.id !== payload.old.id));
+      }
+    };
+
+    const channel = supabase
+      .channel('moda_reservas')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'moda_reservas' },
+        handleRealtimeUpdate
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   return {
