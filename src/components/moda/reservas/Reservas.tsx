@@ -10,7 +10,7 @@ import { useReservas } from "./hooks/useReservas";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Reservas() {
-  const { reservas, isLoading } = useReservas();
+  const { reservas, isLoading, updateReservaStatus, deleteReserva } = useReservas();
   const isMobile = useIsMobile();
   const [filters, setFilters] = useState({
     status: 'all',
@@ -39,8 +39,10 @@ export function Reservas() {
         const searchLower = filters.search.toLowerCase();
         return (
           reserva.cliente_nome.toLowerCase().includes(searchLower) ||
-          reserva.produto_nome.toLowerCase().includes(searchLower) ||
-          reserva.produto_codigo.toLowerCase().includes(searchLower) ||
+          reserva.produtos.some(produto => 
+            produto.nome.toLowerCase().includes(searchLower) ||
+            produto.codigo.toLowerCase().includes(searchLower)
+          ) ||
           reserva.cliente_cpf.includes(filters.search)
         );
       }
@@ -104,7 +106,12 @@ export function Reservas() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredReservas.map((reserva) => (
-                <ReservaCard key={reserva.id} reserva={reserva} />
+                <ReservaCard 
+                  key={reserva.id} 
+                  reserva={reserva} 
+                  onUpdateStatus={updateReservaStatus}
+                  onDelete={deleteReserva}
+                />
               ))}
             </div>
           )}

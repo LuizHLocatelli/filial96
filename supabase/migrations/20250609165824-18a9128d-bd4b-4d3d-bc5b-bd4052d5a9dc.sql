@@ -6,6 +6,7 @@ CREATE TABLE public.moda_reservas (
   produto_codigo VARCHAR NOT NULL,
   tamanho VARCHAR,
   quantidade INTEGER NOT NULL,
+  produtos JSONB, -- Novo campo para múltiplos produtos
   cliente_nome VARCHAR NOT NULL,
   cliente_cpf VARCHAR NOT NULL,
   consultora_id UUID NOT NULL,
