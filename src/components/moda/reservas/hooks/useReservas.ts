@@ -25,7 +25,7 @@ export function useReservas() {
       if (error) throw error;
       
       // Convert old single product format to new multiple products format
-      const typedReservas = (data || []).map(reserva => {
+      const typedReservas = (data || []).map((reserva: any) => {
         let produtos;
         
         // Check if produtos field exists (new format)
@@ -46,7 +46,7 @@ export function useReservas() {
           produtos,
           forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
           status: reserva.status as ModaReserva['status']
-        };
+        } as ModaReserva;
       });
       
       setReservas(typedReservas);

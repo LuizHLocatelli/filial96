@@ -23,7 +23,7 @@ export function useProdutoFoco() {
     }
     
     // Type guard to ensure produto has id property and is not null
-    if (!('id' in produto) || !produto.id || produto === null) {
+    if (!('id' in produto) || !produto.id) {
       return produto;
     }
     
