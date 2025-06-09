@@ -18,7 +18,7 @@ export function useProdutoFoco() {
     const produto = await createProduto(dadosProduto);
     
     // Check if produto is valid and has an id before proceeding
-    if (!produto || typeof produto !== 'object' || !('id' in produto)) {
+    if (!produto || typeof produto !== 'object' || produto === null || !('id' in produto)) {
       return produto;
     }
     
