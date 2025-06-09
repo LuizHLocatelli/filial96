@@ -28,7 +28,7 @@ export function useGenericProdutoFocoData(tableName: string, imageTableName: str
         const { data: imagensData, error: imagensError } = await supabase
           .from(imageTableName as any)
           .select('*')
-          .eq('produto_foco_id', produto.id)
+          .eq('produto_foco_id', (produto as any)?.id)
           .order('ordem', { ascending: true });
 
         if (imagensError) {
@@ -36,7 +36,7 @@ export function useGenericProdutoFocoData(tableName: string, imageTableName: str
         }
 
         produtosComImagens.push({
-          ...produto,
+          ...(produto as any),
           imagens: imagensData || []
         } as ProdutoFocoWithImages);
       }

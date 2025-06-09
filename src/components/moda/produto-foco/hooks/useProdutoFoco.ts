@@ -1,4 +1,5 @@
 
+
 import { useProdutoFocoData } from './useProdutoFocoData';
 import { useProdutoFocoCRUD } from './useProdutoFocoCRUD';
 import { useProdutoFocoImages } from './useProdutoFocoImages';
@@ -17,8 +18,8 @@ export function useProdutoFoco() {
   ) => {
     const produto = await createProduto(dadosProduto);
     
-    if (produto && produto.id && imagens && imagens.length > 0) {
-      await uploadMultipleImages(produto.id, imagens);
+    if (produto && typeof produto === 'object' && 'id' in produto && imagens && imagens.length > 0) {
+      await uploadMultipleImages(produto.id as string, imagens);
     }
     
     return produto;
