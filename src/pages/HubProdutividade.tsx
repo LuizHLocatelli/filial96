@@ -113,6 +113,16 @@ export default function HubProdutividade() {
               onFiltrosPorData: () => setShowFiltrosPorData(true),
               onRelatorios: () => setShowRelatorios(true)
             }}
+            rotinas={rotinas || []}
+            tarefas={tarefas || []}
+            onViewRotina={(rotinaId) => {
+              setSearchParams({ tab: "rotinas" });
+              // Aqui poderia implementar scroll para a rotina específica
+            }}
+            onViewTarefa={(tarefaId) => {
+              setSearchParams({ tab: "orientacoes" });
+              // Aqui poderia implementar scroll para a tarefa específica
+            }}
           />
         </div>
       )

@@ -1,27 +1,43 @@
-
 import { Badge } from "@/components/ui/badge";
-import { Clock } from "lucide-react";
+import { Clock, Crown, Infinity } from "lucide-react";
 import { useReservasCountdown } from "../hooks/useReservasCountdown";
 import { cn } from "@/lib/utils";
 
 interface ReservaCountdownProps {
   dataExpiracao: string;
   status: string;
+  clienteVip?: boolean;
 }
 
-export function ReservaCountdown({ dataExpiracao, status }: ReservaCountdownProps) {
+export function ReservaCountdown({ dataExpiracao, status, clienteVip = false }: ReservaCountdownProps) {
   const timeRemaining = useReservasCountdown(dataExpiracao);
 
   if (status !== 'ativa') {
     return null;
   }
 
+  // Para clientes VIP, mostrar badge especial
+  if (clienteVip) {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <Clock className="h-4 w-4 text-muted-foreground" />
+        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+          <Crown className="h-3 w-3 mr-1" />
+          Sem limite de tempo
+        </Badge>
+      </div>
+    );
+  }
+
   if (timeRemaining.expired) {
     return (
-      <Badge variant="destructive" className="flex items-center gap-1">
-        <Clock className="h-3 w-3" />
-        Expirada
-      </Badge>
+      <div className="flex items-center gap-2 text-sm">
+        <Clock className="h-4 w-4 text-muted-foreground" />
+        <Badge variant="destructive" className="flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          Expirada
+        </Badge>
+      </div>
     );
   }
 
@@ -48,12 +64,15 @@ export function ReservaCountdown({ dataExpiracao, status }: ReservaCountdownProp
   };
 
   return (
-    <Badge 
-      variant={variant} 
-      className={cn("flex items-center gap-1", colorClass)}
-    >
-      <Clock className="h-3 w-3" />
-      {formatTime()} restantes
-    </Badge>
+    <div className="flex items-center gap-2 text-sm">
+      <Clock className="h-4 w-4 text-muted-foreground" />
+      <Badge 
+        variant={variant} 
+        className={cn("flex items-center gap-1", colorClass)}
+      >
+        <Clock className="h-3 w-3" />
+        {formatTime()} restantes
+      </Badge>
+    </div>
   );
 }

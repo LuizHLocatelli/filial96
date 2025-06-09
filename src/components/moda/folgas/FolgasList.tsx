@@ -186,7 +186,7 @@ export function FolgasList({
                           </div>
                           <div className="flex items-center text-sm text-muted-foreground mb-1">
                             <CalendarDays className="h-4 w-4 mr-2" />
-                            <span>{format(new Date(folga.data), "dd/MM/yyyy", { locale: ptBR })}</span>
+                            <span>{format(folga.data, "dd/MM/yyyy", { locale: ptBR })}</span>
                           </div>
                           {folga.motivo && (
                             <div className="flex items-start text-sm text-muted-foreground">
@@ -256,7 +256,7 @@ export function FolgasList({
               </strong>{" "}
               para o dia{" "}
               <strong>
-                {folgaToDelete && format(new Date(folgaToDelete.data), "dd/MM/yyyy", { locale: ptBR })}
+                {folgaToDelete && format(folgaToDelete.data, "dd/MM/yyyy", { locale: ptBR })}
               </strong>
               ?
               <br />

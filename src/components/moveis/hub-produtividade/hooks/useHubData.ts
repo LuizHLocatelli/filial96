@@ -11,10 +11,12 @@ import { useTarefasData } from './useTarefasData';
 import { useUsersCache } from './useUsersCache';
 import { calculateProductivityStats } from '../utils/statsCalculator';
 import { generateActivityTimeline } from '../utils/activityGenerator';
+import { useResponsive } from '@/hooks/use-responsive';
 
 export function useHubData() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isMobile } = useResponsive();
   
   // Ref para controlar se é a primeira carga
   const isInitialLoadRef = useRef(true);
@@ -75,10 +77,31 @@ export function useHubData() {
 
   const { getUserName, isLoading: isLoadingUsers } = useUsersCache();
 
-  // Usar useMemo para evitar recálculos desnecessários
+  // Usar useMemo para evitar recálculos desnecessários - MOVIDO PARA ANTES DO DEBUG
   const allDataLoaded = useMemo(() => {
     return !isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas && !isLoadingUsers;
   }, [isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers]);
+
+  // Debug logs para mobile - VERSÃO MELHORADA
+  useEffect(() => {
+    if (isMobile) {
+      console.log('📱 [MOBILE DEBUG] useHubData Estado Detalhado:', {
+        statsTotal: stats.rotinas.total + stats.tarefas.total,
+        isLoadingStats,
+        isLoadingActivities,
+        isLoadingRotinas,
+        isLoadingOrientacoes,
+        isLoadingTarefas,
+        isLoadingUsers,
+        allDataLoaded,
+        rotinasCount: rotinas.length,
+        orientacoesCount: orientacoes.length,
+        tarefasCount: tarefas.length,
+        userExists: !!user,
+        isInitialLoad: isInitialLoadRef.current
+      });
+    }
+  }, [isMobile, stats, isLoadingStats, isLoadingActivities, isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers, rotinas, orientacoes, tarefas, allDataLoaded, user]);
 
   // Memoizar os dados para evitar recalculos
   const memoizedRotinas = useMemo(() => rotinas, [JSON.stringify(rotinas)]);
@@ -145,19 +168,14 @@ export function useHubData() {
   useEffect(() => {
     if (!allDataLoaded) return;
 
-    // Só processa se tiver dados válidos
-    if (!memoizedRotinas.length && !memoizedOrientacoes.length && !memoizedTarefas.length) {
-      return;
-    }
-
     try {
       setIsLoadingStats(true);
       
-      // Calcular estatísticas
+      // Calcular estatísticas - mesmo que não tenha dados
       const newStats = calculateProductivityStats(memoizedRotinas, memoizedOrientacoes, memoizedTarefas);
       setStats(newStats);
       
-      // Gerar atividades
+      // Gerar atividades - mesmo que não tenha dados
       const newActivities = generateActivityTimeline(memoizedRotinas, memoizedOrientacoes, memoizedTarefas, getUserName);
       setActivities(newActivities);
       

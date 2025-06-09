@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Clock, AlertCircle, Target } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, Target, TrendingUp } from 'lucide-react';
 import { RotinaWithStatus } from '../types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RotinasStatsProps {
   rotinas: RotinaWithStatus[];
 }
 
 export function RotinasStats({ rotinas }: RotinasStatsProps) {
+  const isMobile = useIsMobile();
   const totalRotinas = rotinas.length;
   const concluidas = rotinas.filter(r => r.status === 'concluida').length;
   const pendentes = rotinas.filter(r => r.status === 'pendente').length;
@@ -46,131 +48,173 @@ export function RotinasStats({ rotinas }: RotinasStatsProps) {
     personalizado: 'Personalizadas'
   };
 
+  // Se não há rotinas, mostrar estado vazio mais compacto
+  if (totalRotinas === 0) {
+    return (
+      <div className="mb-6">
+        <Card className="border-dashed border-2 border-border/50">
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="mx-auto w-12 h-12 bg-green-50 dark:bg-green-950/50 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">Nenhuma rotina criada</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Crie sua primeira rotina para começar a organizar suas tarefas obrigatórias.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Resumo Geral - 2 colunas em mobile, 4 em desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Card>
-          <CardContent className="p-3 sm:p-4">
+    <div className="space-y-4 mb-6">
+      {/* Cards de métricas principais - 2x2 em mobile, 4x1 em desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="border-green-200/50 dark:border-green-800/50">
+          <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total</p>
-                <p className="text-xl sm:text-2xl font-bold">{totalRotinas}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Total</p>
+                <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-green-700 dark:text-green-300`}>
+                  {totalRotinas}
+                </p>
               </div>
-              <Target className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0" />
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center`}>
+                <Target className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-green-600 dark:text-green-400`} />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
+        <Card className="border-green-200/50 dark:border-green-800/50">
+          <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Concluídas</p>
-                <p className="text-xl sm:text-2xl font-bold text-green-600">{concluidas}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Concluídas</p>
+                <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-green-700 dark:text-green-300`}>
+                  {concluidas}
+                </p>
               </div>
-              <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 flex-shrink-0" />
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center`}>
+                <CheckCircle2 className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-green-600 dark:text-green-400`} />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
+        <Card className="border-yellow-200/50 dark:border-yellow-800/50">
+          <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Pendentes</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-600">{pendentes}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Pendentes</p>
+                <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-yellow-700 dark:text-yellow-300`}>
+                  {pendentes}
+                </p>
               </div>
-              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 flex-shrink-0" />
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center`}>
+                <Clock className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-yellow-600 dark:text-yellow-400`} />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-3 sm:p-4">
+        <Card className="border-red-200/50 dark:border-red-800/50">
+          <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Atrasadas</p>
-                <p className="text-xl sm:text-2xl font-bold text-red-600">{atrasadas}</p>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Atrasadas</p>
+                <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-red-700 dark:text-red-300`}>
+                  {atrasadas}
+                </p>
               </div>
-              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-500 flex-shrink-0" />
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center`}>
+                <AlertCircle className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-red-600 dark:text-red-400`} />
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Progresso Geral */}
-      <Card>
-        <CardHeader className="pb-3 sm:pb-6">
-          <CardTitle className="text-lg sm:text-xl">Progresso Geral</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Conclusão do dia</span>
-              <span className="font-medium">{percentualConclusao.toFixed(1)}%</span>
+      {/* Progresso Geral - mais compacto */}
+      <Card className="border-green-200/50 dark:border-green-800/50">
+        <CardContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <h3 className="font-medium text-green-700 dark:text-green-300">Progresso do Dia</h3>
             </div>
-            <Progress value={percentualConclusao} className="h-2" />
+            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+              {percentualConclusao.toFixed(1)}%
+            </span>
+          </div>
+          <Progress 
+            value={percentualConclusao} 
+            className="h-2 bg-green-100 dark:bg-green-900/50" 
+          />
+          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <span>{concluidas} de {totalRotinas} rotinas</span>
+            <span>
+              {atrasadas > 0 && `${atrasadas} atrasada${atrasadas > 1 ? 's' : ''}`}
+            </span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Estatísticas detalhadas - stack em mobile */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-        {/* Estatísticas por Categoria */}
-        <Card>
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl">Por Categoria</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3 sm:space-y-4">
-            {Object.entries(estatisticasPorCategoria).length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhuma categoria encontrada
-              </p>
-            ) : (
-              Object.entries(estatisticasPorCategoria).map(([categoria, stats]) => {
+      {/* Estatísticas detalhadas - só mostrar se houver dados suficientes */}
+      {Object.keys(estatisticasPorCategoria).length > 1 && (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {/* Estatísticas por Categoria */}
+          <Card>
+            <CardHeader className={`${isMobile ? 'pb-3 px-4 pt-4' : 'pb-4'}`}>
+              <CardTitle className="text-base font-medium text-green-700 dark:text-green-300">
+                Por Categoria
+              </CardTitle>
+            </CardHeader>
+            <CardContent className={`${isMobile ? 'px-4 pb-4' : 'pt-0'} space-y-3`}>
+              {Object.entries(estatisticasPorCategoria).map(([categoria, stats]) => {
                 const percentual = (stats.concluidas / stats.total) * 100;
                 return (
                   <div key={categoria} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="capitalize font-medium">{categoria}</span>
+                      <span className="capitalize font-medium text-green-700 dark:text-green-300">
+                        {categoria}
+                      </span>
                       <span className="text-muted-foreground">{stats.concluidas}/{stats.total}</span>
                     </div>
-                    <Progress value={percentual} className="h-1.5" />
+                    <Progress value={percentual} className="h-1.5 bg-green-100 dark:bg-green-900/50" />
                   </div>
                 );
-              })
-            )}
-          </CardContent>
-        </Card>
+              })}
+            </CardContent>
+          </Card>
 
-        {/* Estatísticas por Periodicidade */}
-        <Card>
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl">Por Periodicidade</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3 sm:space-y-4">
-            {Object.entries(estatisticasPorPeriodicidade).length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhuma periodicidade encontrada
-              </p>
-            ) : (
-              Object.entries(estatisticasPorPeriodicidade).map(([periodicidade, stats]) => {
+          {/* Estatísticas por Periodicidade */}
+          <Card>
+            <CardHeader className={`${isMobile ? 'pb-3 px-4 pt-4' : 'pb-4'}`}>
+              <CardTitle className="text-base font-medium text-green-700 dark:text-green-300">
+                Por Periodicidade
+              </CardTitle>
+            </CardHeader>
+            <CardContent className={`${isMobile ? 'px-4 pb-4' : 'pt-0'} space-y-3`}>
+              {Object.entries(estatisticasPorPeriodicidade).map(([periodicidade, stats]) => {
                 const percentual = (stats.concluidas / stats.total) * 100;
                 return (
                   <div key={periodicidade} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium">{periodicidadeLabels[periodicidade as keyof typeof periodicidadeLabels]}</span>
+                      <span className="font-medium text-green-700 dark:text-green-300">
+                        {periodicidadeLabels[periodicidade as keyof typeof periodicidadeLabels]}
+                      </span>
                       <span className="text-muted-foreground">{stats.concluidas}/{stats.total}</span>
                     </div>
-                    <Progress value={percentual} className="h-1.5" />
+                    <Progress value={percentual} className="h-1.5 bg-green-100 dark:bg-green-900/50" />
                   </div>
                 );
-              })
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              })}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

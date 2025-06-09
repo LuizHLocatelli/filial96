@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { LucideIcon, ChevronRight } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PageHeaderProps {
   title: string;
@@ -16,6 +17,7 @@ interface PageHeaderProps {
   actions?: ReactNode;
   variant?: "default" | "gradient" | "minimal";
   className?: string;
+  fullWidthActionsOnMobile?: boolean;
   breadcrumbs?: Array<{
     label: string;
     href?: string;
@@ -31,46 +33,25 @@ export function PageHeader({
   actions,
   variant = "default",
   className,
+  fullWidthActionsOnMobile = false,
   breadcrumbs
 }: PageHeaderProps) {
   const isGradient = variant === "gradient";
   const isMinimal = variant === "minimal";
+  const isMobile = useIsMobile();
 
   return (
-    <div className={cn("space-y-2", className)}>
-      {/* Breadcrumbs restaurados */}
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav
-          className="flex items-center space-x-1 text-xs sm:text-sm text-muted-foreground"
-          aria-label="Navegação estrutural"
-        >
-          {breadcrumbs.map((crumb, index) => (
-            <div key={index} className="flex items-center">
-              <span
-                className={cn(
-                  "transition-colors hover:text-foreground",
-                  crumb.href ? "cursor-pointer hover:underline" : "text-foreground font-medium"
-                )}
-                onClick={() => crumb.href && (window.location.href = crumb.href)}
-              >
-                {crumb.label}
-              </span>
-              {index < breadcrumbs.length - 1 && (
-                <ChevronRight className="h-3 w-3 mx-1.5 text-muted-foreground/50" />
-              )}
-            </div>
-          ))}
-        </nav>
-      )}
-
+    <div className={cn(className)}>
       {/* Container com fundo sutil para gradient */}
       <div className={cn(
         "relative",
         isGradient && "bg-gradient-to-r from-green-50/20 via-green-50/10 to-transparent rounded-lg"
       )}>
         <div className={cn(
-          "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3",
-          isGradient ? "p-4" : "py-2",
+          (fullWidthActionsOnMobile && isMobile)
+            ? "flex flex-col gap-3" 
+            : "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3",
+          isGradient ? "p-4" : "",
           isMinimal && "py-1"
         )}>
           <div className="space-y-1">
@@ -110,7 +91,12 @@ export function PageHeader({
           
           {/* Actions e status melhorados */}
           {(status || actions) && (
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className={cn(
+              "flex items-center gap-3",
+              (fullWidthActionsOnMobile && isMobile)
+                ? "w-full" 
+                : "flex-shrink-0"
+            )}>
               {status && (
                 <Badge 
                   variant={status.variant || "outline"} 
@@ -123,7 +109,10 @@ export function PageHeader({
                 </Badge>
               )}
               {actions && (
-                <div className="flex items-center gap-2">
+                <div className={cn(
+                  "flex items-center gap-2",
+                  (fullWidthActionsOnMobile && isMobile) && "w-full"
+                )}>
                   {actions}
                 </div>
               )}

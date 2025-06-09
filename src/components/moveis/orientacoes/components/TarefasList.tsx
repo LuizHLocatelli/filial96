@@ -8,13 +8,15 @@ interface TarefasListProps {
   isLoading: boolean;
   onAtualizarStatus: (tarefaId: string, novoStatus: string) => void;
   onExcluirTarefa: (tarefaId: string) => void;
+  onViewRotina?: (rotinaId: string) => void;
 }
 
 export function TarefasList({ 
   tarefas, 
   isLoading, 
   onAtualizarStatus, 
-  onExcluirTarefa 
+  onExcluirTarefa,
+  onViewRotina 
 }: TarefasListProps) {
   if (isLoading) {
     return (
@@ -49,6 +51,7 @@ export function TarefasList({
           tarefa={tarefa}
           onAtualizarStatus={onAtualizarStatus}
           onExcluirTarefa={onExcluirTarefa}
+          onViewRotina={onViewRotina}
         />
       ))}
     </div>

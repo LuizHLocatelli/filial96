@@ -8,25 +8,63 @@ import { ActivityTimeline } from '../unified/ActivityTimeline';
 import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSection';
 import { DesktopLayout } from './DesktopLayout';
 import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
-import { Activity, Zap, Clock, TrendingUp } from 'lucide-react';
+import { Activity, Zap, Clock, TrendingUp, Link2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { ConexoesVisualizacao } from './ConexoesVisualizacao';
 
 interface HubDashboardProps {
   stats: ProductivityStats;
   activities: ActivityItem[];
   isLoading: boolean;
   handlers: HubHandlers;
+  rotinas?: any[];
+  tarefas?: any[];
+  onViewRotina?: (rotinaId: string) => void;
+  onViewTarefa?: (tarefaId: string) => void;
 }
 
 export function HubDashboard({
   stats,
   activities,
   isLoading,
-  handlers
+  handlers,
+  rotinas = [],
+  tarefas = [],
+  onViewRotina,
+  onViewTarefa
 }: HubDashboardProps) {
   const { isMobile, isTablet } = useResponsive();
   const { preferences, layoutConfig, isCompact } = useLayoutPreferences();
 
+  // Debug logs para mobile
+  useEffect(() => {
+    if (isMobile) {
+      console.log('📱 [MOBILE] HubDashboard renderizando');
+      console.log('  🔧 isMobile:', isMobile);
+      console.log('  📐 Screen width:', window.innerWidth);
+      console.log('  📊 Stats recebidas:', stats);
+      console.log('  ⏳ isLoading:', isLoading);
+      console.log('  🎯 isCompact:', isCompact);
+      console.log('  ⚙️ preferences:', preferences);
+    }
+  }, [isMobile, stats, isLoading, isCompact, preferences]);
+
+  // Garantir que as seções importantes estejam sempre expandidas no mobile
+  useEffect(() => {
+    if (isMobile) {
+      // Forçar expansão da seção de estatísticas no mobile
+      try {
+        localStorage.setItem('collapsible-mobile-stats', JSON.stringify(true));
+        console.log('📱 [MOBILE] Forçando expansão das estatísticas');
+      } catch (error) {
+        console.warn('Erro ao forçar expansão:', error);
+      }
+    }
+  }, [isMobile]);
+
   if (isMobile) {
+    console.log('📱 [MOBILE DEBUG] Renderizando versão mobile do HubDashboard');
+    
     return (
       <div className="space-y-4">
         <div className="mb-4">
@@ -73,6 +111,23 @@ export function HubDashboard({
             </div>
           </CollapsibleSection>
           
+          <CollapsibleSection
+            title="Conexões Rotinas ↔ Tarefas"
+            icon={Link2}
+            defaultExpanded={false}
+            compact={isCompact}
+            persistStateKey="mobile-connections"
+          >
+            <div className="px-1">
+              <ConexoesVisualizacao
+                rotinas={rotinas}
+                tarefas={tarefas}
+                onViewRotina={onViewRotina}
+                onViewTarefa={onViewTarefa}
+              />
+            </div>
+          </CollapsibleSection>
+
           <CollapsibleSection
             title="Atividades Recentes"
             icon={Clock}
@@ -160,6 +215,23 @@ export function HubDashboard({
               </div>
             </CollapsibleSection>
           </div>
+          
+          <CollapsibleSection
+            title="Mapa de Conexões"
+            icon={Link2}
+            defaultExpanded={true}
+            compact={isCompact}
+            persistStateKey="tablet-connections"
+          >
+            <div className="px-2">
+              <ConexoesVisualizacao
+                rotinas={rotinas}
+                tarefas={tarefas}
+                onViewRotina={onViewRotina}
+                onViewTarefa={onViewTarefa}
+              />
+            </div>
+          </CollapsibleSection>
         </CollapsibleGroup>
       </div>
     );
@@ -172,6 +244,10 @@ export function HubDashboard({
       activities={activities}
       isLoading={isLoading}
       handlers={handlers}
+      rotinas={rotinas}
+      tarefas={tarefas}
+      onViewRotina={onViewRotina}
+      onViewTarefa={onViewTarefa}
     />
   );
 }

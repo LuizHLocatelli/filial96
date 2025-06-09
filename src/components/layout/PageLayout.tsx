@@ -11,7 +11,7 @@ interface PageLayoutProps {
 
 export function PageLayout({
   children,
-  maxWidth = "xl",
+  maxWidth = "full",
   spacing = "normal",
   className,
   fullHeight = false
@@ -45,7 +45,6 @@ export function PageLayout({
       maxWidthClasses[maxWidth],
       paddingClasses[spacing],
       "relative",
-      maxWidth === "full" ? "w-full" : "w-full",
       className
     )}>
       {children}

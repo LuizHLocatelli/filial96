@@ -5,6 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Consultor, Folga, FolgaFormValues } from "./types";
 import { useAuth } from "@/contexts/auth";
 
+// Helper para ler a data do banco (que vem como YYYY-MM-DD) como uma data local.
+const fromDateOnlyString = (dateStr: string): Date => {
+  return new Date(`${dateStr}T00:00:00`);
+}
+
+// Helper para converter data para o formato YYYY-MM-DD UTC para evitar problemas de fuso horário
+const toDateOnlyString = (date: Date): string => {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+  return d.toISOString().split('T')[0];
+}
+
 export function useModaFolgas() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -136,7 +148,7 @@ export function useModaFolgas() {
       // Transform the data to match the Folga interface
       const formattedFolgas: Folga[] = data.map((folga) => ({
         id: folga.id,
-        data: new Date(folga.data),
+        data: fromDateOnlyString(folga.data),
         consultorId: folga.consultor_id,
         motivo: folga.motivo || undefined,
         createdAt: folga.created_at,
@@ -147,7 +159,7 @@ export function useModaFolgas() {
       
       // Atualizar também as folgas do dia selecionado se necessário
       if (selectedDate) {
-        const folgasParaEsteDia = formattedFolgas.filter(f => isSameDay(new Date(f.data), selectedDate));
+        const folgasParaEsteDia = formattedFolgas.filter(f => isSameDay(f.data, selectedDate));
         setFolgasDoDiaSelecionado(folgasParaEsteDia);
       }
     } catch (error) {
@@ -182,7 +194,7 @@ export function useModaFolgas() {
       // Transform the data to match the Folga interface
       const formattedFolgas: Folga[] = data.map((folga) => ({
         id: folga.id,
-        data: new Date(folga.data),
+        data: fromDateOnlyString(folga.data),
         consultorId: folga.consultor_id,
         motivo: folga.motivo || undefined,
         createdAt: folga.created_at,
@@ -220,7 +232,7 @@ export function useModaFolgas() {
   
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    const folgasParaEsteDia = folgas.filter(f => isSameDay(new Date(f.data), date));
+    const folgasParaEsteDia = folgas.filter(f => isSameDay(f.data, date));
     setFolgasDoDiaSelecionado(folgasParaEsteDia);
     setOpenDialog(true);
     setSelectedConsultor("");
@@ -248,7 +260,7 @@ export function useModaFolgas() {
     
     // Check if the consultor already has a folga on this date
     const existingFolga = folgas.find(
-      folga => isSameDay(new Date(folga.data), selectedDate) && folga.consultorId === selectedConsultor
+      (f) => isSameDay(f.data, selectedDate) && f.consultorId === selectedConsultor
     );
     
     if (existingFolga) {
@@ -265,10 +277,10 @@ export function useModaFolgas() {
         .from("moda_folgas")
         .insert([
           {
-            data: selectedDate.toISOString().split('T')[0],
+            data: toDateOnlyString(selectedDate),
             consultor_id: selectedConsultor,
-            motivo: motivo || null,
-            created_by: user?.id || null,
+            motivo: motivo,
+            created_by: user.id
           },
         ])
         .select();
@@ -284,26 +296,30 @@ export function useModaFolgas() {
       }
       
       if (data && data.length > 0) {
-        const newFolga: Folga = {
-          id: data[0].id,
-          data: new Date(data[0].data),
-          consultorId: data[0].consultor_id,
-          motivo: data[0].motivo || undefined,
-          createdAt: data[0].created_at,
-          createdBy: data[0].created_by,
-        };
+        const newFolgas: Folga[] = data.map(folga => ({
+          id: folga.id,
+          data: fromDateOnlyString(folga.data),
+          consultorId: folga.consultor_id,
+          motivo: folga.motivo || undefined,
+          createdAt: folga.created_at,
+          createdBy: folga.created_by || undefined,
+        }));
+
+        setFolgas(prev => [...prev, ...newFolgas]);
         
-        setFolgas(prev => [...prev, newFolga]);
-        setFolgasDoDiaSelecionado(prev => [...prev, newFolga]);
-        
-        toast({
-          title: "Folga adicionada",
-          description: "A folga foi registrada com sucesso.",
-        });
-        
-        setSelectedConsultor("");
-        setMotivo("");
+        if (selectedDate) {
+          const folgasParaEsteDia = newFolgas.filter(f => isSameDay(f.data, selectedDate));
+          setFolgasDoDiaSelecionado(prev => [...prev, ...folgasParaEsteDia]);
+        }
       }
+      
+      toast({
+        title: "Folga adicionada com sucesso!",
+        description: "A folga foi registrada com sucesso.",
+      });
+      
+      setSelectedConsultor("");
+      setMotivo("");
     } catch (error) {
       console.error("Erro ao adicionar folga:", error);
       toast({
@@ -343,7 +359,7 @@ export function useModaFolgas() {
         
         // Reverter o estado local em caso de erro
         setFolgas(prev => [...prev, folgaParaExcluir]);
-        if (selectedDate && isSameDay(new Date(folgaParaExcluir.data), selectedDate)) {
+        if (selectedDate && isSameDay(folgaParaExcluir.data, selectedDate)) {
           setFolgasDoDiaSelecionado(prev => [...prev, folgaParaExcluir]);
         }
         

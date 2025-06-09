@@ -120,7 +120,7 @@ export function AddFolgaDialog({
                           </p>
                         )}
                         <p className="text-muted-foreground text-[9px] sm:text-[10px] mt-0.5">
-                          Em: {format(new Date(folga.createdAt), "dd/MM/yy HH:mm")}
+                          Em: {folga.createdAt ? format(new Date(folga.createdAt), "dd/MM/yy HH:mm") : 'N/A'}
                         </p>
                       </div>
                     );

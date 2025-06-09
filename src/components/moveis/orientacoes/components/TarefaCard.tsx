@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, CheckCircle2, CircleDashed, CircleEllipsis, Trash2, User } from "lucide-react";
+import { CalendarIcon, CheckCircle2, CircleDashed, CircleEllipsis, Trash2, User, Link2, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tarefa } from "../types";
+import { TarefaRotinaConnection } from "./TarefaRotinaConnection";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TarefaCardProps {
   tarefa: Tarefa;
   onAtualizarStatus: (tarefaId: string, novoStatus: string) => void;
   onExcluirTarefa: (tarefaId: string) => void;
+  onViewRotina?: (rotinaId: string) => void;
 }
 
 // Add new interface for tarefa with creator name
@@ -20,7 +22,7 @@ interface TarefaWithCreator extends Tarefa {
   criador_nome?: string;
 }
 
-export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: TarefaCardProps) {
+export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewRotina }: TarefaCardProps) {
   const [tarefaWithCreator, setTarefaWithCreator] = useState<TarefaWithCreator>(tarefa);
 
   useEffect(() => {
@@ -103,6 +105,14 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa }: Taref
           <User className="h-4 w-4" />
           <span>Criado por: {tarefaWithCreator.criador_nome}</span>
         </div>
+
+        {/* Conexão com rotina se existir */}
+        {tarefa.rotina_id && (
+          <TarefaRotinaConnection 
+            tarefa={tarefaWithCreator}
+            onViewRotina={onViewRotina}
+          />
+        )}
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t">
           <div className="flex flex-wrap gap-1 sm:gap-2">

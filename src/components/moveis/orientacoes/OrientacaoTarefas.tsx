@@ -1,30 +1,38 @@
-
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
-import { TarefasHeader } from "./components/TarefasHeader";
+import { useToast } from "@/hooks/use-toast";
 import { TarefaForm } from "./components/TarefaForm";
 import { TarefasList } from "./components/TarefasList";
+import { TarefasHeader } from "./components/TarefasHeader";
 import { Tarefa } from "./types";
 
 const tarefaFormSchema = z.object({
-  titulo: z.string().min(3, { message: "Título deve ter pelo menos 3 caracteres" }),
-  descricao: z.string().min(10, { message: "Descrição deve ter pelo menos 10 caracteres" }),
-  data_entrega: z.date({ required_error: "Data de entrega é obrigatória" }),
+  titulo: z.string().min(1, "Título é obrigatório"),
+  descricao: z.string().optional(),
+  data_entrega: z.date(),
   orientacao_id: z.string().optional(),
+  rotina_id: z.string().optional(),
+  prioridade: z.enum(['baixa', 'media', 'alta', 'urgente']).default('media'),
+  origem: z.enum(['manual', 'rotina', 'orientacao']).default('manual'),
 });
 
 type TarefaFormValues = z.infer<typeof tarefaFormSchema>;
 
-export function OrientacaoTarefas() {
+interface OrientacaoTarefasProps {
+  defaultRotina?: string;
+  onViewRotina?: (rotinaId: string) => void;
+}
+
+export function OrientacaoTarefas({ defaultRotina, onViewRotina }: OrientacaoTarefasProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [orientacoes, setOrientacoes] = useState<Array<{ id: string; titulo: string }>>([]);
+  const [rotinas, setRotinas] = useState<Array<{ id: string; nome: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
@@ -34,12 +42,16 @@ export function OrientacaoTarefas() {
       titulo: "",
       descricao: "",
       orientacao_id: "none",
+      rotina_id: defaultRotina || "none",
+      prioridade: "media",
+      origem: defaultRotina ? "rotina" : "manual",
     },
   });
 
   useEffect(() => {
     fetchTarefas();
     fetchOrientacoes();
+    fetchRotinas();
   }, []);
 
   const fetchTarefas = async () => {
@@ -47,7 +59,11 @@ export function OrientacaoTarefas() {
     try {
       const { data, error } = await supabase
         .from("moveis_tarefas")
-        .select("*")
+        .select(`
+          *,
+          orientacao:moveis_orientacoes(titulo),
+          rotina:moveis_rotinas(nome)
+        `)
         .order("data_entrega", { ascending: true });
 
       if (error) throw error;
@@ -80,6 +96,22 @@ export function OrientacaoTarefas() {
     }
   };
 
+  const fetchRotinas = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("moveis_rotinas")
+        .select("id, nome")
+        .eq("ativo", true)
+        .order("nome", { ascending: true });
+
+      if (error) throw error;
+
+      setRotinas((data || []) as unknown as Array<{ id: string; nome: string }>);
+    } catch (error) {
+      console.error("Erro ao buscar rotinas:", error);
+    }
+  };
+
   const onSubmit = async (data: TarefaFormValues) => {
     if (!user) {
       toast({
@@ -92,12 +124,16 @@ export function OrientacaoTarefas() {
 
     try {
       const orientacaoId = data.orientacao_id === "none" ? null : data.orientacao_id;
+      const rotinaId = data.rotina_id === "none" ? null : data.rotina_id;
       
       const newTask = {
         titulo: data.titulo,
         descricao: data.descricao,
         data_entrega: data.data_entrega.toISOString(),
         orientacao_id: orientacaoId,
+        rotina_id: rotinaId,
+        prioridade: data.prioridade,
+        origem: data.origem,
         status: "pendente",
         criado_por: user.id,
       };
@@ -119,6 +155,9 @@ export function OrientacaoTarefas() {
         titulo: "",
         descricao: "",
         orientacao_id: "none",
+        rotina_id: defaultRotina || "none",
+        prioridade: "media",
+        origem: defaultRotina ? "rotina" : "manual",
       });
       setShowForm(false);
       fetchTarefas();
@@ -200,6 +239,9 @@ export function OrientacaoTarefas() {
         titulo: "",
         descricao: "",
         orientacao_id: "none",
+        rotina_id: defaultRotina || "none",
+        prioridade: "media",
+        origem: defaultRotina ? "rotina" : "manual",
       });
     }
   };
@@ -212,6 +254,8 @@ export function OrientacaoTarefas() {
         <TarefaForm
           form={form}
           orientacoes={orientacoes}
+          rotinas={rotinas}
+          defaultRotina={defaultRotina}
           onSubmit={onSubmit}
           onCancel={() => setShowForm(false)}
         />
@@ -222,6 +266,13 @@ export function OrientacaoTarefas() {
         isLoading={isLoading}
         onAtualizarStatus={handleAtualizarStatus}
         onExcluirTarefa={handleExcluirTarefa}
+        onViewRotina={(rotinaId) => {
+          if (onViewRotina) {
+            onViewRotina(rotinaId);
+          } else {
+            console.log('Navegar para rotina:', rotinaId);
+          }
+        }}
       />
     </div>
   );

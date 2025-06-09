@@ -25,13 +25,21 @@ interface DesktopLayoutProps {
   activities: ActivityItem[];
   isLoading: boolean;
   handlers: HubHandlers;
+  rotinas?: any[];
+  tarefas?: any[];
+  onViewRotina?: (rotinaId: string) => void;
+  onViewTarefa?: (tarefaId: string) => void;
 }
 
 export function DesktopLayout({
   stats,
   activities,
   isLoading,
-  handlers
+  handlers,
+  rotinas = [],
+  tarefas = [],
+  onViewRotina,
+  onViewTarefa
 }: DesktopLayoutProps) {
   const { layoutConfig, isCompact } = useLayoutPreferences();
 

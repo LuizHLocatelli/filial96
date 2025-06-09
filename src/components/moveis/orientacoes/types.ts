@@ -1,4 +1,3 @@
-
 export interface Orientacao {
   id: string;
   titulo: string;
@@ -22,4 +21,20 @@ export interface Tarefa {
   status: string;
   criado_por: string;
   orientacao_id: string | null;
+  rotina_id: string | null;
+  origem: 'manual' | 'rotina' | 'orientacao';
+  dependencias?: string[];
+  prioridade: 'baixa' | 'media' | 'alta' | 'urgente';
+}
+
+export interface TarefaExpandida extends Tarefa {
+  rotina_nome?: string;
+  orientacao_titulo?: string;
+  criado_por_nome?: string;
+  dependencias_info?: Array<{
+    id: string;
+    nome: string;
+    tipo: 'rotina' | 'tarefa';
+    status: string;
+  }>;
 }

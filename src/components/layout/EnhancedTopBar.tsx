@@ -86,17 +86,6 @@ export function EnhancedTopBar() {
               <CompanyLogo />
             </motion.div>
           </div>
-
-          {/* Desktop Breadcrumbs */}
-          {!isMobile && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-            >
-              <BreadcrumbNav />
-            </motion.div>
-          )}
         </div>
 
         {/* Center Section - Search (Desktop only) */}

@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RotinaFormData } from '../types';
-import { X } from 'lucide-react';
+import { X, Zap, Calendar } from 'lucide-react';
 
 interface AddRotinaDialogProps {
   open: boolean;
@@ -44,6 +46,12 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
     horario_preferencial: '',
     dia_preferencial: '',
     categoria: '',
+    gera_tarefa_automatica: false,
+    template_tarefa: {
+      titulo: '',
+      descricao: '',
+      prazo_dias: 3
+    }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,14 +67,21 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
 
     setIsSubmitting(true);
     
-    const success = await onSubmit({
+    const submitData: RotinaFormData = {
       ...formData,
       nome: formData.nome.trim(),
       descricao: formData.descricao?.trim() || undefined,
       horario_preferencial: formData.horario_preferencial || undefined,
       // Para periodicidade diária, não enviar dia preferencial
       dia_preferencial: formData.periodicidade === 'diario' ? 'diario' : formData.dia_preferencial,
-    });
+    };
+
+    // Se não gera tarefa automática, remover template
+    if (!formData.gera_tarefa_automatica) {
+      delete submitData.template_tarefa;
+    }
+
+    const success = await onSubmit(submitData);
 
     if (success) {
       setFormData({
@@ -76,6 +91,12 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
         horario_preferencial: '',
         dia_preferencial: '',
         categoria: '',
+        gera_tarefa_automatica: false,
+        template_tarefa: {
+          titulo: '',
+          descricao: '',
+          prazo_dias: 3
+        }
       });
       onOpenChange(false);
     }
@@ -83,7 +104,7 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
     setIsSubmitting(false);
   };
 
-  const handleInputChange = (field: keyof RotinaFormData, value: string) => {
+  const handleInputChange = (field: keyof RotinaFormData, value: any) => {
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
       
@@ -96,13 +117,23 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
     });
   };
 
+  const handleTemplateChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      template_tarefa: {
+        ...prev.template_tarefa!,
+        [field]: value
+      }
+    }));
+  };
+
   const clearHorarioPreferencial = () => {
     setFormData(prev => ({ ...prev, horario_preferencial: '' }));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nova Rotina</DialogTitle>
           <DialogDescription>
@@ -217,6 +248,67 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
               </SelectContent>
             </Select>
           </div>
+
+          {/* Seção de Geração Automática de Tarefas */}
+          <Card className="border-2 border-dashed border-muted">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Zap className="h-4 w-4 text-yellow-600" />
+                Geração Automática de Tarefas
+              </CardTitle>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="gera_tarefa"
+                  checked={formData.gera_tarefa_automatica}
+                  onCheckedChange={(checked) => handleInputChange('gera_tarefa_automatica', checked)}
+                />
+                <Label htmlFor="gera_tarefa" className="text-sm">
+                  Gerar tarefas automaticamente quando concluir esta rotina
+                </Label>
+              </div>
+            </CardHeader>
+            
+            {formData.gera_tarefa_automatica && (
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Título da Tarefa</Label>
+                  <Input
+                    value={formData.template_tarefa?.titulo || ''}
+                    onChange={(e) => handleTemplateChange('titulo', e.target.value)}
+                    placeholder="Ex: Verificar estoque após limpeza"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Descrição da Tarefa</Label>
+                  <Textarea
+                    value={formData.template_tarefa?.descricao || ''}
+                    onChange={(e) => handleTemplateChange('descricao', e.target.value)}
+                    placeholder="Descreva o que deve ser feito na tarefa..."
+                    rows={2}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Prazo (dias)</Label>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      min="1"
+                      max="30"
+                      value={formData.template_tarefa?.prazo_dias || 3}
+                      onChange={(e) => handleTemplateChange('prazo_dias', parseInt(e.target.value))}
+                      className="w-20"
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      dias após conclusão da rotina
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            )}
+          </Card>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button

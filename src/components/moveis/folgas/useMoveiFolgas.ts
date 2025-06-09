@@ -5,6 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Consultor, Folga, FolgaFormValues } from "./types";
 import { useAuth } from "@/contexts/auth";
 
+// Helper para ler a data do banco (que vem como YYYY-MM-DD) como uma data local.
+const fromDateOnlyString = (dateStr: string): Date => {
+  return new Date(`${dateStr}T00:00:00`);
+}
+
+// Helper para converter data para o formato YYYY-MM-DD UTC para evitar problemas de fuso horário
+const toDateOnlyString = (date: Date): string => {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+  return d.toISOString().split('T')[0];
+}
+
 export function useMoveiFolgas() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -137,7 +149,7 @@ export function useMoveiFolgas() {
         // Transform the data to match the Folga interface
         const formattedFolgas: Folga[] = data.map((folga) => ({
           id: folga.id,
-          data: new Date(folga.data),
+          data: fromDateOnlyString(folga.data),
           consultorId: folga.consultor_id,
           motivo: folga.motivo || undefined,
           createdAt: folga.created_at,
@@ -178,7 +190,7 @@ export function useMoveiFolgas() {
   
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    const folgasParaEsteDia = folgas.filter(f => isSameDay(new Date(f.data), date));
+    const folgasParaEsteDia = folgas.filter(f => isSameDay(f.data, date));
     setFolgasDoDiaSelecionado(folgasParaEsteDia);
     setOpenDialog(true);
     setSelectedConsultor("");
@@ -221,8 +233,8 @@ export function useMoveiFolgas() {
     }
     
     try {
-      // Format date for Supabase (YYYY-MM-DD format)
-      const formattedDate = selectedDate.toISOString().split('T')[0];
+      // Format date for Supabase (YYYY-MM-DD format) usando helper para evitar problemas de timezone
+      const formattedDate = toDateOnlyString(selectedDate);
       
       // Insert folga into Supabase
       const { data, error } = await supabase
@@ -248,7 +260,7 @@ export function useMoveiFolgas() {
       if (data && data.length > 0) {
         const newFolga: Folga = {
           id: data[0].id,
-          data: new Date(data[0].data),
+          data: fromDateOnlyString(data[0].data),
           consultorId: data[0].consultor_id,
           motivo: data[0].motivo || undefined,
           createdAt: data[0].created_at,

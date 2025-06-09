@@ -1,12 +1,14 @@
+import React from 'react';
 import { UseFormReturn } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, ListTodo, X } from "lucide-react";
+import { CalendarIcon, ListTodo, X, Link, AlertTriangle, Zap, RotateCcw } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -31,11 +33,29 @@ import {
 interface TarefaFormProps {
   form: UseFormReturn<any>;
   orientacoes: Array<{ id: string; titulo: string }>;
+  rotinas?: Array<{ id: string; nome: string }>;
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  defaultRotina?: string;
 }
 
-export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaFormProps) {
+const prioridadeConfig = {
+  baixa: { label: 'Baixa', color: 'bg-blue-100 text-blue-800', icon: '●' },
+  media: { label: 'Média', color: 'bg-yellow-100 text-yellow-800', icon: '●●' },
+  alta: { label: 'Alta', color: 'bg-orange-100 text-orange-800', icon: '●●●' },
+  urgente: { label: 'Urgente', color: 'bg-red-100 text-red-800', icon: '⚡' }
+};
+
+const origemConfig = {
+  manual: { label: 'Manual', icon: ListTodo, color: 'text-blue-600' },
+  rotina: { label: 'Rotina', icon: RotateCcw, color: 'text-green-600' },
+  orientacao: { label: 'Orientação', icon: Link, color: 'text-purple-600' }
+};
+
+export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel, defaultRotina }: TarefaFormProps) {
+  const origem = form.watch('origem') || 'manual';
+  const prioridade = form.watch('prioridade') || 'media';
+
   return (
     <Card className="p-4 sm:p-6 shadow-soft border">
       <div className="mb-4 sm:mb-6">
@@ -50,9 +70,19 @@ export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaForm
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-muted-foreground text-sm">
-          Crie uma nova tarefa para organizar o trabalho do setor de móveis
-        </p>
+        <div className="flex items-center gap-2 mb-2">
+          <p className="text-muted-foreground text-sm">
+            Crie uma nova tarefa para organizar o trabalho do setor de móveis
+          </p>
+          {origem !== 'manual' && (
+            <Badge variant="secondary" className="ml-auto">
+              {React.createElement(origemConfig[origem as keyof typeof origemConfig].icon, {
+                className: `h-3 w-3 mr-1 ${origemConfig[origem as keyof typeof origemConfig].color}`
+              })}
+              {origemConfig[origem as keyof typeof origemConfig].label}
+            </Badge>
+          )}
+        </div>
       </div>
 
       <Form {...form}>
@@ -78,24 +108,25 @@ export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaForm
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="orientacao_id"
+              name="prioridade"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Orientação relacionada (opcional)</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    value={field.value || "none"}
-                  >
+                  <FormLabel className="text-sm font-medium">Prioridade</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || 'media'}>
                     <FormControl>
                       <SelectTrigger className="text-sm bg-muted/40">
-                        <SelectValue placeholder="Selecione uma orientação" />
+                        <SelectValue placeholder="Selecione a prioridade" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">Nenhuma</SelectItem>
-                      {orientacoes.map((orientacao) => (
-                        <SelectItem key={orientacao.id} value={orientacao.id}>
-                          {orientacao.titulo}
+                      {Object.entries(prioridadeConfig).map(([value, config]) => (
+                        <SelectItem key={value} value={value}>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs ${config.color.split(' ')[1]}`}>
+                              {config.icon}
+                            </span>
+                            {config.label}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -142,6 +173,105 @@ export function TarefaForm({ form, orientacoes, onSubmit, onCancel }: TarefaForm
               )}
             />
           </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="orientacao_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Orientação relacionada (opcional)</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value || "none"}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="text-sm bg-muted/40">
+                        <SelectValue placeholder="Selecione uma orientação" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
+                      {orientacoes.map((orientacao) => (
+                        <SelectItem key={orientacao.id} value={orientacao.id}>
+                          {orientacao.titulo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="rotina_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Rotina relacionada (opcional)</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value || defaultRotina || "none"}
+                    disabled={!!defaultRotina}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="text-sm bg-muted/40">
+                        <SelectValue placeholder="Selecione uma rotina" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
+                      {rotinas.map((rotina) => (
+                        <SelectItem key={rotina.id} value={rotina.id}>
+                          <div className="flex items-center gap-2">
+                            <RotateCcw className="h-3 w-3 text-green-600" />
+                            {rotina.nome}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {defaultRotina && (
+                    <p className="text-xs text-muted-foreground">
+                      Rotina pré-selecionada
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="origem"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">Origem da Tarefa</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || 'manual'}>
+                  <FormControl>
+                    <SelectTrigger className="text-sm bg-muted/40">
+                      <SelectValue placeholder="Como esta tarefa foi criada?" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(origemConfig).map(([value, config]) => (
+                      <SelectItem key={value} value={value}>
+                        <div className="flex items-center gap-2">
+                          {React.createElement(config.icon, {
+                            className: `h-4 w-4 ${config.color}`
+                          })}
+                          {config.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

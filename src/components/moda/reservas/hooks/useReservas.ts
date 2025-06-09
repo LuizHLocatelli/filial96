@@ -25,6 +25,7 @@ const processReservaData = (data: any[]): ModaReserva[] => {
     return {
       ...reserva,
       produtos,
+      cliente_vip: reserva.cliente_vip || false,
       forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
       status: reserva.status as ModaReserva['status']
     } as ModaReserva;
@@ -69,17 +70,32 @@ export function useReservas() {
     if (!user) return false;
 
     try {
-      // Calculate expiration date (72 hours from now)
+      // Calculate expiration date based on VIP status
       const dataReserva = new Date();
-      const dataExpiracao = new Date(dataReserva.getTime() + (72 * 60 * 60 * 1000));
+      let dataExpiracao: Date;
+      
+      if (formData.cliente_vip) {
+        // Para clientes VIP, definir uma data de expiração muito distante (1 ano)
+        dataExpiracao = new Date(dataReserva.getTime() + (365 * 24 * 60 * 60 * 1000));
+      } else {
+        // Para clientes normais, manter o limite de 72 horas (3 dias)
+        dataExpiracao = new Date(dataReserva.getTime() + (72 * 60 * 60 * 1000));
+      }
       
       const insertData = {
         // New format
         produtos: formData.produtos,
         
+        // Campos legados para compatibilidade (usando o primeiro produto)
+        produto_nome: formData.produtos[0]?.nome || '',
+        produto_codigo: formData.produtos[0]?.codigo || '',
+        tamanho: formData.produtos[0]?.tamanho || '',
+        quantidade: formData.produtos[0]?.quantidade || 1,
+        
         // Other fields
         cliente_nome: formData.cliente_nome,
         cliente_cpf: formData.cliente_cpf,
+        cliente_vip: formData.cliente_vip,
         forma_pagamento: formData.forma_pagamento,
         observacoes: formData.observacoes,
         consultora_id: user.id,
@@ -98,7 +114,7 @@ export function useReservas() {
 
       toast({
         title: "Sucesso",
-        description: "Reserva criada com sucesso!",
+        description: `Reserva criada com sucesso!${formData.cliente_vip ? ' (Cliente VIP - sem limite de tempo)' : ''}`,
       });
 
       await fetchReservas();

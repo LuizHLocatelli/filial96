@@ -4,6 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { Folga } from "../types";
 
+// Helper para converter data para o formato YYYY-MM-DD UTC para evitar problemas de fuso horário
+// Esta função garante que a data enviada para o DB seja a data selecionada pelo usuário, sem deslocamentos.
+const toDateOnlyString = (date: Date): string => {
+  const d = new Date(date);
+  // Ajusta a data para UTC 00:00:00 do dia selecionado
+  // O getTimezoneOffset retorna a diferença em minutos entre UTC e o local.
+  // Para converter de local para UTC, precisamos ADICIONAR essa diferença.
+  d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+  return d.toISOString().split('T')[0];
+}
+
+// Helper para ler a data do banco (que vem como YYYY-MM-DD) como uma data local.
+// new Date('YYYY-MM-DD') interpreta como UTC, então `new Date('YYYY-MM-DDTHH:mm:ss')` força a interpretação local.
+const fromDateOnlyString = (dateStr: string): Date => {
+  return new Date(`${dateStr}T00:00:00`);
+}
+
 interface FolgaFormValues {
   data: Date;
   consultorId: string;
@@ -43,7 +60,7 @@ export function useFolgas() {
       if (data) {
         const formattedFolgas: Folga[] = data.map((folga) => ({
           id: folga.id,
-          data: new Date(folga.data),
+          data: fromDateOnlyString(folga.data),
           consultorId: folga.consultor_id,
           motivo: folga.motivo || undefined,
           createdAt: folga.created_at,
@@ -70,7 +87,7 @@ export function useFolgas() {
       const { data, error } = await supabase
         .from("moda_folgas")
         .insert({
-          data: dadosFolga.data.toISOString().split('T')[0],
+          data: toDateOnlyString(dadosFolga.data),
           consultor_id: dadosFolga.consultorId,
           motivo: dadosFolga.motivo || null,
           created_by: user.id
@@ -83,7 +100,7 @@ export function useFolgas() {
       // Adicionar a nova folga ao estado imediatamente
       const novaFolga: Folga = {
         id: data.id,
-        data: new Date(data.data),
+        data: fromDateOnlyString(data.data),
         consultorId: data.consultor_id,
         motivo: data.motivo || undefined,
         createdAt: data.created_at,
@@ -127,7 +144,7 @@ export function useFolgas() {
       const { data, error } = await supabase
         .from("moda_folgas")
         .update({
-          data: dadosFolga.data.toISOString().split('T')[0],
+          data: toDateOnlyString(dadosFolga.data),
           consultor_id: dadosFolga.consultorId,
           motivo: dadosFolga.motivo || null,
         })
@@ -146,7 +163,7 @@ export function useFolgas() {
       // Atualizar com dados do servidor
       const folgaFinal: Folga = {
         id: data.id,
-        data: new Date(data.data),
+        data: fromDateOnlyString(data.data),
         consultorId: data.consultor_id,
         motivo: data.motivo || undefined,
         createdAt: data.created_at,
@@ -225,12 +242,12 @@ export function useFolgas() {
     em7Dias.setDate(hoje.getDate() + 7);
 
     const folgasNoMes = folgas.filter(folga => {
-      const dataFolga = new Date(folga.data);
+      const dataFolga = folga.data;
       return dataFolga >= inicioMes && dataFolga <= fimMes;
     });
 
     const proximasFolgas = folgas.filter(folga => {
-      const dataFolga = new Date(folga.data);
+      const dataFolga = folga.data;
       return dataFolga >= hoje && dataFolga <= em7Dias;
     });
 

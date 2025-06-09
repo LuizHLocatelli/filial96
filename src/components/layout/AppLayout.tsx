@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { EnhancedTopBar } from "./EnhancedTopBar";
 import { NavigationTabs } from "./NavigationTabs";
@@ -27,14 +26,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           isMobile ? 'pb-36' : 'pb-32'
         )}
       >
-        <div className={cn(
-          "container mx-auto max-w-[1600px]",
-          isMobile 
-            ? 'px-2 py-3' 
-            : 'px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 md:py-6'
-        )}>
-          {children}
-        </div>
+        {children}
       </motion.main>
       
       <NavigationTabs />

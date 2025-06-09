@@ -1,10 +1,12 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, User, CreditCard, ShoppingBag, Package, Hash } from "lucide-react";
+import { Clock, User, CreditCard, ShoppingBag, Package, Hash, Crown, Eye, Trash2, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { ModaReserva } from "../types";
 import { ReservaCountdown } from "./ReservaCountdown";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface ReservaCardProps {
   reserva: ModaReserva;
@@ -12,138 +14,228 @@ interface ReservaCardProps {
   onDelete: (id: string) => void;
 }
 
-const statusColors = {
-  ativa: "bg-green-500/20 text-green-700 border-green-200",
-  expirada: "bg-red-500/20 text-red-700 border-red-200", 
-  convertida: "bg-blue-500/20 text-blue-700 border-blue-200",
-  cancelada: "bg-gray-500/20 text-gray-700 border-gray-200"
+const statusConfig = {
+  ativa: {
+    color: "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 dark:from-green-900/70 dark:to-green-800/70 dark:border-green-600/50",
+    badge: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/80 dark:text-green-200 dark:border-green-600",
+    icon: Clock,
+    label: "Ativa"
+  },
+  expirada: {
+    color: "bg-gradient-to-br from-red-50 to-rose-50 border-red-200 dark:from-red-900/70 dark:to-red-800/70 dark:border-red-500/50",
+    badge: "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/80 dark:text-red-200 dark:border-red-600",
+    icon: XCircle,
+    label: "Expirada"
+  },
+  convertida: {
+    color: "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 dark:from-green-900/70 dark:to-green-800/70 dark:border-green-600/50",
+    badge: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/80 dark:text-green-200 dark:border-green-600",
+    icon: CheckCircle,
+    label: "Convertida"
+  },
+  cancelada: {
+    color: "bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200 dark:from-slate-900/70 dark:to-slate-800/70 dark:border-slate-600/50",
+    badge: "bg-gray-100 text-gray-800 border-gray-300 dark:bg-slate-900/80 dark:text-slate-300 dark:border-slate-600",
+    icon: XCircle,
+    label: "Cancelada"
+  }
 };
 
-const statusLabels = {
-  ativa: "Ativa",
-  expirada: "Expirada",
-  convertida: "Convertida",
-  cancelada: "Cancelada"
-};
-
-const pagamentoLabels = {
-  crediario: "Crediário",
-  cartao_credito: "Cartão de Crédito",
-  cartao_debito: "Cartão de Débito",
-  pix: "PIX"
+const pagamentoConfig = {
+  crediario: { icon: "💳", label: "Crediário", color: "text-purple-600" },
+  cartao_credito: { icon: "💳", label: "Cartão de Crédito", color: "text-blue-600" },
+  cartao_debito: { icon: "💳", label: "Cartão de Débito", color: "text-green-600" },
+  pix: { icon: "⚡", label: "PIX", color: "text-orange-600" }
 };
 
 export function ReservaCard({ reserva, onUpdateStatus, onDelete }: ReservaCardProps) {
   const totalQuantidade = reserva.produtos.reduce((sum, produto) => sum + produto.quantidade, 0);
+  const status = statusConfig[reserva.status];
+  const StatusIcon = status.icon;
+  const pagamento = pagamentoConfig[reserva.forma_pagamento];
 
   return (
-    <Card className="w-full shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
+    <Card className={cn(
+      "group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
+      "border-0 shadow-lg backdrop-blur-sm",
+      status.color
+    )}>
+      {/* Overlay decorativo */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent dark:from-black/20 pointer-events-none" />
+      
+      {/* Header moderno */}
+      <CardHeader className="relative pb-4">
         <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <CardTitle className="text-lg">
-              {reserva.produtos.length === 1 
-                ? reserva.produtos[0].nome 
-                : `${reserva.produtos.length} produtos`
-              }
-            </CardTitle>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Package className="h-4 w-4" />
-              <span>{totalQuantidade} {totalQuantidade === 1 ? 'item' : 'itens'}</span>
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-bold leading-tight line-clamp-2">
+                  {reserva.produtos.length === 1 
+                    ? reserva.produtos[0].nome 
+                    : `${reserva.produtos.length} produtos selecionados`
+                  }
+                </CardTitle>
+                {reserva.cliente_vip && (
+                  <Badge className="mt-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-md">
+                    <Crown className="h-3 w-3 mr-1" />
+                    Cliente VIP
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            {/* Informações rápidas */}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Package className="h-4 w-4" />
+                <span className="font-medium">{totalQuantidade} {totalQuantidade === 1 ? 'item' : 'itens'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>{format(new Date(reserva.created_at), "dd/MM", { locale: ptBR })}</span>
+              </div>
             </div>
           </div>
-          <Badge className={statusColors[reserva.status]}>
-            {statusLabels[reserva.status]}
-          </Badge>
+          
+          {/* Status Badge */}
+          <div className="flex flex-col items-end gap-2">
+            <Badge className={cn("border shadow-sm", status.badge)}>
+              <StatusIcon className="h-3 w-3 mr-1" />
+              {status.label}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* Lista de Produtos */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Produtos:</h4>
-          <div className="space-y-2">
+      <CardContent className="relative space-y-6">
+        {/* Produtos - Design compacto e elegante */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Produtos
+          </h4>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
             {reserva.produtos.map((produto, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
-                <div className="flex-1">
-                  <div className="font-medium">{produto.nome}</div>
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                    <Hash className="h-3 w-3" />
-                    <span>{produto.codigo}</span>
-                    {produto.tamanho && (
-                      <>
-                        <span>•</span>
-                        <span>Tam: {produto.tamanho}</span>
-                      </>
-                    )}
+              <div key={index} className="group/produto p-3 bg-white/60 dark:bg-gradient-to-r dark:from-green-900/60 dark:to-green-800/50 rounded-xl border border-white/20 dark:border-green-600/30 backdrop-blur-sm hover:bg-white/80 dark:hover:from-green-800/70 dark:hover:to-green-700/60 transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate">{produto.nome}</div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                      <Hash className="h-3 w-3" />
+                      <span className="font-mono">{produto.codigo}</span>
+                      {produto.tamanho && (
+                        <>
+                          <span>•</span>
+                          <span>Tam: {produto.tamanho}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">Qtd: {produto.quantidade}</div>
+                  <div className="ml-3 text-right">
+                    <div className="text-sm font-bold text-primary">
+                      {produto.quantidade}x
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Informações do Cliente */}
-        <div className="flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{reserva.cliente_nome}</span>
-          <span className="text-muted-foreground">• {reserva.cliente_cpf}</span>
+        {/* Cliente e Pagamento */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Cliente */}
+          <div className="flex items-center gap-3 p-3 bg-white/60 dark:bg-gradient-to-r dark:from-green-900/60 dark:to-green-800/50 rounded-xl border border-white/20 dark:border-green-600/30 backdrop-blur-sm">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm truncate">{reserva.cliente_nome}</div>
+              <div className="text-xs text-muted-foreground font-mono">{reserva.cliente_cpf}</div>
+            </div>
+          </div>
+
+          {/* Pagamento */}
+          <div className="flex items-center gap-3 p-3 bg-white/60 dark:bg-gradient-to-r dark:from-green-900/60 dark:to-green-800/50 rounded-xl border border-white/20 dark:border-green-600/30 backdrop-blur-sm">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-sm">
+                {pagamento.icon}
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className={cn("font-medium text-sm", pagamento.color)}>
+                {pagamento.label}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Forma de Pagamento */}
-        <div className="flex items-center gap-2 text-sm">
-          <CreditCard className="h-4 w-4 text-muted-foreground" />
-          <span>{pagamentoLabels[reserva.forma_pagamento]}</span>
-        </div>
-
-        {/* Countdown */}
+        {/* Countdown - apenas para reservas ativas */}
         {reserva.status === 'ativa' && (
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <ReservaCountdown dataExpiracao={reserva.data_expiracao} status={reserva.status} />
+          <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/70 dark:to-red-900/70 rounded-xl border border-orange-200 dark:border-orange-400/50">
+            <ReservaCountdown 
+              dataExpiracao={reserva.data_expiracao} 
+              status={reserva.status}
+              clienteVip={reserva.cliente_vip}
+            />
           </div>
         )}
 
         {/* Observações */}
         {reserva.observacoes && (
-          <div className="text-sm text-muted-foreground p-2 bg-muted/30 rounded">
-            <span className="font-medium">Obs:</span> {reserva.observacoes}
+          <div className="p-3 bg-white/60 dark:bg-gradient-to-r dark:from-green-900/60 dark:to-green-800/50 rounded-xl border border-white/20 dark:border-green-600/30 backdrop-blur-sm">
+            <div className="text-sm">
+              <span className="font-semibold text-muted-foreground">Observações:</span>
+              <p className="mt-1 text-muted-foreground">{reserva.observacoes}</p>
+            </div>
           </div>
         )}
 
-        {/* Actions */}
-        {reserva.status === 'ativa' && (
-          <div className="flex gap-2 pt-2">
-            <Button
-              size="sm"
-              onClick={() => onUpdateStatus(reserva.id, 'convertida')}
-              className="flex-1"
-            >
-              Converter em Venda
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onUpdateStatus(reserva.id, 'cancelada')}
-            >
-              Cancelar
-            </Button>
-          </div>
-        )}
+        {/* Actions modernas */}
+        <div className="pt-2 space-y-3">
+          {reserva.status === 'ativa' && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => onUpdateStatus(reserva.id, 'convertida')}
+                className="flex-1 h-11 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-md transition-all duration-200"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Converter em Venda
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onUpdateStatus(reserva.id, 'cancelada')}
+                className="h-11 px-4 border-2 hover:bg-red-50 hover:border-red-300 hover:text-red-700 transition-all duration-200"
+              >
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
-        {(reserva.status === 'cancelada' || reserva.status === 'expirada') && (
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => onDelete(reserva.id)}
-            className="w-full"
-          >
-            Remover Reserva
-          </Button>
-        )}
+          {(reserva.status === 'cancelada' || reserva.status === 'expirada') && (
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => onDelete(reserva.id)}
+              className="w-full h-11 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 border-0 shadow-md transition-all duration-200"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remover Reserva
+            </Button>
+          )}
+
+          {reserva.status === 'convertida' && (
+            <div className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/70 dark:to-green-800/70 rounded-xl border border-green-200 dark:border-green-600/50">
+              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-300" />
+              <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                Reserva convertida em venda
+              </span>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
