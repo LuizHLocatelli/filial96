@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -14,7 +15,7 @@ export function useGenericProdutoFocoData(tableName: string, imageTableName: str
       
       // Buscar produtos
       const { data: produtosData, error: produtosError } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -25,7 +26,7 @@ export function useGenericProdutoFocoData(tableName: string, imageTableName: str
       
       for (const produto of produtosData || []) {
         const { data: imagensData, error: imagensError } = await supabase
-          .from(imageTableName)
+          .from(imageTableName as any)
           .select('*')
           .eq('produto_foco_id', produto.id)
           .order('ordem', { ascending: true });
@@ -68,4 +69,4 @@ export function useGenericProdutoFocoData(tableName: string, imageTableName: str
     fetchProdutos,
     refetch: fetchProdutos
   };
-} 
+}

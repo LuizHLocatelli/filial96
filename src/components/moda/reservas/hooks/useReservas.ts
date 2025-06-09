@@ -23,7 +23,15 @@ export function useReservas() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReservas(data || []);
+      
+      // Type assertion para garantir que os tipos estão corretos
+      const typedReservas = (data || []).map(reserva => ({
+        ...reserva,
+        forma_pagamento: reserva.forma_pagamento as ModaReserva['forma_pagamento'],
+        status: reserva.status as ModaReserva['status']
+      }));
+      
+      setReservas(typedReservas);
     } catch (err: any) {
       console.error('Erro ao carregar reservas:', err);
       setError(err.message);
@@ -43,11 +51,11 @@ export function useReservas() {
     try {
       const { error } = await supabase
         .from('moda_reservas')
-        .insert([{
+        .insert({
           ...formData,
           consultora_id: user.id,
           created_by: user.id
-        }]);
+        });
 
       if (error) throw error;
 

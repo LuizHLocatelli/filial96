@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
@@ -11,7 +12,7 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
 
     try {
       const { data, error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .insert({
           ...dadosProduto,
           created_by: user.id
@@ -34,7 +35,7 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
   const updateProduto = async (id: string, dadosProduto: Partial<ProdutoFoco>) => {
     try {
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .update(dadosProduto)
         .eq('id', id);
 
@@ -51,7 +52,7 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
   const deleteProduto = async (id: string) => {
     try {
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .delete()
         .eq('id', id);
 
@@ -70,4 +71,4 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
     updateProduto,
     deleteProduto
   };
-} 
+}
