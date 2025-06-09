@@ -53,7 +53,13 @@ export function AddReservaDialog() {
     
     if (success) {
       setOpen(false);
-      form.reset();
+      form.reset({
+        produtos: [{ nome: '', codigo: '', tamanho: '', quantidade: 1 }],
+        cliente_nome: '',
+        cliente_cpf: '',
+        forma_pagamento: 'crediario',
+        observacoes: ''
+      });
     }
     
     setIsSubmitting(false);

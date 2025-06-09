@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { ModaReserva, ReservaFormData } from '../types';
 
 export function useReservas() {
@@ -67,17 +66,31 @@ export function useReservas() {
     if (!user) return false;
 
     try {
+      // For backwards compatibility, also include old fields from first product
+      const firstProduct = formData.produtos[0];
+      
+      const insertData = {
+        // New format
+        produtos: formData.produtos,
+        
+        // Old format fields for backwards compatibility
+        produto_nome: firstProduct?.nome || '',
+        produto_codigo: firstProduct?.codigo || '',
+        tamanho: firstProduct?.tamanho || '',
+        quantidade: firstProduct?.quantidade || 1,
+        
+        // Other fields
+        cliente_nome: formData.cliente_nome,
+        cliente_cpf: formData.cliente_cpf,
+        forma_pagamento: formData.forma_pagamento,
+        observacoes: formData.observacoes,
+        consultora_id: user.id,
+        created_by: user.id
+      };
+
       const { error } = await supabase
-        .from('moda_reservas' as any)
-        .insert({
-          produtos: formData.produtos,
-          cliente_nome: formData.cliente_nome,
-          cliente_cpf: formData.cliente_cpf,
-          forma_pagamento: formData.forma_pagamento,
-          observacoes: formData.observacoes,
-          consultora_id: user.id,
-          created_by: user.id
-        });
+        .from('moda_reservas')
+        .insert(insertData);
 
       if (error) throw error;
 

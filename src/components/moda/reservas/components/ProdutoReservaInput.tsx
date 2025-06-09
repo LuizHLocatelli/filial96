@@ -143,8 +143,13 @@ export function ProdutoReservaInput({
                       <Input
                         type="number"
                         min="1"
-                        value={field.value}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        placeholder="1"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? "" : parseInt(value) || 1);
+                        }}
                         className="h-9"
                       />
                     </FormControl>
