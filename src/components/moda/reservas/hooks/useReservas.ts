@@ -85,7 +85,10 @@ export function useReservas() {
         forma_pagamento: formData.forma_pagamento,
         observacoes: formData.observacoes,
         consultora_id: user.id,
-        created_by: user.id
+        created_by: user.id,
+        
+        // Required fields - let the database handle data_expiracao via trigger
+        data_reserva: new Date().toISOString()
       };
 
       const { error } = await supabase

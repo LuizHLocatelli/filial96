@@ -22,15 +22,15 @@ export function useProdutoFoco() {
       return produto;
     }
     
-    // Type guard to ensure produto has id property
+    // Type guard to ensure produto has id property - using non-null assertion after checks
     if (typeof produto !== 'object' || !('id' in produto) || !produto.id) {
       return produto;
     }
     
-    // At this point, we know produto is valid and has an id
-    const validProduto = produto as ProdutoFoco;
+    // At this point, we know produto is valid and has an id - explicit type assertion
+    const validProduto = produto as ProdutoFoco & { id: string };
     
-    if (imagens && imagens.length > 0 && validProduto.id) {
+    if (imagens && imagens.length > 0) {
       await uploadMultipleImages(String(validProduto.id), imagens);
     }
     
