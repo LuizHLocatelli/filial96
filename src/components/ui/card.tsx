@@ -2,19 +2,33 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { motion } from "framer-motion"
 
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & {
+    glassmorphism?: boolean;
+    variant?: "default" | "glass" | "gradient";
+  }
+>(({ className, glassmorphism = true, variant = "glass", ...props }, ref) => {
   const isMobile = useIsMobile();
   
+  const variantClasses = {
+    default: "bg-card border",
+    glass: "glass-card glass-hover",
+    gradient: "glass-card glass-primary glass-hover"
+  };
+  
   return (
-    <div
+    <motion.div
       ref={ref}
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
-        "rounded-lg border bg-card text-card-foreground shadow-soft hover-lift transition-all duration-200",
-        isMobile && "rounded-xl",
+        "rounded-xl text-card-foreground shadow-lg transition-all duration-300",
+        glassmorphism ? variantClasses[variant] : variantClasses.default,
+        isMobile && "rounded-2xl",
         className
       )}
       {...props}
@@ -33,7 +47,7 @@ const CardHeader = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex flex-col",
+        "flex flex-col relative z-10",
         isMobile ? "space-y-1 p-4" : "space-y-1.5 p-6",
         className
       )}
@@ -53,7 +67,7 @@ const CardTitle = React.forwardRef<
     <h3
       ref={ref}
       className={cn(
-        "font-semibold leading-none tracking-tight",
+        "font-semibold leading-none tracking-tight gradient-text",
         isMobile ? "text-lg" : "text-2xl",
         className
       )}
@@ -73,7 +87,7 @@ const CardDescription = React.forwardRef<
     <p
       ref={ref}
       className={cn(
-        "text-muted-foreground",
+        "text-muted-foreground/80",
         isMobile ? "text-xs" : "text-sm",
         className
       )}
@@ -93,6 +107,7 @@ const CardContent = React.forwardRef<
     <div 
       ref={ref} 
       className={cn(
+        "relative z-10",
         isMobile ? "p-4 pt-0" : "p-6 pt-0", 
         className
       )} 
@@ -112,7 +127,7 @@ const CardFooter = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex items-center",
+        "flex items-center relative z-10",
         isMobile ? "p-4 pt-0" : "p-6 pt-0",
         className
       )}
@@ -122,19 +137,29 @@ const CardFooter = React.forwardRef<
 })
 CardFooter.displayName = "CardFooter"
 
-// New enhanced card variants
+// Enhanced Glass Card variants
 const GlassCard = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & {
+    variant?: "light" | "medium" | "strong";
+    gradient?: "primary" | "secondary" | "accent";
+  }
+>(({ className, variant = "light", gradient, ...props }, ref) => {
   const isMobile = useIsMobile();
   
+  const gradientClass = gradient ? `glass-${gradient}` : "";
+  
   return (
-    <div
+    <motion.div
       ref={ref}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       className={cn(
-        "glass-card rounded-lg text-card-foreground hover-lift transition-all duration-200",
-        isMobile && "rounded-xl",
+        `glass-card-${variant}`,
+        "rounded-2xl text-card-foreground glass-hover relative overflow-hidden",
+        gradientClass,
+        isMobile && "rounded-3xl",
         className
       )}
       {...props}
@@ -143,24 +168,4 @@ const GlassCard = React.forwardRef<
 })
 GlassCard.displayName = "GlassCard"
 
-const GradientCard = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  const isMobile = useIsMobile();
-  
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        "bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-lg text-card-foreground shadow-medium hover-lift transition-all duration-200",
-        isMobile && "rounded-xl",
-        className
-      )}
-      {...props}
-    />
-  );
-})
-GradientCard.displayName = "GradientCard"
-
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, GlassCard, GradientCard }
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, GlassCard }

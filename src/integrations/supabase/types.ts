@@ -1017,6 +1017,7 @@ export type Database = {
         Row: {
           cliente_cpf: string
           cliente_nome: string
+          cliente_vip: boolean
           consultora_id: string
           created_at: string | null
           created_by: string
@@ -1025,17 +1026,15 @@ export type Database = {
           forma_pagamento: string
           id: string
           observacoes: string | null
-          produto_codigo: string
-          produto_nome: string
-          quantidade: number
+          produtos: Json
           status: string
-          tamanho: string | null
           updated_at: string | null
           venda_id: string | null
         }
         Insert: {
           cliente_cpf: string
           cliente_nome: string
+          cliente_vip?: boolean
           consultora_id: string
           created_at?: string | null
           created_by: string
@@ -1044,17 +1043,15 @@ export type Database = {
           forma_pagamento: string
           id?: string
           observacoes?: string | null
-          produto_codigo: string
-          produto_nome: string
-          quantidade: number
+          produtos: Json
           status?: string
-          tamanho?: string | null
           updated_at?: string | null
           venda_id?: string | null
         }
         Update: {
           cliente_cpf?: string
           cliente_nome?: string
+          cliente_vip?: boolean
           consultora_id?: string
           created_at?: string | null
           created_by?: string
@@ -1063,11 +1060,8 @@ export type Database = {
           forma_pagamento?: string
           id?: string
           observacoes?: string | null
-          produto_codigo?: string
-          produto_nome?: string
-          quantidade?: number
+          produtos?: Json
           status?: string
-          tamanho?: string | null
           updated_at?: string | null
           venda_id?: string | null
         }
