@@ -61,8 +61,7 @@ export function OrientacaoTarefas({ defaultRotina, onViewRotina }: OrientacaoTar
         .from("moveis_tarefas")
         .select(`
           *,
-          orientacao:moveis_orientacoes(titulo),
-          rotina:moveis_rotinas(nome)
+          orientacao:moveis_orientacoes(titulo)
         `)
         .order("data_entrega", { ascending: true });
 

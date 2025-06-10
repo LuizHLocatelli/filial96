@@ -233,28 +233,11 @@ export function Rotinas() {
         </AnimatePresence>
       </Tabs>
 
-      {/* Floating Action Button para mobile */}
-      {isMobile && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3, type: "spring", stiffness: 400, damping: 10 }}
-          className="fixed bottom-6 right-6 z-50"
-        >
-          <Button
-            onClick={() => setShowAddDialog(true)}
-            size="lg"
-            className="h-14 w-14 rounded-full shadow-lg bg-green-600 hover:bg-green-700 text-white border-0"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </motion.div>
-      )}
-
+      {/* Dialog para adicionar nova rotina */}
       <AddRotinaDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-        onSubmit={handleCreateRotina}
+        isOpen={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        onSave={handleCreateRotina}
       />
 
       <PDFExportDialog
