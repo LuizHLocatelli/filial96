@@ -8,7 +8,7 @@ import { ProdutoFoco } from '@/types/produto-foco';
 export function useProdutoFoco() {
   const { produtos, produtoAtivo, isLoading, fetchProdutos, refetch } = useProdutoFocoData();
   const { createProduto, updateProduto, deleteProduto } = useProdutoFocoCRUD();
-  const { uploadImagem, deleteImagem, uploadMultipleImages } = useProdutoFocoImages(refetch);
+  const { uploadImagem, deleteImagem, uploadMultipleImages } = useProdutoFocoImages();
   const { registrarVenda, getVendasPorProduto } = useProdutoFocoSales();
 
   const createProdutoWithImages = async (
@@ -21,6 +21,7 @@ export function useProdutoFoco() {
       if (imagens && imagens.length > 0) {
         await uploadMultipleImages(produto.id, imagens);
       }
+      await refetch();
     }
     
     return produto;

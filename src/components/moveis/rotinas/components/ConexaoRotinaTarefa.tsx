@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import {
   ArrowRight
 } from "lucide-react";
 import { RotinaWithStatus } from "../types";
-import { TarefaExpandida } from "../../orientacoes/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,13 +23,26 @@ interface ConexaoRotinaTarefaProps {
   onViewTarefa?: (tarefaId: string) => void;
 }
 
+interface TarefaRelacionada {
+  id: string;
+  titulo: string;
+  descricao: string;
+  status: string;
+  data_entrega: string;
+  criado_por: string;
+  data_criacao: string;
+  data_atualizacao: string;
+  orientacao_id: string | null;
+  moveis_orientacoes: { titulo: string } | null;
+}
+
 export function ConexaoRotinaTarefa({ 
   rotina, 
   onCreateTarefa,
   onViewTarefa 
 }: ConexaoRotinaTarefaProps) {
   const { toast } = useToast();
-  const [tarefasRelacionadas, setTarefasRelacionadas] = useState<TarefaExpandida[]>([]);
+  const [tarefasRelacionadas, setTarefasRelacionadas] = useState<TarefaRelacionada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingTarefa, setIsCreatingTarefa] = useState(false);
 
@@ -41,27 +54,26 @@ export function ConexaoRotinaTarefa({
     try {
       setIsLoading(true);
       
-      // Buscar tarefas relacionadas à rotina
+      // Query tarefas without rotina_id since the table doesn't have this column
       const { data: tarefas, error } = await supabase
         .from('moveis_tarefas')
         .select(`
-          *,
+          id,
+          titulo,
+          descricao,
+          status,
+          data_entrega,
+          criado_por,
+          data_criacao,
+          data_atualizacao,
+          orientacao_id,
           moveis_orientacoes (titulo)
         `)
-        .eq('rotina_id', rotina.id)
         .order('data_entrega', { ascending: true });
 
       if (error) throw error;
 
-      // Transform data to match TarefaExpandida structure
-      const transformedTarefas: TarefaExpandida[] = (tarefas || []).map(tarefa => ({
-        ...tarefa,
-        rotina_id: tarefa.rotina_id || rotina.id,
-        origem: 'rotina' as const,
-        prioridade: 'media' as const
-      }));
-
-      setTarefasRelacionadas(transformedTarefas);
+      setTarefasRelacionadas(tarefas || []);
     } catch (error) {
       console.error('Erro ao carregar tarefas relacionadas:', error);
       toast({
@@ -75,29 +87,17 @@ export function ConexaoRotinaTarefa({
   };
 
   const criarTarefaAutomatica = async () => {
-    if (!rotina.template_tarefa) {
-      toast({
-        title: "Erro",
-        description: "Esta rotina não tem um template de tarefa configurado",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       setIsCreatingTarefa(true);
       
       const dataEntrega = new Date();
-      dataEntrega.setDate(dataEntrega.getDate() + (rotina.template_tarefa.prazo_dias || 3));
+      dataEntrega.setDate(dataEntrega.getDate() + 3);
 
       const novaTarefa = {
-        titulo: rotina.template_tarefa.titulo || `Tarefa: ${rotina.nome}`,
-        descricao: rotina.template_tarefa.descricao || `Tarefa gerada automaticamente pela rotina: ${rotina.nome}`,
+        titulo: `Tarefa: ${rotina.nome}`,
+        descricao: `Tarefa gerada automaticamente pela rotina: ${rotina.nome}`,
         data_entrega: dataEntrega.toISOString(),
         status: 'pendente',
-        rotina_id: rotina.id,
-        origem: 'rotina',
-        prioridade: 'media',
         criado_por: rotina.created_by
       };
 
@@ -135,7 +135,7 @@ export function ConexaoRotinaTarefa({
     }
   };
 
-  const getPrioridadeColor = (prioridade: string) => {
+  const getPrioridadeColor = (prioridade?: string) => {
     switch (prioridade) {
       case 'urgente': return 'bg-red-500';
       case 'alta': return 'bg-orange-500';
@@ -186,17 +186,15 @@ export function ConexaoRotinaTarefa({
 
         {/* Ações */}
         <div className="flex gap-2">
-          {rotina.gera_tarefa_automatica && rotina.template_tarefa && (
-            <Button
-              size="sm"
-              onClick={criarTarefaAutomatica}
-              disabled={isCreatingTarefa}
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              {isCreatingTarefa ? 'Criando...' : 'Gerar Tarefa'}
-            </Button>
-          )}
+          <Button
+            size="sm"
+            onClick={criarTarefaAutomatica}
+            disabled={isCreatingTarefa}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {isCreatingTarefa ? 'Criando...' : 'Gerar Tarefa'}
+          </Button>
           
           <Button
             size="sm"
@@ -222,7 +220,7 @@ export function ConexaoRotinaTarefa({
               Tarefas Relacionadas
             </h4>
             
-            {tarefasRelacionadas.map((tarefa, index) => (
+            {tarefasRelacionadas.map((tarefa) => (
               <div
                 key={tarefa.id}
                 className="p-3 border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
@@ -232,12 +230,12 @@ export function ConexaoRotinaTarefa({
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <h5 className="text-sm font-medium">{tarefa.titulo}</h5>
-                      <div className={`w-2 h-2 rounded-full ${getPrioridadeColor(tarefa.prioridade)}`} />
+                      <div className={`w-2 h-2 rounded-full ${getPrioridadeColor('media')}`} />
                     </div>
                     
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Badge variant="outline" className="text-xs">
-                        {tarefa.origem}
+                        rotina
                       </Badge>
                       <span>Entrega: {new Date(tarefa.data_entrega).toLocaleDateString()}</span>
                     </div>
