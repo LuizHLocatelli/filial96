@@ -1,14 +1,15 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth';
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
 import { ProdutoFoco } from '@/types/produto-foco';
 
-export function useGenericProdutoFocoCRUD<T extends { id: string }>(
+export function useGenericProdutoFocoCRUD(
   tableName: 'moveis_produto_foco' | 'moda_produto_foco'
 ) {
-  const [items, setItems] = useState<T[]>([]);
+  const [items, setItems] = useState<ProdutoFoco[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -23,7 +24,7 @@ export function useGenericProdutoFocoCRUD<T extends { id: string }>(
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setItems(data as T[]);
+      setItems(data as ProdutoFoco[]);
     } catch (err: any) {
       console.error(`Erro ao carregar ${tableName}:`, err);
       setError(err.message);
@@ -52,12 +53,12 @@ export function useGenericProdutoFocoCRUD<T extends { id: string }>(
 
       if (error) throw error;
 
-      toast.success('Produto foco criado com sucesso!');
+      sonnerToast.success('Produto foco criado com sucesso!');
       await fetchItems();
       return data;
     } catch (error) {
       console.error('Erro ao criar produto foco:', error);
-      toast.error('Erro ao criar produto foco');
+      sonnerToast.error('Erro ao criar produto foco');
       return null;
     }
   };
@@ -65,34 +66,34 @@ export function useGenericProdutoFocoCRUD<T extends { id: string }>(
   const updateProduto = async (id: string, dadosProduto: Partial<ProdutoFoco>) => {
     try {
       const { error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .update(dadosProduto)
         .eq('id', id);
 
       if (error) throw error;
 
-      toast.success('Produto foco atualizado com sucesso!');
+      sonnerToast.success('Produto foco atualizado com sucesso!');
       await fetchItems();
     } catch (error) {
       console.error('Erro ao atualizar produto foco:', error);
-      toast.error('Erro ao atualizar produto foco');
+      sonnerToast.error('Erro ao atualizar produto foco');
     }
   };
 
   const deleteProduto = async (id: string) => {
     try {
       const { error } = await supabase
-        .from(tableName as any)
+        .from(tableName)
         .delete()
         .eq('id', id);
 
       if (error) throw error;
 
-      toast.success('Produto foco excluído com sucesso!');
+      sonnerToast.success('Produto foco excluído com sucesso!');
       await fetchItems();
     } catch (error) {
       console.error('Erro ao excluir produto foco:', error);
-      toast.error('Erro ao excluir produto foco');
+      sonnerToast.error('Erro ao excluir produto foco');
     }
   };
 

@@ -30,7 +30,7 @@ export function ConexaoRotinaTarefa({
   onViewTarefa 
 }: ConexaoRotinaTarefaProps) {
   const { toast } = useToast();
-  const [tarefasRelacionadas, setTarefasRelacionadas] = useState<TarefaExpandida[]>([]);
+  const [tarefasRelacionadas, setTarefasRelacionadas] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingTarefa, setIsCreatingTarefa] = useState(false);
 
@@ -54,7 +54,15 @@ export function ConexaoRotinaTarefa({
 
       if (error) throw error;
 
-      setTarefasRelacionadas(tarefas || []);
+      // Transform data to match expected structure
+      const transformedTarefas = (tarefas || []).map(tarefa => ({
+        ...tarefa,
+        rotina_id: tarefa.rotina_id || rotina.id,
+        origem: 'rotina' as const,
+        prioridade: 'media' as const
+      }));
+
+      setTarefasRelacionadas(transformedTarefas);
     } catch (error) {
       console.error('Erro ao carregar tarefas relacionadas:', error);
       toast({
@@ -281,4 +289,4 @@ export function ConexaoRotinaTarefa({
       </CardContent>
     </Card>
   );
-} 
+}

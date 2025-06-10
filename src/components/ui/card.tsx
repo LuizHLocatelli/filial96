@@ -2,7 +2,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { motion } from "framer-motion"
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -20,11 +19,8 @@ const Card = React.forwardRef<
   };
   
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, y: 10, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
         "rounded-xl text-card-foreground shadow-lg transition-all duration-300",
         glassmorphism ? variantClasses[variant] : variantClasses.default,
@@ -34,7 +30,7 @@ const Card = React.forwardRef<
       {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 })
 Card.displayName = "Card"
@@ -152,11 +148,8 @@ const GlassCard = React.forwardRef<
   const gradientClass = gradient ? `glass-${gradient}` : "";
   
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
       className={cn(
         `glass-card-${variant}`,
         "rounded-2xl text-card-foreground glass-hover relative overflow-hidden",
@@ -167,7 +160,7 @@ const GlassCard = React.forwardRef<
       {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 })
 GlassCard.displayName = "GlassCard"
