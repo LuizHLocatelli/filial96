@@ -7,9 +7,9 @@ import { ProdutoFoco } from '@/types/produto-foco';
 
 export function useProdutoFoco() {
   const { produtos, produtoAtivo, isLoading, fetchProdutos, refetch } = useProdutoFocoData();
-  const { createProduto, updateProduto, deleteProduto } = useProdutoFocoCRUD();
-  const { uploadImagem, deleteImagem, uploadMultipleImages } = useProdutoFocoImages();
-  const { registrarVenda, getVendasPorProduto } = useProdutoFocoSales();
+  const { createProduto, updateProduto, deleteProduto } = useProdutoFocoCRUD('moveis');
+  const { uploadImagem, deleteImagem, uploadMultipleImages } = useProdutoFocoImages('moveis');
+  const { registrarVenda, getVendasPorProduto } = useProdutoFocoSales('moveis');
 
   const createProdutoWithImages = async (
     dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>, 
