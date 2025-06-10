@@ -1,275 +1,351 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckSquare, Plus, Calendar, FileText, Upload } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-
-// Components from Rotinas
-import { RotinasList } from "@/components/moveis/rotinas/components/RotinasList";
-import { RotinasStats } from "@/components/moveis/rotinas/components/RotinasStats";
-import { AddRotinaDialog } from "@/components/moveis/rotinas/components/AddRotinaDialog";
-import { PDFExportDialog, PDFExportOptions } from "@/components/moveis/rotinas/components/PDFExportDialog";
-
-// Components from Orientacoes
-import { OrientacoesList } from "@/components/moveis/orientacoes/OrientacoesList";
-import { OrientacaoUploader } from "@/components/moveis/orientacoes/OrientacaoUploader"; // Using as a dialog content
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-// Components from Tarefas
-import { OrientacaoTarefas } from "@/components/moveis/orientacoes/OrientacaoTarefas";
-
-// Hooks
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Activity, CheckSquare, Calendar, Filter } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRotinas } from "@/components/moveis/rotinas/hooks/useRotinas";
-import { usePDFExport } from "@/components/moveis/rotinas/hooks/usePDFExport";
-import { useAuth } from '@/contexts/auth';
-import { supabase } from '@/integrations/supabase/client';
+import { cn } from "@/lib/utils";
 
 export function RotinasUnificadas() {
+  const [activeTab, setActiveTab] = useState("rotinas");
   const isMobile = useIsMobile();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedTab, setSelectedTab] = useState("rotinas");
-  const [showAddRotinaDialog, setShowAddRotinaDialog] = useState(false);
-  const [showAddOrientacaoDialog, setShowAddOrientacaoDialog] = useState(false);
-  const [showPDFDialog, setShowPDFDialog] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [refreshOrientacoes, setRefreshOrientacoes] = useState(0);
-  const [unreadCount, setUnreadCount] = useState(0);
 
-  const { user } = useAuth();
-  
-  const {
-    rotinas,
-    isLoading: isLoadingRotinas,
-    addRotina,
-    updateRotina,
-    deleteRotina,
-    duplicateRotina,
-    toggleConclusao,
-    refetch: refetchRotinas,
-    getCachedUserName
-  } = useRotinas();
-
-  const { exportToPDF } = usePDFExport();
-
-  useEffect(() => {
-    const action = searchParams.get('action');
-    if (action === 'new-rotina') {
-      setShowAddRotinaDialog(true);
-      clearActionParam();
-    } else if (action === 'new-orientacao') {
-      setShowAddOrientacaoDialog(true);
-      clearActionParam();
-    }
-  }, [searchParams, setSearchParams]);
-
-  const clearActionParam = () => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete('action');
-    setSearchParams(newParams);
-  };
-  
-  const handleTabChange = (value: string) => {
-    setSelectedTab(value);
-  };
-
-  const handleCreateRotina = async (data: any) => {
-    const success = await addRotina(data);
-    if (success) {
-      setShowAddRotinaDialog(false);
-    }
-    return success;
-  };
-
-  const handleUploadOrientacaoSuccess = () => {
-    setRefreshOrientacoes(prev => prev + 1);
-    setShowAddOrientacaoDialog(false);
-  };
-  
-  const handleExportPDF = async (options: PDFExportOptions) => {
-    setIsExporting(true);
-    await exportToPDF(rotinas, options);
-    setIsExporting(false);
-  };
-
-  // Fetch unread count for orientacoes
-  useEffect(() => {
-    if (!user) return;
-    const fetchUnreadCount = async () => {
-      try {
-        const { data: orientacoes, error: orientacoesError } = await supabase
-          .from('moveis_orientacoes')
-          .select('id');
-          
-        if (orientacoesError) throw orientacoesError;
-        if (!orientacoes || orientacoes.length === 0) {
-          setUnreadCount(0);
-          return;
-        }
-        
-        const orientacaoIds = orientacoes.map(o => o.id);
-        const { data: readStatus, error: readError } = await supabase
-          .from('notification_read_status')
-          .select('activity_id')
-          .eq('user_id', user.id)
-          .in('activity_id', orientacaoIds);
-          
-        if (readError) throw readError;
-        
-        const readIds = readStatus?.map(s => s.activity_id) || [];
-        const count = orientacaoIds.filter(id => !readIds.includes(id)).length;
-        setUnreadCount(count);
-      } catch (error) {
-        console.error("Erro ao buscar informativos não lidos:", error);
-      }
-    };
-    
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
-  }, [user, refreshOrientacoes]);
-
+  // Mock data - substituir pelos dados reais
   const stats = {
-    total: rotinas.length,
-    concluidas: rotinas.filter(r => r.status === 'concluida').length,
-    pendentes: rotinas.filter(r => r.status === 'pendente').length,
-    atrasadas: rotinas.filter(r => r.status === 'atrasada').length,
+    rotinas: { total: 1, concluidas: 0, pendentes: 1, atrasadas: 0 },
+    tarefas: { total: 1, concluidas: 0, pendentes: 1, atrasadas: 0 }
   };
-  
-  return (
-    <div className="w-full max-w-full relative">
-      <Tabs 
-        value={selectedTab} 
-        onValueChange={handleTabChange} 
-        className="space-y-4 sm:space-y-6 w-full"
-      >
-        <div className="bg-card rounded-xl p-4 sm:p-6 shadow-sm border border-border/40">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-1">
-              <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Central de Atividades</h2>
-              <p className="text-sm text-muted-foreground">
-                Gerencie rotinas, tarefas, VM e informativos em um só lugar.
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAddOrientacaoDialog(true)}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Novo VM ou Informativo
-              </Button>
-              <Button
-                onClick={() => setShowAddRotinaDialog(true)}
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Rotina
-              </Button>
-            </div>
+
+  const rotinas = [
+    {
+      id: "1",
+      titulo: "Organização do VM",
+      descricao: "Organização Mensal",
+      status: "pendente",
+      frequencia: "mensal",
+      prioridade: "alta",
+      responsavel: "Luiz Henrique Locatelli",
+      dataLimite: "2025-06-11"
+    }
+  ];
+
+  const tarefas = [
+    {
+      id: "1",
+      titulo: "teste rotina",
+      descricao: "Tarefa gerada automaticamente da rotina",
+      status: "pendente",
+      origem: "rotina",
+      responsavel: "Sistema",
+      dataLimite: "2025-06-11"
+    }
+  ];
+
+  const StatCard = ({ title, value, icon: Icon, color, bgColor }: any) => (
+    <Card className={cn(
+      "glass-card transition-all duration-200 hover:scale-105",
+      bgColor,
+      isMobile && "min-h-[80px]"
+    )}>
+      <CardContent className={cn("p-4", isMobile && "p-3")}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className={cn(
+              "text-muted-foreground font-medium",
+              isMobile ? "text-xs" : "text-sm"
+            )}>
+              {title}
+            </p>
+            <p className={cn(
+              "font-bold",
+              color,
+              isMobile ? "text-xl" : "text-2xl"
+            )}>
+              {value}
+            </p>
+          </div>
+          <Icon className={cn(
+            color,
+            isMobile ? "h-5 w-5" : "h-6 w-6"
+          )} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const ActivityCard = ({ item, type }: { item: any; type: 'rotina' | 'tarefa' }) => (
+    <Card className="glass-card glass-hover">
+      <CardHeader className={cn("pb-3", isMobile && "p-4 pb-2")}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <CardTitle className={cn(
+              "text-foreground line-clamp-2",
+              isMobile ? "text-sm" : "text-base"
+            )}>
+              {item.titulo}
+            </CardTitle>
+            <p className={cn(
+              "text-muted-foreground mt-1 line-clamp-2",
+              isMobile ? "text-xs" : "text-sm"
+            )}>
+              {item.descricao}
+            </p>
+          </div>
+          <Badge 
+            variant="outline"
+            className={cn(
+              "ml-2 flex-shrink-0",
+              item.status === 'pendente' && "bg-yellow-50 text-yellow-700 border-yellow-200",
+              item.status === 'concluida' && "bg-green-50 text-green-700 border-green-200",
+              item.status === 'atrasada' && "bg-red-50 text-red-700 border-red-200",
+              isMobile ? "text-xs px-2 py-1" : "text-sm"
+            )}
+          >
+            {item.status}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent className={cn("pt-0", isMobile && "p-4 pt-0")}>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Calendar className="h-4 w-4 flex-shrink-0" />
+            <span className={cn("truncate", isMobile ? "text-xs" : "text-sm")}>
+              {item.dataLimite}
+            </span>
           </div>
           
-          <div className="mt-6">
-            <TabsList className="grid grid-cols-3 w-full bg-muted/50 p-1 rounded-lg h-12">
-              <TabsTrigger 
-                value="rotinas" 
-                className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600/90 data-[state=active]:to-green-600 data-[state=active]:text-white h-10"
-              >
-                <CheckSquare className="h-4 w-4" />
-                <span>Rotinas</span>
-                <Badge variant="secondary" className="ml-2">{stats.total}</Badge>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="tarefas" 
-                className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600/90 data-[state=active]:to-green-600 data-[state=active]:text-white h-10"
-              >
-                <Calendar className="h-4 w-4" />
-                <span>Tarefas</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="informativos" 
-                className="flex items-center gap-2 transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-white h-10 relative"
-              >
-                <FileText className="h-4 w-4" />
-                <span>VM e Informativos</span>
-                {unreadCount > 0 && (
-                  <Badge variant="destructive" className="ml-2 absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center">{unreadCount}</Badge>
-                )}
-              </TabsTrigger>
-            </TabsList>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Activity className="h-4 w-4 flex-shrink-0" />
+            <span className={cn("truncate", isMobile ? "text-xs" : "text-sm")}>
+              {item.responsavel}
+            </span>
           </div>
+
+          {type === 'rotina' && item.frequencia && (
+            <Badge variant="secondary" className={cn(
+              "bg-blue-50 text-blue-700 border-blue-200",
+              isMobile ? "text-xs" : "text-sm"
+            )}>
+              {item.frequencia}
+            </Badge>
+          )}
+
+          {type === 'tarefa' && item.origem && (
+            <Badge variant="secondary" className={cn(
+              "bg-purple-50 text-purple-700 border-purple-200",
+              isMobile ? "text-xs" : "text-sm"
+            )}>
+              {item.origem}
+            </Badge>
+          )}
+        </div>
+
+        <div className={cn(
+          "flex gap-2 mt-4",
+          isMobile && "flex-col"
+        )}>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className={cn(
+              "flex-1 text-xs",
+              isMobile && "w-full h-8"
+            )}
+          >
+            Visualizar
+          </Button>
+          <Button 
+            size="sm" 
+            className={cn(
+              "flex-1 text-xs",
+              isMobile && "w-full h-8"
+            )}
+          >
+            Atualizar Status
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Header com botões de ação */}
+      <div className={cn(
+        "flex items-center justify-between gap-3",
+        isMobile && "flex-col items-stretch"
+      )}>
+        <div>
+          <h2 className={cn(
+            "font-bold text-foreground",
+            isMobile ? "text-lg" : "text-xl"
+          )}>
+            Central de Atividades
+          </h2>
+          <p className={cn(
+            "text-muted-foreground",
+            isMobile ? "text-xs" : "text-sm"
+          )}>
+            Gerencie rotinas, tarefas, VM e informativos em um só lugar.
+          </p>
         </div>
         
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="w-full"
+        <div className={cn(
+          "flex gap-2",
+          isMobile && "w-full"
+        )}>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className={cn(
+              "gap-2",
+              isMobile && "flex-1 h-9"
+            )}
           >
-            <TabsContent value="rotinas" className="space-y-4 w-full m-0">
-              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
-                <div className="p-4 sm:p-6">
-                  <RotinasStats rotinas={rotinas} />
-                  <RotinasList 
-                    rotinas={rotinas}
-                    isLoading={isLoadingRotinas}
-                    onToggleConclusao={toggleConclusao}
-                    onEditRotina={updateRotina}
-                    onDeleteRotina={deleteRotina}
-                    onDuplicateRotina={duplicateRotina}
-                    getCachedUserName={getCachedUserName}
-                    onCreateTarefa={() => setSelectedTab("tarefas")}
-                    onViewTarefa={() => setSelectedTab("tarefas")}
-                  />
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="tarefas" className="space-y-4 w-full m-0">
-              <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
-                <OrientacaoTarefas />
-              </div>
-            </TabsContent>
+            <Plus className="h-4 w-4" />
+            Novo VM ou Informativo
+          </Button>
+          <Button 
+            size="sm"
+            className={cn(
+              "gap-2",
+              isMobile && "flex-1 h-9"
+            )}
+          >
+            <Plus className="h-4 w-4" />
+            Nova Rotina
+          </Button>
+        </div>
+      </div>
 
-            <TabsContent value="informativos" className="space-y-4 w-full m-0">
-                <div className="bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden">
-                    <OrientacoesList key={refreshOrientacoes} onNovaOrientacao={() => setShowAddOrientacaoDialog(true)} />
-                </div>
-            </TabsContent>
-          </motion.div>
-        </AnimatePresence>
+      {/* Tabs para alternar entre tipos */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className={cn(
+          "grid w-full grid-cols-2 mb-4",
+          isMobile && "h-10"
+        )}>
+          <TabsTrigger 
+            value="rotinas" 
+            className={cn(
+              "flex items-center gap-2",
+              isMobile ? "text-xs px-2" : "text-sm"
+            )}
+          >
+            <Activity className="h-4 w-4" />
+            Rotinas
+            <Badge variant="secondary" className="ml-1 text-xs">
+              {stats.rotinas.total}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="tarefas" 
+            className={cn(
+              "flex items-center gap-2",
+              isMobile ? "text-xs px-2" : "text-sm"
+            )}
+          >
+            <CheckSquare className="h-4 w-4" />
+            Tarefas VM e Informativos
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="rotinas" className="space-y-4">
+          {/* Estatísticas das Rotinas */}
+          <div className={cn(
+            "grid gap-3",
+            isMobile ? "grid-cols-2" : "grid-cols-4"
+          )}>
+            <StatCard
+              title="Total"
+              value={stats.rotinas.total}
+              icon={Activity}
+              color="text-blue-600"
+              bgColor="border-blue-200 bg-blue-50/50"
+            />
+            <StatCard
+              title="Concluídas"
+              value={stats.rotinas.concluidas}
+              icon={CheckSquare}
+              color="text-green-600"
+              bgColor="border-green-200 bg-green-50/50"
+            />
+            <StatCard
+              title="Pendentes"
+              value={stats.rotinas.pendentes}
+              icon={CheckSquare}
+              color="text-yellow-600"
+              bgColor="border-yellow-200 bg-yellow-50/50"
+            />
+            <StatCard
+              title="Atrasadas"
+              value={stats.rotinas.atrasadas}
+              icon={CheckSquare}
+              color="text-red-600"
+              bgColor="border-red-200 bg-red-50/50"
+            />
+          </div>
+
+          {/* Lista de Rotinas */}
+          <div className={cn(
+            "grid gap-4",
+            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+          )}>
+            {rotinas.map(rotina => (
+              <ActivityCard key={rotina.id} item={rotina} type="rotina" />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="tarefas" className="space-y-4">
+          {/* Estatísticas das Tarefas */}
+          <div className={cn(
+            "grid gap-3",
+            isMobile ? "grid-cols-2" : "grid-cols-4"
+          )}>
+            <StatCard
+              title="Total"
+              value={stats.tarefas.total}
+              icon={CheckSquare}
+              color="text-blue-600"
+              bgColor="border-blue-200 bg-blue-50/50"
+            />
+            <StatCard
+              title="Concluídas"
+              value={stats.tarefas.concluidas}
+              icon={CheckSquare}
+              color="text-green-600"
+              bgColor="border-green-200 bg-green-50/50"
+            />
+            <StatCard
+              title="Pendentes"
+              value={stats.tarefas.pendentes}
+              icon={CheckSquare}
+              color="text-yellow-600"
+              bgColor="border-yellow-200 bg-yellow-50/50"
+            />
+            <StatCard
+              title="Atrasadas"
+              value={stats.tarefas.atrasadas}
+              icon={CheckSquare}
+              color="text-red-600"
+              bgColor="border-red-200 bg-red-50/50"
+            />
+          </div>
+
+          {/* Lista de Tarefas */}
+          <div className={cn(
+            "grid gap-4",
+            isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+          )}>
+            {tarefas.map(tarefa => (
+              <ActivityCard key={tarefa.id} item={tarefa} type="tarefa" />
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
-
-      <AddRotinaDialog
-        isOpen={showAddRotinaDialog}
-        onClose={() => setShowAddRotinaDialog(false)}
-        onSave={handleCreateRotina}
-      />
-
-      <Dialog open={showAddOrientacaoDialog} onOpenChange={setShowAddOrientacaoDialog}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Novo VM ou Informativo</DialogTitle>
-          </DialogHeader>
-          <OrientacaoUploader onSuccess={handleUploadOrientacaoSuccess} />
-        </DialogContent>
-      </Dialog>
-
-      <PDFExportDialog
-        open={showPDFDialog}
-        onOpenChange={setShowPDFDialog}
-        rotinas={rotinas}
-        onExport={handleExportPDF}
-        isExporting={isExporting}
-      />
     </div>
   );
 }
