@@ -1,6 +1,6 @@
 
 import { PlusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 
 interface FolgasHeaderProps {
   onAddFolga: () => void;
@@ -15,10 +15,10 @@ export function FolgasHeader({ onAddFolga }: FolgasHeaderProps) {
           Gerenciamento de folgas dos crediaristas
         </p>
       </div>
-      <Button onClick={onAddFolga}>
+      <GlassButton variant="primary" onClick={onAddFolga} glow>
         <PlusCircle className="h-4 w-4 mr-2" />
         Adicionar Folga
-      </Button>
+      </GlassButton>
     </div>
   );
 }

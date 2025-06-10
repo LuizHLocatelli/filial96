@@ -1,5 +1,5 @@
 
-import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { FileText } from "lucide-react";
 
 interface SubmitButtonProps {
@@ -8,7 +8,13 @@ interface SubmitButtonProps {
 
 export function SubmitButton({ isUploading }: SubmitButtonProps) {
   return (
-    <Button type="submit" className="w-full" disabled={isUploading}>
+    <GlassButton 
+      type="submit" 
+      variant="primary"
+      className="w-full group" 
+      disabled={isUploading}
+      glow
+    >
       {isUploading ? (
         <>
           <FileText className="mr-2 h-4 w-4 animate-pulse" />
@@ -16,10 +22,10 @@ export function SubmitButton({ isUploading }: SubmitButtonProps) {
         </>
       ) : (
         <>
-          <FileText className="mr-2 h-4 w-4" />
+          <FileText className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
           Enviar Orientação
         </>
       )}
-    </Button>
+    </GlassButton>
   );
 }
