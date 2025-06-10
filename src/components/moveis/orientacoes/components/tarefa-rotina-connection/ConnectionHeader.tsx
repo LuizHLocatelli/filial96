@@ -1,30 +1,50 @@
 
-import { Link2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import { Link2, Zap } from "lucide-react";
 
 interface ConnectionHeaderProps {
-  origem: string;
+  title?: string;
+  description?: string;
 }
 
-export function ConnectionHeader({ origem }: ConnectionHeaderProps) {
-  const getOrigemColor = (origem: string) => {
-    switch (origem) {
-      case 'rotina': return 'bg-green-100 text-green-800 border-green-200';
-      case 'orientacao': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'manual': return 'bg-purple-100 text-purple-800 border-purple-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
+export function ConnectionHeader({ 
+  title = "Conexão Rotina-Tarefa",
+  description = "Relacionamento entre rotinas e tarefas do sistema"
+}: ConnectionHeaderProps) {
   return (
-    <div className="flex items-center gap-2">
-      <Link2 className="h-4 w-4 text-blue-600" />
-      <span className="text-sm font-medium text-blue-800">
-        Tarefa conectada à rotina
-      </span>
-      <Badge className={getOrigemColor(origem)}>
-        {origem}
-      </Badge>
-    </div>
+    <motion.div 
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="glass-card-medium rounded-xl p-4 mb-4 relative overflow-hidden"
+    >
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-blue-500/5 to-purple-500/10 rounded-xl" />
+      
+      {/* Animated glow effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20 rounded-xl animate-pulse opacity-50" />
+      
+      <div className="relative z-10 flex items-center gap-3">
+        <div className="p-2 glass-button rounded-lg bg-primary/20 border border-primary/30">
+          <Link2 className="h-5 w-5 text-primary" />
+        </div>
+        
+        <div className="flex-1">
+          <h3 className="font-semibold text-foreground/90 gradient-text">
+            {title}
+          </h3>
+          <p className="text-sm text-muted-foreground/80">
+            {description}
+          </p>
+        </div>
+        
+        <div className="p-2 glass-button rounded-lg bg-blue-500/10 border border-blue-400/20">
+          <Zap className="h-4 w-4 text-blue-400" />
+        </div>
+      </div>
+      
+      {/* Bottom highlight */}
+      <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    </motion.div>
   );
 }

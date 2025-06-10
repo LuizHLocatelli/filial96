@@ -1,59 +1,45 @@
 
-import { Card, CardContent } from "@/components/ui/card";
-import { TarefaExpandida } from "../types";
-import { motion } from "framer-motion";
 import { ConnectionHeader } from "./tarefa-rotina-connection/ConnectionHeader";
-import { LoadingState } from "./tarefa-rotina-connection/LoadingState";
 import { RotinaInfo } from "./tarefa-rotina-connection/RotinaInfo";
 import { QuickActions } from "./tarefa-rotina-connection/QuickActions";
+import { LoadingState } from "./tarefa-rotina-connection/LoadingState";
 import { EmptyState } from "./tarefa-rotina-connection/EmptyState";
 import { useTarefaRotinaConnection } from "./tarefa-rotina-connection/useTarefaRotinaConnection";
 
 interface TarefaRotinaConnectionProps {
-  tarefa: TarefaExpandida;
-  onViewRotina?: (rotinaId: string) => void;
+  tarefaId: string;
 }
 
-export function TarefaRotinaConnection({ 
-  tarefa, 
-  onViewRotina 
-}: TarefaRotinaConnectionProps) {
-  const { rotinaRelacionada, isLoading } = useTarefaRotinaConnection(tarefa.rotina_id);
+export function TarefaRotinaConnection({ tarefaId }: TarefaRotinaConnectionProps) {
+  const { 
+    rotina, 
+    isLoading, 
+    isCreatingTarefa, 
+    criarTarefaAutomatica 
+  } = useTarefaRotinaConnection(tarefaId);
 
-  // Se não há rotina relacionada, não mostra o componente
-  if (!tarefa.rotina_id || (!isLoading && !rotinaRelacionada)) {
-    return null;
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  if (!rotina) {
+    return <EmptyState />;
   }
 
   return (
-    <Card className="border-l-4 border-l-blue-500 bg-blue-50/30">
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <ConnectionHeader origem={tarefa.origem} />
-
-          {isLoading ? (
-            <LoadingState />
-          ) : rotinaRelacionada ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="space-y-3"
-            >
-              <RotinaInfo 
-                rotina={rotinaRelacionada} 
-                onViewRotina={onViewRotina}
-              />
-              
-              <QuickActions 
-                rotinaId={rotinaRelacionada.id}
-                onViewRotina={onViewRotina}
-              />
-            </motion.div>
-          ) : (
-            <EmptyState />
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <ConnectionHeader 
+        title="Rotina Conectada"
+        description="Informações da rotina vinculada a esta tarefa"
+      />
+      
+      <RotinaInfo rotina={rotina} />
+      
+      <QuickActions
+        rotinaId={rotina.id}
+        onCreateTarefa={criarTarefaAutomatica}
+        isCreating={isCreatingTarefa}
+      />
+    </div>
   );
 }
