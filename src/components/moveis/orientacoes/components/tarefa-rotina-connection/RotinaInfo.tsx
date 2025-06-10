@@ -1,4 +1,3 @@
-
 import { CheckSquare, Clock, Calendar, ChevronRight } from "lucide-react";
 import { RotinaWithStatus } from "../../../rotinas/types";
 
@@ -20,16 +19,16 @@ export function RotinaInfo({ rotina, onViewRotina }: RotinaInfoProps) {
 
   const getStatusRotinaColor = (status: string) => {
     switch (status) {
-      case 'concluida': return 'text-green-600';
-      case 'pendente': return 'text-yellow-600';
-      case 'atrasada': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'concluida': return 'text-green-600 dark:text-green-400';
+      case 'pendente': return 'text-yellow-600 dark:text-yellow-400';
+      case 'atrasada': return 'text-red-600 dark:text-red-400';
+      default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
   return (
     <div 
-      className="p-3 bg-white border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+      className="p-3 bg-white border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer dark:bg-zinc-800/50 dark:hover:bg-zinc-800/80 dark:border-zinc-700/50"
       onClick={() => onViewRotina?.(rotina.id)}
     >
       <div className="flex items-center justify-between">

@@ -13,8 +13,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 // Importando os componentes corretos das seções
 import { HubDashboard } from "@/components/moveis/hub-produtividade/components/dashboard/HubDashboard";
-import { Rotinas } from "@/components/moveis/rotinas/Rotinas";
-import { VmTarefas } from "@/components/moveis/orientacoes/Orientacoes";
+import { RotinasUnificadas } from "@/components/moveis/hub-produtividade/components/unificacao/RotinasUnificadas";
 import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/components/OrientacoesMonitoramento";
 
 // Hooks
@@ -116,11 +115,11 @@ export default function HubProdutividade() {
             rotinas={rotinas || []}
             tarefas={tarefas || []}
             onViewRotina={(rotinaId) => {
-              setSearchParams({ tab: "rotinas" });
+              setSearchParams({ tab: "atividades" });
               // Aqui poderia implementar scroll para a rotina específica
             }}
             onViewTarefa={(tarefaId) => {
-              setSearchParams({ tab: "orientacoes" });
+              setSearchParams({ tab: "atividades" });
               // Aqui poderia implementar scroll para a tarefa específica
             }}
           />
@@ -128,24 +127,13 @@ export default function HubProdutividade() {
       )
     },
     {
-      value: "rotinas",
-      label: "Rotinas",
+      value: "atividades",
+      label: "Atividades",
       icon: CheckSquare,
-      description: "Rotinas obrigatórias",
+      description: "Rotinas, Tarefas e Informativos",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
-          <Rotinas />
-        </div>
-      )
-    },
-    {
-      value: "orientacoes",
-      label: "Informativos e VM",
-      icon: FileText,
-      description: "Orientações e documentos",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <VmTarefas />
+          <RotinasUnificadas />
         </div>
       )
     },
@@ -206,7 +194,7 @@ export default function HubProdutividade() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={5}
+        maxColumns={4}
       />
 
       {/* Dialogs funcionais */}

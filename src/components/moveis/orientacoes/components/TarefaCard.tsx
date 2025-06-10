@@ -52,11 +52,11 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewR
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pendente":
-        return <Badge variant="outline" className="bg-accent/50 text-accent-foreground border-accent/40 dark:bg-accent/30 dark:text-accent-foreground dark:border-accent/50">Pendente</Badge>;
+        return <Badge variant="outline" className="border-yellow-500/60 bg-yellow-500/10 text-yellow-700 dark:border-yellow-400/40 dark:bg-yellow-400/10 dark:text-yellow-300">Pendente</Badge>;
       case "em_andamento":
-        return <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary dark:border-primary/30">Em andamento</Badge>;
+        return <Badge variant="outline" className="border-green-500/60 bg-green-500/10 text-green-700 dark:border-green-400/40 dark:bg-green-400/10 dark:text-green-300">Em andamento</Badge>;
       case "concluida":
-        return <Badge variant="outline" className="bg-muted/80 text-muted-foreground border-muted/60 dark:bg-muted/40 dark:text-muted-foreground dark:border-muted/70">Concluída</Badge>;
+        return <Badge variant="outline" className="bg-muted/80 text-muted-foreground border-muted/60 dark:bg-zinc-700/50 dark:text-zinc-300 dark:border-zinc-600/80">Concluída</Badge>;
       default:
         return <Badge variant="outline">Desconhecido</Badge>;
     }
@@ -65,18 +65,18 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewR
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pendente":
-        return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5 text-accent-foreground" />;
+        return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 dark:text-yellow-400" />;
       case "em_andamento":
-        return <CircleEllipsis className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />;
+        return <CircleEllipsis className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />;
       case "concluida":
-        return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />;
+        return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-500 dark:text-zinc-400" />;
       default:
         return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5" />;
     }
   };
 
   return (
-    <Card className="overflow-hidden border shadow-soft hover:shadow-md transition-shadow duration-200">
+    <Card className="overflow-hidden border shadow-soft hover:shadow-md transition-shadow duration-200 dark:bg-green-950/20 dark:border-green-900/30">
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-1 min-w-0">
@@ -120,7 +120,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewR
               <Button
                 size="sm"
                 variant="outline"
-                className="text-accent-foreground border-accent/40 hover:bg-accent/20 dark:hover:bg-accent/30 text-xs sm:text-sm flex-1 sm:flex-none"
+                className="border-yellow-500/60 bg-yellow-500/5 text-yellow-700 hover:bg-yellow-500/10 dark:border-yellow-400/40 dark:bg-transparent dark:text-yellow-400 dark:hover:bg-yellow-400/10 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => onAtualizarStatus(tarefa.id, "pendente")}
               >
                 <CircleDashed className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -132,7 +132,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewR
               <Button
                 size="sm"
                 variant="outline"
-                className="text-primary border-primary/40 hover:bg-primary/10 dark:hover:bg-primary/20 text-xs sm:text-sm flex-1 sm:flex-none"
+                className="border-green-500/60 bg-green-500/5 text-green-700 hover:bg-green-500/10 dark:border-green-400/40 dark:bg-transparent dark:text-green-400 dark:hover:bg-green-400/10 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => onAtualizarStatus(tarefa.id, "em_andamento")}
               >
                 <CircleEllipsis className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
@@ -144,7 +144,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewR
               <Button
                 size="sm"
                 variant="outline"
-                className="text-muted-foreground border-muted/50 hover:bg-muted/20 dark:hover:bg-muted/30 text-xs sm:text-sm flex-1 sm:flex-none"
+                className="border-zinc-500/60 bg-zinc-500/5 text-zinc-700 hover:bg-zinc-500/10 dark:border-zinc-500/40 dark:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-700/50 text-xs sm:text-sm flex-1 sm:flex-none"
                 onClick={() => onAtualizarStatus(tarefa.id, "concluida")}
               >
                 <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />

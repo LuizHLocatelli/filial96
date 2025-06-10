@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { TabContainer } from "./navigation/TabContainer";
 import { TabButton } from "./navigation/TabButton";
@@ -24,7 +23,7 @@ export function NavigationTabs() {
               "justify-between",
               isSmallScreen ? "gap-0.5 px-1" : "gap-1 px-2"
             )
-          : "justify-around gap-1"
+          : "justify-center gap-4"
       )}>
         {tabs.map((tab, index) => (
           <TabButton
@@ -39,13 +38,14 @@ export function NavigationTabs() {
         ))}
       </div>
       
-      {/* Indicador inferior para desktop */}
+      {/* Indicador inferior para desktop 
       {!isMobile && selectedTab !== null && (
         <DesktopIndicator 
           selectedTab={selectedTab} 
           tabsLength={tabs.length} 
         />
       )}
+      */}
     </TabContainer>
   );
 }

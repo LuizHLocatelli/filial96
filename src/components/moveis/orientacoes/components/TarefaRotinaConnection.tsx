@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { TarefaExpandida } from "../types";
 import { motion } from "framer-motion";
@@ -26,7 +25,7 @@ export function TarefaRotinaConnection({
   }
 
   return (
-    <Card className="border-l-4 border-l-blue-500 bg-blue-50/30">
+    <Card className="border-l-4 border-l-green-600 bg-green-100/70 dark:bg-green-950/20 dark:border-l-green-500/70">
       <CardContent className="p-4">
         <div className="space-y-3">
           <ConnectionHeader origem={tarefa.origem} />
