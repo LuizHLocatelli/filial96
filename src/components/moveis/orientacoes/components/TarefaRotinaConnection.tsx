@@ -1,5 +1,6 @@
+
 import { Card, CardContent } from "@/components/ui/card";
-import { TarefaExpandida } from "../types";
+import { TarefaWithCreator } from "../types";
 import { motion } from "framer-motion";
 import { ConnectionHeader } from "./tarefa-rotina-connection/ConnectionHeader";
 import { LoadingState } from "./tarefa-rotina-connection/LoadingState";
@@ -9,7 +10,7 @@ import { EmptyState } from "./tarefa-rotina-connection/EmptyState";
 import { useTarefaRotinaConnection } from "./tarefa-rotina-connection/useTarefaRotinaConnection";
 
 interface TarefaRotinaConnectionProps {
-  tarefa: TarefaExpandida;
+  tarefa: TarefaWithCreator;
   onViewRotina?: (rotinaId: string) => void;
 }
 

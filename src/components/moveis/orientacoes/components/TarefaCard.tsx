@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TarefaExpandida } from "../types";
+import { TarefaWithCreator } from "../types";
 import { TarefaRotinaConnection } from "./TarefaRotinaConnection";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TarefaCardProps {
-  tarefa: TarefaExpandida;
+  tarefa: TarefaWithCreator;
   onAtualizarStatus: (tarefaId: string, novoStatus: string) => void;
   onExcluirTarefa: (tarefaId: string) => void;
   onViewRotina?: (rotinaId: string) => void;
@@ -75,7 +75,7 @@ export function TarefaCard({
   return (
     <div className="space-y-3">
       <Card className="glass-card glass-hover transition-all duration-200 hover:scale-[1.02]">
-        <CardHeader className={cn("pb-3", isMobile && "p-4 pb-2")}>
+        <CardHeader className={cn("pb-3", isMobile && "p-3 pb-2")}>
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <CardTitle className={cn(
@@ -124,7 +124,7 @@ export function TarefaCard({
           </div>
         </CardHeader>
         
-        <CardContent className={cn("pt-0", isMobile && "p-4 pt-0")}>
+        <CardContent className={cn("pt-0", isMobile && "p-3 pt-0")}>
           {/* Badges de Status e Origem */}
           <div className={cn(
             "flex gap-2 mb-3",
@@ -198,7 +198,7 @@ export function TarefaCard({
       {/* Conexão com Rotina (se existir) */}
       {tarefa.rotina_id && (
         <TarefaRotinaConnection 
-          tarefaId={tarefa.id}
+          tarefa={tarefa}
           onViewRotina={onViewRotina}
         />
       )}

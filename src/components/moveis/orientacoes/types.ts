@@ -1,40 +1,60 @@
+
 export interface Orientacao {
   id: string;
   titulo: string;
   descricao: string;
-  tipo: string;
+  tipo: 'vm' | 'informativo' | 'outro';
   arquivo_url: string;
   arquivo_nome: string;
   arquivo_tipo: string;
   data_criacao: string;
   criado_por: string;
-  criado_por_nome?: string;
 }
 
 export interface Tarefa {
   id: string;
   titulo: string;
   descricao: string;
+  status: 'pendente' | 'concluida' | 'atrasada';
+  prioridade: 'alta' | 'media' | 'baixa';
   data_entrega: string;
   data_criacao: string;
   data_atualizacao: string;
-  status: string;
   criado_por: string;
-  orientacao_id: string | null;
-  rotina_id: string | null;
+  rotina_id?: string;
+  orientacao_id?: string;
   origem: 'manual' | 'rotina' | 'orientacao';
-  dependencias?: string[];
-  prioridade: 'baixa' | 'media' | 'alta' | 'urgente';
 }
 
 export interface TarefaExpandida extends Tarefa {
-  rotina_nome?: string;
-  orientacao_titulo?: string;
-  criado_por_nome?: string;
-  dependencias_info?: Array<{
+  creator?: {
     id: string;
     nome: string;
-    tipo: 'rotina' | 'tarefa';
-    status: string;
-  }>;
+    role: string;
+  };
+  created_at: string;
 }
+
+export interface TarefaWithCreator {
+  id: string;
+  titulo: string;
+  descricao: string;
+  status: 'pendente' | 'concluida' | 'atrasada';
+  prioridade: 'alta' | 'media' | 'baixa';
+  data_entrega: string;
+  data_criacao: string;
+  data_atualizacao: string;
+  criado_por: string;
+  rotina_id?: string;
+  orientacao_id?: string;
+  origem: 'manual' | 'rotina' | 'orientacao';
+  creator?: {
+    id: string;
+    nome: string;
+    role: string;
+  };
+  created_at: string;
+}
+
+export type OrientacaoFormData = Omit<Orientacao, 'id' | 'data_criacao' | 'criado_por'>;
+export type TarefaFormData = Omit<Tarefa, 'id' | 'data_criacao' | 'data_atualizacao' | 'criado_por'>;

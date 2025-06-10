@@ -4,25 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Activity, CheckSquare, Clock, AlertTriangle, Target, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface StatsData {
-  totalRotinas: number;
-  rotinasConcluidas: number;
-  rotinasPendentes: number;
-  rotinasAtrasadas: number;
-  totalTarefas: number;
-  tarefasConcluidas: number;
-  tarefasPendentes: number;
-  tarefasAtrasadas: number;
-  progressoGeral: number;
-}
+import { StatsData } from "../../utils/statsAdapter";
 
 interface StatsOverviewProps {
   stats: StatsData;
   isLoading?: boolean;
+  onNavigateToSection?: (section: string) => void;
 }
 
-export function StatsOverview({ stats, isLoading }: StatsOverviewProps) {
+export function StatsOverview({ stats, isLoading, onNavigateToSection }: StatsOverviewProps) {
   const isMobile = useIsMobile();
 
   if (isLoading) {
@@ -99,9 +89,9 @@ export function StatsOverview({ stats, isLoading }: StatsOverviewProps) {
             <Card key={stat.title} className={cn(
               "glass-card glass-hover transition-all duration-200",
               stat.borderColor,
-              isMobile && "min-h-[100px]"
+              isMobile && "min-h-[80px]"
             )}>
-              <CardContent className={cn("p-4", isMobile && "p-3")}>
+              <CardContent className={cn("p-3", isMobile && "p-2")}>
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className={cn(
@@ -113,18 +103,18 @@ export function StatsOverview({ stats, isLoading }: StatsOverviewProps) {
                     <p className={cn(
                       "font-bold",
                       stat.color,
-                      isMobile ? "text-lg" : "text-2xl"
+                      isMobile ? "text-base" : "text-xl"
                     )}>
                       {stat.value}
                     </p>
                   </div>
                   <div className={cn(
-                    "rounded-full p-2",
+                    "rounded-full p-1.5",
                     stat.bgColor
                   )}>
                     <stat.icon className={cn(
                       stat.color,
-                      isMobile ? "h-4 w-4" : "h-5 w-5"
+                      isMobile ? "h-3 w-3" : "h-4 w-4"
                     )} />
                   </div>
                 </div>

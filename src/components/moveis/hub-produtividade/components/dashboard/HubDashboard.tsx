@@ -11,6 +11,7 @@ import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
 import { Activity, Zap, Clock, TrendingUp, Link2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { ConexoesVisualizacao } from './ConexoesVisualizacao';
+import { adaptProductivityStatsToStatsData } from '../../utils/statsAdapter';
 
 interface HubDashboardProps {
   stats: ProductivityStats;
@@ -35,6 +36,9 @@ export function HubDashboard({
 }: HubDashboardProps) {
   const { isMobile, isTablet } = useResponsive();
   const { preferences, layoutConfig, isCompact } = useLayoutPreferences();
+
+  // Adaptar stats para o formato esperado pelo StatsOverview
+  const adaptedStats = adaptProductivityStatsToStatsData(stats);
 
   // Debug logs para mobile
   useEffect(() => {
@@ -81,7 +85,7 @@ export function HubDashboard({
           >
             <div className="px-1">
               <StatsOverview 
-                stats={stats} 
+                stats={adaptedStats} 
                 isLoading={isLoading}
                 onNavigateToSection={handlers.onNavigateToSection}
               />
@@ -167,7 +171,7 @@ export function HubDashboard({
           >
             <div className="px-2">
               <StatsOverview 
-                stats={stats} 
+                stats={adaptedStats} 
                 isLoading={isLoading}
                 onNavigateToSection={handlers.onNavigateToSection}
               />
