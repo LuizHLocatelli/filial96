@@ -109,7 +109,7 @@ export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewR
         {/* Conexão com rotina se existir */}
         {tarefa.rotina_id && (
           <TarefaRotinaConnection 
-            tarefa={tarefaWithCreator}
+            tarefaId={tarefa.rotina_id}
             onViewRotina={onViewRotina}
           />
         )}

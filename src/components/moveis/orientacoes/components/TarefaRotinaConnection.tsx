@@ -8,21 +8,20 @@ import { useTarefaRotinaConnection } from "./tarefa-rotina-connection/useTarefaR
 
 interface TarefaRotinaConnectionProps {
   tarefaId: string;
+  onViewRotina?: (rotinaId: string) => void;
 }
 
-export function TarefaRotinaConnection({ tarefaId }: TarefaRotinaConnectionProps) {
+export function TarefaRotinaConnection({ tarefaId, onViewRotina }: TarefaRotinaConnectionProps) {
   const { 
-    rotina, 
-    isLoading, 
-    isCreatingTarefa, 
-    criarTarefaAutomatica 
+    rotinaRelacionada, 
+    isLoading
   } = useTarefaRotinaConnection(tarefaId);
 
   if (isLoading) {
     return <LoadingState />;
   }
 
-  if (!rotina) {
+  if (!rotinaRelacionada) {
     return <EmptyState />;
   }
 
@@ -33,12 +32,11 @@ export function TarefaRotinaConnection({ tarefaId }: TarefaRotinaConnectionProps
         description="Informações da rotina vinculada a esta tarefa"
       />
       
-      <RotinaInfo rotina={rotina} />
+      <RotinaInfo rotina={rotinaRelacionada} />
       
       <QuickActions
-        rotinaId={rotina.id}
-        onCreateTarefa={criarTarefaAutomatica}
-        isCreating={isCreatingTarefa}
+        rotinaId={rotinaRelacionada.id}
+        onViewRotina={onViewRotina}
       />
     </div>
   );

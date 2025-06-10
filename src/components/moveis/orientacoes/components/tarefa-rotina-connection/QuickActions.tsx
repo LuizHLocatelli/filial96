@@ -1,22 +1,18 @@
 
 import { motion } from "framer-motion";
 import { GlassButton } from "@/components/ui/glass-button";
-import { ArrowLeft, Plus, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 
 interface QuickActionsProps {
   rotinaId: string;
   onViewRotina?: (rotinaId: string) => void;
-  onCreateTarefa?: () => void;
   onRefresh?: () => void;
-  isCreating?: boolean;
 }
 
 export function QuickActions({ 
   rotinaId, 
   onViewRotina, 
-  onCreateTarefa,
-  onRefresh,
-  isCreating = false
+  onRefresh
 }: QuickActionsProps) {
   return (
     <motion.div 
@@ -44,21 +40,6 @@ export function QuickActions({
               >
                 <ArrowLeft className="h-3 w-3" />
                 Ver Rotina
-              </GlassButton>
-            </motion.div>
-          )}
-          
-          {onCreateTarefa && (
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <GlassButton
-                size="sm"
-                variant="primary"
-                onClick={onCreateTarefa}
-                disabled={isCreating}
-                className="gap-2 text-xs"
-              >
-                <Plus className="h-3 w-3" />
-                {isCreating ? 'Criando...' : 'Nova Tarefa'}
               </GlassButton>
             </motion.div>
           )}

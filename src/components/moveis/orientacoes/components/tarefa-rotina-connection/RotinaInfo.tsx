@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Calendar, User, Target } from "lucide-react";
 import { RotinaWithStatus } from "../../../rotinas/types";
+import { cn } from "@/lib/utils";
 
 interface RotinaInfoProps {
   rotina: RotinaWithStatus;
@@ -33,7 +34,7 @@ export function RotinaInfo({ rotina }: RotinaInfoProps) {
           </div>
           
           <Badge 
-            variant={rotina.status === 'ativa' ? 'default' : 'secondary'}
+            variant={rotina.status === 'pendente' ? 'default' : 'secondary'}
             className="glass-button shadow-lg"
           >
             {rotina.status}
@@ -48,10 +49,10 @@ export function RotinaInfo({ rotina }: RotinaInfoProps) {
           >
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Frequência</span>
+              <span className="text-sm font-medium">Periodicidade</span>
             </div>
             <p className="text-xs text-muted-foreground/80 mt-1">
-              {rotina.frequencia}
+              {rotina.dia_preferencial || 'Não definida'}
             </p>
           </motion.div>
 
@@ -61,12 +62,12 @@ export function RotinaInfo({ rotina }: RotinaInfoProps) {
           >
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium">Última exec.</span>
+              <span className="text-sm font-medium">Criado em</span>
             </div>
             <p className="text-xs text-muted-foreground/80 mt-1">
-              {rotina.ultima_execucao 
-                ? new Date(rotina.ultima_execucao).toLocaleDateString('pt-BR')
-                : 'Nunca'
+              {rotina.created_at 
+                ? new Date(rotina.created_at).toLocaleDateString('pt-BR')
+                : 'Data não disponível'
               }
             </p>
           </motion.div>
@@ -90,10 +91,10 @@ export function RotinaInfo({ rotina }: RotinaInfoProps) {
           >
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-orange-500" />
-              <span className="text-sm font-medium">Prioridade</span>
+              <span className="text-sm font-medium">Status</span>
             </div>
             <p className="text-xs text-muted-foreground/80 mt-1">
-              {rotina.prioridade || 'Média'}
+              {rotina.ativo ? 'Ativa' : 'Inativa'}
             </p>
           </motion.div>
         </div>
@@ -103,14 +104,14 @@ export function RotinaInfo({ rotina }: RotinaInfoProps) {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Status da Rotina</span>
             <span className="text-xs text-muted-foreground">
-              {rotina.status === 'ativa' ? 'Ativa' : 'Inativa'}
+              {rotina.ativo ? 'Ativa' : 'Inativa'}
             </span>
           </div>
           <div className="w-full bg-muted/30 rounded-full h-2">
             <div 
               className={cn(
                 "h-2 rounded-full transition-all duration-300",
-                rotina.status === 'ativa' 
+                rotina.ativo 
                   ? "bg-gradient-to-r from-green-500 to-green-400 w-full" 
                   : "bg-gradient-to-r from-gray-400 to-gray-300 w-1/3"
               )}
