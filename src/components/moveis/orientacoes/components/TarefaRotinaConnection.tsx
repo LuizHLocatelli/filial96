@@ -1,7 +1,5 @@
-
 import { Card, CardContent } from "@/components/ui/card";
-import { TarefaWithCreator } from "../types";
-import { RotinaWithStatus } from "../../rotinas/types"; // Use the rotinas RotinaWithStatus
+import { TarefaExpandida } from "../types";
 import { motion } from "framer-motion";
 import { ConnectionHeader } from "./tarefa-rotina-connection/ConnectionHeader";
 import { LoadingState } from "./tarefa-rotina-connection/LoadingState";
@@ -11,13 +9,8 @@ import { EmptyState } from "./tarefa-rotina-connection/EmptyState";
 import { useTarefaRotinaConnection } from "./tarefa-rotina-connection/useTarefaRotinaConnection";
 
 interface TarefaRotinaConnectionProps {
-  tarefa: TarefaWithCreator;
+  tarefa: TarefaExpandida;
   onViewRotina?: (rotinaId: string) => void;
-}
-
-// Create a local interface that extends RotinaWithStatus with titulo
-interface RotinaWithTitulo extends RotinaWithStatus {
-  titulo: string;
 }
 
 export function TarefaRotinaConnection({ 
@@ -31,13 +24,6 @@ export function TarefaRotinaConnection({
     return null;
   }
 
-  // Create a compatible rotina object with titulo property
-  const rotinaWithTitulo: RotinaWithTitulo | null = rotinaRelacionada ? {
-    ...rotinaRelacionada,
-    titulo: rotinaRelacionada.nome || 'Rotina sem título',
-    status: 'pendente' as const // Ensure proper status type
-  } : null;
-
   return (
     <Card className="border-l-4 border-l-green-600 bg-green-100/70 dark:bg-green-950/20 dark:border-l-green-500/70">
       <CardContent className="p-4">
@@ -46,19 +32,19 @@ export function TarefaRotinaConnection({
 
           {isLoading ? (
             <LoadingState />
-          ) : rotinaWithTitulo ? (
+          ) : rotinaRelacionada ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="space-y-3"
             >
               <RotinaInfo 
-                rotina={rotinaWithTitulo} 
+                rotina={rotinaRelacionada} 
                 onViewRotina={onViewRotina}
               />
               
               <QuickActions 
-                rotinaId={rotinaWithTitulo.id}
+                rotinaId={rotinaRelacionada.id}
                 onViewRotina={onViewRotina}
               />
             </motion.div>

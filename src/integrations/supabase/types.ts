@@ -1461,12 +1461,10 @@ export type Database = {
           created_by: string
           descricao: string | null
           dia_preferencial: string
-          gera_tarefa_automatica: boolean | null
           horario_preferencial: string | null
           id: string
           nome: string
           periodicidade: string
-          template_tarefa: Json | null
           updated_at: string
         }
         Insert: {
@@ -1476,12 +1474,10 @@ export type Database = {
           created_by: string
           descricao?: string | null
           dia_preferencial?: string
-          gera_tarefa_automatica?: boolean | null
           horario_preferencial?: string | null
           id?: string
           nome: string
           periodicidade: string
-          template_tarefa?: Json | null
           updated_at?: string
         }
         Update: {
@@ -1491,12 +1487,10 @@ export type Database = {
           created_by?: string
           descricao?: string | null
           dia_preferencial?: string
-          gera_tarefa_automatica?: boolean | null
           horario_preferencial?: string | null
           id?: string
           nome?: string
           periodicidade?: string
-          template_tarefa?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -1548,9 +1542,6 @@ export type Database = {
           descricao: string
           id: string
           orientacao_id: string | null
-          origem: string | null
-          prioridade: string | null
-          rotina_id: string | null
           status: string
           titulo: string
         }
@@ -1562,9 +1553,6 @@ export type Database = {
           descricao: string
           id?: string
           orientacao_id?: string | null
-          origem?: string | null
-          prioridade?: string | null
-          rotina_id?: string | null
           status: string
           titulo: string
         }
@@ -1576,9 +1564,6 @@ export type Database = {
           descricao?: string
           id?: string
           orientacao_id?: string | null
-          origem?: string | null
-          prioridade?: string | null
-          rotina_id?: string | null
           status?: string
           titulo?: string
         }

@@ -1,207 +1,169 @@
-
-import { Clock, User, Calendar, MoreVertical, CheckSquare, AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon, CheckCircle2, CircleDashed, CircleEllipsis, Trash2, User, Link2, ArrowLeft } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TarefaWithCreator } from "../types";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tarefa } from "../types";
 import { TarefaRotinaConnection } from "./TarefaRotinaConnection";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TarefaCardProps {
-  tarefa: TarefaWithCreator;
+  tarefa: Tarefa;
   onAtualizarStatus: (tarefaId: string, novoStatus: string) => void;
   onExcluirTarefa: (tarefaId: string) => void;
   onViewRotina?: (rotinaId: string) => void;
 }
 
-export function TarefaCard({ 
-  tarefa, 
-  onAtualizarStatus, 
-  onExcluirTarefa,
-  onViewRotina 
-}: TarefaCardProps) {
-  const isMobile = useIsMobile();
+// Add new interface for tarefa with creator name
+interface TarefaWithCreator extends Tarefa {
+  criador_nome?: string;
+}
 
-  const getStatusColor = (status: string) => {
+export function TarefaCard({ tarefa, onAtualizarStatus, onExcluirTarefa, onViewRotina }: TarefaCardProps) {
+  const [tarefaWithCreator, setTarefaWithCreator] = useState<TarefaWithCreator>(tarefa);
+
+  useEffect(() => {
+    const fetchCreatorName = async () => {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', tarefa.criado_por)
+        .single();
+
+      if (!error && profile) {
+        setTarefaWithCreator({
+          ...tarefa,
+          criador_nome: profile.name
+        });
+      } else {
+        setTarefaWithCreator({
+          ...tarefa,
+          criador_nome: 'Usuário desconhecido'
+        });
+      }
+    };
+
+    fetchCreatorName();
+  }, [tarefa]);
+
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'concluida':
-        return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/20';
-      case 'pendente':
-        return 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-300 dark:border-yellow-500/20';
-      case 'atrasada':
-        return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20';
+      case "pendente":
+        return <Badge variant="outline" className="border-yellow-500/60 bg-yellow-500/10 text-yellow-700 dark:border-yellow-400/40 dark:bg-yellow-400/10 dark:text-yellow-300">Pendente</Badge>;
+      case "em_andamento":
+        return <Badge variant="outline" className="border-green-500/60 bg-green-500/10 text-green-700 dark:border-green-400/40 dark:bg-green-400/10 dark:text-green-300">Em andamento</Badge>;
+      case "concluida":
+        return <Badge variant="outline" className="bg-muted/80 text-muted-foreground border-muted/60 dark:bg-zinc-700/50 dark:text-zinc-300 dark:border-zinc-600/80">Concluída</Badge>;
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-600';
+        return <Badge variant="outline">Desconhecido</Badge>;
     }
   };
 
-  const getOrigemColor = (origem: string) => {
-    switch (origem) {
-      case 'rotina':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/20';
-      case 'orientacao':
-        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20';
-      case 'manual':
-        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/20';
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "pendente":
+        return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 dark:text-yellow-400" />;
+      case "em_andamento":
+        return <CircleEllipsis className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />;
+      case "concluida":
+        return <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-500 dark:text-zinc-400" />;
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-600';
-    }
-  };
-
-  const handleStatusChange = (novoStatus: string) => {
-    onAtualizarStatus(tarefa.id, novoStatus);
-  };
-
-  const StatusIcon = () => {
-    switch (tarefa.status) {
-      case 'concluida':
-        return <CheckSquare className="h-4 w-4 text-green-600" />;
-      case 'atrasada':
-        return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <CircleDashed className="h-4 w-4 sm:h-5 sm:w-5" />;
     }
   };
 
   return (
-    <div className="space-y-3">
-      <Card className="glass-card glass-hover transition-all duration-200 hover:scale-[1.02]">
-        <CardHeader className={cn("pb-3", isMobile && "p-3 pb-2")}>
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <CardTitle className={cn(
-                "text-foreground line-clamp-2",
-                isMobile ? "text-sm" : "text-base"
-              )}>
-                {tarefa.titulo}
-              </CardTitle>
-              {tarefa.descricao && (
-                <p className={cn(
-                  "text-muted-foreground mt-1 line-clamp-2",
-                  isMobile ? "text-xs" : "text-sm"
-                )}>
-                  {tarefa.descricao}
-                </p>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <StatusIcon />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleStatusChange('pendente')}>
-                    Marcar como Pendente
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange('concluida')}>
-                    Marcar como Concluída
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusChange('atrasada')}>
-                    Marcar como Atrasada
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => onExcluirTarefa(tarefa.id)}
-                    className="text-red-600"
-                  >
-                    Excluir
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+    <Card className="overflow-hidden border shadow-soft hover:shadow-md transition-shadow duration-200 dark:bg-green-950/20 dark:border-green-900/30">
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-1 min-w-0">
+            {getStatusIcon(tarefa.status)}
+            <span className="truncate">{tarefa.titulo}</span>
+          </CardTitle>
+          <div className="flex items-center justify-start sm:justify-end">
+            {getStatusBadge(tarefa.status)}
           </div>
-        </CardHeader>
-        
-        <CardContent className={cn("pt-0", isMobile && "p-3 pt-0")}>
-          {/* Badges de Status e Origem */}
-          <div className={cn(
-            "flex gap-2 mb-3",
-            isMobile && "flex-wrap"
-          )}>
-            <Badge className={cn(
-              getStatusColor(tarefa.status),
-              isMobile ? "text-xs px-2 py-1" : "text-sm"
-            )}>
-              {tarefa.status}
-            </Badge>
-            <Badge className={cn(
-              getOrigemColor(tarefa.origem),
-              isMobile ? "text-xs px-2 py-1" : "text-sm"
-            )}>
-              {tarefa.origem}
-            </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <div className="flex items-center text-xs sm:text-sm text-muted-foreground mb-2">
+            <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+            <span>
+              {format(new Date(tarefa.data_entrega), "PPP", { locale: ptBR })}
+            </span>
           </div>
+          <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">
+            {tarefa.descricao}
+          </p>
+        </div>
 
-          {/* Informações da Tarefa */}
-          <div className="space-y-2">
-            {tarefa.creator?.nome && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <User className="h-4 w-4 flex-shrink-0" />
-                <span className={cn("truncate", isMobile ? "text-xs" : "text-sm")}>
-                  {tarefa.creator.nome}
-                </span>
-              </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+          <User className="h-4 w-4" />
+          <span>Criado por: {tarefaWithCreator.criador_nome}</span>
+        </div>
+
+        {/* Conexão com rotina se existir */}
+        {tarefa.rotina_id && (
+          <TarefaRotinaConnection 
+            tarefa={tarefaWithCreator}
+            onViewRotina={onViewRotina}
+          />
+        )}
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
+            {tarefa.status !== "pendente" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-yellow-500/60 bg-yellow-500/5 text-yellow-700 hover:bg-yellow-500/10 dark:border-yellow-400/40 dark:bg-transparent dark:text-yellow-400 dark:hover:bg-yellow-400/10 text-xs sm:text-sm flex-1 sm:flex-none"
+                onClick={() => onAtualizarStatus(tarefa.id, "pendente")}
+              >
+                <CircleDashed className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Pendente</span>
+                <span className="sm:hidden">Pend.</span>
+              </Button>
             )}
-            
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4 flex-shrink-0" />
-              <span className={cn("truncate", isMobile ? "text-xs" : "text-sm")}>
-                {formatDistanceToNow(new Date(tarefa.created_at), { 
-                  addSuffix: true, 
-                  locale: ptBR 
-                })}
-              </span>
-            </div>
+            {tarefa.status !== "em_andamento" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-green-500/60 bg-green-500/5 text-green-700 hover:bg-green-500/10 dark:border-green-400/40 dark:bg-transparent dark:text-green-400 dark:hover:bg-green-400/10 text-xs sm:text-sm flex-1 sm:flex-none"
+                onClick={() => onAtualizarStatus(tarefa.id, "em_andamento")}
+              >
+                <CircleEllipsis className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Em andamento</span>
+                <span className="sm:hidden">Andamento</span>
+              </Button>
+            )}
+            {tarefa.status !== "concluida" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-zinc-500/60 bg-zinc-500/5 text-zinc-700 hover:bg-zinc-500/10 dark:border-zinc-500/40 dark:bg-transparent dark:text-zinc-400 dark:hover:bg-zinc-700/50 text-xs sm:text-sm flex-1 sm:flex-none"
+                onClick={() => onAtualizarStatus(tarefa.id, "concluida")}
+              >
+                <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Concluída</span>
+                <span className="sm:hidden">Concl.</span>
+              </Button>
+            )}
           </div>
-
-          {/* Ações */}
-          <div className={cn(
-            "flex gap-2 mt-4",
-            isMobile && "flex-col"
-          )}>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className={cn(
-                "flex-1 text-xs",
-                isMobile && "w-full h-8"
-              )}
-            >
-              Visualizar
-            </Button>
-            <Button 
-              size="sm" 
-              onClick={() => handleStatusChange(tarefa.status === 'concluida' ? 'pendente' : 'concluida')}
-              className={cn(
-                "flex-1 text-xs",
-                isMobile && "w-full h-8"
-              )}
-            >
-              {tarefa.status === 'concluida' ? 'Reabrir' : 'Concluir'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Conexão com Rotina (se existir) */}
-      {tarefa.rotina_id && (
-        <TarefaRotinaConnection 
-          tarefa={tarefa}
-          onViewRotina={onViewRotina}
-        />
-      )}
-    </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 w-full sm:w-auto"
+            onClick={() => onExcluirTarefa(tarefa.id)}
+          >
+            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="ml-1 sm:hidden">Excluir</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

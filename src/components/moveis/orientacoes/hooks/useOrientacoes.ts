@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -27,13 +26,13 @@ export function useOrientacoes() {
         id: item.id,
         titulo: item.titulo,
         descricao: item.descricao,
-        tipo: item.tipo as 'vm' | 'informativo' | 'outro', // Type cast to proper union type
+        tipo: item.tipo,
         arquivo_url: item.arquivo_url,
         arquivo_nome: item.arquivo_nome || '',
         arquivo_tipo: item.arquivo_tipo,
         data_criacao: item.data_criacao,
         criado_por: item.criado_por,
-        criado_por_nome: 'Usuário' // Default value
+        criado_por_nome: 'Usuário'
       })) || [];
 
       setOrientacoes(orientacoesFormatted);

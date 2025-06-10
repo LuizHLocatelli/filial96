@@ -42,7 +42,7 @@ export function EditOrientacaoDialog({
   const [formData, setFormData] = useState({
     titulo: orientacao.titulo,
     descricao: orientacao.descricao,
-    tipo: orientacao.tipo as 'vm' | 'informativo' | 'outro' // Type cast
+    tipo: orientacao.tipo
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -106,7 +106,7 @@ export function EditOrientacaoDialog({
               <Label htmlFor="tipo" className="text-sm font-medium">Tipo</Label>
               <Select
                 value={formData.tipo}
-                onValueChange={(value: 'vm' | 'informativo' | 'outro') => setFormData({ ...formData, tipo: value })}
+                onValueChange={(value) => setFormData({ ...formData, tipo: value })}
               >
                 <SelectTrigger className="text-base sm:text-sm">
                   <SelectValue />
