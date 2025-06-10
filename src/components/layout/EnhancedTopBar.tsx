@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Home, ChevronRight, Search, X } from "lucide-react";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
@@ -7,7 +8,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { BreadcrumbNav } from "./BreadcrumbNav";
 import { CompanyLogo } from "./CompanyLogo";
 import { SearchBar } from "./SearchBar";
 import { Input } from "@/components/ui/input";

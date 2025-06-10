@@ -10,7 +10,7 @@ const Card = React.forwardRef<
     glassmorphism?: boolean;
     variant?: "default" | "glass" | "gradient";
   }
->(({ className, glassmorphism = true, variant = "glass", ...props }, ref) => {
+>(({ className, glassmorphism = true, variant = "glass", children, ...props }, ref) => {
   const isMobile = useIsMobile();
   
   const variantClasses = {
@@ -32,7 +32,9 @@ const Card = React.forwardRef<
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </motion.div>
   );
 })
 Card.displayName = "Card"
@@ -144,7 +146,7 @@ const GlassCard = React.forwardRef<
     variant?: "light" | "medium" | "strong";
     gradient?: "primary" | "secondary" | "accent";
   }
->(({ className, variant = "light", gradient, ...props }, ref) => {
+>(({ className, variant = "light", gradient, children, ...props }, ref) => {
   const isMobile = useIsMobile();
   
   const gradientClass = gradient ? `glass-${gradient}` : "";
@@ -163,7 +165,9 @@ const GlassCard = React.forwardRef<
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </motion.div>
   );
 })
 GlassCard.displayName = "GlassCard"

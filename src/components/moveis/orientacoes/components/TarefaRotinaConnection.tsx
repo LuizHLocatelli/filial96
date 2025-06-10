@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,11 @@ export function TarefaRotinaConnection({
 
       if (error) throw error;
 
-      setRotinaRelacionada(rotina);
+      // Add status property to match RotinaWithStatus type
+      setRotinaRelacionada({
+        ...rotina,
+        status: 'pendente' // Default status
+      } as RotinaWithStatus);
     } catch (error) {
       console.error('Erro ao carregar rotina relacionada:', error);
       toast({
@@ -175,24 +180,7 @@ export function TarefaRotinaConnection({
                   <ArrowLeft className="h-3 w-3" />
                   Ver Rotina
                 </Button>
-                
-                {rotinaRelacionada.gera_tarefa_automatica && (
-                  <Badge variant="secondary" className="text-xs">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    Geração automática
-                  </Badge>
-                )}
               </div>
-
-              {/* Informação sobre template */}
-              {rotinaRelacionada.template_tarefa && (
-                <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded">
-                  <strong>Template:</strong> Esta tarefa foi criada usando o template configurado na rotina
-                  {rotinaRelacionada.template_tarefa.prazo_dias && (
-                    <span> (prazo: {rotinaRelacionada.template_tarefa.prazo_dias} dias)</span>
-                  )}
-                </div>
-              )}
             </motion.div>
           ) : (
             <div className="text-xs text-muted-foreground">

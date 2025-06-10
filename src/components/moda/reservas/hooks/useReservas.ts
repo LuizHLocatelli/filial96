@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -83,8 +84,8 @@ export function useReservas() {
       }
       
       const insertData = {
-        // New format
-        produtos: formData.produtos,
+        // New format - convert to Json
+        produtos: formData.produtos as any,
         
         // Campos legados para compatibilidade (usando o primeiro produto)
         produto_nome: formData.produtos[0]?.nome || '',

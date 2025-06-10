@@ -1,10 +1,41 @@
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
 import { ProdutoFoco } from '@/types/produto-foco';
 
-export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Promise<void>) {
+export function useGenericProdutoFocoCRUD<T extends { id: string }>(
+  tableName: 'moveis_produto_foco' | 'moda_produto_foco'
+) {
+  const [items, setItems] = useState<T[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  const fetchItems = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setItems(data as T[]);
+    } catch (err: any) {
+      console.error(`Erro ao carregar ${tableName}:`, err);
+      setError(err.message);
+      toast({
+        title: "Erro",
+        description: `Não foi possível carregar os produtos em foco`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const createProduto = async (dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<ProdutoFoco | null> => {
     if (!user) return null;
@@ -22,7 +53,7 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
       if (error) throw error;
 
       toast.success('Produto foco criado com sucesso!');
-      await refetch();
+      await fetchItems();
       return data;
     } catch (error) {
       console.error('Erro ao criar produto foco:', error);
@@ -41,7 +72,7 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
       if (error) throw error;
 
       toast.success('Produto foco atualizado com sucesso!');
-      await refetch();
+      await fetchItems();
     } catch (error) {
       console.error('Erro ao atualizar produto foco:', error);
       toast.error('Erro ao atualizar produto foco');
@@ -58,14 +89,22 @@ export function useGenericProdutoFocoCRUD(tableName: string, refetch: () => Prom
       if (error) throw error;
 
       toast.success('Produto foco excluído com sucesso!');
-      await refetch();
+      await fetchItems();
     } catch (error) {
       console.error('Erro ao excluir produto foco:', error);
       toast.error('Erro ao excluir produto foco');
     }
   };
 
+  useEffect(() => {
+    fetchItems();
+  }, [tableName]);
+
   return {
+    items,
+    isLoading,
+    error,
+    fetchItems,
     createProduto,
     updateProduto,
     deleteProduto
