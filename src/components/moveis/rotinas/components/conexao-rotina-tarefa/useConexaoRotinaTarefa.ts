@@ -14,9 +14,6 @@ interface TarefaRelacionada {
   data_criacao: string;
   data_atualizacao: string;
   orientacao_id: string | null;
-  rotina_id: string | null;
-  origem: string;
-  prioridade: string;
   moveis_orientacoes: { titulo: string } | null;
 }
 
@@ -42,24 +39,13 @@ export function useConexaoRotinaTarefa(rotina: RotinaWithStatus) {
           data_criacao,
           data_atualizacao,
           orientacao_id,
-          rotina_id,
-          origem,
-          prioridade,
           moveis_orientacoes (titulo)
         `)
         .order('data_entrega', { ascending: true });
 
       if (error) throw error;
 
-      // Transform data to match expected type
-      const transformedTarefas = (tarefas || []).map(tarefa => ({
-        ...tarefa,
-        rotina_id: tarefa.rotina_id || null,
-        origem: tarefa.origem || 'manual',
-        prioridade: tarefa.prioridade || 'media'
-      }));
-
-      setTarefasRelacionadas(transformedTarefas);
+      setTarefasRelacionadas(tarefas || []);
     } catch (error) {
       console.error('Erro ao carregar tarefas relacionadas:', error);
       toast({
@@ -84,9 +70,7 @@ export function useConexaoRotinaTarefa(rotina: RotinaWithStatus) {
         descricao: `Tarefa gerada automaticamente pela rotina: ${rotina.nome}`,
         data_entrega: dataEntrega.toISOString(),
         status: 'pendente',
-        criado_por: rotina.created_by,
-        origem: 'rotina',
-        prioridade: 'media'
+        criado_por: rotina.created_by
       };
 
       const { error } = await supabase
