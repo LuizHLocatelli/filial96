@@ -1,3 +1,4 @@
+
 import { useProdutoFocoData } from './useProdutoFocoData';
 import { useProdutoFocoCRUD } from './useProdutoFocoCRUD';
 import { useProdutoFocoImages } from './useProdutoFocoImages';
@@ -6,7 +7,7 @@ import { ProdutoFoco } from '@/types/produto-foco';
 
 export function useProdutoFoco() {
   const { produtos, produtoAtivo, isLoading, fetchProdutos, refetch } = useProdutoFocoData();
-  const { createProduto, updateProduto, deleteProduto } = useProdutoFocoCRUD(refetch);
+  const { createProduto, updateProduto, deleteProduto } = useProdutoFocoCRUD();
   const { uploadImagem, deleteImagem, uploadMultipleImages } = useProdutoFocoImages(refetch);
   const { registrarVenda, getVendasPorProduto } = useProdutoFocoSales();
 

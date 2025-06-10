@@ -16,7 +16,6 @@ import { RotinaWithStatus } from "../types";
 import { TarefaExpandida } from "../../orientacoes/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
 
 interface ConexaoRotinaTarefaProps {
   rotina: RotinaWithStatus;
@@ -30,7 +29,7 @@ export function ConexaoRotinaTarefa({
   onViewTarefa 
 }: ConexaoRotinaTarefaProps) {
   const { toast } = useToast();
-  const [tarefasRelacionadas, setTarefasRelacionadas] = useState<any[]>([]);
+  const [tarefasRelacionadas, setTarefasRelacionadas] = useState<TarefaExpandida[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingTarefa, setIsCreatingTarefa] = useState(false);
 
@@ -54,8 +53,8 @@ export function ConexaoRotinaTarefa({
 
       if (error) throw error;
 
-      // Transform data to match expected structure
-      const transformedTarefas = (tarefas || []).map(tarefa => ({
+      // Transform data to match TarefaExpandida structure
+      const transformedTarefas: TarefaExpandida[] = (tarefas || []).map(tarefa => ({
         ...tarefa,
         rotina_id: tarefa.rotina_id || rotina.id,
         origem: 'rotina' as const,
@@ -224,11 +223,8 @@ export function ConexaoRotinaTarefa({
             </h4>
             
             {tarefasRelacionadas.map((tarefa, index) => (
-              <motion.div
+              <div
                 key={tarefa.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
                 className="p-3 border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
                 onClick={() => onViewTarefa?.(tarefa.id)}
               >
@@ -254,7 +250,7 @@ export function ConexaoRotinaTarefa({
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         ) : (
