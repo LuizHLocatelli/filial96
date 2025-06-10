@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { TarefaWithCreator } from "../types";
+import { TarefaWithCreator, RotinaWithStatus } from "../types"; // Import the local RotinaWithStatus
 import { motion } from "framer-motion";
 import { ConnectionHeader } from "./tarefa-rotina-connection/ConnectionHeader";
 import { LoadingState } from "./tarefa-rotina-connection/LoadingState";
@@ -25,6 +25,12 @@ export function TarefaRotinaConnection({
     return null;
   }
 
+  // Create a compatible rotina object with titulo property
+  const rotinaWithTitulo: RotinaWithStatus | null = rotinaRelacionada ? {
+    ...rotinaRelacionada,
+    titulo: rotinaRelacionada.nome || rotinaRelacionada.titulo || 'Rotina sem título'
+  } : null;
+
   return (
     <Card className="border-l-4 border-l-green-600 bg-green-100/70 dark:bg-green-950/20 dark:border-l-green-500/70">
       <CardContent className="p-4">
@@ -33,19 +39,19 @@ export function TarefaRotinaConnection({
 
           {isLoading ? (
             <LoadingState />
-          ) : rotinaRelacionada ? (
+          ) : rotinaWithTitulo ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="space-y-3"
             >
               <RotinaInfo 
-                rotina={rotinaRelacionada} 
+                rotina={rotinaWithTitulo} 
                 onViewRotina={onViewRotina}
               />
               
               <QuickActions 
-                rotinaId={rotinaRelacionada.id}
+                rotinaId={rotinaWithTitulo.id}
                 onViewRotina={onViewRotina}
               />
             </motion.div>

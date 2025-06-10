@@ -2,12 +2,12 @@
 import { Clock, ListTodo } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { TarefaCard } from "./TarefaCard";
-import { Tarefa } from "../types";
+import { TarefaWithCreator } from "../types"; // Use TarefaWithCreator instead of Tarefa
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TarefasListProps {
-  tarefas: Tarefa[];
+  tarefas: TarefaWithCreator[]; // Changed from Tarefa[] to TarefaWithCreator[]
   isLoading: boolean;
   onAtualizarStatus: (tarefaId: string, novoStatus: string) => void;
   onExcluirTarefa: (tarefaId: string) => void;
