@@ -1,6 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { TarefaWithCreator, RotinaWithStatus } from "../types"; // Import the local RotinaWithStatus
+import { TarefaWithCreator } from "../types";
+import { RotinaWithStatus } from "../../rotinas/types"; // Use the rotinas RotinaWithStatus
 import { motion } from "framer-motion";
 import { ConnectionHeader } from "./tarefa-rotina-connection/ConnectionHeader";
 import { LoadingState } from "./tarefa-rotina-connection/LoadingState";
@@ -12,6 +13,11 @@ import { useTarefaRotinaConnection } from "./tarefa-rotina-connection/useTarefaR
 interface TarefaRotinaConnectionProps {
   tarefa: TarefaWithCreator;
   onViewRotina?: (rotinaId: string) => void;
+}
+
+// Create a local interface that extends RotinaWithStatus with titulo
+interface RotinaWithTitulo extends RotinaWithStatus {
+  titulo: string;
 }
 
 export function TarefaRotinaConnection({ 
@@ -26,9 +32,10 @@ export function TarefaRotinaConnection({
   }
 
   // Create a compatible rotina object with titulo property
-  const rotinaWithTitulo: RotinaWithStatus | null = rotinaRelacionada ? {
+  const rotinaWithTitulo: RotinaWithTitulo | null = rotinaRelacionada ? {
     ...rotinaRelacionada,
-    titulo: rotinaRelacionada.nome || rotinaRelacionada.titulo || 'Rotina sem título'
+    titulo: rotinaRelacionada.nome || 'Rotina sem título',
+    status: 'pendente' as const // Ensure proper status type
   } : null;
 
   return (

@@ -31,10 +31,10 @@ export function useTarefaRotinaConnection(tarefaRotinaId: string | null) {
 
       if (error) throw error;
 
-      // Add status property to match RotinaWithStatus type
+      // Convert to RotinaWithStatus with proper status
       setRotinaRelacionada({
         ...rotina,
-        status: 'pendente' // Default status
+        status: 'pendente' // Default status that matches the type
       } as RotinaWithStatus);
     } catch (error) {
       console.error('Erro ao carregar rotina relacionada:', error);
