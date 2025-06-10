@@ -1,7 +1,5 @@
-
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -9,7 +7,6 @@ interface PageLayoutProps {
   spacing?: "tight" | "normal" | "relaxed";
   className?: string;
   fullHeight?: boolean;
-  glassmorphism?: boolean;
 }
 
 export function PageLayout({
@@ -17,8 +14,7 @@ export function PageLayout({
   maxWidth = "full",
   spacing = "normal",
   className,
-  fullHeight = false,
-  glassmorphism = true
+  fullHeight = false
 }: PageLayoutProps) {
   const maxWidthClasses = {
     sm: "max-w-2xl",
@@ -42,31 +38,16 @@ export function PageLayout({
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className={cn(
-        "w-full mx-auto relative",
-        fullHeight && "min-h-screen",
-        spacingClasses[spacing],
-        maxWidthClasses[maxWidth],
-        paddingClasses[spacing],
-        glassmorphism && "glass-card rounded-2xl backdrop-blur-xl shadow-2xl",
-        className
-      )}
-    >
-      {glassmorphism && (
-        <>
-          {/* Glassmorphism effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-2xl pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-tl from-primary/5 via-transparent to-blue-500/5 rounded-2xl pointer-events-none" />
-        </>
-      )}
-      
-      <div className="relative z-10">
-        {children}
-      </div>
-    </motion.div>
+    <div className={cn(
+      "w-full mx-auto animate-fade-in",
+      fullHeight && "min-h-screen",
+      spacingClasses[spacing],
+      maxWidthClasses[maxWidth],
+      paddingClasses[spacing],
+      "relative",
+      className
+    )}>
+      {children}
+    </div>
   );
 } 
