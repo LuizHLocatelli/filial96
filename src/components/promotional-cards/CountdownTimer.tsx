@@ -50,7 +50,7 @@ export const CountdownTimer = ({ endDate, isMobile }: CountdownTimerProps) => {
   const text = isMobile ? timerComponents.join(' ') : `Termina em ${timerComponents.join(' ')}`;
 
   return (
-    <div className="flex items-center gap-1 bg-red-500/80 text-white rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
+    <div className="flex items-center gap-1 bg-red-500/80 dark:bg-red-800/80 text-white dark:text-red-100 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
       <Clock className="h-3 w-3 flex-shrink-0" />
       <span className="text-xs truncate block font-semibold">{text}</span>
     </div>

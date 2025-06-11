@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useAurora } from "@/hooks/useAurora";
 import {
   Card,
   CardDescription,
@@ -20,6 +20,7 @@ import { TrustIndicators } from "@/components/auth/TrustIndicators";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("login");
+  const formRef = useAurora<HTMLDivElement>();
   
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
@@ -28,7 +29,10 @@ export default function Auth() {
       <div className="w-full max-w-md relative z-10">
         <EnhancedAuthHeader />
 
-        <div className="glass-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div
+          ref={formRef}
+          className="glass-card aurora-effect border border-border/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+        >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="bg-gradient-to-r from-muted/50 to-muted/30 p-1 m-4 rounded-xl">
               <TabsList className="grid w-full grid-cols-2 bg-transparent gap-1">

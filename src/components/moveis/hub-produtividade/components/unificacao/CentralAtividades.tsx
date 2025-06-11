@@ -33,7 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { UnifiedActivityTimeline } from '../unified/UnifiedActivityTimeline';
+import { UnifiedActivityTimeline } from './UnifiedActivityTimeline';
 
 const tarefaFormSchema = z.object({
   titulo: z.string().min(1, "Título é obrigatório"),

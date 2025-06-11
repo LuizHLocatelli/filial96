@@ -6,7 +6,6 @@ import { StatsOverview } from './StatsOverview';
 import { QuickActions } from './QuickActions';
 import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSection';
 import { DesktopLayout } from './DesktopLayout';
-import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
 import { Activity, Zap } from 'lucide-react';
 import { useEffect } from 'react';
 import { ConexoesVisualizacao } from './ConexoesVisualizacao';
@@ -58,10 +57,6 @@ export function HubDashboard({
   if (isMobile) {
     return (
       <div className="space-y-4">
-        <div className="mb-4">
-          <ProductivityAssistant />
-        </div>
-
         <CollapsibleGroup spacing="tight">
           <CollapsibleSection
             title="Estatísticas"
@@ -109,10 +104,6 @@ export function HubDashboard({
   if (isTablet) {
     return (
       <div className="space-y-6">
-        <div className="mb-4">
-          <ProductivityAssistant />
-        </div>
-
         <CollapsibleGroup spacing={isCompact ? 'tight' : 'normal'}>
           <CollapsibleSection
             title="Visão Geral"

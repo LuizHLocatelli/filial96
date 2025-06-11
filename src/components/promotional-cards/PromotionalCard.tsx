@@ -111,15 +111,15 @@ export function PromotionalCard({
     const end = endDate ? new Date(endDate) : null;
 
     if (end && end < now) {
-      return { text: "Expirado", color: "bg-red-500 text-white", icon: Clock };
+      return { text: "Expirado", color: "bg-red-500 dark:bg-red-800 text-white dark:text-red-100", icon: Clock };
     }
     if (start && start > now) {
-      return { text: "Agendado", color: "bg-blue-500 text-white", icon: Clock };
+      return { text: "Agendado", color: "bg-blue-500 dark:bg-blue-800 text-white dark:text-blue-100", icon: Clock };
     }
     if (start && end && start <= now && end >= now) {
-      return { text: "Ativo", color: "bg-green-500 text-white", icon: Clock };
+      return { text: "Ativo", color: "bg-green-500 dark:bg-green-800 text-white dark:text-green-100", icon: Clock };
     }
-    return { text: "Válido", color: "bg-gray-500 text-white", icon: Clock }; // Default/fallback
+    return { text: "Válido", color: "bg-gray-500 dark:bg-gray-700 text-white dark:text-gray-200", icon: Clock }; // Default/fallback
   };
 
   const status = getStatus();
@@ -152,34 +152,39 @@ export function PromotionalCard({
               />
               
               {/* Overlay com informações */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2">
-                
-                <div className="flex items-center justify-between gap-2 text-xs text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-between p-2">
+                {/* Top Section */}
+                <div className="flex justify-start">
                   {code && (
-                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
+                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0 text-white">
                       <Hash className="h-3 w-3 flex-shrink-0" />
-                      <span className="truncate font-medium block">{code}</span>
+                      <span className="truncate font-medium block text-xs">{code}</span>
                     </div>
                   )}
-                  {status.text === "Ativo" && endDate ? (
-                    <CountdownTimer endDate={endDate} isMobile={isMobile} />
-                  ) : (
-                    formattedEndDate && (
-                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span className="text-xs truncate block">{formattedEndDate}</span>
-                      </div>
-                    )
-                  )}
                 </div>
-                
-                <div className="mt-2 w-fit">
+
+                {/* Bottom Section */}
+                <div className="flex w-full flex-wrap items-end justify-between gap-2 text-xs text-white">
+                  {/* Status Badge */}
                   <div className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-sm", status.color)}>
                     <status.icon className="h-3.5 w-3.5" />
                     <span>{status.text}</span>
                   </div>
+                  
+                  {/* Timer/End Date Badge */}
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {status.text === "Ativo" && endDate ? (
+                      <CountdownTimer endDate={endDate} isMobile={isMobile} />
+                    ) : (
+                      formattedEndDate && (
+                        <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
+                          <Calendar className="h-3 w-3 flex-shrink-0" />
+                          <span className="text-xs truncate block">{formattedEndDate}</span>
+                        </div>
+                      )
+                    )}
+                  </div>
                 </div>
-
               </div>
             </div>
           </AspectRatio>

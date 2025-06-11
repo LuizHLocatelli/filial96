@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { EnhancedTopBar } from "./EnhancedTopBar";
 import { NavigationTabs } from "./NavigationTabs";
@@ -44,7 +43,7 @@ export function GlassAppLayout({ children }: GlassAppLayoutProps) {
         )}
       >
         <div className="container mx-auto p-4">
-          <div className="glass-card rounded-2xl p-6 m-2 min-h-[calc(100vh-12rem)]">
+          <div className="glass-card-medium rounded-2xl p-6 m-2 min-h-[calc(100vh-12rem)]">
             {children}
           </div>
         </div>

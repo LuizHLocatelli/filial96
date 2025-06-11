@@ -1,0 +1,29 @@
+/* === INTERACTIVE AURORA EFFECT === */
+.aurora-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora-effect::after {
+  content: "";
+  position: absolute;
+  top: var(--aurora-y, 50%);
+  left: var(--aurora-x, 50%);
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle,
+    rgba(34, 197, 94, 0.25) 0%,
+    rgba(16, 185, 129, 0.15) 40%,
+    transparent 70%);
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, top 0.2s ease-out, left 0.2s ease-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora-effect:is(:hover, :focus-within)::after {
+  opacity: 1;
+} 

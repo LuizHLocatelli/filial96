@@ -7,7 +7,6 @@ import { QuickActions } from './QuickActions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
 import { 
   Activity, 
   Zap, 
@@ -42,11 +41,6 @@ export function DesktopLayout({
 
   return (
     <div className="space-y-4">
-      {/* Assistente de Produtividade - Layout otimizado */}
-      <div className="mb-4">
-        <ProductivityAssistant />
-      </div>
-
       {/* Header com Stats compactos */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 border-green-200/50 dark:border-green-800/50">
