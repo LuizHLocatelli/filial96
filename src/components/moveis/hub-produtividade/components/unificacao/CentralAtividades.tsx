@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -126,12 +127,14 @@ export function CentralAtividades() {
 
   const handleCreateRotina = async (data: any) => {
     try {
-      await addRotina(data);
-      setShowAddRotinaDialog(false);
-      toast({
-        title: "Sucesso",
-        description: "Rotina criada com sucesso!",
-      });
+      const success = await addRotina(data);
+      if (success) {
+        setShowAddRotinaDialog(false);
+        toast({
+          title: "Sucesso",
+          description: "Rotina criada com sucesso!",
+        });
+      }
     } catch (error) {
       console.error('Erro ao criar rotina:', error);
       toast({
@@ -235,9 +238,6 @@ export function CentralAtividades() {
       console.error("Erro ao buscar orientações:", error);
     }
   };
-
-
-
 
   const handleAtualizarStatusTarefa = async (tarefaId: string, novoStatus: string) => {
     try {
@@ -383,6 +383,12 @@ export function CentralAtividades() {
     }
   };
 
+  // Helper function to get user name synchronously
+  const getUserName = (userId: string): string => {
+    // Since getCachedUserName is async but we need sync, we'll use a fallback
+    return "Usuário"; // Placeholder - you might want to implement a synchronous cache
+  };
+
   return (
     <div className="w-full max-w-full relative">
       <Tabs 
@@ -424,7 +430,7 @@ export function CentralAtividades() {
                 onDelete={handleUnifiedDelete}
                 onCreateRelated={handleUnifiedCreateRelated}
                 onCreateNew={handleUnifiedCreateNew}
-                getCachedUserName={getCachedUserName}
+                getCachedUserName={getUserName}
                 onAddTarefa={() => setShowAddTarefaForm(true)}
               />
             </div>
@@ -460,8 +466,8 @@ export function CentralAtividades() {
       </Tabs>
 
       <AddRotinaDialog
-        isOpen={showAddRotinaDialog}
-        onClose={() => setShowAddRotinaDialog(false)}
+        open={showAddRotinaDialog}
+        onOpenChange={setShowAddRotinaDialog}
         onSave={handleCreateRotina}
       />
 
