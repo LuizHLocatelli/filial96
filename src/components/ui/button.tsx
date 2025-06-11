@@ -25,7 +25,7 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3",
+        sm: "h-8 rounded-lg px-3 text-xs font-medium",
         lg: "h-12 rounded-xl px-8",
         icon: "h-10 w-10",
       },
@@ -51,28 +51,45 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     return (
       <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: size === "sm" ? 1.03 : 1.02 }}
+        whileTap={{ scale: size === "sm" ? 0.97 : 0.98 }}
         transition={{ duration: 0.1 }}
       >
         <Comp
           className={cn(
             buttonVariants({ variant, size, className }),
-            isMobile && "min-h-[44px] rounded-2xl" // Touch target for mobile
+            isMobile && "min-h-[44px] rounded-2xl", // Touch target for mobile
+            size === "sm" && [
+              "glass-button-default",
+              "shadow-sm hover:shadow-md",
+              "border border-white/15 hover:border-white/25",
+              "backdrop-blur-sm",
+              "transition-all duration-200 ease-out"
+            ]
           )}
           ref={ref}
           {...props}
         >
-          {/* Glass Shine Effect */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+          {/* Glass Shine Effect for small buttons */}
+          {size === "sm" && (
+            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+          )}
+          
+          {/* Glass Shine Effect for other buttons */}
+          {size !== "sm" && (
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+          )}
           
           {/* Content */}
           <span className="relative z-10 flex items-center gap-2">
             {children}
           </span>
           
-          {/* Bottom Highlight */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          {/* Bottom Highlight - adjusted for small buttons */}
+          <div className={cn(
+            "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent",
+            size === "sm" && "via-white/20"
+          )} />
         </Comp>
       </motion.div>
     )
