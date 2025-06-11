@@ -251,13 +251,13 @@ export function DepositFormDialog({
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className={`dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10
           ${isMobile 
-            ? 'w-[95vw] max-w-md rounded-2xl mx-auto' 
+            ? 'w-[95vw] max-w-sm rounded-2xl mx-auto' 
             : `max-w-4xl ${showForm ? '' : 'sm:max-w-2xl'}`
           }
           ${!showForm && depositosForDay.length > 4 ? 'h-[90vh]' : ''}
-        `}>
+          flex flex-col`}>
           <DialogHeader className={`
-            ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} 
+            ${isMobile ? 'px-4 pt-4 pb-3' : 'px-6 py-4'} 
             bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 border-b shrink-0 rounded-t-xl
           `}>
             <DialogTitle className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold flex items-center gap-2`}>
@@ -268,7 +268,7 @@ export function DepositFormDialog({
                 <div className="truncate">Depósito Bancário</div>
                 {selectedDay && (
                   <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-normal text-muted-foreground truncate`}>
-                    {format(selectedDay, isMobile ? "dd/MM/yyyy" : "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {format(selectedDay, isMobile ? "dd/MM/yy" : "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </div>
                 )}
               </div>
@@ -348,15 +348,15 @@ export function DepositFormDialog({
                     )}
                   </div>
                   
-                  <div className={`bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-3 md:p-4`}>
+                  <div className={`bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-3`}>
                     <div className="flex items-start space-x-3">
-                      <Checkbox id="ja-incluido" checked={jaIncluido} onCheckedChange={(checked) => setJaIncluido(checked === true)} className="mt-1 data-[state=checked]:bg-amber-600" />
-                      <div className="grid gap-1 leading-none">
+                      <Checkbox id="ja-incluido" checked={jaIncluido} onCheckedChange={(checked) => setJaIncluido(checked === true)} className="mt-0.5 data-[state=checked]:bg-amber-600" />
+                      <div className="grid gap-0.5 leading-tight">
                         <label htmlFor="ja-incluido" className="text-sm font-semibold cursor-pointer text-amber-800 dark:text-amber-200">
-                          Este depósito já foi incluído na Tesouraria/P2K?
+                          Depósito incluído na Tesouraria/P2K?
                         </label>
                         <p className="text-xs text-amber-700 dark:text-amber-300">
-                          Marque esta opção se o depósito já foi processado.
+                          Marque se o valor já foi processado.
                         </p>
                       </div>
                     </div>

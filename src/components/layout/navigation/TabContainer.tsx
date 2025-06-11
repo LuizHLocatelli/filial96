@@ -11,8 +11,8 @@ export function TabContainer({ children, isMobile, isSmallScreen }: TabContainer
       className={cn(
         "fixed z-50",
         isMobile 
-          ? "bottom-6 left-4 right-4 flex justify-center"
-          : "bottom-4 left-0 right-0 flex justify-center"
+          ? "bottom-4 left-4 right-4 flex justify-center"
+          : "bottom-2 left-0 right-0 flex justify-center"
       )}
     >
       {/* Glassmorphism Container */}
