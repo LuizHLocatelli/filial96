@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface CardItem {
@@ -10,6 +9,8 @@ export interface CardItem {
   sector: "furniture" | "fashion" | "loan" | "service";
   code: string | null;
   promotion_date: string | null;
+  start_date: string | null;
+  end_date: string | null;
   created_by: string;
   created_at: string;
 }

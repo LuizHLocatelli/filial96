@@ -279,7 +279,6 @@ export function SecuritySettingsForm() {
               <CheckCircle className="h-4 w-4 text-green-500" />
               <span className="text-sm">Senha forte</span>
             </div>
-            <Badge variant="secondary" className="text-xs">Ativo</Badge>
           </div>
           
           <div className="flex items-center justify-between">
@@ -287,7 +286,6 @@ export function SecuritySettingsForm() {
               <CheckCircle className="h-4 w-4 text-green-500" />
               <span className="text-sm">Email verificado</span>
             </div>
-            <Badge variant="secondary" className="text-xs">Ativo</Badge>
           </div>
         </CardContent>
       </Card>

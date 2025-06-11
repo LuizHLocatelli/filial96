@@ -1,4 +1,3 @@
-
 import { PromotionalCard } from "@/components/promotional-cards/PromotionalCard";
 import { CardItem } from "@/hooks/useCardOperations";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,9 +8,10 @@ interface CardGridProps {
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, newFolderId: string | null) => Promise<boolean>;
   sector: "furniture" | "fashion" | "loan" | "service";
+  onUpdate: () => void;
 }
 
-export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridProps) {
+export function CardGrid({ cards, onDelete, onMoveToFolder, sector, onUpdate }: CardGridProps) {
   const isMobile = useIsMobile();
   
   const containerVariants = {
@@ -54,13 +54,15 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridPr
             id={card.id}
             title={card.title}
             code={card.code}
-            promotionDate={card.promotion_date}
+            startDate={card.start_date}
+            endDate={card.end_date}
             imageUrl={card.image_url}
             folderId={card.folder_id}
             onDelete={onDelete}
             onMoveToFolder={onMoveToFolder}
             sector={sector}
             isMobile={isMobile}
+            onUpdate={onUpdate}
           />
         </motion.div>
       ))}

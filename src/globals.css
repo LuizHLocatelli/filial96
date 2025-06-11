@@ -23,7 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 142.1 76.2% 36.3%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -85,7 +85,21 @@
 
 .dark .glass-card {
   background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+.glass-container {
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-container {
+  background-color: rgba(17, 25, 40, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
 .gradient-text {

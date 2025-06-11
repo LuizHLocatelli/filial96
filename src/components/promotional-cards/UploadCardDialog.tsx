@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
@@ -16,12 +15,14 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId }: Uploa
   const {
     title,
     code,
-    promotionDate,
+    startDate,
+    endDate,
     previewUrl,
     isSubmitting,
     setTitle,
     setCode,
-    setPromotionDate,
+    setStartDate,
+    setEndDate,
     setFolderId,
     handleFileChange,
     removeImage,
@@ -54,8 +55,10 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId }: Uploa
             setTitle={setTitle}
             code={code}
             setCode={setCode}
-            promotionDate={promotionDate}
-            setPromotionDate={setPromotionDate}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
             folderId={folderId}
             setFolderId={setFolderId}
             previewUrl={previewUrl}

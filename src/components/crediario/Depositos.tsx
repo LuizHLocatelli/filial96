@@ -16,8 +16,6 @@ import { ImagePreviewDialog } from "./depositos/ImagePreviewDialog";
 import { NotificationSystem } from "./depositos/NotificationSystem";
 import { DepositAnalytics } from "./depositos/DepositAnalytics";
 import { UploadProgress, AnalyticsSkeleton } from "./depositos/LoadingStates";
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 export function Depositos() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -304,9 +302,14 @@ export function Depositos() {
     }
   };
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
     try {
+      const { default: jsPDF } = await import('jspdf');
+      const { default: autoTable } = await import('jspdf-autotable');
+
       const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text("Relatório de Depósitos - Crediário", 14, 22);
       
       // Configurações do documento
       const pageWidth = doc.internal.pageSize.width;
@@ -314,10 +317,6 @@ export function Depositos() {
       const margin = 20;
       
       // Cabeçalho do documento
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text('RELATÓRIO DE DEPÓSITOS BANCÁRIOS', pageWidth / 2, 30, { align: 'center' });
-      
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
       doc.text(`FILIAL 96 - ${format(currentMonth, 'MMMM yyyy', { locale: ptBR }).toUpperCase()}`, pageWidth / 2, 45, { align: 'center' });
@@ -490,22 +489,20 @@ export function Depositos() {
       doc.text(`Página 1 de 1`, pageWidth / 2, finalY + 8, { align: 'center' });
       
       // Salvar o arquivo
-      const fileName = `depositos_filial96_${format(currentMonth, 'MM-yyyy')}.pdf`;
+      const fileName = `relatorio-depositos-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
       doc.save(fileName);
       
       toast({
-        title: "✅ Relatório PDF Gerado",
-        description: `Arquivo ${fileName} baixado com sucesso!`,
-        duration: 3000,
+        title: "Relatório Gerado",
+        description: `O arquivo ${fileName} foi salvo com sucesso.`,
       });
       
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
+      console.error("Erro ao gerar PDF:", error);
       toast({
-        title: "❌ Erro na Exportação",
-        description: "Não foi possível gerar o relatório PDF. Tente novamente.",
+        title: "Erro ao Gerar Relatório",
+        description: "Não foi possível gerar o PDF.",
         variant: "destructive",
-        duration: 4000,
       });
     }
   };

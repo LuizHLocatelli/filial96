@@ -101,7 +101,7 @@ export default function HubProdutividade() {
       icon: Activity,
       description: "Dashboard e métricas",
       component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
+        <div className="glass-card rounded-lg overflow-hidden">
           <HubDashboard
             stats={stats}
             activities={activities}
@@ -132,7 +132,7 @@ export default function HubProdutividade() {
       icon: CheckSquare,
       description: "Rotinas, Tarefas e Informativos",
       component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
+        <div className="glass-card rounded-lg overflow-hidden">
           <CentralAtividades />
         </div>
       )
@@ -143,7 +143,7 @@ export default function HubProdutividade() {
       icon: Users,
       description: "Acompanhamento por cargo",
       component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
+        <div className="glass-card rounded-lg overflow-hidden">
           <OrientacoesMonitoramento />
         </div>
       )
@@ -154,7 +154,7 @@ export default function HubProdutividade() {
       icon: BarChart3,
       description: "Relatórios e análises",
       component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden p-6">
+        <div className="glass-card rounded-lg overflow-hidden p-6">
           <div className="text-center space-y-4">
             <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground" />
             <div>
@@ -182,10 +182,6 @@ export default function HubProdutividade() {
         description="Central de rotinas, tarefas e orientações"
         icon={Activity}
         iconColor="text-primary"
-        status={{
-          label: "Ativo",
-          color: "bg-green-50 text-green-700 border-green-200"
-        }}
         variant="default"
       />
 
