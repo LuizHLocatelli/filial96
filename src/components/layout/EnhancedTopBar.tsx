@@ -147,7 +147,7 @@ export function EnhancedTopBar() {
           >
             <UserMenu />
           </motion.div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Mobile Search Expandable com design melhorado */}
