@@ -171,7 +171,7 @@ const PainelMetas: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50 text-gray-800 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-200">
+    <div className="dark:bg-black-100 flex min-h-screen flex-col bg-gray-100 p-4 font-sans text-gray-800 transition-colors duration-300 dark:text-gray-200">
       <AnimatePresence>
         {detailedView && detailedView !== 'Ambos' && detailedView !== 'Geral' ? (
           <TeamDetailView
@@ -185,77 +185,57 @@ const PainelMetas: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full p-4"
+            className="w-full"
           >
             {/* Header */}
-            <header className="sticky top-0 z-40 mb-6 flex flex-col items-center justify-between gap-4 rounded-xl border-b border-border bg-card p-4 md:flex-row">
-              <div className="flex w-full items-center justify-between md:w-auto">
+            <header className="mb-6 flex flex-col items-center justify-between gap-4 rounded-lg bg-white p-4 shadow-md dark:bg-gray-800 md:flex-row">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                <FaArrowLeft />
+                Voltar
+              </button>
+              <div className="flex items-center gap-2 text-gray-800 dark:text-white">
                 <button
-                  onClick={() => navigate(-1)}
-                  className="flex items-center gap-2 rounded-lg bg-background px-4 py-2 text-foreground/80 transition-colors hover:bg-border"
+                  onClick={() => handleMonthChange('prev')}
+                  className="rounded-full p-2 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
-                  <FaArrowLeft />
-                  Voltar
+                  &lt;
                 </button>
-                <h1 className="text-2xl font-bold text-foreground md:hidden">
-                  Painel de Metas
-                </h1>
+                <h2 className="text-xl font-bold capitalize">
+                  {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+                </h2>
+                <button
+                  onClick={() => handleMonthChange('next')}
+                  className="rounded-full p-2 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+                >
+                  &gt;
+                </button>
               </div>
-
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex items-center gap-2 text-foreground">
+              <div className="flex gap-2">
+                {['Móveis', 'Moda', 'Ambos'].map(team => (
                   <button
-                    onClick={() => handleMonthChange('prev')}
-                    className="rounded-full p-2 transition-colors hover:bg-border"
+                    key={team}
+                    onClick={() => handleTeamChange(team as Team | 'Ambos')}
+                    className={`rounded-lg px-3 py-1 text-sm font-medium transition-all ${
+                      selectedTeam === team
+                        ? 'bg-green-600 text-white shadow-sm'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                    }`}
                   >
-                    &lt;
+                    {team}
                   </button>
-                  <h2 className="w-40 text-center text-xl font-bold capitalize">
-                    {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
-                  </h2>
-                  <button
-                    onClick={() => handleMonthChange('next')}
-                    className="rounded-full p-2 transition-colors hover:bg-border"
-                  >
-                    &gt;
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  {[
-                    { label: 'Móveis', value: 'Móveis' },
-                    { label: 'Moda', value: 'Moda' },
-                    { label: 'Ambos', value: 'Ambos' },
-                  ].map(team => (
-                    <button
-                      key={team.value}
-                      onClick={() =>
-                        handleTeamChange(team.value as Team | 'Ambos')
-                      }
-                      className={`rounded-lg border px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                        selectedTeam === team.value
-                          ? 'border-transparent bg-primary text-primary-foreground shadow-md'
-                          : 'border-border bg-background text-foreground/70 hover:bg-border'
-                      }`}
-                    >
-                      {team.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="hidden md:block">
-                {/* Placeholder for other actions */}
+                ))}
               </div>
             </header>
-            <h1 className="mb-6 hidden text-3xl font-bold text-gray-900 dark:text-white md:block">
-              Painel de Metas
-            </h1>
 
             {/* Grid de Metas */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             >
               {filteredGoals.map(goal => (
                 <SectorGoalCard
