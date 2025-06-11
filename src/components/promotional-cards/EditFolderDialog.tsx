@@ -76,7 +76,7 @@ export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: Ed
       }
       onOpenChange(open);
     }}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <DialogHeader>
           <DialogTitle>Editar Pasta</DialogTitle>
           <DialogDescription>

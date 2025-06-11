@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,8 +6,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Trash2, FolderOpen, X, MoreHorizontal, Download, Pencil } from "lucide-react";
+import { Trash2, FolderOpen, X, MoreHorizontal, Download, Pencil, FolderUp } from "lucide-react";
 import { FolderItem } from "@/hooks/useFolders";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +37,8 @@ export function CardDropdownMenu({
   isLoading,
   isMobile,
 }: CardDropdownMenuProps) {
+  const availableFolders = folders.filter(folder => folder.id !== folderId);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -57,8 +61,33 @@ export function CardDropdownMenu({
           Editar
         </DropdownMenuItem>
         
-        <DropdownMenuLabel className={cn(isMobile && "text-xs")}>Pastas</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className={cn(isMobile && "text-xs")}>
+            <FolderUp className="mr-2 h-3.5 w-3.5" />
+            Mover para
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="max-h-48 overflow-y-auto">
+            <DropdownMenuLabel>Selecione a pasta de destino</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {availableFolders.length > 0 ? (
+              availableFolders.map(folder => (
+                <DropdownMenuItem 
+                  key={folder.id}
+                  onClick={() => onMoveToFolder(folder.id)}
+                  className={cn(isMobile && "text-xs")}
+                  disabled={isLoading}
+                >
+                  <FolderOpen className="mr-2 h-3.5 w-3.5" />
+                  {folder.name}
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled className={cn(isMobile && "text-xs")}>Nenhuma outra pasta disponível</DropdownMenuItem>
+            )}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         
         {folderId && (
           <DropdownMenuItem 
@@ -67,29 +96,13 @@ export function CardDropdownMenu({
             disabled={isLoading}
           >
             <X className="mr-2 h-3.5 w-3.5" />
-            Remover da pasta
+            Remover da pasta atual
           </DropdownMenuItem>
-        )}
-        
-        {folders.length > 0 && (
-          folders
-            .filter(folder => folder.id !== folderId)
-            .map(folder => (
-              <DropdownMenuItem 
-                key={folder.id}
-                onClick={() => onMoveToFolder(folder.id)}
-                className={cn(isMobile && "text-xs")}
-                disabled={isLoading}
-              >
-                <FolderOpen className="mr-2 h-3.5 w-3.5" />
-                Mover para {folder.name}
-              </DropdownMenuItem>
-            ))
         )}
         
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          className={cn("text-red-600", isMobile && "text-xs")}
+          className={cn("text-red-600 focus:text-red-600 focus:bg-red-50", isMobile && "text-xs")}
           onClick={onDelete}
           disabled={isLoading}
         >

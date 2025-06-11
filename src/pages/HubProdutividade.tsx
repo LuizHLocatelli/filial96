@@ -180,10 +180,6 @@ export default function HubProdutividade() {
         description="Central de rotinas, tarefas e orientações"
         icon={Activity}
         iconColor="text-primary"
-        status={{
-          label: "Ativo",
-          color: "bg-green-50 text-green-700 border-green-200"
-        }}
         variant="default"
       />
 

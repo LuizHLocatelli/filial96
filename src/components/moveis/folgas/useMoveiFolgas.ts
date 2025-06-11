@@ -38,11 +38,11 @@ export function useMoveiFolgas() {
     async function fetchConsultores() {
       setIsLoadingConsultores(true);
       try {
-        // Fetch profiles com role "consultor_moveis" ou "consultor_moda"
+        // Fetch profiles com role "consultor_moveis"
         const { data, error } = await supabase
           .from("profiles")
           .select("id, name, avatar_url")
-          .or('role.eq.consultor_moveis,role.eq.consultor_moda');
+          .eq('role', 'consultor_moveis');
           
         if (error) {
           console.error("Erro ao buscar consultores:", error);

@@ -70,7 +70,7 @@ export function DeleteFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: 
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <DialogHeader>
           <DialogTitle>Confirmar Exclusão</DialogTitle>
           <DialogDescription>

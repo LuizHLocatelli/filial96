@@ -85,6 +85,7 @@
 
 .dark .glass-card {
   background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(75, 85, 99, 0.2);
 }
 

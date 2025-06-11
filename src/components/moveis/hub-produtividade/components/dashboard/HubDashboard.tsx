@@ -7,7 +7,7 @@ import { QuickActions } from './QuickActions';
 import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSection';
 import { DesktopLayout } from './DesktopLayout';
 import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
-import { Activity, Zap, Link2 } from 'lucide-react';
+import { Activity, Zap } from 'lucide-react';
 import { useEffect } from 'react';
 import { ConexoesVisualizacao } from './ConexoesVisualizacao';
 
@@ -101,23 +101,6 @@ export function HubDashboard({
               />
             </div>
           </CollapsibleSection>
-          
-          <CollapsibleSection
-            title="Conexões Rotinas ↔ Tarefas"
-            icon={Link2}
-            defaultExpanded={false}
-            compact={isCompact}
-            persistStateKey="mobile-connections"
-          >
-            <div className="px-1">
-              <ConexoesVisualizacao
-                rotinas={rotinas}
-                tarefas={tarefas}
-                onViewRotina={onViewRotina}
-                onViewTarefa={onViewTarefa}
-              />
-            </div>
-          </CollapsibleSection>
         </CollapsibleGroup>
       </div>
     );
@@ -167,23 +150,6 @@ export function HubDashboard({
                   onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
                   onRelatorios={handlers.onRelatorios || (() => {})}
                   isRefreshing={isLoading}
-                />
-              </div>
-            </CollapsibleSection>
-
-            <CollapsibleSection
-              title="Mapa de Conexões"
-              icon={Link2}
-              defaultExpanded={true}
-              compact={isCompact}
-              persistStateKey="tablet-connections"
-            >
-              <div className="px-2">
-                <ConexoesVisualizacao
-                  rotinas={rotinas}
-                  tarefas={tarefas}
-                  onViewRotina={onViewRotina}
-                  onViewTarefa={onViewTarefa}
                 />
               </div>
             </CollapsibleSection>

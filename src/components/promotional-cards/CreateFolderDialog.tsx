@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -69,7 +68,7 @@ export function CreateFolderDialog({ open, onOpenChange, sector }: CreateFolderD
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("md")}>
+      <DialogContent {...getMobileDialogProps("md")} className="dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <form onSubmit={handleSubmit} {...getMobileFormProps()}>
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">Criar Nova Pasta</DialogTitle>

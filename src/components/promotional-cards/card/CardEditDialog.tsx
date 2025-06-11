@@ -14,7 +14,7 @@ interface CardEditDialogProps {
   id: string;
   title: string;
   isMobile?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (newTitle: string) => void;
 }
 
 export function CardEditDialog({ 
@@ -53,7 +53,7 @@ export function CardEditDialog({
       });
       
       onOpenChange(false);
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(editedTitle.trim());
     } catch (error) {
       console.error('Error updating card title:', error);
       toast({
@@ -68,7 +68,7 @@ export function CardEditDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6">
+      <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">Editar Card</DialogTitle>
           <DialogDescription>

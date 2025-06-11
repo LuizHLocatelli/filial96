@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +7,8 @@ import { useAuth } from "@/contexts/auth";
 interface CardUploadState {
   title: string;
   code: string;
-  promotionDate: Date | undefined;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   selectedFile: File | null;
   previewUrl: string | null;
   isSubmitting: boolean;
@@ -25,7 +25,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
   const [state, setState] = useState<CardUploadState>({
     title: "",
     code: "",
-    promotionDate: undefined,
+    startDate: undefined,
+    endDate: undefined,
     selectedFile: null,
     previewUrl: null,
     isSubmitting: false,
@@ -37,7 +38,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     setState({
       title: "",
       code: "",
-      promotionDate: undefined,
+      startDate: undefined,
+      endDate: undefined,
       selectedFile: null,
       previewUrl: null,
       isSubmitting: false,
@@ -53,8 +55,12 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     setState(prev => ({ ...prev, code }));
   };
 
-  const setPromotionDate = (promotionDate: Date | undefined) => {
-    setState(prev => ({ ...prev, promotionDate }));
+  const setStartDate = (date: Date | undefined) => {
+    setState(prev => ({ ...prev, startDate: date }));
+  };
+
+  const setEndDate = (date: Date | undefined) => {
+    setState(prev => ({ ...prev, endDate: date }));
   };
 
   const setFolderId = (folderId: string | null) => {
@@ -115,6 +121,15 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       });
       return;
     }
+
+    if (state.endDate && state.startDate && state.endDate < state.startDate) {
+      toast({
+        title: "Erro de Validação",
+        description: "A data final não pode ser anterior à data de início.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!user) {
       toast({
@@ -156,12 +171,14 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       const position = positionData && positionData.length > 0 ? positionData[0].position + 1 : 0;
       
       // Convert Date to ISO string if it exists, otherwise set to null
-      const formattedPromotionDate = state.promotionDate ? state.promotionDate.toISOString() : null;
+      const formattedStartDate = state.startDate ? state.startDate.toISOString() : null;
+      const formattedEndDate = state.endDate ? state.endDate.toISOString() : null;
       
       const { error: insertError } = await supabase.from('promotional_cards').insert({
         title: state.title.trim(),
         code: state.code.trim(),
-        promotion_date: formattedPromotionDate,
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
         image_url: imageUrl,
         folder_id: state.folderId,
         sector,
@@ -194,7 +211,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     ...state,
     setTitle,
     setCode,
-    setPromotionDate,
+    setStartDate,
+    setEndDate,
     setFolderId,
     handleFileChange,
     removeImage,

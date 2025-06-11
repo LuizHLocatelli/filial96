@@ -1,4 +1,3 @@
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +27,7 @@ export function DeleteSaleDialog({
   
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] sm:max-w-[500px] mx-auto">
+      <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] sm:max-w-[500px] mx-auto dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-base sm:text-lg">Confirmar exclusão</AlertDialogTitle>
           <AlertDialogDescription className="text-sm">

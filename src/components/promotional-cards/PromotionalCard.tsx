@@ -12,6 +12,7 @@ import {
 } from "./card";
 import { Calendar, Hash, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CountdownTimer } from "./CountdownTimer";
 
 interface PromotionalCardProps {
   id: string;
@@ -23,6 +24,7 @@ interface PromotionalCardProps {
   folderId: string | null;
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
+  onUpdate: (id: string, newTitle: string) => void;
   sector: "furniture" | "fashion" | "loan" | "service";
   isMobile?: boolean;
 }
@@ -37,6 +39,7 @@ export function PromotionalCard({
   folderId, 
   onDelete,
   onMoveToFolder,
+  onUpdate,
   sector,
   isMobile
 }: PromotionalCardProps) {
@@ -158,11 +161,15 @@ export function PromotionalCard({
                       <span className="truncate font-medium block">{code}</span>
                     </div>
                   )}
-                  {formattedEndDate && (
-                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
-                      <Calendar className="h-3 w-3 flex-shrink-0" />
-                      <span className="text-xs truncate block">{formattedEndDate}</span>
-                    </div>
+                  {status.text === "Ativo" && endDate ? (
+                    <CountdownTimer endDate={endDate} isMobile={isMobile} />
+                  ) : (
+                    formattedEndDate && (
+                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
+                        <Calendar className="h-3 w-3 flex-shrink-0" />
+                        <span className="text-xs truncate block">{formattedEndDate}</span>
+                      </div>
+                    )
                   )}
                 </div>
                 
@@ -229,6 +236,7 @@ export function PromotionalCard({
         id={id}
         title={title}
         isMobile={isMobile}
+        onSuccess={(newTitle) => onUpdate(id, newTitle)}
       />
 
       <CardDeleteDialog 

@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useCards } from "@/hooks/useCards";
 
 export default function PromotionalCards() {
   const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion" | "loan" | "service">("furniture");
@@ -18,6 +19,7 @@ export default function PromotionalCards() {
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { cards, setCards, isLoading, refetch } = useCards(selectedSector, selectedFolderId);
   
   return (
     <PageLayout spacing="normal" maxWidth="full">
@@ -90,6 +92,9 @@ export default function PromotionalCards() {
             <CardGallery 
               sector={selectedSector}
               folderId={selectedFolderId}
+              cards={cards}
+              setCards={setCards}
+              isLoading={isLoading}
             />
           </div>
         </div>
@@ -107,6 +112,7 @@ export default function PromotionalCards() {
         onOpenChange={setIsUploadCardOpen}
         sector={selectedSector}
         folderId={selectedFolderId}
+        onUploadSuccess={refetch}
       />
     </PageLayout>
   );

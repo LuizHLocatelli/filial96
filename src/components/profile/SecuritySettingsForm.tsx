@@ -345,33 +345,49 @@ export function SecuritySettingsForm() {
               <div className="pt-4">
                 <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      disabled={loading}
-                      className="w-full"
-                      size="sm"
-                    >
-                      Fazer logout desta sessão
+                    <Button variant="outline" size="sm">
+                      Desconectar Sessão
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Fazer logout desta sessão?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta ação irá desconectar sua conta deste dispositivo. 
-                        Você será redirecionado para a página de login.
-                      </AlertDialogDescription>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                        Desconectar Sessão
+                      </AlertDialogTitle>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={handleSignOut}
-                        disabled={loading}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      >
-                        {loading ? "Fazendo logout..." : "Sim, fazer logout"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
+                    <AlertDialogDescription>
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">Desconectar Sessão</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Isso irá desconectar sua conta deste dispositivo.
+                        </p>
+                      </div>
+                      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" onClick={() => setShowLogoutDialog(true)}>
+                            Desconectar
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Tem certeza que deseja desconectar?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Você precisará fazer login novamente para acessar sua conta neste dispositivo.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={handleSignOut}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Desconectar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </AlertDialogDescription>
                   </AlertDialogContent>
                 </AlertDialog>
               </div>

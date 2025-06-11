@@ -6,11 +6,12 @@ import { motion } from "framer-motion";
 interface CardGridProps {
   cards: CardItem[];
   onDelete: (id: string) => Promise<boolean>;
-  onMoveToFolder: (cardId: string, newFolderId: string | null) => Promise<boolean>;
+  onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
+  onUpdate: (id: string, newTitle: string) => void;
   sector: "furniture" | "fashion" | "loan" | "service";
 }
 
-export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridProps) {
+export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: CardGridProps) {
   const isMobile = useIsMobile();
   
   const containerVariants = {
@@ -59,6 +60,7 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridPr
             folderId={card.folder_id}
             onDelete={onDelete}
             onMoveToFolder={onMoveToFolder}
+            onUpdate={onUpdate}
             sector={sector}
             isMobile={isMobile}
           />

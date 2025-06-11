@@ -77,7 +77,7 @@ export function CardViewDialog({
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-w-[95vw] p-4 sm:p-6">
+      <DialogContent className="sm:max-w-lg max-w-[95vw] p-4 sm:p-6 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg flex items-center justify-between">
             <span className="font-semibold text-primary">{title}</span>

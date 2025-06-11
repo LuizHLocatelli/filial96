@@ -1,4 +1,3 @@
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +28,7 @@ export function CardDeleteDialog({
 }: CardDeleteDialogProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[90vw] sm:max-w-md p-4 sm:p-6">
+      <AlertDialogContent className="max-w-[90vw] sm:max-w-md p-4 sm:p-6 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-base sm:text-lg">Excluir card promocional?</AlertDialogTitle>
           <AlertDialogDescription className="text-xs sm:text-sm">

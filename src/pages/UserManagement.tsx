@@ -372,111 +372,76 @@ export default function UserManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Usuário</TableHead>
-                  <TableHead>Função</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead>Criado em</TableHead>
-                  <TableHead>Último acesso</TableHead>
+                  <TableHead className="hidden md:table-cell">E-mail</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead className="hidden md:table-cell">Último Login</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatarUrl} alt={user.name} />
-                        <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">{user.email}</div>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={user.avatarUrl} alt={user.name} />
+                          <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{user.name}</p>
+                          <p className="text-sm text-muted-foreground hidden lg:block">{user.displayName}</p>
+                        </div>
                       </div>
                     </TableCell>
+                    <TableCell className="hidden md:table-cell">{user.email}</TableCell>
                     <TableCell>
-                      <Badge 
-                        variant="outline" 
-                        className={roleColors[user.role]}
-                      >
-                        {user.role === 'gerente' && <Crown className="w-3 h-3 mr-1" />}
+                      <Badge variant="outline" className={`${roleColors[user.role]}`}>
+                        {getRoleIcon(user.role)}
                         {roleLabels[user.role]}
                       </Badge>
                     </TableCell>
-                    <TableCell>{user.phone || 'Não informado'}</TableCell>
-                    <TableCell>{formatDate(user.created_at)}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Nunca'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center gap-2 justify-end">
-                        <Dialog open={isEditDialogOpen && editingUser?.id === user.id} onOpenChange={(open) => {
-                          if (!open) {
-                            setIsEditDialogOpen(false);
-                            setEditingUser(null);
-                          }
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setEditingUser(user);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Editar Usuário</DialogTitle>
-                              <DialogDescription>
-                                Altere as informações do usuário {user.name}
-                              </DialogDescription>
-                            </DialogHeader>
-                            {editingUser && (
-                              <EditUserForm
-                                user={editingUser}
-                                onSave={handleEditUser}
-                                onCancel={() => {
-                                  setIsEditDialogOpen(false);
-                                  setEditingUser(null);
-                                }}
-                              />
-                            )}
-                          </DialogContent>
-                        </Dialog>
-
-                        {user.role !== 'gerente' && (
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="flex items-center gap-2">
-                                  <AlertTriangle className="h-5 w-5 text-red-600" />
-                                  Confirmar Exclusão
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tem certeza que deseja excluir o usuário <strong>{user.name}</strong>?
-                                  Esta ação não pode ser desfeita.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleDeleteUser(user.id, user.name)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Excluir
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
-                      </div>
+                      <Dialog open={isEditDialogOpen && editingUser?.id === user.id} onOpenChange={(isOpen) => { if (!isOpen) setEditingUser(null); setIsEditDialogOpen(isOpen); }}>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={() => { setEditingUser(user); setIsEditDialogOpen(true); }}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+                          {editingUser && (
+                            <EditUserForm
+                              user={editingUser}
+                              onSave={handleEditUser}
+                              onCancel={() => { setIsEditDialogOpen(false); setEditingUser(null); }}
+                            />
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" disabled={!isManager || user.id === profile?.id}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2">
+                              <AlertTriangle className="text-yellow-500"/>
+                               Confirmar Exclusão
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir o usuário <strong>{user.name}</strong>? Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteUser(user.id, user.name)}>Excluir</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}
