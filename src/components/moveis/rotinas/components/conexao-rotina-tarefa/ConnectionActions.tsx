@@ -14,25 +14,28 @@ export function ConnectionActions({
   isCreating 
 }: ConnectionActionsProps) {
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col xs:flex-row gap-2 w-full">
       <Button
         size="sm"
         onClick={onCreateAutomaticTask}
         disabled={isCreating}
-        className="gap-2"
+        className="flex items-center justify-center gap-2 h-8 text-xs whitespace-nowrap flex-1 xs:flex-none"
       >
-        <Plus className="h-4 w-4" />
-        {isCreating ? 'Criando...' : 'Gerar Tarefa'}
+        <Plus className="h-3 w-3 flex-shrink-0" />
+        <span className="hidden xs:inline">{isCreating ? 'Criando...' : 'Gerar Tarefa'}</span>
+        <span className="xs:hidden">{isCreating ? 'Criando...' : 'Gerar'}</span>
       </Button>
       
       <Button
-        size="sm"
         variant="outline"
+        size="sm"
         onClick={onCreateManualTask}
-        className="gap-2"
+        disabled={isCreating}
+        className="flex items-center justify-center gap-2 h-8 text-xs whitespace-nowrap flex-1 xs:flex-none"
       >
-        <Calendar className="h-4 w-4" />
-        Nova Tarefa Manual
+        <Calendar className="h-3 w-3 flex-shrink-0" />
+        <span className="hidden sm:inline">Nova Tarefa Manual</span>
+        <span className="sm:hidden">Nova Tarefa</span>
       </Button>
     </div>
   );

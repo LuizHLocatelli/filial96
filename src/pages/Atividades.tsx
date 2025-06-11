@@ -426,17 +426,19 @@ export default function Atividades() {
         <TabsContent value="timeline" className="space-y-4">
           {/* Filtros */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filtros
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Filter className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Filtros</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Filtre as atividades por diferentes critérios
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <CardContent className="px-3 sm:px-6">
+              {/* Layout responsivo: mobile-first com grid adaptativo */}
+              <div className="space-y-4">
+                {/* Busca sempre em destaque */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Buscar</label>
                   <div className="relative">
@@ -445,77 +447,80 @@ export default function Atividades() {
                       placeholder="Buscar atividades..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8"
+                      className="pl-8 h-9"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Tipo</label>
-                  <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os tipos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos os tipos</SelectItem>
-                      <SelectItem value="tarefa">Tarefas</SelectItem>
-                      <SelectItem value="rotina">Rotinas</SelectItem>
-                      <SelectItem value="orientacao">Orientações</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Grid responsivo para filtros */}
+                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium whitespace-nowrap">Tipo</label>
+                    <Select value={typeFilter} onValueChange={setTypeFilter}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Todos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os tipos</SelectItem>
+                        <SelectItem value="tarefa">Tarefas</SelectItem>
+                        <SelectItem value="rotina">Rotinas</SelectItem>
+                        <SelectItem value="orientacao">Orientações</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Ação</label>
-                  <Select value={actionFilter} onValueChange={setActionFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas as ações" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as ações</SelectItem>
-                      <SelectItem value="criada">Criadas</SelectItem>
-                      <SelectItem value="concluida">Concluídas</SelectItem>
-                      <SelectItem value="atualizada">Atualizadas</SelectItem>
-                      <SelectItem value="deletada">Deletadas</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium whitespace-nowrap">Ação</label>
+                    <Select value={actionFilter} onValueChange={setActionFilter}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Todas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas as ações</SelectItem>
+                        <SelectItem value="criada">Criadas</SelectItem>
+                        <SelectItem value="concluida">Concluídas</SelectItem>
+                        <SelectItem value="atualizada">Atualizadas</SelectItem>
+                        <SelectItem value="deletada">Deletadas</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Usuário</label>
-                  <Select value={userFilter} onValueChange={setUserFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos os usuários" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos os usuários</SelectItem>
-                      {uniqueUsers.map(user => (
-                        <SelectItem key={user} value={user}>{user}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium whitespace-nowrap">Usuário</label>
+                    <Select value={userFilter} onValueChange={setUserFilter}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Todos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os usuários</SelectItem>
+                        {uniqueUsers.map(user => (
+                          <SelectItem key={user} value={user}>{user}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Período</label>
-                  <Select value={dateRange} onValueChange={setDateRange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todo o período" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todo o período</SelectItem>
-                      <SelectItem value="today">Hoje</SelectItem>
-                      <SelectItem value="week">Última semana</SelectItem>
-                      <SelectItem value="month">Último mês</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium whitespace-nowrap">Período</label>
+                    <Select value={dateRange} onValueChange={setDateRange}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Todos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todo o período</SelectItem>
+                        <SelectItem value="today">Hoje</SelectItem>
+                        <SelectItem value="week">Última semana</SelectItem>
+                        <SelectItem value="month">Último mês</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
-              {/* Contador de resultados */}
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">
+              {/* Contador de resultados e ações */}
+              <div className="mt-4 flex flex-col xs:flex-row xs:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 overflow-x-auto">
+                  <Badge variant="outline" className="whitespace-nowrap text-xs">
                     {filteredActivities.length} de {activities.length} atividades
                   </Badge>
                   {(searchTerm || typeFilter !== "all" || actionFilter !== "all" || userFilter !== "all" || dateRange !== "all") && (
@@ -529,6 +534,7 @@ export default function Atividades() {
                         setUserFilter("all");
                         setDateRange("all");
                       }}
+                      className="h-8 text-xs whitespace-nowrap"
                     >
                       Limpar filtros
                     </Button>

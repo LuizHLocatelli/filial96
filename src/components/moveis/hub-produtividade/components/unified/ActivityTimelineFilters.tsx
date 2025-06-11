@@ -57,150 +57,123 @@ export function ActivityTimelineFilters({ onFilterChange, activities }: Activity
   const uniqueStatuses = [...new Set(activities.map(a => a.status))];
 
   return (
-    <div className="space-y-2 p-2 bg-muted/20 rounded-md border border-muted/50">
-      {/* Header ultra compacto */}
+    <div className="space-y-3 sm:space-y-4">
+      {/* Cabeçalho compacto */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <Search className="h-3 w-3 text-muted-foreground" />
-          <span className="text-2xs font-medium">Filtros</span>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <span className="text-sm font-medium">Filtros</span>
           {hasActiveFilters && (
-            <Badge variant="secondary" className="text-3xs px-1 py-0 h-3 leading-none">
+            <Badge variant="secondary" className="h-5 px-2 text-xs whitespace-nowrap">
               {Object.values(filters).filter(v => v !== '' && v !== 'all').length}
             </Badge>
           )}
         </div>
-        
-        <div className="flex items-center gap-1">
+        {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="h-6 w-6 p-0"
+            onClick={clearFilters}
+            className="h-7 px-2 text-xs whitespace-nowrap"
           >
-            {showAdvanced ? 
-              <ChevronUp className="h-3 w-3" /> : 
-              <ChevronDown className="h-3 w-3" />
-            }
+            <X className="h-3 w-3 mr-1" />
+            Limpar
           </Button>
-          
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Busca minimalista */}
+      {/* Campo de busca minimalista */}
       <div className="relative">
-        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-2.5 w-2.5 text-muted-foreground" />
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Buscar..."
+          placeholder="Buscar atividades..."
           value={filters.search}
           onChange={(e) => updateFilter('search', e.target.value)}
-          className="pl-6 h-7 text-2xs placeholder:text-2xs border-muted/50"
+          className="pl-8 h-9"
         />
       </div>
 
-      {/* Filtros compactos */}
-      {showAdvanced && (
-        <div className="space-y-2">
-          {/* Layout mobile first - sempre em grid 2x2 */}
-          <div className="grid grid-cols-2 gap-1.5">
-            {/* Tipo */}
-            <div>
-              <label className="text-3xs font-medium text-muted-foreground mb-0.5 block">
-                Tipo
-              </label>
-              <Select value={filters.type} onValueChange={(value) => updateFilter('type', value)}>
-                <SelectTrigger className="h-6 text-3xs border-muted/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-3xs">Todos</SelectItem>
-                  {uniqueTypes.map(type => (
-                    <SelectItem key={type} value={type} className="text-3xs">
-                      {type === 'rotina' ? 'Rotinas' : 
-                       type === 'orientacao' ? 'Orientações' : 
-                       type === 'tarefa' ? 'Tarefas' : type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="text-3xs font-medium text-muted-foreground mb-0.5 block">
-                Status
-              </label>
-              <Select value={filters.status} onValueChange={(value) => updateFilter('status', value)}>
-                <SelectTrigger className="h-6 text-3xs border-muted/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-3xs">Todos</SelectItem>
-                  {uniqueStatuses.map(status => (
-                    <SelectItem key={status} value={status} className="text-3xs">
-                      {status === 'concluida' ? 'OK' :
-                       status === 'pendente' ? 'Pendente' :
-                       status === 'atrasada' ? 'Atrasada' :
-                       status === 'nova' ? 'Nova' : status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Ação */}
-            <div>
-              <label className="text-3xs font-medium text-muted-foreground mb-0.5 block">
-                Ação
-              </label>
-              <Select value={filters.action} onValueChange={(value) => updateFilter('action', value)}>
-                <SelectTrigger className="h-6 text-3xs border-muted/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-3xs">Todas</SelectItem>
-                  {uniqueActions.map(action => (
-                    <SelectItem key={action} value={action} className="text-3xs">
-                      {action === 'criada' ? 'Criou' :
-                       action === 'concluida' ? 'Concluiu' :
-                       action === 'atualizada' ? 'Atualizou' :
-                       action === 'deletada' ? 'Removeu' : action}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Período */}
-            <div>
-              <label className="text-3xs font-medium text-muted-foreground mb-0.5 block">
-                Período
-              </label>
-              <Select value={filters.dateRange} onValueChange={(value) => updateFilter('dateRange', value)}>
-                <SelectTrigger className="h-6 text-3xs border-muted/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-3xs">Todos</SelectItem>
-                  <SelectItem value="today" className="text-3xs">Hoje</SelectItem>
-                  <SelectItem value="yesterday" className="text-3xs">Ontem</SelectItem>
-                  <SelectItem value="week" className="text-3xs">Semana</SelectItem>
-                  <SelectItem value="month" className="text-3xs">Mês</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+      {/* Filtros avançados em layout responsivo */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-3">
+        {/* Tipo */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Tipo</label>
+          <Select value={filters.type} onValueChange={(value) => updateFilter('type', value)}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {uniqueTypes.map(type => (
+                <SelectItem key={type} value={type}>
+                  {type === 'rotina' ? 'Rotinas' : 
+                   type === 'orientacao' ? 'Orientações' : 
+                   type === 'tarefa' ? 'Tarefas' : type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
+
+        {/* Status */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Status</label>
+          <Select value={filters.status} onValueChange={(value) => updateFilter('status', value)}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {uniqueStatuses.map(status => (
+                <SelectItem key={status} value={status}>
+                  {status === 'concluida' ? 'OK' :
+                   status === 'pendente' ? 'Pendente' :
+                   status === 'atrasada' ? 'Atrasada' :
+                   status === 'nova' ? 'Nova' : status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Ação */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Ação</label>
+          <Select value={filters.action} onValueChange={(value) => updateFilter('action', value)}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Todas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {uniqueActions.map(action => (
+                <SelectItem key={action} value={action}>
+                  {action === 'criada' ? 'Criou' :
+                   action === 'concluida' ? 'Concluiu' :
+                   action === 'atualizada' ? 'Atualizou' :
+                   action === 'deletada' ? 'Removeu' : action}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Período */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">Período</label>
+          <Select value={filters.dateRange} onValueChange={(value) => updateFilter('dateRange', value)}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="today">Hoje</SelectItem>
+              <SelectItem value="yesterday">Ontem</SelectItem>
+              <SelectItem value="week">Semana</SelectItem>
+              <SelectItem value="month">Mês</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 // Importando os componentes corretos das seções
 import { HubDashboard } from "@/components/moveis/hub-produtividade/components/dashboard/HubDashboard";
-import { RotinasUnificadas } from "@/components/moveis/hub-produtividade/components/unificacao/RotinasUnificadas";
+import { CentralAtividades } from "@/components/moveis/hub-produtividade/components/unificacao/CentralAtividades";
 import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/components/OrientacoesMonitoramento";
 
 // Hooks
@@ -133,7 +133,7 @@ export default function HubProdutividade() {
       description: "Rotinas, Tarefas e Informativos",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
-          <RotinasUnificadas />
+          <CentralAtividades />
         </div>
       )
     },
@@ -226,4 +226,4 @@ export default function HubProdutividade() {
       />
     </PageLayout>
   );
-} 
+}
