@@ -17,8 +17,11 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Profile = lazy(() => import('./pages/Profile'));
 const UserManagement = lazy(() => import('./pages/UserManagement'));
 const PromotionalCards = lazy(() => import('./pages/PromotionalCards'));
+const PainelMetas = lazy(() => import('./pages/PainelMetas'));
 
 const AppRoutes = () => {
+  const { user } = useAuth();
+
   const loadingSpinner = (
     <div className="flex items-center justify-center h-screen">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue-600"></div>
@@ -112,6 +115,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           } 
         />
+        <Route path="/painel-metas" element={<ProtectedRoute><AppLayout><PainelMetas /></AppLayout></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
