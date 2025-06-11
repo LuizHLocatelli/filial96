@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { 
   Activity,
   CheckSquare, 
   FileText, 
   BarChart3,
-  Users,
-  TrendingUp
+  Users
 } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -31,19 +30,14 @@ import { Relatorios } from "@/components/moveis/hub-produtividade/components/fun
 export default function HubProdutividade() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
-  const navigate = useNavigate();
   
   // Estados para dialogs funcionais
   const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
   const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
   const [showRelatorios, setShowRelatorios] = useState(false);
   
-  const handleTabClick = (value: string) => {
-    if (value === 'painel-metas') {
-      navigate('/painel-metas');
-    } else {
-      setSearchParams({ tab: value });
-    }
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
   };
 
   // Hook para dados
@@ -106,97 +100,80 @@ export default function HubProdutividade() {
       label: "Visão Geral",
       icon: Activity,
       description: "Dashboard e métricas",
+      component: (
+        <div className="glass-card rounded-lg overflow-hidden">
+          <HubDashboard
+            stats={stats}
+            activities={activities}
+            isLoading={isLoading}
+            handlers={{
+              ...handlers,
+              onBuscaAvancada: () => setShowBuscaAvancada(true),
+              onFiltrosPorData: () => setShowFiltrosPorData(true),
+              onRelatorios: () => setShowRelatorios(true)
+            }}
+            rotinas={rotinas || []}
+            tarefas={tarefas || []}
+            onViewRotina={(rotinaId) => {
+              setSearchParams({ tab: "atividades" });
+              // Aqui poderia implementar scroll para a rotina específica
+            }}
+            onViewTarefa={(tarefaId) => {
+              setSearchParams({ tab: "atividades" });
+              // Aqui poderia implementar scroll para a tarefa específica
+            }}
+          />
+        </div>
+      )
     },
     {
       value: "atividades",
       label: "Atividades",
       icon: CheckSquare,
       description: "Rotinas, Tarefas e Informativos",
+      component: (
+        <div className="glass-card rounded-lg overflow-hidden">
+          <CentralAtividades />
+        </div>
+      )
     },
     {
       value: "monitoramento",
       label: "Monitoramento",
       icon: Users,
       description: "Acompanhamento por cargo",
+      component: (
+        <div className="glass-card rounded-lg overflow-hidden">
+          <OrientacoesMonitoramento />
+        </div>
+      )
     },
     {
       value: "relatorios",
       label: "Relatórios",
       icon: BarChart3,
       description: "Relatórios e análises",
-    },
-    {
-      value: "painel-metas",
-      label: "Painel de Metas",
-      icon: TrendingUp,
-      description: "Acompanhe as metas da filial",
-    }
-  ];
-
-  const renderContent = () => {
-    switch(activeTab) {
-      case 'overview':
-        return (
-          <div className="glass-card rounded-lg overflow-hidden">
-            <HubDashboard
-              stats={stats}
-              activities={activities}
-              isLoading={isLoading}
-              handlers={{
-                ...handlers,
-                onBuscaAvancada: () => setShowBuscaAvancada(true),
-                onFiltrosPorData: () => setShowFiltrosPorData(true),
-                onRelatorios: () => setShowRelatorios(true)
-              }}
-              rotinas={rotinas || []}
-              tarefas={tarefas || []}
-              onViewRotina={(rotinaId) => {
-                setSearchParams({ tab: "atividades" });
-                // Aqui poderia implementar scroll para a rotina específica
-              }}
-              onViewTarefa={(tarefaId) => {
-                setSearchParams({ tab: "atividades" });
-                // Aqui poderia implementar scroll para a tarefa específica
-              }}
-            />
-          </div>
-        );
-      case 'atividades':
-        return (
-          <div className="glass-card rounded-lg overflow-hidden">
-            <CentralAtividades />
-          </div>
-        );
-      case 'monitoramento':
-        return (
-          <div className="glass-card rounded-lg overflow-hidden">
-            <OrientacoesMonitoramento />
-          </div>
-        );
-      case 'relatorios':
-        return (
-          <div className="glass-card rounded-lg overflow-hidden p-6">
-            <div className="text-center space-y-4">
-              <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground" />
-              <div>
-                <h3 className="text-lg font-semibold">Relatórios</h3>
-                <p className="text-muted-foreground">Visualize relatórios e análises de produtividade</p>
-                <div className="mt-4">
-                  <button 
-                    onClick={() => setShowRelatorios(true)}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    Abrir Relatórios Completos
-                  </button>
-                </div>
+      component: (
+        <div className="glass-card rounded-lg overflow-hidden p-6">
+          <div className="text-center space-y-4">
+            <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground" />
+            <div>
+              <h3 className="text-lg font-semibold">Relatórios</h3>
+              <p className="text-muted-foreground">Visualize relatórios e análises de produtividade</p>
+              <div className="mt-4">
+                <button 
+                  onClick={() => setShowRelatorios(true)}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Abrir Relatórios Completos
+                </button>
               </div>
             </div>
           </div>
-        );
-      default:
-        return null;
+        </div>
+      )
     }
-  };
+  ];
 
   return (
     <PageLayout spacing="tight" maxWidth="full">
@@ -211,14 +188,10 @@ export default function HubProdutividade() {
       <PageNavigation
         tabs={tabsConfig}
         activeTab={activeTab}
-        onTabChange={handleTabClick}
+        onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={5}
+        maxColumns={4}
       />
-
-      <div className="mt-6">
-        {renderContent()}
-      </div>
 
       {/* Dialogs funcionais */}
       <BuscaAvancada

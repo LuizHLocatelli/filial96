@@ -39,8 +39,8 @@ export function PageNavigation({
     if (isMobile && tab.mobileLabel) {
       return tab.mobileLabel;
     }
-    if (isMobile && tab.label.length > 10 && tab.label !== 'Painel de Metas') {
-      // Se o label for muito longo no mobile, encurta automaticamente, exceto para "Painel de Metas"
+    if (isMobile && tab.label.length > 10) {
+      // Se o label for muito longo no mobile, encurta automaticamente
       return tab.label.split(' ')[0];
     }
     return tab.label;
