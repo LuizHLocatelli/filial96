@@ -10,30 +10,16 @@ import {
   Phone,
   MessageSquare 
 } from "lucide-react";
-import { Skeleton } from '@/components/ui/skeleton';
+import { MetricsChart } from "./MetricsChart";
+import { ContactsChart } from "./ContactsChart";
+import { AlertsSystem } from "../alerts/AlertsSystem";
 import { useToast } from "@/components/ui/use-toast";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { lazy, Suspense } from 'react';
-
-const MetricsChart = lazy(() => import('./MetricsChart').then(module => ({ default: module.MetricsChart })));
-const ContactsChart = lazy(() => import('./ContactsChart').then(module => ({ default: module.ContactsChart })));
-import { AlertsSystem } from "../alerts/AlertsSystem";
 
 interface ClientesDashboardProps {
   clientes: Cliente[];
 }
-
-const ChartSkeleton = () => (
-  <Card>
-    <CardHeader>
-      <Skeleton className="h-6 w-1/2" />
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="h-48 w-full" />
-    </CardContent>
-  </Card>
-);
 
 export function ClientesDashboard({ clientes }: ClientesDashboardProps) {
   const { toast } = useToast();
@@ -223,12 +209,8 @@ Equipe Filial 96`;
 
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Suspense fallback={<ChartSkeleton />}>
-          <MetricsChart data={metricsData} />
-        </Suspense>
-        <Suspense fallback={<ChartSkeleton />}>
-          <ContactsChart clientes={clientes} />
-        </Suspense>
+        <MetricsChart data={metricsData} />
+        <ContactsChart clientes={clientes} />
       </div>
 
       {/* Ações Rápidas */}

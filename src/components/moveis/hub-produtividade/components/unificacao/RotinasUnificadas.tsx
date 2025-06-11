@@ -249,9 +249,9 @@ export function RotinasUnificadas() {
       </Tabs>
 
       <AddRotinaDialog
-        isOpen={showAddRotinaDialog}
-        onClose={() => setShowAddRotinaDialog(false)}
-        onSave={handleCreateRotina}
+        open={showAddRotinaDialog}
+        onOpenChange={setShowAddRotinaDialog}
+        onSubmit={handleCreateRotina}
       />
 
       <Dialog open={showAddOrientacaoDialog} onOpenChange={setShowAddOrientacaoDialog}>

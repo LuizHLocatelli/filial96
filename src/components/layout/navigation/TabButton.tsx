@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TabButtonProps } from "./types";
@@ -43,9 +44,9 @@ export function TabButton({
           className={cn(
             "absolute inset-0 rounded-2xl overflow-hidden",
             "glass-button-primary",
-            "shadow-2xl shadow-primary/40",
+            "shadow-2xl shadow-primary/30",
             "before:absolute before:inset-0 before:rounded-2xl",
-            "before:bg-gradient-to-br before:from-white/40 before:via-transparent before:to-transparent",
+            "before:bg-gradient-to-br before:from-white/20 before:via-transparent before:to-transparent",
             "after:absolute after:top-0 after:left-0 after:right-0 after:h-px",
             "after:bg-gradient-to-r after:from-transparent after:via-white/60 after:to-transparent"
           )}
@@ -77,7 +78,7 @@ export function TabButton({
               )
             : "rounded-xl w-8 h-8 mb-2",
           isActive 
-            ? "glass-button-secondary shadow-xl shadow-primary/50" 
+            ? "glass-button-secondary shadow-xl shadow-primary/40" 
             : "group-hover:glass-button-ghost group-hover:shadow-lg"
         )}
         whileHover={{ scale: isMobile ? 1.08 : 1.1 }}
@@ -92,7 +93,7 @@ export function TabButton({
             isActive 
               ? "nav-icon-active font-bold drop-shadow-sm" 
               : "nav-icon-inactive group-hover:font-medium",
-            !isActive && "text-green-950/70 dark:text-green-200/70"
+            !isActive && "text-gray-600 dark:text-gray-300"
           )} 
         />
       </motion.div>
@@ -108,7 +109,7 @@ export function TabButton({
           : "text-[11px]",
         isActive 
           ? "text-primary-foreground filter drop-shadow-sm font-bold" 
-          : "group-hover:text-foreground group-hover:drop-shadow-sm text-green-950/70 dark:text-green-200/80 font-medium"
+          : "group-hover:text-foreground group-hover:drop-shadow-sm text-gray-600 dark:text-foreground/90 font-medium"
       )}>
         {tab.title}
       </span>

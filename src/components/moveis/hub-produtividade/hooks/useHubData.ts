@@ -136,12 +136,12 @@ export function useHubData() {
       ]);
       
       // Só mostra toast de sucesso se não for a primeira carga
-      /* if (!isInitialLoadRef.current) {
+      if (!isInitialLoadRef.current) {
         toast({
           title: "✅ Dados atualizados",
           description: "Informações carregadas com sucesso",
         });
-      } */
+      }
     } catch (error) {
       console.error('❌ Erro no refresh:', error);
       if (!isInitialLoadRef.current) {

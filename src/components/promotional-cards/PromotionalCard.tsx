@@ -17,30 +17,26 @@ interface PromotionalCardProps {
   id: string;
   title: string;
   code?: string;
-  startDate?: string;
-  endDate?: string;
+  promotionDate?: string;
   imageUrl: string;
   folderId: string | null;
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
   sector: "furniture" | "fashion" | "loan" | "service";
   isMobile?: boolean;
-  onUpdate: () => void;
 }
 
 export function PromotionalCard({ 
   id, 
   title, 
   code,
-  startDate,
-  endDate,
+  promotionDate,
   imageUrl, 
   folderId, 
   onDelete,
   onMoveToFolder,
   sector,
-  isMobile,
-  onUpdate
+  isMobile
 }: PromotionalCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -104,6 +100,8 @@ export function PromotionalCard({
     }
   };
 
+  const formattedDate = promotionDate ? new Date(promotionDate).toLocaleDateString('pt-BR') : null;
+
   return (
     <>
       <Card className={cn(
@@ -134,13 +132,19 @@ export function PromotionalCard({
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               {/* Badges de código e data */}
-              {code && (
+              {(code || promotionDate) && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-2">
                   <div className="flex items-center justify-between gap-2 text-xs">
                     {code && (
                       <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
                         <Hash className="h-3 w-3 flex-shrink-0" />
                         <span className="truncate font-medium block">{code}</span>
+                      </div>
+                    )}
+                    {formattedDate && (
+                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
+                        <Calendar className="h-3 w-3 flex-shrink-0" />
+                        <span className="text-xs truncate block">{formattedDate}</span>
                       </div>
                     )}
                   </div>
@@ -189,8 +193,7 @@ export function PromotionalCard({
         title={title}
         imageUrl={imageUrl}
         code={code}
-        startDate={startDate}
-        endDate={endDate}
+        promotionDate={promotionDate}
         currentFolder={currentFolder}
         isMobile={isMobile}
       />
@@ -200,10 +203,7 @@ export function PromotionalCard({
         onOpenChange={setIsEditDialogOpen}
         id={id}
         title={title}
-        folderId={folderId}
-        sector={sector}
         isMobile={isMobile}
-        onSuccess={onUpdate}
       />
 
       <CardDeleteDialog 

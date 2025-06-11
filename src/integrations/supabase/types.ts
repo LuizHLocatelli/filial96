@@ -641,6 +641,39 @@ export type Database = {
           },
         ]
       }
+      goals: {
+        Row: {
+          created_at: string | null
+          goal_type: string
+          id: string
+          month: string
+          monthly_goal: number
+          sector_name: string
+          team: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          goal_type: string
+          id?: string
+          month: string
+          monthly_goal: number
+          sector_name: string
+          team: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          goal_type?: string
+          id?: string
+          month?: string
+          monthly_goal?: number
+          sector_name?: string
+          team?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       moda_arquivos: {
         Row: {
           category_id: string | null
@@ -1461,10 +1494,12 @@ export type Database = {
           created_by: string
           descricao: string | null
           dia_preferencial: string
+          gera_tarefa_automatica: boolean | null
           horario_preferencial: string | null
           id: string
           nome: string
           periodicidade: string
+          template_tarefa: Json | null
           updated_at: string
         }
         Insert: {
@@ -1474,10 +1509,12 @@ export type Database = {
           created_by: string
           descricao?: string | null
           dia_preferencial?: string
+          gera_tarefa_automatica?: boolean | null
           horario_preferencial?: string | null
           id?: string
           nome: string
           periodicidade: string
+          template_tarefa?: Json | null
           updated_at?: string
         }
         Update: {
@@ -1487,10 +1524,12 @@ export type Database = {
           created_by?: string
           descricao?: string | null
           dia_preferencial?: string
+          gera_tarefa_automatica?: boolean | null
           horario_preferencial?: string | null
           id?: string
           nome?: string
           periodicidade?: string
+          template_tarefa?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -1542,6 +1581,9 @@ export type Database = {
           descricao: string
           id: string
           orientacao_id: string | null
+          origem: string | null
+          prioridade: string | null
+          rotina_id: string | null
           status: string
           titulo: string
         }
@@ -1553,6 +1595,9 @@ export type Database = {
           descricao: string
           id?: string
           orientacao_id?: string | null
+          origem?: string | null
+          prioridade?: string | null
+          rotina_id?: string | null
           status: string
           titulo: string
         }
@@ -1564,6 +1609,9 @@ export type Database = {
           descricao?: string
           id?: string
           orientacao_id?: string | null
+          origem?: string | null
+          prioridade?: string | null
+          rotina_id?: string | null
           status?: string
           titulo?: string
         }
@@ -1732,36 +1780,39 @@ export type Database = {
           code: string | null
           created_at: string
           created_by: string
+          end_date: string | null
           folder_id: string | null
           id: string
           image_url: string
           position: number
-          promotion_date: string | null
           sector: string
+          start_date: string | null
           title: string
         }
         Insert: {
           code?: string | null
           created_at?: string
           created_by: string
+          end_date?: string | null
           folder_id?: string | null
           id?: string
           image_url: string
           position?: number
-          promotion_date?: string | null
           sector: string
+          start_date?: string | null
           title: string
         }
         Update: {
           code?: string | null
           created_at?: string
           created_by?: string
+          end_date?: string | null
           folder_id?: string | null
           id?: string
           image_url?: string
           position?: number
-          promotion_date?: string | null
           sector?: string
+          start_date?: string | null
           title?: string
         }
         Relationships: [
@@ -1770,6 +1821,45 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "card_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_records: {
+        Row: {
+          consultant_id: string
+          created_at: string | null
+          goal_id: string
+          id: string
+          value: number
+        }
+        Insert: {
+          consultant_id: string
+          created_at?: string | null
+          goal_id: string
+          id?: string
+          value: number
+        }
+        Update: {
+          consultant_id?: string
+          created_at?: string | null
+          goal_id?: string
+          id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_records_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_records_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
             referencedColumns: ["id"]
           },
         ]

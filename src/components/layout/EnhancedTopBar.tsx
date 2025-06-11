@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Home, ChevronRight, Search, X } from "lucide-react";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
@@ -65,7 +66,7 @@ export function EnhancedTopBar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="sticky top-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 border-b bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-lg"
     >
       <div className={cn(
         "container flex items-center h-16",
@@ -103,7 +104,7 @@ export function EnhancedTopBar() {
           </motion.div>
         )}
 
-        {/* Right Section - Actions com melhor espaçamento */}
+        {/* Right Section - Actions com melhor espaçamento e glassmorphism corrigido */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -122,16 +123,28 @@ export function EnhancedTopBar() {
             />
           )}
 
-          {/* Action buttons com animações */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          {/* Action buttons com glassmorphism correto */}
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
+          >
             <ThemeToggle />
           </motion.div>
           
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
+          >
             <NotificationsMenu />
           </motion.div>
           
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
+          >
             <UserMenu />
           </motion.div>
         </motion.div>

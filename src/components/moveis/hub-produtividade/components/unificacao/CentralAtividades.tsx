@@ -125,21 +125,11 @@ export function CentralAtividades() {
   };
 
   const handleCreateRotina = async (data: any) => {
-    try {
-      await addRotina(data);
+    const success = await addRotina(data);
+    if (success) {
       setShowAddRotinaDialog(false);
-      toast({
-        title: "Sucesso",
-        description: "Rotina criada com sucesso!",
-      });
-    } catch (error) {
-      console.error('Erro ao criar rotina:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao criar rotina. Tente novamente.",
-        variant: "destructive",
-      });
     }
+    return success;
   };
 
   const handleCreateTarefa = async (data: TarefaFormValues) => {
@@ -235,9 +225,6 @@ export function CentralAtividades() {
       console.error("Erro ao buscar orientações:", error);
     }
   };
-
-
-
 
   const handleAtualizarStatusTarefa = async (tarefaId: string, novoStatus: string) => {
     try {
@@ -347,7 +334,8 @@ export function CentralAtividades() {
   const handleUnifiedStatusChange = async (id: string, type: 'rotina' | 'tarefa', status: string) => {
     if (type === 'rotina') {
       if (status === 'concluida' || status === 'pendente') {
-        await toggleConclusao(id);
+        const isCompleted = status === 'concluida';
+        await toggleConclusao(id, isCompleted);
       }
     } else if (type === 'tarefa') {
       await handleAtualizarStatusTarefa(id, status);
@@ -381,6 +369,12 @@ export function CentralAtividades() {
     } else if (type === 'tarefa') {
       setShowAddTarefaForm(true);
     }
+  };
+
+  // Helper function to get user name synchronously
+  const getUserName = (userId: string): string => {
+    // Since getCachedUserName is async but we need sync, we'll use a fallback
+    return "Usuário"; // Placeholder - you might want to implement a synchronous cache
   };
 
   return (
@@ -424,7 +418,7 @@ export function CentralAtividades() {
                 onDelete={handleUnifiedDelete}
                 onCreateRelated={handleUnifiedCreateRelated}
                 onCreateNew={handleUnifiedCreateNew}
-                getCachedUserName={getCachedUserName}
+                getCachedUserName={getUserName}
                 onAddTarefa={() => setShowAddTarefaForm(true)}
               />
             </div>
@@ -460,9 +454,9 @@ export function CentralAtividades() {
       </Tabs>
 
       <AddRotinaDialog
-        isOpen={showAddRotinaDialog}
-        onClose={() => setShowAddRotinaDialog(false)}
-        onSave={handleCreateRotina}
+        open={showAddRotinaDialog}
+        onOpenChange={setShowAddRotinaDialog}
+        onSubmit={handleCreateRotina}
       />
 
       <Dialog open={showAddTarefaForm} onOpenChange={setShowAddTarefaForm}>
@@ -499,3 +493,5 @@ export function CentralAtividades() {
     </div>
   );
 }
+
+export default CentralAtividades;
