@@ -251,7 +251,7 @@ export function RotinasUnificadas() {
       <AddRotinaDialog
         open={showAddRotinaDialog}
         onOpenChange={setShowAddRotinaDialog}
-        onSave={handleCreateRotina}
+        onSubmit={handleCreateRotina}
       />
 
       <Dialog open={showAddOrientacaoDialog} onOpenChange={setShowAddOrientacaoDialog}>

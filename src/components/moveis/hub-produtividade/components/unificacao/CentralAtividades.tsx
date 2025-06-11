@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -126,23 +125,11 @@ export function CentralAtividades() {
   };
 
   const handleCreateRotina = async (data: any) => {
-    try {
-      const success = await addRotina(data);
-      if (success) {
-        setShowAddRotinaDialog(false);
-        toast({
-          title: "Sucesso",
-          description: "Rotina criada com sucesso!",
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao criar rotina:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao criar rotina. Tente novamente.",
-        variant: "destructive",
-      });
+    const success = await addRotina(data);
+    if (success) {
+      setShowAddRotinaDialog(false);
     }
+    return success;
   };
 
   const handleCreateTarefa = async (data: TarefaFormValues) => {
@@ -468,7 +455,7 @@ export function CentralAtividades() {
       <AddRotinaDialog
         open={showAddRotinaDialog}
         onOpenChange={setShowAddRotinaDialog}
-        onSave={handleCreateRotina}
+        onSubmit={handleCreateRotina}
       />
 
       <Dialog open={showAddTarefaForm} onOpenChange={setShowAddTarefaForm}>
