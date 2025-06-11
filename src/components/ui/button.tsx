@@ -99,6 +99,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       );
     }
     
+    // Separate motion props from HTML button props
+    const { onDrag, onDragEnd, onDragStart, ...buttonProps } = props;
+    
     return (
       <motion.button
         whileHover={{ scale: size === "sm" ? 1.03 : 1.02 }}
@@ -119,7 +122,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ]
         )}
         ref={ref}
-        {...props}
+        {...buttonProps}
       >
         {buttonContent}
       </motion.button>
