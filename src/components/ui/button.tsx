@@ -99,8 +99,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       );
     }
     
-    // Separate motion props from HTML button props
-    const { onDrag, onDragEnd, onDragStart, ...buttonProps } = props;
+    // Filter out conflicting props that have different signatures between HTML and Framer Motion
+    const {
+      onDrag,
+      onDragEnd,
+      onDragStart,
+      onAnimationStart,
+      onAnimationEnd,
+      onAnimationIteration,
+      onTransitionEnd,
+      ...buttonProps
+    } = props;
     
     return (
       <motion.button
