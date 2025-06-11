@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import jsPDF from 'jspdf';
 import { RotinaWithStatus } from '../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -11,6 +10,8 @@ export function usePDFExport() {
 
   const exportToPDF = useCallback(async (rotinas: RotinaWithStatus[], options: PDFExportOptions) => {
     try {
+      const { default: jsPDF } = await import('jspdf');
+      
       const doc = new jsPDF();
       
       // Configurações iniciais
@@ -159,7 +160,7 @@ export function usePDFExport() {
   }, [toast]);
 
   const renderCategory = (
-    doc: jsPDF, 
+    doc: any,
     categoria: string, 
     rotinas: RotinaWithStatus[], 
     startY: number, 
@@ -215,7 +216,7 @@ export function usePDFExport() {
   };
 
   const renderRotina = (
-    doc: jsPDF, 
+    doc: any,
     rotina: RotinaWithStatus, 
     yPosition: number, 
     options: PDFExportOptions

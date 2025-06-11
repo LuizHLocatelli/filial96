@@ -14,6 +14,8 @@ interface CardViewDialogProps {
   imageUrl: string;
   code?: string;
   promotionDate?: string;
+  startDate?: string;
+  endDate?: string;
   currentFolder?: { id: string; name: string } | undefined;
   isMobile?: boolean;
 }
@@ -25,6 +27,8 @@ export function CardViewDialog({
   imageUrl,
   code,
   promotionDate,
+  startDate,
+  endDate,
   currentFolder,
   isMobile
 }: CardViewDialogProps) {
@@ -55,16 +59,19 @@ export function CardViewDialog({
     }
   };
 
-  // Format date if it exists
-  const formattedDate = promotionDate 
-    ? format(new Date(promotionDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) 
+  const formattedStartDate = startDate 
+    ? format(new Date(startDate), "dd/MM/yyyy") 
     : null;
-  
+    
+  const formattedEndDate = endDate 
+    ? format(new Date(endDate), "dd/MM/yyyy") 
+    : null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-w-[95vw] p-4 sm:p-6">
+      <DialogContent className="sm:max-w-2xl max-w-[95vw] p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg flex items-center justify-between">
+          <DialogTitle className="text-lg sm:text-xl flex items-center justify-between">
             <span className="font-semibold text-primary">{title}</span>
             {code && (
               <Badge variant="outline" className="ml-2 px-2 whitespace-nowrap">
@@ -73,8 +80,7 @@ export function CardViewDialog({
             )}
           </DialogTitle>
           <DialogDescription>
-            Visualize os detalhes do card promocional
-            {promotionDate && ` da promoção de ${format(new Date(promotionDate), 'dd/MM/yyyy', { locale: ptBR })}`}
+            Visualize os detalhes do card promocional.
           </DialogDescription>
         </DialogHeader>
         
@@ -89,32 +95,42 @@ export function CardViewDialog({
           </div>
           
           {/* Card Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-accent rounded-lg">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-accent/50 rounded-lg border">
             {code && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <Hash className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-start gap-3 text-xs sm:text-sm">
+                <Hash className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-medium">Código do Card</p>
+                  <p className="font-semibold text-foreground">Código</p>
                   <p className="text-muted-foreground">{code}</p>
                 </div>
               </div>
             )}
             
-            {formattedDate && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+            {formattedStartDate && (
+              <div className="flex items-start gap-3 text-xs sm:text-sm">
+                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-medium">Data da Promoção</p>
-                  <p className="text-muted-foreground">{formattedDate}</p>
+                  <p className="font-semibold text-foreground">Início da Vigência</p>
+                  <p className="text-muted-foreground">{formattedStartDate}</p>
                 </div>
               </div>
             )}
-            
-            {currentFolder && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <Folder className="h-4 w-4 text-muted-foreground" />
+
+            {formattedEndDate && (
+              <div className="flex items-start gap-3 text-xs sm:text-sm">
+                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-medium">Pasta</p>
+                  <p className="font-semibold text-foreground">Fim da Vigência</p>
+                  <p className="text-muted-foreground">{formattedEndDate}</p>
+                </div>
+              </div>
+            )}
+
+            {currentFolder && (
+              <div className="flex items-start gap-3 text-xs sm:text-sm">
+                <Folder className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-semibold text-foreground">Pasta</p>
                   <p className="text-muted-foreground">{currentFolder.name}</p>
                 </div>
               </div>
