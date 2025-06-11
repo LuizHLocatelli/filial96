@@ -78,6 +78,10 @@ export default function Moveis() {
         description="Gestão completa do setor de móveis"
         icon={Sofa}
         iconColor="text-primary"
+        status={{
+          label: "Ativo",
+          color: "bg-green-50 text-green-700 border-green-200"
+        }}
         variant="default"
         breadcrumbs={[
           { label: "Hub de Produtividade", href: "/" },

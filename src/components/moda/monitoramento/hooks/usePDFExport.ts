@@ -1,4 +1,6 @@
 import { useCallback } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -38,9 +40,6 @@ export function usePDFExport() {
     options: PDFExportOptions
   ) => {
     try {
-      const { default: jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
-
       const doc = new jsPDF();
       
       // Configurações iniciais
@@ -78,11 +77,11 @@ export function usePDFExport() {
       
       // Processar dados baseado nas opções
       if (options.groupBySection) {
-        yPosition = renderDataBySection(doc, data, yPosition, pageHeight, marginBottom, options, autoTable);
+        yPosition = renderDataBySection(doc, data, yPosition, pageHeight, marginBottom, options);
       } else if (options.groupByUser) {
-        yPosition = renderDataByUser(doc, data, yPosition, pageHeight, marginBottom, options, autoTable);
+        yPosition = renderDataByUser(doc, data, yPosition, pageHeight, marginBottom, options);
       } else {
-        yPosition = renderDataTable(doc, data, yPosition, pageHeight, marginBottom, options, autoTable);
+        yPosition = renderDataTable(doc, data, yPosition, pageHeight, marginBottom, options);
       }
       
       // Salvar o PDF
@@ -109,7 +108,7 @@ export function usePDFExport() {
   }, [toast]);
 
   const renderStats = (
-    doc: any,
+    doc: jsPDF,
     stats: any,
     startY: number,
     options: PDFExportOptions,
@@ -205,13 +204,12 @@ export function usePDFExport() {
   };
 
   const renderDataBySection = (
-    doc: any,
+    doc: jsPDF,
     data: MonitoringData[],
     startY: number,
     pageHeight: number,
     marginBottom: number,
-    options: PDFExportOptions,
-    autoTable: any
+    options: PDFExportOptions
   ): number => {
     let yPosition = startY;
     
@@ -269,13 +267,12 @@ export function usePDFExport() {
   };
 
   const renderDataByUser = (
-    doc: any,
+    doc: jsPDF,
     data: MonitoringData[],
     startY: number,
     pageHeight: number,
     marginBottom: number,
-    options: PDFExportOptions,
-    autoTable: any
+    options: PDFExportOptions
   ): number => {
     let yPosition = startY;
     
@@ -322,13 +319,12 @@ export function usePDFExport() {
   };
 
   const renderDataTable = (
-    doc: any,
+    doc: jsPDF,
     data: MonitoringData[],
     startY: number,
     pageHeight: number,
     marginBottom: number,
-    options: PDFExportOptions,
-    autoTable: any
+    options: PDFExportOptions
   ): number => {
     let yPosition = startY;
     

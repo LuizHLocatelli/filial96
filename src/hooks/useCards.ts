@@ -36,9 +36,7 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
           created_by: card.created_by,
           created_at: card.created_at,
           code: card.code || null,
-          promotion_date: card.promotion_date,
-          start_date: card.start_date || null,
-          end_date: card.end_date || null
+          promotion_date: card.promotion_date
         }));
         
         setCards(typedCards);

@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Home, ChevronRight, Search, X } from "lucide-react";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
@@ -65,7 +66,7 @@ export function EnhancedTopBar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="sticky top-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 border-b bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-lg"
     >
       <div className={cn(
         "container flex items-center h-16",

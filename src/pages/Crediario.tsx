@@ -73,6 +73,10 @@ export default function Crediario() {
         description="Sistema completo de gestão do crediário"
         icon={CreditCard}
         iconColor="text-primary"
+        status={{
+          label: "Ativo",
+          color: "bg-green-50 text-green-700 border-green-200"
+        }}
         variant="default"
         breadcrumbs={[
           { label: "Hub de Produtividade", href: "/" },

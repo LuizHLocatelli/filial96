@@ -17,10 +17,8 @@ interface CardUploadFormProps {
   setTitle: (title: string) => void;
   code: string;
   setCode: (code: string) => void;
-  startDate: Date | undefined;
-  setStartDate: (date: Date | undefined) => void;
-  endDate: Date | undefined;
-  setEndDate: (date: Date | undefined) => void;
+  promotionDate: Date | undefined;
+  setPromotionDate: (date: Date | undefined) => void;
   folderId: string | null;
   setFolderId: (folderId: string | null) => void;
   previewUrl: string | null;
@@ -38,10 +36,8 @@ export function CardUploadForm({
   setTitle,
   code,
   setCode,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
+  promotionDate,
+  setPromotionDate,
   folderId,
   setFolderId,
   previewUrl,
@@ -81,67 +77,33 @@ export function CardUploadForm({
         />
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="start-date" className={cn("text-xs sm:text-sm")}>Início da Vigência</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="start-date"
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !startDate && "text-muted-foreground",
-                  "text-xs sm:text-sm h-8 sm:h-10"
-                )}
-                disabled={isSubmitting}
-              >
-                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                {startDate ? format(startDate, "dd/MM/yyyy") : "Selecione"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                disabled={(date) => endDate ? date > endDate : false}
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="end-date" className={cn("text-xs sm:text-sm")}>Fim da Vigência</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="end-date"
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !endDate && "text-muted-foreground",
-                  "text-xs sm:text-sm h-8 sm:h-10"
-                )}
-                disabled={isSubmitting}
-              >
-                <CalendarIcon className="mr-2 h-3.5 w-3.5" />
-                {endDate ? format(endDate, "dd/MM/yyyy") : "Selecione"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                disabled={(date) =>
-                  date < (startDate || new Date(0)) || date < new Date()
-                }
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="promotion-date" className={cn("text-xs sm:text-sm")}>Validade da Promoção</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              id="promotion-date"
+              variant={"outline"}
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !promotionDate && "text-muted-foreground",
+                "text-xs sm:text-sm h-8 sm:h-10"
+              )}
+              disabled={isSubmitting}
+            >
+              <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+              {promotionDate ? format(promotionDate, "dd/MM/yyyy") : "Selecione uma data"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={promotionDate}
+              onSelect={setPromotionDate}
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       
       <div className="space-y-2">
@@ -184,9 +146,8 @@ export function CardUploadForm({
         </Button>
         <Button
           type="submit"
-          variant="success"
           disabled={isSubmitting || !previewUrl}
-          className={cn("!bg-brand-green-600 !text-white text-xs sm:text-sm h-8 sm:h-10 disabled:!opacity-75")}
+          className={cn("text-xs sm:text-sm h-8 sm:h-10")}
         >
           {isSubmitting ? (
             <>

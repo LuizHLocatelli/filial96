@@ -41,7 +41,7 @@ export function PageHeader({
   const isMobile = useIsMobile();
 
   return (
-    <div className={cn("glass-card-medium rounded-lg p-4", className)}>
+    <div className={cn(className)}>
       {/* Container com fundo sutil para gradient */}
       <div className={cn(
         "relative",
@@ -102,7 +102,7 @@ export function PageHeader({
                   variant={status.variant || "outline"} 
                   className={cn(
                     "text-xs font-medium",
-                    status.color
+                    status.color || "bg-green-50 text-green-700 border-green-200"
                   )}
                 >
                   {status.label}
