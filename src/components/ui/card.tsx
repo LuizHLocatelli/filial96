@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -21,9 +22,9 @@ const Card = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "rounded-lg text-card-foreground shadow-lg transition-all duration-300",
+        "rounded-xl text-card-foreground shadow-lg transition-all duration-300",
         glassmorphism ? variantClasses[variant] : variantClasses.default,
-        isMobile && "rounded-xl",
+        isMobile && "rounded-2xl",
         className
       )}
       {...props}
@@ -151,9 +152,9 @@ const GlassCard = React.forwardRef<
       ref={ref}
       className={cn(
         `glass-card-${variant}`,
-        "rounded-xl text-card-foreground glass-hover relative overflow-hidden",
+        "rounded-2xl text-card-foreground glass-hover relative overflow-hidden",
         gradientClass,
-        isMobile && "rounded-2xl",
+        isMobile && "rounded-3xl",
         className
       )}
       {...props}

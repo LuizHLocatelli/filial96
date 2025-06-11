@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,8 +8,7 @@ import { useAuth } from "@/contexts/auth";
 interface CardUploadState {
   title: string;
   code: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  promotionDate: Date | undefined;
   selectedFile: File | null;
   previewUrl: string | null;
   isSubmitting: boolean;
@@ -25,8 +25,7 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
   const [state, setState] = useState<CardUploadState>({
     title: "",
     code: "",
-    startDate: new Date(),
-    endDate: undefined,
+    promotionDate: undefined,
     selectedFile: null,
     previewUrl: null,
     isSubmitting: false,
@@ -38,8 +37,7 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     setState({
       title: "",
       code: "",
-      startDate: new Date(),
-      endDate: undefined,
+      promotionDate: undefined,
       selectedFile: null,
       previewUrl: null,
       isSubmitting: false,
@@ -55,12 +53,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     setState(prev => ({ ...prev, code }));
   };
 
-  const setStartDate = (startDate: Date | undefined) => {
-    setState(prev => ({ ...prev, startDate }));
-  };
-
-  const setEndDate = (endDate: Date | undefined) => {
-    setState(prev => ({ ...prev, endDate }));
+  const setPromotionDate = (promotionDate: Date | undefined) => {
+    setState(prev => ({ ...prev, promotionDate }));
   };
 
   const setFolderId = (folderId: string | null) => {
@@ -161,14 +155,13 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       
       const position = positionData && positionData.length > 0 ? positionData[0].position + 1 : 0;
       
-      const formattedStartDate = state.startDate ? state.startDate.toISOString() : null;
-      const formattedEndDate = state.endDate ? state.endDate.toISOString() : null;
+      // Convert Date to ISO string if it exists, otherwise set to null
+      const formattedPromotionDate = state.promotionDate ? state.promotionDate.toISOString() : null;
       
       const { error: insertError } = await supabase.from('promotional_cards').insert({
         title: state.title.trim(),
         code: state.code.trim(),
-        start_date: formattedStartDate,
-        end_date: formattedEndDate,
+        promotion_date: formattedPromotionDate,
         image_url: imageUrl,
         folder_id: state.folderId,
         sector,
@@ -201,8 +194,7 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     ...state,
     setTitle,
     setCode,
-    setStartDate,
-    setEndDate,
+    setPromotionDate,
     setFolderId,
     handleFileChange,
     removeImage,

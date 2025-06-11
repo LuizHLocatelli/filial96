@@ -1,3 +1,4 @@
+
 import { useCards } from "@/hooks/useCards";
 import { useCardOperations } from "@/hooks/useCardOperations";
 import { useCardSearch } from "@/hooks/useCardSearch";
@@ -127,10 +128,6 @@ export function CardGallery({ sector, folderId }: CardGalleryProps) {
           onDelete={handleDeleteCard}
           onMoveToFolder={handleMoveToFolder}
           sector={sector}
-          onUpdate={() => {
-            // The useCards hook uses realtime, so we don't need to do anything here.
-            // The component will re-render automatically.
-          }}
         />
       )}
     </div>

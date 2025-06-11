@@ -125,6 +125,10 @@ export default function Moda() {
         description="Gestão completa do setor de moda"
         icon={Shirt}
         iconColor="text-purple-600"
+        status={{
+          label: "Ativo",
+          color: "bg-green-50 text-green-700 border-green-200"
+        }}
         variant="default"
         breadcrumbs={[
           { label: "Hub de Produtividade", href: "/" },
