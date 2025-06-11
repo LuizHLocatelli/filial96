@@ -64,7 +64,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               "shadow-sm hover:shadow-md",
               "border border-white/15 hover:border-white/25",
               "backdrop-blur-sm",
-              "transition-all duration-200 ease-out"
+              "transition-all duration-200 ease-out",
+              // Correção específica para botões pequenos no modo escuro
+              "dark:border-white/8 dark:hover:border-white/15",
+              "relative overflow-hidden"
             ]
           )}
           ref={ref}
@@ -85,11 +88,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {children}
           </span>
           
-          {/* Bottom Highlight - adjusted for small buttons */}
-          <div className={cn(
-            "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent",
-            size === "sm" && "via-white/20"
-          )} />
+          {/* Bottom Highlight - removido para botões pequenos no modo escuro */}
+          {!(size === "sm") && (
+            <div className={cn(
+              "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            )} />
+          )}
         </Comp>
       </motion.div>
     )

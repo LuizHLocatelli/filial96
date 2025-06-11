@@ -295,16 +295,17 @@
     border-color: rgba(239, 68, 68, 0.4);
   }
 
-  /* Dark mode adjustments for buttons */
+  /* Dark mode adjustments for buttons - CORREÇÃO PARA BOTÕES PEQUENOS */
   .dark .glass-button-default {
     background: linear-gradient(135deg, 
       rgba(255, 255, 255, 0.06) 0%, 
       rgba(255, 255, 255, 0.03) 100%);
     box-shadow: 
       0 4px 16px rgba(0, 0, 0, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.1);
+    /* Remove a linha branca inferior no modo escuro */
+    inset: auto;
   }
 
   .dark .glass-button-default:hover {
@@ -313,8 +314,7 @@
       rgba(255, 255, 255, 0.06) 100%);
     box-shadow: 
       0 6px 20px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.2);
   }
 
