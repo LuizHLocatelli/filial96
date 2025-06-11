@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -335,7 +334,8 @@ export function CentralAtividades() {
   const handleUnifiedStatusChange = async (id: string, type: 'rotina' | 'tarefa', status: string) => {
     if (type === 'rotina') {
       if (status === 'concluida' || status === 'pendente') {
-        await toggleConclusao(id, new Date());
+        const isCompleted = status === 'concluida';
+        await toggleConclusao(id, isCompleted);
       }
     } else if (type === 'tarefa') {
       await handleAtualizarStatusTarefa(id, status);
@@ -493,3 +493,5 @@ export function CentralAtividades() {
     </div>
   );
 }
+
+export default CentralAtividades;
