@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   User, 
@@ -138,13 +139,13 @@ export function UserMenu() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button variant="ghost" className="relative h-10 w-10 p-0 hover:bg-transparent">
           <Avatar className="h-9 w-9">
             <AvatarImage 
               src={profile?.avatarUrl} 
               alt={getDisplayName()} 
             />
-            <AvatarFallback className="bg-primary/10 text-primary">
+            <AvatarFallback className="bg-transparent border-0 text-foreground">
               {getNameForInitials() ? getInitials(getNameForInitials()) : <User className="h-4 w-4" />}
             </AvatarFallback>
           </Avatar>

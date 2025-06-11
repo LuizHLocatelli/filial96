@@ -1,3 +1,4 @@
+
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { useGlobalSearch } from "@/contexts/GlobalSearchContext";
 import { GlobalSearchResults } from "./GlobalSearchResults";
 import { useEffect, useRef } from "react";
 import { useOnClickOutside } from "usehooks-ts";
+import { motion } from "framer-motion";
 
 interface SearchBarProps {
   isMobile: boolean;
@@ -67,15 +69,21 @@ export function SearchBar({ isMobile, isSearchOpen, onSearchToggle }: SearchBarP
 
   if (isMobile) {
     return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onSearchToggle}
-        className="h-10 w-10"
-        aria-label="Buscar"
+      <motion.div 
+        whileHover={{ scale: 1.05 }} 
+        whileTap={{ scale: 0.95 }}
+        className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
       >
-        <Search className="h-4 w-4" />
-      </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onSearchToggle}
+          className="h-full w-full p-0 hover:bg-transparent"
+          aria-label="Buscar"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
+      </motion.div>
     );
   }
 
