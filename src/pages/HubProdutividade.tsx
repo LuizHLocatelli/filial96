@@ -43,7 +43,6 @@ export default function HubProdutividade() {
   // Hook para dados
   const {
     stats,
-    activities,
     rotinas,
     orientacoes,
     tarefas,
@@ -104,7 +103,6 @@ export default function HubProdutividade() {
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <HubDashboard
             stats={stats}
-            activities={activities}
             isLoading={isLoading}
             handlers={{
               ...handlers,

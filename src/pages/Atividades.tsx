@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { ActivityTimeline } from "@/components/moveis/hub-produtividade/components/unified/ActivityTimeline";
 import { NotificationsDebug } from "@/components/notifications/NotificationsDebug";
 
 // Interface para atividades do banco
@@ -423,138 +422,95 @@ export default function Atividades() {
           <TabsTrigger value="debug">Debug</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="timeline" className="space-y-4">
-          {/* Filtros */}
+        <TabsContent value="timeline">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                <Filter className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Filtros</span>
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Filtre as atividades por diferentes critérios
+            <CardHeader>
+              <CardTitle>Linha do Tempo de Atividades</CardTitle>
+              <CardDescription>
+                Visualize todas as atividades recentes em um único lugar.
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              {/* Layout responsivo: mobile-first com grid adaptativo */}
-              <div className="space-y-4">
-                {/* Busca sempre em destaque */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Buscar</label>
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Buscar atividades..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8 h-9"
-                    />
-                  </div>
-                </div>
-
-                {/* Grid responsivo para filtros */}
-                <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium whitespace-nowrap">Tipo</label>
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Todos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos os tipos</SelectItem>
-                        <SelectItem value="tarefa">Tarefas</SelectItem>
-                        <SelectItem value="rotina">Rotinas</SelectItem>
-                        <SelectItem value="orientacao">Orientações</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium whitespace-nowrap">Ação</label>
-                    <Select value={actionFilter} onValueChange={setActionFilter}>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Todas" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todas as ações</SelectItem>
-                        <SelectItem value="criada">Criadas</SelectItem>
-                        <SelectItem value="concluida">Concluídas</SelectItem>
-                        <SelectItem value="atualizada">Atualizadas</SelectItem>
-                        <SelectItem value="deletada">Deletadas</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium whitespace-nowrap">Usuário</label>
-                    <Select value={userFilter} onValueChange={setUserFilter}>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Todos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos os usuários</SelectItem>
-                        {uniqueUsers.map(user => (
-                          <SelectItem key={user} value={user}>{user}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium whitespace-nowrap">Período</label>
-                    <Select value={dateRange} onValueChange={setDateRange}>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Todos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todo o período</SelectItem>
-                        <SelectItem value="today">Hoje</SelectItem>
-                        <SelectItem value="week">Última semana</SelectItem>
-                        <SelectItem value="month">Último mês</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+            <CardContent className="space-y-6">
+              {/* Filtros */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 border rounded-lg">
+                <Input
+                  placeholder="Buscar por título, usuário..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="col-span-2"
+                />
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Tipos</SelectItem>
+                    <SelectItem value="rotina">Rotina</SelectItem>
+                    <SelectItem value="tarefa">Tarefa</SelectItem>
+                    <SelectItem value="orientacao">Orientação</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={actionFilter} onValueChange={setActionFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ação" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Ações</SelectItem>
+                    <SelectItem value="criada">Criada</SelectItem>
+                    <SelectItem value="concluida">Concluída</SelectItem>
+                    <SelectItem value="atualizada">Atualizada</SelectItem>
+                    <SelectItem value="deletada">Deletada</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={dateRange} onValueChange={setDateRange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Data" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Qualquer Data</SelectItem>
+                    <SelectItem value="today">Hoje</SelectItem>
+                    <SelectItem value="yesterday">Ontem</SelectItem>
+                    <SelectItem value="this_week">Esta Semana</SelectItem>
+                    <SelectItem value="last_7_days">Últimos 7 dias</SelectItem>
+                    <SelectItem value="this_month">Este Mês</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={userFilter} onValueChange={setUserFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Usuário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Usuários</SelectItem>
+                    {/* Unique users could be populated dynamically */}
+                    {[...new Set(activities.map(a => a.user))].map(user => (
+                      <SelectItem key={user} value={user}>{user}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Contador de resultados e ações */}
-              <div className="mt-4 flex flex-col xs:flex-row xs:items-center justify-between gap-3">
-                <div className="flex items-center gap-2 overflow-x-auto">
-                  <Badge variant="outline" className="whitespace-nowrap text-xs">
-                    {filteredActivities.length} de {activities.length} atividades
-                  </Badge>
-                  {(searchTerm || typeFilter !== "all" || actionFilter !== "all" || userFilter !== "all" || dateRange !== "all") && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSearchTerm("");
-                        setTypeFilter("all");
-                        setActionFilter("all");
-                        setUserFilter("all");
-                        setDateRange("all");
-                      }}
-                      className="h-8 text-xs whitespace-nowrap"
-                    >
-                      Limpar filtros
-                    </Button>
-                  )}
-                </div>
+              {/* Timeline */}
+              <div className="border rounded-lg overflow-hidden">
+                {isLoading && (
+                  <div className="text-center text-muted-foreground p-8">
+                    <p>Carregando atividades...</p>
+                  </div>
+                )}
+                {!isLoading && filteredActivities.length > 0 && (
+                  <div className="p-4">
+                    {/* Placeholder para a timeline */}
+                    <div className="text-center text-muted-foreground p-8">
+                      <p>A funcionalidade de Timeline foi removida.</p>
+                      <p>Exibindo {filteredActivities.length} atividades filtradas.</p>
+                    </div>
+                  </div>
+                )}
+                {!isLoading && filteredActivities.length === 0 && (
+                  <div className="text-center text-muted-foreground p-8">
+                    <p>Nenhuma atividade encontrada com os filtros atuais.</p>
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Timeline de atividades */}
-          <Card>
-            <CardContent className="p-6">
-              <ActivityTimeline
-                activities={filteredActivities}
-                isLoading={isLoading}
-                maxItems={50}
-                showFilters={false}
-                onRefresh={fetchActivities}
-                onActivityClick={handleActivityClick}
-              />
             </CardContent>
           </Card>
         </TabsContent>

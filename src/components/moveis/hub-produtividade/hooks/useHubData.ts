@@ -3,14 +3,12 @@ import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
 import { 
   ProductivityStats, 
-  ActivityItem
 } from '../types';
 import { useRotinasData } from './useRotinasData';
 import { useOrientacoesData } from './useOrientacoesData';
 import { useTarefasData } from './useTarefasData';
 import { useUsersCache } from './useUsersCache';
 import { calculateProductivityStats } from '../utils/statsCalculator';
-import { generateActivityTimeline } from '../utils/activityGenerator';
 import { useResponsive } from '@/hooks/use-responsive';
 
 export function useHubData() {
@@ -49,9 +47,7 @@ export function useHubData() {
     }
   });
   
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
-  const [isLoadingActivities, setIsLoadingActivities] = useState(true);
 
   // Usar os novos hooks especializados
   const { 
@@ -88,7 +84,6 @@ export function useHubData() {
       console.log('📱 [MOBILE DEBUG] useHubData Estado Detalhado:', {
         statsTotal: stats.rotinas.total + stats.tarefas.total,
         isLoadingStats,
-        isLoadingActivities,
         isLoadingRotinas,
         isLoadingOrientacoes,
         isLoadingTarefas,
@@ -101,7 +96,7 @@ export function useHubData() {
         isInitialLoad: isInitialLoadRef.current
       });
     }
-  }, [isMobile, stats, isLoadingStats, isLoadingActivities, isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers, rotinas, orientacoes, tarefas, allDataLoaded, user]);
+  }, [isMobile, stats, isLoadingStats, isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers, rotinas, orientacoes, tarefas, allDataLoaded, user]);
 
   // Memoizar os dados para evitar recalculos
   const memoizedRotinas = useMemo(() => rotinas, [JSON.stringify(rotinas)]);
@@ -175,18 +170,12 @@ export function useHubData() {
       const newStats = calculateProductivityStats(memoizedRotinas, memoizedOrientacoes, memoizedTarefas);
       setStats(newStats);
       
-      // Gerar atividades - mesmo que não tenha dados
-      const newActivities = generateActivityTimeline(memoizedRotinas, memoizedOrientacoes, memoizedTarefas, getUserName);
-      setActivities(newActivities);
-      
       console.log('📊 Estatísticas calculadas:', newStats);
       
       setIsLoadingStats(false);
-      setIsLoadingActivities(false);
     } catch (error) {
       console.error('❌ Erro ao calcular estatísticas:', error);
       setIsLoadingStats(false);
-      setIsLoadingActivities(false);
     }
   }, [allDataLoaded, memoizedRotinas, memoizedOrientacoes, memoizedTarefas, getUserName]);
 
@@ -200,18 +189,16 @@ export function useHubData() {
   return {
     // Data
     stats,
-    activities,
     rotinas: memoizedRotinas,
     orientacoes: memoizedOrientacoes,
     tarefas: memoizedTarefas,
     
     // Loading states
     isLoadingStats,
-    isLoadingActivities,
     isLoadingRotinas,
     isLoadingOrientacoes,
     isLoadingTarefas,
-    isLoading: isLoadingStats || isLoadingActivities,
+    isLoading: isLoadingStats,
     
     // Error states
     errors,

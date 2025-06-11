@@ -1,4 +1,3 @@
-
 import { PromotionalCard } from "@/components/promotional-cards/PromotionalCard";
 import { CardItem } from "@/hooks/useCardOperations";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -54,7 +53,8 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, sector }: CardGridPr
             id={card.id}
             title={card.title}
             code={card.code}
-            promotionDate={card.promotion_date}
+            startDate={card.start_date}
+            endDate={card.end_date}
             imageUrl={card.image_url}
             folderId={card.folder_id}
             onDelete={onDelete}

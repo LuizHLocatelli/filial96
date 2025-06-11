@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -37,7 +36,8 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
           created_by: card.created_by,
           created_at: card.created_at,
           code: card.code || null,
-          promotion_date: card.start_date || card.end_date || null // Use start_date or end_date as promotion_date
+          start_date: card.start_date || null,
+          end_date: card.end_date || null,
         }));
         
         setCards(typedCards);

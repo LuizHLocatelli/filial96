@@ -1,10 +1,9 @@
-import { ProductivityStats, ActivityItem } from '../../types';
+import { ProductivityStats } from '../../types';
 import { HubHandlers } from '../../types/hubTypes';
 import { useResponsive } from '@/hooks/use-responsive';
 import { useLayoutPreferences } from '../../hooks/useLayoutPreferences';
 import { StatsOverview } from './StatsOverview';
 import { QuickActions } from './QuickActions';
-import { ActivityTimeline } from '../unified/ActivityTimeline';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -22,7 +21,6 @@ import {
 
 interface DesktopLayoutProps {
   stats: ProductivityStats;
-  activities: ActivityItem[];
   isLoading: boolean;
   handlers: HubHandlers;
   rotinas?: any[];
@@ -33,7 +31,6 @@ interface DesktopLayoutProps {
 
 export function DesktopLayout({
   stats,
-  activities,
   isLoading,
   handlers,
   rotinas = [],
@@ -41,7 +38,7 @@ export function DesktopLayout({
   onViewRotina,
   onViewTarefa
 }: DesktopLayoutProps) {
-  const { layoutConfig, isCompact } = useLayoutPreferences();
+  const { isCompact } = useLayoutPreferences();
 
   return (
     <div className="space-y-4">
@@ -167,7 +164,7 @@ export function DesktopLayout({
       {/* Layout Principal - Duas colunas otimizadas */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Coluna Principal - Central de Ferramentas */}
-        <div className="xl:col-span-8 space-y-4">
+        <div className="xl:col-span-12 space-y-4">
           {/* Ações Rápidas */}
           <Card className="shadow-sm">
             <CardContent className="p-4">
@@ -200,7 +197,7 @@ export function DesktopLayout({
           </Card>
 
           {/* Insights Rápidos */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-0">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
@@ -213,24 +210,6 @@ export function DesktopLayout({
                     </div>
                     <div className="text-xs text-blue-600 dark:text-blue-400">
                       Taxa de Conclusão
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-0">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                    <Activity className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-lg font-bold text-green-700 dark:text-green-300">
-                      {activities.length}
-                    </div>
-                    <div className="text-xs text-green-600 dark:text-green-400">
-                      Atividades Hoje
                     </div>
                   </div>
                 </div>
@@ -255,89 +234,6 @@ export function DesktopLayout({
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* Coluna Lateral - Timeline e Monitoramento */}
-        <div className="xl:col-span-4">
-          <Card className="shadow-sm h-fit">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Clock className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-lg font-semibold">Atividades Recentes</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {activities.length} atividades registradas
-                  </p>
-                </div>
-                <Badge variant="secondary" className="text-xs">
-                  Tempo Real
-                </Badge>
-              </div>
-
-              <ActivityTimeline
-                activities={activities}
-                isLoading={isLoading}
-                maxItems={20}
-              />
-
-              {/* Progresso Detalhado */}
-              <div className="pt-4 mt-4 border-t border-border/40">
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Progresso Detalhado</h4>
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Rotinas</span>
-                      <span className="text-xs font-medium">
-                        {stats.rotinas.concluidas}/{stats.rotinas.total}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-green-500 transition-all duration-500"
-                        style={{ 
-                          width: `${stats.rotinas.total > 0 ? (stats.rotinas.concluidas / stats.rotinas.total) * 100 : 0}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Tarefas</span>
-                      <span className="text-xs font-medium">
-                        {stats.tarefas.concluidas}/{stats.tarefas.total}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-blue-500 transition-all duration-500"
-                        style={{ 
-                          width: `${stats.tarefas.total > 0 ? (stats.tarefas.concluidas / stats.tarefas.total) * 100 : 0}%` 
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Produtividade Geral</span>
-                      <span className="text-xs font-medium">
-                        {stats.produtividade.score.toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-orange-500 to-green-500 transition-all duration-500"
-                        style={{ width: `${stats.produtividade.score}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TabButtonProps } from "./types";
@@ -113,23 +112,6 @@ export function TabButton({
       )}>
         {tab.title}
       </span>
-      
-      {/* Dot indicator premium apenas no desktop */}
-      {!isMobile && isActive && (
-        <motion.div
-          initial={{ scale: 0, rotate: 0 }}
-          animate={{ scale: 1, rotate: 360 }}
-          transition={{ duration: 0.5, ease: "backOut" }}
-          className={cn(
-            "absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full z-20",
-            "glass-button-accent",
-            "border-2 border-background shadow-xl",
-            "shadow-primary/60",
-            "before:absolute before:inset-0 before:rounded-full",
-            "before:bg-primary/50 before:blur-md before:-z-10"
-          )}
-        />
-      )}
       
       {/* Ripple effect */}
       <motion.div

@@ -10,14 +10,15 @@ import {
   CardDeleteDialog,
   CardDropdownMenu
 } from "./card";
-import { Calendar, Hash } from "lucide-react";
+import { Calendar, Hash, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface PromotionalCardProps {
   id: string;
   title: string;
   code?: string;
-  promotionDate?: string;
+  startDate?: string | null;
+  endDate?: string | null;
   imageUrl: string;
   folderId: string | null;
   onDelete: (id: string) => Promise<boolean>;
@@ -30,7 +31,8 @@ export function PromotionalCard({
   id, 
   title, 
   code,
-  promotionDate,
+  startDate,
+  endDate,
   imageUrl, 
   folderId, 
   onDelete,
@@ -100,7 +102,25 @@ export function PromotionalCard({
     }
   };
 
-  const formattedDate = promotionDate ? new Date(promotionDate).toLocaleDateString('pt-BR') : null;
+  const getStatus = (): { text: string; color: string; icon: React.ElementType } => {
+    const now = new Date();
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (end && end < now) {
+      return { text: "Expirado", color: "bg-red-500 text-white", icon: Clock };
+    }
+    if (start && start > now) {
+      return { text: "Agendado", color: "bg-blue-500 text-white", icon: Clock };
+    }
+    if (start && end && start <= now && end >= now) {
+      return { text: "Ativo", color: "bg-green-500 text-white", icon: Clock };
+    }
+    return { text: "Válido", color: "bg-gray-500 text-white", icon: Clock }; // Default/fallback
+  };
+
+  const status = getStatus();
+  const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString('pt-BR') : null;
 
   return (
     <>
@@ -129,27 +149,31 @@ export function PromotionalCard({
               />
               
               {/* Overlay com informações */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Badges de código e data */}
-              {(code || promotionDate) && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-2">
-                  <div className="flex items-center justify-between gap-2 text-xs">
-                    {code && (
-                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
-                        <Hash className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate font-medium block">{code}</span>
-                      </div>
-                    )}
-                    {formattedDate && (
-                      <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
-                        <Calendar className="h-3 w-3 flex-shrink-0" />
-                        <span className="text-xs truncate block">{formattedDate}</span>
-                      </div>
-                    )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2">
+                
+                <div className="flex items-center justify-between gap-2 text-xs text-white">
+                  {code && (
+                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
+                      <Hash className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate font-medium block">{code}</span>
+                    </div>
+                  )}
+                  {formattedEndDate && (
+                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
+                      <span className="text-xs truncate block">{formattedEndDate}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-2 w-fit">
+                  <div className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-sm", status.color)}>
+                    <status.icon className="h-3.5 w-3.5" />
+                    <span>{status.text}</span>
                   </div>
                 </div>
-              )}
+
+              </div>
             </div>
           </AspectRatio>
         </CardContent>
@@ -193,7 +217,8 @@ export function PromotionalCard({
         title={title}
         imageUrl={imageUrl}
         code={code}
-        promotionDate={promotionDate}
+        startDate={startDate}
+        endDate={endDate}
         currentFolder={currentFolder}
         isMobile={isMobile}
       />

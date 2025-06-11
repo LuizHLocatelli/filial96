@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TabContainerProps } from "./types";
@@ -29,12 +28,12 @@ export function TabContainer({ children, isMobile, isSmallScreen }: TabContainer
         
         {/* Animated Gradient Background */}
         <div className="absolute inset-0 opacity-60 rounded-3xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-blue-500/10 to-purple-500/15 rounded-3xl animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-emerald-500/10 to-green-500/15 rounded-3xl animate-pulse" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/8 to-transparent rounded-3xl" />
         </div>
 
         {/* Glow Effect */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/30 via-blue-500/20 to-purple-500/25 blur-xl opacity-50 -z-10" />
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-primary/30 via-emerald-500/20 to-green-500/25 blur-xl opacity-50 -z-10" />
         
         {/* Content */}
         <div className="relative z-10">

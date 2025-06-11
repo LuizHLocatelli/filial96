@@ -1,20 +1,18 @@
-import { ProductivityStats, ActivityItem } from '../../types';
+import { ProductivityStats } from '../../types';
 import { HubHandlers } from '../../types/hubTypes';
 import { useResponsive } from '@/hooks/use-responsive';
 import { useLayoutPreferences } from '../../hooks/useLayoutPreferences';
 import { StatsOverview } from './StatsOverview';
 import { QuickActions } from './QuickActions';
-import { ActivityTimeline } from '../unified/ActivityTimeline';
 import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSection';
 import { DesktopLayout } from './DesktopLayout';
 import { ProductivityAssistant } from '../chatbot/ProductivityAssistant';
-import { Activity, Zap, Clock, TrendingUp, Link2 } from 'lucide-react';
+import { Activity, Zap, Link2 } from 'lucide-react';
 import { useEffect } from 'react';
 import { ConexoesVisualizacao } from './ConexoesVisualizacao';
 
 interface HubDashboardProps {
   stats: ProductivityStats;
-  activities: ActivityItem[];
   isLoading: boolean;
   handlers: HubHandlers;
   rotinas?: any[];
@@ -25,7 +23,6 @@ interface HubDashboardProps {
 
 export function HubDashboard({
   stats,
-  activities,
   isLoading,
   handlers,
   rotinas = [],
@@ -34,9 +31,8 @@ export function HubDashboard({
   onViewTarefa
 }: HubDashboardProps) {
   const { isMobile, isTablet } = useResponsive();
-  const { preferences, layoutConfig, isCompact } = useLayoutPreferences();
+  const { isCompact } = useLayoutPreferences();
 
-  // Debug logs para mobile
   useEffect(() => {
     if (isMobile) {
       console.log('📱 [MOBILE] HubDashboard renderizando');
@@ -45,14 +41,11 @@ export function HubDashboard({
       console.log('  📊 Stats recebidas:', stats);
       console.log('  ⏳ isLoading:', isLoading);
       console.log('  🎯 isCompact:', isCompact);
-      console.log('  ⚙️ preferences:', preferences);
     }
-  }, [isMobile, stats, isLoading, isCompact, preferences]);
+  }, [isMobile, stats, isLoading, isCompact]);
 
-  // Garantir que as seções importantes estejam sempre expandidas no mobile
   useEffect(() => {
     if (isMobile) {
-      // Forçar expansão da seção de estatísticas no mobile
       try {
         localStorage.setItem('collapsible-mobile-stats', JSON.stringify(true));
         console.log('📱 [MOBILE] Forçando expansão das estatísticas');
@@ -63,8 +56,6 @@ export function HubDashboard({
   }, [isMobile]);
 
   if (isMobile) {
-    console.log('📱 [MOBILE DEBUG] Renderizando versão mobile do HubDashboard');
-    
     return (
       <div className="space-y-4">
         <div className="mb-4">
@@ -127,23 +118,6 @@ export function HubDashboard({
               />
             </div>
           </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Atividades Recentes"
-            icon={Clock}
-            badge={activities.length}
-            defaultExpanded={true}
-            compact={isCompact}
-            persistStateKey="mobile-timeline"
-          >
-            <div className="px-1">
-              <ActivityTimeline
-                activities={activities}
-                isLoading={isLoading}
-                maxItems={8}
-              />
-            </div>
-          </CollapsibleSection>
         </CollapsibleGroup>
       </div>
     );
@@ -152,7 +126,6 @@ export function HubDashboard({
   if (isTablet) {
     return (
       <div className="space-y-6">
-        {/* Assistente de Produtividade - Layout otimizado */}
         <div className="mb-4">
           <ProductivityAssistant />
         </div>
@@ -197,51 +170,32 @@ export function HubDashboard({
                 />
               </div>
             </CollapsibleSection>
-            
+
             <CollapsibleSection
-              title="Timeline de Atividades"
-              icon={Clock}
-              badge={activities.length}
+              title="Mapa de Conexões"
+              icon={Link2}
               defaultExpanded={true}
               compact={isCompact}
-              persistStateKey="tablet-timeline"
+              persistStateKey="tablet-connections"
             >
               <div className="px-2">
-                <ActivityTimeline
-                  activities={activities}
-                  isLoading={isLoading}
-                  maxItems={10}
+                <ConexoesVisualizacao
+                  rotinas={rotinas}
+                  tarefas={tarefas}
+                  onViewRotina={onViewRotina}
+                  onViewTarefa={onViewTarefa}
                 />
               </div>
             </CollapsibleSection>
           </div>
-          
-          <CollapsibleSection
-            title="Mapa de Conexões"
-            icon={Link2}
-            defaultExpanded={true}
-            compact={isCompact}
-            persistStateKey="tablet-connections"
-          >
-            <div className="px-2">
-              <ConexoesVisualizacao
-                rotinas={rotinas}
-                tarefas={tarefas}
-                onViewRotina={onViewRotina}
-                onViewTarefa={onViewTarefa}
-              />
-            </div>
-          </CollapsibleSection>
         </CollapsibleGroup>
       </div>
     );
   }
 
-  // Desktop layout melhorado - Usando componente especializado
   return (
     <DesktopLayout
       stats={stats}
-      activities={activities}
       isLoading={isLoading}
       handlers={handlers}
       rotinas={rotinas}

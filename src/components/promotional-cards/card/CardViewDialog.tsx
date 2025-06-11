@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Calendar, Hash, Folder } from "lucide-react";
+import { Download, Calendar, Hash, Folder, Clock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -13,7 +13,8 @@ interface CardViewDialogProps {
   title: string;
   imageUrl: string;
   code?: string;
-  promotionDate?: string;
+  startDate?: string | null;
+  endDate?: string | null;
   currentFolder?: { id: string; name: string } | undefined;
   isMobile?: boolean;
 }
@@ -24,7 +25,8 @@ export function CardViewDialog({
   title,
   imageUrl,
   code,
-  promotionDate,
+  startDate,
+  endDate,
   currentFolder,
   isMobile
 }: CardViewDialogProps) {
@@ -55,10 +57,23 @@ export function CardViewDialog({
     }
   };
 
-  // Format date if it exists
-  const formattedDate = promotionDate 
-    ? format(new Date(promotionDate), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) 
+  const formattedStartDate = startDate 
+    ? format(new Date(startDate), "dd/MM/yyyy", { locale: ptBR }) 
     : null;
+  const formattedEndDate = endDate 
+    ? format(new Date(endDate), "dd/MM/yyyy", { locale: ptBR }) 
+    : null;
+  
+  const getStatus = (): { text: string; color: string } => {
+    const now = new Date();
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (end && end < now) return { text: "Expirado", color: "text-red-500" };
+    if (start && start > now) return { text: "Agendado", color: "text-blue-500" };
+    if (start && end && start <= now && end >= now) return { text: "Ativo", color: "text-green-500" };
+    return { text: "Válido", color: "text-gray-500" };
+  };
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -72,9 +87,10 @@ export function CardViewDialog({
               </Badge>
             )}
           </DialogTitle>
-          <DialogDescription>
-            Visualize os detalhes do card promocional
-            {promotionDate && ` da promoção de ${format(new Date(promotionDate), 'dd/MM/yyyy', { locale: ptBR })}`}
+          <DialogDescription className="flex items-center gap-2">
+            <Clock className={cn("h-4 w-4", getStatus().color)} />
+            <span className={cn("font-semibold", getStatus().color)}>{getStatus().text}</span>
+            <span className="text-muted-foreground text-xs"> (de {formattedStartDate || '?'} a {formattedEndDate || '?'})</span>
           </DialogDescription>
         </DialogHeader>
         
@@ -100,14 +116,23 @@ export function CardViewDialog({
               </div>
             )}
             
-            {formattedDate && (
+            {formattedStartDate && (
               <div className="flex items-center gap-2 text-xs sm:text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">Data da Promoção</p>
-                  <p className="text-muted-foreground">{formattedDate}</p>
+                  <p className="font-medium">Início da Validade</p>
+                  <p className="text-muted-foreground">{formattedStartDate}</p>
                 </div>
               </div>
+            )}
+            {formattedEndDate && (
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                        <p className="font-medium">Fim da Validade</p>
+                        <p className="text-muted-foreground">{formattedEndDate}</p>
+                    </div>
+                </div>
             )}
             
             {currentFolder && (
