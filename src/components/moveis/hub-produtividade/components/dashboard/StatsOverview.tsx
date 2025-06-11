@@ -198,7 +198,7 @@ export function StatsOverview({
                     isMobile ? "mt-3 min-h-[40px]" : "mt-4"
                   )}
                 >
-                  Clique para acessar →
+                  {isMobile ? "Acessar" : "Clique para acessar →"}
                 </Button>
               </CardContent>
             </Card>

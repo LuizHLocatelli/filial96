@@ -5,8 +5,7 @@ import {
   CheckSquare, 
   FileText, 
   BarChart3,
-  Users,
-  Target
+  Users
 } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -25,9 +24,6 @@ import { useHubHandlers } from "@/components/moveis/hub-produtividade/hooks/useH
 import { BuscaAvancada } from "@/components/moveis/hub-produtividade/components/funcionalidades/BuscaAvancada";
 import { FiltrosPorData } from "@/components/moveis/hub-produtividade/components/funcionalidades/FiltrosPorData";
 import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
-
-// Painel de Metas
-import PainelMetas from "./painel-metas/PainelMetas";
 
 export default function HubProdutividade() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -170,17 +166,6 @@ export default function HubProdutividade() {
               </div>
             </div>
           </div>
-        </div>
-      )
-    },
-    {
-      value: "metas",
-      label: "Metas",
-      icon: Target,
-      description: "Painel de Metas da Filial",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <PainelMetas />
         </div>
       )
     }

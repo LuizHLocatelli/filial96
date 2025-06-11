@@ -1,26 +1,16 @@
-import { Shield, Users, Clock, Award } from "lucide-react";
+import { LayoutGrid, Users } from "lucide-react";
 
 export function TrustIndicators() {
   const indicators = [
     {
-      icon: Shield,
-      title: "Segurança SSL",
-      description: "Dados protegidos com criptografia"
+      icon: LayoutGrid,
+      title: "Hub de Produtividade",
+      description: "Tarefas, metas e desempenho em um só lugar."
     },
     {
       icon: Users,
-      title: "Equipe Confiável",
-      description: "Sistema usado por toda a filial"
-    },
-    {
-      icon: Clock,
-      title: "Disponível 24/7",
-      description: "Acesso a qualquer momento"
-    },
-    {
-      icon: Award,
-      title: "Sistema Certificado",
-      description: "Tecnologia moderna e confiável"
+      title: "Gestão Simplificada",
+      description: "Acompanhamento de gestão global da filial."
     }
   ];
 

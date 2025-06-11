@@ -70,7 +70,7 @@ export function EnhancedLoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleLogin)}>
-        <CardContent className="space-y-6 pt-6">
+        <CardContent className="space-y-4 sm:space-y-6 pt-4 sm:pt-6">
           <FormField
             control={form.control}
             name="email"
@@ -79,13 +79,15 @@ export function EnhancedLoginForm() {
                 <FormLabel className="text-sm font-medium">E-mail</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                    </div>
                     <Input
                       {...field}
                       type="email"
                       placeholder="seu@email.com"
                       autoComplete="email"
-                      className="pl-10 h-12 bg-input border-muted-foreground/20 focus:border-primary transition-all duration-200"
+                      className="pl-10 h-10 sm:h-12 bg-input border-muted-foreground/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
                 </FormControl>
@@ -102,27 +104,32 @@ export function EnhancedLoginForm() {
                 <FormLabel className="text-sm font-medium">Senha</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                    </div>
                     <Input
                       {...field}
                       type={showPassword ? "text" : "password"}
                       placeholder="******"
                       autoComplete="current-password"
-                      className="pl-10 pr-10 h-12 bg-input border-muted-foreground/20 focus:border-primary transition-all duration-200"
+                      className="pl-10 pr-10 h-10 sm:h-12 bg-input border-muted-foreground/20 focus:border-primary transition-all duration-200"
                     />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </Button>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="p-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -152,7 +159,7 @@ export function EnhancedLoginForm() {
         
         <CardFooter>
           <Button 
-            className="w-full h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
+            className="w-full h-10 sm:h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
             type="submit" 
             disabled={isLoading}
           >
