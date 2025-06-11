@@ -47,15 +47,36 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ripple = true, children, ...props }, ref) => {
     const isMobile = useIsMobile();
-    const Comp = asChild ? Slot : "button"
     
-    return (
-      <motion.div
-        whileHover={{ scale: size === "sm" ? 1.03 : 1.02 }}
-        whileTap={{ scale: size === "sm" ? 0.97 : 0.98 }}
-        transition={{ duration: 0.1 }}
-      >
-        <Comp
+    const buttonContent = (
+      <>
+        {/* Glass Shine Effect for small buttons */}
+        {size === "sm" && (
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+        )}
+        
+        {/* Glass Shine Effect for other buttons */}
+        {size !== "sm" && (
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+        )}
+        
+        {/* Content */}
+        <span className="relative z-10 flex items-center gap-2">
+          {children}
+        </span>
+        
+        {/* Bottom Highlight - removido para botões pequenos no modo escuro */}
+        {!(size === "sm") && (
+          <div className={cn(
+            "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
+          )} />
+        )}
+      </>
+    );
+
+    if (asChild) {
+      return (
+        <Slot
           className={cn(
             buttonVariants({ variant, size, className }),
             isMobile && "min-h-[44px] rounded-2xl", // Touch target for mobile
@@ -73,29 +94,35 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ref={ref}
           {...props}
         >
-          {/* Glass Shine Effect for small buttons */}
-          {size === "sm" && (
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-          )}
-          
-          {/* Glass Shine Effect for other buttons */}
-          {size !== "sm" && (
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-          )}
-          
-          {/* Content */}
-          <span className="relative z-10 flex items-center gap-2">
-            {children}
-          </span>
-          
-          {/* Bottom Highlight - removido para botões pequenos no modo escuro */}
-          {!(size === "sm") && (
-            <div className={cn(
-              "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
-            )} />
-          )}
-        </Comp>
-      </motion.div>
+          {children}
+        </Slot>
+      );
+    }
+    
+    return (
+      <motion.button
+        whileHover={{ scale: size === "sm" ? 1.03 : 1.02 }}
+        whileTap={{ scale: size === "sm" ? 0.97 : 0.98 }}
+        transition={{ duration: 0.1 }}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          isMobile && "min-h-[44px] rounded-2xl", // Touch target for mobile
+          size === "sm" && [
+            "glass-button-default",
+            "shadow-sm hover:shadow-md",
+            "border border-white/15 hover:border-white/25",
+            "backdrop-blur-sm",
+            "transition-all duration-200 ease-out",
+            // Correção específica para botões pequenos no modo escuro
+            "dark:border-white/8 dark:hover:border-white/15",
+            "relative overflow-hidden"
+          ]
+        )}
+        ref={ref}
+        {...props}
+      >
+        {buttonContent}
+      </motion.button>
     )
   }
 )
