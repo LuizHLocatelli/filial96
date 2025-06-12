@@ -21,7 +21,7 @@ export function EnhancedAuthHeader() {
 
       {/* Welcome Text */}
       <div className="space-y-2 sm:space-y-3">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
           Bem-vindo à Filial 96
         </h1>
         <p className="text-muted-foreground text-base sm:text-lg max-w-md mx-auto leading-relaxed">
