@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { 
@@ -5,7 +6,8 @@ import {
   CheckSquare, 
   FileText, 
   BarChart3,
-  Users
+  Users,
+  Target
 } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -15,6 +17,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 import { HubDashboard } from "@/components/moveis/hub-produtividade/components/dashboard/HubDashboard";
 import { CentralAtividades } from "@/components/moveis/hub-produtividade/components/unificacao/CentralAtividades";
 import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/components/OrientacoesMonitoramento";
+import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
 
 // Hooks
 import { useHubData } from "@/components/moveis/hub-produtividade/hooks/useHubData";
@@ -123,6 +126,17 @@ export default function HubProdutividade() {
       )
     },
     {
+      value: "metas",
+      label: "Metas",
+      icon: Target,
+      description: "Gestão de metas mensais",
+      component: (
+        <div className="border border-border/40 rounded-lg overflow-hidden p-6">
+          <MetasDashboard />
+        </div>
+      )
+    },
+    {
       value: "atividades",
       label: "Atividades",
       icon: CheckSquare,
@@ -186,7 +200,7 @@ export default function HubProdutividade() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={4}
+        maxColumns={5}
       />
 
       {/* Dialogs funcionais */}

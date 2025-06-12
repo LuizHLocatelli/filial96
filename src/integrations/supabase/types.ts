@@ -112,6 +112,48 @@ export type Database = {
         }
         Relationships: []
       }
+      consultant_goals: {
+        Row: {
+          consultant_id: string
+          created_at: string | null
+          goal_id: string
+          id: string
+          monthly_goal: number
+          updated_at: string | null
+        }
+        Insert: {
+          consultant_id: string
+          created_at?: string | null
+          goal_id: string
+          id?: string
+          monthly_goal: number
+          updated_at?: string | null
+        }
+        Update: {
+          consultant_id?: string
+          created_at?: string | null
+          goal_id?: string
+          id?: string
+          monthly_goal?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_goals_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultant_goals_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crediario_clientes: {
         Row: {
           conta: string
@@ -673,6 +715,208 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      metas_categorias: {
+        Row: {
+          ativo: boolean | null
+          cor: string | null
+          created_at: string | null
+          descricao: string | null
+          icone: string | null
+          id: string
+          nome: string
+          ordem: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          cor?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          nome: string
+          ordem?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          cor?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          nome?: string
+          ordem?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      metas_foco: {
+        Row: {
+          ativo: boolean | null
+          categoria_id: string
+          created_at: string | null
+          created_by: string | null
+          data_foco: string
+          descricao: string | null
+          id: string
+          titulo: string
+          updated_at: string | null
+          valor_meta: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria_id: string
+          created_at?: string | null
+          created_by?: string | null
+          data_foco: string
+          descricao?: string | null
+          id?: string
+          titulo: string
+          updated_at?: string | null
+          valor_meta: number
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          data_foco?: string
+          descricao?: string | null
+          id?: string
+          titulo?: string
+          updated_at?: string | null
+          valor_meta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metas_foco_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "metas_categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metas_foco_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metas_funcionarios: {
+        Row: {
+          ativo: boolean | null
+          categoria_id: string
+          created_at: string | null
+          created_by: string | null
+          funcionario_id: string
+          id: string
+          mes_ano: string
+          observacoes: string | null
+          updated_at: string | null
+          valor_meta: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria_id: string
+          created_at?: string | null
+          created_by?: string | null
+          funcionario_id: string
+          id?: string
+          mes_ano: string
+          observacoes?: string | null
+          updated_at?: string | null
+          valor_meta: number
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          funcionario_id?: string
+          id?: string
+          mes_ano?: string
+          observacoes?: string | null
+          updated_at?: string | null
+          valor_meta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metas_funcionarios_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "metas_categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metas_funcionarios_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metas_funcionarios_funcionario_id_fkey"
+            columns: ["funcionario_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metas_mensais: {
+        Row: {
+          ativo: boolean | null
+          categoria_id: string
+          created_at: string | null
+          created_by: string | null
+          descricao: string | null
+          id: string
+          mes_ano: string
+          updated_at: string | null
+          valor_meta: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          categoria_id: string
+          created_at?: string | null
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          mes_ano: string
+          updated_at?: string | null
+          valor_meta: number
+        }
+        Update: {
+          ativo?: boolean | null
+          categoria_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          mes_ano?: string
+          updated_at?: string | null
+          valor_meta?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metas_mensais_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "metas_categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "metas_mensais_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       moda_arquivos: {
         Row: {
@@ -2069,6 +2313,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_metas_dashboard_data: {
+        Args: { mes_ref?: string }
+        Returns: Json
+      }
       get_moda_monitoring_report: {
         Args: { days_back?: number }
         Returns: {
@@ -2089,6 +2337,10 @@ export type Database = {
           data_criacao: string
           viewing_stats: Json
         }[]
+      }
+      get_painel_metas_data: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       get_user_role: {
         Args: { user_id?: string }
