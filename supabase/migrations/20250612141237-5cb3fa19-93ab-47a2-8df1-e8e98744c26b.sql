@@ -1,4 +1,3 @@
-
 -- Criar tabela para categorias de metas
 CREATE TABLE public.metas_categorias (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -183,21 +182,18 @@ BEGIN
       LEFT JOIN metas_funcionarios_mes mfm ON cm.id = mfm.categoria_id
     ),
     'meta_foco_ativa', (
-      SELECT CASE 
-        WHEN COUNT(*) > 0 THEN 
-          json_build_object(
-            'id', mfa.id,
-            'data_foco', mfa.data_foco,
-            'categoria_id', mfa.categoria_id,
-            'categoria_nome', c.nome,
-            'categoria_icone', c.icone,
-            'categoria_cor', c.cor,
-            'valor_meta', mfa.valor_meta,
-            'titulo', mfa.titulo,
-            'descricao', mfa.descricao
-          )
-        ELSE null
-      END
+      SELECT
+        json_build_object(
+          'id', mfa.id,
+          'data_foco', mfa.data_foco,
+          'categoria_id', mfa.categoria_id,
+          'categoria_nome', c.nome,
+          'categoria_icone', c.icone,
+          'categoria_cor', c.cor,
+          'valor_meta', mfa.valor_meta,
+          'titulo', mfa.titulo,
+          'descricao', mfa.descricao
+        )
       FROM meta_foco_ativa mfa
       LEFT JOIN public.metas_categorias c ON mfa.categoria_id = c.id
     ),

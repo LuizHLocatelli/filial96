@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,12 @@ export function MetasDashboard({ mesReferencia }: MetasDashboardProps) {
     const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const mesAno = firstDayOfMonth.toISOString().split('T')[0];
 
-    const success = await createOrUpdateMetaMensal(formData, mesAno, metaId);
+    const dataToSubmit = {
+      ...formData,
+      categoria_id: selectedCategoria?.id,
+    };
+
+    const success = await createOrUpdateMetaMensal(dataToSubmit, mesAno, metaId);
     if (success) {
       refetch();
     }
@@ -107,7 +111,10 @@ export function MetasDashboard({ mesReferencia }: MetasDashboardProps) {
           </p>
         </div>
         {isManager && (
-          <Button onClick={() => setShowMetaFocoDialog(true)} className="gap-2">
+          <Button 
+            onClick={() => setShowMetaFocoDialog(true)} 
+            className="gap-2 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-800"
+          >
             <Plus className="h-4 w-4" />
             Nova Meta Foco
           </Button>

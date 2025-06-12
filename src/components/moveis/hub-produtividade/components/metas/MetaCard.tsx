@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -102,7 +101,7 @@ export function MetaCard({ categoria, isManager, onEdit }: MetaCardProps) {
             </div>
           )}
 
-          {categoria.funcionarios_metas.length === 0 && (
+          {categoria.funcionarios_metas.length === 0 && categoria.nome !== 'Geral' && (
             <div className="text-center text-sm text-muted-foreground py-2">
               Nenhuma meta individual definida
             </div>

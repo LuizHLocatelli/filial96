@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type ThemeProviderProps = {
@@ -17,10 +16,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     // Only access localStorage when in browser environment
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem("theme");
-      return savedTheme === "dark" || 
-        (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      return savedTheme !== "light";
     }
-    return false;
+    return true;
   });
 
   useEffect(() => {
