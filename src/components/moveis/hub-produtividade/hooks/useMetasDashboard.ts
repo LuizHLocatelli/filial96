@@ -27,7 +27,8 @@ export function useMetasDashboard(mesReferencia?: Date) {
         throw error;
       }
 
-      setData(result);
+      // Type assertion to convert Json to our interface
+      setData(result as MetasDashboardData);
     } catch (err: any) {
       console.error('Erro ao carregar dados das metas:', err);
       setError(err.message);
