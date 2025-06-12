@@ -2274,6 +2274,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      agendar_calculo_metas_individuais: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      agendar_calculo_metas_individuais_teste: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
