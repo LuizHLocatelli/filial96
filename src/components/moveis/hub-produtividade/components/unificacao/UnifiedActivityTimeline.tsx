@@ -137,24 +137,39 @@ export function UnifiedActivityTimeline({
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'concluida': return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case 'atrasada': return <AlertCircle className="h-5 w-5 text-red-500" />;
-      default: return <Circle className="h-5 w-5 text-gray-400" />;
+      case 'concluida': return <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />;
+      case 'atrasada': return <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400" />;
+      default: return <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'concluida': return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Concluída</Badge>;
-      case 'atrasada': return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Atrasada</Badge>;
-      default: return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Pendente</Badge>;
+      case 'concluida': 
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700">
+            Concluída
+          </Badge>
+        );
+      case 'atrasada': 
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700">
+            Atrasada
+          </Badge>
+        );
+      default: 
+        return (
+          <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600">
+            Pendente
+          </Badge>
+        );
     }
   };
 
   const getTypeIcon = (type: string) => {
     return type === 'rotina' ? 
-      <CheckCircle2 className="h-4 w-4 text-blue-500" /> : 
-      <Calendar className="h-4 w-4 text-purple-500" />;
+      <CheckCircle2 className="h-4 w-4 text-blue-500 dark:text-blue-400" /> : 
+      <Calendar className="h-4 w-4 text-purple-500 dark:text-purple-400" />;
   };
 
   const formatDateTime = (dateString: string) => {
@@ -166,13 +181,13 @@ export function UnifiedActivityTimeline({
     return (
       <div className="space-y-4">
         {[1, 2, 3].map(i => (
-          <Card key={i} className="animate-pulse">
+          <Card key={i} className="animate-pulse dark:bg-gray-800/50 dark:border-gray-700">
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
-                <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                 </div>
               </div>
             </CardContent>
@@ -185,22 +200,33 @@ export function UnifiedActivityTimeline({
   return (
     <div className="space-y-6">
       {/* Cabeçalho com filtros e estatísticas */}
-      <Card>
+      <Card className="dark:bg-gray-800/50 dark:border-gray-700">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-xl font-semibold">Rotinas e Tarefas</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Rotinas e Tarefas
+              </CardTitle>
+              <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
                 Gerencie todas as suas atividades em um só lugar
               </p>
             </div>
             
             <div className="flex items-center gap-2">
-              <Button onClick={() => onCreateNew('rotina')} variant="outline" size="sm">
+              <Button 
+                onClick={() => onCreateNew('rotina')} 
+                variant="outline" 
+                size="sm"
+                className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Nova Rotina
               </Button>
-              <Button onClick={onAddTarefa} size="sm">
+              <Button 
+                onClick={onAddTarefa} 
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Nova Tarefa
               </Button>
@@ -210,14 +236,19 @@ export function UnifiedActivityTimeline({
           {/* Filtros */}
           <div className="flex flex-wrap gap-2 mt-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Tipo:</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tipo:</span>
               {(['all', 'rotina', 'tarefa'] as const).map(type => (
                 <Button
                   key={type}
                   variant={filterType === type ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFilterType(type)}
-                  className="h-8"
+                  className={cn(
+                    "h-8",
+                    filterType === type 
+                      ? "bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700" 
+                      : "dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  )}
                 >
                   {type === 'all' ? 'Todos' : type === 'rotina' ? 'Rotinas' : 'Tarefas'}
                 </Button>
@@ -225,14 +256,19 @@ export function UnifiedActivityTimeline({
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Status:</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
               {(['all', 'pendente', 'concluida', 'atrasada'] as const).map(status => (
                 <Button
                   key={status}
                   variant={filterStatus === status ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFilterStatus(status)}
-                  className="h-8"
+                  className={cn(
+                    "h-8",
+                    filterStatus === status 
+                      ? "bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700" 
+                      : "dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  )}
                 >
                   {status === 'all' ? 'Todos' : 
                    status === 'pendente' ? 'Pendentes' :
@@ -244,25 +280,25 @@ export function UnifiedActivityTimeline({
 
           {/* Estatísticas rápidas */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <p className="text-lg font-bold text-blue-600">{rotinas.length}</p>
-              <p className="text-xs text-blue-600">Rotinas</p>
+            <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border dark:border-blue-800">
+              <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{rotinas.length}</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">Rotinas</p>
             </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <p className="text-lg font-bold text-purple-600">{tarefas.length}</p>
-              <p className="text-xs text-purple-600">Tarefas</p>
+            <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border dark:border-purple-800">
+              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{tarefas.length}</p>
+              <p className="text-xs text-purple-600 dark:text-purple-400">Tarefas</p>
             </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <p className="text-lg font-bold text-green-600">
+            <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border dark:border-green-800">
+              <p className="text-lg font-bold text-green-600 dark:text-green-400">
                 {unifiedActivities.filter(a => a.status === 'concluida').length}
               </p>
-              <p className="text-xs text-green-600">Concluídas</p>
+              <p className="text-xs text-green-600 dark:text-green-400">Concluídas</p>
             </div>
-            <div className="text-center p-3 bg-red-50 rounded-lg">
-              <p className="text-lg font-bold text-red-600">
+            <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border dark:border-red-800">
+              <p className="text-lg font-bold text-red-600 dark:text-red-400">
                 {unifiedActivities.filter(a => a.status === 'atrasada').length}
               </p>
-              <p className="text-xs text-red-600">Atrasadas</p>
+              <p className="text-xs text-red-600 dark:text-red-400">Atrasadas</p>
             </div>
           </div>
         </CardHeader>
@@ -272,13 +308,16 @@ export function UnifiedActivityTimeline({
       <div className="space-y-6">
         {Object.entries(groupedActivities).map(([dateGroup, activities]) => (
           <div key={dateGroup}>
-            <h3 className="text-lg font-semibold text-gray-800 mb-3 capitalize">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3 capitalize">
               {dateGroup}
             </h3>
             
             <div className="space-y-3">
               {activities.map((activity) => (
-                <Card key={`${activity.type}-${activity.id}`} className="hover:shadow-sm transition-shadow">
+                <Card 
+                  key={`${activity.type}-${activity.id}`} 
+                  className="hover:shadow-sm transition-shadow dark:bg-gray-800/50 dark:border-gray-700 dark:hover:bg-gray-800/70"
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-3">
                       {/* Checkbox para marcar como concluída */}
@@ -287,7 +326,7 @@ export function UnifiedActivityTimeline({
                         onCheckedChange={(checked) => 
                           onStatusChange(activity.id, activity.type, checked ? 'concluida' : 'pendente')
                         }
-                        className="mt-1"
+                        className="mt-1 dark:border-gray-600"
                       />
                       
                       <div className="flex-1 min-w-0">
@@ -296,21 +335,24 @@ export function UnifiedActivityTimeline({
                             {/* Título e tipo */}
                             <div className="flex items-center gap-2 mb-1">
                               {getTypeIcon(activity.type)}
-                              <span className="font-medium text-gray-900">{activity.title}</span>
-                              <Badge variant="outline" className="text-xs">
+                              <span className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</span>
+                              <Badge 
+                                variant="outline" 
+                                className="text-xs dark:border-gray-600 dark:text-gray-300"
+                              >
                                 {activity.type === 'rotina' ? 'Rotina' : 'Tarefa'}
                               </Badge>
                             </div>
                             
                             {/* Descrição */}
                             {activity.description && (
-                              <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                              <p className="text-sm text-muted-foreground dark:text-gray-400 mb-2 line-clamp-2">
                                 {activity.description}
                               </p>
                             )}
                             
                             {/* Metadados */}
-                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground dark:text-gray-400">
                               <div className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {formatDateTime(activity.timestamp)}
@@ -322,13 +364,19 @@ export function UnifiedActivityTimeline({
                               </div>
                               
                               {activity.category && (
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge 
+                                  variant="secondary" 
+                                  className="text-xs dark:bg-gray-700 dark:text-gray-300"
+                                >
                                   {activity.category}
                                 </Badge>
                               )}
                               
                               {activity.periodicidade && (
-                                <Badge variant="outline" className="text-xs">
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-xs dark:border-gray-600 dark:text-gray-300"
+                                >
                                   {activity.periodicidade}
                                 </Badge>
                               )}
@@ -336,7 +384,12 @@ export function UnifiedActivityTimeline({
                               {activity.priority && (
                                 <Badge 
                                   variant={activity.priority === 'alta' ? 'destructive' : 'secondary'} 
-                                  className="text-xs"
+                                  className={cn(
+                                    "text-xs",
+                                    activity.priority === 'alta' 
+                                      ? "dark:bg-red-900/30 dark:text-red-300" 
+                                      : "dark:bg-gray-700 dark:text-gray-300"
+                                  )}
                                 >
                                   {activity.priority}
                                 </Badge>
@@ -364,32 +417,48 @@ export function UnifiedActivityTimeline({
                             
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0 dark:hover:bg-gray-700"
+                                >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => onEdit(activity.id, activity.type)}>
+                              <DropdownMenuContent 
+                                align="end"
+                                className="dark:bg-gray-800 dark:border-gray-700"
+                              >
+                                <DropdownMenuItem 
+                                  onClick={() => onEdit(activity.id, activity.type)}
+                                  className="dark:hover:bg-gray-700 dark:text-gray-200"
+                                >
                                   <Edit2 className="mr-2 h-4 w-4" />
                                   Editar
                                 </DropdownMenuItem>
                                 
                                 {activity.type === 'rotina' && (
-                                  <DropdownMenuItem onClick={() => onCreateRelated(activity.id, 'rotina', 'tarefa')}>
+                                  <DropdownMenuItem 
+                                    onClick={() => onCreateRelated(activity.id, 'rotina', 'tarefa')}
+                                    className="dark:hover:bg-gray-700 dark:text-gray-200"
+                                  >
                                     <Plus className="mr-2 h-4 w-4" />
                                     Criar Tarefa
                                   </DropdownMenuItem>
                                 )}
                                 
                                 {activity.type === 'tarefa' && (
-                                  <DropdownMenuItem onClick={() => onCreateRelated(activity.id, 'tarefa', 'rotina')}>
+                                  <DropdownMenuItem 
+                                    onClick={() => onCreateRelated(activity.id, 'tarefa', 'rotina')}
+                                    className="dark:hover:bg-gray-700 dark:text-gray-200"
+                                  >
                                     <Plus className="mr-2 h-4 w-4" />
                                     Criar Rotina
                                   </DropdownMenuItem>
                                 )}
                                 
                                 <DropdownMenuItem 
-                                  className="text-red-600 focus:text-red-600"
+                                  className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400 dark:hover:bg-gray-700"
                                   onClick={() => onDelete(activity.id, activity.type)}
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" />
@@ -409,23 +478,30 @@ export function UnifiedActivityTimeline({
         ))}
         
         {Object.keys(groupedActivities).length === 0 && (
-          <Card>
+          <Card className="dark:bg-gray-800/50 dark:border-gray-700">
             <CardContent className="p-8 text-center">
               <div className="space-y-4">
-                <div className="mx-auto w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-gray-400" />
+                <div className="mx-auto w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="h-6 w-6 text-gray-400 dark:text-gray-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium">Nenhuma atividade encontrada</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Nenhuma atividade encontrada</h3>
+                  <p className="text-muted-foreground dark:text-gray-400">
                     Crie sua primeira rotina ou tarefa para começar.
                   </p>
                   <div className="flex justify-center gap-2 mt-4">
-                    <Button onClick={() => onCreateNew('rotina')} variant="outline">
+                    <Button 
+                      onClick={() => onCreateNew('rotina')} 
+                      variant="outline"
+                      className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Nova Rotina
                     </Button>
-                    <Button onClick={onAddTarefa}>
+                    <Button 
+                      onClick={onAddTarefa}
+                      className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Nova Tarefa
                     </Button>
