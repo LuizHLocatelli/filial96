@@ -9,12 +9,12 @@ import { Tarefa } from "@/components/moveis/orientacoes/types";
 
 const tarefaFormSchema = z.object({
   titulo: z.string().min(1, "Título é obrigatório"),
-  descricao: z.string().default(""),
+  descricao: z.string().min(1, "Descrição é obrigatória"),
   data_entrega: z.date(),
   orientacao_id: z.string().optional(),
   rotina_id: z.string().optional(),
-  prioridade: z.enum(['baixa', 'media', 'alta', 'urgente']).default('media'),
-  origem: z.enum(['manual', 'rotina', 'orientacao']).default('manual'),
+  prioridade: z.enum(['baixa', 'media', 'alta', 'urgente']),
+  origem: z.enum(['manual', 'rotina', 'orientacao']),
 });
 
 type TarefaFormValues = z.infer<typeof tarefaFormSchema>;
