@@ -13,8 +13,8 @@ const tarefaFormSchema = z.object({
   data_entrega: z.date(),
   orientacao_id: z.string().optional(),
   rotina_id: z.string().optional(),
-  prioridade: z.enum(['baixa', 'media', 'alta', 'urgente']),
-  origem: z.enum(['manual', 'rotina', 'orientacao']),
+  prioridade: z.enum(['baixa', 'media', 'alta', 'urgente']).default('media'),
+  origem: z.enum(['manual', 'rotina', 'orientacao']).default('manual'),
 });
 
 type TarefaFormValues = z.infer<typeof tarefaFormSchema>;
