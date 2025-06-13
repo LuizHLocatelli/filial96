@@ -33,6 +33,7 @@ export function useTarefasOperations() {
     defaultValues: {
       titulo: "",
       descricao: "",
+      data_entrega: new Date(),
       orientacao_id: "none",
       rotina_id: "none",
       prioridade: "media",
@@ -103,7 +104,15 @@ export function useTarefasOperations() {
 
       const novaTarefa = await response.json();
       setTarefas(prev => [novaTarefa, ...prev]);
-      tarefaForm.reset();
+      tarefaForm.reset({
+        titulo: "",
+        descricao: "",
+        data_entrega: new Date(),
+        orientacao_id: "none",
+        rotina_id: "none",
+        prioridade: "media",
+        origem: "manual",
+      });
       
       toast({
         title: "Sucesso",
