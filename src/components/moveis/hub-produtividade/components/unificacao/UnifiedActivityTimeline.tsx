@@ -1,479 +1,441 @@
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
+import { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { 
-  CheckSquare, 
-  ListTodo, 
   Clock, 
-  User, 
-  Calendar,
-  MoreHorizontal,
-  Play,
-  Pause,
-  CheckCircle2,
-  AlertCircle,
-  Target,
-  Search,
-  Filter,
+  MoreVertical, 
+  Edit2, 
+  Trash2, 
   Plus,
-  Zap,
-  TrendingUp,
-  Activity
+  CheckCircle2,
+  Circle,
+  AlertCircle,
+  Link2,
+  Calendar,
+  User
 } from 'lucide-react';
-import { format, isToday, isTomorrow, isYesterday, startOfDay, endOfDay } from 'date-fns';
+import { format, isToday, isTomorrow, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UnifiedActivity {
   id: string;
   type: 'rotina' | 'tarefa';
   title: string;
   description?: string;
-  status: 'pendente' | 'em_andamento' | 'concluida' | 'atrasada';
-  priority?: 'baixa' | 'media' | 'alta' | 'urgente';
-  dueDate?: Date;
-  createdAt: Date;
-  updatedAt?: Date;
-  assignedTo?: string;
-  progress?: number;
-  tags?: string[];
-  relatedItems?: Array<{
-    id: string;
-    type: 'rotina' | 'tarefa';
-    title: string;
-  }>;
-  estimatedTime?: number; // em minutos
-  actualTime?: number; // em minutos
+  status: 'concluida' | 'pendente' | 'atrasada';
+  timestamp: string;
+  user: string;
   category?: string;
+  priority?: string;
+  dueDate?: string;
+  periodicidade?: string;
+  connections?: string[]; // IDs de atividades relacionadas
 }
 
 interface UnifiedActivityTimelineProps {
   rotinas: any[];
   tarefas: any[];
-  isLoading?: boolean;
+  isLoading: boolean;
   onStatusChange: (id: string, type: 'rotina' | 'tarefa', status: string) => void;
   onEdit: (id: string, type: 'rotina' | 'tarefa') => void;
   onDelete: (id: string, type: 'rotina' | 'tarefa') => void;
   onCreateRelated: (parentId: string, parentType: 'rotina' | 'tarefa', newType: 'rotina' | 'tarefa') => void;
   onCreateNew: (type: 'rotina' | 'tarefa') => void;
+  getCachedUserName: (userId: string) => string;
   onAddTarefa: () => void;
-  getCachedUserName?: (userId: string) => string;
 }
-
-const statusConfig = {
-  pendente: {
-    color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-    icon: Clock,
-    label: 'Pendente',
-    dotColor: 'bg-amber-400 dark:bg-amber-500'
-  },
-  em_andamento: {
-    color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-    icon: Play,
-    label: 'Em Andamento',
-    dotColor: 'bg-blue-500 dark:bg-blue-600'
-  },
-  concluida: {
-    color: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
-    icon: CheckCircle2,
-    label: 'Concluída',
-    dotColor: 'bg-green-500 dark:bg-green-600'
-  },
-  atrasada: {
-    color: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800',
-    icon: AlertCircle,
-    label: 'Atrasada',
-    dotColor: 'bg-red-500 dark:bg-red-600'
-  }
-};
-
-const priorityConfig = {
-  baixa: { color: 'bg-gray-400 dark:bg-gray-600', label: 'Baixa', intensity: 1 },
-  media: { color: 'bg-yellow-400 dark:bg-yellow-500', label: 'Média', intensity: 2 },
-  alta: { color: 'bg-orange-500 dark:bg-orange-600', label: 'Alta', intensity: 3 },
-  urgente: { color: 'bg-red-600 dark:bg-red-700', label: 'Urgente', intensity: 4 }
-};
-
-const typeConfig = {
-  rotina: {
-    icon: CheckSquare,
-    color: 'text-primary dark:text-primary',
-    bgColor: 'bg-primary/5 dark:bg-primary/10',
-    borderColor: 'border-primary/20 dark:border-primary/30',
-    label: 'Rotina',
-    gradient: 'from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10'
-  },
-  tarefa: {
-    icon: ListTodo,
-    color: 'text-blue-600 dark:text-blue-400',
-    bgColor: 'bg-blue-50/50 dark:bg-blue-950/30',
-    borderColor: 'border-blue-200/50 dark:border-blue-800/50',
-    label: 'Tarefa',
-    gradient: 'from-blue-50/50 to-blue-25/25 dark:from-blue-950/40 dark:to-blue-950/20'
-  }
-};
 
 export function UnifiedActivityTimeline({
   rotinas,
   tarefas,
-  isLoading = false,
+  isLoading,
   onStatusChange,
   onEdit,
   onDelete,
   onCreateRelated,
   onCreateNew,
-  onAddTarefa,
-  getCachedUserName
+  getCachedUserName,
+  onAddTarefa
 }: UnifiedActivityTimelineProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('dueDate');
+  const isMobile = useIsMobile();
+  const [filterType, setFilterType] = useState<'all' | 'rotina' | 'tarefa'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'concluida' | 'pendente' | 'atrasada'>('all');
 
-  // Converter rotinas e tarefas para formato unificado
-  const unifiedActivities = useMemo(() => {
-    const activities: UnifiedActivity[] = [];
-    
-    // Adicionar rotinas
-    rotinas.forEach(rotina => {
-      const createdAt = rotina.created_at ? new Date(rotina.created_at) : new Date();
-      const isValidCreatedAt = !isNaN(createdAt.getTime());
-      
-      activities.push({
-        id: rotina.id,
-        type: 'rotina',
-        title: rotina.nome,
-        description: rotina.descricao,
-        status: rotina.concluida ? 'concluida' : 
-                rotina.data_conclusao && new Date() > new Date(rotina.data_conclusao) ? 'atrasada' : 'pendente',
-        priority: rotina.prioridade || 'media',
-        dueDate: rotina.data_conclusao ? new Date(rotina.data_conclusao) : undefined,
-        createdAt: isValidCreatedAt ? createdAt : new Date(),
-        updatedAt: rotina.updated_at ? new Date(rotina.updated_at) : undefined,
-        assignedTo: rotina.user_id,
-        category: rotina.categoria,
-        estimatedTime: rotina.tempo_estimado,
-        tags: rotina.tags || []
-      });
-    });
-    
-    // Adicionar tarefas
-    tarefas.forEach(tarefa => {
-      const createdAt = tarefa.created_at ? new Date(tarefa.created_at) : new Date();
-      const isValidCreatedAt = !isNaN(createdAt.getTime());
-      
-      activities.push({
-        id: tarefa.id,
-        type: 'tarefa',
-        title: tarefa.titulo,
-        description: tarefa.descricao,
-        status: tarefa.status || 'pendente',
-        priority: tarefa.prioridade || 'media',
-        dueDate: tarefa.data_entrega ? new Date(tarefa.data_entrega) : undefined,
-        createdAt: isValidCreatedAt ? createdAt : new Date(),
-        updatedAt: tarefa.updated_at ? new Date(tarefa.updated_at) : undefined,
-        assignedTo: tarefa.user_id,
-        progress: tarefa.progresso,
-        tags: tarefa.tags || []
-      });
-    });
-    
-    return activities;
-  }, [rotinas, tarefas]);
+  // Unificar rotinas e tarefas em uma única lista
+  const unifiedActivities: UnifiedActivity[] = useMemo(() => {
+    const rotinaActivities: UnifiedActivity[] = rotinas.map(rotina => ({
+      id: rotina.id,
+      type: 'rotina' as const,
+      title: rotina.nome,
+      description: rotina.descricao,
+      status: rotina.status,
+      timestamp: rotina.created_at,
+      user: getCachedUserName(rotina.created_by),
+      category: rotina.categoria,
+      periodicidade: rotina.periodicidade,
+      connections: [] // Pode ser expandido para mostrar tarefas relacionadas
+    }));
 
-  // Filtrar e ordenar atividades
-  const filteredAndSortedActivities = useMemo(() => {
-    let filtered = unifiedActivities.filter(activity => {
-      const matchesSearch = activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (activity.description && activity.description.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus = statusFilter === 'all' || activity.status === statusFilter;
-      const matchesType = typeFilter === 'all' || activity.type === typeFilter;
-      const matchesPriority = priorityFilter === 'all' || activity.priority === priorityFilter;
-      
-      return matchesSearch && matchesStatus && matchesType && matchesPriority;
+    const tarefaActivities: UnifiedActivity[] = tarefas.map(tarefa => ({
+      id: tarefa.id,
+      type: 'tarefa' as const,
+      title: tarefa.titulo,
+      description: tarefa.descricao,
+      status: tarefa.status,
+      timestamp: tarefa.data_criacao,
+      user: getCachedUserName(tarefa.criado_por),
+      priority: tarefa.prioridade,
+      dueDate: tarefa.data_entrega,
+      connections: tarefa.rotina_id ? [tarefa.rotina_id] : []
+    }));
+
+    return [...rotinaActivities, ...tarefaActivities]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }, [rotinas, tarefas, getCachedUserName]);
+
+  // Filtrar atividades
+  const filteredActivities = useMemo(() => {
+    return unifiedActivities.filter(activity => {
+      if (filterType !== 'all' && activity.type !== filterType) return false;
+      if (filterStatus !== 'all' && activity.status !== filterStatus) return false;
+      return true;
     });
-    
-    // Ordenar
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'priority':
-          const aPriority = priorityConfig[a.priority || 'media'].intensity;
-          const bPriority = priorityConfig[b.priority || 'media'].intensity;
-          return bPriority - aPriority;
-        case 'dueDate':
-          if (!a.dueDate && !b.dueDate) return 0;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return a.dueDate.getTime() - b.dueDate.getTime();
-        case 'status':
-          return a.status.localeCompare(b.status);
-        case 'type':
-          return a.type.localeCompare(b.type);
-        default:
-          return b.createdAt.getTime() - a.createdAt.getTime();
-      }
-    });
-    
-    return filtered;
-  }, [unifiedActivities, searchTerm, statusFilter, typeFilter, priorityFilter, sortBy]);
+  }, [unifiedActivities, filterType, filterStatus]);
 
   // Agrupar por data
   const groupedActivities = useMemo(() => {
     const groups: { [key: string]: UnifiedActivity[] } = {};
     
-    filteredAndSortedActivities.forEach(activity => {
-      let groupKey = 'Sem data';
+    filteredActivities.forEach(activity => {
+      const date = new Date(activity.timestamp);
+      let dateKey: string;
       
-      if (activity.dueDate) {
-        if (isToday(activity.dueDate)) {
-          groupKey = 'Hoje';
-        } else if (isTomorrow(activity.dueDate)) {
-          groupKey = 'Amanhã';
-        } else if (isYesterday(activity.dueDate)) {
-          groupKey = 'Ontem';
-        } else {
-          groupKey = format(activity.dueDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR });
-        }
+      if (isToday(date)) {
+        dateKey = 'Hoje';
+      } else if (isYesterday(date)) {
+        dateKey = 'Ontem';
+      } else if (isTomorrow(date)) {
+        dateKey = 'Amanhã';
+      } else {
+        dateKey = format(date, 'EEEE, dd/MM/yyyy', { locale: ptBR });
       }
       
-      if (!groups[groupKey]) {
-        groups[groupKey] = [];
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
       }
-      groups[groupKey].push(activity);
+      groups[dateKey].push(activity);
     });
     
     return groups;
-  }, [filteredAndSortedActivities]);
+  }, [filteredActivities]);
 
-  const handleStatusToggle = (activity: UnifiedActivity) => {
-    let newStatus = activity.status;
-    if (activity.type === 'rotina') {
-        newStatus = activity.status === 'concluida' ? 'pendente' : 'concluida';
-    } else if (activity.type === 'tarefa') {
-        switch (activity.status) {
-            case 'pendente': newStatus = 'em_andamento'; break;
-            case 'em_andamento': newStatus = 'concluida'; break;
-            case 'concluida': newStatus = 'pendente'; break;
-            default: newStatus = 'pendente';
-        }
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'concluida': return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+      case 'atrasada': return <AlertCircle className="h-5 w-5 text-red-500" />;
+      default: return <Circle className="h-5 w-5 text-gray-400" />;
     }
-    onStatusChange(activity.id, activity.type, newStatus);
   };
 
-  const getDateGroupOrder = (groupKey: string) => {
-    if (groupKey === 'Hoje') return 0;
-    if (groupKey === 'Amanhã') return 1;
-    if (groupKey === 'Ontem') return 2;
-    if (groupKey === 'Sem data') return 99; // Manter sem data por último
-    // Para outras datas, ordene pela data real
-    const date = filteredAndSortedActivities.find(a => format(a.dueDate!, "d 'de' MMMM 'de' yyyy", { locale: ptBR }) === groupKey)?.dueDate;
-    return date ? date.getTime() : 3;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'concluida': return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Concluída</Badge>;
+      case 'atrasada': return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Atrasada</Badge>;
+      default: return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">Pendente</Badge>;
+    }
   };
 
-  const sortedGroupKeys = Object.keys(groupedActivities).sort((a, b) => {
-    const aDate = getDateGroupOrder(a);
-    const bDate = getDateGroupOrder(b);
-    return aDate - bDate;
-  });
+  const getTypeIcon = (type: string) => {
+    return type === 'rotina' ? 
+      <CheckCircle2 className="h-4 w-4 text-blue-500" /> : 
+      <Calendar className="h-4 w-4 text-purple-500" />;
+  };
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return format(date, 'HH:mm', { locale: ptBR });
+  };
 
   if (isLoading) {
     return (
-      <Card className="w-full">
-        <CardContent className="p-6">
-          <div className="flex justify-center items-center h-64">
-            <Activity className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (filteredAndSortedActivities.length === 0) {
-    return (
-      <Card className="w-full border-dashed border-muted-foreground/30 bg-muted/20">
-        <CardContent className="p-6 text-center">
-          <div className="flex flex-col items-center justify-center py-10">
-            <TrendingUp className="h-12 w-12 text-muted-foreground/70 mb-4" />
-            <h3 className="text-lg font-semibold text-foreground/90">Tudo em ordem por aqui!</h3>
-            <p className="text-muted-foreground text-sm max-w-sm mt-2">
-              Nenhuma atividade corresponde aos filtros atuais. Que tal criar uma nova?
-            </p>
-            <div className="mt-6 flex gap-4">
-              <Button onClick={() => onCreateNew('tarefa')} variant="outline" size="sm">
-                <Plus className="h-4 w-4 mr-2" /> Nova Tarefa
-              </Button>
-              <Button onClick={() => onCreateNew('rotina')} variant="outline" size="sm">
-                <Plus className="h-4 w-4 mr-2" /> Nova Rotina
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        {[1, 2, 3].map(i => (
+          <Card key={i} className="animate-pulse">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-5 h-5 bg-gray-200 rounded"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     );
   }
 
   return (
-    <div className="space-y-8 w-full">
-      {/* Barra de Filtros e Ações */}
-      <Card className="sticky top-16 z-10 bg-background/80 backdrop-blur-sm shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <div className="relative w-full sm:w-auto sm:flex-grow">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar em atividades..." 
-                className="pl-10 w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+    <div className="space-y-6">
+      {/* Cabeçalho com filtros e estatísticas */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="text-xl font-semibold">Rotinas e Tarefas</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Gerencie todas as suas atividades em um só lugar
+              </p>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos Status</SelectItem>
-                  {Object.entries(statusConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>{config.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos Tipos</SelectItem>
-                  <SelectItem value="rotina">Rotinas</SelectItem>
-                  <SelectItem value="tarefa">Tarefas</SelectItem>
-                </SelectContent>
-              </Select>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="shrink-0">
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {/* Additional filters can be added here */}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            
+            <div className="flex items-center gap-2">
+              <Button onClick={() => onCreateNew('rotina')} variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Rotina
+              </Button>
+              <Button onClick={onAddTarefa} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Tarefa
+              </Button>
             </div>
           </div>
-        </CardContent>
+
+          {/* Filtros */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Tipo:</span>
+              {(['all', 'rotina', 'tarefa'] as const).map(type => (
+                <Button
+                  key={type}
+                  variant={filterType === type ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFilterType(type)}
+                  className="h-8"
+                >
+                  {type === 'all' ? 'Todos' : type === 'rotina' ? 'Rotinas' : 'Tarefas'}
+                </Button>
+              ))}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Status:</span>
+              {(['all', 'pendente', 'concluida', 'atrasada'] as const).map(status => (
+                <Button
+                  key={status}
+                  variant={filterStatus === status ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFilterStatus(status)}
+                  className="h-8"
+                >
+                  {status === 'all' ? 'Todos' : 
+                   status === 'pendente' ? 'Pendentes' :
+                   status === 'concluida' ? 'Concluídas' : 'Atrasadas'}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Estatísticas rápidas */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <p className="text-lg font-bold text-blue-600">{rotinas.length}</p>
+              <p className="text-xs text-blue-600">Rotinas</p>
+            </div>
+            <div className="text-center p-3 bg-purple-50 rounded-lg">
+              <p className="text-lg font-bold text-purple-600">{tarefas.length}</p>
+              <p className="text-xs text-purple-600">Tarefas</p>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <p className="text-lg font-bold text-green-600">
+                {unifiedActivities.filter(a => a.status === 'concluida').length}
+              </p>
+              <p className="text-xs text-green-600">Concluídas</p>
+            </div>
+            <div className="text-center p-3 bg-red-50 rounded-lg">
+              <p className="text-lg font-bold text-red-600">
+                {unifiedActivities.filter(a => a.status === 'atrasada').length}
+              </p>
+              <p className="text-xs text-red-600">Atrasadas</p>
+            </div>
+          </div>
+        </CardHeader>
       </Card>
 
-      {/* Timeline */}
-      {sortedGroupKeys.map(groupKey => (
-        <div key={groupKey}>
-          <div className="flex items-center gap-3 mb-4">
-            <Calendar className="h-5 w-5 text-muted-foreground"/>
-            <h3 className="font-bold text-lg text-foreground">{groupKey}</h3>
-          </div>
-          <div className="relative pl-6">
-            <div className="absolute left-[3px] top-2 bottom-2 w-0.5 bg-border -translate-x-1/2"></div>
-            <div className="space-y-6">
-              {groupedActivities[groupKey].map((activity, index) => {
-                const TypeIcon = typeConfig[activity.type].icon;
-                const StatusIcon = statusConfig[activity.status].icon;
-                const config = typeConfig[activity.type];
-
-                return (
-                  <motion.div 
-                    key={activity.id}
-                    className="relative"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
-                    <div className={`absolute top-2.5 left-[-22px] h-4 w-4 rounded-full ${statusConfig[activity.status].dotColor} border-4 border-background`}></div>
-                    <Card className={`overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 ${config.borderColor} ${config.bgColor}`}>
-                      <div className={`w-full h-1 bg-gradient-to-r ${config.gradient}`}></div>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-grow">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className={`p-1.5 rounded-full ${config.bgColor}`}>
-                                <TypeIcon className={`h-5 w-5 ${config.color}`} />
-                              </div>
-                              <h4 className="font-semibold text-md text-foreground">{activity.title}</h4>
+      {/* Timeline de atividades agrupadas por data */}
+      <div className="space-y-6">
+        {Object.entries(groupedActivities).map(([dateGroup, activities]) => (
+          <div key={dateGroup}>
+            <h3 className="text-lg font-semibold text-gray-800 mb-3 capitalize">
+              {dateGroup}
+            </h3>
+            
+            <div className="space-y-3">
+              {activities.map((activity) => (
+                <Card key={`${activity.type}-${activity.id}`} className="hover:shadow-sm transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      {/* Checkbox para marcar como concluída */}
+                      <Checkbox
+                        checked={activity.status === 'concluida'}
+                        onCheckedChange={(checked) => 
+                          onStatusChange(activity.id, activity.type, checked ? 'concluida' : 'pendente')
+                        }
+                        className="mt-1"
+                      />
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            {/* Título e tipo */}
+                            <div className="flex items-center gap-2 mb-1">
+                              {getTypeIcon(activity.type)}
+                              <span className="font-medium text-gray-900">{activity.title}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {activity.type === 'rotina' ? 'Rotina' : 'Tarefa'}
+                              </Badge>
                             </div>
+                            
+                            {/* Descrição */}
                             {activity.description && (
-                              <p className="text-sm text-muted-foreground ml-10 mb-3">{activity.description}</p>
+                              <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                                {activity.description}
+                              </p>
                             )}
+                            
+                            {/* Metadados */}
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {formatDateTime(activity.timestamp)}
+                              </div>
+                              
+                              <div className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {activity.user}
+                              </div>
+                              
+                              {activity.category && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {activity.category}
+                                </Badge>
+                              )}
+                              
+                              {activity.periodicidade && (
+                                <Badge variant="outline" className="text-xs">
+                                  {activity.periodicidade}
+                                </Badge>
+                              )}
+                              
+                              {activity.priority && (
+                                <Badge 
+                                  variant={activity.priority === 'alta' ? 'destructive' : 'secondary'} 
+                                  className="text-xs"
+                                >
+                                  {activity.priority}
+                                </Badge>
+                              )}
+                              
+                              {activity.dueDate && (
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(activity.dueDate), 'dd/MM', { locale: ptBR })}
+                                </div>
+                              )}
+                              
+                              {activity.connections && activity.connections.length > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Link2 className="h-3 w-3" />
+                                  {activity.connections.length} conexão(ões)
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="flex-shrink-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onSelect={() => onEdit(activity.id, activity.type)}>Editar</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleStatusToggle(activity)}>
-                                Marcar como {activity.status === 'concluida' ? 'Pendente' : 'Concluída'}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onSelect={() => onCreateRelated(activity.id, activity.type, 'tarefa')}>Criar Tarefa Relacionada</DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => onCreateRelated(activity.id, activity.type, 'rotina')}>Criar Rotina Relacionada</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onSelect={() => onDelete(activity.id, activity.type)} className="text-red-500">
-                                Excluir
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 ml-10 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1.5" title="Status">
-                            <StatusIcon className="h-3.5 w-3.5" />
-                            <span>{statusConfig[activity.status].label}</span>
+                          
+                          {/* Status e ações */}
+                          <div className="flex items-center gap-2 ml-2">
+                            {getStatusBadge(activity.status)}
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => onEdit(activity.id, activity.type)}>
+                                  <Edit2 className="mr-2 h-4 w-4" />
+                                  Editar
+                                </DropdownMenuItem>
+                                
+                                {activity.type === 'rotina' && (
+                                  <DropdownMenuItem onClick={() => onCreateRelated(activity.id, 'rotina', 'tarefa')}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Criar Tarefa
+                                  </DropdownMenuItem>
+                                )}
+                                
+                                {activity.type === 'tarefa' && (
+                                  <DropdownMenuItem onClick={() => onCreateRelated(activity.id, 'tarefa', 'rotina')}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Criar Rotina
+                                  </DropdownMenuItem>
+                                )}
+                                
+                                <DropdownMenuItem 
+                                  className="text-red-600 focus:text-red-600"
+                                  onClick={() => onDelete(activity.id, activity.type)}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Excluir
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          {activity.priority && (
-                            <div className="flex items-center gap-1.5" title="Prioridade">
-                              <div className={`h-2.5 w-2.5 rounded-full ${priorityConfig[activity.priority].color}`}></div>
-                              <span>{priorityConfig[activity.priority].label}</span>
-                            </div>
-                          )}
-                          {activity.assignedTo && getCachedUserName && (
-                            <div className="flex items-center gap-1.5" title="Responsável">
-                              <User className="h-3.5 w-3.5" />
-                              <span>{getCachedUserName(activity.assignedTo)}</span>
-                            </div>
-                          )}
-                           {activity.dueDate && (
-                            <div className="flex items-center gap-1.5" title="Data de Vencimento">
-                              <Calendar className="h-3.5 w-3.5" />
-                              <span>{format(activity.dueDate, 'dd/MM/yy', { locale: ptBR })}</span>
-                            </div>
-                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+        
+        {Object.keys(groupedActivities).length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="space-y-4">
+                <div className="mx-auto w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="h-6 w-6 text-gray-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium">Nenhuma atividade encontrada</h3>
+                  <p className="text-muted-foreground">
+                    Crie sua primeira rotina ou tarefa para começar.
+                  </p>
+                  <div className="flex justify-center gap-2 mt-4">
+                    <Button onClick={() => onCreateNew('rotina')} variant="outline">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nova Rotina
+                    </Button>
+                    <Button onClick={onAddTarefa}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nova Tarefa
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
-} 
+}

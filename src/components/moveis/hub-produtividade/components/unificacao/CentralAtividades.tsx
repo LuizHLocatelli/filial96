@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,10 +8,7 @@ import { CheckSquare, Plus, Calendar, FileText, Upload, ListTodo, Activity } fro
 import { motion, AnimatePresence } from "framer-motion";
 
 // Components from Rotinas
-import { RotinasList } from "@/components/moveis/rotinas/components/RotinasList";
-import { RotinasStats } from "@/components/moveis/rotinas/components/RotinasStats";
 import { AddRotinaDialog } from "@/components/moveis/rotinas/components/AddRotinaDialog";
-import { PDFExportDialog, PDFExportOptions } from "@/components/moveis/rotinas/components/PDFExportDialog";
 
 // Components from Orientacoes
 import { OrientacoesList } from "@/components/moveis/orientacoes/OrientacoesList";
@@ -20,20 +18,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 // Components from Tarefas
 import { TarefasList } from "@/components/moveis/orientacoes/components/TarefasList";
 import { TarefaForm } from "@/components/moveis/orientacoes/components/TarefaForm";
-import { TarefasHeaderStats } from "@/components/moveis/orientacoes/components/TarefasHeaderStats";
 import { Tarefa } from "@/components/moveis/orientacoes/types";
+
+// New unified component
+import { UnifiedActivityTimeline } from './UnifiedActivityTimeline';
 
 // Hooks
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRotinas } from "@/components/moveis/rotinas/hooks/useRotinas";
-import { usePDFExport } from "@/components/moveis/rotinas/hooks/usePDFExport";
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { UnifiedActivityTimeline } from './UnifiedActivityTimeline';
 
 const tarefaFormSchema = z.object({
   titulo: z.string().min(1, "Título é obrigatório"),
@@ -54,8 +52,6 @@ export function CentralAtividades() {
   const [showAddRotinaDialog, setShowAddRotinaDialog] = useState(false);
   const [showAddTarefaForm, setShowAddTarefaForm] = useState(false);
   const [showAddOrientacaoDialog, setShowAddOrientacaoDialog] = useState(false);
-  const [showPDFDialog, setShowPDFDialog] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [refreshOrientacoes, setRefreshOrientacoes] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   
@@ -78,8 +74,6 @@ export function CentralAtividades() {
     refetch: refetchRotinas,
     getCachedUserName
   } = useRotinas();
-
-  const { exportToPDF } = usePDFExport();
 
   const tarefaForm = useForm<TarefaFormValues>({
     resolver: zodResolver(tarefaFormSchema),
@@ -174,12 +168,6 @@ export function CentralAtividades() {
   const handleUploadOrientacaoSuccess = () => {
     setRefreshOrientacoes(prev => prev + 1);
     setShowAddOrientacaoDialog(false);
-  };
-  
-  const handleExportPDF = async (options: PDFExportOptions) => {
-    setIsExporting(true);
-    await exportToPDF(rotinas, options);
-    setIsExporting(false);
   };
 
   // Funções para Tarefas
@@ -279,7 +267,6 @@ export function CentralAtividades() {
     if (!user) return;
     const fetchUnreadCount = async () => {
       try {
-        // Primeiro, buscar os IDs das orientações já visualizadas
         const { data: visualizadas, error: errorVisualizadas } = await supabase
           .from('moveis_orientacoes_visualizacoes')
           .select('orientacao_id')
@@ -287,15 +274,12 @@ export function CentralAtividades() {
         
         if (errorVisualizadas) throw errorVisualizadas;
         
-        // Extrair apenas os IDs
         const idsVisualizadas = visualizadas?.map(v => v.orientacao_id) || [];
         
-        // Buscar orientações não visualizadas
         let query = supabase
           .from('moveis_orientacoes')
           .select('id');
         
-        // Se há orientações visualizadas, excluí-las da busca
         if (idsVisualizadas.length > 0) {
           query = query.not('id', 'in', `(${idsVisualizadas.map(id => `'${id}'`).join(',')})`);
         }
@@ -314,20 +298,6 @@ export function CentralAtividades() {
     return () => clearInterval(interval);
   }, [user, refreshOrientacoes]);
 
-  const stats = {
-    total: rotinas.length,
-    concluidas: rotinas.filter(r => r.status === 'concluida').length,
-    pendentes: rotinas.filter(r => r.status === 'pendente').length,
-    atrasadas: rotinas.filter(r => r.status === 'atrasada').length,
-  };
-
-  const tarefasStats = {
-    total: tarefas.length,
-    concluidas: tarefas.filter(t => t.status === 'concluida').length,
-    pendentes: tarefas.filter(t => t.status === 'pendente').length,
-    atrasadas: tarefas.filter(t => new Date(t.data_entrega) < new Date() && t.status !== 'concluida').length,
-  };
-  
   // Handlers para o componente unificado
   const handleUnifiedStatusChange = async (id: string, type: 'rotina' | 'tarefa', status: string) => {
     if (type === 'rotina') {
@@ -371,7 +341,6 @@ export function CentralAtividades() {
 
   // Helper function to get user name synchronously
   const getUserName = (userId: string): string => {
-    // Since getCachedUserName is async but we need sync, we'll use a fallback
     return "Usuário"; // Placeholder - you might want to implement a synchronous cache
   };
 
@@ -383,28 +352,21 @@ export function CentralAtividades() {
         className="w-full"
       >
         <div className="sticky top-0 bg-background/95 backdrop-blur-sm z-10 -mx-6 px-6 border-b">
-          <TabsList className="grid w-full grid-cols-3 h-auto py-2">
+          <TabsList className="grid w-full grid-cols-2 h-auto py-2">
             <TabsTrigger value="atividades" className="flex flex-col sm:flex-row items-center gap-2 p-3">
               <ListTodo className="h-5 w-5" />
               <div className="text-center">
-                <span className="font-semibold">Rotinas</span>
-                <Badge variant="outline" className="ml-2 hidden sm:inline-block">{rotinas.length}</Badge>
+                <span className="font-semibold">Rotinas e Tarefas</span>
+                <Badge variant="outline" className="ml-2 hidden sm:inline-block">{rotinas.length + tarefas.length}</Badge>
               </div>
             </TabsTrigger>
             <TabsTrigger value="orientacoes" className="flex flex-col sm:flex-row items-center gap-2 p-3">
               <FileText className="h-5 w-5" />
               <div className="text-center">
-                <span className="font-semibold">Orientações</span>
+                <span className="font-semibold">VM e Informativos</span>
                 {unreadCount > 0 && (
                   <Badge className="ml-2 hidden sm:inline-block">{unreadCount}</Badge>
                 )}
-              </div>
-            </TabsTrigger>
-            <TabsTrigger value="tarefas" className="flex flex-col sm:flex-row items-center gap-2 p-3">
-              <CheckSquare className="h-5 w-5" />
-              <div className="text-center">
-                <span className="font-semibold">Tarefas</span>
-                <Badge variant="outline" className="ml-2 hidden sm:inline-block">{tarefas.length}</Badge>
               </div>
             </TabsTrigger>
           </TabsList>
@@ -462,38 +424,6 @@ export function CentralAtividades() {
                 </div>
               </div>
             </TabsContent>
-
-            <TabsContent value="tarefas" className="mt-0">
-              <div className="bg-gradient-to-br from-background to-muted/20">
-                <div className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                    <div>
-                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent">
-                        Tarefas
-                      </h1>
-                      <p className="text-muted-foreground mt-1">
-                        Gerencie suas tarefas.
-                      </p>
-                    </div>
-                    
-                    <Button
-                      onClick={() => setShowAddTarefaForm(true)}
-                      className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-                      size={isMobile ? "sm" : "default"}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Nova Tarefa
-                    </Button>
-                  </div>
-                  <TarefasList 
-                    tarefas={tarefas} 
-                    isLoading={isLoadingTarefas}
-                    onAtualizarStatus={handleAtualizarStatusTarefa}
-                    onExcluirTarefa={handleExcluirTarefa}
-                  />
-                </div>
-              </div>
-            </TabsContent>
           </motion.div>
         </AnimatePresence>
       </Tabs>
@@ -527,14 +457,6 @@ export function CentralAtividades() {
           <OrientacaoUploader onSuccess={handleUploadOrientacaoSuccess} />
         </DialogContent>
       </Dialog>
-
-      <PDFExportDialog
-        open={showPDFDialog}
-        onOpenChange={setShowPDFDialog}
-        rotinas={rotinas || []}
-        onExport={handleExportPDF}
-        isExporting={isExporting}
-      />
     </div>
   );
 }
