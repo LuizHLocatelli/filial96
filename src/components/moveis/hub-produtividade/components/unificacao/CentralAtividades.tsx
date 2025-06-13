@@ -1,91 +1,53 @@
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckSquare, Plus, Calendar, FileText, Upload, ListTodo, Activity } from "lucide-react";
+import { FileText, Upload, ListTodo } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Components from Rotinas
-import { AddRotinaDialog } from "@/components/moveis/rotinas/components/AddRotinaDialog";
+import { Button } from "@/components/ui/button";
 
 // Components from Orientacoes
 import { OrientacoesList } from "@/components/moveis/orientacoes/OrientacoesList";
-import { OrientacaoUploader } from "@/components/moveis/orientacoes/OrientacaoUploader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-
-// Components from Tarefas
-import { TarefasList } from "@/components/moveis/orientacoes/components/TarefasList";
-import { TarefaForm } from "@/components/moveis/orientacoes/components/TarefaForm";
-import { Tarefa } from "@/components/moveis/orientacoes/types";
 
 // New unified component
 import { UnifiedActivityTimeline } from './UnifiedActivityTimeline';
 
+// New hooks and components
+import { useTarefasOperations } from './hooks/useTarefasOperations';
+import { useUrlParams } from './hooks/useUrlParams';
+import { useOrientacoesMonitoring } from './hooks/useOrientacoesMonitoring';
+import { CentralAtividadesDialogs } from './components/CentralAtividadesDialogs';
+
 // Hooks
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRotinas } from "@/components/moveis/rotinas/hooks/useRotinas";
-import { useAuth } from '@/contexts/auth';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const tarefaFormSchema = z.object({
-  titulo: z.string().min(1, "Título é obrigatório"),
-  descricao: z.string().optional(),
-  data_entrega: z.date(),
-  orientacao_id: z.string().optional(),
-  rotina_id: z.string().optional(),
-  prioridade: z.enum(['baixa', 'media', 'alta', 'urgente']).default('media'),
-  origem: z.enum(['manual', 'rotina', 'orientacao']).default('manual'),
-});
-
-type TarefaFormValues = z.infer<typeof tarefaFormSchema>;
 
 export function CentralAtividades() {
   const isMobile = useIsMobile();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedTab, setSelectedTab] = useState("atividades");
   const [showAddRotinaDialog, setShowAddRotinaDialog] = useState(false);
   const [showAddTarefaForm, setShowAddTarefaForm] = useState(false);
   const [showAddOrientacaoDialog, setShowAddOrientacaoDialog] = useState(false);
-  const [refreshOrientacoes, setRefreshOrientacoes] = useState(0);
-  const [unreadCount, setUnreadCount] = useState(0);
   
-  // Estados para Tarefas
-  const [tarefas, setTarefas] = useState<Tarefa[]>([]);
-  const [orientacoes, setOrientacoes] = useState<Array<{ id: string; titulo: string }>>([]);
-  const [isLoadingTarefas, setIsLoadingTarefas] = useState(true);
+  // Custom hooks
+  const { searchParams, selectedTab, clearActionParam, handleTabChange } = useUrlParams();
+  const { unreadCount, handleUploadOrientacaoSuccess } = useOrientacoesMonitoring();
+  const {
+    tarefas,
+    orientacoes,
+    isLoadingTarefas,
+    tarefaForm,
+    handleCreateTarefa,
+    handleAtualizarStatusTarefa,
+    handleExcluirTarefa,
+  } = useTarefasOperations();
 
-  const { user } = useAuth();
-  const { toast } = useToast();
-  
   const {
     rotinas,
     isLoading: isLoadingRotinas,
     addRotina,
-    updateRotina,
     deleteRotina,
-    duplicateRotina,
     toggleConclusao,
-    refetch: refetchRotinas,
-    getCachedUserName
   } = useRotinas();
-
-  const tarefaForm = useForm<TarefaFormValues>({
-    resolver: zodResolver(tarefaFormSchema),
-    defaultValues: {
-      titulo: "",
-      descricao: "",
-      orientacao_id: "none",
-      rotina_id: "none",
-      prioridade: "media",
-      origem: "manual",
-    },
-  });
 
   useEffect(() => {
     const action = searchParams.get('action');
@@ -99,22 +61,7 @@ export function CentralAtividades() {
       setShowAddOrientacaoDialog(true);
       clearActionParam();
     }
-  }, [searchParams, setSearchParams]);
-
-  useEffect(() => {
-    fetchTarefas();
-    fetchOrientacoes();
-  }, []);
-
-  const clearActionParam = () => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete('action');
-    setSearchParams(newParams);
-  };
-  
-  const handleTabChange = (value: string) => {
-    setSelectedTab(value);
-  };
+  }, [searchParams, clearActionParam]);
 
   const handleCreateRotina = async (data: any) => {
     const success = await addRotina(data);
@@ -124,179 +71,15 @@ export function CentralAtividades() {
     return success;
   };
 
-  const handleCreateTarefa = async (data: TarefaFormValues) => {
-    try {
-      setIsLoadingTarefas(true);
-      const response = await fetch('/api/tarefas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...data,
-          usuario_id: user?.id,
-          orientacao_id: data.orientacao_id === 'none' ? null : data.orientacao_id,
-          rotina_id: data.rotina_id === 'none' ? null : data.rotina_id,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao criar tarefa');
-      }
-
-      const novaTarefa = await response.json();
-      setTarefas(prev => [novaTarefa, ...prev]);
-      setShowAddTarefaForm(false);
-      tarefaForm.reset();
-      
-      toast({
-        title: "Sucesso",
-        description: "Tarefa criada com sucesso!",
-      });
-    } catch (error) {
-      console.error('Erro ao criar tarefa:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao criar tarefa. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingTarefas(false);
-    }
+  const handleCreateTarefaWrapper = async (data: any) => {
+    await handleCreateTarefa(data);
+    setShowAddTarefaForm(false);
   };
 
-  const handleUploadOrientacaoSuccess = () => {
-    setRefreshOrientacoes(prev => prev + 1);
+  const handleUploadOrientacaoSuccessWrapper = () => {
+    handleUploadOrientacaoSuccess();
     setShowAddOrientacaoDialog(false);
   };
-
-  // Funções para Tarefas
-  const fetchTarefas = async () => {
-    setIsLoadingTarefas(true);
-    try {
-      const { data, error } = await supabase
-        .from("moveis_tarefas")
-        .select(`
-          *,
-          orientacao:moveis_orientacoes(titulo)
-        `)
-        .order("data_entrega", { ascending: true });
-
-      if (error) throw error;
-
-      setTarefas((data || []) as unknown as Tarefa[]);
-    } catch (error) {
-      console.error("Erro ao buscar tarefas:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de tarefas.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingTarefas(false);
-    }
-  };
-
-  const fetchOrientacoes = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("moveis_orientacoes")
-        .select("id, titulo")
-        .order("titulo", { ascending: true });
-
-      if (error) throw error;
-
-      setOrientacoes((data || []) as unknown as Array<{ id: string; titulo: string }>);
-    } catch (error) {
-      console.error("Erro ao buscar orientações:", error);
-    }
-  };
-
-  const handleAtualizarStatusTarefa = async (tarefaId: string, novoStatus: string) => {
-    try {
-      const { error } = await supabase
-        .from("moveis_tarefas")
-        .update({ status: novoStatus })
-        .eq("id", tarefaId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Sucesso",
-        description: "Status da tarefa atualizado!",
-      });
-
-      fetchTarefas();
-    } catch (error) {
-      console.error("Erro ao atualizar status da tarefa:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status da tarefa.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleExcluirTarefa = async (tarefaId: string) => {
-    try {
-      const { error } = await supabase
-        .from("moveis_tarefas")
-        .delete()
-        .eq("id", tarefaId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Sucesso",
-        description: "Tarefa excluída com sucesso!",
-      });
-
-      fetchTarefas();
-    } catch (error) {
-      console.error("Erro ao excluir tarefa:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir a tarefa.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Fetch unread count for orientacoes
-  useEffect(() => {
-    if (!user) return;
-    const fetchUnreadCount = async () => {
-      try {
-        const { data: visualizadas, error: errorVisualizadas } = await supabase
-          .from('moveis_orientacoes_visualizacoes')
-          .select('orientacao_id')
-          .eq('user_id', user.id);
-        
-        if (errorVisualizadas) throw errorVisualizadas;
-        
-        const idsVisualizadas = visualizadas?.map(v => v.orientacao_id) || [];
-        
-        let query = supabase
-          .from('moveis_orientacoes')
-          .select('id');
-        
-        if (idsVisualizadas.length > 0) {
-          query = query.not('id', 'in', `(${idsVisualizadas.map(id => `'${id}'`).join(',')})`);
-        }
-        
-        const { data, error } = await query;
-        
-        if (error) throw error;
-        setUnreadCount(data?.length || 0);
-      } catch (error) {
-        console.error("Erro ao buscar informativos não lidos:", error);
-      }
-    };
-    
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
-  }, [user, refreshOrientacoes]);
 
   // Handlers para o componente unificado
   const handleUnifiedStatusChange = async (id: string, type: 'rotina' | 'tarefa', status: string) => {
@@ -420,7 +203,7 @@ export function CentralAtividades() {
                       Novo Informativo
                     </Button>
                   </div>
-                  <OrientacoesList key={refreshOrientacoes} />
+                  <OrientacoesList />
                 </div>
               </div>
             </TabsContent>
@@ -428,35 +211,20 @@ export function CentralAtividades() {
         </AnimatePresence>
       </Tabs>
 
-      <AddRotinaDialog
-        open={showAddRotinaDialog}
-        onOpenChange={setShowAddRotinaDialog}
-        onSubmit={handleCreateRotina}
+      <CentralAtividadesDialogs
+        showAddRotinaDialog={showAddRotinaDialog}
+        setShowAddRotinaDialog={setShowAddRotinaDialog}
+        onCreateRotina={handleCreateRotina}
+        showAddTarefaForm={showAddTarefaForm}
+        setShowAddTarefaForm={setShowAddTarefaForm}
+        tarefaForm={tarefaForm}
+        onCreateTarefa={handleCreateTarefaWrapper}
+        orientacoes={orientacoes}
+        rotinas={rotinas.map(r => ({ id: r.id, nome: r.nome }))}
+        showAddOrientacaoDialog={showAddOrientacaoDialog}
+        setShowAddOrientacaoDialog={setShowAddOrientacaoDialog}
+        onUploadOrientacaoSuccess={handleUploadOrientacaoSuccessWrapper}
       />
-
-      <Dialog open={showAddTarefaForm} onOpenChange={setShowAddTarefaForm}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Nova Tarefa</DialogTitle>
-          </DialogHeader>
-          <TarefaForm
-            form={tarefaForm}
-            orientacoes={orientacoes}
-            rotinas={rotinas.map(r => ({ id: r.id, nome: r.nome }))}
-            onSubmit={handleCreateTarefa}
-            onCancel={() => setShowAddTarefaForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showAddOrientacaoDialog} onOpenChange={setShowAddOrientacaoDialog}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Novo VM ou Informativo</DialogTitle>
-          </DialogHeader>
-          <OrientacaoUploader onSuccess={handleUploadOrientacaoSuccess} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
