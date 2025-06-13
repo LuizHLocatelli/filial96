@@ -7,7 +7,7 @@ import { UseFormReturn } from "react-hook-form";
 
 interface TarefaFormValues {
   titulo: string;
-  descricao?: string;
+  descricao: string;
   data_entrega: Date;
   orientacao_id?: string;
   rotina_id?: string;

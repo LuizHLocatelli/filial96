@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +9,7 @@ import { Tarefa } from "@/components/moveis/orientacoes/types";
 
 const tarefaFormSchema = z.object({
   titulo: z.string().min(1, "Título é obrigatório"),
-  descricao: z.string().optional(),
+  descricao: z.string().default(""),
   data_entrega: z.date(),
   orientacao_id: z.string().optional(),
   rotina_id: z.string().optional(),
