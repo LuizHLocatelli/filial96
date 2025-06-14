@@ -5,6 +5,7 @@ import { Session, User, AuthError } from '@supabase/supabase-js';
 
 interface UseAuthEffectsProps {
   setUser: (user: User | null) => void;
+  setSession: (session: Session | null) => void;
   setProfile: (profile: any) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialized: (initialized: boolean) => void;
@@ -12,6 +13,7 @@ interface UseAuthEffectsProps {
 
 export function useAuthEffects({ 
   setUser, 
+  setSession,
   setProfile, 
   setIsLoading, 
   setIsInitialized 
@@ -45,18 +47,22 @@ export function useAuthEffects({
           console.error('Error getting session:', error);
           setUser(null);
           setProfile(null);
+          setSession(null);
         } else if (session?.user) {
           setUser(session.user);
+          setSession(session);
           await fetchUserProfile(session.user.id);
         } else {
           setUser(null);
           setProfile(null);
+          setSession(null);
         }
       } catch (error) {
         if (isMounted) {
           console.error('Auth initialization failed:', error);
           setUser(null);
           setProfile(null);
+          setSession(null);
         }
       } finally {
         if (isMounted) {
@@ -128,12 +134,14 @@ export function useAuthEffects({
             case 'TOKEN_REFRESHED':
               if (session?.user) {
                 setUser(session.user);
+                setSession(session);
                 await fetchUserProfile(session.user.id);
               }
               break;
             case 'SIGNED_OUT':
               setUser(null);
               setProfile(null);
+              setSession(null);
               profileFetchRef.current = null;
               break;
             case 'PASSWORD_RECOVERY':
@@ -149,6 +157,7 @@ export function useAuthEffects({
           if (event === 'SIGNED_OUT') {
             setUser(null);
             setProfile(null);
+            setSession(null);
           }
         } finally {
           if (!initializationRef.current) {
@@ -169,7 +178,7 @@ export function useAuthEffects({
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [setUser, setProfile, setIsLoading, setIsInitialized]);
+  }, [setUser, setSession, setProfile, setIsLoading, setIsInitialized]);
 
   return null;
 }
