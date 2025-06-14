@@ -1,248 +1,175 @@
-import { useEffect, useRef } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { User as AppUser, UserRole } from "@/types";
-import { supabase } from "@/integrations/supabase/client";
+
+import { useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Session, User, AuthError } from '@supabase/supabase-js';
 
 interface UseAuthEffectsProps {
   setUser: (user: User | null) => void;
-  setSession: (session: Session | null) => void;
-  setProfile: (profile: AppUser | null) => void;
+  setProfile: (profile: any) => void;
   setIsLoading: (loading: boolean) => void;
-  toast: any;
+  setIsInitialized: (initialized: boolean) => void;
 }
 
-// Função para retry com backoff exponencial (mesmo padrão do useDepositos)
-const retryWithBackoff = async <T>(
-  operation: () => Promise<T>,
-  maxRetries = 3,
-  baseDelay = 1000
-): Promise<T> => {
-  let lastError: any;
-  
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (error: any) {
-      lastError = error;
-      
-      // Se é o último attempt, rejeita
-      if (attempt === maxRetries) {
-        throw error;
-      }
-      
-      // Verificar se é erro de rede que vale a pena tentar novamente
-      const isNetworkError = 
-        error.message?.includes('Failed to fetch') ||
-        error.message?.includes('QUIC_NETWORK_IDLE_TIMEOUT') ||
-        error.message?.includes('ERR_QUIC_PROTOCOL_ERROR') ||
-        error.message?.includes('NetworkError') ||
-        error.code === 'PGRST301'; // Supabase network error
-      
-      if (!isNetworkError) {
-        throw error; // Não tentar novamente para erros não relacionados à rede
-      }
-      
-      // Delay exponencial: 1s, 2s, 4s
-      const delay = baseDelay * Math.pow(2, attempt);
-      console.log(`🔄 [Auth] Tentativa ${attempt + 1}/${maxRetries + 1} falhou. Tentando novamente em ${delay}ms...`);
-      
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-  
-  throw lastError;
-};
-
-export const useAuthEffects = ({
-  setUser,
-  setSession,
-  setProfile,
-  setIsLoading,
-  toast,
-}: UseAuthEffectsProps) => {
-  // Ref para controle de estado e evitar múltiplas chamadas
-  const isInitializedRef = useRef(false);
-  const profileFetchingRef = useRef(false);
-  const lastProfileFetchRef = useRef<string | null>(null);
+export function useAuthEffects({ 
+  setUser, 
+  setProfile, 
+  setIsLoading, 
+  setIsInitialized 
+}: UseAuthEffectsProps) {
+  const initializationRef = useRef(false);
+  const profileFetchRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Evitar múltiplas inicializações
-    if (isInitializedRef.current) {
-      return;
-    }
-    isInitializedRef.current = true;
-
+    let isMounted = true;
+    
+    // Secure session initialization with timeout protection
     const initializeAuth = async () => {
       try {
-        // Get initial session with retry
-        const sessionResult = await retryWithBackoff(async () => {
-          console.log('🔐 Inicializando autenticação...');
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        setIsLoading(true);
         
-          if (sessionError) {
-            console.error("❌ Session error:", sessionError);
-            throw sessionError;
-          }
-          
-          return session;
-        }, 3, 2000);
+        // Add timeout to prevent hanging auth state
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+        );
+        
+        const sessionPromise = supabase.auth.getSession();
+        
+        const { data: { session }, error } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as { data: { session: Session | null }, error: AuthError | null };
 
-        if (sessionResult?.user) {
-          console.log('✅ Sessão carregada com sucesso');
-          setUser(sessionResult.user);
-          setSession(sessionResult);
-          await fetchUserProfile(sessionResult.user.id, sessionResult.user.email);
+        if (!isMounted) return;
+
+        if (error) {
+          console.error('Error getting session:', error);
+          setUser(null);
+          setProfile(null);
+        } else if (session?.user) {
+          setUser(session.user);
+          await fetchUserProfile(session.user.id);
+        } else {
+          setUser(null);
+          setProfile(null);
         }
-      } catch (error: any) {
-        console.error("❌ Erro final na inicialização da autenticação:", error);
-        
-        const errorMessage = error.message?.includes('Failed to fetch') 
-          ? 'Problema de conexão na autenticação. Verifique sua internet.'
-          : 'Erro ao inicializar a autenticação. Tente novamente.';
-        
-        toast({
-          title: "⚠️ Erro de Autenticação",
-          description: errorMessage,
-          variant: "destructive",
-        });
+      } catch (error) {
+        if (isMounted) {
+          console.error('Auth initialization failed:', error);
+          setUser(null);
+          setProfile(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          setIsInitialized(true);
+          initializationRef.current = true;
+        }
       }
     };
 
-    const fetchUserProfile = async (userId: string, userEmail?: string) => {
-      // Evitar múltiplas chamadas para o mesmo usuário
-      if (profileFetchingRef.current || lastProfileFetchRef.current === userId) {
-        return;
-      }
-      
-      profileFetchingRef.current = true;
-      lastProfileFetchRef.current = userId;
+    // Secure profile fetching with duplicate request prevention
+    const fetchUserProfile = async (userId: string) => {
+      if (profileFetchRef.current === userId) return;
+      profileFetchRef.current = userId;
 
       try {
-        const profile = await retryWithBackoff(async () => {
-          console.log('👤 Buscando perfil do usuário...');
-          
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
 
-          if (error) {
-            if (error.code === 'PGRST116') {
-              // Profile doesn't exist, create one
-              console.log('📝 Criando novo perfil...');
-              const { data: userData } = await supabase.auth.getUser();
-              if (userData.user) {
-                const newProfile: AppUser = {
-                  id: userId,
-                  name: userData.user.email || 'Usuário',
-                  role: 'jovem_aprendiz' as UserRole, // Changed default role
-                  email: userData.user.email || userEmail || '',
-                  phone: userData.user.user_metadata?.phone || ''
-                };
-                
-                const { error: insertError } = await supabase
-                  .from('profiles')
-                  .insert({
-                    id: userId,
-                    name: userData.user.email || 'Usuário',
-                    role: 'jovem_aprendiz', // Changed default role
-                    phone: userData.user.user_metadata?.phone || ''
-                  });
-                  
-                if (insertError) {
-                  console.error("❌ Erro ao criar perfil:", insertError);
-                  throw insertError;
-                } else {
-                  console.log('✅ Perfil criado com sucesso');
-                  return newProfile;
-                }
-              }
-            } else {
-              console.error("❌ Erro ao buscar perfil:", error);
-              throw error;
+        if (!isMounted) return;
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // Profile not found - try to create it
+            console.warn('Profile not found for user:', userId);
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert({
+                id: userId,
+                name: 'Usuário',
+                role: 'jovem_aprendiz'
+              })
+              .select()
+              .single();
+
+            if (!createError && newProfile && isMounted) {
+              setProfile(newProfile);
             }
+          } else {
+            console.error('Error fetching profile:', error);
           }
-          
-          return profile;
-        }, 3, 1500);
-
-        if (profile) {
-          console.log('✅ Perfil carregado com sucesso');
-          // Combine profile data with email from auth user and ensure role is properly typed
-          const fullProfile: AppUser = {
-            id: profile.id,
-            name: profile.name,
-            role: profile.role as UserRole,
-            email: userEmail || '',
-            avatarUrl: (profile as any).avatar_url,
-            displayName: (profile as any).display_name,
-            phone: profile.phone
-          };
-          setProfile(fullProfile);
+        } else if (data && isMounted) {
+          setProfile(data);
         }
-      } catch (error: any) {
-        console.error("❌ Erro final ao buscar perfil:", error);
-        
-        // Não mostrar toast para erros de perfil, pois não impedem o uso básico do app
-        // O usuário ainda pode usar o sistema mesmo sem o perfil completo
+      } catch (error) {
+        console.error('Profile fetch failed:', error);
       } finally {
-        profileFetchingRef.current = false;
+        profileFetchRef.current = null;
       }
     };
 
-    // Set up auth state listener
+    // Enhanced auth state change listener with security checks
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.email);
-        
-        if (event === 'SIGNED_IN' && session?.user) {
-          setUser(session.user);
-          setSession(session);
-          // Use setTimeout to prevent deadlocks and debounce
-          setTimeout(() => {
-            fetchUserProfile(session.user.id, session.user.email);
-          }, 100);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setSession(null);
-          setProfile(null);
-          // Reset refs
-          lastProfileFetchRef.current = null;
-          profileFetchingRef.current = false;
-        } else if (event === 'TOKEN_REFRESHED' && session) {
-          setSession(session);
-          // Só refetch profile se for um usuário diferente
-          if (session.user && lastProfileFetchRef.current !== session.user.id) {
-            setTimeout(() => {
-              fetchUserProfile(session.user.id, session.user.email);
-            }, 100);
+        if (!isMounted) return;
+
+        // Security: Log auth events for audit
+        console.log(`Auth event: ${event}`, { 
+          userId: session?.user?.id, 
+          timestamp: new Date().toISOString() 
+        });
+
+        try {
+          switch (event) {
+            case 'SIGNED_IN':
+            case 'TOKEN_REFRESHED':
+              if (session?.user) {
+                setUser(session.user);
+                await fetchUserProfile(session.user.id);
+              }
+              break;
+            case 'SIGNED_OUT':
+              setUser(null);
+              setProfile(null);
+              profileFetchRef.current = null;
+              break;
+            case 'PASSWORD_RECOVERY':
+              // Security: Don't expose sensitive information
+              console.log('Password recovery initiated');
+              break;
+            default:
+              break;
           }
-        } else if (event === 'INITIAL_SESSION' && session?.user) {
-          // Evitar duplicar a busca de perfil se já foi feita
-          if (lastProfileFetchRef.current !== session.user.id) {
-            setUser(session.user);
-            setSession(session);
-            setTimeout(() => {
-              fetchUserProfile(session.user.id, session.user.email);
-            }, 100);
+        } catch (error) {
+          console.error('Auth state change error:', error);
+          // Ensure we don't leave the app in an inconsistent state
+          if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setProfile(null);
+          }
+        } finally {
+          if (!initializationRef.current) {
+            setIsLoading(false);
+            setIsInitialized(true);
+            initializationRef.current = true;
           }
         }
-        
-        setIsLoading(false);
       }
     );
 
-    initializeAuth();
+    // Initialize auth only once
+    if (!initializationRef.current) {
+      initializeAuth();
+    }
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
-      // Reset refs on cleanup
-      isInitializedRef.current = false;
-      profileFetchingRef.current = false;
-      lastProfileFetchRef.current = null;
     };
-  }, []); // Array vazio para executar apenas uma vez
-};
+  }, [setUser, setProfile, setIsLoading, setIsInitialized]);
+
+  return null;
+}

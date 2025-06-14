@@ -73,7 +73,7 @@ export default function UserManagement() {
   const [editingUser, setEditingUser] = useState<UserWithStats | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Verificar se o usuário é gerente
+  // Security: Verify manager role
   const isManager = profile?.role === 'gerente';
 
   const roleLabels: Record<UserRole, string> = {
@@ -106,41 +106,51 @@ export default function UserManagement() {
     try {
       setIsLoading(true);
       
-      // Buscar perfis de usuários
+      // Security: Enhanced error handling for profiles fetch
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (profilesError) {
-        throw profilesError;
+        console.error('Profile fetch error:', profilesError);
+        toast({
+          title: "Erro de Acesso",
+          description: "Não foi possível carregar os usuários. Verifique suas permissões.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Buscar dados de autenticação dos usuários (apenas para gerentes)
+      // Security: Only managers can access auth data
       let authUsers: any = null;
-      try {
-        const { data, error: authError } = await supabase.auth.admin.listUsers();
-        if (!authError) {
-          authUsers = data;
-        } else {
-          console.warn('Não foi possível buscar dados de autenticação:', authError);
+      if (isManager) {
+        try {
+          const { data, error: authError } = await supabase.auth.admin.listUsers();
+          if (authError) {
+            console.warn('Auth data not accessible:', authError.message);
+            // Continue without auth data - not critical for basic user management
+          } else {
+            authUsers = data;
+          }
+        } catch (authError) {
+          console.warn('Auth API error:', authError);
+          // Continue without auth data
         }
-      } catch (authError) {
-        console.warn('Erro ao buscar dados de autenticação:', authError);
       }
 
-      // Combinar dados dos perfis com dados de autenticação
+      // Security: Sanitize and validate user data
       const usersWithStats: UserWithStats[] = (profiles || []).map((profile: any) => {
         const authUser = authUsers?.users?.find((u: any) => u.id === profile.id);
         
         return {
           id: profile.id,
-          email: profile.email || authUser?.email || '',
-          name: profile.name,
+          email: DOMPurify.sanitize(profile.email || authUser?.email || ''),
+          name: DOMPurify.sanitize(profile.name),
           role: profile.role as UserRole,
           avatarUrl: profile.avatar_url,
-          displayName: profile.display_name,
-          phone: profile.phone,
+          displayName: profile.display_name ? DOMPurify.sanitize(profile.display_name) : null,
+          phone: profile.phone ? DOMPurify.sanitize(profile.phone) : null,
           created_at: profile.created_at,
           updated_at: profile.updated_at,
           last_sign_in_at: authUser?.last_sign_in_at
@@ -149,11 +159,11 @@ export default function UserManagement() {
 
       setUsers(usersWithStats);
       setFilteredUsers(usersWithStats);
-    } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
+    } catch (error: any) {
+      console.error('Unexpected error fetching users:', error);
       toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de usuários.",
+        title: "Erro Inesperado",
+        description: "Erro interno do sistema. Tente recarregar a página.",
         variant: "destructive",
       });
     } finally {
@@ -162,14 +172,17 @@ export default function UserManagement() {
   };
 
   const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    if (term === "") {
+    // Security: Sanitize search input
+    const sanitizedTerm = DOMPurify.sanitize(term);
+    setSearchTerm(sanitizedTerm);
+    
+    if (sanitizedTerm === "") {
       setFilteredUsers(users);
     } else {
       const filtered = users.filter(user =>
-        user.name.toLowerCase().includes(term.toLowerCase()) ||
-        user.email.toLowerCase().includes(term.toLowerCase()) ||
-        roleLabels[user.role].toLowerCase().includes(term.toLowerCase())
+        user.name.toLowerCase().includes(sanitizedTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(sanitizedTerm.toLowerCase()) ||
+        roleLabels[user.role].toLowerCase().includes(sanitizedTerm.toLowerCase())
       );
       setFilteredUsers(filtered);
     }
@@ -177,27 +190,56 @@ export default function UserManagement() {
 
   const handleDeleteUser = async (userId: string, userName: string) => {
     try {
-      // Primeiro deletar da tabela profiles
+      // Security: Prevent self-deletion
+      if (userId === profile?.id) {
+        toast({
+          title: "Operação Não Permitida",
+          description: "Você não pode excluir sua própria conta desta forma.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Security: Check if user is trying to delete another manager
+      const userToDelete = users.find(u => u.id === userId);
+      if (userToDelete?.role === 'gerente') {
+        toast({
+          title: "Operação Restrita",
+          description: "Não é possível excluir outros gerentes.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Delete from profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
 
       if (profileError) {
-        throw profileError;
+        console.error('Profile deletion error:', profileError);
+        toast({
+          title: "Erro ao Excluir",
+          description: "Não foi possível excluir o usuário. Tente novamente.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Tentar deletar da autenticação (apenas se for service_role)
+      // Try to delete from auth (optional - may not have permission)
       try {
         const { error: authError } = await supabase.auth.admin.deleteUser(userId);
         if (authError) {
-          console.warn('Não foi possível deletar usuário da autenticação:', authError);
+          console.warn('Auth deletion failed:', authError.message);
+          // Continue - profile deletion succeeded
         }
       } catch (authError) {
-        console.warn('Erro ao deletar usuário da autenticação:', authError);
+        console.warn('Auth deletion error:', authError);
+        // Continue - profile deletion succeeded
       }
 
-      // Atualizar lista local
+      // Update local state
       const updatedUsers = users.filter(user => user.id !== userId);
       setUsers(updatedUsers);
       setFilteredUsers(updatedUsers.filter(user =>
@@ -207,15 +249,23 @@ export default function UserManagement() {
         roleLabels[user.role].toLowerCase().includes(searchTerm.toLowerCase())
       ));
 
-      toast({
-        title: "Usuário excluído",
-        description: `O usuário ${userName} foi excluído com sucesso.`,
+      // Security: Log user deletion for audit
+      console.log('User deleted successfully', { 
+        deletedUserId: userId, 
+        deletedUserName: userName,
+        deletedBy: profile?.id,
+        timestamp: new Date().toISOString()
       });
-    } catch (error) {
-      console.error('Erro ao excluir usuário:', error);
+
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir o usuário.",
+        title: "Usuário Excluído",
+        description: `${DOMPurify.sanitize(userName)} foi excluído com sucesso.`,
+      });
+    } catch (error: any) {
+      console.error('Unexpected deletion error:', error);
+      toast({
+        title: "Erro Inesperado",
+        description: "Erro interno do sistema. Tente novamente mais tarde.",
         variant: "destructive",
       });
     }
@@ -223,21 +273,47 @@ export default function UserManagement() {
 
   const handleEditUser = async (updatedUser: UserWithStats) => {
     try {
+      // Security: Validate input data
+      if (!updatedUser.name?.trim()) {
+        toast({
+          title: "Dados Inválidos",
+          description: "Nome é obrigatório.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Security: Prevent privilege escalation
+      if (updatedUser.role === 'gerente' && profile?.role !== 'gerente') {
+        toast({
+          title: "Operação Não Permitida",
+          description: "Apenas gerentes podem promover usuários a gerente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({
-          name: updatedUser.name,
+          name: DOMPurify.sanitize(updatedUser.name.trim()),
           role: updatedUser.role,
-          phone: updatedUser.phone,
+          phone: updatedUser.phone ? DOMPurify.sanitize(updatedUser.phone.trim()) : null,
           updated_at: new Date().toISOString()
         })
         .eq('id', updatedUser.id);
 
       if (error) {
-        throw error;
+        console.error('User update error:', error);
+        toast({
+          title: "Erro ao Atualizar",
+          description: "Não foi possível atualizar o usuário. Tente novamente.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Atualizar lista local
+      // Update local state
       const updatedUsers = users.map(user =>
         user.id === updatedUser.id ? { ...user, ...updatedUser } : user
       );
@@ -252,15 +328,22 @@ export default function UserManagement() {
       setIsEditDialogOpen(false);
       setEditingUser(null);
 
-      toast({
-        title: "Usuário atualizado",
-        description: "As informações do usuário foram atualizadas com sucesso.",
+      // Security: Log user update for audit
+      console.log('User updated successfully', { 
+        updatedUserId: updatedUser.id,
+        updatedBy: profile?.id,
+        timestamp: new Date().toISOString()
       });
-    } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
+
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o usuário.",
+        title: "Usuário Atualizado",
+        description: "Informações atualizadas com sucesso.",
+      });
+    } catch (error: any) {
+      console.error('Unexpected update error:', error);
+      toast({
+        title: "Erro Inesperado",
+        description: "Erro interno do sistema. Tente novamente mais tarde.",
         variant: "destructive",
       });
     }

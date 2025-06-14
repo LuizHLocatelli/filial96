@@ -1,47 +1,62 @@
 
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ResetPasswordErrorProps {
-  errorMessage: string;
+  error: string;
+  onRetry: () => void;
 }
 
-export function ResetPasswordError({ errorMessage }: ResetPasswordErrorProps) {
-  const navigate = useNavigate();
-  
+export function ResetPasswordError({ error, onRetry }: ResetPasswordErrorProps) {
+  // Security: Don't expose sensitive error details to users
+  const getUserFriendlyError = (error: string): string => {
+    if (error.includes('invalid') || error.includes('expired')) {
+      return "Link de redefinição inválido ou expirado. Solicite um novo link.";
+    }
+    if (error.includes('network') || error.includes('fetch')) {
+      return "Problema de conexão. Verifique sua internet e tente novamente.";
+    }
+    return "Ocorreu um erro durante a redefinição. Tente novamente mais tarde.";
+  };
+
   return (
-    <Card className="border-border shadow-lg mt-4">
-      <CardHeader className="bg-card rounded-t-md">
-        <div className="flex items-center gap-2 text-destructive">
-          <AlertCircle className="h-5 w-5" />
-          <CardTitle className="text-card-foreground">Erro de Recuperação</CardTitle>
+    <Card className="max-w-md mx-auto">
+      <CardHeader className="text-center">
+        <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+          <AlertCircle className="w-6 h-6 text-red-600" />
         </div>
-        <CardDescription className="text-destructive font-semibold">
-          {errorMessage}
+        <CardTitle className="text-red-600">Erro na Redefinição</CardTitle>
+        <CardDescription>
+          Não foi possível redefinir sua senha
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-4">
-        <CardDescription className="text-muted-foreground">
-          Por favor, solicite um novo link de recuperação de senha para continuar.
-        </CardDescription>
+      <CardContent className="space-y-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {getUserFriendlyError(error)}
+          </AlertDescription>
+        </Alert>
+
+        <div className="space-y-3">
+          <Button 
+            onClick={onRetry}
+            className="w-full"
+            variant="outline"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar ao Login
+          </Button>
+        </div>
+
+        <div className="text-center text-sm text-gray-600">
+          <p>
+            Se o problema persistir, entre em contato com o suporte.
+          </p>
+        </div>
       </CardContent>
-      <CardFooter className="bg-muted/20 pb-6">
-        <Button 
-          className="w-full bg-primary hover:bg-primary/90" 
-          onClick={() => navigate("/auth?tab=reset")}
-        >
-          Solicitar novo link
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
