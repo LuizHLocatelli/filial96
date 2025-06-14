@@ -19,4 +19,5 @@ export interface FileUploadOptions {
   folder?: string;
   generateUniqueName?: boolean;
   maxSizeInMB?: number;
+  allowedFileTypes?: string[];
 }
