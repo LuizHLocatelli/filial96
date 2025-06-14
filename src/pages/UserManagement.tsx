@@ -56,6 +56,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { User as AppUser, UserRole } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import DOMPurify from "dompurify";
 
 interface UserWithStats extends AppUser {
   created_at: string;
@@ -520,12 +521,21 @@ function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
     e.preventDefault();
     onSave({
       ...user,
-      ...formData
+      name: DOMPurify.sanitize(formData.name),
+      role: formData.role,
+      phone: DOMPurify.sanitize(formData.phone),
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <DialogHeader>
+        <DialogTitle>Editar Usuário</DialogTitle>
+        <DialogDescription>
+          Altere as informações de <strong>{user.name}</strong>.
+        </DialogDescription>
+      </DialogHeader>
+      
       <div className="space-y-2">
         <Label htmlFor="name">Nome</Label>
         <Input
@@ -573,4 +583,4 @@ function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
       </DialogFooter>
     </form>
   );
-} 
+}

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,10 +15,12 @@ const sanitizeFilename = (filename: string): string => {
 
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const uploadFile = async (file: File, options: FileUploadOptions) => {
     try {
       setIsUploading(true);
+      setProgress(10);
       
       if (!file) {
         toast({
@@ -27,6 +28,7 @@ export function useFileUpload() {
           description: "Nenhum arquivo selecionado",
           variant: "destructive",
         });
+        setProgress(0);
         return null;
       }
       
@@ -37,6 +39,7 @@ export function useFileUpload() {
           description: `O arquivo excede o tamanho máximo de ${maxSizeInMB}MB`,
           variant: "destructive",
         });
+        setProgress(0);
         return null;
       }
 
@@ -54,6 +57,7 @@ export function useFileUpload() {
           description: `Arquivos do tipo "${file.type}" não são aceitos.`,
           variant: "destructive",
         });
+        setProgress(0);
         return null;
       }
 
@@ -68,6 +72,8 @@ export function useFileUpload() {
       } else {
         filePath += sanitized;
       }
+      
+      setProgress(50);
 
       const { data, error } = await supabase.storage
         .from(options.bucketName)
@@ -83,12 +89,17 @@ export function useFileUpload() {
           description: error.message,
           variant: "destructive",
         });
+        setProgress(0);
         return null;
       }
+      
+      setProgress(80);
 
       const { data: { publicUrl } } = supabase.storage
         .from(options.bucketName)
         .getPublicUrl(data.path);
+        
+      setProgress(100);
 
       return {
         name: file.name,
@@ -103,6 +114,7 @@ export function useFileUpload() {
         description: "Ocorreu um erro ao fazer o upload do arquivo",
         variant: "destructive",
       });
+      setProgress(0);
       return null;
     } finally {
       setIsUploading(false);
@@ -111,6 +123,7 @@ export function useFileUpload() {
 
   return {
     isUploading,
-    uploadFile
+    uploadFile,
+    progress,
   };
 }
