@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +93,6 @@ export function CentralAtividades() {
   };
 
   const handleUnifiedEdit = (id: string, type: 'rotina' | 'tarefa') => {
-    // Implementar lógica de edição
     console.log(`Editar ${type}:`, id);
   };
 
@@ -122,9 +120,8 @@ export function CentralAtividades() {
     }
   };
 
-  // Helper function to get user name synchronously
   const getUserName = (userId: string): string => {
-    return "Usuário"; // Placeholder - you might want to implement a synchronous cache
+    return "Usuário";
   };
 
   return (
@@ -182,28 +179,48 @@ export function CentralAtividades() {
             </TabsContent>
 
             <TabsContent value="orientacoes" className="mt-0">
-              <div className="bg-gradient-to-br from-background to-purple-50/20 dark:to-purple-950/20">
-                <div className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                    <div>
-                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent">
+              <div className="bg-gradient-to-br from-background to-blue-50/20 dark:to-blue-950/20">
+                <div className="p-4 sm:p-6 space-y-6">
+                  {/* Header melhorado com design system */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                  >
+                    <div className="space-y-2">
+                      <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
                         VM e Informativos
                       </h1>
-                      <p className="text-muted-foreground mt-1">
-                        Gerencie orientações e informativos da empresa.
+                      <p className="text-muted-foreground text-sm sm:text-base">
+                        Gerencie orientações e informativos da empresa com facilidade
                       </p>
                     </div>
                     
-                    <Button
-                      onClick={() => setShowAddOrientacaoDialog(true)}
-                      className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105"
-                      size={isMobile ? "sm" : "default"}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Novo Informativo
-                    </Button>
+                      <Button
+                        onClick={() => setShowAddOrientacaoDialog(true)}
+                        className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg transition-all duration-300 hover:shadow-xl glass-button-effect"
+                        size={isMobile ? "sm" : "default"}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Novo Informativo
+                      </Button>
+                    </motion.div>
                   </div>
-                  <OrientacoesList />
+
+                  {/* Content wrapper com glassmorphism */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+                    className="glass-card rounded-xl p-4 sm:p-6 border border-blue-200/20 dark:border-blue-800/20 shadow-soft"
+                  >
+                    <OrientacoesList />
+                  </motion.div>
                 </div>
               </div>
             </TabsContent>

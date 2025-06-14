@@ -4,16 +4,7 @@ import { AddRotinaDialog } from "@/components/moveis/rotinas/components/AddRotin
 import { TarefaForm } from "@/components/moveis/orientacoes/components/TarefaForm";
 import { OrientacaoUploader } from "@/components/moveis/orientacoes/OrientacaoUploader";
 import { UseFormReturn } from "react-hook-form";
-
-interface TarefaFormValues {
-  titulo: string;
-  descricao: string;
-  data_entrega: Date;
-  orientacao_id?: string;
-  rotina_id?: string;
-  prioridade: 'baixa' | 'media' | 'alta' | 'urgente';
-  origem: 'manual' | 'rotina' | 'orientacao';
-}
+import { TarefaFormValues } from '../hooks/useTarefasOperations';
 
 interface CentralAtividadesDialogsProps {
   showAddRotinaDialog: boolean;
