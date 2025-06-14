@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,7 +87,7 @@ export function UnifiedActivityTimeline({
                   onClick={() => onCreateNew('rotina')} 
                   variant="outline" 
                   size="sm"
-                  className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 text-xs sm:text-sm h-8 sm:h-9"
+                  className="dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950/50 text-xs sm:text-sm h-8 sm:h-9"
                 >
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                   Nova Rotina
@@ -156,4 +155,3 @@ export function UnifiedActivityTimeline({
     </div>
   );
 }
-
