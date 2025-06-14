@@ -11,6 +11,7 @@ import { HubDashboard } from "@/components/moveis/hub-produtividade/components/d
 import { CentralAtividades } from "@/components/moveis/hub-produtividade/components/unificacao/CentralAtividades";
 import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/components/OrientacoesMonitoramento";
 import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
+import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
 
 interface TabsConfigProps {
   stats: any;
@@ -92,22 +93,16 @@ export function createTabsConfig({
       icon: BarChart3,
       description: "Relatórios e análises",
       component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden p-6">
-          <div className="text-center space-y-4">
-            <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground" />
-            <div>
-              <h3 className="text-lg font-semibold">Relatórios</h3>
-              <p className="text-muted-foreground">Visualize relatórios e análises de produtividade</p>
-              <div className="mt-4">
-                <button 
-                  onClick={onRelatorios}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                >
-                  Abrir Relatórios Completos
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="border border-border/40 rounded-lg overflow-hidden">
+          <Relatorios
+            open={true}
+            onOpenChange={() => {}}
+            rotinas={rotinas || []}
+            orientacoes={[]}
+            tarefas={tarefas || []}
+            stats={stats}
+            inline={true}
+          />
         </div>
       )
     }
