@@ -27,7 +27,7 @@ export function AtividadesTabContent({
   onAddTarefa
 }: AtividadesTabContentProps) {
   return (
-    <div className="bg-gradient-to-br from-background to-muted/20">
+    <div className="bg-gradient-to-br from-background to-green-50/10 dark:to-green-950/20">
       <div className="p-4 sm:p-6">
         <UnifiedActivityTimeline
           rotinas={rotinas || []}
@@ -45,3 +45,4 @@ export function AtividadesTabContent({
     </div>
   );
 }
+

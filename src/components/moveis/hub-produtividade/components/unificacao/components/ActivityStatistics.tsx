@@ -14,19 +14,19 @@ export function ActivityStatistics({
 }: ActivityStatisticsProps) {
   return (
     <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 mt-4">
-      <div className="text-center p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border dark:border-blue-800 min-w-0">
-        <p className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400 truncate">
+      <div className="text-center p-2 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border dark:border-green-800 min-w-0">
+        <p className="text-base sm:text-lg font-bold text-green-600 dark:text-green-400 truncate">
           {rotinasCount}
         </p>
-        <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 leading-tight">
+        <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 leading-tight">
           Rotinas
         </p>
       </div>
-      <div className="text-center p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border dark:border-purple-800 min-w-0">
-        <p className="text-base sm:text-lg font-bold text-purple-600 dark:text-purple-400 truncate">
+      <div className="text-center p-2 sm:p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border dark:border-teal-800 min-w-0">
+        <p className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400 truncate">
           {tarefasCount}
         </p>
-        <p className="text-[10px] sm:text-xs text-purple-600 dark:text-purple-400 leading-tight">
+        <p className="text-[10px] sm:text-xs text-teal-600 dark:text-teal-400 leading-tight">
           Tarefas
         </p>
       </div>

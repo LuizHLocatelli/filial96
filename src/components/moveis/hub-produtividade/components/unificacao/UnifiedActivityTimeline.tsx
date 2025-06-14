@@ -70,7 +70,7 @@ export function UnifiedActivityTimeline({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Cabeçalho com filtros e estatísticas */}
-      <Card className="dark:bg-gray-800/50 dark:border-gray-700">
+      <Card className="glass-card border-green-500/10 dark:border-green-400/20 shadow-soft">
         <CardHeader className="pb-3 sm:pb-4">
           <div className="flex flex-col gap-3 sm:gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -156,3 +156,4 @@ export function UnifiedActivityTimeline({
     </div>
   );
 }
+
