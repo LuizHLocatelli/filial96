@@ -31,7 +31,7 @@ export function useAuthEffects({
         
         // Add timeout to prevent hanging auth state
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 20000)
         );
         
         const sessionPromise = supabase.auth.getSession();
@@ -119,53 +119,60 @@ export function useAuthEffects({
 
     // Enhanced auth state change listener with security checks
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!isMounted) return;
 
-        // Security: Log auth events for audit
-        console.log(`Auth event: ${event}`, { 
-          userId: session?.user?.id, 
-          timestamp: new Date().toISOString() 
-        });
+        // Defer async logic to prevent deadlocks, especially during initialization
+        setTimeout(() => {
+          (async () => {
+            if (!isMounted) return;
 
-        try {
-          switch (event) {
-            case 'SIGNED_IN':
-            case 'TOKEN_REFRESHED':
-              if (session?.user) {
-                setUser(session.user);
-                setSession(session);
-                await fetchUserProfile(session.user.id);
+            // Security: Log auth events for audit
+            console.log(`Auth event: ${event}`, { 
+              userId: session?.user?.id, 
+              timestamp: new Date().toISOString() 
+            });
+
+            try {
+              switch (event) {
+                case 'SIGNED_IN':
+                case 'TOKEN_REFRESHED':
+                  if (session?.user) {
+                    setUser(session.user);
+                    setSession(session);
+                    await fetchUserProfile(session.user.id);
+                  }
+                  break;
+                case 'SIGNED_OUT':
+                  setUser(null);
+                  setProfile(null);
+                  setSession(null);
+                  profileFetchRef.current = null;
+                  break;
+                case 'PASSWORD_RECOVERY':
+                  // Security: Don't expose sensitive information
+                  console.log('Password recovery initiated');
+                  break;
+                default:
+                  break;
               }
-              break;
-            case 'SIGNED_OUT':
-              setUser(null);
-              setProfile(null);
-              setSession(null);
-              profileFetchRef.current = null;
-              break;
-            case 'PASSWORD_RECOVERY':
-              // Security: Don't expose sensitive information
-              console.log('Password recovery initiated');
-              break;
-            default:
-              break;
-          }
-        } catch (error) {
-          console.error('Auth state change error:', error);
-          // Ensure we don't leave the app in an inconsistent state
-          if (event === 'SIGNED_OUT') {
-            setUser(null);
-            setProfile(null);
-            setSession(null);
-          }
-        } finally {
-          if (!initializationRef.current) {
-            setIsLoading(false);
-            setIsInitialized(true);
-            initializationRef.current = true;
-          }
-        }
+            } catch (error) {
+              console.error('Auth state change error:', error);
+              // Ensure we don't leave the app in an inconsistent state
+              if (event === 'SIGNED_OUT') {
+                setUser(null);
+                setProfile(null);
+                setSession(null);
+              }
+            } finally {
+              if (!initializationRef.current) {
+                setIsLoading(false);
+                setIsInitialized(true);
+                initializationRef.current = true;
+              }
+            }
+          })();
+        }, 0);
       }
     );
 
@@ -182,3 +189,4 @@ export function useAuthEffects({
 
   return null;
 }
+
