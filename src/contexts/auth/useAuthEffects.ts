@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Session, User, AuthError } from '@supabase/supabase-js';
+import { Session, User } from '@supabase/supabase-js';
 
 interface UseAuthEffectsProps {
   setUser: (user: User | null) => void;
@@ -24,55 +24,6 @@ export function useAuthEffects({
   useEffect(() => {
     let isMounted = true;
     
-    // Secure session initialization with timeout protection
-    const initializeAuth = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Add timeout to prevent hanging auth state
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth initialization timeout')), 20000)
-        );
-        
-        const sessionPromise = supabase.auth.getSession();
-        
-        const { data: { session }, error } = await Promise.race([
-          sessionPromise,
-          timeoutPromise
-        ]) as { data: { session: Session | null }, error: AuthError | null };
-
-        if (!isMounted) return;
-
-        if (error) {
-          console.error('Error getting session:', error);
-          setUser(null);
-          setProfile(null);
-          setSession(null);
-        } else if (session?.user) {
-          setUser(session.user);
-          setSession(session);
-          await fetchUserProfile(session.user.id);
-        } else {
-          setUser(null);
-          setProfile(null);
-          setSession(null);
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error('Auth initialization failed:', error);
-          setUser(null);
-          setProfile(null);
-          setSession(null);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-          setIsInitialized(true);
-          initializationRef.current = true;
-        }
-      }
-    };
-
     // Secure profile fetching with duplicate request prevention
     const fetchUserProfile = async (userId: string) => {
       if (profileFetchRef.current === userId) return;
@@ -117,55 +68,35 @@ export function useAuthEffects({
       }
     };
 
-    // Enhanced auth state change listener with security checks
+    // onAuthStateChange handles initialization and subsequent auth events.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!isMounted) return;
 
-        // Defer async logic to prevent deadlocks, especially during initialization
+        // Defer async logic to prevent deadlocks
         setTimeout(() => {
           (async () => {
             if (!isMounted) return;
 
-            // Security: Log auth events for audit
-            console.log(`Auth event: ${event}`, { 
-              userId: session?.user?.id, 
-              timestamp: new Date().toISOString() 
-            });
+            console.log(`Auth event: ${event}`, { userId: session?.user?.id });
 
             try {
-              switch (event) {
-                case 'SIGNED_IN':
-                case 'TOKEN_REFRESHED':
-                  if (session?.user) {
-                    setUser(session.user);
-                    setSession(session);
-                    await fetchUserProfile(session.user.id);
-                  }
-                  break;
-                case 'SIGNED_OUT':
-                  setUser(null);
-                  setProfile(null);
-                  setSession(null);
-                  profileFetchRef.current = null;
-                  break;
-                case 'PASSWORD_RECOVERY':
-                  // Security: Don't expose sensitive information
-                  console.log('Password recovery initiated');
-                  break;
-                default:
-                  break;
+              if (session?.user) {
+                setUser(session.user);
+                setSession(session);
+                await fetchUserProfile(session.user.id);
+              } else {
+                setUser(null);
+                setSession(null);
+                setProfile(null);
               }
             } catch (error) {
               console.error('Auth state change error:', error);
-              // Ensure we don't leave the app in an inconsistent state
-              if (event === 'SIGNED_OUT') {
-                setUser(null);
-                setProfile(null);
-                setSession(null);
-              }
+              setUser(null);
+              setSession(null);
+              setProfile(null);
             } finally {
-              if (!initializationRef.current) {
+              if (isMounted && !initializationRef.current) {
                 setIsLoading(false);
                 setIsInitialized(true);
                 initializationRef.current = true;
@@ -176,11 +107,6 @@ export function useAuthEffects({
       }
     );
 
-    // Initialize auth only once
-    if (!initializationRef.current) {
-      initializeAuth();
-    }
-
     return () => {
       isMounted = false;
       subscription.unsubscribe();
@@ -189,4 +115,3 @@ export function useAuthEffects({
 
   return null;
 }
-
