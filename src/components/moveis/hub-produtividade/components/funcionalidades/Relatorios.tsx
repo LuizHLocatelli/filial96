@@ -24,8 +24,8 @@ import { format, startOfMonth, endOfMonth, subMonths, eachDayOfInterval, isWithi
 import { ptBR } from 'date-fns/locale';
 
 interface RelatoriosProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   rotinas: Array<any>;
   orientacoes: Array<any>;
   tarefas: Array<any>;
@@ -62,8 +62,8 @@ interface WeeklyData {
 }
 
 export function Relatorios({ 
-  open, 
-  onOpenChange, 
+  open = false,
+  onOpenChange = () => {},
   rotinas, 
   orientacoes, 
   tarefas,

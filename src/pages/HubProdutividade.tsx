@@ -76,6 +76,7 @@ export default function HubProdutividade() {
     isLoading,
     handlers: handlersWithDialogs,
     rotinas: rotinas || [],
+    orientacoes: orientacoes || [],
     tarefas: tarefas || [],
     onViewRotina: (rotinaId) => {
       setSearchParams({ tab: "atividades" });

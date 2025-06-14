@@ -19,6 +19,7 @@ interface TabsConfigProps {
   handlers: any;
   rotinas: any[];
   tarefas: any[];
+  orientacoes: any[];
   onViewRotina: (rotinaId: string) => void;
   onViewTarefa: (tarefaId: string) => void;
   onRelatorios: () => void;
@@ -30,6 +31,7 @@ export function createTabsConfig({
   handlers,
   rotinas,
   tarefas,
+  orientacoes,
   onViewRotina,
   onViewTarefa,
   onRelatorios
@@ -95,10 +97,8 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <Relatorios
-            open={true}
-            onOpenChange={() => {}}
             rotinas={rotinas || []}
-            orientacoes={[]}
+            orientacoes={orientacoes || []}
             tarefas={tarefas || []}
             stats={stats}
             inline={true}
