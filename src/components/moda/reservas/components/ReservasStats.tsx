@@ -12,7 +12,7 @@ export function ReservasStats() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-2xl" />
+            <div className="h-32 bg-gray-100 dark:bg-gray-800/50 rounded-2xl" />
           </div>
         ))}
       </div>
@@ -24,37 +24,37 @@ export function ReservasStats() {
       title: "Total de Reservas",
       value: stats.total,
       icon: Clock,
-      color: "from-green-500 to-green-600",
-      bgColor: "from-green-50 to-green-100 dark:from-gray-800 dark:to-gray-700",
-      borderColor: "border-green-200/50 dark:border-gray-600",
-      textColor: "text-green-700 dark:text-green-400"
+      color: "from-green-500/80 to-green-600/80",
+      bgColor: "from-green-50/50 to-green-100/50 dark:from-gray-800/30 dark:to-gray-700/30",
+      borderColor: "border-green-200/30 dark:border-gray-600/20",
+      textColor: "text-green-700 dark:text-green-400/80"
     },
     {
       title: "Ativas",
       value: stats.ativas,
       icon: TrendingUp,
-      color: "from-blue-500 to-blue-600",
-      bgColor: "from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-700",
-      borderColor: "border-blue-200/50 dark:border-gray-600",
-      textColor: "text-blue-700 dark:text-blue-400"
+      color: "from-blue-500/80 to-blue-600/80",
+      bgColor: "from-blue-50/50 to-blue-100/50 dark:from-gray-800/30 dark:to-gray-700/30",
+      borderColor: "border-blue-200/30 dark:border-gray-600/20",
+      textColor: "text-blue-700 dark:text-blue-400/80"
     },
     {
       title: "Convertidas",
       value: stats.convertidas,
       icon: CheckCircle,
-      color: "from-emerald-500 to-emerald-600",
-      bgColor: "from-emerald-50 to-emerald-100 dark:from-gray-800 dark:to-gray-700",
-      borderColor: "border-emerald-200/50 dark:border-gray-600",
-      textColor: "text-emerald-700 dark:text-emerald-400"
+      color: "from-emerald-500/80 to-emerald-600/80",
+      bgColor: "from-emerald-50/50 to-emerald-100/50 dark:from-gray-800/30 dark:to-gray-700/30",
+      borderColor: "border-emerald-200/30 dark:border-gray-600/20",
+      textColor: "text-emerald-700 dark:text-emerald-400/80"
     },
     {
       title: "Expiradas",
       value: stats.expiradas,
       icon: AlertCircle,
-      color: "from-orange-500 to-red-600",
-      bgColor: "from-orange-50 to-red-50 dark:from-gray-800 dark:to-gray-700",
-      borderColor: "border-orange-200/50 dark:border-gray-600",
-      textColor: "text-orange-700 dark:text-orange-400"
+      color: "from-orange-500/80 to-red-600/80",
+      bgColor: "from-orange-50/50 to-red-50/50 dark:from-gray-800/30 dark:to-gray-700/30",
+      borderColor: "border-orange-200/30 dark:border-gray-600/20",
+      textColor: "text-orange-700 dark:text-orange-400/80"
     }
   ];
 
@@ -74,7 +74,7 @@ export function ReservasStats() {
                 </div>
                 <Badge 
                   variant="secondary" 
-                  className={`${stat.textColor} bg-white/80 dark:bg-gray-700/80 border-0 shadow-sm font-bold text-lg px-3 py-1`}
+                  className={`${stat.textColor} bg-white/60 dark:bg-gray-700/40 border-0 shadow-sm font-bold text-lg px-3 py-1`}
                 >
                   {stat.value}
                 </Badge>
