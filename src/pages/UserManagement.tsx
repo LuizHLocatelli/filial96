@@ -56,6 +56,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { User as AppUser, UserRole } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 import DOMPurify from "dompurify";
 
 interface UserWithStats extends AppUser {
@@ -66,6 +69,8 @@ interface UserWithStats extends AppUser {
 
 export default function UserManagement() {
   const { profile } = useAuth();
+  const isMobile = useIsMobile();
+  const { getMobileDialogProps, getMobileButtonProps, getMobileFormProps } = useMobileDialog();
   const [users, setUsers] = useState<UserWithStats[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserWithStats[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -374,216 +379,327 @@ export default function UserManagement() {
   // Se não for gerente, mostrar mensagem de acesso negado
   if (!isManager) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-red-600" />
+      <PageLayout maxWidth="md" spacing="normal">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold">Acesso Restrito</h3>
+                <p className="text-muted-foreground">
+                  Esta funcionalidade está disponível apenas para gerentes.
+                </p>
               </div>
-              <h3 className="text-lg font-semibold">Acesso Restrito</h3>
-              <p className="text-muted-foreground">
-                Esta funcionalidade está disponível apenas para gerentes.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gerenciamento de Usuários</h1>
-          <p className="text-muted-foreground">
-            Gerencie todos os usuários cadastrados no sistema
-          </p>
+    <PageLayout maxWidth="full" spacing="normal">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Gerenciamento de Usuários</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Gerencie todos os usuários cadastrados no sistema
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Crown className="w-5 h-5 text-yellow-600" />
+            <Badge variant="secondary" className="text-xs sm:text-sm">Acesso de Gerente</Badge>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Crown className="w-5 h-5 text-yellow-600" />
-          <Badge variant="secondary">Acesso de Gerente</Badge>
-        </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Stats Cards - Responsivo */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+          <Card className="col-span-2 lg:col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-xs sm:text-sm font-medium">Total de Usuários</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl sm:text-2xl font-bold">{users.length}</div>
+            </CardContent>
+          </Card>
+
+          {Object.entries(roleLabels).map(([role, label]) => {
+            const count = users.filter(user => user.role === role).length;
+            return (
+              <Card key={role}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium line-clamp-1">{label}</CardTitle>
+                  <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xl sm:text-2xl font-bold">{count}</div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Search and Actions */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
-          </CardContent>
-        </Card>
-
-        {Object.entries(roleLabels).map(([role, label]) => {
-          const count = users.filter(user => user.role === role).length;
-          return (
-            <Card key={role}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                <User className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{count}</div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Search and Actions */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lista de Usuários</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar usuários..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-8 w-[300px]"
-                />
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="text-lg sm:text-xl">Lista de Usuários</CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 sm:flex-none">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar usuários..."
+                    value={searchTerm}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="pl-8 w-full sm:w-[300px]"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-lg overflow-hidden glass-card border border-border/20">
-              <Table>
-                <TableHeader className="bg-primary/5">
-                  <TableRow className="border-b-0">
-                    <TableHead className="w-[280px]">Usuário</TableHead>
-                    <TableHead>Cargo</TableHead>
-                    <TableHead className="hidden md:table-cell">E-mail</TableHead>
-                    <TableHead className="hidden md:table-cell">Último Acesso</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow
-                      key={user.id}
-                      className="transition-colors hover:bg-primary/10 border-b-border/10"
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarImage src={user.avatarUrl} alt={user.name} />
-                            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{user.name}</p>
-                            <p className="text-sm text-muted-foreground hidden lg:block">
-                              {user.displayName}
-                            </p>
+          </CardHeader>
+          <CardContent className="p-0 sm:p-6">
+            {isLoading ? (
+              <div className="space-y-4 p-4 sm:p-0">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Mobile Cards */}
+                {isMobile ? (
+                  <div className="space-y-3 p-4">
+                    {filteredUsers.map((user) => (
+                      <Card key={user.id} className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={user.avatarUrl} alt={user.name} />
+                              <AvatarFallback className="text-xs">{getInitials(user.name)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">{user.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                            </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={`${roleColors[user.role]}`}>
-                          {getRoleIcon(user.role)}
-                          {roleLabels[user.role]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">{user.email}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : "Nunca"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Dialog
-                          open={isEditDialogOpen && editingUser?.id === user.id}
-                          onOpenChange={(isOpen) => {
-                            if (!isOpen) setEditingUser(null);
-                            setIsEditDialogOpen(isOpen);
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                setEditingUser(user);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            {editingUser && (
-                              <EditUserForm
-                                user={editingUser}
-                                onSave={handleEditUser}
-                                onCancel={() => {
-                                  setIsEditDialogOpen(false);
-                                  setEditingUser(null);
+                          
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className={`${roleColors[user.role]} text-xs`}>
+                              {getRoleIcon(user.role)}
+                              {roleLabels[user.role]}
+                            </Badge>
+                            <div className="flex gap-1">
+                              <Dialog
+                                open={isEditDialogOpen && editingUser?.id === user.id}
+                                onOpenChange={(isOpen) => {
+                                  if (!isOpen) setEditingUser(null);
+                                  setIsEditDialogOpen(isOpen);
                                 }}
-                              />
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              disabled={!isManager || user.id === profile?.id}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="flex items-center gap-2">
-                                <AlertTriangle className="text-yellow-500" />
-                                Confirmar Exclusão
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir o usuário{" "}
-                                <strong>{user.name}</strong>? Esta ação não pode ser
-                                desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteUser(user.id, user.name)}
                               >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => {
+                                      setEditingUser(user);
+                                      setIsEditDialogOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent {...getMobileDialogProps()}>
+                                  {editingUser && (
+                                    <EditUserForm
+                                      user={editingUser}
+                                      onSave={handleEditUser}
+                                      onCancel={() => {
+                                        setIsEditDialogOpen(false);
+                                        setEditingUser(null);
+                                      }}
+                                    />
+                                  )}
+                                </DialogContent>
+                              </Dialog>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    disabled={!isManager || user.id === profile?.id}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent {...getMobileDialogProps()}>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="flex items-center gap-2 text-sm">
+                                      <AlertTriangle className="text-yellow-500 h-4 w-4" />
+                                      Confirmar Exclusão
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="text-xs">
+                                      Tem certeza que deseja excluir o usuário{" "}
+                                      <strong>{user.name}</strong>? Esta ação não pode ser
+                                      desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter className="gap-2">
+                                    <AlertDialogCancel {...getMobileButtonProps()}>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      {...getMobileButtonProps()}
+                                      onClick={() => handleDeleteUser(user.id, user.name)}
+                                    >
+                                      Excluir
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                          
+                          {user.last_sign_in_at && (
+                            <p className="text-xs text-muted-foreground">
+                              Último acesso: {formatDate(user.last_sign_in_at)}
+                            </p>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  /* Desktop Table */
+                  <div className="rounded-lg overflow-hidden glass-card border border-border/20">
+                    <Table>
+                      <TableHeader className="bg-primary/5">
+                        <TableRow className="border-b-0">
+                          <TableHead className="w-[280px]">Usuário</TableHead>
+                          <TableHead>Cargo</TableHead>
+                          <TableHead className="hidden md:table-cell">E-mail</TableHead>
+                          <TableHead className="hidden md:table-cell">Último Acesso</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers.map((user) => (
+                          <TableRow
+                            key={user.id}
+                            className="transition-colors hover:bg-primary/10 border-b-border/10"
+                          >
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar>
+                                  <AvatarImage src={user.avatarUrl} alt={user.name} />
+                                  <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="font-medium">{user.name}</p>
+                                  <p className="text-sm text-muted-foreground hidden lg:block">
+                                    {user.displayName}
+                                  </p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={`${roleColors[user.role]}`}>
+                                {getRoleIcon(user.role)}
+                                {roleLabels[user.role]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : "Nunca"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Dialog
+                                open={isEditDialogOpen && editingUser?.id === user.id}
+                                onOpenChange={(isOpen) => {
+                                  if (!isOpen) setEditingUser(null);
+                                  setIsEditDialogOpen(isOpen);
+                                }}
+                              >
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                      setEditingUser(user);
+                                      setIsEditDialogOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  {editingUser && (
+                                    <EditUserForm
+                                      user={editingUser}
+                                      onSave={handleEditUser}
+                                      onCancel={() => {
+                                        setIsEditDialogOpen(false);
+                                        setEditingUser(null);
+                                      }}
+                                    />
+                                  )}
+                                </DialogContent>
+                              </Dialog>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={!isManager || user.id === profile?.id}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="flex items-center gap-2">
+                                      <AlertTriangle className="text-yellow-500" />
+                                      Confirmar Exclusão
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Tem certeza que deseja excluir o usuário{" "}
+                                      <strong>{user.name}</strong>? Esta ação não pode ser
+                                      desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDeleteUser(user.id, user.name)}
+                                    >
+                                      Excluir
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </>
+            )}
 
-          {!isLoading && filteredUsers.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Nenhum usuário encontrado.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            {!isLoading && filteredUsers.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Nenhum usuário encontrado.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </PageLayout>
   );
 }
 
@@ -594,6 +710,7 @@ interface EditUserFormProps {
 }
 
 function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
+  const { getMobileFormProps, getMobileButtonProps } = useMobileDialog();
   const [formData, setFormData] = useState({
     name: user.name,
     role: user.role,
@@ -611,58 +728,62 @@ function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} {...getMobileFormProps()}>
       <DialogHeader>
-        <DialogTitle>Editar Usuário</DialogTitle>
-        <DialogDescription>
+        <DialogTitle className="text-lg">Editar Usuário</DialogTitle>
+        <DialogDescription className="text-sm">
           Altere as informações de <strong>{user.name}</strong>.
         </DialogDescription>
       </DialogHeader>
       
-      <div className="space-y-2">
-        <Label htmlFor="name">Nome</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
+      <div className="space-y-3">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-sm">Nome</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+            className="text-sm"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="role" className="text-sm">Função</Label>
+          <Select
+            value={formData.role}
+            onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}
+          >
+            <SelectTrigger className="text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="gerente">Gerente</SelectItem>
+              <SelectItem value="crediarista">Crediarista</SelectItem>
+              <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
+              <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
+              <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone" className="text-sm">Telefone</Label>
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            placeholder="(11) 99999-9999"
+            className="text-sm"
+          />
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="role">Função</Label>
-        <Select
-          value={formData.role}
-          onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="gerente">Gerente</SelectItem>
-            <SelectItem value="crediarista">Crediarista</SelectItem>
-            <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
-            <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
-            <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="phone">Telefone</Label>
-        <Input
-          id="phone"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          placeholder="(11) 99999-9999"
-        />
-      </div>
-
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <DialogFooter className="gap-2 sm:gap-0">
+        <Button type="button" variant="outline" onClick={onCancel} {...getMobileButtonProps()}>
           Cancelar
         </Button>
-        <Button type="submit">Salvar Alterações</Button>
+        <Button type="submit" {...getMobileButtonProps()}>Salvar Alterações</Button>
       </DialogFooter>
     </form>
   );
