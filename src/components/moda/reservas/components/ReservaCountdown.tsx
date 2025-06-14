@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Clock, Crown, Infinity } from "lucide-react";
 import { useReservasCountdown } from "../hooks/useReservasCountdown";
@@ -20,8 +21,11 @@ export function ReservaCountdown({ dataExpiracao, status, clienteVip = false }: 
   if (clienteVip) {
     return (
       <div className="flex items-center gap-2 text-sm">
-        <Clock className="h-4 w-4 text-muted-foreground" />
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+        <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
+        <Badge 
+          variant="secondary" 
+          className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/70 dark:to-orange-900/70 text-yellow-800 dark:text-yellow-200 border-yellow-300 dark:border-yellow-600/50 shadow-sm"
+        >
           <Crown className="h-3 w-3 mr-1" />
           Sem limite de tempo
         </Badge>
@@ -32,8 +36,11 @@ export function ReservaCountdown({ dataExpiracao, status, clienteVip = false }: 
   if (timeRemaining.expired) {
     return (
       <div className="flex items-center gap-2 text-sm">
-        <Clock className="h-4 w-4 text-muted-foreground" />
-        <Badge variant="destructive" className="flex items-center gap-1">
+        <Clock className="h-4 w-4 text-red-600 dark:text-red-400" />
+        <Badge 
+          variant="destructive" 
+          className="flex items-center gap-1 bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-900/70 dark:to-rose-900/70 text-red-800 dark:text-red-200 border-red-300 dark:border-red-600/50 shadow-sm"
+        >
           <Clock className="h-3 w-3" />
           Expirada
         </Badge>
@@ -43,14 +50,14 @@ export function ReservaCountdown({ dataExpiracao, status, clienteVip = false }: 
 
   const totalHours = timeRemaining.days * 24 + timeRemaining.hours;
   let variant: "default" | "secondary" | "destructive" = "default";
-  let colorClass = "bg-green-100 text-green-800 border-green-200";
+  let colorClass = "bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/70 dark:to-emerald-900/70 text-green-800 dark:text-green-200 border-green-300 dark:border-green-600/50";
 
   if (totalHours <= 12) {
     variant = "destructive";
-    colorClass = "bg-red-100 text-red-800 border-red-200";
+    colorClass = "bg-gradient-to-r from-red-100 to-rose-100 dark:from-red-900/70 dark:to-rose-900/70 text-red-800 dark:text-red-200 border-red-300 dark:border-red-600/50";
   } else if (totalHours <= 24) {
     variant = "secondary";
-    colorClass = "bg-orange-100 text-orange-800 border-orange-200";
+    colorClass = "bg-gradient-to-r from-orange-100 to-yellow-100 dark:from-orange-900/70 dark:to-yellow-900/70 text-orange-800 dark:text-orange-200 border-orange-300 dark:border-orange-600/50";
   }
 
   const formatTime = () => {
@@ -65,10 +72,10 @@ export function ReservaCountdown({ dataExpiracao, status, clienteVip = false }: 
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      <Clock className="h-4 w-4 text-muted-foreground" />
+      <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
       <Badge 
         variant={variant} 
-        className={cn("flex items-center gap-1", colorClass)}
+        className={cn("flex items-center gap-1 shadow-sm", colorClass)}
       >
         <Clock className="h-3 w-3" />
         {formatTime()} restantes
