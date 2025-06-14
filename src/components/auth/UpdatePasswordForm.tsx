@@ -11,6 +11,7 @@ interface UpdatePasswordFormProps {
 
 export function UpdatePasswordForm({ token, hash }: UpdatePasswordFormProps) {
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   if (success) {
     return (
@@ -25,6 +26,7 @@ export function UpdatePasswordForm({ token, hash }: UpdatePasswordFormProps) {
       token={token}
       hash={hash}
       onSuccess={() => setSuccess(true)}
+      onError={(errorMessage) => setError(errorMessage)}
     />
   );
 }

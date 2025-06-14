@@ -12,11 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { updatePasswordSchema, UpdatePasswordFormData } from "./schemas/updatePasswordSchema";
 
 interface PasswordUpdateFormProps {
+  token?: string | null;
+  hash?: string;
   onSuccess: () => void;
   onError: (error: string) => void;
 }
 
-export function PasswordUpdateForm({ onSuccess, onError }: PasswordUpdateFormProps) {
+export function PasswordUpdateForm({ token, hash, onSuccess, onError }: PasswordUpdateFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

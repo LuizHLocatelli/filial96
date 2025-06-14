@@ -34,7 +34,7 @@ export default function ResetPassword() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
         <div className="w-full max-w-md text-center">
           <AuthHeader />
-          <ResetPasswordError errorMessage={error} />
+          <ResetPasswordError error={error} onRetry={() => window.location.href = '/auth'} />
         </div>
       </div>
     );
@@ -47,7 +47,7 @@ export default function ResetPassword() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-background to-muted px-4">
         <div className="w-full max-w-md text-center">
           <AuthHeader />
-          <ResetPasswordError errorMessage="Link de recuperação inválido ou expirado. Por favor, solicite um novo link." />
+          <ResetPasswordError error="Link de recuperação inválido ou expirado. Por favor, solicite um novo link." onRetry={() => window.location.href = '/auth'} />
         </div>
       </div>
     );

@@ -24,5 +24,5 @@ export interface AuthEffectsProps {
   setSession: (session: Session | null) => void;
   setProfile: (profile: AppUser | null) => void;
   setIsLoading: (isLoading: boolean) => void;
-  toast: any;
+  setIsInitialized: (initialized: boolean) => void;
 }
