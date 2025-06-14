@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -181,7 +182,6 @@ export function CentralAtividades() {
             <TabsContent value="orientacoes" className="mt-0">
               <div className="bg-gradient-to-br from-background to-blue-50/20 dark:to-blue-950/20">
                 <div className="p-4 sm:p-6 space-y-6">
-                  {/* Header melhorado com design system */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -210,9 +210,8 @@ export function CentralAtividades() {
                         Novo Informativo
                       </Button>
                     </motion.div>
-                  </div>
+                  </motion.div>
 
-                  {/* Content wrapper com glassmorphism */}
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
