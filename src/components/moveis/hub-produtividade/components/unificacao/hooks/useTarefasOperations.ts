@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -73,17 +74,25 @@ export function useTarefasOperations() {
 
   const handleCreateTarefa = async (data: TarefaFormValues) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Usuário não autenticado",
+          description: "Você precisa estar logado para criar uma tarefa.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('moveis_tarefas')
         .insert([{
-          titulo: data.titulo,
-          descricao: data.descricao,
+          ...data,
           data_entrega: data.data_entrega.toISOString(),
           orientacao_id: data.orientacao_id || null,
           rotina_id: data.rotina_id || null,
-          prioridade: data.prioridade,
-          origem: data.origem,
           status: 'pendente',
+          criado_por: user.id,
         }]);
 
       if (error) {
