@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -86,10 +87,13 @@ export function useTarefasOperations() {
       const { error } = await supabase
         .from('moveis_tarefas')
         .insert([{
-          ...data,
+          titulo: data.titulo,
+          descricao: data.descricao,
           data_entrega: data.data_entrega.toISOString(),
           orientacao_id: data.orientacao_id || null,
           rotina_id: data.rotina_id || null,
+          prioridade: data.prioridade,
+          origem: data.origem,
           status: 'pendente',
           criado_por: user.id,
         }]);

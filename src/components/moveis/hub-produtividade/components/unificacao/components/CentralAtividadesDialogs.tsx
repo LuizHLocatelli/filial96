@@ -1,10 +1,9 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AddRotinaDialog } from "@/components/moveis/rotinas/components/AddRotinaDialog";
-import { TarefaForm } from "@/components/moveis/orientacoes/components/TarefaForm";
-import { OrientacaoUploader } from "@/components/moveis/orientacoes/OrientacaoUploader";
 import { UseFormReturn } from "react-hook-form";
 import { TarefaFormValues } from '../hooks/useTarefasOperations';
+import { AddTarefaDialog } from './AddTarefaDialog';
+import { AddOrientacaoDialog } from './AddOrientacaoDialog';
 
 interface CentralAtividadesDialogsProps {
   showAddRotinaDialog: boolean;
@@ -45,29 +44,20 @@ export function CentralAtividadesDialogs({
         onSubmit={onCreateRotina}
       />
 
-      <Dialog open={showAddTarefaForm} onOpenChange={setShowAddTarefaForm}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Nova Tarefa</DialogTitle>
-          </DialogHeader>
-          <TarefaForm
-            form={tarefaForm}
-            orientacoes={orientacoes}
-            rotinas={rotinas}
-            onSubmit={onCreateTarefa}
-            onCancel={() => setShowAddTarefaForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <AddTarefaDialog
+        open={showAddTarefaForm}
+        onOpenChange={setShowAddTarefaForm}
+        form={tarefaForm}
+        onSubmit={onCreateTarefa}
+        orientacoes={orientacoes}
+        rotinas={rotinas}
+      />
 
-      <Dialog open={showAddOrientacaoDialog} onOpenChange={setShowAddOrientacaoDialog}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Novo VM ou Informativo</DialogTitle>
-          </DialogHeader>
-          <OrientacaoUploader onSuccess={onUploadOrientacaoSuccess} />
-        </DialogContent>
-      </Dialog>
+      <AddOrientacaoDialog
+        open={showAddOrientacaoDialog}
+        onOpenChange={setShowAddOrientacaoDialog}
+        onSuccess={onUploadOrientacaoSuccess}
+      />
     </>
   );
 }
