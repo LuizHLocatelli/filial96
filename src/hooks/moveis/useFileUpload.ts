@@ -5,15 +5,22 @@ import { v4 as uuidv4 } from 'uuid';
 import { FileUploadOptions } from '@/types/attachments';
 import { toast } from '@/hooks/use-toast';
 
+// Helper to sanitize filenames to prevent security issues like path traversal.
+const sanitizeFilename = (filename: string): string => {
+  // This removes most special characters, replacing them with an underscore, but preserves the file extension.
+  const name = filename.substring(0, filename.lastIndexOf('.')) || filename;
+  const extension = filename.split('.').pop() || '';
+  const sanitizedName = name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return extension ? `${sanitizedName}.${extension}` : sanitizedName;
+};
+
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
 
-  // Função para upload de arquivos genéricos
   const uploadFile = async (file: File, options: FileUploadOptions) => {
     try {
       setIsUploading(true);
       
-      // Validações básicas
       if (!file) {
         toast({
           title: "Erro",
@@ -23,8 +30,7 @@ export function useFileUpload() {
         return null;
       }
       
-      // Verificar tamanho máximo (padrão: 5MB)
-      const maxSizeInMB = options.maxSizeInMB || 5;
+      const maxSizeInMB = options.maxSizeInMB || 10; // Default to 10MB
       if (file.size > maxSizeInMB * 1024 * 1024) {
         toast({
           title: "Erro",
@@ -34,24 +40,40 @@ export function useFileUpload() {
         return null;
       }
 
-      // Gerar caminho do arquivo
-      let filePath = options.folder ? `${options.folder}/` : '';
-      
-      // Gerar nome único para o arquivo se solicitado
-      if (options.generateUniqueName) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${uuidv4()}.${fileExt}`;
-        filePath += fileName;
-      } else {
-        filePath += file.name;
+      // Secure allowlist for file types
+      const allowedTypes = options.allowedFileTypes || [
+        'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/msword', // .doc
+        'application/vnd.ms-excel' // .xls
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Tipo de arquivo não permitido",
+          description: `Arquivos do tipo "${file.type}" não são aceitos.`,
+          variant: "destructive",
+        });
+        return null;
       }
 
-      // Realizar upload do arquivo
+      let filePath = options.folder ? `${options.folder}/` : '';
+      
+      const sanitized = sanitizeFilename(file.name);
+      
+      if (options.generateUniqueName) {
+        const fileExt = sanitized.split('.').pop();
+        const uniqueName = `${uuidv4()}.${fileExt}`;
+        filePath += uniqueName;
+      } else {
+        filePath += sanitized;
+      }
+
       const { data, error } = await supabase.storage
         .from(options.bucketName)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: false // Set to false to prevent overwriting files
         });
 
       if (error) {
@@ -64,12 +86,10 @@ export function useFileUpload() {
         return null;
       }
 
-      // Obter URL pública do arquivo
       const { data: { publicUrl } } = supabase.storage
         .from(options.bucketName)
         .getPublicUrl(data.path);
 
-      // Retornar dados formatados para uso na aplicação
       return {
         name: file.name,
         file_url: publicUrl,
