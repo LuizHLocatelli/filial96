@@ -33,10 +33,10 @@ export interface ReservaFormData {
 }
 
 export interface ReservasStats {
-  total_ativas: number;
-  expirando_24h: number;
-  taxa_conversao: number;
-  valor_total_reservado: number;
+  total: number;
+  ativas: number;
+  convertidas: number;
+  expiradas: number;
 }
 
 export interface TimeRemaining {

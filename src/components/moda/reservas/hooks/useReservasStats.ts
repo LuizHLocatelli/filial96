@@ -6,10 +6,10 @@ import { ReservasStats } from '../types';
 
 export function useReservasStats() {
   const [stats, setStats] = useState<ReservasStats>({
-    total_ativas: 0,
-    expirando_24h: 0,
-    taxa_conversao: 0,
-    valor_total_reservado: 0
+    total: 0,
+    ativas: 0,
+    convertidas: 0,
+    expiradas: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
@@ -27,21 +27,16 @@ export function useReservasStats() {
 
       if (error) throw error;
 
-      const now = new Date();
-      const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
       const ativas = reservas?.filter(r => r.status === 'ativa') || [];
-      const expirandoEm24h = ativas.filter(r => new Date(r.data_expiracao) <= in24Hours);
       const convertidas = reservas?.filter(r => r.status === 'convertida') || [];
+      const expiradas = reservas?.filter(r => r.status === 'expirada') || [];
       const total = reservas?.length || 0;
 
-      const taxaConversao = total > 0 ? (convertidas.length / total) * 100 : 0;
-
       setStats({
-        total_ativas: ativas.length,
-        expirando_24h: expirandoEm24h.length,
-        taxa_conversao: Math.round(taxaConversao),
-        valor_total_reservado: 0 // Pode ser calculado se tivermos preços
+        total,
+        ativas: ativas.length,
+        convertidas: convertidas.length,
+        expiradas: expiradas.length
       });
     } catch (err) {
       console.error('Erro ao carregar estatísticas:', err);
