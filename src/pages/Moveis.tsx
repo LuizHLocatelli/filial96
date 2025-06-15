@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
@@ -6,6 +7,7 @@ import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
 import { MoveisOverview } from "@/components/moveis/dashboard/MoveisOverview";
+import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { 
   FileText, 
   FolderArchive, 
@@ -13,7 +15,8 @@ import {
   Sofa,
   TrendingUp,
   Calendar,
-  Star
+  Star,
+  Package
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -61,6 +64,14 @@ export default function Moveis() {
       icon: Star,
       description: "Produtos prioritários",
       component: <ProdutoFoco />
+    },
+    {
+      value: "descontinuados",
+      label: "Descontinuados",
+      icon: Package,
+      description: "Produtos com desconto especial",
+      component: <Descontinuados onBack={() => handleNavigate("overview")} />,
+      badge: "PROMOÇÃO"
     },
     {
       value: "folgas",

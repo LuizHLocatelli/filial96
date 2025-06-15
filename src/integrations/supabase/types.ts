@@ -1463,6 +1463,63 @@ export type Database = {
         }
         Relationships: []
       }
+      moveis_descontinuados: {
+        Row: {
+          categoria: string
+          codigo: string
+          created_at: string
+          created_by: string
+          descricao: string | null
+          favorito: boolean | null
+          id: string
+          imagem_nome: string | null
+          imagem_tamanho: number | null
+          imagem_tipo: string | null
+          imagem_url: string | null
+          nome: string
+          percentual_desconto: number | null
+          preco: number
+          quantidade_estoque: number | null
+          updated_at: string
+        }
+        Insert: {
+          categoria: string
+          codigo: string
+          created_at?: string
+          created_by: string
+          descricao?: string | null
+          favorito?: boolean | null
+          id?: string
+          imagem_nome?: string | null
+          imagem_tamanho?: number | null
+          imagem_tipo?: string | null
+          imagem_url?: string | null
+          nome: string
+          percentual_desconto?: number | null
+          preco: number
+          quantidade_estoque?: number | null
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          codigo?: string
+          created_at?: string
+          created_by?: string
+          descricao?: string | null
+          favorito?: boolean | null
+          id?: string
+          imagem_nome?: string | null
+          imagem_tamanho?: number | null
+          imagem_tipo?: string | null
+          imagem_url?: string | null
+          nome?: string
+          percentual_desconto?: number | null
+          preco?: number
+          quantidade_estoque?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       moveis_folgas: {
         Row: {
           consultor_id: string
