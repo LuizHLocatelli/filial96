@@ -60,7 +60,9 @@ export function useDescontinuados() {
       const { data, error } = await query;
 
       if (error) throw error;
-      setProdutos(data || []);
+      
+      // Type assertion para garantir compatibilidade
+      setProdutos((data || []) as ProdutoDescontinuado[]);
     } catch (error) {
       console.error('Erro ao carregar produtos descontinuados:', error);
       toast.error('Erro ao carregar produtos descontinuados');
