@@ -38,7 +38,7 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
     <Card className="border-0 bg-white/70 dark:bg-gray-800/30 backdrop-blur-sm shadow-sm">
       <CardContent className="p-3 sm:p-6">
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-sm">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center shadow-sm">
             <Filter className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-200">

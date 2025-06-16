@@ -47,7 +47,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
   const produtosFavoritos = produtos.filter(p => p.favorito);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50/30 via-white to-red-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
         {/* Header Mobile Otimizado */}
         <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
@@ -63,7 +63,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
             </Button>
             
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
                 <Package className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
               </div>
               <div className="min-w-0">
@@ -103,7 +103,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <div className="bg-white/70 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/50 dark:border-gray-600/30">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <Package className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
               </div>
               <div className="min-w-0">
@@ -115,7 +115,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
 
           <div className="bg-white/70 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/50 dark:border-gray-600/30">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <Heart className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
               </div>
               <div className="min-w-0">
@@ -127,7 +127,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
 
           <div className="col-span-2 sm:col-span-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/50 dark:border-gray-600/30">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-xs sm:text-sm">R$</span>
               </div>
               <div className="min-w-0">

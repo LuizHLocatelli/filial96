@@ -129,7 +129,7 @@ Interessado(a)? Entre em contato comigo! 📱`;
           </p>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
+            <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
             <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">
               {produto.categoria}
             </span>
@@ -144,7 +144,7 @@ Interessado(a)? Entre em contato comigo! 📱`;
           {/* Preço e Estoque */}
           <div className="flex items-center justify-between pt-1">
             <div className="flex flex-col">
-              <span className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">
+              <span className="text-lg sm:text-2xl font-bold text-primary">
                 {formatPrice(produto.preco)}
               </span>
               {produto.percentual_desconto && (
@@ -158,7 +158,7 @@ Interessado(a)? Entre em contato comigo! 📱`;
               <div className="text-right">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Estoque:</span>
                 <br />
-                <span className={`text-xs sm:text-sm font-medium ${produto.quantidade_estoque > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span className={`text-xs sm:text-sm font-medium ${produto.quantidade_estoque > 0 ? 'text-primary' : 'text-red-600 dark:text-red-400'}`}>
                   {produto.quantidade_estoque} un.
                 </span>
               </div>
@@ -170,7 +170,7 @@ Interessado(a)? Entre em contato comigo! 📱`;
         <div className="mt-3 sm:mt-4">
           <Button
             onClick={handleShare}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-sm h-8 sm:h-auto text-xs sm:text-sm"
+            className="w-full bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-sm h-8 sm:h-auto text-xs sm:text-sm"
             size="sm"
           >
             <Share2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
