@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Clock, Search, Filter, Grid3X3, List } from "lucide-react";
@@ -124,7 +125,7 @@ export function Reservas() {
     <>
       {/* Barra de ações fixa no topo (aparece no scroll) */}
       <div
-        className={`fixed top-0 left-0 right-0 z-40 bg-background/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 bg-background/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-green-200/50 dark:border-green-700/50 transition-all duration-300 ${
           showStickyActions && !isMobile ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
         }`}
       >
@@ -133,7 +134,7 @@ export function Reservas() {
             <div className="flex items-center gap-3">
               <Clock className="h-5 w-5 text-green-600 dark:text-green-400/80" />
               <span className="font-semibold text-gray-800 dark:text-gray-200/90">Reservas</span>
-              <Badge variant="secondary" className="text-xs bg-gray-100/80 dark:bg-gray-700/60 text-gray-800 dark:text-gray-200/90 border-gray-300/50 dark:border-gray-600/30">
+              <Badge variant="secondary" className="text-xs bg-green-100/80 dark:bg-green-900/40 text-green-800 dark:text-green-200/90 border-green-300/50 dark:border-green-600/30">
                 {filteredReservas.length}
               </Badge>
             </div>
@@ -142,7 +143,7 @@ export function Reservas() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 pb-6">
         {/* Header aprimorado com posicionamento estratégico do botão */}
         <div className={`relative`}>
           <PageHeader
@@ -168,7 +169,7 @@ export function Reservas() {
                       onClick={() => setViewMode('grid')}
                       className={`h-10 ${viewMode === 'grid' 
                         ? 'bg-green-600/90 hover:bg-green-700/90 text-white border-0' 
-                        : 'border-gray-300/50 dark:border-gray-600/30 text-gray-700 dark:text-gray-300/90 hover:bg-gray-50/80 dark:hover:bg-gray-700/50'
+                        : 'border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300/90 hover:bg-green-50/80 dark:hover:bg-green-900/20'
                       }`}
                     >
                       <Grid3X3 className="h-4 w-4" />
@@ -179,7 +180,7 @@ export function Reservas() {
                       onClick={() => setViewMode('list')}
                       className={`h-10 ${viewMode === 'list' 
                         ? 'bg-green-600/90 hover:bg-green-700/90 text-white border-0' 
-                        : 'border-gray-300/50 dark:border-gray-600/30 text-gray-700 dark:text-gray-300/90 hover:bg-gray-50/80 dark:hover:bg-gray-700/50'
+                        : 'border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300/90 hover:bg-green-50/80 dark:hover:bg-green-900/20'
                       }`}
                     >
                       <List className="h-4 w-4" />
@@ -197,39 +198,39 @@ export function Reservas() {
         {/* Barra de busca rápida e filtros mobile */}
         <div className={`flex flex-col items-stretch gap-4`}>
           <div className="relative w-full">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400/80 h-5 w-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500/70 dark:text-green-400/80 h-5 w-5" />
             <Input
               placeholder="Buscar por cliente, produto ou código..."
               value={quickSearch}
               onChange={(e) => setQuickSearch(e.target.value)}
-              className={`pl-12 rounded-xl border-0 shadow-md bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm placeholder:text-gray-500 dark:placeholder:text-gray-400/80 text-gray-800 dark:text-gray-100/90 focus:ring-green-500/80 dark:focus:ring-green-400/80 ${
-                isMobile ? 'h-11 text-base' : 'h-12'
+              className={`pl-12 rounded-xl border-0 shadow-md bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm placeholder:text-green-500/50 dark:placeholder:text-green-400/60 text-gray-800 dark:text-gray-100/90 focus:ring-green-500/80 dark:focus:ring-green-400/80 ${
+                isMobile ? 'h-12 text-base' : 'h-12'
               }`}
             />
           </div>
 
-          <div className={`flex items-center ${isMobile ? 'flex-col gap-2' : 'gap-3 justify-end'}`}>
+          <div className={`flex items-center ${isMobile ? 'flex-col gap-3' : 'gap-3 justify-end'}`}>
             {/* Filtros mobile */}
             {isMobile ? (
               <Dialog open={showFiltersDialog} onOpenChange={setShowFiltersDialog}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="w-full h-11 px-6 rounded-xl shadow-md text-base border-gray-300/50 dark:border-gray-600/30 text-gray-700 dark:text-gray-300/90 hover:bg-gray-50/80 dark:hover:bg-gray-700/50 bg-white/80 dark:bg-gray-800/50"
+                    className="w-full h-12 px-6 rounded-xl shadow-md text-base border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300/90 hover:bg-green-50/80 dark:hover:bg-green-900/20 bg-white/80 dark:bg-gray-800/50"
                   >
                     <Filter className="h-5 w-5 mr-3" />
                     Filtros
                     {(filters.status !== 'all' || filters.forma_pagamento !== 'all' || filters.cliente_vip !== 'all') && (
-                      <Badge variant="secondary" className="ml-3 h-6 w-6 p-0 flex items-center justify-center text-sm font-bold bg-gray-100/80 dark:bg-gray-700/60 text-gray-800 dark:text-gray-200/90">
+                      <Badge variant="secondary" className="ml-3 h-6 w-6 p-0 flex items-center justify-center text-sm font-bold bg-green-100/80 dark:bg-green-900/40 text-green-800 dark:text-green-200/90">
                         !
                       </Badge>
                     )}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="w-[95vw] max-w-md bg-white/95 dark:bg-gray-900/95 border-gray-200/50 dark:border-gray-700/50">
+                <DialogContent className="w-[95vw] max-w-md bg-white/95 dark:bg-gray-900/95 border-green-200/50 dark:border-green-700/50">
                   <DialogHeader>
                     <DialogTitle className="text-gray-800 dark:text-gray-200/90">Filtros</DialogTitle>
-                    <DialogDescription className="text-gray-600 dark:text-gray-400/80">
+                    <DialogDescription className="text-green-600 dark:text-green-400/80">
                       Refine sua busca por reservas
                     </DialogDescription>
                   </DialogHeader>
@@ -242,7 +243,7 @@ export function Reservas() {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-12 px-6 rounded-xl shadow-md border-gray-300/50 dark:border-gray-600/30 text-gray-700 dark:text-gray-300/90 hover:bg-gray-50/80 dark:hover:bg-gray-700/50 bg-white/80 dark:bg-gray-800/50"
+                className="h-12 px-6 rounded-xl shadow-md border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300/90 hover:bg-green-50/80 dark:hover:bg-green-900/20 bg-white/80 dark:bg-gray-800/50"
                 onClick={() => {
                   const filtersCard = document.getElementById('filters-card');
                   filtersCard?.scrollIntoView({ behavior: 'smooth' });
@@ -256,8 +257,8 @@ export function Reservas() {
             {/* Badge com total de resultados */}
             <Badge 
               variant="secondary" 
-              className={`rounded-xl font-medium bg-gray-100/80 dark:bg-gray-700/60 text-gray-800 dark:text-gray-200/90 border-gray-300/50 dark:border-gray-600/30 ${
-                isMobile ? 'w-full h-11 px-4 text-base flex items-center justify-center' : 'h-12 px-4 text-sm'
+              className={`rounded-xl font-medium bg-green-100/80 dark:bg-green-900/40 text-green-800 dark:text-green-200/90 border-green-300/50 dark:border-green-600/30 ${
+                isMobile ? 'w-full h-12 px-4 text-base flex items-center justify-center' : 'h-12 px-4 text-sm'
               }`}
             >
               {filteredReservas.length} {filteredReservas.length === 1 ? 'reserva' : 'reservas'}
@@ -294,34 +295,34 @@ export function Reservas() {
                 </p>
               </div>
             ) :
-              <div className={isMobile ? 'space-y-6' : 'space-y-8'}>
+              <div className={isMobile ? 'space-y-4' : 'space-y-8'}>
                 {/* Visualização por abas no mobile */}
                 {isMobile ? (
                   <div className="px-0">
                     <Tabs defaultValue="all" className="w-full">
-                      <TabsList className="grid w-full grid-cols-3 mb-4 h-12 rounded-xl p-1 bg-gray-100/80 dark:bg-gray-800/50">
+                      <TabsList className="grid w-full grid-cols-3 mb-6 h-12 rounded-xl p-1 bg-green-100/80 dark:bg-green-900/30">
                         <TabsTrigger 
                           value="all" 
-                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-gray-700 dark:text-gray-300/90"
+                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-green-700 dark:text-green-300/90"
                         >
                           Todas ({filteredReservas.length})
                         </TabsTrigger>
                         <TabsTrigger 
                           value="ativas" 
-                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-gray-700 dark:text-gray-300/90"
+                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-green-700 dark:text-green-300/90"
                         >
                           Ativas ({reservasByStatus.ativas.length})
                         </TabsTrigger>
                         <TabsTrigger 
                           value="outras" 
-                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-gray-700 dark:text-gray-300/90"
+                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-green-700 dark:text-green-300/90"
                         >
                           Outras ({reservasByStatus.expiradas.length + reservasByStatus.convertidas.length + reservasByStatus.canceladas.length})
                         </TabsTrigger>
                       </TabsList>
 
                       <TabsContent value="all">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-4">
                           {filteredReservas.map((reserva) => (
                             <ReservaCard 
                               key={reserva.id} 
@@ -334,7 +335,7 @@ export function Reservas() {
                       </TabsContent>
 
                       <TabsContent value="ativas">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-4">
                           {reservasByStatus.ativas.map((reserva) => (
                             <ReservaCard 
                               key={reserva.id} 
@@ -347,7 +348,7 @@ export function Reservas() {
                       </TabsContent>
 
                       <TabsContent value="outras">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-4">
                           {[...reservasByStatus.expiradas, ...reservasByStatus.convertidas, ...reservasByStatus.canceladas].map((reserva) => (
                             <ReservaCard 
                               key={reserva.id} 
