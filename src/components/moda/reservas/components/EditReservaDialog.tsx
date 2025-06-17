@@ -8,10 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { ModaReserva, ProdutoReserva } from "../types";
-import { ProdutoReservaInput } from "./ProdutoReservaInput";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, X } from "lucide-react";
+import { Save, X, Trash2, Plus } from "lucide-react";
 
 interface EditReservaDialogProps {
   reserva: ModaReserva;
@@ -41,7 +40,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
       const { error } = await supabase
         .from('moda_reservas')
         .update({
-          produtos: formData.produtos,
+          produtos: formData.produtos as any, // Cast to any to satisfy Json type
           cliente_nome: formData.cliente_nome,
           cliente_cpf: formData.cliente_cpf,
           cliente_vip: formData.cliente_vip,
@@ -114,13 +113,67 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
               Produtos
             </Label>
             {formData.produtos.map((produto, index) => (
-              <ProdutoReservaInput
-                key={index}
-                produto={produto}
-                onChange={(updatedProduto) => updateProduto(index, updatedProduto)}
-                onRemove={() => removeProduto(index)}
-                canRemove={formData.produtos.length > 1}
-              />
+              <div key={index} className="p-4 border border-green-200/50 dark:border-green-600/30 rounded-lg bg-green-50/30 dark:bg-green-900/10 space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium text-sm text-green-700 dark:text-green-300">Produto {index + 1}</h4>
+                  {formData.produtos.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeProduto(index)}
+                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-green-600 dark:text-green-400">Nome do Produto</Label>
+                    <Input
+                      value={produto.nome}
+                      onChange={(e) => updateProduto(index, { ...produto, nome: e.target.value })}
+                      placeholder="Nome do produto"
+                      className="h-9 border-green-200/50 dark:border-green-600/30 focus:ring-green-500/80"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs text-green-600 dark:text-green-400">Código do Produto</Label>
+                    <Input
+                      value={produto.codigo}
+                      onChange={(e) => updateProduto(index, { ...produto, codigo: e.target.value })}
+                      placeholder="Código"
+                      className="h-9 border-green-200/50 dark:border-green-600/30 focus:ring-green-500/80"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-green-600 dark:text-green-400">Tamanho</Label>
+                    <Input
+                      value={produto.tamanho || ""}
+                      onChange={(e) => updateProduto(index, { ...produto, tamanho: e.target.value })}
+                      placeholder="Ex: M, G, 42"
+                      className="h-9 border-green-200/50 dark:border-green-600/30 focus:ring-green-500/80"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs text-green-600 dark:text-green-400">Quantidade</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={produto.quantidade}
+                      onChange={(e) => updateProduto(index, { ...produto, quantidade: parseInt(e.target.value) || 1 })}
+                      className="h-9 border-green-200/50 dark:border-green-600/30 focus:ring-green-500/80"
+                    />
+                  </div>
+                </div>
+              </div>
             ))}
             <Button
               type="button"
@@ -128,6 +181,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
               onClick={addProduto}
               className="w-full border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300 hover:bg-green-50/80 dark:hover:bg-green-900/20"
             >
+              <Plus className="h-4 w-4 mr-2" />
               Adicionar Produto
             </Button>
           </div>
