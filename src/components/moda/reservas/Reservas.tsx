@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Clock, Search, Filter, Grid3X3, List } from "lucide-react";
@@ -22,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function Reservas() {
-  const { reservas, isLoading, updateReservaStatus, deleteReserva } = useReservas();
+  const { reservas, isLoading, updateReservaStatus, deleteReserva, fetchReservas } = useReservas();
   const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [quickSearch, setQuickSearch] = useState('');
@@ -329,6 +328,7 @@ export function Reservas() {
                               reserva={reserva} 
                               onUpdateStatus={updateReservaStatus}
                               onDelete={deleteReserva}
+                              onRefresh={fetchReservas}
                             />
                           ))}
                         </div>
@@ -342,6 +342,7 @@ export function Reservas() {
                               reserva={reserva} 
                               onUpdateStatus={updateReservaStatus}
                               onDelete={deleteReserva}
+                              onRefresh={fetchReservas}
                             />
                           ))}
                         </div>
@@ -355,6 +356,7 @@ export function Reservas() {
                               reserva={reserva} 
                               onUpdateStatus={updateReservaStatus}
                               onDelete={deleteReserva}
+                              onRefresh={fetchReservas}
                             />
                           ))}
                         </div>
@@ -374,6 +376,7 @@ export function Reservas() {
                         reserva={reserva} 
                         onUpdateStatus={updateReservaStatus}
                         onDelete={deleteReserva}
+                        onRefresh={fetchReservas}
                       />
                     ))}
                   </div>
