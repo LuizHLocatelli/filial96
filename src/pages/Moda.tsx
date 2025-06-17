@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
@@ -5,7 +6,6 @@ import { Diretorio } from "@/components/moda/diretorio/Diretorio";
 import { Folgas } from "@/components/moda/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
 import { Reservas } from "@/components/moda/reservas/Reservas";
-import { ModaOverview } from "@/components/moda/dashboard/ModaOverview";
 import { Monitoramento } from "@/components/moda/monitoramento/Monitoramento";
 import { useModaTracking } from "@/hooks/useModaTracking";
 import { 
@@ -26,7 +26,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moda() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "overview";
+  const activeTab = searchParams.get("tab") || "diretorio";
   const [startTime, setStartTime] = useState<number>(Date.now());
   const { trackNavigationEvent, trackTimeSpent } = useModaTracking();
   
@@ -68,18 +68,7 @@ export default function Moda() {
     setSearchParams({ tab: value });
   };
 
-  const handleNavigate = (tab: string) => {
-    setSearchParams({ tab: tab });
-  };
-
   const tabsConfig = [
-    {
-      value: "overview",
-      label: "Visão Geral",
-      icon: Shirt,
-      description: "Dashboard e acesso rápido",
-      component: <ModaOverview onNavigate={handleNavigate} />
-    },
     {
       value: "diretorio",
       label: "Diretório",

@@ -6,7 +6,6 @@ import { Diretorio } from "@/components/moveis/diretorio/Diretorio";
 import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
-import { MoveisOverview } from "@/components/moveis/dashboard/MoveisOverview";
 import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { 
   FileText, 
@@ -26,7 +25,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "overview";
+  const activeTab = searchParams.get("tab") || "diretorio";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -37,13 +36,6 @@ export default function Moveis() {
   };
 
   const tabsConfig = [
-    {
-      value: "overview",
-      label: "Visão Geral",
-      icon: Sofa,
-      description: "Dashboard e acesso rápido",
-      component: <MoveisOverview onNavigate={handleNavigate} />
-    },
     {
       value: "diretorio",
       label: "Diretório",
@@ -70,7 +62,7 @@ export default function Moveis() {
       label: "Descontinuados",
       icon: Package,
       description: "Produtos com desconto especial",
-      component: <Descontinuados onBack={() => handleNavigate("overview")} />,
+      component: <Descontinuados onBack={() => handleNavigate("diretorio")} />,
       badge: "PROMOÇÃO"
     },
     {
