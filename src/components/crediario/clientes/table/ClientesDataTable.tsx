@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Table, 
@@ -11,15 +11,17 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Cliente } from "@/components/crediario/types";
 import { ContactHistory } from "../contacts/ContactHistory";
 import { MessageTemplates } from "../templates/MessageTemplates";
 import { useClienteTableLogic } from "./hooks/useClienteTableLogic";
-import { TableFilters } from "./components/TableFilters";
-import { MassActions } from "./components/MassActions";
 import { ClienteTableRow } from "./components/ClienteTableRow";
 import { EmptyState } from "./components/EmptyState";
 import { calcularDiasAtraso } from "./utils/clienteUtils";
+import { Search, MessageSquare, Phone } from "lucide-react";
 
 interface ClientesDataTableProps {
   clientes: Cliente[];
@@ -52,21 +54,58 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader>
-          <CardTitle>Gestão de Clientes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TableFilters
-            searchTerm={searchTerm}
-            onSearchTermChange={setSearchTerm}
-            filterStatus={filterStatus}
-            onFilterStatusChange={setFilterStatus}
-          />
-          <MassActions
-            selectedCount={selectedClientes.length}
-            onWhatsApp={handleWhatsAppMassa}
-            onCallList={handleListaLigacoes}
-          />
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome ou conta..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="Filtrar por status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="atrasados">Em Atraso</SelectItem>
+                <SelectItem value="em_dia">Em Dia</SelectItem>
+                <SelectItem value="FPD">FPD</SelectItem>
+                <SelectItem value="M1">M1</SelectItem>
+                <SelectItem value="M2">M2</SelectItem>
+                <SelectItem value="M3">M3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedClientes.length > 0 && (
+            <div className="flex gap-2 mt-4 p-3 bg-muted/50 rounded-lg">
+              <span className="text-sm text-muted-foreground">
+                {selectedClientes.length} cliente(s) selecionado(s)
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleWhatsAppMassa}
+                className="ml-auto gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                WhatsApp em Massa
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleListaLigacoes}
+                className="gap-2"
+              >
+                <Phone className="h-4 w-4" />
+                Lista de Ligações
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -132,7 +171,6 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
         </CardContent>
       </Card>
 
-      {/* Dialogs */}
       <Dialog open={!!selectedClienteForContact} onOpenChange={() => setSelectedClienteForContact(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
