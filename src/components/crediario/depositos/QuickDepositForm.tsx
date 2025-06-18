@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { isSameDay } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -310,11 +311,11 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
           </div>
         </div>
 
-        {/* Submit Button Aprimorado */}
+        {/* Submit Button com melhor contraste no modo claro */}
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || isUploading || (hasDepositToday && hasReceiptToday && isIncludedToday)}
-          className="w-full quick-action-btn text-sm sm:text-sm h-11 sm:h-10"
+          className="w-full text-sm sm:text-sm h-11 sm:h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md hover:shadow-lg transition-all duration-200"
           size="lg"
         >
           {isSubmitting || isUploading ? (
@@ -332,4 +333,4 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
       </CardContent>
     </Card>
   );
-} 
+}
