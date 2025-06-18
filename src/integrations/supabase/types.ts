@@ -238,6 +238,74 @@ export type Database = {
         }
         Relationships: []
       }
+      crediario_depositos_statistics: {
+        Row: {
+          average_deposit_hour: number | null
+          complete_days: number
+          completion_rate: number
+          created_at: string | null
+          current_streak: number
+          deposits_after_12h: number
+          deposits_before_10h: number
+          id: string
+          last_calculated_at: string | null
+          max_streak_month: number
+          missed_days: number
+          month_year: string
+          partial_days: number
+          punctuality_rate: number
+          updated_at: string | null
+          user_id: string
+          working_days: number
+        }
+        Insert: {
+          average_deposit_hour?: number | null
+          complete_days?: number
+          completion_rate?: number
+          created_at?: string | null
+          current_streak?: number
+          deposits_after_12h?: number
+          deposits_before_10h?: number
+          id?: string
+          last_calculated_at?: string | null
+          max_streak_month?: number
+          missed_days?: number
+          month_year: string
+          partial_days?: number
+          punctuality_rate?: number
+          updated_at?: string | null
+          user_id: string
+          working_days?: number
+        }
+        Update: {
+          average_deposit_hour?: number | null
+          complete_days?: number
+          completion_rate?: number
+          created_at?: string | null
+          current_streak?: number
+          deposits_after_12h?: number
+          deposits_before_10h?: number
+          id?: string
+          last_calculated_at?: string | null
+          max_streak_month?: number
+          missed_days?: number
+          month_year?: string
+          partial_days?: number
+          punctuality_rate?: number
+          updated_at?: string | null
+          user_id?: string
+          working_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crediario_depositos_statistics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crediario_directory_categories: {
         Row: {
           created_at: string
@@ -2343,6 +2411,10 @@ export type Database = {
         Args: { "": string } | { "": unknown }
         Returns: unknown
       }
+      calculate_deposit_statistics: {
+        Args: { target_user_id: string; target_month: string }
+        Returns: undefined
+      }
       check_orientacao_completion_by_role: {
         Args: { p_orientacao_id: string; p_target_roles: string[] }
         Returns: {
@@ -2485,6 +2557,10 @@ export type Database = {
           source: string
           similarity: number
         }[]
+      }
+      recalculate_all_deposit_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       register_orientacao_view: {
         Args: { p_orientacao_id: string; p_user_id?: string }
