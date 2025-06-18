@@ -326,7 +326,7 @@ export default function Atividades() {
       />
 
       {/* Estatísticas rápidas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid-responsive-stats gap-base mb-6">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -392,7 +392,7 @@ export default function Atividades() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Filtros */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 border rounded-lg">
+              <div className="grid-responsive-files gap-base p-4 border rounded-lg">
                 <Input
                   placeholder="Buscar por título, usuário..."
                   value={searchTerm}

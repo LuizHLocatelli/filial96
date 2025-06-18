@@ -283,7 +283,7 @@ export function FiltrosPorData({
                     <CardTitle className="text-base">Selecionar Período</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <div className="grid-responsive-wide gap-sm">
                       {PRESETS.map(preset => (
                         <Button
                           key={preset.id}

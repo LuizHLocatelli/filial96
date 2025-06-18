@@ -11,7 +11,7 @@ export function ReservasStats() {
 
   if (isLoading) {
     return (
-      <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
+      <div className="grid-responsive-stats gap-base">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className={`bg-gray-100 dark:bg-gray-800/50 rounded-2xl ${isMobile ? "h-24" : "h-32"}`} />
@@ -61,7 +61,7 @@ export function ReservasStats() {
   ];
 
   return (
-    <div className={`grid gap-4 ${isMobile ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
+    <div className="grid-responsive-stats gap-base">
       {statCards.map((stat, index) => {
         const IconComponent = stat.icon;
         return (

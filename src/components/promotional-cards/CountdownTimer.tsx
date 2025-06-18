@@ -51,7 +51,7 @@ export const CountdownTimer = ({ endDate, isMobile }: CountdownTimerProps) => {
 
   return (
     <div className="flex items-center gap-1 bg-red-500/80 dark:bg-red-800/80 text-white dark:text-red-100 rounded-full px-2 py-1 backdrop-blur-sm ml-auto min-w-0">
-      <Clock className="h-3 w-3 flex-shrink-0" />
+              <Clock className="h-4 w-4 flex-shrink-0" />
       <span className="text-xs truncate block font-semibold">{text}</span>
     </div>
   );

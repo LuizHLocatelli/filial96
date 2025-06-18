@@ -229,12 +229,12 @@ export function RotinasList({
                           {rotina.descricao && <p className="text-sm text-muted-foreground mt-1">{rotina.descricao}</p>}
                         </div>
                         <div className="flex items-center gap-2 ml-2">
-                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => toggleExpandRotina(rotina.id)}>
-                            {expandedRotinas.has(rotina.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                           <Button variant="ghost" size="sm" className="touch-friendly p-0" onClick={() => toggleExpandRotina(rotina.id)}>
+                            {expandedRotinas.includes(rotina.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0"><MoreVertical className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="sm" className="touch-friendly p-0"><MoreVertical className="h-4 w-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => setEditingRotina(rotina)}><Edit2 className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>

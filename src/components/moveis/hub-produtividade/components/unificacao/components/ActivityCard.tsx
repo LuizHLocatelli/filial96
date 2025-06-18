@@ -207,9 +207,9 @@ export function ActivityCard({
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="h-6 w-6 sm:h-8 sm:w-8 p-0 dark:hover:bg-gray-700 flex-shrink-0"
+                      className="touch-friendly p-0 dark:hover:bg-gray-700 flex-shrink-0"
                     >
-                      <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
@@ -220,7 +220,7 @@ export function ActivityCard({
                       onClick={() => onEdit(activity.id, activity.type)}
                       className="dark:hover:bg-gray-700 dark:text-gray-200 text-xs sm:text-sm"
                     >
-                      <Edit2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      <Edit2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                       Editar
                     </DropdownMenuItem>
                     
@@ -229,7 +229,7 @@ export function ActivityCard({
                         onClick={() => onCreateRelated(activity.id, 'rotina', 'tarefa')}
                         className="dark:hover:bg-gray-700 dark:text-gray-200 text-xs sm:text-sm"
                       >
-                        <Plus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                         Criar Tarefa
                       </DropdownMenuItem>
                     )}
@@ -239,7 +239,7 @@ export function ActivityCard({
                         onClick={() => onCreateRelated(activity.id, 'tarefa', 'rotina')}
                         className="dark:hover:bg-gray-700 dark:text-gray-200 text-xs sm:text-sm"
                       >
-                        <Plus className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                         Criar Rotina
                       </DropdownMenuItem>
                     )}
@@ -248,7 +248,7 @@ export function ActivityCard({
                       className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400 dark:hover:bg-gray-700 text-xs sm:text-sm"
                       onClick={() => onDelete(activity.id, activity.type)}
                     >
-                      <Trash2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      <Trash2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                       Excluir
                     </DropdownMenuItem>
                   </DropdownMenuContent>

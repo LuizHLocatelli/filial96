@@ -105,7 +105,7 @@ export function NotificationsMenu() {
             <Button 
               variant="ghost" 
               size="sm"
-              className="h-8 w-8 p-0" 
+              className="touch-friendly p-0" 
               onClick={handleRefresh}
               disabled={isRefreshing}
               title="Atualizar notificações"

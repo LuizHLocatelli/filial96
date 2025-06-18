@@ -39,19 +39,15 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
     const labels = {
       'vm': 'VM',
       'informativo': 'Informativo',
-      'outro': 'Outro',
-      'revisao': 'Revisão',
-      'geral': 'Geral'
+      'outro': 'Outro'
     };
     return labels[tipo as keyof typeof labels] || tipo;
   };
 
   const getTipoColor = (tipo: string) => {
     const colors = {
-      'vm': 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800',
-      'revisao': 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800',
-      'geral': 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800',
-      'informativo': 'bg-primary/10 text-primary border-primary/20 dark:bg-primary/10 dark:text-primary dark:border-primary/30',
+      'vm': 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800',
+      'informativo': 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800',
       'outro': 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800'
     };
     return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-300 dark:border-gray-800';
@@ -96,7 +92,7 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className={`h-8 w-8 p-0 transition-all duration-200 ${
+                    className={`touch-friendly p-0 transition-all duration-200 ${
                       isMobile 
                         ? 'opacity-100 hover:bg-muted/80 border border-border/50' 
                         : 'opacity-70 hover:opacity-100 group-hover:opacity-100 hover:bg-muted/60'
@@ -132,7 +128,7 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
 
           <CardContent className="flex-1 pb-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
+              <Calendar className="h-4 w-4" />
               {new Date(orientacao.data_criacao).toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: '2-digit',

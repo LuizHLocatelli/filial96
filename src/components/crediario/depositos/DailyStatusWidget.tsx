@@ -62,6 +62,14 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
       const now = new Date();
       const deadline = setSeconds(setMinutes(setHours(new Date(), 12), 0), 0);
       
+      // Se o depósito já foi completamente incluído, não precisa mais do contador
+      if (isIncludedInSystem && hasDeposit) {
+        setTimeRemaining("Depósito incluído");
+        setIsExpired(false);
+        setIsUrgent(false);
+        return;
+      }
+      
       if (now > deadline) {
         setIsExpired(true);
         setTimeRemaining("Prazo expirado");
@@ -81,7 +89,7 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
     const interval = setInterval(updateTimer, 1000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [isIncludedInSystem, hasDeposit]);
 
   // Determinar status geral
   const getOverallStatus = () => {
@@ -170,16 +178,30 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
       
       <CardContent className="space-y-4 sm:space-y-4 px-4 sm:px-6">
         {/* Contador Regressivo */}
-        {!isWeekend && (
+        {!isWeekend && !(isIncludedInSystem && hasDeposit) && (
           <div className="text-center p-4 sm:p-4 bg-muted/50 rounded-lg">
             <div className="text-sm sm:text-sm text-muted-foreground mb-2">
-              Tempo até o prazo (12:00)
+              {isIncludedInSystem && hasDeposit ? "Depósito concluído" : "Tempo até o prazo (12:00)"}
             </div>
             <div className={`text-xl sm:text-2xl font-mono font-bold ${
+              isIncludedInSystem && hasDeposit ? "text-green-600 dark:text-green-400" :
               isExpired ? "text-red-600 dark:text-red-400" : 
               isUrgent ? "text-orange-600 dark:text-orange-400" : "text-green-600 dark:text-green-400"
             }`}>
               {timeRemaining}
+            </div>
+          </div>
+        )}
+
+        {/* Mensagem de sucesso quando depósito está incluído */}
+        {!isWeekend && isIncludedInSystem && hasDeposit && (
+          <div className="text-center p-4 sm:p-4 bg-green-50 dark:bg-green-950/50 rounded-lg border border-green-300 dark:border-green-800">
+            <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12 text-green-600 dark:text-green-400 mx-auto mb-3" />
+            <div className="text-base sm:text-base font-medium text-green-700 dark:text-green-400">
+              Depósito Incluído com Sucesso
+            </div>
+            <div className="text-sm sm:text-sm text-green-600 dark:text-green-300 mt-2">
+              O depósito foi processado e incluído na Tesouraria/P2K
             </div>
           </div>
         )}

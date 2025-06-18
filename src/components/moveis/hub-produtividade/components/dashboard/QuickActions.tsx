@@ -316,11 +316,7 @@ export function QuickActions({
       )}
 
       {/* Grid de ações - Layout melhorado para desktop */}
-      <div className={`grid gap-3 ${
-        isMobile 
-          ? 'grid-cols-2' 
-          : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'
-      }`}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {visibleSections.map((section, index) => {
           const Icon = section.icon;
           const isActionFavorite = isFavorite(section.id);
@@ -336,7 +332,7 @@ export function QuickActions({
                 {/* Indicador de favorito */}
                 {isActionFavorite && (
                   <div className="absolute top-2 right-2">
-                    <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
                   </div>
                 )}
                 

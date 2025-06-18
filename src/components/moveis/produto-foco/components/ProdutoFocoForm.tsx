@@ -337,7 +337,7 @@ export function ProdutoFocoForm({
               {produto && produto.imagens.length > 0 && (
                 <div>
                   <Label className="text-xs text-muted-foreground">Imagens Atuais</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
+                  <div className="grid-responsive-files gap-sm mt-2">
                     {produto.imagens.map((imagem) => (
                       <div key={imagem.id} className="relative group">
                         <img
@@ -366,7 +366,7 @@ export function ProdutoFocoForm({
               {novasImagens.length > 0 && (
                 <div>
                   <Label className="text-xs text-muted-foreground">Novas Imagens</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
+                  <div className="grid-responsive-files gap-sm mt-2">
                     {previewUrls.map((url, index) => (
                       <div key={index} className="relative group">
                         <img

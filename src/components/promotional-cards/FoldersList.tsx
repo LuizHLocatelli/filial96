@@ -134,7 +134,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-8 w-8 p-0 rounded-md hover:bg-accent border border-border/30 hover:border-border transition-all duration-200 opacity-70 hover:opacity-100"
+                    className="touch-friendly p-0 rounded-md hover:bg-accent border border-border/30 hover:border-border transition-all duration-200 opacity-70 hover:opacity-100"
                   >
                     <MoreHorizontal className="h-3.5 w-3.5" />
                   </Button>
@@ -144,13 +144,13 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                     onClick={() => handleOpenEditDialog(folder as FolderType)}
                     className="text-xs py-1.5"
                   >
-                    <Pencil className="mr-2 h-3 w-3" /> Editar
+                    <Pencil className="mr-2 h-4 w-4" /> Editar
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => handleOpenDeleteDialog(folder as FolderType)}
                     className="text-destructive focus:text-destructive text-xs py-1.5"
                   >
-                    <Trash2 className="mr-2 h-3 w-3" /> Excluir
+                    <Trash2 className="mr-2 h-4 w-4" /> Excluir
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
