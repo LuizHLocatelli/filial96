@@ -206,7 +206,7 @@ export function Depositos() {
         // Criar novo depósito
         await addDeposito({
           data: selectedDay,
-          comprovante: selectedFile || undefined,
+          comprovante: selectedFile,
           ja_incluido: jaIncluido
         });
       }
@@ -216,6 +216,15 @@ export function Depositos() {
       setUploadProgress(null);
       setDepositoId(null);
       setSelectedDay(null);
+      
+      // Forçar atualização das estatísticas após adicionar depósito
+      try {
+        await forceRecalculateStatistics(currentMonth);
+        console.log('✅ Estatísticas atualizadas automaticamente via submit normal');
+      } catch (error) {
+        console.warn('⚠️ Erro ao atualizar estatísticas via submit normal:', error);
+        // Não falhar a operação principal
+      }
       
     } catch (error) {
       console.error('Erro ao salvar depósito:', error);
@@ -268,6 +277,15 @@ export function Depositos() {
       handleCloseDialog();
       handleRemoveFile();
       setUploadProgress(null);
+      
+      // Forçar atualização das estatísticas após adicionar/atualizar depósito
+      try {
+        await forceRecalculateStatistics(currentMonth);
+        console.log('✅ Estatísticas atualizadas automaticamente via quick submit');
+      } catch (error) {
+        console.warn('⚠️ Erro ao atualizar estatísticas via quick submit:', error);
+        // Não falhar a operação principal
+      }
       
       return true;
       

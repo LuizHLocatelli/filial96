@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, TrendingDown, Calendar, Clock, Target, Award, AlertTriangle, CheckCircle } from "lucide-react";
 import type { Deposito, DepositoStatistics } from "@/hooks/crediario/useDepositos";
+import { DEPOSIT_SYSTEM_START_DATE } from "@/lib/constants";
 
 interface DepositAnalyticsProps {
   depositos: Deposito[];
@@ -23,24 +24,24 @@ export function DepositAnalytics({ depositos, currentMonth, monthStatistics }: D
     const lastMonthStart = startOfMonth(lastMonth);
     const lastMonthEnd = endOfMonth(lastMonth);
 
-    // Use persisted statistics for current month if available
+    // Use persisted statistics for current month if available and recent
     let currentMonthStats;
-    if (monthStatistics) {
-      currentMonthStats = {
-        complete: monthStatistics.complete_days,
-        partial: monthStatistics.partial_days,
-        missed: monthStatistics.missed_days,
-        total: monthStatistics.working_days,
-        completionRate: Math.round(monthStatistics.completion_rate)
-      };
-    } else {
-      // Fallback to dynamic calculation
+    const now = new Date();
+    const isCurrentMonth = currentMonth.getFullYear() === now.getFullYear() && 
+                          currentMonth.getMonth() === now.getMonth();
+    
+    // Para o mês atual, sempre calcular dinamicamente para garantir dados em tempo real
+    if (isCurrentMonth || !monthStatistics) {
+      // Cálculo dinâmico em tempo real
       const currentMonthDeposits = depositos.filter(d => 
         d.data >= currentMonthStart && d.data <= currentMonthEnd
       );
       
+      // Calcular dias úteis considerando apenas a partir da data de início do sistema
+      const effectiveStartDate = currentMonthStart > DEPOSIT_SYSTEM_START_DATE ? currentMonthStart : DEPOSIT_SYSTEM_START_DATE;
+      
       const workingDaysCurrentMonth = eachDayOfInterval({
-        start: currentMonthStart,
+        start: effectiveStartDate, // Usar data efetiva (após início do sistema)
         end: currentMonthEnd
       }).filter(day => day.getDay() !== 0).length;
 
@@ -52,7 +53,23 @@ export function DepositAnalytics({ depositos, currentMonth, monthStatistics }: D
         d.comprovante && !d.ja_incluido
       ).length;
 
-      const currentMonthMissed = workingDaysCurrentMonth - currentMonthDeposits.length;
+      // Calcular dias perdidos corretamente: apenas dias passados sem nenhum depósito
+      const workingDaysPassed = eachDayOfInterval({
+        start: effectiveStartDate,
+        end: currentMonthEnd
+      }).filter(day => 
+        day.getDay() !== 0 && // Não é domingo
+        day <= today // Apenas dias passados (incluindo hoje)
+      );
+      
+      const currentMonthMissed = workingDaysPassed.filter(day => {
+        // Verificar se não existe nenhum depósito para este dia
+        const hasAnyDeposit = currentMonthDeposits.some(d => 
+          d.data.toDateString() === day.toDateString()
+        );
+        return !hasAnyDeposit;
+      }).length;
+
       const currentCompletionRate = workingDaysCurrentMonth > 0 ? 
         Math.round((currentMonthComplete / workingDaysCurrentMonth) * 100) : 0;
 
@@ -62,6 +79,15 @@ export function DepositAnalytics({ depositos, currentMonth, monthStatistics }: D
         missed: currentMonthMissed,
         total: workingDaysCurrentMonth,
         completionRate: currentCompletionRate
+      };
+    } else if (monthStatistics) {
+      // Usar estatísticas persistidas apenas para meses anteriores
+      currentMonthStats = {
+        complete: monthStatistics.complete_days,
+        partial: monthStatistics.partial_days,
+        missed: monthStatistics.missed_days,
+        total: monthStatistics.working_days,
+        completionRate: Math.round(monthStatistics.completion_rate)
       };
     }
 

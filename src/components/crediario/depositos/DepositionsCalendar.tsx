@@ -7,6 +7,7 @@ import { CheckCircle, ChevronLeft, ChevronRight, Clock, AlertTriangle, XCircle, 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Deposito, DepositoStatistics } from "@/hooks/crediario/useDepositos";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { DEPOSIT_SYSTEM_START_DATE } from "@/lib/constants";
 
 interface DepositionsCalendarProps {
   currentMonth: Date;
@@ -38,8 +39,13 @@ export function DepositionsCalendar({
     const depositosForDay = depositos.filter(deposito => isSameDay(deposito.data, day));
     const isWeekend = day.getDay() === 0; // Apenas domingo (0) é não obrigatório
     const isToday = isSameDay(day, new Date());
-    const deadline = setSeconds(setMinutes(setHours(new Date(day), 12), 0), 0);
-    const hasPassed = isAfter(new Date(), deadline) && isSameDay(day, new Date());
+    const today = new Date();
+    const dayEndOfDay = new Date(day);
+    dayEndOfDay.setHours(23, 59, 59, 999); // Final do dia
+    
+    // Considerar apenas dias a partir de 18/06/2025 (início do uso do sistema)
+    const isBeforeSystemStart = day < DEPOSIT_SYSTEM_START_DATE;
+    const hasPassed = today > dayEndOfDay && !isBeforeSystemStart; // Dia já passou completamente e está após início do sistema
     
     if (isWeekend) {
       return {
@@ -47,6 +53,16 @@ export function DepositionsCalendar({
         color: 'bg-muted border-border text-muted-foreground dark:bg-muted dark:border-border dark:text-muted-foreground',
         icon: null,
         label: 'Domingo'
+      };
+    }
+    
+    // Se é antes do início do sistema, mostrar como não aplicável
+    if (isBeforeSystemStart) {
+      return {
+        status: 'not-applicable',
+        color: 'bg-muted border-border text-muted-foreground dark:bg-muted dark:border-border dark:text-muted-foreground',
+        icon: null,
+        label: 'Antes do início do sistema'
       };
     }
     
@@ -104,7 +120,41 @@ export function DepositionsCalendar({
 
   // Calculate monthly stats - use persisted statistics when available
   const monthlyStats = useMemo(() => {
-    if (monthStatistics) {
+    const now = new Date();
+    const isCurrentMonth = currentMonth.getFullYear() === now.getFullYear() && 
+                          currentMonth.getMonth() === now.getMonth();
+    
+    // Para o mês atual, sempre calcular dinamicamente para garantir dados em tempo real
+    if (isCurrentMonth || !monthStatistics) {
+      // Cálculo dinâmico em tempo real
+      // Filtrar dias considerando apenas a partir da data de início do sistema
+      const effectiveStartDate = new Date(Math.max(
+        new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getTime(),
+        DEPOSIT_SYSTEM_START_DATE.getTime()
+      ));
+      
+      const workingDays = diasDoMes.filter(day => 
+        day.getDay() !== 0 && // Excluir apenas domingo
+        day >= effectiveStartDate // Considerar apenas dias após início do sistema
+      );
+      
+      const completeDays = workingDays.filter(day => {
+        const status = getDayStatus(day);
+        return status.status === 'complete';
+      });
+      const missedDays = workingDays.filter(day => {
+        const status = getDayStatus(day);
+        return status.status === 'missed';
+      });
+      
+      return {
+        workingDays: workingDays.length,
+        completeDays: completeDays.length,
+        missedDays: missedDays.length,
+        completion: workingDays.length > 0 ? Math.round((completeDays.length / workingDays.length) * 100) : 0
+      };
+    } else if (monthStatistics) {
+      // Usar estatísticas persistidas apenas para meses anteriores
       return {
         workingDays: monthStatistics.working_days,
         completeDays: monthStatistics.complete_days,
@@ -113,24 +163,14 @@ export function DepositionsCalendar({
       };
     }
     
-    // Fallback to dynamic calculation if no persisted stats
-    const workingDays = diasDoMes.filter(day => day.getDay() !== 0); // Excluir apenas domingo
-    const completeDays = workingDays.filter(day => {
-      const status = getDayStatus(day);
-      return status.status === 'complete';
-    });
-    const missedDays = workingDays.filter(day => {
-      const status = getDayStatus(day);
-      return status.status === 'missed';
-    });
-    
+    // Fallback
     return {
-      workingDays: workingDays.length,
-      completeDays: completeDays.length,
-      missedDays: missedDays.length,
-      completion: workingDays.length > 0 ? Math.round((completeDays.length / workingDays.length) * 100) : 0
+      workingDays: 0,
+      completeDays: 0,
+      missedDays: 0,
+      completion: 0
     };
-  }, [monthStatistics, diasDoMes, depositos]);
+  }, [monthStatistics, diasDoMes, depositos, currentMonth]);
 
   const stats = monthlyStats;
 

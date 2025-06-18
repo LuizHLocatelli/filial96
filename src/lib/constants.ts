@@ -18,4 +18,24 @@ export const CORS_CONFIG = {
   },
   // Configurações de timeout
   timeout: 30000, // 30 segundos
+} as const;
+
+// Theme constants
+export const THEME_STORAGE_KEY = 'theme-preference';
+
+// API constants
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+// File upload constants
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+export const ALLOWED_PDF_TYPES = ['application/pdf'];
+
+// Date constants
+export const DEPOSIT_SYSTEM_START_DATE = new Date(2025, 5, 18); // 18 de junho de 2025 (início do uso do sistema de depósitos)
+
+// Navigation constants
+export const NAVIGATION_TRANSITIONS = {
+  DURATION: 200,
+  EASING: 'ease-in-out'
 } as const; 

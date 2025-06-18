@@ -282,19 +282,11 @@ export function useDepositos() {
     ja_incluido?: boolean;
     comprovante?: File;
   }) => {
-    console.log('🚀 addDeposito chamado com:', {
-      data_original: depositoData.data,
-      data_toString: depositoData.data.toString(),
-      data_toISOString: depositoData.data.toISOString(),
-      data_formatDateForDatabase: formatDateForDatabase(depositoData.data),
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      timezoneOffset: depositoData.data.getTimezoneOffset()
-    });
-
-    // Se o Supabase não está configurado, simular sucesso
+    // Se o Supabase não está configurado, usar dados mock
     if (!isSupabaseConfigured) {
-      console.log('🔧 Supabase não configurado, simulando adição...');
-      const newDeposito: Deposito = {
+      console.log('🔧 Supabase não configurado, adicionando dados de exemplo...');
+      
+      const novoDeposito: Deposito = {
         id: Date.now().toString(),
         data: depositoData.data,
         concluido: depositoData.concluido ?? true,
@@ -304,7 +296,7 @@ export function useDepositos() {
         created_by: 'mock-user'
       };
       
-      setDepositos(prev => [newDeposito, ...prev]);
+      setDepositos(prev => [...prev, novoDeposito]);
       
       toast({
         title: '✅ Sucesso (Demo)',
@@ -312,7 +304,7 @@ export function useDepositos() {
         duration: 3000,
       });
       
-      return newDeposito;
+      return novoDeposito;
     }
     
     try {
@@ -368,7 +360,18 @@ export function useDepositos() {
         duration: 3000,
       });
       
-      fetchDepositos();
+      // Recarregar depósitos e recalcular estatísticas automaticamente
+      await fetchDepositos();
+      
+      // Recalcular estatísticas para o mês do depósito
+      try {
+        await forceRecalculateStatistics(depositoData.data);
+        console.log('✅ Estatísticas atualizadas automaticamente');
+      } catch (error) {
+        console.warn('⚠️ Erro ao atualizar estatísticas automaticamente:', error);
+        // Não falhar a operação principal por conta disso
+      }
+      
       return data;
     } catch (error: any) {
       console.error('❌ Erro final ao adicionar depósito:', error);
@@ -464,7 +467,19 @@ export function useDepositos() {
         duration: 3000,
       });
       
-      fetchDepositos();
+      // Recarregar depósitos e recalcular estatísticas automaticamente
+      await fetchDepositos();
+      
+      // Recalcular estatísticas para o mês do depósito
+      if (updates.data) {
+        try {
+          await forceRecalculateStatistics(updates.data);
+          console.log('✅ Estatísticas atualizadas automaticamente');
+        } catch (error) {
+          console.warn('⚠️ Erro ao atualizar estatísticas automaticamente:', error);
+          // Não falhar a operação principal por conta disso
+        }
+      }
     } catch (error: any) {
       console.error('❌ Erro final ao atualizar depósito:', error);
       
@@ -483,6 +498,9 @@ export function useDepositos() {
 
   const deleteDeposito = async (id: string) => {
     try {
+      // Encontrar o depósito antes de deletar para obter a data
+      const depositoToDelete = depositos.find(d => d.id === id);
+      
       await retryWithBackoff(async () => {
         console.log('🗑️ Deletando depósito...');
         
@@ -505,7 +523,19 @@ export function useDepositos() {
         duration: 3000,
       });
       
-      fetchDepositos();
+      // Recarregar depósitos e recalcular estatísticas automaticamente
+      await fetchDepositos();
+      
+      // Recalcular estatísticas para o mês do depósito excluído
+      if (depositoToDelete) {
+        try {
+          await forceRecalculateStatistics(depositoToDelete.data);
+          console.log('✅ Estatísticas atualizadas automaticamente');
+        } catch (error) {
+          console.warn('⚠️ Erro ao atualizar estatísticas automaticamente:', error);
+          // Não falhar a operação principal por conta disso
+        }
+      }
     } catch (error: any) {
       console.error('❌ Erro final ao excluir depósito:', error);
       
