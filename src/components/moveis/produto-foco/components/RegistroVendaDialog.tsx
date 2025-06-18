@@ -75,7 +75,7 @@ export function RegistroVendaDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent {...getMobileDialogProps("md")} className="max-h-[90vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("md", "80vh")} className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">
             Registrar Venda - {produto.nome_produto}

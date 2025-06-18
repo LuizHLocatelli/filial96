@@ -13,20 +13,20 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
   
   return (
     <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
-      <DialogContent {...getMobileDialogProps("4xl")} className="max-h-[90vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("4xl", "80vh")} className="max-h-[80vh] overflow-y-auto flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">Comprovante de Depósito</DialogTitle>
           <DialogDescription className="text-sm">
             Visualização do comprovante de depósito bancário
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-[70vh] overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {viewImage && (
-            <div className="flex justify-center my-4">
+            <div className="flex justify-center p-2">
               <img
                 src={viewImage}
                 alt="Comprovante"
-                className="max-h-[60vh] max-w-full object-contain rounded-lg"
+                className="max-h-[50vh] max-w-full object-contain rounded-lg"
               />
             </div>
           )}

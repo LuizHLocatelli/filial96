@@ -251,10 +251,9 @@ export function DepositFormDialog({
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className={`dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10
           ${isMobile 
-            ? 'w-[95vw] max-w-sm rounded-2xl mx-auto' 
-            : `max-w-4xl ${showForm ? '' : 'sm:max-w-2xl'}`
+            ? 'w-[95vw] max-w-sm rounded-2xl mx-auto max-h-[90vh]' 
+            : `max-w-4xl ${showForm ? 'max-h-[85vh]' : 'sm:max-w-2xl max-h-[80vh]'}`
           }
-          ${!showForm && depositosForDay.length > 4 ? 'h-[90vh]' : ''}
           flex flex-col`}>
           <DialogHeader className={`
             ${isMobile ? 'px-4 pt-4 pb-3' : 'px-6 py-4'} 
@@ -275,7 +274,7 @@ export function DepositFormDialog({
             </DialogTitle>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 min-h-0">
+          <ScrollArea className={`flex-1 min-h-0 ${isMobile ? 'max-h-[60vh]' : 'max-h-[50vh]'} overflow-y-auto`}>
             <div className={`space-y-4 ${isMobile ? 'p-4' : 'p-6'}`}>
               
               {depositosForDay.length > 0 && (
@@ -397,7 +396,7 @@ export function DepositFormDialog({
       
       {previewUrl && (
         <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
-          <DialogContent className="w-[98vw] h-[98vh] max-w-none m-1 p-0 bg-black/95 border-none rounded-2xl">
+          <DialogContent className={`${isMobile ? 'w-[98vw] h-[95vh]' : 'w-[95vw] h-[90vh]'} max-w-none m-1 p-0 bg-black/95 border-none rounded-2xl`}>
             <DialogTitle className="sr-only">Visualização do Comprovante</DialogTitle>
             <div className="relative w-full h-full flex items-center justify-center">
               <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">

@@ -4,9 +4,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export function useMobileDialog() {
   const isMobile = useIsMobile();
   
-  const getMobileDialogProps = (maxWidth?: string) => ({
+  const getMobileDialogProps = (maxWidth?: string, maxHeight?: string) => ({
     className: isMobile 
-      ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-2xl" 
+      ? `w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] ${maxHeight ? `max-h-[${maxHeight}]` : 'max-h-[85vh]'} rounded-2xl` 
       : maxWidth ? `sm:max-w-${maxWidth}` : "sm:max-w-[600px]"
   });
   

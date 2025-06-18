@@ -59,7 +59,7 @@ export function AddFolgaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("lg")} className="max-h-[90vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("lg", "80vh")} className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">
             {hasExistingFolgas ? "Detalhes do Dia & Adicionar Folga" : "Adicionar Folga"}

@@ -34,8 +34,8 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent className={`${
         isPdf 
-          ? 'w-[95vw] h-[95vh] max-w-[95vw] max-h-[95vh]' 
-          : 'sm:max-w-[900px] max-h-[90vh]'
+          ? 'w-[95vw] max-w-[95vw] max-h-[85vh]' 
+          : 'sm:max-w-[900px] max-h-[80vh]'
       } overflow-hidden flex flex-col`}>
         <DialogHeader className="pb-2">
           <DialogTitle>{file.name}</DialogTitle>

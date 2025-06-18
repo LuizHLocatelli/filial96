@@ -82,8 +82,8 @@ export function OrientacaoViewerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${
         isPdf 
-          ? 'w-[calc(100vw-1rem)] h-[calc(100vh-2rem)] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-2rem)] sm:w-[95vw] sm:h-[95vh] sm:max-w-[95vw] sm:max-h-[95vh]' 
-          : 'w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-4xl max-h-[95vh]'
+          ? 'w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] max-h-[85vh] sm:w-[95vw] sm:max-w-[95vw] sm:max-h-[80vh]' 
+          : 'w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-4xl max-h-[80vh]'
       } overflow-hidden flex flex-col`}>
         <DialogHeader className="pb-2 sm:pb-4 flex-shrink-0">
           <DialogTitle className="text-base sm:text-xl flex flex-col gap-2">

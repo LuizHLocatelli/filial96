@@ -59,7 +59,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-3xl h-[95vh] max-h-[95vh] flex flex-col p-0 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-3xl max-h-[85vh] flex flex-col p-0 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
         <DialogHeader className="px-3 sm:px-6 py-3 sm:py-4 border-b bg-background space-y-2 sm:space-y-3 flex-shrink-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
             <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">

@@ -99,7 +99,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 border-green-200/50 dark:border-green-700/50">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 border-green-200/50 dark:border-green-700/50">
         <DialogHeader>
           <DialogTitle className="text-green-800 dark:text-green-200">
             Editar Reserva

@@ -82,17 +82,19 @@ export function DirectoryDialogs({
 
       {/* Dialog de visualização */}
       <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
-        <DialogContent {...getMobileDialogProps("6xl")} className="max-h-[90vh] overflow-y-auto">
+        <DialogContent {...getMobileDialogProps("6xl", "80vh")} className="max-h-[80vh] overflow-y-auto flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">{selectedFile?.name}</DialogTitle>
           </DialogHeader>
-          <div className="mt-4 max-h-[70vh] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto p-2">
             {selectedFile?.file_type.startsWith('image/') ? (
-              <img 
-                src={selectedFile.file_url} 
-                alt={selectedFile.name}
-                className="max-w-full h-auto rounded-lg object-contain"
-              />
+              <div className="flex justify-center">
+                <img 
+                  src={selectedFile.file_url} 
+                  alt={selectedFile.name}
+                  className="max-w-full max-h-[50vh] object-contain rounded-lg"
+                />
+              </div>
             ) : (
               <div className="text-center py-8">
                 <p className="text-muted-foreground text-sm">

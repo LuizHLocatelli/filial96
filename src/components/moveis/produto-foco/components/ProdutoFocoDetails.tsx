@@ -69,8 +69,8 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
-          {...getMobileDialogProps("6xl")}
-          className="max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto"
+          {...getMobileDialogProps("6xl", "85vh")}
+          className="max-h-[85vh] overflow-y-auto mx-2 sm:mx-auto"
         >
           <DialogHeader className="px-2 sm:px-0">
             <DialogTitle className="flex items-center gap-2 text-base sm:text-xl">
@@ -236,8 +236,8 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
           <DialogContent 
-            {...getMobileDialogProps("6xl")}
-            className="max-h-[90vh] p-2 sm:p-6 mx-2 sm:mx-auto overflow-hidden"
+            {...getMobileDialogProps("6xl", "85vh")}
+            className="max-h-[85vh] p-2 sm:p-6 mx-2 sm:mx-auto overflow-hidden"
           >
             <DialogHeader className="pb-2">
               <DialogTitle className="text-sm sm:text-base">Visualizar Imagem</DialogTitle>

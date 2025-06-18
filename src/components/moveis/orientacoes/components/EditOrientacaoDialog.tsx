@@ -66,7 +66,7 @@ export function EditOrientacaoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("lg")} className="max-h-[90vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("lg", "80vh")} className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Edit2 className="h-5 w-5" />

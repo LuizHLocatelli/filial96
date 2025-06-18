@@ -66,7 +66,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
           <DialogHeader className="px-2 sm:px-0">
             <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
               {produto.ativo && <Star className="h-5 w-5 text-yellow-500" />}
@@ -230,7 +230,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {/* Modal de Zoom da Imagem */}
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] p-0 sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
+          <DialogContent className="max-w-4xl max-h-[85vh] p-0 sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
             <DialogHeader className="sr-only">
               <DialogTitle>Visualização Ampliada</DialogTitle>
               <DialogDescription>

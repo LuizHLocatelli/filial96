@@ -21,7 +21,7 @@ export function ClienteFormDialog({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("2xl")} className="max-h-[90vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("2xl", "80vh")} className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">
             {cliente ? "Editar Cliente" : "Adicionar Cliente"}

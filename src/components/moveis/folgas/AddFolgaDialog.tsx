@@ -77,7 +77,7 @@ export function AddFolgaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {hasExistingFolgas ? "Detalhes do Dia & Adicionar Folga" : "Adicionar Nova Folga"}
