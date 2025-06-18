@@ -55,7 +55,7 @@ export function CardUploadForm({
   const isMobile = useIsMobile();
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col lg:grid lg:grid-cols-3 gap-x-8 gap-y-6 p-1">
+    <form onSubmit={handleSubmit} className="stack-lg lg:grid-responsive-cards lg:gap-8 p-1">
       {/* Coluna da Esquerda: Upload de Imagem */}
       <div className="lg:col-span-1 flex flex-col items-center">
         <Label className="text-sm font-medium mb-2 self-start w-full">Imagem do Card</Label>
@@ -69,7 +69,7 @@ export function CardUploadForm({
 
       {/* Coluna da Direita: Campos de Informação */}
       <div className="lg:col-span-2 flex flex-col gap-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5">
+                  <div className="grid-responsive-wide">
           <div className="space-y-1.5">
             <Label htmlFor="card-title" className="text-xs font-medium">Título</Label>
             <Input
@@ -96,7 +96,7 @@ export function CardUploadForm({
 
         <div className="space-y-1.5">
           <Label className="text-xs font-medium">Período de Validade</Label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid-responsive-wide">
             <Popover>
               <PopoverTrigger asChild>
                 <Button

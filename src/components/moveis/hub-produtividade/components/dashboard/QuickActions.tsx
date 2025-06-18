@@ -109,8 +109,8 @@ export function QuickActions({
         trackUsage('nova-rotina');
         onNovaRotina();
       },
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50 dark:bg-green-950/20",
+      color: "from-primary to-emerald-600",
+      bgColor: "bg-primary/10",
       stats: { active: 12 },
       priority: "high"
     },
@@ -124,7 +124,7 @@ export function QuickActions({
         onNovaOrientacao();
       },
       color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+      bgColor: "bg-primary/10",
       stats: { pending: 8 },
       priority: "high"
     },
@@ -138,7 +138,7 @@ export function QuickActions({
         onNovaTarefa();
       },
       color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50 dark:bg-purple-950/20",
+      bgColor: "bg-primary/10",
       stats: { sales: 24 },
       priority: "high"
     },
@@ -152,7 +152,7 @@ export function QuickActions({
         onBuscaAvancada();
       },
       color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50 dark:bg-orange-950/20",
+      bgColor: "bg-primary/10",
       stats: { thisMonth: 156 },
       priority: "medium"
     },
@@ -166,7 +166,7 @@ export function QuickActions({
         onFiltrosPorData();
       },
       color: "from-indigo-500 to-indigo-600",
-      bgColor: "bg-indigo-50 dark:bg-indigo-950/20",
+      bgColor: "bg-primary/10",
       stats: { files: 7 },
       priority: "medium"
     },
@@ -180,7 +180,7 @@ export function QuickActions({
         onRelatorios();
       },
       color: "from-pink-500 to-pink-600",
-      bgColor: "bg-pink-50 dark:bg-pink-950/20",
+      bgColor: "bg-primary/10",
       stats: { active: 5 },
       priority: "medium"
     },
@@ -196,7 +196,7 @@ export function QuickActions({
         window.location.href = currentUrl.toString();
       },
       color: "from-emerald-500 to-emerald-600",
-      bgColor: "bg-emerald-50 dark:bg-emerald-950/20",
+      bgColor: "bg-primary/10",
       stats: null,
       priority: "low"
     },
@@ -212,7 +212,7 @@ export function QuickActions({
         window.location.href = currentUrl.toString();
       },
       color: "from-cyan-500 to-cyan-600",
-      bgColor: "bg-cyan-50 dark:bg-cyan-950/20",
+      bgColor: "bg-primary/10",
       stats: null,
       priority: "low"
     },
@@ -228,7 +228,7 @@ export function QuickActions({
         window.location.href = currentUrl.toString();
       },
       color: "from-violet-500 to-violet-600",
-      bgColor: "bg-violet-50 dark:bg-violet-950/20",
+      bgColor: "bg-primary/10",
       stats: null,
       priority: "low"
     },
@@ -242,7 +242,7 @@ export function QuickActions({
         onShowFilters?.();
       },
       color: "from-slate-500 to-slate-600",
-      bgColor: "bg-slate-50 dark:bg-slate-950/20",
+      bgColor: "bg-primary/10",
       stats: null,
       priority: "low"
     },
@@ -256,7 +256,7 @@ export function QuickActions({
         onRefreshData();
       },
       color: "from-gray-500 to-gray-600",
-      bgColor: "bg-gray-50 dark:bg-gray-950/20",
+      bgColor: "bg-primary/10",
       stats: null,
       isLoading: isRefreshing,
       priority: "low"
@@ -271,7 +271,7 @@ export function QuickActions({
         onExportData();
       },
       color: "from-teal-500 to-teal-600",
-      bgColor: "bg-teal-50 dark:bg-teal-950/20",
+      bgColor: "bg-primary/10",
       stats: { pending: 3 },
       priority: "low"
     }

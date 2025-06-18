@@ -113,7 +113,7 @@ export default function Moda() {
         title="Moda"
         description="Gestão completa do setor de moda"
         icon={Shirt}
-        iconColor="text-purple-600"
+        iconColor="text-primary"
         variant="default"
         breadcrumbs={[
           { label: "Hub de Produtividade", href: "/" },

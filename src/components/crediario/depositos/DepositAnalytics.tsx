@@ -5,14 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, TrendingDown, Calendar, Clock, Target, Award, AlertTriangle, CheckCircle } from "lucide-react";
-import type { Deposito } from "@/hooks/crediario/useDepositos";
+import type { Deposito, DepositoStatistics } from "@/hooks/crediario/useDepositos";
 
 interface DepositAnalyticsProps {
   depositos: Deposito[];
   currentMonth: Date;
+  monthStatistics?: DepositoStatistics | null;
 }
 
-export function DepositAnalytics({ depositos, currentMonth }: DepositAnalyticsProps) {
+export function DepositAnalytics({ depositos, currentMonth, monthStatistics }: DepositAnalyticsProps) {
   
   const analytics = useMemo(() => {
     const today = new Date();
@@ -21,6 +22,48 @@ export function DepositAnalytics({ depositos, currentMonth }: DepositAnalyticsPr
     const lastMonth = subMonths(currentMonth, 1);
     const lastMonthStart = startOfMonth(lastMonth);
     const lastMonthEnd = endOfMonth(lastMonth);
+
+    // Use persisted statistics for current month if available
+    let currentMonthStats;
+    if (monthStatistics) {
+      currentMonthStats = {
+        complete: monthStatistics.complete_days,
+        partial: monthStatistics.partial_days,
+        missed: monthStatistics.missed_days,
+        total: monthStatistics.working_days,
+        completionRate: Math.round(monthStatistics.completion_rate)
+      };
+    } else {
+      // Fallback to dynamic calculation
+      const currentMonthDeposits = depositos.filter(d => 
+        d.data >= currentMonthStart && d.data <= currentMonthEnd
+      );
+      
+      const workingDaysCurrentMonth = eachDayOfInterval({
+        start: currentMonthStart,
+        end: currentMonthEnd
+      }).filter(day => day.getDay() !== 0).length;
+
+      const currentMonthComplete = currentMonthDeposits.filter(d => 
+        d.comprovante && d.ja_incluido
+      ).length;
+
+      const currentMonthPartial = currentMonthDeposits.filter(d => 
+        d.comprovante && !d.ja_incluido
+      ).length;
+
+      const currentMonthMissed = workingDaysCurrentMonth - currentMonthDeposits.length;
+      const currentCompletionRate = workingDaysCurrentMonth > 0 ? 
+        Math.round((currentMonthComplete / workingDaysCurrentMonth) * 100) : 0;
+
+      currentMonthStats = {
+        complete: currentMonthComplete,
+        partial: currentMonthPartial,
+        missed: currentMonthMissed,
+        total: workingDaysCurrentMonth,
+        completionRate: currentCompletionRate
+      };
+    }
 
     // Filtrar depósitos por períodos
     const currentMonthDeposits = depositos.filter(d => 
@@ -42,30 +85,16 @@ export function DepositAnalytics({ depositos, currentMonth }: DepositAnalyticsPr
       end: lastMonthEnd
     }).filter(day => day.getDay() !== 0).length; // Excluir apenas domingo
 
-    // Calcular métricas do mês atual
-    const currentMonthComplete = currentMonthDeposits.filter(d => 
-      d.comprovante && d.ja_incluido
-    ).length;
-
-    const currentMonthPartial = currentMonthDeposits.filter(d => 
-      d.comprovante && !d.ja_incluido
-    ).length;
-
-    const currentMonthMissed = workingDaysCurrentMonth - currentMonthDeposits.length;
-
     // Calcular métricas do mês anterior
     const lastMonthComplete = lastMonthDeposits.filter(d => 
       d.comprovante && d.ja_incluido
     ).length;
 
     // Taxas de cumprimento
-    const currentCompletionRate = workingDaysCurrentMonth > 0 ? 
-      Math.round((currentMonthComplete / workingDaysCurrentMonth) * 100) : 0;
-    
     const lastCompletionRate = workingDaysLastMonth > 0 ? 
       Math.round((lastMonthComplete / workingDaysLastMonth) * 100) : 0;
 
-    const completionTrend = currentCompletionRate - lastCompletionRate;
+    const completionTrend = currentMonthStats.completionRate - lastCompletionRate;
 
     // Tempo médio de depósito
     const depositsWithTime = currentMonthDeposits.filter(d => d.data);
@@ -138,13 +167,7 @@ export function DepositAnalytics({ depositos, currentMonth }: DepositAnalyticsPr
     const dayNames = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
     return {
-      currentMonth: {
-        complete: currentMonthComplete,
-        partial: currentMonthPartial,
-        missed: currentMonthMissed,
-        total: workingDaysCurrentMonth,
-        completionRate: currentCompletionRate
-      },
+      currentMonth: currentMonthStats,
       trends: {
         completionTrend,
         isImproving: completionTrend > 0
@@ -156,7 +179,7 @@ export function DepositAnalytics({ depositos, currentMonth }: DepositAnalyticsPr
         mostProblematicDay: dayNames[parseInt(mostProblematicDay)]
       }
     };
-  }, [depositos, currentMonth]);
+  }, [depositos, currentMonth, monthStatistics]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

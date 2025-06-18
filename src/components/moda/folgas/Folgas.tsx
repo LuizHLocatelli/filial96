@@ -182,7 +182,7 @@ export function Folgas() {
       </div>
 
       {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid-responsive-stats">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Folgas no Mês</CardTitle>
@@ -249,7 +249,7 @@ export function Folgas() {
       </div>
 
       {/* Layout principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid-responsive-cards lg:grid-cols-3">
         {/* Calendário */}
         <div className="lg:col-span-2">
           <Card>

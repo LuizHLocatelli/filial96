@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -85,8 +84,8 @@ export function ActivityCard({
 
   const getTypeIcon = (type: string) => {
     return type === 'rotina' ? 
-      <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 dark:text-blue-400 flex-shrink-0" /> : 
-      <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500 dark:text-purple-400 flex-shrink-0" />;
+      <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" /> : 
+      <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />;
   };
 
   const formatDateTime = (dateString: string) => {

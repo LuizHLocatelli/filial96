@@ -17,9 +17,9 @@ export function GlassAppLayout({ children }: GlassAppLayoutProps) {
       {/* Animated Background Elements */}
       <div className="fixed inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-40 right-20 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-40 left-20 w-80 h-80 bg-purple-500/8 rounded-full blur-3xl animate-pulse delay-2000" />
-        <div className="absolute bottom-20 right-10 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-3000" />
+        <div className="absolute top-40 right-20 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-40 left-20 w-80 h-80 bg-emerald-500/8 rounded-full blur-3xl animate-pulse delay-2000" />
+        <div className="absolute bottom-20 right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse delay-3000" />
       </div>
 
       {/* Glassmorphism Top Bar */}

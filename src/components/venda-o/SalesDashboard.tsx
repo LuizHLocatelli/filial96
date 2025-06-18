@@ -71,7 +71,7 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
 
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'aguardando_produto': return 'from-blue-500 to-blue-600';
+      case 'aguardando_produto': return 'from-primary to-emerald-600';
       case 'aguardando_cliente': return 'from-amber-500 to-amber-600';
       case 'pendente': return 'from-red-500 to-red-600';
       case 'concluida': return 'from-green-500 to-green-600';
@@ -121,7 +121,7 @@ export function SalesDashboard({ sales, isLoading, onStatusChange, onDelete }: S
         </div>
 
         {/* Cards de estatísticas */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid-responsive-stats">
           {[
             { key: 'aguardando_produto', label: 'Aguardando Produto', count: counts.aguardando_produto },
             { key: 'aguardando_cliente', label: 'Aguardando Cliente', count: counts.aguardando_cliente },

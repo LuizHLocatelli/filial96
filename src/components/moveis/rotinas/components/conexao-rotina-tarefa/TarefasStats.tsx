@@ -13,7 +13,7 @@ export function TarefasStats({ tarefas }: TarefasStatsProps) {
   const atrasadas = tarefas.filter(t => t.status === 'atrasada').length;
 
   return (
-    <div className="grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-4">
+    <div className="grid-responsive-cards">
       <div className="text-center p-2 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
         <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">{concluidas}</div>
         <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Concluídas</div>

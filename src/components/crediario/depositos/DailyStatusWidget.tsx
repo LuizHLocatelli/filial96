@@ -133,7 +133,7 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
     return {
       status: "pending",
       label: "Pendente",
-      color: "bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800",
+      color: "bg-primary/10 text-primary border-primary/30 dark:bg-primary/10 dark:text-primary dark:border-primary/40",
       icon: Clock
     };
   };
@@ -212,19 +212,19 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
 
         {/* Streak de dias consecutivos */}
         {streak > 0 && (
-          <div className="flex items-center justify-between p-3 sm:p-3 bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950/50 dark:to-green-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center justify-between p-3 sm:p-3 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 rounded-lg border border-emerald-200 dark:border-emerald-800">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <TrendingUp className="h-5 w-5 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <TrendingUp className="h-5 w-5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
               <div className="min-w-0 flex-1">
-                <div className="text-sm sm:text-sm font-medium text-blue-900 dark:text-blue-100">
+                <div className="text-sm sm:text-sm font-medium text-emerald-900 dark:text-emerald-100">
                   Sequência de {streak} dia{streak > 1 ? 's' : ''}
                 </div>
-                <div className="text-xs sm:text-xs text-blue-700 dark:text-blue-300 mt-1">
+                <div className="text-xs sm:text-xs text-emerald-700 dark:text-emerald-300 mt-1">
                   {streak >= 7 ? '🔥 Em chamas!' : 'Continue assim!'}
                 </div>
               </div>
             </div>
-            <div className="text-xl sm:text-xl font-bold text-blue-600 dark:text-blue-400 flex-shrink-0">
+            <div className="text-xl sm:text-xl font-bold text-primary flex-shrink-0">
               {streak}
             </div>
           </div>

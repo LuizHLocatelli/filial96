@@ -70,7 +70,7 @@ export function RotinasStats({ rotinas }: RotinasStatsProps) {
   return (
     <div className="space-y-4 mb-6">
       {/* Cards de métricas principais - 2x2 em mobile, 4x1 em desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid-responsive-stats">
         <Card className="border-green-200/50 dark:border-green-800/50">
           <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
             <div className="flex items-center justify-between">
@@ -163,7 +163,7 @@ export function RotinasStats({ rotinas }: RotinasStatsProps) {
 
       {/* Estatísticas detalhadas - só mostrar se houver dados suficientes */}
       {Object.keys(estatisticasPorCategoria).length > 1 && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="grid-responsive-wide">
           {/* Estatísticas por Categoria */}
           <Card>
             <CardHeader className={`${isMobile ? 'pb-3 px-4 pt-4' : 'pb-4'}`}>

@@ -98,7 +98,7 @@ export function FolgasCalendar({
                   !isCurrentMonthDay && "bg-muted/30 text-muted-foreground/50 pointer-events-none",
                   isCurrentMonthDay && "hover:bg-accent hover:shadow-lg hover:scale-105",
                   isDiaDeHoje && "border-primary ring-2 ring-primary/70 shadow-lg",
-                  hasFolgas && isCurrentMonthDay && "bg-blue-500/10 dark:bg-blue-700/20 border-blue-500/30"
+                  hasFolgas && isCurrentMonthDay && "bg-primary/10 dark:bg-primary/20 border-primary/30"
                 )}
                 onClick={() => isCurrentMonthDay && onDateClick(day)}
                 title={isCurrentMonthDay ? format(day, "dd 'de' MMMM", { locale: ptBR }) : "Dia de outro mês"}

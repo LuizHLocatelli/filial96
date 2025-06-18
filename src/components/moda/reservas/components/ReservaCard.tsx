@@ -46,8 +46,8 @@ const statusConfig = {
 };
 
 const pagamentoConfig = {
-  crediario: { icon: "💳", label: "Crediário", color: "text-purple-600 dark:text-purple-400" },
-  cartao_credito: { icon: "💳", label: "Cartão de Crédito", color: "text-blue-600 dark:text-blue-400" },
+  crediario: { icon: "💳", label: "Crediário", color: "text-emerald-600 dark:text-emerald-400" },
+  cartao_credito: { icon: "💳", label: "Cartão de Crédito", color: "text-primary" },
   cartao_debito: { icon: "💳", label: "Cartão de Débito", color: "text-green-600 dark:text-green-400" },
   pix: { icon: "⚡", label: "PIX", color: "text-orange-600 dark:text-orange-400" }
 };
@@ -264,7 +264,7 @@ export function ReservaCard({ reserva, onUpdateStatus, onDelete, onRefresh }: Re
                 variant="outline"
                 onClick={() => setEditDialogOpen(true)}
                 className={cn(
-                  "border-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-700 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300",
+                  "border-2 hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/30 dark:hover:border-primary/40 hover:text-primary dark:hover:text-primary transition-all duration-200 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300",
                   isMobile ? "flex-1 h-10 text-sm" : "flex-1 h-11"
                 )}
               >
@@ -304,7 +304,7 @@ export function ReservaCard({ reserva, onUpdateStatus, onDelete, onRefresh }: Re
                   variant="outline"
                   onClick={() => onUpdateStatus(reserva.id, 'cancelada')}
                   className={cn(
-                    "border-2 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 hover:text-red-700 dark:hover:text-red-400 transition-all duration-200 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300",
+                    "border-2 hover:bg-primary/5 dark:hover:bg-primary/10 hover:border-primary/30 dark:hover:border-primary/40 hover:text-primary dark:hover:text-primary transition-all duration-200 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300",
                     isMobile ? "h-10 px-3" : "h-11 px-4"
                   )}
                 >

@@ -39,7 +39,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'aguardando_produto':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs sm:text-sm">Aguardando Produto</Badge>;
+        return <Badge className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">Aguardando Produto</Badge>;
       case 'aguardando_cliente':
         return <Badge className="bg-amber-100 text-amber-800 border-amber-200 text-xs sm:text-sm">Aguardando Cliente</Badge>;
       case 'pendente':
@@ -53,7 +53,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
 
   const getDeliveryBadge = (tipo: string) => {
     return tipo === 'frete' 
-      ? <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs sm:text-sm">Frete</Badge>
+      ? <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">Frete</Badge>
       : <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs sm:text-sm">Retirada</Badge>;
   };
 
@@ -95,11 +95,11 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
                   </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-blue-500">
+                <Card className="border-l-4 border-l-primary">
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                      <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg">
+                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs sm:text-sm font-medium text-muted-foreground">Data da Venda</p>
@@ -132,7 +132,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
                         <div className="min-w-0">
                           <p className="text-xs sm:text-sm font-medium text-muted-foreground">Telefone</p>
                           <div className="flex items-center gap-2">
-                            <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                            <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
                             <p className="text-sm sm:text-base font-medium truncate">{sale.telefone}</p>
                           </div>
                         </div>
@@ -160,7 +160,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
                           <div className="space-y-2">
                             <p className="font-medium text-sm sm:text-base break-words">{product.nome}</p>
                             <div className="flex items-center gap-2">
-                              <Hash className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                              <Hash className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                               <span className="text-xs sm:text-sm font-mono bg-muted px-2 py-1 rounded text-muted-foreground break-all">
                                 {product.codigo}
                               </span>
@@ -202,7 +202,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
                         <div>
                           <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Previsão de Chegada</p>
                           <div className="flex items-center gap-2">
-                            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600 flex-shrink-0" />
+                            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
                             <p className="text-sm sm:text-base font-medium">
                               {format(parseISO(sale.previsao_chegada), "dd/MM/yyyy")}
                             </p>
@@ -264,7 +264,7 @@ export function SaleDetailsDialog({ isOpen, onOpenChange, sale }: SaleDetailsDia
                               size="sm"
                               className="gap-1 sm:gap-2 flex-shrink-0 h-8 sm:h-9 text-xs sm:text-sm"
                             >
-                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                               <span className="hidden xs:inline">Ver</span>
                             </Button>
                           </div>

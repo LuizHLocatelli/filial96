@@ -33,8 +33,8 @@ function RoleStatsCard({ stats }: RoleStatsCardProps) {
 
   const getRoleColor = (role: string) => {
     const colors = {
-      'consultor_moveis': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-      'consultor_moda': 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
+      'consultor_moveis': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+      'consultor_moda': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
       'jovem_aprendiz': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
     };
     return colors[role as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
@@ -110,8 +110,8 @@ function OrientacaoCard({ orientacao, onRegisterView }: OrientacaoCardProps) {
 
   const getTipoColor = (tipo: string) => {
     const colors = {
-      'vm': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-      'informativo': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+      'vm': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
+      'informativo': 'bg-primary/10 text-primary dark:bg-primary/10 dark:text-primary',
       'outro': 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400'
     };
     return colors[tipo as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400';
@@ -266,12 +266,12 @@ export default function OrientacoesMonitoramento() {
 
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="p-4 bg-primary/5 dark:bg-primary/10 rounded-lg border border-primary/20">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <FileText className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total Orientações</p>
-                  <p className="text-xl font-bold text-blue-700 dark:text-blue-400">
+                  <p className="text-sm text-primary font-medium">Total Orientações</p>
+                  <p className="text-xl font-bold text-primary">
                     {monitoramentoStats.total_orientacoes}
                   </p>
                 </div>
@@ -302,12 +302,12 @@ export default function OrientacoesMonitoramento() {
               </div>
             </div>
 
-            <div className="p-4 bg-purple-50 dark:bg-purple-950/50 rounded-lg border border-purple-200 dark:border-purple-800">
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg border border-emerald-200 dark:border-emerald-800">
               <div className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <UserCheck className="h-5 w-5 text-emerald-600" />
                 <div>
-                  <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">% Completo</p>
-                  <p className="text-xl font-bold text-purple-700 dark:text-purple-400">
+                  <p className="text-sm text-emerald-600 font-medium">% Completo</p>
+                  <p className="text-xl font-bold text-emerald-600">
                     {monitoramentoStats.percentage_complete}%
                   </p>
                 </div>

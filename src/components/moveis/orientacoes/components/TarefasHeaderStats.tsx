@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Clock, AlertTriangle, ListTodo } from 'lucide-react';
+import { CheckCircle2, Clock, AlertTriangle, ListTodo, ListChecks } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface TarefasStats {
@@ -20,10 +20,10 @@ export function TarefasHeaderStats({ stats }: TarefasHeaderStatsProps) {
     {
       label: 'Total',
       value: stats.total,
-      icon: ListTodo,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-950/20',
-      borderColor: 'border-blue-200 dark:border-blue-800'
+      icon: ListChecks,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
+      borderColor: 'border-primary-200 dark:border-primary-800'
     },
     {
       label: 'Concluídas',
@@ -62,7 +62,7 @@ export function TarefasHeaderStats({ stats }: TarefasHeaderStatsProps) {
         </p>
       </div>
       
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid-responsive-stats">
         {statsCards.map((stat, index) => {
           const IconComponent = stat.icon;
           return (

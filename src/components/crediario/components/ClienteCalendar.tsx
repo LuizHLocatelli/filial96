@@ -36,21 +36,21 @@ export function ClienteCalendar({
     if (clientesNoDay.length > 1) {
       const uniqueIndicators = [...new Set(clientesNoDay.map(c => c.indicator))];
       if (uniqueIndicators.length > 1) {
-        return "bg-gradient-to-r from-blue-200 to-pink-200";
+        return "bg-gradient-to-r from-emerald-200 to-primary/40";
       }
     }
     
     // If there's only one client or all clients have the same indicator
     const indicator = clientesNoDay[0]?.indicator;
-    if (!indicator) return "bg-blue-200";
+    if (!indicator) return "bg-primary/20";
     
     switch(indicator) {
       case "FPD": return "bg-red-200";
       case "Pontual": return "bg-green-200";
       case "M1": return "bg-yellow-200";
       case "M2": return "bg-orange-200";
-      case "M3": return "bg-purple-200";
-      default: return "bg-blue-200";
+      case "M3": return "bg-emerald-200";
+      default: return "bg-primary/20";
     }
   };
 
@@ -140,10 +140,10 @@ export function ClienteCalendar({
             <span className="h-3 w-3 rounded-full bg-orange-200 inline-block" /> M2
           </div>
           <div className="text-xs flex items-center gap-1">
-            <span className="h-3 w-3 rounded-full bg-purple-200 inline-block" /> M3
+            <span className="h-3 w-3 rounded-full bg-emerald-200 inline-block" /> M3
           </div>
           <div className="text-xs flex items-center gap-1">
-            <span className="h-3 w-3 rounded-full bg-gradient-to-r from-blue-200 to-pink-200 inline-block" /> Múltiplos
+            <span className="h-3 w-3 rounded-full bg-gradient-to-r from-emerald-200 to-primary/40 inline-block" /> Múltiplos
           </div>
         </div>
       </CardContent>

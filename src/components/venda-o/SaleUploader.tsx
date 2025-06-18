@@ -167,13 +167,13 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
               <Separator className="bg-border/60" />
               
               {/* Seção: Dados do Cliente */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                  <User className="h-4 w-4" />
+              <div className="stack-md">
+                <div className="inline-md text-sm font-medium text-primary">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>Dados do Cliente</span>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid-responsive-wide">
                   <FormField
                     control={form.control}
                     name="nome_cliente"
@@ -241,7 +241,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                   <span>Entrega e Status</span>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid-responsive-cards">
                   <FormField
                     control={form.control}
                     name="previsao_chegada"

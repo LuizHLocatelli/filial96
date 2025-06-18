@@ -46,7 +46,7 @@ export function ProductListInput({
           onClick={addProduct}
           className="flex items-center text-xs sm:text-sm h-7 sm:h-8"
         >
-          <PlusCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" /> Adicionar Produto
+          <PlusCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-1" /> Adicionar Produto
         </Button>
       </div>
 
@@ -99,7 +99,7 @@ export function ProductListInput({
               variant="ghost"
               size="icon"
               onClick={() => removeProduct(index)}
-              className="h-8 sm:h-10 w-8 sm:w-10 mt-0" // Ajuste de alinhamento
+              className="touch-friendly mt-0" // Ajuste de alinhamento
             >
               <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>

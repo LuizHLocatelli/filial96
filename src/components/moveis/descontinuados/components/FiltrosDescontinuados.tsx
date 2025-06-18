@@ -46,7 +46,7 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
           </h3>
         </div>
 
-        <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+        <div className="stack-sm sm:grid-responsive-stats sm:stack-none">
           {/* Busca */}
           <div className="space-y-1 sm:space-y-2">
             <Label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">

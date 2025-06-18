@@ -58,7 +58,7 @@ export function FileDisplaySection({
 }: FileDisplaySectionProps) {
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
-      return <Image className="h-5 w-5 text-blue-500" />;
+      return <Image className="h-5 w-5 text-primary" />;
     }
     return <FileText className="h-5 w-5 text-gray-500" />;
   };

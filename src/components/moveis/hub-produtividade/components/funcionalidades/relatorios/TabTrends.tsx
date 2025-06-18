@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Calendar, Target, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -13,14 +12,14 @@ export const TabTrends = () => {
         </Card>
 
         <Card className="p-4 text-center">
-          <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-blue-600">18</div>
+                        <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold text-primary">18</div>
           <div className="text-sm text-muted-foreground">Dias produtivos</div>
         </Card>
 
         <Card className="p-4 text-center">
-          <Target className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-          <div className="text-2xl font-bold text-purple-600">87%</div>
+                        <Target className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-emerald-600">87%</div>
           <div className="text-sm text-muted-foreground">Precisão nas metas</div>
         </Card>
       </div>
@@ -40,11 +39,11 @@ export const TabTrends = () => {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-950/20 dark:border-blue-800">
-            <Target className="h-5 w-5 text-blue-600 mt-0.5" />
+          <div className="flex items-start gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg dark:bg-primary/10 dark:border-primary/30">
+                          <Target className="h-5 w-5 text-primary mt-0.5" />
             <div>
-              <div className="font-medium text-blue-800 dark:text-blue-200">Oportunidade</div>
-              <div className="text-sm text-blue-700 dark:text-blue-300">
+              <div className="font-medium text-primary">Oportunidade</div>
+              <div className="text-sm text-primary/80">
                 Considere dividir tarefas grandes em subtarefas menores.
               </div>
             </div>

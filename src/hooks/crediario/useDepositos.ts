@@ -13,6 +13,26 @@ export type Deposito = {
   created_by?: string;
 };
 
+export type DepositoStatistics = {
+  id: string;
+  user_id: string;
+  month_year: string;
+  working_days: number;
+  complete_days: number;
+  partial_days: number;
+  missed_days: number;
+  completion_rate: number;
+  punctuality_rate: number;
+  average_deposit_hour: number | null;
+  deposits_before_10h: number;
+  deposits_after_12h: number;
+  current_streak: number;
+  max_streak_month: number;
+  last_calculated_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
 // Dados de exemplo para quando o Supabase não está configurado
 const mockDepositos: Deposito[] = [
   {
@@ -117,13 +137,49 @@ const parseDateFromDatabase = (dateString: string, createdAt?: string): Date => 
 
 export function useDepositos() {
   const [depositos, setDepositos] = useState<Deposito[]>([]);
+  const [statistics, setStatistics] = useState<DepositoStatistics[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'reconnecting'>('online');
   const { toast } = useToast();
   const { uploadFile, isUploading, progress } = useFileUpload();
 
+  const fetchStatistics = async () => {
+    // Se o Supabase não está configurado, usar dados mock
+    if (!isSupabaseConfigured) {
+      console.log('🔧 Supabase não configurado, usando estatísticas de exemplo...');
+      setStatistics([]);
+      return;
+    }
+    
+    try {
+      const result = await retryWithBackoff(async () => {
+        console.log('📊 Buscando estatísticas...');
+        
+        const { data, error } = await createRobustSupabaseQuery()
+        .from('crediario_depositos_statistics')
+        .select('*')
+        .order('month_year', { ascending: false });
+
+        if (error) {
+          console.error('❌ Erro na consulta de estatísticas:', error);
+          throw error;
+        }
+
+        return data;
+      }, 3, 2000);
+
+      console.log('✅ Estatísticas carregadas com sucesso');
+      setStatistics(result || []);
+      
+    } catch (error: any) {
+      console.error('❌ Erro ao buscar estatísticas:', error);
+      setStatistics([]);
+    }
+  };
+
   useEffect(() => {
     fetchDepositos();
+    fetchStatistics();
   }, []);
 
   const fetchDepositos = async () => {
@@ -517,8 +573,58 @@ export function useDepositos() {
     }
   };
 
+  const getMonthStatistics = (month: Date): DepositoStatistics | null => {
+    const monthKey = formatDateForDatabase(new Date(month.getFullYear(), month.getMonth(), 1));
+    return statistics.find(stat => stat.month_year === monthKey) || null;
+  };
+
+  const forceRecalculateStatistics = async (month: Date) => {
+    if (!isSupabaseConfigured) return;
+    
+    try {
+      const monthStart = formatDateForDatabase(new Date(month.getFullYear(), month.getMonth(), 1));
+      
+      await retryWithBackoff(async () => {
+        console.log('🔄 Recalculando estatísticas para:', monthStart);
+        
+        const { error } = await createRobustSupabaseQuery()
+        .rpc('calculate_deposit_statistics', {
+          target_user_id: (await supabase.auth.getUser()).data.user?.id,
+          target_month: monthStart
+        });
+
+        if (error) {
+          console.error('❌ Erro ao recalcular estatísticas:', error);
+          throw error;
+        }
+      }, 3, 2000);
+      
+      console.log('✅ Estatísticas recalculadas com sucesso');
+      
+      // Recarregar estatísticas
+      await fetchStatistics();
+      
+      toast({
+        title: '✅ Estatísticas Atualizadas',
+        description: 'Estatísticas recalculadas com sucesso',
+        duration: 3000,
+      });
+      
+    } catch (error: any) {
+      console.error('❌ Erro ao forçar recálculo:', error);
+      
+      toast({
+        title: '❌ Erro',
+        description: 'Falha ao recalcular estatísticas',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+  };
+
   return {
     depositos,
+    statistics,
     isLoading,
     connectionStatus,
     addDeposito,
@@ -526,6 +632,9 @@ export function useDepositos() {
     deleteDeposito,
     saveDeposito,
     fetchDepositos,
+    fetchStatistics,
+    getMonthStatistics,
+    forceRecalculateStatistics,
     uploadProgress: progress,
     isUploading,
   };

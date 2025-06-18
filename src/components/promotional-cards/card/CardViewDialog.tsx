@@ -70,7 +70,7 @@ export function CardViewDialog({
     const end = endDate ? new Date(endDate) : null;
 
     if (end && end < now) return { text: "Expirado", color: "text-red-500" };
-    if (start && start > now) return { text: "Agendado", color: "text-blue-500" };
+    if (start && start > now) return { text: "Agendado", color: "text-primary" };
     if (start && end && start <= now && end >= now) return { text: "Ativo", color: "text-green-500" };
     return { text: "Válido", color: "text-gray-500" };
   };

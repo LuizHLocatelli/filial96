@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -506,7 +505,7 @@ export function Monitoramento() {
           </Button>
           
           <Button 
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90"
             onClick={exportData}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -527,12 +526,12 @@ export function Monitoramento() {
 
         <TabsContent value="visao-geral" className="space-y-6">
           {/* Métricas Principais */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid-responsive-stats">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                    <Users className="h-5 w-5 text-blue-600" />
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Users className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Usuários Únicos</p>
@@ -559,8 +558,8 @@ export function Monitoramento() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                    <Eye className="h-5 w-5 text-purple-600" />
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Eye className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Páginas Hoje</p>
@@ -586,7 +585,7 @@ export function Monitoramento() {
           </div>
 
           {/* Métricas de Crescimento */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid-responsive-cards">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -694,7 +693,7 @@ export function Monitoramento() {
                 {hourlyData.map((hour) => (
                   <div key={hour.hora} className="text-center">
                     <div 
-                      className="bg-purple-200 dark:bg-purple-800 rounded mx-auto mb-1"
+                      className="bg-emerald-200 dark:bg-emerald-800 rounded mx-auto mb-1"
                       style={{ 
                         height: `${Math.max(4, (hour.acessos / Math.max(...hourlyData.map(h => h.acessos))) * 60)}px`,
                         width: '20px'
@@ -730,8 +729,8 @@ export function Monitoramento() {
                   {recentEvents.map((event) => (
                     <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                          <Eye className="h-4 w-4 text-purple-600" />
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Eye className="h-4 w-4 text-emerald-600" />
                         </div>
                         <div>
                           <p className="font-medium">{getSectionName(event.secao)}</p>
@@ -760,7 +759,7 @@ export function Monitoramento() {
 
         <TabsContent value="analises" className="space-y-6">
           {/* Análises Avançadas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid-responsive-wide">
             <Card>
               <CardHeader>
                 <CardTitle>Performance das Seções</CardTitle>
@@ -769,7 +768,7 @@ export function Monitoramento() {
                 <div className="space-y-4">
                   {sectionUsage.slice(0, 5).map((section, index) => (
                     <div key={section.secao} className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-sm font-medium">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
                         {index + 1}
                       </div>
                       <div className="flex-1">

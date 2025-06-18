@@ -225,8 +225,8 @@ export function UploadProgress({ progress, fileName }: { progress: number; fileN
   return (
     <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg border p-4 min-w-[300px] z-50">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
         </div>
@@ -236,7 +236,7 @@ export function UploadProgress({ progress, fileName }: { progress: number; fileN
           <div className="mt-2">
             <div className="bg-gray-200 rounded-full h-2 overflow-hidden">
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>

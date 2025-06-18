@@ -143,7 +143,7 @@ export function ProdutoFoco() {
       )}
 
       {/* Resumo/Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid-responsive-cards">
         <Card className="border shadow-soft">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ export function ProdutoFoco() {
       {produtos.length > (produtoAtivo ? 1 : 0) && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Todos os Produtos Foco</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid-responsive-cards">
             {produtos
               .filter(p => !produtoAtivo || p.id !== produtoAtivo.id)
               .map((produto) => (

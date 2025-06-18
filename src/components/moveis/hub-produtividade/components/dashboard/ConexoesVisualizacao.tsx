@@ -115,7 +115,7 @@ export function ConexoesVisualizacao({
   return (
     <div className="space-y-6">
       {/* Estatísticas de Conexões */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid-responsive-stats">
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="p-4">
             <div className="space-y-2">
@@ -137,10 +137,10 @@ export function ConexoesVisualizacao({
           <CardContent className="p-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <CheckSquare className="h-4 w-4 text-blue-600" />
+                <CheckSquare className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">Rotinas</span>
               </div>
-              <div className="text-2xl font-bold text-blue-600">
+                              <div className="text-2xl font-bold text-primary">
                 {estatisticas.rotinasComTarefas}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -154,10 +154,10 @@ export function ConexoesVisualizacao({
           <CardContent className="p-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-purple-600" />
+                <Calendar className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-medium">Tarefas</span>
               </div>
-              <div className="text-2xl font-bold text-purple-600">
+                              <div className="text-2xl font-bold text-emerald-600">
                 {estatisticas.tarefasDeRotinas}
               </div>
               <p className="text-xs text-muted-foreground">

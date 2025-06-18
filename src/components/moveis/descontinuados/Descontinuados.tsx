@@ -100,7 +100,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
         </div>
 
         {/* Estatísticas Mobile Otimizada */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <div className="grid-responsive-cards mb-4 sm:mb-6">
           <div className="bg-white/70 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/50 dark:border-gray-600/30">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-6 h-6 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -146,7 +146,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
 
         {/* Grid de Produtos Mobile Otimizado */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+          <div className="grid-responsive-files">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="bg-gray-200 dark:bg-gray-700 rounded-xl h-80 sm:h-96"></div>
@@ -167,7 +167,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 pb-24 sm:pb-8">
+          <div className="grid-responsive-files pb-24 sm:pb-8">
             {produtosFiltrados.map((produto) => (
               <ProdutoCard
                 key={produto.id}

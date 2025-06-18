@@ -45,11 +45,11 @@ export function StatsOverview({
       progress: stats.rotinas.total > 0 ? ((stats.rotinas.concluidas / stats.rotinas.total) * 100) : 0,
       sections: [
         { label: 'Concluídas', value: stats.rotinas.concluidas, color: 'bg-emerald-500' },
-        { label: 'Pendentes', value: stats.rotinas.pendentes, color: 'bg-blue-500' },
+        { label: 'Pendentes', value: stats.rotinas.pendentes, color: 'bg-primary' },
         { label: 'Atrasadas', value: stats.rotinas.atrasadas, color: 'bg-red-500' }
       ],
       onClick: () => onNavigateToSection?.('rotinas'),
-      gradient: 'from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50'
+      gradient: 'from-emerald-50 to-primary/10 dark:from-emerald-950/50 dark:to-primary/20'
     },
     {
       title: 'Tarefas',
@@ -59,7 +59,7 @@ export function StatsOverview({
       progress: stats.tarefas.total > 0 ? ((stats.tarefas.concluidas / stats.tarefas.total) * 100) : 0,
       sections: [
         { label: 'Concluídas', value: stats.tarefas.concluidas, color: 'bg-emerald-500' },
-        { label: 'Pendentes', value: stats.tarefas.pendentes, color: 'bg-blue-500' },
+        { label: 'Pendentes', value: stats.tarefas.pendentes, color: 'bg-primary' },
         { label: 'Atrasadas', value: stats.tarefas.atrasadas, color: 'bg-red-500' }
       ],
       onClick: () => onNavigateToSection?.('tarefas'),
@@ -208,7 +208,7 @@ export function StatsOverview({
 
       {/* Resumo do Dia - Layout compacto para mobile */}
       <div className="mt-6">
-        <Card className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/20 dark:to-blue-950/20 border-0">
+        <Card className="bg-gradient-to-r from-emerald-50 to-primary/10 dark:from-emerald-950/20 dark:to-primary/10 border-0">
           <CardContent className={cn(
             isMobile ? "p-4" : "p-4 lg:p-5"
           )}>
@@ -238,7 +238,7 @@ export function StatsOverview({
               
               <div className="text-center">
                 <div className={cn(
-                  "font-bold text-blue-600 dark:text-blue-400",
+                  "font-bold text-primary",
                   isMobile ? "text-xl" : "text-2xl"
                 )}>
                   {stats.rotinas.pendentes + stats.tarefas.pendentes}

@@ -1,19 +1,22 @@
+import { useMemo } from "react";
 import { format, isSameDay, isAfter, setHours, setMinutes, setSeconds } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ChevronLeft, ChevronRight, Clock, AlertTriangle, XCircle } from "lucide-react";
+import { CheckCircle, ChevronLeft, ChevronRight, Clock, AlertTriangle, XCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Deposito } from "@/hooks/crediario/useDepositos";
+import type { Deposito, DepositoStatistics } from "@/hooks/crediario/useDepositos";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DepositionsCalendarProps {
   currentMonth: Date;
   diasDoMes: Date[];
   depositos: Deposito[];
+  monthStatistics?: DepositoStatistics | null;
   handlePrevMonth: () => void;
   handleNextMonth: () => void;
   handleSelectDay: (day: Date) => void;
+  handleRefreshStatistics?: () => void;
   setViewImage: (url: string | null) => void;
 }
 
@@ -21,9 +24,11 @@ export function DepositionsCalendar({
   currentMonth,
   diasDoMes,
   depositos,
+  monthStatistics,
   handlePrevMonth,
   handleNextMonth,
   handleSelectDay,
+  handleRefreshStatistics,
   setViewImage
 }: DepositionsCalendarProps) {
   const isMobile = useIsMobile();
@@ -56,7 +61,7 @@ export function DepositionsCalendar({
       } else if (isToday) {
         return {
           status: 'pending-today',
-          color: 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/70',
+          color: 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20 dark:bg-primary/10 dark:border-primary/40 dark:text-primary dark:hover:bg-primary/20',
           icon: Clock,
           label: 'Pendente hoje'
         };
@@ -97,8 +102,18 @@ export function DepositionsCalendar({
     };
   };
 
-  // Calculate monthly stats
-  const monthlyStats = () => {
+  // Calculate monthly stats - use persisted statistics when available
+  const monthlyStats = useMemo(() => {
+    if (monthStatistics) {
+      return {
+        workingDays: monthStatistics.working_days,
+        completeDays: monthStatistics.complete_days,
+        missedDays: monthStatistics.missed_days,
+        completion: Math.round(monthStatistics.completion_rate)
+      };
+    }
+    
+    // Fallback to dynamic calculation if no persisted stats
     const workingDays = diasDoMes.filter(day => day.getDay() !== 0); // Excluir apenas domingo
     const completeDays = workingDays.filter(day => {
       const status = getDayStatus(day);
@@ -115,9 +130,9 @@ export function DepositionsCalendar({
       missedDays: missedDays.length,
       completion: workingDays.length > 0 ? Math.round((completeDays.length / workingDays.length) * 100) : 0
     };
-  };
+  }, [monthStatistics, diasDoMes, depositos]);
 
-  const stats = monthlyStats();
+  const stats = monthlyStats;
 
   return (
     <Card className="w-full border shadow-soft">
@@ -154,6 +169,17 @@ export function DepositionsCalendar({
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
+              {handleRefreshStatistics && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRefreshStatistics}
+                  className="h-8 w-8 p-0 sm:h-9 sm:w-9 ml-2"
+                  title="Recalcular estatísticas"
+                >
+                  <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
+              )}
             </div>
           </div>
 
@@ -172,7 +198,7 @@ export function DepositionsCalendar({
               <div className="text-xs sm:text-xs text-muted-foreground">Dias perdidos</div>
             </div>
             <div className="text-center">
-              <div className="text-lg sm:text-lg font-bold text-blue-600 dark:text-blue-400">{stats.workingDays}</div>
+              <div className="text-lg sm:text-lg font-bold text-primary">{stats.workingDays}</div>
               <div className="text-xs sm:text-xs text-muted-foreground">Dias úteis</div>
             </div>
           </div>

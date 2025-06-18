@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cliente } from "@/components/crediario/types";
@@ -41,8 +40,8 @@ export function ClienteHeader({ clientes, clientesNoMes, onAddNew }: ClienteHead
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Users className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total</p>

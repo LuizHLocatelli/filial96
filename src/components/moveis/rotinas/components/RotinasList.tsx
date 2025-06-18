@@ -249,7 +249,7 @@ export function RotinasList({
 
                       {expandedRotinas.has(rotina.id) && (
                         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700/50">
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                          <div className="grid-responsive-cards text-sm text-muted-foreground">
                             <div className="flex items-center gap-2">{getStatusIcon(rotina.status)}<span>{getStatusBadge(rotina.status)}</span></div>
                             <div className="flex items-center gap-2">{getPeriodicidadeBadge(rotina.periodicidade)}</div>
                             {rotina.periodicidade !== 'diario' && <div className="flex items-center gap-2"><Clock className="h-4 w-4" /><span>{formatarDiaPreferencial(rotina.dia_preferencial)}</span></div>}

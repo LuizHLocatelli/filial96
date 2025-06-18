@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -103,8 +102,8 @@ export function PasswordUpdateForm({ token, hash, onSuccess, onError }: Password
   return (
     <Card className="max-w-md mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-          <Shield className="w-6 h-6 text-blue-600" />
+        <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+          <Shield className="w-6 h-6 text-primary" />
         </div>
         <CardTitle>Atualizar Senha</CardTitle>
         <CardDescription>

@@ -376,7 +376,7 @@ export function FiltrosPorData({
                         }
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-primary">
                       <Clock className="h-4 w-4" />
                       <span>
                         {differenceInDays(currentRange.to, currentRange.from) + 1} dias
@@ -454,7 +454,7 @@ export function FiltrosPorData({
                       </div>
                     )}
                     {stats.itemsPerDay > 5 && (
-                      <div className="flex items-center gap-2 text-sm text-blue-600">
+                      <div className="flex items-center gap-2 text-sm text-primary">
                         <ArrowRight className="h-4 w-4" />
                         Período de alta atividade
                       </div>

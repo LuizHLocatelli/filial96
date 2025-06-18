@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { FileText, CheckCircle, Clock, Target } from 'lucide-react';
@@ -15,8 +14,8 @@ export const TabOverview = ({ productivityMetrics, weeklyData }: TabOverviewProp
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-              <FileText className="h-4 w-4 text-blue-600" />
+            <div className="p-2 rounded-lg bg-primary/10">
+                                <FileText className="h-4 w-4 text-primary" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total</p>
@@ -39,8 +38,8 @@ export const TabOverview = ({ productivityMetrics, weeklyData }: TabOverviewProp
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-              <Clock className="h-4 w-4 text-purple-600" />
+            <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/20">
+                                <Clock className="h-4 w-4 text-emerald-600" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Tempo Médio</p>

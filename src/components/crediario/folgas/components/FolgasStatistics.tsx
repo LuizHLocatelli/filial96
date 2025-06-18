@@ -24,7 +24,7 @@ export function FolgasStatistics({
     : 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid-responsive-stats">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Folgas no Mês</CardTitle>

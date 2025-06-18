@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon, ListTodo, X, Link, AlertTriangle, Zap, RotateCcw } from "lucide-react";
+import { CalendarIcon, ListTodo, X, Link, AlertTriangle, Zap, RotateCcw, BookOpen } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -39,17 +39,22 @@ interface TarefaFormProps {
   defaultRotina?: string;
 }
 
-const prioridadeConfig = {
-  baixa: { label: 'Baixa', color: 'bg-blue-100 text-blue-800', icon: '●' },
-  media: { label: 'Média', color: 'bg-yellow-100 text-yellow-800', icon: '●●' },
-  alta: { label: 'Alta', color: 'bg-orange-100 text-orange-800', icon: '●●●' },
-  urgente: { label: 'Urgente', color: 'bg-red-100 text-red-800', icon: '⚡' }
+const priorityTypes = {
+  alta: { label: 'Alta', color: 'bg-red-100 text-red-800', icon: '●' },
+  media: { label: 'Média', color: 'bg-yellow-100 text-yellow-800', icon: '●' },
+  baixa: { label: 'Baixa', color: 'bg-primary/10 text-primary', icon: '●' },
+};
+
+const taskTypes = {
+  automatica: { label: 'Automática', icon: Zap, color: 'text-emerald-700' },
+  manual: { label: 'Manual', icon: ListTodo, color: 'text-emerald-600' },
+  orientacao: { label: 'Orientação', icon: Link, color: 'text-emerald-800' },
 };
 
 const origemConfig = {
-  manual: { label: 'Manual', icon: ListTodo, color: 'text-blue-600' },
+  manual: { label: 'Manual', icon: ListTodo, color: 'text-emerald-600' },
   rotina: { label: 'Rotina', icon: RotateCcw, color: 'text-green-600' },
-  orientacao: { label: 'Orientação', icon: Link, color: 'text-purple-600' }
+  orientacao: { label: 'Orientação', icon: Link, color: 'text-emerald-800' }
 };
 
 export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel, defaultRotina }: TarefaFormProps) {
@@ -119,7 +124,7 @@ export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(prioridadeConfig).map(([value, config]) => (
+                      {Object.entries(priorityTypes).map(([value, config]) => (
                         <SelectItem key={value} value={value}>
                           <div className="flex items-center gap-2">
                             <span className={`text-xs ${config.color.split(' ')[1]}`}>
@@ -260,7 +265,7 @@ export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.entries(origemConfig).map(([value, config]) => (
+                    {Object.entries(taskTypes).map(([value, config]) => (
                       <SelectItem key={value} value={value}>
                         <div className="flex items-center gap-2">
                           {React.createElement(config.icon, {

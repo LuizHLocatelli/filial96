@@ -45,11 +45,11 @@ export function FileList({ files, onViewFile, onDeleteFile, onEditFile }: FileLi
   // Função para obter o ícone adequado para o tipo de arquivo
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('image')) {
-      return <FileImage className="h-5 w-5 text-purple-500" />;
+      return <FileImage className="h-5 w-5 text-primary" />;
     } else if (fileType.includes('pdf')) {
       return <FileText className="h-5 w-5 text-red-500" />;
     } else if (fileType.includes('word') || fileType.includes('document')) {
-      return <FileText className="h-5 w-5 text-blue-500" />;
+      return <FileText className="h-5 w-5 text-primary" />;
     } else if (fileType.includes('sheet') || fileType.includes('excel')) {
       return <FileText className="h-5 w-5 text-green-500" />;
     } else {

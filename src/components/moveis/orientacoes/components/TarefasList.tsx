@@ -44,7 +44,7 @@ export function TarefasList({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid-responsive-cards lg:grid-cols-2 xl:grid-cols-3">
       {tarefas.map((tarefa) => (
         <TarefaCard
           key={tarefa.id}

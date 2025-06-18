@@ -37,11 +37,14 @@ export function Depositos() {
   const { toast } = useToast();
   const { 
     depositos, 
+    statistics,
     isLoading, 
     addDeposito, 
     updateDeposito, 
     deleteDeposito,
-    fetchDepositos 
+    fetchDepositos,
+    getMonthStatistics,
+    forceRecalculateStatistics
   } = useDepositos();
 
   useEffect(() => {
@@ -287,22 +290,31 @@ export function Depositos() {
     setIsRefreshing(true);
     try {
       await fetchDepositos();
+      await forceRecalculateStatistics(currentMonth);
+      
       toast({
         title: "✅ Dados Atualizados",
-        description: "Informações carregadas com sucesso!",
+        description: "Depósitos e estatísticas foram atualizados com sucesso.",
         duration: 3000,
       });
     } catch (error) {
+      console.error('Erro ao atualizar dados:', error);
       toast({
         title: "❌ Erro",
-        description: "Não foi possível atualizar os dados.",
+        description: "Falha ao atualizar dados. Tente novamente.",
         variant: "destructive",
-        duration: 4000,
+        duration: 3000,
       });
     } finally {
       setIsRefreshing(false);
     }
   };
+
+  const handleRefreshStatistics = async () => {
+    await forceRecalculateStatistics(currentMonth);
+  };
+
+  const currentMonthStats = getMonthStatistics(currentMonth);
 
   const handleExportData = () => {
     try {
@@ -651,13 +663,15 @@ export function Depositos() {
             />
 
             {/* Calendário Resumido */}
-            <DepositionsCalendar 
+            <DepositionsCalendar
               currentMonth={currentMonth}
               diasDoMes={diasDoMes}
               depositos={depositos}
+              monthStatistics={currentMonthStats}
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
               handleSelectDay={handleSelectDay}
+              handleRefreshStatistics={handleRefreshStatistics}
               setViewImage={setViewImage}
             />
 
@@ -697,9 +711,11 @@ export function Depositos() {
               currentMonth={currentMonth}
               diasDoMes={diasDoMes}
               depositos={depositos}
+              monthStatistics={currentMonthStats}
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
               handleSelectDay={handleSelectDay}
+              handleRefreshStatistics={handleRefreshStatistics}
               setViewImage={setViewImage}
             />
           </TabsContent>
@@ -712,6 +728,7 @@ export function Depositos() {
               <DepositAnalytics 
                 depositos={depositos}
                 currentMonth={currentMonth}
+                monthStatistics={currentMonthStats}
               />
             )}
           </TabsContent>

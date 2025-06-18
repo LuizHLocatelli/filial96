@@ -38,11 +38,11 @@ export function FileGrid({ files, onViewFile, onDeleteFile, onEditFile }: FileGr
   // Função para obter o ícone adequado para o tipo de arquivo
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('image')) {
-      return <FileImage className="h-12 w-12 text-purple-500" />;
+      return <FileImage className="h-12 w-12 text-primary" />;
     } else if (fileType.includes('pdf')) {
       return <FileText className="h-12 w-12 text-red-500" />;
     } else if (fileType.includes('word') || fileType.includes('document')) {
-      return <FileText className="h-12 w-12 text-blue-500" />;
+      return <FileText className="h-12 w-12 text-primary" />;
     } else if (fileType.includes('sheet') || fileType.includes('excel')) {
       return <FileText className="h-12 w-12 text-green-500" />;
     } else {
@@ -64,7 +64,7 @@ export function FileGrid({ files, onViewFile, onDeleteFile, onEditFile }: FileGr
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid-responsive-files">
       {files.map((file) => (
         <Card key={file.id} className={file.is_featured ? 'border-primary' : ''}>
           <CardContent className="p-4">

@@ -248,7 +248,7 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
                   )}
                   
                   {contact.nextContact && (
-                    <div className="text-sm text-blue-600 flex items-center gap-1">
+                    <div className="text-sm text-primary flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       Próximo contato: {format(contact.nextContact, "dd/MM/yyyy", { locale: ptBR })}
                     </div>

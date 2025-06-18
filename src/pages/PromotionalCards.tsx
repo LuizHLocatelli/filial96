@@ -60,7 +60,7 @@ export default function PromotionalCards() {
                   onClick={() => setIsCreateFolderOpen(true)}
                   className="h-7 text-xs px-2.5 bg-primary/5 hover:bg-primary/10 border-primary/20"
                 >
-                  <Plus className="h-3 w-3 mr-1" />
+                  <Plus className="h-4 w-4 mr-1" />
                   Nova
                 </Button>
               </div>

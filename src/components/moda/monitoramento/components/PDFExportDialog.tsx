@@ -239,11 +239,11 @@ export function PDFExportDialog({
           </div>
 
           {/* Preview da configuração */}
-          <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+          <div className="p-3 bg-primary/5 dark:bg-primary/10 rounded-lg border border-primary/20">
+            <h4 className="font-medium text-primary mb-2">
               Pré-visualização da configuração:
             </h4>
-            <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+            <div className="text-sm text-primary/80 space-y-1">
               <div>• Modelo: {options.template === 'compacto' ? 'Compacto' : options.template === 'detalhado' ? 'Detalhado' : 'Executivo'}</div>
               <div>• Estatísticas: {options.includeStats ? 'Incluídas' : 'Não incluídas'}</div>
               <div>• Organização: {options.groupBySection ? 'Por seção' : options.groupByUser ? 'Por usuário' : 'Lista simples'}</div>
@@ -259,7 +259,7 @@ export function PDFExportDialog({
           <Button 
             onClick={handleExport}
             disabled={isExporting}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90"
           >
             <Download className="h-4 w-4 mr-2" />
             {isExporting ? 'Gerando PDF...' : 'Gerar PDF'}

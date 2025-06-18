@@ -42,7 +42,7 @@ export function DesktopLayout({
   return (
     <div className="space-y-4">
       {/* Header com Stats compactos */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              <div className="grid-responsive-dashboard">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 border-green-200/50 dark:border-green-800/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -65,23 +65,23 @@ export function DesktopLayout({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 border-blue-200/50 dark:border-blue-800/50">
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-primary/20 dark:border-primary/30">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 rounded-lg bg-primary/10 dark:bg-primary/20">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
-                <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                <div className="text-2xl font-bold text-primary">
                   {stats.rotinas.concluidas}
                 </div>
-                <div className="text-xs text-blue-600 dark:text-blue-400">
+                <div className="text-xs text-primary/70">
                   Rotinas Concluídas
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 h-1.5 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-primary/20 dark:bg-primary/30 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-blue-500 transition-all duration-300"
+                      className="h-full bg-primary transition-all duration-300"
                       style={{ 
                         width: `${stats.rotinas.total > 0 ? (stats.rotinas.concluidas / stats.rotinas.total) * 100 : 0}%` 
                       }}
@@ -96,23 +96,23 @@ export function DesktopLayout({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20 border-purple-200/50 dark:border-purple-800/50">
+        <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/20 dark:to-emerald-900/20 border-emerald-200/50 dark:border-emerald-800/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                <Target className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="flex-1">
-                <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                   {stats.tarefas.concluidas}
                 </div>
-                <div className="text-xs text-purple-600 dark:text-purple-400">
+                <div className="text-xs text-emerald-600 dark:text-emerald-400">
                   Tarefas Concluídas
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 h-1.5 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-emerald-200 dark:bg-emerald-800 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-purple-500 transition-all duration-300"
+                      className="h-full bg-emerald-500 transition-all duration-300"
                       style={{ 
                         width: `${stats.tarefas.total > 0 ? (stats.tarefas.concluidas / stats.tarefas.total) * 100 : 0}%` 
                       }}
@@ -156,7 +156,7 @@ export function DesktopLayout({
       </div>
 
       {/* Layout Principal - Duas colunas otimizadas */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <div className="grid-responsive-dashboard xl:grid-cols-12">
         {/* Coluna Principal - Central de Ferramentas */}
         <div className="xl:col-span-12 space-y-4">
           {/* Ações Rápidas */}
@@ -191,18 +191,18 @@ export function DesktopLayout({
           </Card>
 
           {/* Insights Rápidos */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-0">
+                      <div className="grid-responsive-wide">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-0">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                    <BarChart3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <div className="p-2 rounded-lg bg-primary/10 dark:bg-primary/20">
+                    <BarChart3 className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                    <div className="text-lg font-bold text-primary">
                       {Math.round((stats.rotinas.concluidas + stats.tarefas.concluidas) / (stats.rotinas.total + stats.tarefas.total) * 100) || 0}%
                     </div>
-                    <div className="text-xs text-blue-600 dark:text-blue-400">
+                    <div className="text-xs text-primary/70">
                       Taxa de Conclusão
                     </div>
                   </div>
@@ -210,17 +210,17 @@ export function DesktopLayout({
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/20 dark:to-violet-950/20 border-0">
+            <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/20 dark:to-emerald-900/20 border-0">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                    <Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                    <Clock className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-lg font-bold text-purple-700 dark:text-purple-300">
+                    <div className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
                       {stats.rotinas.pendentes + stats.tarefas.pendentes}
                     </div>
-                    <div className="text-xs text-purple-600 dark:text-purple-400">
+                    <div className="text-xs text-emerald-600 dark:text-emerald-400">
                       Itens Pendentes
                     </div>
                   </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -78,15 +77,13 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
   };
 
   const getStatusBadge = (status: string) => {
-    switch(status) {
-      case 'aguardando_produto':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Aguardando Produto</Badge>;
-      case 'aguardando_cliente':
-        return <Badge className="bg-amber-100 text-amber-800 border-amber-200">Aguardando Cliente</Badge>;
-      case 'pendente':
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Pendente</Badge>;
-      case 'concluida':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Concluída</Badge>;
+    switch (status) {
+      case 'Finalizada':
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Finalizada</Badge>;
+      case 'Aguardando Produto':
+        return <Badge className="bg-primary/10 text-primary border-primary/20">Aguardando Produto</Badge>;
+      case 'Cancelada':
+        return <Badge variant="destructive">Cancelada</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

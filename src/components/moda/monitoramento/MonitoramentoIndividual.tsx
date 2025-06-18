@@ -334,9 +334,9 @@ export function MonitoramentoIndividual() {
   const getRoleColor = (role: string) => {
     const colors: { [key: string]: string } = {
       'gerente': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      'crediarista': 'bg-blue-100 text-blue-800 border-blue-300',
+      'crediarista': 'bg-primary/10 text-primary border-primary/20',
       'consultor_moveis': 'bg-green-100 text-green-800 border-green-300',
-      'consultor_moda': 'bg-purple-100 text-purple-800 border-purple-300',
+      'consultor_moda': 'bg-emerald-100 text-emerald-800 border-emerald-300',
       'jovem_aprendiz': 'bg-orange-100 text-orange-800 border-orange-300'
     };
     return colors[role] || 'bg-gray-100 text-gray-800 border-gray-300';
@@ -445,7 +445,7 @@ export function MonitoramentoIndividual() {
           </Button>
           
           <Button 
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90"
             onClick={exportUserData}
           >
             <Download className="h-4 w-4 mr-2" />
@@ -679,7 +679,7 @@ export function MonitoramentoIndividual() {
               </Card>
 
               {/* Métricas do usuário */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid-responsive-dashboard">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total de Acessos</CardTitle>
@@ -752,7 +752,7 @@ export function MonitoramentoIndividual() {
                     <div className="space-y-3">
                       {userActivities.slice(0, 10).map((activity) => (
                         <div key={activity.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                          <div className="w-2 h-2 rounded-full bg-purple-600"></div>
+                          <div className="w-2 h-2 rounded-full bg-primary"></div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <Badge variant="outline">{getSectionName(activity.secao)}</Badge>

@@ -114,7 +114,7 @@ export function PromotionalCard({
       return { text: "Expirado", color: "bg-red-500 dark:bg-red-800 text-white dark:text-red-100", icon: Clock };
     }
     if (start && start > now) {
-      return { text: "Agendado", color: "bg-blue-500 dark:bg-blue-800 text-white dark:text-blue-100", icon: Clock };
+      return { text: "Agendado", color: "bg-primary text-primary-foreground", icon: Clock };
     }
     if (start && end && start <= now && end >= now) {
       return { text: "Ativo", color: "bg-green-500 dark:bg-green-800 text-white dark:text-green-100", icon: Clock };
@@ -157,7 +157,7 @@ export function PromotionalCard({
                 <div className="flex justify-start">
                   {code && (
                     <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0 text-white">
-                      <Hash className="h-3 w-3 flex-shrink-0" />
+                      <Hash className="h-4 w-4 flex-shrink-0" />
                       <span className="truncate font-medium block text-xs">{code}</span>
                     </div>
                   )}
@@ -178,7 +178,7 @@ export function PromotionalCard({
                     ) : (
                       formattedEndDate && (
                         <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
-                          <Calendar className="h-3 w-3 flex-shrink-0" />
+                          <Calendar className="h-4 w-4 flex-shrink-0" />
                           <span className="text-xs truncate block">{formattedEndDate}</span>
                         </div>
                       )
