@@ -34,6 +34,8 @@ export function usePWA() {
     // Detectar plataforma
     const detectPlatform = (): PWAInstallState['platform'] => {
       const userAgent = navigator.userAgent.toLowerCase();
+      console.log('PWA: User Agent:', userAgent);
+      
       if (/iphone|ipad|ipod/.test(userAgent)) return 'ios';
       if (/android/.test(userAgent)) return 'android';
       if (/win|mac|linux/.test(userAgent)) return 'desktop';
@@ -53,6 +55,10 @@ export function usePWA() {
 
     const platform = detectPlatform();
 
+    console.log('PWA: Platform detected:', platform);
+    console.log('PWA: Is standalone:', isStandalone);
+    console.log('PWA: Is installed:', isInstalled);
+
     setInstallState(prev => ({
       ...prev,
       isStandalone,
@@ -61,11 +67,29 @@ export function usePWA() {
       isOffline
     }));
 
+    // Verificar se o evento beforeinstallprompt já foi disparado
+    const checkExistingPrompt = () => {
+      // @ts-ignore - Verificar se já existe um prompt em cache
+      if (window.deferredPrompt) {
+        console.log('PWA: Found existing deferred prompt');
+        setInstallPrompt(window.deferredPrompt);
+        setInstallState(prev => ({
+          ...prev,
+          isInstallable: true,
+          canInstall: true
+        }));
+      }
+    };
+
     // Listener para o evento beforeinstallprompt (Chrome/Edge/Android)
     const handleBeforeInstallPrompt = (e: Event) => {
-      console.log('PWA: beforeinstallprompt event fired');
+      console.log('PWA: beforeinstallprompt event fired!', e);
       e.preventDefault();
       const promptEvent = e as BeforeInstallPromptEvent;
+      
+      // @ts-ignore - Armazenar globalmente para debug
+      window.deferredPrompt = promptEvent;
+      
       setInstallPrompt(promptEvent);
       setInstallState(prev => ({
         ...prev,
@@ -76,7 +100,9 @@ export function usePWA() {
 
     // Listener para quando o app é instalado
     const handleAppInstalled = (e: Event) => {
-      console.log('PWA: App installed successfully');
+      console.log('PWA: App installed successfully', e);
+      // @ts-ignore
+      window.deferredPrompt = null;
       setInstallPrompt(null);
       setInstallState(prev => ({
         ...prev,
@@ -101,11 +127,16 @@ export function usePWA() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // Verificar prompt existente
+    checkExistingPrompt();
+
     // Para iOS, verificar se pode ser instalado
     if (platform === 'ios') {
       const isIOSInstallable = !isStandalone && 
                               /safari/i.test(navigator.userAgent) && 
                               !/chrome|crios|fxios/i.test(navigator.userAgent);
+      
+      console.log('PWA: iOS installable:', isIOSInstallable);
       
       setInstallState(prev => ({
         ...prev,
@@ -114,13 +145,49 @@ export function usePWA() {
       }));
     }
 
+    // Para Android Chrome, verificar se o prompt ainda não foi disparado
+    if (platform === 'android' && !isInstalled) {
+      // Aguardar um pouco para o evento ser disparado
+      const timeout = setTimeout(() => {
+        if (!installPrompt) {
+          console.log('PWA: No beforeinstallprompt event detected on Android Chrome');
+          console.log('PWA: Checking PWA criteria...');
+          
+          // Verificar se atende os critérios básicos de PWA
+          const hasSW = 'serviceWorker' in navigator;
+          const hasManifest = document.querySelector('link[rel="manifest"]');
+          const isHTTPS = location.protocol === 'https:' || location.hostname === 'localhost';
+          
+          console.log('PWA: Has Service Worker support:', hasSW);
+          console.log('PWA: Has manifest:', !!hasManifest);
+          console.log('PWA: Is HTTPS:', isHTTPS);
+          
+          if (hasSW && hasManifest && isHTTPS) {
+            console.log('PWA: Meets PWA criteria but no install prompt available');
+            setInstallState(prev => ({
+              ...prev,
+              isInstallable: true,
+              canInstall: false // Fallback para instruções manuais
+            }));
+          }
+        }
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+
     // Verificar Service Worker
     if ('serviceWorker' in navigator) {
       registerServiceWorker();
     }
 
     // Log para debug
-    console.log('PWA: Initial state', { platform, isStandalone, isInstalled });
+    console.log('PWA: Initial state', { 
+      platform, 
+      isStandalone, 
+      isInstalled, 
+      userAgent: navigator.userAgent 
+    });
 
     // Cleanup
     return () => {
@@ -153,18 +220,24 @@ export function usePWA() {
   };
 
   const installApp = async (): Promise<boolean> => {
+    console.log('PWA: Install app called, prompt available:', !!installPrompt);
+    
     if (!installPrompt) {
       console.log('PWA: No install prompt available');
       return false;
     }
 
     try {
-      console.log('PWA: Showing install prompt');
+      console.log('PWA: Showing install prompt...');
       await installPrompt.prompt();
       const choiceResult = await installPrompt.userChoice;
       
+      console.log('PWA: User choice:', choiceResult);
+      
       if (choiceResult.outcome === 'accepted') {
         console.log('PWA: User accepted installation');
+        // @ts-ignore
+        window.deferredPrompt = null;
         setInstallPrompt(null);
         setInstallState(prev => ({
           ...prev,

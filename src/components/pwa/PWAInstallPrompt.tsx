@@ -15,7 +15,8 @@ import {
   Wifi,
   WifiOff,
   CheckCircle2,
-  Zap
+  Zap,
+  AlertCircle
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,7 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
   const { installState, installApp, getInstallInstructions } = usePWA();
   const isMobile = useIsMobile();
   const [isInstalling, setIsInstalling] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
   const instructions = getInstallInstructions();
 
   const handleInstall = async () => {
@@ -132,12 +134,17 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
                   <Badge variant="secondary" className="text-xs">
                     {getPlatformName()}
                   </Badge>
-                  {installState.canInstall && (
+                  {installState.canInstall ? (
                     <Badge className="text-xs bg-green-600 hover:bg-green-700">
                       <Zap className="w-3 h-3 mr-1" />
                       Instalação Rápida
                     </Badge>
-                  )}
+                  ) : installState.platform === 'android' ? (
+                    <Badge variant="outline" className="text-xs">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      Instalação Manual
+                    </Badge>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -145,12 +152,50 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
           <DialogDescription>
             {installState.canInstall 
               ? "Clique no botão abaixo para instalar o app diretamente!" 
+              : installState.platform === 'android'
+              ? "Seu navegador Chrome não está oferecendo instalação automática. Use as instruções manuais abaixo."
               : "Siga as instruções para adicionar o app à sua tela inicial."
             }
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Debug info para Android sem install prompt */}
+          {installState.platform === 'android' && !installState.canInstall && (
+            <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+              <CardContent className="p-3">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs">
+                    <p className="font-medium text-orange-800 dark:text-orange-200">
+                      Instalação automática não disponível
+                    </p>
+                    <p className="text-orange-700 dark:text-orange-300 mt-1">
+                      O Chrome pode não estar oferecendo a instalação automática por critérios internos. 
+                      Use a instalação manual abaixo.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="h-auto p-0 text-xs text-orange-600 hover:text-orange-800"
+                      onClick={() => setShowDebug(!showDebug)}
+                    >
+                      {showDebug ? 'Ocultar' : 'Ver'} detalhes técnicos
+                    </Button>
+                    {showDebug && (
+                      <div className="mt-2 text-xs text-orange-600 dark:text-orange-400 font-mono">
+                        <p>• Service Worker: ✓</p>
+                        <p>• Manifest: ✓</p>
+                        <p>• HTTPS: ✓</p>
+                        <p>• beforeinstallprompt: ✗</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Benefícios */}
           <Card>
             <CardContent className="p-4">
