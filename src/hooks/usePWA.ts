@@ -61,8 +61,9 @@ export function usePWA() {
       isOffline
     }));
 
-    // Listener para o evento beforeinstallprompt (Chrome/Edge)
+    // Listener para o evento beforeinstallprompt (Chrome/Edge/Android)
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('PWA: beforeinstallprompt event fired');
       e.preventDefault();
       const promptEvent = e as BeforeInstallPromptEvent;
       setInstallPrompt(promptEvent);
@@ -74,7 +75,8 @@ export function usePWA() {
     };
 
     // Listener para quando o app é instalado
-    const handleAppInstalled = () => {
+    const handleAppInstalled = (e: Event) => {
+      console.log('PWA: App installed successfully');
       setInstallPrompt(null);
       setInstallState(prev => ({
         ...prev,
@@ -99,10 +101,26 @@ export function usePWA() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // Para iOS, verificar se pode ser instalado
+    if (platform === 'ios') {
+      const isIOSInstallable = !isStandalone && 
+                              /safari/i.test(navigator.userAgent) && 
+                              !/chrome|crios|fxios/i.test(navigator.userAgent);
+      
+      setInstallState(prev => ({
+        ...prev,
+        isInstallable: isIOSInstallable,
+        canInstall: false // iOS não suporta prompt automático
+      }));
+    }
+
     // Verificar Service Worker
     if ('serviceWorker' in navigator) {
       registerServiceWorker();
     }
+
+    // Log para debug
+    console.log('PWA: Initial state', { platform, isStandalone, isInstalled });
 
     // Cleanup
     return () => {
@@ -116,7 +134,7 @@ export function usePWA() {
   const registerServiceWorker = async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registrado com sucesso:', registration);
+      console.log('PWA: Service Worker registered successfully:', registration);
       
       // Verificar atualizações
       registration.addEventListener('updatefound', () => {
@@ -124,34 +142,41 @@ export function usePWA() {
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Nova versão disponível
-              console.log('Nova versão do Service Worker disponível');
+              console.log('PWA: New version available');
             }
           });
         }
       });
     } catch (error) {
-      console.error('Falha ao registrar Service Worker:', error);
+      console.error('PWA: Failed to register Service Worker:', error);
     }
   };
 
   const installApp = async (): Promise<boolean> => {
-    if (!installPrompt) return false;
+    if (!installPrompt) {
+      console.log('PWA: No install prompt available');
+      return false;
+    }
 
     try {
+      console.log('PWA: Showing install prompt');
       await installPrompt.prompt();
       const choiceResult = await installPrompt.userChoice;
       
       if (choiceResult.outcome === 'accepted') {
-        console.log('Usuário aceitou instalar o PWA');
+        console.log('PWA: User accepted installation');
         setInstallPrompt(null);
+        setInstallState(prev => ({
+          ...prev,
+          canInstall: false
+        }));
         return true;
       } else {
-        console.log('Usuário rejeitou instalar o PWA');
+        console.log('PWA: User dismissed installation');
         return false;
       }
     } catch (error) {
-      console.error('Erro ao tentar instalar PWA:', error);
+      console.error('PWA: Error during installation:', error);
       return false;
     }
   };
@@ -162,9 +187,9 @@ export function usePWA() {
         return {
           title: 'Instalar no iPhone/iPad',
           steps: [
-            'Toque no ícone de compartilhar na barra inferior do Safari',
+            'Toque no ícone de compartilhar (📤) na barra inferior do Safari',
             'Role para baixo e toque em "Adicionar à Tela de Início"',
-            'Toque em "Adicionar" para confirmar'
+            'Toque em "Adicionar" para confirmar a instalação'
           ]
         };
       case 'android':

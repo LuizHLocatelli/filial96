@@ -14,7 +14,8 @@ import {
   X,
   Wifi,
   WifiOff,
-  CheckCircle2
+  CheckCircle2,
+  Zap
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -77,7 +78,7 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
             <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="h-8 w-8 text-green-600" />
             </div>
-            <DialogTitle className="text-xl">App Já Instalado!</DialogTitle>
+            <DialogTitle className="text-xl">App Já Instalado! 🎉</DialogTitle>
             <DialogDescription className="text-center">
               O Filial 96 já está instalado em seu dispositivo e funcionando perfeitamente.
             </DialogDescription>
@@ -127,14 +128,25 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
               </div>
               <div>
                 <DialogTitle className="text-lg">Instalar Filial 96</DialogTitle>
-                <Badge variant="secondary" className="text-xs">
-                  {getPlatformName()}
-                </Badge>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="secondary" className="text-xs">
+                    {getPlatformName()}
+                  </Badge>
+                  {installState.canInstall && (
+                    <Badge className="text-xs bg-green-600 hover:bg-green-700">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Instalação Rápida
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </div>
           <DialogDescription>
-            Instale o app para ter acesso rápido e funcionalidades offline.
+            {installState.canInstall 
+              ? "Clique no botão abaixo para instalar o app diretamente!" 
+              : "Siga as instruções para adicionar o app à sua tela inicial."
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -142,7 +154,10 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
           {/* Benefícios */}
           <Card>
             <CardContent className="p-4">
-              <h4 className="font-medium mb-3">Benefícios da instalação:</h4>
+              <h4 className="font-medium mb-3 flex items-center">
+                <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                Benefícios da instalação:
+              </h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
@@ -164,31 +179,37 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
             </CardContent>
           </Card>
 
-          {/* Botão de instalação automática ou instruções */}
+          {/* Botão de instalação automática */}
           {installState.canInstall ? (
-            <Button 
-              onClick={handleInstall} 
-              disabled={isInstalling}
-              className="w-full"
-              size="lg"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              {isInstalling ? 'Instalando...' : 'Instalar Agora'}
-            </Button>
+            <div className="space-y-3">
+              <Button 
+                onClick={handleInstall} 
+                disabled={isInstalling}
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+              >
+                <Download className="mr-2 h-5 w-5" />
+                {isInstalling ? 'Instalando...' : '+ Instalar no ' + getPlatformName()}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                Instalação automática disponível para seu navegador
+              </p>
+            </div>
           ) : (
+            /* Instruções manuais */
             <Card>
               <CardContent className="p-4">
                 <h4 className="font-medium mb-3 flex items-center">
                   {installState.platform === 'ios' ? <Share className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
                   {instructions.title}
                 </h4>
-                <ol className="space-y-2 text-sm text-muted-foreground">
+                <ol className="space-y-3 text-sm text-muted-foreground">
                   {instructions.steps.map((step, index) => (
-                    <li key={index} className="flex items-start space-x-2">
-                      <span className="w-5 h-5 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
+                    <li key={index} className="flex items-start space-x-3">
+                      <span className="w-6 h-6 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5">
                         {index + 1}
                       </span>
-                      <span>{step}</span>
+                      <span className="flex-1">{step}</span>
                     </li>
                   ))}
                 </ol>
@@ -201,7 +222,7 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
               Agora não
             </Button>
             {!installState.canInstall && (
-              <Button onClick={() => onOpenChange(false)} className="flex-1">
+              <Button onClick={() => onOpenChange(false)} className="flex-1 bg-green-600 hover:bg-green-700">
                 Entendi
               </Button>
             )}

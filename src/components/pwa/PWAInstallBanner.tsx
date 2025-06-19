@@ -4,16 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { usePWA } from '@/hooks/usePWA';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
-import { Download, X, Smartphone } from 'lucide-react';
+import { Download, X, Smartphone, Zap } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 export function PWAInstallBanner() {
-  const { installState } = usePWA();
+  const { installState, installApp } = usePWA();
   const isMobile = useIsMobile();
   const [showBanner, setShowBanner] = useState(false);
   const [showInstallDialog, setShowInstallDialog] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
     // Mostrar banner após 3 segundos se o PWA não estiver instalado
@@ -39,9 +40,28 @@ export function PWAInstallBanner() {
     localStorage.setItem('pwa-banner-dismissed', Date.now().toString());
   };
 
-  const handleInstallClick = () => {
-    setShowInstallDialog(true);
-    setShowBanner(false);
+  const handleInstallClick = async () => {
+    if (installState.canInstall) {
+      // Instalação direta disponível
+      setIsInstalling(true);
+      try {
+        const success = await installApp();
+        if (success) {
+          setShowBanner(false);
+        }
+      } catch (error) {
+        console.error('Erro na instalação:', error);
+        // Fallback para o dialog
+        setShowInstallDialog(true);
+        setShowBanner(false);
+      } finally {
+        setIsInstalling(false);
+      }
+    } else {
+      // Mostrar instruções
+      setShowInstallDialog(true);
+      setShowBanner(false);
+    }
   };
 
   if (!showBanner || installState.isInstalled) {
@@ -73,7 +93,10 @@ export function PWAInstallBanner() {
                   Instalar Filial 96
                 </h4>
                 <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
-                  Acesse rapidamente e use offline
+                  {installState.canInstall 
+                    ? "Instalação rápida disponível!" 
+                    : "Acesse rapidamente e use offline"
+                  }
                 </p>
               </div>
 
@@ -81,10 +104,29 @@ export function PWAInstallBanner() {
                 <Button
                   size="sm"
                   onClick={handleInstallClick}
-                  className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
+                  disabled={isInstalling}
+                  className={cn(
+                    "h-8 px-3 text-xs",
+                    installState.canInstall 
+                      ? "bg-green-600 hover:bg-green-700" 
+                      : "bg-green-600 hover:bg-green-700"
+                  )}
                 >
-                  <Download className="h-3 w-3 mr-1" />
-                  Instalar
+                  {installState.canInstall ? (
+                    <>
+                      {isInstalling ? (
+                        <div className="w-3 h-3 mr-1 border border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Zap className="h-3 w-3 mr-1" />
+                      )}
+                      {isInstalling ? 'Instalando...' : 'Instalar'}
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-3 w-3 mr-1" />
+                      Instalar
+                    </>
+                  )}
                 </Button>
                 
                 <Button
