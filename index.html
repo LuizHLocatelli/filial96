@@ -1,26 +1,118 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Filial 96</title>
-    <meta name="description" content="Sistema de gerenciamento da Filial 96" />
+    <meta name="description" content="Sistema de gerenciamento da Filial 96 - PWA completo para gestão empresarial" />
     <meta name="author" content="Filial 96" />
-    <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmh6-Boz4Ys4qyj4-RguQSlbeWGyinT2c-sg6YeRU5lizJ7rgoKBKkCe0&s=10" type="image/png">
-
-    <meta property="og:title" content="Filial 96" />
-    <meta property="og:description" content="Sistema de gerenciamento da Filial 96" />
+    
+    <!-- PWA Icons -->
+    <link rel="icon" href="/lovable-uploads/220efd77-c866-404d-97db-eb83999f4e52.png" type="image/png">
+    <link rel="apple-touch-icon" href="/lovable-uploads/220efd77-c866-404d-97db-eb83999f4e52.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Filial 96">
+    <link rel="apple-touch-startup-image" href="/lovable-uploads/220efd77-c866-404d-97db-eb83999f4e52.png">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#22c55e">
+    <meta name="msapplication-TileColor" content="#22c55e">
+    <meta name="msapplication-navbutton-color" content="#22c55e">
+    
+    <!-- SEO & Social -->
+    <meta property="og:title" content="Filial 96 - Sistema de Gerenciamento" />
+    <meta property="og:description" content="PWA completo para gestão empresarial da Filial 96" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmh6-Boz4Ys4qyj4-RguQSlbeWGyinT2c-sg6YeRU5lizJ7rgoKBKkCe0&s=10" />
+    <meta property="og:image" content="/lovable-uploads/220efd77-c866-404d-97db-eb83999f4e52.png" />
+    <meta property="og:url" content="https://filial96.lovable.app" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@filial96" />
-    <meta name="twitter:image" content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmh6-Boz4Ys4qyj4-RguQSlbeWGyinT2c-sg6YeRU5lizJ7rgoKBKkCe0&s=10" />
+    <meta name="twitter:title" content="Filial 96 - Sistema de Gerenciamento" />
+    <meta name="twitter:description" content="PWA completo para gestão empresarial" />
+    <meta name="twitter:image" content="/lovable-uploads/220efd77-c866-404d-97db-eb83999f4e52.png" />
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/lovable-uploads/220efd77-c866-404d-97db-eb83999f4e52.png" as="image">
+    
+    <!-- Mobile Optimizations -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="HandheldFriendly" content="true">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
   </head>
 
   <body>
     <div id="root"></div>
+    
+    <!-- Critical Scripts -->
+    <script>
+      // Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('Service Worker registrado com sucesso:', registration);
+            
+            // Verificar atualizações
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nova versão disponível
+                    if (confirm('Nova versão disponível! Deseja atualizar?')) {
+                      window.location.reload();
+                    }
+                  }
+                });
+              }
+            });
+          } catch (error) {
+            console.error('Erro ao registrar Service Worker:', error);
+          }
+        });
+      }
+
+      // Viewport Height Fix para dispositivos móveis
+      function setViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      
+      setViewportHeight();
+      window.addEventListener('resize', setViewportHeight);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(setViewportHeight, 100);
+      });
+
+      // Prevenção de zoom duplo toque no iOS
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (event) => {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+
+      // Loading Performance
+      window.addEventListener('load', () => {
+        document.body.classList.add('loaded');
+      });
+    </script>
+    
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
