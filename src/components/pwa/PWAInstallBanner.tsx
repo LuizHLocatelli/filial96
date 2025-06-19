@@ -58,8 +58,8 @@ export function PWAInstallBanner() {
   return (
     <>
       <div className={cn(
-        "fixed bottom-20 left-4 right-4 z-40 animate-slide-up",
-        isMobile ? "bottom-24" : "bottom-20"
+        "fixed left-4 right-4 z-40 animate-slide-up",
+        isMobile ? "bottom-32" : "bottom-8"
       )}>
         <Card className="border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 shadow-lg">
           <CardContent className="p-4">
