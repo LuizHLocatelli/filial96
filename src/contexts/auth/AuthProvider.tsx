@@ -1,5 +1,5 @@
 
-import { createContext, useState } from "react";
+import React, { createContext, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { User as AppUser } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
