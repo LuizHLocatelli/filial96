@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { EnhancedTopBar } from "./EnhancedTopBar";
 import { NavigationTabs } from "./NavigationTabs";
@@ -24,7 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
         className={cn(
           "flex-1 overflow-y-auto",
-          isMobile ? 'pb-32' : 'pb-24'
+          isMobile ? 'pb-36' : 'pb-32'
         )}
       >
         {children}

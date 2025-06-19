@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -23,31 +22,32 @@ export function PageLayout({
     lg: "max-w-6xl",
     xl: "max-w-7xl",
     "2xl": "max-w-screen-2xl",
-    full: "w-full"
+    full: "max-w-full"
   };
 
   const spacingClasses = {
-    tight: "space-y-2 sm:space-y-3",
-    normal: "space-y-3 sm:space-y-4",
+    tight: "space-y-1.5 sm:space-y-2",
+    normal: "space-y-2.5 sm:space-y-4",
     relaxed: "space-y-4 sm:space-y-6"
   };
 
   const paddingClasses = {
-    tight: "px-4 py-3",
-    normal: "px-4 py-4",
-    relaxed: "px-6 py-6"
+    tight: "px-3 sm:px-4 py-2 sm:py-3",
+    normal: "px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5",
+    relaxed: "px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8"
   };
 
   return (
     <div className={cn(
-      "w-full animate-fade-in",
+      "w-full mx-auto animate-fade-in",
       fullHeight && "min-h-screen",
       spacingClasses[spacing],
       maxWidthClasses[maxWidth],
       paddingClasses[spacing],
+      "relative",
       className
     )}>
       {children}
     </div>
   );
-}
+} 

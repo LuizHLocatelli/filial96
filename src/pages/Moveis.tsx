@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
@@ -21,17 +22,6 @@ import { AppLayout as Layout } from "@/components/layout/AppLayout";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
-
-// Export the Rotina type interface
-export interface Rotina {
-  id: string;
-  titulo: string;
-  descricao?: string;
-  setor?: string;
-  status?: string;
-  dataCreated?: string;
-  dataUpdated?: string;
-}
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
