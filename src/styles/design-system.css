@@ -1,5 +1,6 @@
-/* 🎨 DESIGN SYSTEM UNIFICADO - FILIAL 96 */
-/* Padronização completa de responsividade e espaçamentos */
+
+/* 🎨 DESIGN SYSTEM RESPONSIVO OTIMIZADO - FILIAL 96 */
+/* Sistema simplificado focado em aproveitamento total da tela */
 
 @layer base {
   /* ========================================
@@ -7,198 +8,94 @@
      ======================================== */
   
   :root {
-    /* 📐 Breakpoints Padronizados (ÚNICOS PERMITIDOS) */
-    --breakpoint-xs: 475px;   /* Extra small phones */
-    --breakpoint-sm: 640px;   /* Small tablets */
-    --breakpoint-md: 768px;   /* Tablets */
-    --breakpoint-lg: 1024px;  /* Laptops */
-    --breakpoint-xl: 1280px;  /* Desktops */
-    --breakpoint-2xl: 1536px; /* Large desktops */
+    /* 📐 Breakpoints Padrão */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
 
-    /* 📏 Sistema de Espaçamentos Unificado */
-    --space-0: 0;             /* 0px */
-    --space-1: 0.25rem;       /* 4px */
-    --space-2: 0.5rem;        /* 8px - micro gaps */
-    --space-3: 0.75rem;       /* 12px - pequenos */
-    --space-4: 1rem;          /* 16px - padrão */
-    --space-5: 1.25rem;       /* 20px */
-    --space-6: 1.5rem;        /* 24px - grandes */
-    --space-8: 2rem;          /* 32px - extra grandes */
-    --space-10: 2.5rem;       /* 40px */
-    --space-12: 3rem;         /* 48px */
-    --space-16: 4rem;         /* 64px */
-    --space-20: 5rem;         /* 80px */
-    --space-24: 6rem;         /* 96px */
-    --space-32: 8rem;         /* 128px */
+    /* 📏 Espaçamentos Básicos */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
 
-    /* 📱 Touch Targets & Dimensões (Apple/Google Guidelines) */
-    --touch-target-min: 44px;        /* Mínimo obrigatório */
-    --touch-target-comfortable: 48px; /* Confortável */
-    --input-height-sm: 36px;         /* Inputs pequenos */
-    --input-height-md: 40px;         /* Inputs padrão */
-    --input-height-lg: 48px;         /* Inputs grandes */
-    --button-height-sm: 36px;        /* Botões pequenos */
-    --button-height-md: 40px;        /* Botões padrão */
-    --button-height-lg: 48px;        /* Botões grandes */
+    /* 📱 Touch Targets */
+    --touch-target-min: 44px;
+    --input-height: 40px;
+    --button-height: 40px;
 
-    /* 🔤 Sistema Tipográfico Escalável */
-    --text-xs: 0.75rem;      /* 12px */
-    --text-sm: 0.875rem;     /* 14px */
-    --text-base: 1rem;       /* 16px */
-    --text-lg: 1.125rem;     /* 18px */
-    --text-xl: 1.25rem;      /* 20px */
-    --text-2xl: 1.5rem;      /* 24px */
-    --text-3xl: 1.875rem;    /* 30px */
-    --text-4xl: 2.25rem;     /* 36px */
-
-    /* 🎯 Grid System Tokens */
-    --grid-cols-1: repeat(1, minmax(0, 1fr));
-    --grid-cols-2: repeat(2, minmax(0, 1fr));
-    --grid-cols-3: repeat(3, minmax(0, 1fr));
-    --grid-cols-4: repeat(4, minmax(0, 1fr));
-    --grid-cols-5: repeat(5, minmax(0, 1fr));
-    --grid-cols-6: repeat(6, minmax(0, 1fr));
-    --grid-cols-12: repeat(12, minmax(0, 1fr));
-
-    /* 🎨 Consistent Radius */
-    --radius-sm: 0.375rem;   /* 6px */
-    --radius-md: 0.5rem;     /* 8px */
-    --radius-lg: 0.75rem;    /* 12px */
-    --radius-xl: 1rem;       /* 16px */
+    /* 🎯 Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
   }
 }
 
 @layer components {
   /* ========================================
-     📱 RESPONSIVE CONTAINERS PADRONIZADOS
+     📱 CONTAINERS FULL-WIDTH
      ======================================== */
   
-  .container-responsive {
+  .container-full {
     width: 100%;
-    max-width: var(--breakpoint-2xl);
-    margin-left: auto;
-    margin-right: auto;
     padding-left: var(--space-4);
     padding-right: var(--space-4);
   }
 
-  @media (min-width: 640px) {
-    .container-responsive {
-      padding-left: var(--space-6);
-      padding-right: var(--space-6);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .container-responsive {
-      padding-left: var(--space-8);
-      padding-right: var(--space-8);
-    }
-  }
-
   /* ========================================
-     📐 GRID SYSTEM PADRONIZADO (ÚNICOS PERMITIDOS)
+     📐 GRID SYSTEM OTIMIZADO
      ======================================== */
   
-  /* Grid para Estatísticas/Stats - PADRÃO ÚNICO */
-  .grid-responsive-stats {
+  .grid-responsive-2 {
     display: grid;
-    grid-template-columns: var(--grid-cols-2);
-    gap: var(--space-3);
-  }
-
-  @media (min-width: 768px) {
-    .grid-responsive-stats {
-      grid-template-columns: var(--grid-cols-4);
-      gap: var(--space-4);
-    }
-  }
-
-  /* Grid para Arquivos/Cards - PADRÃO ÚNICO */
-  .grid-responsive-files {
-    display: grid;
-    grid-template-columns: var(--grid-cols-1);
-    gap: var(--space-4);
-  }
-
-  @media (min-width: 640px) {
-    .grid-responsive-files {
-      grid-template-columns: var(--grid-cols-2);
-    }
-  }
-
-  @media (min-width: 768px) {
-    .grid-responsive-files {
-      grid-template-columns: var(--grid-cols-3);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .grid-responsive-files {
-      grid-template-columns: var(--grid-cols-4);
-      gap: var(--space-6);
-    }
-  }
-
-  /* Grid para Cards 2-3 - PADRÃO ÚNICO */
-  .grid-responsive-cards {
-    display: grid;
-    grid-template-columns: var(--grid-cols-1);
+    grid-template-columns: 1fr;
     gap: var(--space-3);
   }
 
   @media (min-width: 640px) {
-    .grid-responsive-cards {
-      grid-template-columns: var(--grid-cols-2);
+    .grid-responsive-2 {
+      grid-template-columns: repeat(2, 1fr);
       gap: var(--space-4);
     }
   }
 
+  .grid-responsive-3 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
   @media (min-width: 768px) {
-    .grid-responsive-cards {
-      grid-template-columns: var(--grid-cols-3);
+    .grid-responsive-3 {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
-  /* Grid para Layouts Largos - PADRÃO ÚNICO */
-  .grid-responsive-wide {
+  .grid-responsive-4 {
     display: grid;
-    grid-template-columns: var(--grid-cols-1);
-    gap: var(--space-4);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
   }
 
-  @media (min-width: 1024px) {
-    .grid-responsive-wide {
-      grid-template-columns: var(--grid-cols-2);
-      gap: var(--space-6);
+  @media (min-width: 640px) {
+    .grid-responsive-4 {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
-  /* Grid para Dashboards - PADRÃO ÚNICO */
-  .grid-responsive-dashboard {
-    display: grid;
-    grid-template-columns: var(--grid-cols-1);
-    gap: var(--space-4);
-  }
-
   @media (min-width: 1024px) {
-    .grid-responsive-dashboard {
-      grid-template-columns: var(--grid-cols-4);
-      gap: var(--space-6);
+    .grid-responsive-4 {
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 
   /* ========================================
-     📏 SPACING SYSTEM UNIFICADO
+     📏 SPACING UTILITIES
      ======================================== */
   
-  /* Stack Layouts - Vertical */
-  .stack-xs {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
   .stack-sm {
     display: flex;
     flex-direction: column;
@@ -209,31 +106,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-  }
-
-  .stack-lg {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-  }
-
-  .stack-responsive {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  @media (min-width: 640px) {
-    .stack-responsive {
-      gap: var(--space-6);
-    }
-  }
-
-  /* Inline Layouts - Horizontal */
-  .inline-xs {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
   }
 
   .inline-sm {
@@ -248,35 +120,15 @@
     gap: var(--space-3);
   }
 
-  .inline-lg {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-  }
-
-  .inline-responsive {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  @media (min-width: 640px) {
-    .inline-responsive {
-      gap: var(--space-3);
-    }
-  }
-
   /* ========================================
-     📱 RESPONSIVE COMPONENTS PADRONIZADOS
+     📱 RESPONSIVE COMPONENTS
      ======================================== */
   
-  /* Cards Responsivos */
   .card-responsive {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius-md);
     padding: var(--space-4);
-    box-shadow: var(--shadow-soft);
   }
 
   @media (min-width: 640px) {
@@ -285,201 +137,43 @@
     }
   }
 
-  /* Headers Responsivos */
-  .header-responsive {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+  .button-responsive {
+    height: var(--button-height);
+    padding: 0 var(--space-4);
+    min-width: var(--touch-target-min);
+    border-radius: var(--radius-md);
   }
 
-  @media (min-width: 640px) {
-    .header-responsive {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-  }
-
-  /* Button Groups Responsivos */
-  .button-group-responsive {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    width: 100%;
-  }
-
-  @media (min-width: 640px) {
-    .button-group-responsive {
-      flex-direction: row;
-      width: auto;
-    }
-  }
-
-  /* ========================================
-     🔤 TIPOGRAFIA RESPONSIVA PADRONIZADA
-     ======================================== */
-  
-  .text-responsive-xs {
-    font-size: var(--text-xs);
-  }
-
-  @media (min-width: 640px) {
-    .text-responsive-xs {
-      font-size: var(--text-sm);
-    }
-  }
-
-  .text-responsive-sm {
-    font-size: var(--text-xs);
-  }
-
-  @media (min-width: 640px) {
-    .text-responsive-sm {
-      font-size: var(--text-sm);
-    }
-  }
-
-  .text-responsive-base {
-    font-size: var(--text-sm);
-  }
-
-  @media (min-width: 640px) {
-    .text-responsive-base {
-      font-size: var(--text-base);
-    }
-  }
-
-  .text-responsive-lg {
-    font-size: var(--text-base);
-  }
-
-  @media (min-width: 640px) {
-    .text-responsive-lg {
-      font-size: var(--text-lg);
-    }
-  }
-
-  .text-responsive-xl {
-    font-size: var(--text-lg);
-  }
-
-  @media (min-width: 640px) {
-    .text-responsive-xl {
-      font-size: var(--text-xl);
-    }
-  }
-
-  .text-responsive-title {
-    font-size: var(--text-xl);
-    font-weight: 700;
-  }
-
-  @media (min-width: 640px) {
-    .text-responsive-title {
-      font-size: var(--text-2xl);
-    }
-  }
-
-  @media (min-width: 768px) {
-    .text-responsive-title {
-      font-size: var(--text-3xl);
-    }
-  }
-
-  /* ========================================
-     🎯 FORM COMPONENTS PADRONIZADOS
-     ======================================== */
-  
   .input-responsive {
-    height: var(--input-height-sm);
+    height: var(--input-height);
     padding: 0 var(--space-3);
-    font-size: var(--text-sm);
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius-md);
   }
 
-  @media (min-width: 640px) {
-    .input-responsive {
-      height: var(--input-height-md);
-      padding: 0 var(--space-4);
-      font-size: var(--text-base);
-    }
+  /* ========================================
+     📊 SAFE AREAS
+     ======================================== */
+  
+  .safe-area-bottom {
+    padding-bottom: 8rem;
   }
 
-  .button-responsive {
-    height: var(--button-height-sm);
-    padding: 0 var(--space-3);
-    font-size: var(--text-sm);
-    min-width: var(--touch-target-min);
-    border-radius: var(--radius-md);
-  }
-
-  @media (min-width: 640px) {
-    .button-responsive {
-      height: var(--button-height-md);
-      padding: 0 var(--space-4);
-      font-size: var(--text-base);
-      min-width: var(--touch-target-comfortable);
-    }
-  }
-
-  .button-responsive-sm {
-    height: var(--button-height-sm);
-    padding: 0 var(--space-2);
-    font-size: var(--text-xs);
-    min-width: var(--touch-target-min);
-    border-radius: var(--radius-sm);
-  }
-
-  @media (min-width: 640px) {
-    .button-responsive-sm {
-      padding: 0 var(--space-3);
-      font-size: var(--text-sm);
-    }
-  }
-
-  .button-responsive-lg {
-    height: var(--button-height-lg);
-    padding: 0 var(--space-6);
-    font-size: var(--text-base);
-    min-width: var(--touch-target-comfortable);
-    border-radius: var(--radius-lg);
-  }
-
-  @media (min-width: 640px) {
-    .button-responsive-lg {
-      padding: 0 var(--space-8);
-      font-size: var(--text-lg);
+  @media (min-width: 768px) {
+    .safe-area-bottom {
+      padding-bottom: 6rem;
     }
   }
 
   /* ========================================
-     📊 UTILITIES RESPONSIVOS
+     🎯 UTILITIES
      ======================================== */
   
-  /* Safe Areas para Navigation */
-  .safe-area-bottom-mobile {
-    padding-bottom: var(--space-32);
-  }
-
-  @media (min-width: 768px) {
-    .safe-area-bottom-mobile {
-      padding-bottom: var(--space-20);
-    }
-  }
-
-  /* Touch Friendly - Garante Acessibilidade */
   .touch-friendly {
     min-height: var(--touch-target-min);
     min-width: var(--touch-target-min);
   }
 
-  .touch-comfortable {
-    min-height: var(--touch-target-comfortable);
-    min-width: var(--touch-target-comfortable);
-  }
-
-  /* Responsive Visibility */
   .mobile-only {
     display: block;
   }
@@ -500,104 +194,8 @@
     }
   }
 
-  .tablet-up {
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .tablet-up {
-      display: block;
-    }
-  }
-
-  /* ========================================
-     🎨 DESIGN CONSISTENCY HELPERS
-     ======================================== */
-  
-  /* Consistent Shadows */
-  .shadow-consistent-sm {
-    box-shadow: var(--shadow-soft);
-  }
-
-  .shadow-consistent-md {
-    box-shadow: var(--shadow-medium);
-  }
-
-  .shadow-consistent-lg {
-    box-shadow: var(--shadow-strong);
-  }
-
-  /* Consistent Borders */
-  .border-consistent {
-    border: 1px solid hsl(var(--border));
-  }
-
-  .border-consistent-muted {
-    border: 1px solid hsl(var(--border) / 0.5);
-  }
-
-  /* Consistent Backgrounds */
-  .bg-consistent-card {
-    background: hsl(var(--card));
-  }
-
-  .bg-consistent-muted {
-    background: hsl(var(--muted));
-  }
-
-  .bg-consistent-accent {
-    background: hsl(var(--accent));
-  }
-
-  /* ========================================
-     🚀 PERFORMANCE OPTIMIZATIONS
-     ======================================== */
-  
-  /* Preload common responsive classes */
-  .will-change-transform {
-    will-change: transform;
-  }
-
-  .gpu-accelerated {
-    transform: translateZ(0);
+  .full-width {
+    width: 100% !important;
+    max-width: none !important;
   }
 }
-
-/* ========================================
-   📱 MOBILE-FIRST BREAKPOINT HELPERS
-   ======================================== */
-
-/* Extra Small (< 475px) */
-@media (max-width: 474px) {
-  .xs\:gap-2 { gap: var(--space-2); }
-  .xs\:p-3 { padding: var(--space-3); }
-  .xs\:text-xs { font-size: var(--text-xs); }
-  .xs\:grid-cols-1 { grid-template-columns: var(--grid-cols-1); }
-}
-
-/* Small (640px+) */
-@media (min-width: 640px) {
-  .sm\:gap-4 { gap: var(--space-4); }
-  .sm\:gap-6 { gap: var(--space-6); }
-  .sm\:p-6 { padding: var(--space-6); }
-  .sm\:text-base { font-size: var(--text-base); }
-  .sm\:grid-cols-2 { grid-template-columns: var(--grid-cols-2); }
-  .sm\:grid-cols-3 { grid-template-columns: var(--grid-cols-3); }
-}
-
-/* Medium (768px+) */
-@media (min-width: 768px) {
-  .md\:gap-6 { gap: var(--space-6); }
-  .md\:gap-8 { gap: var(--space-8); }
-  .md\:p-8 { padding: var(--space-8); }
-  .md\:grid-cols-3 { grid-template-columns: var(--grid-cols-3); }
-  .md\:grid-cols-4 { grid-template-columns: var(--grid-cols-4); }
-}
-
-/* Large (1024px+) */
-@media (min-width: 1024px) {
-  .lg\:gap-8 { gap: var(--space-8); }
-  .lg\:p-8 { padding: var(--space-8); }
-  .lg\:grid-cols-4 { grid-template-columns: var(--grid-cols-4); }
-  .lg\:grid-cols-5 { grid-template-columns: var(--grid-cols-5); }
-} 
