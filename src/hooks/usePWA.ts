@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -17,6 +16,13 @@ interface PWAInstallState {
   platform: 'ios' | 'android' | 'desktop' | 'unknown';
   canInstall: boolean;
   isOffline: boolean;
+}
+
+// Extend Window interface to include our custom property
+declare global {
+  interface Window {
+    deferredPrompt?: BeforeInstallPromptEvent;
+  }
 }
 
 export function usePWA() {
@@ -102,7 +108,7 @@ export function usePWA() {
     const handleAppInstalled = (e: Event) => {
       console.log('PWA: App installed successfully', e);
       // @ts-ignore
-      window.deferredPrompt = null;
+      window.deferredPrompt = undefined;
       setInstallPrompt(null);
       setInstallState(prev => ({
         ...prev,
@@ -237,7 +243,7 @@ export function usePWA() {
       if (choiceResult.outcome === 'accepted') {
         console.log('PWA: User accepted installation');
         // @ts-ignore
-        window.deferredPrompt = null;
+        window.deferredPrompt = undefined;
         setInstallPrompt(null);
         setInstallState(prev => ({
           ...prev,
