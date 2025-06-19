@@ -16,7 +16,8 @@ import {
   WifiOff,
   CheckCircle2,
   Zap,
-  AlertCircle
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -139,6 +140,11 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
                       <Zap className="w-3 h-3 mr-1" />
                       Instalação Rápida
                     </Badge>
+                  ) : installState.promptExpired ? (
+                    <Badge variant="outline" className="text-xs text-orange-600 border-orange-300">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Prompt Expirado
+                    </Badge>
                   ) : installState.platform === 'android' ? (
                     <Badge variant="outline" className="text-xs">
                       <AlertCircle className="w-3 h-3 mr-1" />
@@ -152,6 +158,8 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
           <DialogDescription>
             {installState.canInstall 
               ? "Clique no botão abaixo para instalar o app diretamente!" 
+              : installState.promptExpired
+              ? "A opção de instalação rápida expirou. Recarregue a página para uma nova oportunidade ou use as instruções manuais abaixo."
               : installState.platform === 'android'
               ? "Seu navegador Chrome não está oferecendo instalação automática. Use as instruções manuais abaixo."
               : "Siga as instruções para adicionar o app à sua tela inicial."
@@ -160,8 +168,28 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Aviso sobre prompt expirado */}
+          {installState.promptExpired && (
+            <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+              <CardContent className="p-3">
+                <div className="flex items-start space-x-2">
+                  <Clock className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs">
+                    <p className="font-medium text-orange-800 dark:text-orange-200">
+                      Instalação rápida expirou
+                    </p>
+                    <p className="text-orange-700 dark:text-orange-300 mt-1">
+                      O navegador removeu a opção de instalação automática após um tempo. 
+                      Recarregue a página para uma nova oportunidade ou use a instalação manual.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Debug info para Android sem install prompt */}
-          {installState.platform === 'android' && !installState.canInstall && (
+          {installState.platform === 'android' && !installState.canInstall && !installState.promptExpired && (
             <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
               <CardContent className="p-3">
                 <div className="flex items-start space-x-2">
@@ -272,6 +300,20 @@ export function PWAInstallPrompt({ open, onOpenChange }: PWAInstallPromptProps) 
               </Button>
             )}
           </div>
+
+          {/* Dica para recarregar se o prompt expirou */}
+          {installState.promptExpired && (
+            <div className="text-center">
+              <Button 
+                variant="link" 
+                size="sm" 
+                onClick={() => window.location.reload()}
+                className="text-orange-600 hover:text-orange-800"
+              >
+                🔄 Recarregar página para nova oportunidade
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Status de conectividade */}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -16,6 +17,7 @@ interface PWAInstallState {
   platform: 'ios' | 'android' | 'desktop' | 'unknown';
   canInstall: boolean;
   isOffline: boolean;
+  promptExpired: boolean;
 }
 
 // Extend Window interface to include our custom property
@@ -33,7 +35,8 @@ export function usePWA() {
     isStandalone: false,
     platform: 'unknown',
     canInstall: false,
-    isOffline: false
+    isOffline: false,
+    promptExpired: false
   });
 
   useEffect(() => {
@@ -73,17 +76,48 @@ export function usePWA() {
       isOffline
     }));
 
+    // Timer para verificar se o prompt expirou
+    let promptExpirationTimer: NodeJS.Timeout;
+
     // Verificar se o evento beforeinstallprompt já foi disparado
     const checkExistingPrompt = () => {
-      // @ts-ignore - Verificar se já existe um prompt em cache
       if (window.deferredPrompt) {
         console.log('PWA: Found existing deferred prompt');
         setInstallPrompt(window.deferredPrompt);
         setInstallState(prev => ({
           ...prev,
           isInstallable: true,
-          canInstall: true
+          canInstall: true,
+          promptExpired: false
         }));
+        
+        // Configurar timer para detectar expiração (30 segundos)
+        promptExpirationTimer = setTimeout(() => {
+          console.log('PWA: Prompt may have expired after 30 seconds');
+          checkPromptValidity();
+        }, 30000);
+      }
+    };
+
+    // Função para verificar se o prompt ainda é válido
+    const checkPromptValidity = async () => {
+      if (installPrompt) {
+        try {
+          // Tentar acessar uma propriedade do prompt para ver se ainda é válido
+          const platforms = installPrompt.platforms;
+          if (!platforms || platforms.length === 0) {
+            throw new Error('Prompt appears to be invalid');
+          }
+        } catch (error) {
+          console.log('PWA: Prompt has expired or is invalid', error);
+          setInstallState(prev => ({
+            ...prev,
+            canInstall: false,
+            promptExpired: true
+          }));
+          setInstallPrompt(null);
+          window.deferredPrompt = undefined;
+        }
       }
     };
 
@@ -93,28 +127,44 @@ export function usePWA() {
       e.preventDefault();
       const promptEvent = e as BeforeInstallPromptEvent;
       
-      // @ts-ignore - Armazenar globalmente para debug
+      // Limpar timer anterior se existir
+      if (promptExpirationTimer) {
+        clearTimeout(promptExpirationTimer);
+      }
+      
       window.deferredPrompt = promptEvent;
       
       setInstallPrompt(promptEvent);
       setInstallState(prev => ({
         ...prev,
         isInstallable: true,
-        canInstall: true
+        canInstall: true,
+        promptExpired: false
       }));
+
+      // Configurar timer para detectar expiração (30 segundos)
+      promptExpirationTimer = setTimeout(() => {
+        console.log('PWA: Prompt may have expired after 30 seconds');
+        checkPromptValidity();
+      }, 30000);
     };
 
     // Listener para quando o app é instalado
     const handleAppInstalled = (e: Event) => {
       console.log('PWA: App installed successfully', e);
-      // @ts-ignore
+      
+      if (promptExpirationTimer) {
+        clearTimeout(promptExpirationTimer);
+      }
+      
       window.deferredPrompt = undefined;
       setInstallPrompt(null);
       setInstallState(prev => ({
         ...prev,
         isInstalled: true,
         isInstallable: false,
-        canInstall: false
+        canInstall: false,
+        promptExpired: false
       }));
     };
 
@@ -179,7 +229,12 @@ export function usePWA() {
         }
       }, 3000);
 
-      return () => clearTimeout(timeout);
+      return () => {
+        clearTimeout(timeout);
+        if (promptExpirationTimer) {
+          clearTimeout(promptExpirationTimer);
+        }
+      };
     }
 
     // Verificar Service Worker
@@ -201,6 +256,10 @@ export function usePWA() {
       window.removeEventListener('appinstalled', handleAppInstalled);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      
+      if (promptExpirationTimer) {
+        clearTimeout(promptExpirationTimer);
+      }
     };
   }, []);
 
@@ -242,20 +301,34 @@ export function usePWA() {
       
       if (choiceResult.outcome === 'accepted') {
         console.log('PWA: User accepted installation');
-        // @ts-ignore
         window.deferredPrompt = undefined;
         setInstallPrompt(null);
         setInstallState(prev => ({
           ...prev,
-          canInstall: false
+          canInstall: false,
+          promptExpired: false
         }));
         return true;
       } else {
         console.log('PWA: User dismissed installation');
+        // Marcar como expirado após dismissal
+        setInstallState(prev => ({
+          ...prev,
+          canInstall: false,
+          promptExpired: true
+        }));
         return false;
       }
     } catch (error) {
       console.error('PWA: Error during installation:', error);
+      // Em caso de erro, marcar como expirado
+      setInstallState(prev => ({
+        ...prev,
+        canInstall: false,
+        promptExpired: true
+      }));
+      setInstallPrompt(null);
+      window.deferredPrompt = undefined;
       return false;
     }
   };
