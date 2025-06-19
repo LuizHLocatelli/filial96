@@ -4,7 +4,6 @@
 @import './styles/base.css';
 @import './styles/components.css';
 @import './styles/depositos.css';
-@import './styles/pwa.css';
 
 @tailwind base;
 @tailwind components;
