@@ -1,10 +1,6 @@
 
-/* PWA Specific Styles - Minimal and Non-Intrusive */
 
-/* Viewport Height Fix para dispositivos móveis */
-:root {
-  --vh: 1vh;
-}
+/* PWA Specific Styles - Minimal and Non-Intrusive */
 
 /* PWA Status Bar Adjustments */
 @supports (padding-top: env(safe-area-inset-top)) {
@@ -21,33 +17,6 @@
   
   .pwa-safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
-  }
-}
-
-/* Standalone Mode Specific Styles */
-@media (display-mode: standalone) {
-  body {
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-  }
-  
-  /* Remove scrollbar em modo standalone */
-  ::-webkit-scrollbar {
-    width: 2px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: rgba(34, 197, 94, 0.3);
-    border-radius: 2px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(34, 197, 94, 0.5);
   }
 }
 
@@ -158,19 +127,3 @@
   transform: translateY(0);
 }
 
-/* Dark Mode PWA Adjustments */
-@media (prefers-color-scheme: dark) {
-  .pwa-loading {
-    background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
-    color: white;
-  }
-}
-
-/* High DPI Displays */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .pwa-loading-logo,
-  .pwa-splash-logo {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-}
