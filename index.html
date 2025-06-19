@@ -3,32 +3,13 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Filial 96</title>
     <meta name="description" content="Sistema de gerenciamento da Filial 96" />
     <meta name="author" content="Filial 96" />
     
-    <!-- PWA Primary Meta Tags -->
-    <meta name="application-name" content="Filial 96" />
-    <meta name="apple-mobile-web-app-title" content="Filial 96" />
-    <meta name="theme-color" content="#22c55e" />
-    <meta name="msapplication-TileColor" content="#22c55e" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    
     <!-- Icons -->
     <link rel="icon" href="/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png" type="image/png">
-    <link rel="apple-touch-icon" href="/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png">
-    
-    <!-- Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Microsoft -->
-    <meta name="msapplication-config" content="/browserconfig.xml" />
     
     <!-- SEO Meta Tags -->
     <meta property="og:title" content="Filial 96" />
@@ -43,13 +24,6 @@
     <meta name="twitter:description" content="Sistema de gerenciamento da Filial 96" />
     <meta name="twitter:image" content="/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png" />
     
-    <!-- Splash screens for iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- Prevent zoom on inputs -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <!-- Performance hints -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,21 +31,6 @@
 
   <body>
     <div id="root"></div>
-    
-    <!-- Service Worker Registration -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
     
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
