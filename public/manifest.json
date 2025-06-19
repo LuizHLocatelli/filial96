@@ -1,0 +1,131 @@
+
+{
+  "name": "Filial 96 - Sistema de Gerenciamento",
+  "short_name": "Filial 96",
+  "description": "Sistema completo de gerenciamento da Filial 96",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "120x120",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hub Produtividade",
+      "short_name": "Hub",
+      "description": "Acesso direto ao Hub de Produtividade",
+      "url": "/hub-produtividade",
+      "icons": [
+        {
+          "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Móveis",
+      "short_name": "Móveis",
+      "description": "Seção de móveis",
+      "url": "/moveis",
+      "icons": [
+        {
+          "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Moda",
+      "short_name": "Moda",
+      "description": "Seção de moda",
+      "url": "/moda",
+      "icons": [
+        {
+          "src": "/lovable-uploads/c1732df3-8011-4da6-b0e5-c89f9ebf9bf1.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
