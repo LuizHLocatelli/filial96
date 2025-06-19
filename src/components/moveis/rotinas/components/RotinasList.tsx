@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -230,7 +231,7 @@ export function RotinasList({
                         </div>
                         <div className="flex items-center gap-2 ml-2">
                            <Button variant="ghost" size="sm" className="touch-friendly p-0" onClick={() => toggleExpandRotina(rotina.id)}>
-                            {expandedRotinas.includes(rotina.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            {expandedRotinas.has(rotina.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
