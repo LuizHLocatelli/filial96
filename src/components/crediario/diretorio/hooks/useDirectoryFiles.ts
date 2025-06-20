@@ -45,7 +45,7 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
 
       console.log('Files fetched successfully:', data?.length || 0);
       
-      // Convert data to DirectoryFile format
+      // Convert data to DirectoryFile format with safety check
       const convertedFiles: DirectoryFile[] = (data || []).map(item => ({
         id: item.id,
         name: item.name || '',
@@ -68,7 +68,7 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
         description: 'Não foi possível carregar a lista de arquivos.',
         variant: 'destructive',
       });
-      setFiles([]);
+      setFiles([]); // Garantir que sempre seja um array
     } finally {
       setIsLoading(false);
     }

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -24,7 +25,8 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
       
       if (error) throw error;
       
-      const typedCards: CardItem[] = data.map(card => ({
+      // Verificação de segurança para garantir que data não seja null/undefined
+      const typedCards: CardItem[] = (data || []).map(card => ({
         id: card.id,
         title: card.title,
         image_url: card.image_url,
@@ -41,6 +43,7 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
       setCards(typedCards);
     } catch (error) {
       console.error('Error fetching cards:', error);
+      setCards([]); // Garantir que sempre seja um array
       toast({
         title: "Erro",
         description: "Não foi possível carregar os cards promocionais",

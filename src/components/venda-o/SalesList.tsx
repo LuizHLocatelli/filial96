@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -29,7 +30,7 @@ interface SalesListProps {
   onDelete: (id: string) => Promise<boolean>;
 }
 
-export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListProps) {
+export function SalesList({ sales = [], title, onStatusChange, onDelete }: SalesListProps) {
   const [selectedSale, setSelectedSale] = useState<VendaO | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -94,7 +95,8 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
     return tipo === 'frete' ? <Truck className="h-4 w-4 text-green-600" /> : <Package className="h-4 w-4 text-green-600" />;
   };
 
-  if (sales.length === 0) {
+  // Verificação de segurança para garantir que sales seja um array
+  if (!Array.isArray(sales) || sales.length === 0) {
     return (
       <Card className="max-w-4xl mx-auto">
         <CardContent className="text-center py-12">
@@ -180,7 +182,7 @@ export function SalesList({ sales, title, onStatusChange, onDelete }: SalesListP
                     {Array.isArray(sale.produtos) && sale.produtos.length > 0 && (
                       <div className="ml-6">
                         <p className="text-sm text-muted-foreground truncate">
-                          {sale.produtos.map(p => p.nome).join(", ")}
+                          {sale.produtos.map(p => p?.nome || 'Produto sem nome').join(", ")}
                         </p>
                       </div>
                     )}

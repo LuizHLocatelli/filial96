@@ -26,11 +26,13 @@ export function useFolders(sector: "furniture" | "fashion" | "loan" | "service")
         
         if (error) throw error;
         
-        setFolders(data as FolderItem[]);
+        // Verificação de segurança para garantir que data não seja null/undefined
+        setFolders((data || []) as FolderItem[]);
         setError(null);
       } catch (error) {
         console.error('Error fetching folders:', error);
         setError("Failed to load folders");
+        setFolders([]); // Garantir que sempre seja um array
         toast({
           title: "Erro",
           description: "Falha ao carregar pastas",
