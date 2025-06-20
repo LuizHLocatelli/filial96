@@ -11,9 +11,10 @@ interface EditUserFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (userData: Partial<UserWithStats>) => void;
+  onCancel?: () => void;
 }
 
-export function EditUserForm({ user, open, onOpenChange, onSave }: EditUserFormProps) {
+export function EditUserForm({ user, open, onOpenChange, onSave, onCancel }: EditUserFormProps) {
   const [formData, setFormData] = useState({
     name: user.name || '',
     role: user.role || '',
@@ -24,6 +25,13 @@ export function EditUserForm({ user, open, onOpenChange, onSave }: EditUserFormP
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    }
     onOpenChange(false);
   };
 
@@ -75,7 +83,7 @@ export function EditUserForm({ user, open, onOpenChange, onSave }: EditUserFormP
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
             <Button type="submit">

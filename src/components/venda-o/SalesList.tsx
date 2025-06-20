@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VendaO, VendaOProduct } from "@/types/vendaO";
+import { Sale } from "@/types/sales";
 import { SaleDetailsDialog } from "./SaleDetailsDialog";
 import { DeleteSaleDialog } from "./DeleteSaleDialog";
 import { 
@@ -31,7 +32,7 @@ interface SalesListProps {
 }
 
 export function SalesList({ sales = [], title, onStatusChange, onDelete }: SalesListProps) {
-  const [selectedSale, setSelectedSale] = useState<VendaO | null>(null);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isChanging, setIsChanging] = useState<{[key: string]: boolean}>({});
@@ -69,12 +70,36 @@ export function SalesList({ sales = [], title, onStatusChange, onDelete }: Sales
       parsedProdutos = [];
     }
 
-    setSelectedSale({ ...sale, produtos: parsedProdutos });
+    // Convert VendaO to Sale format for the dialog
+    const saleForDialog: Sale = {
+      id: sale.id,
+      cliente_nome: sale.nome_cliente,
+      valor: 0, // VendaO doesn't have valor field, setting to 0
+      data_venda: sale.data_venda,
+      observacoes: sale.observacoes,
+      created_at: sale.created_at,
+      created_by: sale.created_by,
+      status: sale.status,
+      cliente_telefone: sale.telefone,
+    };
+
+    setSelectedSale(saleForDialog);
     setIsViewDialogOpen(true);
   };
   
   const handleDeleteClick = (sale: VendaO) => {
-    setSelectedSale(sale);
+    const saleForDialog: Sale = {
+      id: sale.id,
+      cliente_nome: sale.nome_cliente,
+      valor: 0,
+      data_venda: sale.data_venda,
+      observacoes: sale.observacoes,
+      created_at: sale.created_at,
+      created_by: sale.created_by,
+      status: sale.status,
+      cliente_telefone: sale.telefone,
+    };
+    setSelectedSale(saleForDialog);
     setIsDeleteDialogOpen(true);
   };
 

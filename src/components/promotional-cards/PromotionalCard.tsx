@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,28 +21,38 @@ import { CardEditDialog } from "./CardEditDialog";
 import { CardDeleteDialog } from "./CardDeleteDialog";
 
 interface PromotionalCardProps {
-  card: {
-    id: string;
-    title: string;
-    image_url: string;
-    code?: string | null;
-    start_date?: string | null;
-    end_date?: string | null;
-  };
+  id: string;
+  title: string;
+  code?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  imageUrl: string;
+  folderId: string | null;
+  onDelete: (id: string) => Promise<boolean>;
+  onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
   onUpdate: (id: string, updates: { title: string }) => void;
-  onDelete: (id: string) => void;
-  currentFolder: {
-    id: string;
-    name: string;
-  };
+  sector: "furniture" | "fashion" | "loan" | "service";
+  isMobile?: boolean;
 }
 
-export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: PromotionalCardProps) {
+export function PromotionalCard({ 
+  id,
+  title,
+  code,
+  startDate,
+  endDate,
+  imageUrl,
+  folderId,
+  onDelete,
+  onMoveToFolder,
+  onUpdate,
+  sector,
+  isMobile
+}: PromotionalCardProps) {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
-  const isMobile = useIsMobile();
 
   const formatDateForDisplay = (dateString: string | null | undefined) => {
     if (!dateString) return '';
@@ -54,7 +65,7 @@ export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: Pro
   };
 
   const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(card.code || '')
+    navigator.clipboard.writeText(code || '')
       .then(() => {
         toast({
           title: "Copiado!",
@@ -74,7 +85,7 @@ export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: Pro
   const handleDeleteCard = async () => {
     setIsDeletingCard(true);
     try {
-      await onDelete(card.id);
+      await onDelete(id);
       toast({
         title: "Sucesso",
         description: "Card excluído com sucesso.",
@@ -96,8 +107,8 @@ export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: Pro
       <Card className="w-full relative group">
         <div className="aspect-video relative overflow-hidden rounded-md">
           <img
-            src={card.image_url}
-            alt={card.title}
+            src={imageUrl}
+            alt={title}
             className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
             width={500}
             height={300}
@@ -140,22 +151,25 @@ export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: Pro
         <CardViewDialog
           open={isViewDialogOpen}
           onOpenChange={setIsViewDialogOpen}
-          title={card.title}
-          imageUrl={card.image_url}
-          code={card.code || ''}
-          startDate={card.start_date ? formatDateForDisplay(card.start_date) : ''}
-          endDate={card.end_date ? formatDateForDisplay(card.end_date) : ''}
-          currentFolder={currentFolder}
-          isMobile={isMobile}
+          title={title}
+          imageUrl={imageUrl}
+          code={code || ''}
+          startDate={startDate ? formatDateForDisplay(startDate) : ''}
+          endDate={endDate ? formatDateForDisplay(endDate) : ''}
+          currentFolder={{
+            id: folderId || '',
+            name: 'Pasta Principal'
+          }}
+          isMobile={isMobile || false}
         />
 
         <CardEditDialog
           open={isEditDialogOpen}
           onOpenChange={setIsEditDialogOpen}
-          id={card.id}
-          title={card.title}
-          isMobile={isMobile}
-          onSuccess={(newTitle) => onUpdate(card.id, { title: newTitle })}
+          id={id}
+          title={title}
+          isMobile={isMobile || false}
+          onSuccess={(newTitle) => onUpdate(id, { title: newTitle })}
         />
 
         <CardDeleteDialog
@@ -163,7 +177,7 @@ export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: Pro
           onOpenChange={setIsDeleteDialogOpen}
           onConfirm={handleDeleteCard}
           isLoading={isDeletingCard}
-          isMobile={isMobile}
+          isMobile={isMobile || false}
         />
       </Card>
     </>

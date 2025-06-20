@@ -22,6 +22,9 @@ interface QuickActionsProps {
   onRelatorios: () => void;
   onRefreshData: () => void;
   onExportData: () => void;
+  onShowFilters?: () => void;
+  isRefreshing?: boolean;
+  hideHeader?: boolean;
 }
 
 export function QuickActions({
@@ -33,6 +36,9 @@ export function QuickActions({
   onRelatorios,
   onRefreshData,
   onExportData,
+  onShowFilters,
+  isRefreshing = false,
+  hideHeader = false,
 }: QuickActionsProps) {
   const { toast } = useToast();
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
@@ -51,52 +57,54 @@ export function QuickActions({
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="text-lg font-semibold">Ações rápidas</CardTitle>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              <span>Configurações</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setShowSettings(true)}>
-              Personalizar
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardHeader>
+      {!hideHeader && (
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold">Ações rápidas</CardTitle>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                <span>Configurações</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                Personalizar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </CardHeader>
+      )}
       <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <Button variant="outline" onClick={onNovaRotina}>
+        <Button variant="outline" onClick={onNovaRotina} disabled={isRefreshing}>
           <Plus className="h-4 w-4 mr-2" />
           Nova Rotina
         </Button>
-        <Button variant="outline" onClick={onNovaOrientacao}>
+        <Button variant="outline" onClick={onNovaOrientacao} disabled={isRefreshing}>
           <Plus className="h-4 w-4 mr-2" />
           Nova Orientação
         </Button>
-        <Button variant="outline" onClick={onNovaTarefa}>
+        <Button variant="outline" onClick={onNovaTarefa} disabled={isRefreshing}>
           <Plus className="h-4 w-4 mr-2" />
           Nova Tarefa
         </Button>
-        <Button variant="outline" onClick={onBuscaAvancada}>
+        <Button variant="outline" onClick={onBuscaAvancada} disabled={isRefreshing}>
           <Search className="h-4 w-4 mr-2" />
           Busca Avançada
         </Button>
-        <Button variant="outline" onClick={onFiltrosPorData}>
+        <Button variant="outline" onClick={onFiltrosPorData} disabled={isRefreshing}>
           <Calendar className="h-4 w-4 mr-2" />
           Filtros por Data
         </Button>
-        <Button variant="outline" onClick={onRelatorios}>
+        <Button variant="outline" onClick={onRelatorios} disabled={isRefreshing}>
           <File className="h-4 w-4 mr-2" />
           Relatórios
         </Button>
-        <Button variant="outline" onClick={onRefreshData}>
+        <Button variant="outline" onClick={onRefreshData} disabled={isRefreshing}>
           <File className="h-4 w-4 mr-2" />
           Atualizar Dados
         </Button>
-        <Button variant="outline" onClick={onExportData}>
+        <Button variant="outline" onClick={onExportData} disabled={isRefreshing}>
           <File className="h-4 w-4 mr-2" />
           Exportar Dados
         </Button>

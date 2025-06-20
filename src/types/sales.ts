@@ -8,6 +8,12 @@ export interface Sale {
   observacoes?: string;
   created_at?: string;
   created_by?: string;
+  status?: string;
+  cliente_telefone?: string;
+  arquivos?: Array<{
+    nome: string;
+    url: string;
+  }>;
 }
 
 export interface VendaO {
