@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { DirectoryFile } from '../types';
+import { DirectoryFile } from '@/components/crediario/diretorio/types';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useModaDirectoryFiles(categoryId?: string) {

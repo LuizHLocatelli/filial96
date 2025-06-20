@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -8,26 +7,32 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden cursor-pointer",
   {
     variants: {
       variant: {
-        default: "glass-button glass-primary text-primary-foreground shadow-lg hover:shadow-xl",
-        destructive: "glass-button bg-red-500/20 border-red-400/30 text-red-100 hover:bg-red-500/30",
-        outline: "glass-button border-2 border-white/20 text-foreground hover:border-white/40",
-        secondary: "glass-button glass-secondary text-secondary-foreground shadow-md hover:shadow-lg",
-        ghost: "glass-button bg-transparent hover:bg-white/10 text-foreground",
-        link: "text-primary underline-offset-4 hover:underline bg-transparent",
-        gradient: "glass-button glass-primary text-primary-foreground shadow-xl hover:shadow-2xl",
-        glass: "glass-button glass-accent text-white shadow-lg hover:shadow-xl",
-        success: "glass-button bg-green-500/20 border-green-400/30 text-green-100 hover:bg-green-500/30",
-        warning: "glass-button bg-yellow-500/20 border-yellow-400/30 text-yellow-100 hover:bg-yellow-500/30"
+        default: "bg-primary text-primary-foreground border-2 border-primary shadow-sm hover:bg-primary/90 hover:border-primary/90 hover:shadow-md hover:-translate-y-px",
+        destructive: "bg-destructive text-destructive-foreground border-2 border-destructive shadow-sm hover:bg-destructive/90 hover:border-destructive/90 hover:shadow-md hover:-translate-y-px",
+        outline: "bg-background text-foreground border-2 border-border shadow-sm hover:bg-muted hover:border-border/80 hover:shadow-md",
+        secondary: "bg-secondary text-secondary-foreground border-2 border-secondary shadow-sm hover:bg-secondary/80 hover:border-secondary/80 hover:shadow-md hover:-translate-y-px",
+        ghost: "bg-transparent text-foreground border-2 border-transparent hover:bg-muted hover:border-border/50",
+        link: "text-primary underline-offset-4 hover:underline bg-transparent border-0 shadow-none",
+        
+        // Novos padrões padronizados
+        primary: "bg-primary text-primary-foreground border-2 border-primary shadow-sm hover:bg-primary/90 hover:border-primary/90 hover:shadow-md hover:-translate-y-px",
+        "primary-outline": "bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md",
+        "secondary-outline": "bg-background text-foreground border-2 border-border hover:bg-muted hover:border-border/80 hover:shadow-md",
+        action: "bg-primary/10 text-primary border-2 border-primary/20 hover:bg-primary/15 hover:border-primary/30 hover:-translate-y-px",
+        success: "bg-green-600 text-white border-2 border-green-600 shadow-sm hover:bg-green-500 hover:border-green-500 hover:shadow-md hover:-translate-y-px",
+        warning: "bg-yellow-600 text-white border-2 border-yellow-600 shadow-sm hover:bg-yellow-500 hover:border-yellow-500 hover:shadow-md hover:-translate-y-px"
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-8 rounded-lg px-3 text-xs font-medium",
-        lg: "h-12 rounded-xl px-8",
-        icon: "h-10 w-10",
+        default: "h-10 px-4 py-2 rounded-lg text-sm",
+        sm: "h-8 px-3 py-1 rounded-md text-xs",
+        lg: "h-12 px-8 py-3 rounded-lg text-base",
+        icon: "h-10 w-10 rounded-lg",
+        "icon-sm": "h-8 w-8 rounded-md",
+        "icon-lg": "h-12 w-12 rounded-lg",
       },
     },
     defaultVariants: {
@@ -50,27 +55,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const buttonContent = (
       <>
-        {/* Glass Shine Effect for small buttons */}
-        {size === "sm" && (
-          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-        )}
-        
-        {/* Glass Shine Effect for other buttons */}
-        {size !== "sm" && (
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+        {/* Subtle Shine Effect */}
+        {variant !== "link" && variant !== "ghost" && (
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none rounded-[inherit]" />
         )}
         
         {/* Content */}
         <span className="relative z-10 flex items-center gap-2">
           {children}
         </span>
-        
-        {/* Bottom Highlight - removido para botões pequenos no modo escuro */}
-        {!(size === "sm") && (
-          <div className={cn(
-            "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
-          )} />
-        )}
       </>
     );
 
@@ -79,17 +72,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         <Slot
           className={cn(
             buttonVariants({ variant, size, className }),
-            isMobile && "min-h-[44px] rounded-2xl", // Touch target for mobile
-            size === "sm" && [
-              "glass-button-default",
-              "shadow-sm hover:shadow-md",
-              "border border-white/15 hover:border-white/25",
-              "backdrop-blur-sm",
-              "transition-all duration-200 ease-out",
-              // Correção específica para botões pequenos no modo escuro
-              "dark:border-white/8 dark:hover:border-white/15",
-              "relative overflow-hidden"
-            ]
+            isMobile && "min-h-[44px]", // Touch target for mobile
+            "group"
           )}
           ref={ref}
           {...props}
@@ -113,22 +97,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     return (
       <motion.button
-        whileHover={{ scale: size === "sm" ? 1.03 : 1.02 }}
-        whileTap={{ scale: size === "sm" ? 0.97 : 0.98 }}
+        whileHover={{ scale: size === "sm" || size === "icon-sm" ? 1.02 : 1.01 }}
+        whileTap={{ scale: size === "sm" || size === "icon-sm" ? 0.98 : 0.99 }}
         transition={{ duration: 0.1 }}
         className={cn(
           buttonVariants({ variant, size, className }),
-          isMobile && "min-h-[44px] rounded-2xl", // Touch target for mobile
-          size === "sm" && [
-            "glass-button-default",
-            "shadow-sm hover:shadow-md",
-            "border border-white/15 hover:border-white/25",
-            "backdrop-blur-sm",
-            "transition-all duration-200 ease-out",
-            // Correção específica para botões pequenos no modo escuro
-            "dark:border-white/8 dark:hover:border-white/15",
-            "relative overflow-hidden"
-          ]
+          isMobile && "min-h-[44px]", // Touch target for mobile
+          "group"
         )}
         ref={ref}
         {...buttonProps}

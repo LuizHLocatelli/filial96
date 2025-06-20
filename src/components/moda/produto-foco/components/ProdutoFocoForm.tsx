@@ -329,7 +329,7 @@ export function ProdutoFocoForm({
                   accept="image/*"
                   multiple
                   onChange={handleFileUpload}
-                  className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                  className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-2 file:border-green-600 file:bg-green-600 file:text-white file:text-sm file:font-medium hover:file:bg-green-500 hover:file:border-green-500"
                 />
               </div>
               

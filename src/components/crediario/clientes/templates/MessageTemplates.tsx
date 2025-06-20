@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -219,9 +218,9 @@ Estamos aqui para ajudar! 💪`
               
               <Button
                 onClick={() => sendWhatsApp(customMessage)}
-                className="gap-2 bg-green-600 hover:bg-green-700"
+                variant="success"
               >
-                <MessageSquare className="h-4 w-4" />
+                <MessageSquare className="h-4 w-4 mr-2" />
                 Enviar WhatsApp
               </Button>
               

@@ -1,33 +1,35 @@
-
 import { Plus, Upload, FolderOpen, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CardGalleryEmptyProps {
   folderId: string | null;
+  onCreateCard: () => void;
 }
 
-export function CardGalleryEmpty({ folderId }: CardGalleryEmptyProps) {
+export function CardGalleryEmpty({ folderId, onCreateCard }: CardGalleryEmptyProps) {
   return (
     <div className="text-center py-16 px-4">
-      <div className="stack-lg items-center">
+      <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
+        {/* Ícone ilustrativo */}
         <div className="relative">
-          <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center">
+          <div className="w-24 h-24 bg-primary/10 rounded-2xl flex items-center justify-center border-2 border-primary/20">
             {folderId ? (
-              <FolderOpen className="h-12 w-12 text-primary/60" />
+              <FolderOpen className="h-12 w-12 text-primary" />
             ) : (
-              <Image className="h-12 w-12 text-primary/60" />
+              <Image className="h-12 w-12 text-primary" />
             )}
           </div>
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center">
-            <Plus className="touch-friendly text-white" />
+          <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-sm">
+            <Plus className="h-4 w-4 text-primary-foreground" />
           </div>
         </div>
         
-        <div className="stack-sm max-w-md">
-          <h3 className="text-responsive-xl font-semibold text-foreground">
+        {/* Texto */}
+        <div className="space-y-2">
+          <h3 className="text-xl font-semibold text-foreground">
             {folderId ? "Pasta vazia" : "Nenhum card encontrado"}
           </h3>
-          <p className="text-muted-foreground text-responsive-sm leading-relaxed">
+          <p className="text-muted-foreground text-sm leading-relaxed">
             {folderId 
               ? "Esta pasta ainda não possui cards promocionais. Adicione o primeiro card para começar!"
               : "Você ainda não criou nenhum card promocional. Comece criando seu primeiro card agora!"
@@ -35,12 +37,14 @@ export function CardGalleryEmpty({ folderId }: CardGalleryEmptyProps) {
           </p>
         </div>
         
-        <div className="button-group-responsive">
-          <Button className="button-responsive inline-sm">
-            <Upload className="touch-friendly" />
-            Adicionar Card
-          </Button>
-        </div>
+        {/* Botão de ação */}
+        <Button 
+          onClick={onCreateCard}
+          variant="success"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Criar Primeiro Card
+        </Button>
       </div>
     </div>
   );

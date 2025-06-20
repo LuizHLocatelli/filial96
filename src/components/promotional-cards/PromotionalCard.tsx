@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,8 +103,9 @@ export function PromotionalCard({
 
   return (
     <>
-      <Card className="w-full relative group">
-        <div className="aspect-video relative overflow-hidden rounded-md">
+      <Card className="group relative overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-all duration-200">
+        {/* Imagem do card */}
+        <div className="aspect-video relative overflow-hidden">
           <img
             src={imageUrl}
             alt={title}
@@ -114,38 +114,80 @@ export function PromotionalCard({
             height={300}
             style={{ objectFit: "cover" }}
           />
+          
+          {/* Overlay com informações */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+          
+          {/* Botão de menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="absolute top-3 right-3 h-9 w-9 rounded-lg p-0 bg-background/90 hover:bg-background border border-border/50 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Abrir menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+                <Image className="mr-2 h-4 w-4" />
+                <span>Visualizar</span>
+              </DropdownMenuItem>
+              {code && (
+                <DropdownMenuItem onClick={handleCopyToClipboard}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  <span>Copiar Código</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                <Edit3 className="mr-2 h-4 w-4" />
+                <span>Editar</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 focus:text-red-600">
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>Excluir</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="absolute top-2 right-2 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 touch-friendly"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Abrir menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
-              <Image className="mr-2 h-4 w-4" />
-              <span>Visualizar</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCopyToClipboard}>
-              <Copy className="mr-2 h-4 w-4" />
-              <span>Copiar Código</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-              <Edit3 className="mr-2 h-4 w-4" />
-              <span>Editar</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 focus:text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              <span>Excluir</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Informações do card */}
+        <div className="p-4 space-y-3">
+          <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
+            {title}
+          </h3>
+          
+          <div className="space-y-2 text-xs text-muted-foreground">
+            {code && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Código:</span>
+                <span className="font-mono bg-muted px-2 py-1 rounded text-foreground">
+                  {code}
+                </span>
+              </div>
+            )}
+            
+            {(startDate || endDate) && (
+              <div className="space-y-1">
+                {startDate && (
+                  <div className="flex items-center justify-between">
+                    <span>Início:</span>
+                    <span className="text-foreground">{formatDateForDisplay(startDate)}</span>
+                  </div>
+                )}
+                {endDate && (
+                  <div className="flex items-center justify-between">
+                    <span>Fim:</span>
+                    <span className="text-foreground">{formatDateForDisplay(endDate)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Dialogs */}
         <CardViewDialog

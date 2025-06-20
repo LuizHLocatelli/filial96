@@ -1,9 +1,8 @@
-
 import { useMoveisDirectoryOperations } from './hooks/useMoveisDirectoryOperations';
 import { FileUploadSection } from './components/FileUploadSection';
 import { FileDisplaySection } from './components/FileDisplaySection';
 import { DirectoryDialogs } from './components/DirectoryDialogs';
-import { Separator } from '@/components/ui/separator';
+import { DirectoryHeader } from '@/components/crediario/diretorio/components/DirectoryHeader';
 
 export function Diretorio() {
   const {
@@ -30,12 +29,10 @@ export function Diretorio() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold">Diretório de Arquivos</h2>
-        <p className="text-muted-foreground text-sm">
-          Organize e acesse documentos importantes para o setor de móveis
-        </p>
-      </div>
+      <DirectoryHeader 
+        sector="móveis"
+        description="Organize e acesse documentos importantes para o setor de móveis"
+      />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Seção de upload de arquivos */}

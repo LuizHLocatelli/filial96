@@ -445,7 +445,7 @@ export function MonitoramentoIndividual() {
           </Button>
           
           <Button 
-            className="bg-primary hover:bg-primary/90"
+                          variant="success"
             onClick={exportUserData}
           >
             <Download className="h-4 w-4 mr-2" />

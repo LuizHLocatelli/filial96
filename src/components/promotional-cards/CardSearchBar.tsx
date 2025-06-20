@@ -1,4 +1,3 @@
-
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ export function CardSearchBar({
   };
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-3", className)}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -34,14 +33,14 @@ export function CardSearchBar({
           placeholder="Pesquisar por nome ou código..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 pr-10 h-11 bg-background/50 backdrop-blur-sm border-2 border-border/50 focus:border-primary/50 transition-all duration-200"
+          className="pl-10 pr-10 h-12 bg-background border-2 border-border focus:border-primary transition-all duration-200 text-foreground placeholder:text-muted-foreground"
         />
         {searchTerm && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleClear}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-9 w-9 p-0 hover:bg-muted"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -49,15 +48,25 @@ export function CardSearchBar({
       </div>
       
       {isSearching && (
-        <div className="text-sm text-muted-foreground px-1">
+        <div className="bg-muted/50 rounded-lg p-3 border border-border">
           {resultsCount > 0 ? (
-            <span>
-              {resultsCount} de {totalCount} cards encontrados
-            </span>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-foreground font-medium">
+                {resultsCount} cards encontrados
+              </span>
+              <span className="text-muted-foreground">
+                de {totalCount} total
+              </span>
+            </div>
           ) : (
-            <span className="text-orange-600">
-              Nenhum card encontrado para "{searchTerm}"
-            </span>
+            <div className="text-sm text-center">
+              <span className="text-amber-600 dark:text-amber-500 font-medium">
+                Nenhum card encontrado para "{searchTerm}"
+              </span>
+              <div className="text-muted-foreground text-xs mt-1">
+                Tente usar outros termos de pesquisa
+              </div>
+            </div>
           )}
         </div>
       )}

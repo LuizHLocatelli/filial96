@@ -216,7 +216,7 @@ export function AddReservaDialog({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+                variant="success"
               >
                 {isSubmitting ? "Criando..." : "Criar Reserva"}
               </Button>

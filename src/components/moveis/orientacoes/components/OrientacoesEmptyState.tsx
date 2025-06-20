@@ -58,7 +58,8 @@ export function OrientacoesEmptyState({ hasFilters, onNovaOrientacao }: Orientac
             <Button 
               onClick={onNovaOrientacao}
               size={isMobile ? "default" : "lg"} 
-              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 btn-hover-scale px-8"
+              variant="success"
+          className="px-8"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nova Orientação

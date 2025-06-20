@@ -171,7 +171,8 @@ export function CardUploadForm({
           <Button
             type="submit"
             disabled={isSubmitting || !previewUrl || !title}
-            className="h-9 bg-primary hover:bg-primary/90"
+            variant="success"
+            className="h-9"
           >
             {isSubmitting ? (
               <>

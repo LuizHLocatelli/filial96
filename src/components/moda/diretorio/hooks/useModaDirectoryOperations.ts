@@ -1,13 +1,13 @@
-
 import { useState } from 'react';
 import { useModaDirectoryFiles } from './useModaDirectoryFiles';
 import { useModaDirectoryCategories } from './useModaDirectoryCategories';
 import { useModaCategoryOperations } from './useModaCategoryOperations';
 import { useFileOperations } from './useFileOperations';
+import { FileViewMode } from '@/components/crediario/diretorio/types';
 import { toast } from 'sonner';
 
 export function useModaDirectoryOperations() {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<FileViewMode>('grid');
   const [isUploading, setIsUploading] = useState(false);
 
   // Usar hooks específicos do moda
@@ -22,9 +22,9 @@ export function useModaDirectoryOperations() {
 
   const isLoading = isLoadingFiles || isLoadingCategories;
 
-  const handleAddCategory = async (nome: string, cor: string, descricao?: string) => {
+  const handleAddCategory = async (name: string, description: string) => {
     try {
-      await categoryOps.handleAddCategory(nome, cor, descricao);
+      await categoryOps.handleAddCategory(name, 'primary', description);
       toast.success('Categoria criada com sucesso!');
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
@@ -32,9 +32,10 @@ export function useModaDirectoryOperations() {
     }
   };
 
-  const handleUpdateCategory = async (id: string, nome: string, cor: string, descricao?: string) => {
+  const handleUpdateCategory = async (name: string, description: string) => {
     try {
-      await categoryOps.handleUpdateCategory(id, nome, cor, descricao);
+      if (!categoryOps.selectedCategory) return;
+      await categoryOps.handleUpdateCategory(categoryOps.selectedCategory.id, name, 'primary', description);
       toast.success('Categoria atualizada com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar categoria:', error);
@@ -42,22 +43,30 @@ export function useModaDirectoryOperations() {
     }
   };
 
-  const handleFileUpload = async (files: FileList | File[], categoryId?: string) => {
+  const handleFileUpload = async (file: File, categoryId: string | null, isFeatured: boolean) => {
     try {
       setIsUploading(true);
-      await fileOps.handleFileUpload(files, categoryId);
-      toast.success('Arquivo(s) enviado(s) com sucesso!');
+      await fileOps.handleFileUpload([file], categoryId || undefined);
+      toast.success('Arquivo enviado com sucesso!');
+      return true;
     } catch (error) {
       console.error('Erro no upload:', error);
-      toast.error('Erro ao enviar arquivo(s)');
+      toast.error('Erro ao enviar arquivo');
+      return false;
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleUpdateFile = async (id: string, nome: string, descricao?: string, categoriaId?: string) => {
+  const handleUpdateFile = async (updates: {
+    name: string;
+    description: string;
+    category_id: string | null;
+    is_featured: boolean;
+  }) => {
     try {
-      await fileOps.handleUpdateFile(id, nome, descricao, categoriaId);
+      if (!fileOps.selectedFile) return;
+      await fileOps.handleUpdateFile(fileOps.selectedFile.id, updates.name, updates.description, updates.category_id || undefined);
       toast.success('Arquivo atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar arquivo:', error);
@@ -79,9 +88,7 @@ export function useModaDirectoryOperations() {
     // Estado
     viewMode,
     setViewMode,
-    isUploading,
-    isLoading,
-
+    
     // Categorias
     categories,
     categoryOps,
@@ -93,5 +100,9 @@ export function useModaDirectoryOperations() {
     handleUpdateFile,
     handleDeleteFileConfirm,
     handleFileUpload,
+    isUploading,
+    
+    // Estado de carregamento
+    isLoading
   };
 }

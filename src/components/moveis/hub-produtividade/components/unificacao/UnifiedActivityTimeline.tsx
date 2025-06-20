@@ -95,7 +95,7 @@ export function UnifiedActivityTimeline({
                 <Button 
                   onClick={onAddTarefa} 
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-xs sm:text-sm h-8 sm:h-9"
+                  className="btn-primary-standard text-xs sm:text-sm h-8 sm:h-9"
                 >
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                   Nova Tarefa

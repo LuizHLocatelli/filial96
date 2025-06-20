@@ -1,9 +1,8 @@
-
 import { useModaDirectoryOperations } from './hooks/useModaDirectoryOperations';
 import { FileUploadSection } from './components/FileUploadSection';
 import { FileDisplaySection } from './components/FileDisplaySection';
-import { DirectoryDialogs } from './components/DirectoryDialogs';
-import { Separator } from '@/components/ui/separator';
+import { DirectoryDialogs } from '@/components/crediario/diretorio/components/DirectoryDialogs';
+import { DirectoryHeader } from '@/components/crediario/diretorio/components/DirectoryHeader';
 
 export function Diretorio() {
   const {
@@ -30,12 +29,10 @@ export function Diretorio() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-semibold">Diretório de Arquivos</h2>
-        <p className="text-muted-foreground text-sm">
-          Organize e acesse documentos importantes para o setor de moda
-        </p>
-      </div>
+      <DirectoryHeader 
+        sector="moda"
+        description="Organize e acesse documentos importantes para o setor de moda"
+      />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Seção de upload de arquivos */}
@@ -72,11 +69,11 @@ export function Diretorio() {
       <DirectoryDialogs
         categoryDialogOpen={categoryOps.categoryDialogOpen}
         setCategoryDialogOpen={categoryOps.setCategoryDialogOpen}
-        onAddCategory={(name: string, color: string, description?: string) => handleAddCategory(name, color, description)}
+        onAddCategory={(name: string, description: string) => handleAddCategory(name, description)}
         
         editCategoryDialogOpen={categoryOps.editCategoryDialogOpen}
         setEditCategoryDialogOpen={categoryOps.setEditCategoryDialogOpen}
-        onUpdateCategory={(id: string, name: string, color: string, description?: string) => handleUpdateCategory(id, name, color, description)}
+        onUpdateCategory={(name: string, description: string) => handleUpdateCategory(name, description)}
         selectedCategory={categoryOps.selectedCategory}
         
         fileDialogOpen={fileOps.fileDialogOpen}

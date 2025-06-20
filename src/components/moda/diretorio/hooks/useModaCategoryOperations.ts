@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { DirectoryCategory } from '../types';
+import { DirectoryCategory } from '@/components/crediario/diretorio/types';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useModaCategoryOperations(refetch: () => void) {

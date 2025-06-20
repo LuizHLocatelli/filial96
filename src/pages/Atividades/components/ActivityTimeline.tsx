@@ -34,7 +34,7 @@ export function ActivityTimeline({ activities, isLoading, onActivityClick }: Act
           {activities.slice(0, 5).map(activity => (
             <div 
               key={activity.id} 
-              className="text-left p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
+              className="selectable-item text-left"
               onClick={() => onActivityClick?.(activity)}
             >
               <div className="flex justify-between items-start">

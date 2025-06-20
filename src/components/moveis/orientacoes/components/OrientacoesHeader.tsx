@@ -88,7 +88,8 @@ export function OrientacoesHeader({ totalCount, vmCount, informativoCount, onNov
         >
           <Button 
             onClick={onNovaOrientacao}
-            className={`${isMobile ? 'flex-1' : ''} bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 btn-hover-scale`}
+            className={`${isMobile ? 'flex-1' : ''} btn-primary-standard`}
+        variant="success"
             size="default"
           >
             <Plus className="h-4 w-4 mr-2" />

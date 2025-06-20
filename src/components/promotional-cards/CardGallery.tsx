@@ -13,9 +13,10 @@ interface CardGalleryProps {
   cards: CardItem[];
   setCards: React.Dispatch<React.SetStateAction<CardItem[]>>;
   isLoading: boolean;
+  onCreateCard: () => void;
 }
 
-export function CardGallery({ sector, folderId, cards, setCards, isLoading }: CardGalleryProps) {
+export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCreateCard }: CardGalleryProps) {
   const { deleteCard, moveCardToFolder } = useCardOperations();
   const { searchTerm, setSearchTerm, filteredCards, hasResults, isSearching } = useCardSearch(cards);
   const [processingCardIds, setProcessingCardIds] = useState<Set<string>>(new Set());
@@ -120,7 +121,7 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading }: Ca
 
       {/* Resultados */}
       {cards.length === 0 ? (
-        <CardGalleryEmpty folderId={folderId} />
+        <CardGalleryEmpty folderId={folderId} onCreateCard={onCreateCard} />
       ) : !hasResults && isSearching ? (
         <div className="text-center py-12">
           <div className="text-muted-foreground">

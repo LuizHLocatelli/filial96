@@ -32,25 +32,30 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
   // Calcular streak de dias consecutivos
   const calculateStreak = () => {
     let streak = 0;
-    let currentDate = new Date(today);
-    currentDate.setDate(currentDate.getDate() - 1); // Começar ontem
+    let checkDate = new Date(today);
     
-    while (streak < 30) { // Limitar a 30 dias para performance
-      if (currentDate.getDay() === 0) { // Apenas domingo não é obrigatório
-        currentDate.setDate(currentDate.getDate() - 1);
+    // Se hoje é domingo, começar no sábado
+    while (checkDate.getDay() === 0) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    while (streak < 30) { // Limite de 30 dias
+      if (checkDate.getDay() === 0) { // Apenas domingo não é obrigatório
+        checkDate.setDate(checkDate.getDate() - 1);
         continue;
       }
-      
-      const hasDepositForDay = depositos.some(d => 
-        isSameDay(d.data, currentDate) && d.concluido
+
+      const hasDeposit = depositos.some(d => 
+        isSameDay(d.data, checkDate) && 
+        d.comprovante && d.ja_incluido
       );
-      
-      if (!hasDepositForDay) break;
-      
+
+      if (!hasDeposit) break;
+
       streak++;
-      currentDate.setDate(currentDate.getDate() - 1);
+      checkDate.setDate(checkDate.getDate() - 1);
     }
-    
+
     return streak;
   };
 

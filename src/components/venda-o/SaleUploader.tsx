@@ -339,7 +339,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 <Button 
                   type="submit" 
                   disabled={isUploading} 
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+                  variant="success"
                 >
                   {isUploading ? (
                     <div className="flex items-center gap-2">

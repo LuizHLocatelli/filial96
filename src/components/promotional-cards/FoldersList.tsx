@@ -63,14 +63,14 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
       <div
         onClick={() => onSelectFolder(null)}
         className={cn(
-          "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 group hover:bg-muted/50",
+          "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 group border-2",
           selectedFolderId === null 
-            ? "bg-primary/10 text-primary" 
-            : "text-muted-foreground hover:text-foreground"
+            ? "btn-primary-standard shadow-sm" 
+            : "bg-background hover:bg-muted border-border hover:border-border/80 text-foreground"
         )}
       >
-        <FolderPlus className="h-4 w-4 touch-friendly" />
-        Todos os Cards
+        <FolderPlus className="h-5 w-5 flex-shrink-0" />
+        <span className="font-medium text-sm">Todos os Cards</span>
       </div>
 
       {/* Folders list */}
@@ -79,14 +79,14 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
           <div
             onClick={() => onSelectFolder(folder.id)}
             className={cn(
-              "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 group-hover:bg-muted/50",
+              "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-2 pr-12",
               selectedFolderId === folder.id 
-                ? "bg-primary/10 text-primary" 
-                : "text-muted-foreground hover:text-foreground"
+                ? "btn-primary-standard shadow-sm" 
+                : "bg-background hover:bg-muted border-border hover:border-border/80 text-foreground"
             )}
           >
-            <Folder className="h-4 w-4 touch-friendly" />
-            {folder.name}
+            <Folder className="h-5 w-5 flex-shrink-0" />
+            <span className="font-medium text-sm truncate">{folder.name}</span>
           </div>
 
           {/* Context menu */}
@@ -94,7 +94,14 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="absolute top-2 right-2 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 touch-friendly"
+                size="sm"
+                className={cn(
+                  "absolute top-2 right-2 h-8 w-8 rounded-md p-0 transition-all duration-200",
+                  "opacity-0 group-hover:opacity-100",
+                  selectedFolderId === folder.id 
+                    ? "hover:bg-primary-foreground/20 text-primary-foreground" 
+                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                )}
               >
                 <MoreHorizontal className="h-4 w-4" />
                 <span className="sr-only">Abrir menu</span>

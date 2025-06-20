@@ -50,13 +50,13 @@ export function DirectoryToolbar({
         {/* Menu de categorias */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-9">
+            <Button variant="outline" className="h-9 border-2 border-solid transition-all duration-200 hover:shadow-soft">
               <FolderPlus className="h-4 w-4 mr-2" />
               <span>Categorias</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem onClick={() => setCategoryDialogOpen(true)}>
+          <DropdownMenuContent align="start" className="w-56 border-2 border-solid shadow-medium">
+            <DropdownMenuItem onClick={() => setCategoryDialogOpen(true)} className="transition-colors duration-200">
               <Plus className="h-4 w-4 mr-2" />
               <span>Nova categoria</span>
             </DropdownMenuItem>
@@ -67,7 +67,7 @@ export function DirectoryToolbar({
               </div>
             ) : (
               categories.map((category) => (
-                <DropdownMenuItem key={category.id} className="justify-between">
+                <DropdownMenuItem key={category.id} className="justify-between transition-colors duration-200">
                   <span 
                     className="cursor-pointer truncate max-w-[180px]"
                     onClick={() => setSelectedCategoryId(category.id)}
@@ -77,7 +77,7 @@ export function DirectoryToolbar({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-6 w-6 hover:bg-muted/50 transition-colors duration-200"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleEditCategory(category);
@@ -93,11 +93,11 @@ export function DirectoryToolbar({
         </DropdownMenu>
 
         {/* Botões de visualização */}
-        <div className="flex border rounded-md overflow-hidden">
+        <div className="flex border-2 border-solid rounded-md overflow-hidden shadow-soft transition-all duration-200">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="icon"
-            className="rounded-none h-9 w-9"
+            className="rounded-none h-9 w-9 transition-all duration-200"
             onClick={() => setViewMode('grid')}
           >
             <LayoutGrid className="h-4 w-4" />
@@ -105,7 +105,7 @@ export function DirectoryToolbar({
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="icon"
-            className="rounded-none h-9 w-9"
+            className="rounded-none h-9 w-9 transition-all duration-200"
             onClick={() => setViewMode('list')}
           >
             <List className="h-4 w-4" />
@@ -115,31 +115,31 @@ export function DirectoryToolbar({
         {/* Botão de ordenação */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-9">
+            <Button variant="outline" size="sm" className="h-9 border-2 border-solid transition-all duration-200 hover:shadow-soft">
               <ArrowUpDown className="h-3.5 w-3.5 mr-2" />
               <span>Ordenar</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => handleSortChange('date')}>
+          <DropdownMenuContent align="start" className="border-2 border-solid shadow-medium">
+            <DropdownMenuItem onClick={() => handleSortChange('date')} className="transition-colors duration-200">
               {sortBy === 'date' && (
                 <span className="mr-2">{sortDirection === 'asc' ? '↑' : '↓'}</span>
               )}
               Data
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange('name')}>
+            <DropdownMenuItem onClick={() => handleSortChange('name')} className="transition-colors duration-200">
               {sortBy === 'name' && (
                 <span className="mr-2">{sortDirection === 'asc' ? '↑' : '↓'}</span>
               )}
               Nome
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange('type')}>
+            <DropdownMenuItem onClick={() => handleSortChange('type')} className="transition-colors duration-200">
               {sortBy === 'type' && (
                 <span className="mr-2">{sortDirection === 'asc' ? '↑' : '↓'}</span>
               )}
               Tipo
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange('size')}>
+            <DropdownMenuItem onClick={() => handleSortChange('size')} className="transition-colors duration-200">
               {sortBy === 'size' && (
                 <span className="mr-2">{sortDirection === 'asc' ? '↑' : '↓'}</span>
               )}
@@ -155,7 +155,7 @@ export function DirectoryToolbar({
         <Input
           type="search"
           placeholder="Buscar arquivos..."
-          className="pl-8 bg-muted/40"
+          className="pl-8 bg-muted/40 border-2 border-solid transition-colors duration-200 focus:shadow-soft"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

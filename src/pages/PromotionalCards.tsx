@@ -35,69 +35,87 @@ export default function PromotionalCards() {
         ]}
       />
 
-      {/* Seletor de setor */}
-      <SectorSelector 
-        selectedSector={selectedSector} 
-        onSectorChange={(value) => {
-          setSelectedSector(value as "furniture" | "fashion" | "loan" | "service");
-          setSelectedFolderId(null);
-        }} 
-      />
+      {/* Container principal com melhor organização */}
+      <div className="space-y-6">
+        {/* Seletor de setor */}
+        <SectorSelector 
+          selectedSector={selectedSector} 
+          onSectorChange={(value) => {
+            setSelectedSector(value as "furniture" | "fashion" | "loan" | "service");
+            setSelectedFolderId(null);
+          }} 
+        />
 
-      {/* Layout principal */}
-      <div className="stack-lg">
-        <div className="grid-responsive-wide">
-          {/* Painel de pastas - mais compacto */}
-          <Card className="w-full lg:w-72 card-responsive bg-gradient-to-br from-background to-muted/20 border border-border/50 shadow-sm">
-            <CardContent className={cn("card-responsive", !isMobile && "p-4")}>
-              <div className="stack-sm">
-                <div className="header-responsive">
-                  <h3 className="font-semibold text-responsive-sm inline-sm">
-                    📁 Pastas
-                  </h3>
-                  <Button 
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsCreateFolderOpen(true)}
-                    className="button-responsive-sm inline-sm bg-primary/5 hover:bg-primary/10 border-primary/20"
-                  >
-                    <Plus className="touch-friendly" />
-                    Nova
-                  </Button>
+        {/* Layout principal melhorado */}
+        <div className={cn(
+          "flex gap-6",
+          isMobile ? "flex-col" : "flex-row"
+        )}>
+          {/* Painel de pastas */}
+          <div className={cn(
+            "flex-shrink-0",
+            isMobile ? "w-full" : "w-80"
+          )}>
+            <Card className="bg-card border border-border shadow-sm">
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <span>📁</span>
+                      Pastas
+                    </h3>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsCreateFolderOpen(true)}
+                      className="bg-primary/5 hover:bg-primary/10 border-primary/20 hover:border-primary/30"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Nova Pasta
+                    </Button>
+                  </div>
+                  
+                  <FoldersList 
+                    sector={selectedSector}
+                    selectedFolderId={selectedFolderId}
+                    onSelectFolder={setSelectedFolderId}
+                  />
                 </div>
-                
-                <FoldersList 
-                  sector={selectedSector}
-                  selectedFolderId={selectedFolderId}
-                  onSelectFolder={setSelectedFolderId}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Área principal dos cards - mais espaço */}
-          <div className="flex-1 stack-md">
-            <div className="header-responsive">
-              <h3 className="font-semibold text-responsive-lg inline-sm">
-                🎨 Galeria de Cards
-              </h3>
-              <Button
-                onClick={() => setIsUploadCardOpen(true)}
-                className="button-responsive inline-sm"
-                size={isMobile ? "sm" : "default"}
-              >
-                <Plus className="touch-friendly" />
-                Novo Card
-              </Button>
-            </div>
+          {/* Área principal dos cards */}
+          <div className="flex-1 min-w-0">
+            <Card className="bg-card border border-border shadow-sm h-full">
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <span>🎨</span>
+                      Galeria de Cards
+                    </h3>
+                    <Button
+                      onClick={() => setIsUploadCardOpen(true)}
+                      variant="success"
+                      size={isMobile ? "sm" : "default"}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Novo Card
+                    </Button>
+                  </div>
 
-            <CardGallery 
-              sector={selectedSector}
-              folderId={selectedFolderId}
-              cards={cards}
-              setCards={setCards}
-              isLoading={isLoading}
-            />
+                  <CardGallery 
+                    sector={selectedSector}
+                    folderId={selectedFolderId}
+                    cards={cards}
+                    setCards={setCards}
+                    isLoading={isLoading}
+                    onCreateCard={() => setIsUploadCardOpen(true)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

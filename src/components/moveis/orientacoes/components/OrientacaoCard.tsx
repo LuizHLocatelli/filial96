@@ -141,7 +141,8 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
             <div className="flex gap-2 w-full">
               <Button 
                 onClick={() => onView(orientacao)}
-                className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                className="flex-1"
+            variant="success"
                 size="sm"
               >
                 <Eye className="h-4 w-4 mr-2" />

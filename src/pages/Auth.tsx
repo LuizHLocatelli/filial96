@@ -38,13 +38,13 @@ export default function Auth() {
               <TabsList className="grid w-full grid-cols-2 bg-transparent gap-1">
                 <TabsTrigger 
                   value="login" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-200 data-[state=active]:shadow-lg"
+                  className="data-[state=active]:btn-primary-standard rounded-lg font-medium transition-all duration-200 data-[state=active]:shadow-lg"
                 >
                   Entrar
                 </TabsTrigger>
                 <TabsTrigger 
                   value="signup" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-200 data-[state=active]:shadow-lg"
+                  className="data-[state=active]:btn-primary-standard rounded-lg font-medium transition-all duration-200 data-[state=active]:shadow-lg"
                 >
                   Criar conta
                 </TabsTrigger>

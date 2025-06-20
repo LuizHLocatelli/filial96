@@ -2,6 +2,7 @@ import { PromotionalCard } from "@/components/promotional-cards/PromotionalCard"
 import { CardItem } from "@/hooks/useCardOperations";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface CardGridProps {
   cards: CardItem[];
@@ -39,7 +40,10 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: 
   
   return (
     <motion.div 
-      className="grid-responsive-files"
+      className={cn(
+        "grid gap-6",
+        isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      )}
       variants={containerVariants}
       initial="hidden"
       animate="visible"

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useUrlParams } from './useUrlParams';
 import { useOrientacoesMonitoring } from './useOrientacoesMonitoring';
@@ -33,32 +32,52 @@ export function useCentralAtividades() {
 
   useEffect(() => {
     const action = searchParams.get('action');
+    console.log('🎯 [CentralAtividades] Processando parâmetro action:', action);
+    console.log('🎯 [CentralAtividades] URL completa:', window.location.href);
+    console.log('🎯 [CentralAtividades] Search params:', Object.fromEntries(searchParams.entries()));
+    
     if (action === 'new-rotina') {
+      console.log('🔄 [CentralAtividades] Abrindo dialog de Nova Rotina');
       setShowAddRotinaDialog(true);
       clearActionParam();
     } else if (action === 'new-tarefa') {
+      console.log('✅ [CentralAtividades] Abrindo dialog de Nova Tarefa');
       setShowAddTarefaForm(true);
       clearActionParam();
     } else if (action === 'new-orientacao') {
+      console.log('📖 [CentralAtividades] Abrindo dialog de Nova Orientação');
       setShowAddOrientacaoDialog(true);
       clearActionParam();
     }
   }, [searchParams, clearActionParam]);
 
+  // Debug dos estados dos dialogs
+  useEffect(() => {
+    console.log('🎯 [CentralAtividades] Estados dos dialogs:', {
+      showAddRotinaDialog,
+      showAddTarefaForm,
+      showAddOrientacaoDialog
+    });
+  }, [showAddRotinaDialog, showAddTarefaForm, showAddOrientacaoDialog]);
+
   const handleCreateRotina = async (data: any) => {
+    console.log('🔄 [CentralAtividades] Criando rotina:', data);
     const success = await addRotina(data);
     if (success) {
+      console.log('🔄 [CentralAtividades] Rotina criada com sucesso, fechando dialog');
       setShowAddRotinaDialog(false);
     }
     return success;
   };
 
   const handleCreateTarefaWrapper = async (data: any) => {
+    console.log('✅ [CentralAtividades] Criando tarefa:', data);
     await handleCreateTarefa(data);
     setShowAddTarefaForm(false);
   };
 
   const handleUploadOrientacaoSuccessWrapper = () => {
+    console.log('📖 [CentralAtividades] Upload de orientação bem-sucedido');
     handleUploadOrientacaoSuccess();
     setShowAddOrientacaoDialog(false);
   };
@@ -95,6 +114,7 @@ export function useCentralAtividades() {
   };
 
   const handleUnifiedCreateNew = (type: 'rotina' | 'tarefa') => {
+    console.log(`🎯 [CentralAtividades] Criando novo ${type} manualmente`);
     if (type === 'rotina') {
       setShowAddRotinaDialog(true);
     } else if (type === 'tarefa') {

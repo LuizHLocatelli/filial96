@@ -1,13 +1,12 @@
-
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { DirectoryFile, SortBy, SortDirection } from '../types';
+import { DirectoryFile, SortOption, SortDirection } from '@/components/crediario/diretorio/types';
 import { supabase } from '@/integrations/supabase/client';
 
 export function useFileOperations(tableName: string, files: DirectoryFile[], refetch: () => void) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortBy>('created_at');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [selectedFile, setSelectedFile] = useState<DirectoryFile | null>(null);
   
@@ -32,21 +31,21 @@ export function useFileOperations(tableName: string, files: DirectoryFile[], ref
     switch (sortBy) {
       case 'name':
         return direction * a.name.localeCompare(b.name);
-      case 'file_size':
+      case 'size':
         // Tratar arquivos sem tamanho definido
         if (a.file_size === null && b.file_size === null) return 0;
         if (a.file_size === null) return direction;
         if (b.file_size === null) return -direction;
         return direction * ((a.file_size || 0) - (b.file_size || 0));
-      case 'file_type':
+      case 'type':
         return direction * a.file_type.localeCompare(b.file_type);
-      case 'created_at':
+      case 'date':
       default:
         return direction * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     }
   });
 
-  const handleSortChange = (option: SortBy) => {
+  const handleSortChange = (option: SortOption) => {
     if (sortBy === option) {
       // Se já estiver ordenando por esta opção, alternar a direção
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');

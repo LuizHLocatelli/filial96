@@ -505,8 +505,8 @@ export function Monitoramento() {
           </Button>
           
           <Button 
-            className="bg-primary hover:bg-primary/90"
             onClick={exportData}
+            variant="success"
           >
             <Download className="h-4 w-4 mr-2" />
             Exportar PDF

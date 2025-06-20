@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, CheckCircle2 } from 'lucide-react';
@@ -37,7 +36,7 @@ export function TimelineEmptyState({ onCreateNew, onAddTarefa }: TimelineEmptySt
             <Button 
               onClick={onAddTarefa}
               size="sm"
-              className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-xs sm:text-sm h-8 sm:h-9 w-full sm:w-auto"
+              className="btn-primary-standard text-xs sm:text-sm h-8 sm:h-9 w-full sm:w-auto"
             >
               <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               Nova Tarefa

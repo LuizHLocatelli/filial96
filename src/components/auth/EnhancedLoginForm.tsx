@@ -159,7 +159,8 @@ export function EnhancedLoginForm() {
         
         <CardFooter>
           <Button 
-            className="w-full h-10 sm:h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
+            variant="success"
+            className="w-full h-10 sm:h-12 font-medium"
             type="submit" 
             disabled={isLoading}
           >

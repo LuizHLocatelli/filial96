@@ -65,6 +65,11 @@
     --radius-md: 0.5rem;     /* 8px */
     --radius-lg: 0.75rem;    /* 12px */
     --radius-xl: 1rem;       /* 16px */
+
+    /* 🎨 Shadow System Melhorado */
+    --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-strong: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 }
 
@@ -316,6 +321,149 @@
   }
 
   /* ========================================
+     🎯 NOVOS PADRÕES DE BOTÕES PADRONIZADOS
+     ======================================== */
+  
+  /* Botão Principal Padrão - Alta Visibilidade */
+  .btn-primary-standard {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 2px solid hsl(var(--primary));
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn-primary-standard:hover {
+    background: hsl(var(--primary) / 0.9);
+    border-color: hsl(var(--primary) / 0.9);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-1px);
+  }
+
+  /* Botão Secundário Padrão - Boa Visibilidade */
+  .btn-secondary-standard {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn-secondary-standard:hover {
+    background: hsl(var(--muted));
+    border-color: hsl(var(--border) / 0.8);
+    box-shadow: var(--shadow-medium);
+  }
+
+  /* Botão Outline Padrão - Melhor Contraste */
+  .btn-outline-standard {
+    background: transparent;
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-outline-standard:hover {
+    background: hsl(var(--accent));
+    border-color: hsl(var(--accent-foreground) / 0.2);
+    color: hsl(var(--accent-foreground));
+  }
+
+  /* Botão de Ação Pequeno - Compacto e Visível */
+  .btn-action-sm {
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+    border: 2px solid hsl(var(--primary) / 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-action-sm:hover {
+    background: hsl(var(--primary) / 0.15);
+    border-color: hsl(var(--primary) / 0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Elementos Selecionáveis - Padrão de Lista/Pasta */
+  .selectable-item {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .selectable-item:hover {
+    background: hsl(var(--muted));
+    border-color: hsl(var(--border) / 0.8);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .selectable-item.selected {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-color: hsl(var(--primary));
+    box-shadow: var(--shadow-medium);
+  }
+
+  .selectable-item.selected:hover {
+    background: hsl(var(--primary) / 0.9);
+    border-color: hsl(var(--primary) / 0.9);
+  }
+
+  /* Cards Interativos Melhorados */
+  .interactive-card {
+    background: hsl(var(--card));
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .interactive-card:hover {
+    border-color: hsl(var(--border) / 0.8);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+  }
+
+  /* Input/Search Melhorado */
+  .input-enhanced {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+    transition: all 0.2s ease;
+  }
+
+  .input-enhanced:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+  }
+
+  .input-enhanced::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* ========================================
      🔤 TIPOGRAFIA RESPONSIVA PADRONIZADA
      ======================================== */
   
@@ -394,8 +542,17 @@
     height: var(--input-height-sm);
     padding: 0 var(--space-3);
     font-size: var(--text-sm);
-    border: 1px solid hsl(var(--border));
+    border: 2px solid hsl(var(--border));
     border-radius: var(--radius-md);
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: all 0.2s ease;
+  }
+
+  .input-responsive:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
   }
 
   @media (min-width: 640px) {
@@ -412,6 +569,19 @@
     font-size: var(--text-sm);
     min-width: var(--touch-target-min);
     border-radius: var(--radius-md);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 2px solid hsl(var(--primary));
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .button-responsive:hover {
+    background: hsl(var(--primary) / 0.9);
+    border-color: hsl(var(--primary) / 0.9);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-1px);
   }
 
   @media (min-width: 640px) {
@@ -429,6 +599,17 @@
     font-size: var(--text-xs);
     min-width: var(--touch-target-min);
     border-radius: var(--radius-sm);
+    background: hsl(var(--primary) / 0.1);
+    color: hsl(var(--primary));
+    border: 2px solid hsl(var(--primary) / 0.2);
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .button-responsive-sm:hover {
+    background: hsl(var(--primary) / 0.15);
+    border-color: hsl(var(--primary) / 0.3);
+    transform: translateY(-1px);
   }
 
   @media (min-width: 640px) {
@@ -444,6 +625,19 @@
     font-size: var(--text-base);
     min-width: var(--touch-target-comfortable);
     border-radius: var(--radius-lg);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 2px solid hsl(var(--primary));
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-medium);
+  }
+
+  .button-responsive-lg:hover {
+    background: hsl(var(--primary) / 0.9);
+    border-color: hsl(var(--primary) / 0.9);
+    box-shadow: var(--shadow-strong);
+    transform: translateY(-2px);
   }
 
   @media (min-width: 640px) {
@@ -529,11 +723,11 @@
 
   /* Consistent Borders */
   .border-consistent {
-    border: 1px solid hsl(var(--border));
+    border: 2px solid hsl(var(--border));
   }
 
   .border-consistent-muted {
-    border: 1px solid hsl(var(--border) / 0.5);
+    border: 2px solid hsl(var(--border) / 0.5);
   }
 
   /* Consistent Backgrounds */

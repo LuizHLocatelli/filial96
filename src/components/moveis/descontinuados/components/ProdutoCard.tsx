@@ -170,7 +170,8 @@ Interessado(a)? Entre em contato comigo! 📱`;
         <div className="mt-3 sm:mt-4">
           <Button
             onClick={handleShare}
-            className="w-full bg-gradient-to-r from-primary to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-sm h-8 sm:h-auto text-xs sm:text-sm"
+            variant="success"
+          className="w-full shadow-sm h-8 sm:h-auto text-xs sm:text-sm"
             size="sm"
           >
             <Share2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />

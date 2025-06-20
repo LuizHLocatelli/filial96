@@ -170,7 +170,7 @@ export function Reservas() {
                       size="sm"
                       onClick={() => setViewMode('grid')}
                       className={`h-10 ${viewMode === 'grid' 
-                        ? 'bg-green-600/90 hover:bg-green-700/90 text-white border-0' 
+                        ? 'btn-primary-standard' 
                         : 'border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300/90 hover:bg-green-50/80 dark:hover:bg-green-900/20'
                       }`}
                     >
@@ -181,7 +181,7 @@ export function Reservas() {
                       size="sm"
                       onClick={() => setViewMode('list')}
                       className={`h-10 ${viewMode === 'list' 
-                        ? 'bg-green-600/90 hover:bg-green-700/90 text-white border-0' 
+                        ? 'btn-primary-standard' 
                         : 'border-green-300/50 dark:border-green-600/30 text-green-700 dark:text-green-300/90 hover:bg-green-50/80 dark:hover:bg-green-900/20'
                       }`}
                     >
@@ -311,19 +311,19 @@ export function Reservas() {
                       <TabsList className="grid w-full grid-cols-3 mb-6 h-12 rounded-xl p-1 bg-green-100/80 dark:bg-green-900/30">
                         <TabsTrigger 
                           value="all" 
-                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-green-700 dark:text-green-300/90"
+                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:btn-primary-standard text-green-700 dark:text-green-300/90"
                         >
                           Todas ({filteredReservas.length})
                         </TabsTrigger>
                         <TabsTrigger 
                           value="ativas" 
-                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-green-700 dark:text-green-300/90"
+                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:btn-primary-standard text-green-700 dark:text-green-300/90"
                         >
                           Ativas ({reservasByStatus.ativas.length})
                         </TabsTrigger>
                         <TabsTrigger 
                           value="outras" 
-                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:bg-green-600/90 data-[state=active]:text-white text-green-700 dark:text-green-300/90"
+                          className="rounded-lg text-sm font-medium h-10 data-[state=active]:btn-primary-standard text-green-700 dark:text-green-300/90"
                         >
                           Outras ({reservasByStatus.expiradas.length + reservasByStatus.convertidas.length + reservasByStatus.canceladas.length})
                         </TabsTrigger>

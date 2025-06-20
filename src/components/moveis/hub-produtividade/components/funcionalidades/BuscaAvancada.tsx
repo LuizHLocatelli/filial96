@@ -514,7 +514,7 @@ export function BuscaAvancada({
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {searchResults.rotinas.slice(0, 5).map(rotina => (
-                        <div key={rotina.id} className="p-3 border rounded-lg hover:bg-muted/50">
+                        <div key={rotina.id} className="selectable-item">
                           <div className="flex items-center justify-between">
                             <h4 className="font-medium">{rotina.nome}</h4>
                             <Badge variant={rotina.status === 'concluida' ? 'default' : 'secondary'}>
@@ -548,7 +548,7 @@ export function BuscaAvancada({
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {searchResults.orientacoes.slice(0, 5).map(orientacao => (
-                        <div key={orientacao.id} className="p-3 border rounded-lg hover:bg-muted/50">
+                        <div key={orientacao.id} className="selectable-item">
                           <div className="flex items-center justify-between">
                             <h4 className="font-medium">{orientacao.titulo}</h4>
                             <Badge variant="outline">{orientacao.categoria}</Badge>
@@ -580,7 +580,7 @@ export function BuscaAvancada({
                     </CardHeader>
                     <CardContent className="space-y-2">
                       {searchResults.tarefas.slice(0, 5).map(tarefa => (
-                        <div key={tarefa.id} className="p-3 border rounded-lg hover:bg-muted/50">
+                        <div key={tarefa.id} className="selectable-item">
                           <div className="flex items-center justify-between">
                             <h4 className="font-medium">{tarefa.titulo}</h4>
                             <Badge variant={tarefa.status === 'concluida' ? 'default' : 'secondary'}>
@@ -636,7 +636,8 @@ export function BuscaAvancada({
           {searchResults && searchResults.totalFound > 0 && (
             <Button 
               onClick={() => onResultsSelect(searchResults)}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+              variant="success"
+              size="default"
             >
               <Search className="h-4 w-4 mr-2" />
               Aplicar Resultados

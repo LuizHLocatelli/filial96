@@ -80,7 +80,7 @@ export function OrientacoesFilters({
               onClick={() => onViewModeChange("grid")}
               className={`h-8 w-8 p-0 transition-all duration-300 ${
                 viewMode === "grid" 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
+                  ? "btn-primary-standard shadow-sm" 
                   : "hover:bg-muted/60"
               }`}
             >
@@ -92,7 +92,7 @@ export function OrientacoesFilters({
               onClick={() => onViewModeChange("list")}
               className={`h-8 w-8 p-0 transition-all duration-300 ${
                 viewMode === "list" 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
+                  ? "btn-primary-standard shadow-sm" 
                   : "hover:bg-muted/60"
               }`}
             >

@@ -277,7 +277,7 @@ export function ReservaCard({ reserva, onUpdateStatus, onDelete, onRefresh }: Re
                 variant="destructive"
                 onClick={() => onDelete(reserva.id)}
                 className={cn(
-                  "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 border-0 shadow-md transition-all duration-200",
+                  "bg-red-600 hover:bg-red-700 text-white border-2 border-red-600 hover:border-red-700 shadow-sm hover:shadow-md transition-all duration-200",
                   isMobile ? "h-10 px-3" : "h-11 px-4"
                 )}
               >
@@ -292,7 +292,7 @@ export function ReservaCard({ reserva, onUpdateStatus, onDelete, onRefresh }: Re
                   size="sm"
                   onClick={() => onUpdateStatus(reserva.id, 'convertida')}
                   className={cn(
-                    "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-md transition-all duration-200",
+                    "btn-primary-standard",
                     isMobile ? "flex-1 h-10 text-sm" : "flex-1 h-11"
                   )}
                 >

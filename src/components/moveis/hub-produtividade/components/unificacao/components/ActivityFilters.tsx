@@ -32,7 +32,7 @@ export function ActivityFilters({
               className={cn(
                 "h-7 px-3 text-xs font-medium transition-all duration-200",
                 filterType === type 
-                  ? "bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700 shadow-sm" 
+                  ? "btn-primary-standard shadow-sm" 
                   : "dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 hover:border-green-300 hover:text-green-700 dark:hover:border-green-600"
               )}
             >
@@ -57,7 +57,7 @@ export function ActivityFilters({
               className={cn(
                 "h-7 px-3 text-xs font-medium transition-all duration-200",
                 filterStatus === status 
-                  ? "bg-green-600 hover:bg-green-700 text-white dark:bg-green-600 dark:hover:bg-green-700 shadow-sm" 
+                  ? "btn-primary-standard shadow-sm" 
                   : "dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 hover:border-green-300 hover:text-green-700 dark:hover:border-green-600"
               )}
             >

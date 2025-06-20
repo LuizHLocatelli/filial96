@@ -315,7 +315,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || isUploading || (hasDepositToday && hasReceiptToday && isIncludedToday)}
-          className="w-full text-sm sm:text-sm h-11 sm:h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md hover:shadow-lg transition-all duration-200"
+          variant="success"
+          className="w-full text-sm sm:text-sm h-11 sm:h-10 font-medium"
           size="lg"
         >
           {isSubmitting || isUploading ? (
