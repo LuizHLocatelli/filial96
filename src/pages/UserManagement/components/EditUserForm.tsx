@@ -1,129 +1,89 @@
+
 import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserRole } from "@/types/user";
-
-interface UserWithStats {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  display_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  last_login: string | null;
-  created_at: string;
-}
+import { UserWithStats } from '@/types/user';
 
 interface EditUserFormProps {
   user: UserWithStats;
-  onUpdate: (data: Partial<UserWithStats>) => Promise<void>;
-  onCancel: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (userData: Partial<UserWithStats>) => void;
 }
 
-export function EditUserForm({ user, onUpdate, onCancel }: EditUserFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function EditUserForm({ user, open, onOpenChange, onSave }: EditUserFormProps) {
   const [formData, setFormData] = useState({
-    name: user.name,
-    role: user.role,
-    display_name: user.display_name || '',
+    name: user.name || '',
+    role: user.role || '',
     phone: user.phone || '',
-    avatar_url: user.avatar_url || ''
+    display_name: user.display_name || '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const updatedData: Partial<UserWithStats> = {
-        name: formData.name,
-        role: formData.role,
-        display_name: formData.display_name,
-        phone: formData.phone,
-        avatar_url: formData.avatar_url
-      };
-      
-      await onUpdate(updatedData);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    onSave(formData);
+    onOpenChange(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <Label htmlFor="name">Nome</Label>
-        <Input
-          id="name"
-          type="text"
-          value={formData.name}
-          onChange={(e) => handleInputChange('name', e.target.value)}
-          disabled={isSubmitting}
-        />
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Editar Usuário</DialogTitle>
+          <DialogDescription>
+            Edite as informações do usuário
+          </DialogDescription>
+        </DialogHeader>
 
-      <div>
-        <Label htmlFor="display_name">Nome de Exibição</Label>
-        <Input
-          id="display_name"
-          type="text"
-          value={formData.display_name}
-          onChange={(e) => handleInputChange('display_name', e.target.value)}
-          disabled={isSubmitting}
-        />
-      </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="name">Nome</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="role">Função</Label>
+            <Input
+              id="role"
+              value={formData.role}
+              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+            />
+          </div>
 
-      <div>
-        <Label htmlFor="phone">Telefone</Label>
-        <Input
-          id="phone"
-          type="text"
-          value={formData.phone}
-          onChange={(e) => handleInputChange('phone', e.target.value)}
-          disabled={isSubmitting}
-        />
-      </div>
+          <div>
+            <Label htmlFor="phone">Telefone</Label>
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+            />
+          </div>
 
-      <div>
-        <Label htmlFor="avatar_url">URL do Avatar</Label>
-        <Input
-          id="avatar_url"
-          type="text"
-          value={formData.avatar_url}
-          onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-          disabled={isSubmitting}
-        />
-      </div>
+          <div>
+            <Label htmlFor="display_name">Nome de Exibição</Label>
+            <Input
+              id="display_name"
+              value={formData.display_name}
+              onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
+            />
+          </div>
 
-      <div>
-        <Label htmlFor="role">Role</Label>
-        <Select value={formData.role} onValueChange={(value: UserRole) => handleInputChange('role', value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione um role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Salvando...' : 'Salvar'}
-        </Button>
-      </div>
-    </form>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit">
+              Salvar
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

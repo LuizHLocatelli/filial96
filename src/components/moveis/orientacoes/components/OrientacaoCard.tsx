@@ -165,6 +165,12 @@ export function OrientacaoCard({ orientacao, onView, onUpdate }: OrientacaoCardP
         orientacao={orientacao}
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
+        onSave={(data) => {
+          // Handle save logic here
+          console.log('Saving orientacao:', data);
+          handleSuccess();
+        }}
+        isSubmitting={false}
         onSuccess={handleSuccess}
       />
 

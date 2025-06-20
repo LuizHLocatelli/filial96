@@ -7,7 +7,7 @@ interface CardGridProps {
   cards: CardItem[];
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, newTitle: string) => void;
+  onUpdate: (id: string, updates: any) => void;
   sector: "furniture" | "fashion" | "loan" | "service";
 }
 
@@ -60,7 +60,7 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: 
             folderId={card.folder_id}
             onDelete={onDelete}
             onMoveToFolder={onMoveToFolder}
-            onUpdate={onUpdate}
+            onUpdate={(id, updates) => onUpdate(id, updates)}
             sector={sector}
             isMobile={isMobile}
           />

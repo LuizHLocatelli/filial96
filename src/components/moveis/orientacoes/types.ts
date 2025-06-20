@@ -17,3 +17,23 @@ export interface Orientacao {
     url: string;
   }>;
 }
+
+export interface Tarefa {
+  id: string;
+  titulo: string;
+  descricao: string;
+  status: string;
+  data_entrega: string;
+  criado_por: string;
+  data_criacao: string;
+  data_atualizacao: string;
+  prioridade?: string;
+  orientacao_id?: string;
+  rotina_id?: string;
+  origem?: string;
+}
+
+export interface TarefaExpandida extends Tarefa {
+  criador_nome?: string;
+  rotina_nome?: string;
+}
