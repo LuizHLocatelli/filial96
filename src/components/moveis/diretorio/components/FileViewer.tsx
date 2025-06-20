@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -25,11 +26,11 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
 
   if (!file) return null;
 
-  const isPdf = file.type?.includes('pdf');
-  const isImage = file.type?.includes('image');
+  const isPdf = file.file_type?.includes('pdf');
+  const isImage = file.file_type?.includes('image');
   
   const handleDownload = () => {
-    window.open(file.url, '_blank');
+    window.open(file.file_url, '_blank');
   };
 
   const formatFileSize = (bytes: number) => {
@@ -45,7 +46,7 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
       return (
         <div className="w-full max-h-[60vh] overflow-auto border rounded-lg bg-muted/10 p-4">
           <img
-            src={file.url}
+            src={file.file_url}
             alt={file.name}
             className="max-w-full h-auto mx-auto object-contain rounded-lg"
           />
@@ -54,7 +55,7 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
     } else if (isPdf) {
       return (
         <div className="w-full h-[60vh] border rounded-lg">
-          <PDFViewer url={file.url} className="h-full rounded-lg" />
+          <PDFViewer url={file.file_url} className="h-full rounded-lg" />
         </div>
       );
     } else {
@@ -95,7 +96,7 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
                 <span className="break-words">{file.name}</span>
                 <Badge variant="outline" className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 text-green-700 dark:text-green-300">
                   <FileIcon className="w-3 h-3 mr-1" />
-                  {file.type?.split('/')[1]?.toUpperCase() || 'FILE'}
+                  {file.file_type?.split('/')[1]?.toUpperCase() || 'FILE'}
                 </Badge>
               </div>
             </div>
@@ -106,10 +107,10 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
           
           {/* Metadados do arquivo */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mt-4">
-            {file.size && (
+            {file.file_size && (
               <div className="flex items-center gap-2 text-sm">
                 <FileText className="h-4 w-4 text-muted-foreground" />
-                <span>Tamanho: {formatFileSize(file.size)}</span>
+                <span>Tamanho: {formatFileSize(file.file_size)}</span>
               </div>
             )}
             {file.created_at && (
@@ -118,10 +119,10 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
                 <span>Criado: {format(new Date(file.created_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
               </div>
             )}
-            {file.uploaded_by_name && (
+            {file.created_by && (
               <div className="flex items-center gap-2 text-sm">
                 <User className="h-4 w-4 text-muted-foreground" />
-                <span>Por: {file.uploaded_by_name}</span>
+                <span>Por: {file.created_by}</span>
               </div>
             )}
           </div>

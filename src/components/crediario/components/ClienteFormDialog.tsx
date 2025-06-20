@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Dialog,
@@ -6,29 +7,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { ClienteForm } from './ClienteForm';
-import { ClienteFormValues } from '../hooks/useClienteForm';
+import { ClienteFormValues } from '../types';
 import { UserPlus, Edit3 } from 'lucide-react';
 import { useMobileDialog } from '@/hooks/useMobileDialog';
+import type { Cliente } from '../types';
 
 interface ClienteFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ClienteFormValues) => void;
-  initialData?: Partial<ClienteFormValues>;
-  isSubmitting: boolean;
+  onSubmit: (data: ClienteFormValues) => Promise<void>;
+  cliente?: Cliente | null;
 }
 
 export function ClienteFormDialog({ 
   open, 
   onOpenChange, 
   onSubmit, 
-  initialData,
-  isSubmitting 
+  cliente
 }: ClienteFormDialogProps) {
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
-  const isEditing = !!initialData?.id;
+  const { getMobileDialogProps } = useMobileDialog();
+  const isEditing = !!cliente;
   const IconComponent = isEditing ? Edit3 : UserPlus;
 
   return (
@@ -49,9 +48,8 @@ export function ClienteFormDialog({
         </DialogHeader>
         
         <ClienteForm 
+          cliente={cliente}
           onSubmit={onSubmit}
-          initialData={initialData}
-          isSubmitting={isSubmitting}
           onCancel={() => onOpenChange(false)}
         />
       </DialogContent>

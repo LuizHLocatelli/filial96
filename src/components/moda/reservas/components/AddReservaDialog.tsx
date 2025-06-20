@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -38,13 +39,17 @@ interface AddReservaDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: ReservaFormData) => void;
   isSubmitting: boolean;
+  variant?: string;
+  className?: string;
 }
 
 export function AddReservaDialog({
   open,
   onOpenChange,
   onSubmit,
-  isSubmitting
+  isSubmitting,
+  variant = "default",
+  className
 }: AddReservaDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const { createReserva } = useReservas();

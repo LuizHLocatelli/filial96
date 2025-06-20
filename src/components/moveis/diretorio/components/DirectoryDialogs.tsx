@@ -95,11 +95,11 @@ export function DirectoryDialogs({
       <DeleteFileDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        onDelete={onDeleteFile}
-        file={selectedFile}
+        onConfirm={onDeleteFile}
+        fileName={selectedFile?.name}
       />
 
-      {selectedFile && !selectedFile.file_type.includes("pdf") && (
+      {selectedFile && !selectedFile.file_type?.includes("pdf") && (
         <FileViewer
           open={viewerOpen}
           onOpenChange={setViewerOpen}

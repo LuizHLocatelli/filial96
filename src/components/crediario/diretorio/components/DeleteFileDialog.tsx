@@ -1,3 +1,4 @@
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,16 +16,16 @@ interface DeleteFileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  fileName: string;
-  isDeleting: boolean;
+  fileName?: string;
+  isDeleting?: boolean;
 }
 
 export function DeleteFileDialog({ 
   open, 
   onOpenChange, 
   onConfirm, 
-  fileName, 
-  isDeleting 
+  fileName = "arquivo", 
+  isDeleting = false
 }: DeleteFileDialogProps) {
   const { getMobileAlertDialogProps, getMobileFooterProps } = useMobileDialog();
 
