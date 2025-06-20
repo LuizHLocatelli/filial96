@@ -1,164 +1,129 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { UserRole } from "@/types";
-import { EditUserFormProps } from "../types";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
-import DOMPurify from "dompurify";
-import { UserPen, Shield, User } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserRole } from "@/types/user";
 
-export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
-  const { getMobileFormProps, getMobileButtonProps } = useMobileDialog();
+interface UserWithStats {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  display_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  last_login: string | null;
+  created_at: string;
+}
+
+interface EditUserFormProps {
+  user: UserWithStats;
+  onUpdate: (data: Partial<UserWithStats>) => Promise<void>;
+  onCancel: () => void;
+}
+
+export function EditUserForm({ user, onUpdate, onCancel }: EditUserFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: user.name,
     role: user.role,
+    display_name: user.display_name || '',
     phone: user.phone || '',
-    email: "",
-    departamento: "",
-    cargo: "",
-    status: "",
+    avatar_url: user.avatar_url || ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      ...user,
-      name: DOMPurify.sanitize(formData.name),
-      role: formData.role,
-      phone: DOMPurify.sanitize(formData.phone),
-      email: DOMPurify.sanitize(formData.email),
-      departamento: formData.departamento,
-      cargo: DOMPurify.sanitize(formData.cargo),
-      status: formData.status,
-    });
+    setIsSubmitting(true);
+    
+    try {
+      const updatedData: Partial<UserWithStats> = {
+        name: formData.name,
+        role: formData.role,
+        display_name: formData.display_name,
+        phone: formData.phone,
+        avatar_url: formData.avatar_url
+      };
+      
+      await onUpdate(updatedData);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent {...getMobileFormProps("default")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <UserPen className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            Editar Usuário
-          </DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Nome</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="departamento">Departamento</Label>
-              <Select value={formData.departamento} onValueChange={(value) => setFormData({ ...formData, departamento: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Móveis">Móveis</SelectItem>
-                  <SelectItem value="Moda">Moda</SelectItem>
-                  <SelectItem value="Crediário">Crediário</SelectItem>
-                  <SelectItem value="Administração">Administração</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="cargo">Cargo</Label>
-              <Input
-                id="cargo"
-                value={formData.cargo}
-                onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                required
-              />
-            </div>
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <Label htmlFor="name">Nome</Label>
+        <Input
+          id="name"
+          type="text"
+          value={formData.name}
+          onChange={(e) => handleInputChange('name', e.target.value)}
+          disabled={isSubmitting}
+        />
+      </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ativo">Ativo</SelectItem>
-                  <SelectItem value="Inativo">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="role">Permissão</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as UserRole })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gerente">Gerente</SelectItem>
-                  <SelectItem value="crediarista">Crediarista</SelectItem>
-                  <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
-                  <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
-                  <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+      <div>
+        <Label htmlFor="display_name">Nome de Exibição</Label>
+        <Input
+          id="display_name"
+          type="text"
+          value={formData.display_name}
+          onChange={(e) => handleInputChange('display_name', e.target.value)}
+          disabled={isSubmitting}
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm">Telefone</Label>
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="(11) 99999-9999"
-              className="text-sm"
-            />
-          </div>
+      <div>
+        <Label htmlFor="phone">Telefone</Label>
+        <Input
+          id="phone"
+          type="text"
+          value={formData.phone}
+          onChange={(e) => handleInputChange('phone', e.target.value)}
+          disabled={isSubmitting}
+        />
+      </div>
 
-          <div {...getMobileButtonProps()}>
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancelar
-            </Button>
-            <Button 
-              type="submit"
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
-            >
-              Salvar Alterações
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <div>
+        <Label htmlFor="avatar_url">URL do Avatar</Label>
+        <Input
+          id="avatar_url"
+          type="text"
+          value={formData.avatar_url}
+          onChange={(e) => handleInputChange('avatar_url', e.target.value)}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="role">Role</Label>
+        <Select value={formData.role} onValueChange={(value: UserRole) => handleInputChange('role', value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione um role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="manager">Manager</SelectItem>
+            <SelectItem value="user">User</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Salvando...' : 'Salvar'}
+        </Button>
+      </div>
+    </form>
   );
-} 
+}

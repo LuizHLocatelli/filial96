@@ -1,256 +1,171 @@
 import { useState } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { toast } from "@/components/ui/use-toast";
-import { useFolders } from "@/hooks/useFolders";
-import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Copy, Edit3, Trash2, Image } from "lucide-react";
 import {
-  CardViewDialog,
-  CardEditDialog,
-  CardDeleteDialog,
-  CardDropdownMenu
-} from "./card";
-import { Calendar, Hash, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { CountdownTimer } from "./CountdownTimer";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { CardViewDialog } from "./CardViewDialog";
+import { CardEditDialog } from "./CardEditDialog";
+import { CardDeleteDialog } from "./CardDeleteDialog";
 
 interface PromotionalCardProps {
-  id: string;
-  title: string;
-  code?: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  imageUrl: string;
-  folderId: string | null;
-  onDelete: (id: string) => Promise<boolean>;
-  onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, newTitle: string) => void;
-  sector: "furniture" | "fashion" | "loan" | "service";
-  isMobile?: boolean;
+  card: {
+    id: string;
+    title: string;
+    image_url: string;
+    code?: string | null;
+    start_date?: string | null;
+    end_date?: string | null;
+  };
+  onUpdate: (id: string, updates: { title: string }) => void;
+  onDelete: (id: string) => void;
+  currentFolder: {
+    id: string;
+    name: string;
+  };
 }
 
-export function PromotionalCard({ 
-  id, 
-  title, 
-  code,
-  startDate,
-  endDate,
-  imageUrl, 
-  folderId, 
-  onDelete,
-  onMoveToFolder,
-  onUpdate,
-  sector,
-  isMobile
-}: PromotionalCardProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: PromotionalCardProps) {
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const { folders } = useFolders(sector);
-  
-  const currentFolder = folders.find(f => f.id === folderId);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const isMobile = useIsMobile();
 
-  const handleDownload = async () => {
+  const formatDateForDisplay = (dateString: string | null | undefined) => {
+    if (!dateString) return '';
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${title.replace(/\s+/g, '_')}.${blob.type.split('/')[1]}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return '';
+    }
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(card.code || '')
+      .then(() => {
+        toast({
+          title: "Copiado!",
+          description: "Código copiado para a área de transferência.",
+        });
+      })
+      .catch(err => {
+        console.error("Failed to copy text: ", err);
+        toast({
+          title: "Erro",
+          description: "Falha ao copiar o código.",
+          variant: "destructive"
+        });
+      });
+  };
+
+  const handleDeleteCard = async () => {
+    setIsDeletingCard(true);
+    try {
+      await onDelete(card.id);
       toast({
         title: "Sucesso",
-        description: "Download iniciado"
+        description: "Card excluído com sucesso.",
       });
     } catch (error) {
-      console.error('Error downloading image:', error);
+      console.error("Error deleting card:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível fazer o download",
+        description: "Falha ao excluir o card.",
         variant: "destructive"
       });
-    }
-  };
-
-  const handleDeleteConfirm = async () => {
-    setIsLoading(true);
-    try {
-      const success = await onDelete(id);
-      if (success) {
-        setIsDeleteDialogOpen(false);
-      }
     } finally {
-      setIsLoading(false);
+      setIsDeletingCard(false);
     }
   };
-
-  const handleMoveToFolder = async (newFolderId: string | null) => {
-    setIsLoading(true);
-    try {
-      const success = await onMoveToFolder(id, newFolderId);
-      if (success) {
-        toast({
-          title: "Sucesso",
-          description: newFolderId ? "Card movido para a pasta com sucesso" : "Card removido da pasta com sucesso"
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getStatus = (): { text: string; color: string; icon: React.ElementType } => {
-    const now = new Date();
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-
-    if (end && end < now) {
-      return { text: "Expirado", color: "bg-red-500 dark:bg-red-800 text-white dark:text-red-100", icon: Clock };
-    }
-    if (start && start > now) {
-      return { text: "Agendado", color: "bg-primary text-primary-foreground", icon: Clock };
-    }
-    if (start && end && start <= now && end >= now) {
-      return { text: "Ativo", color: "bg-green-500 dark:bg-green-800 text-white dark:text-green-100", icon: Clock };
-    }
-    return { text: "Válido", color: "bg-gray-500 dark:bg-gray-700 text-white dark:text-gray-200", icon: Clock }; // Default/fallback
-  };
-
-  const status = getStatus();
-  const formattedEndDate = endDate ? new Date(endDate).toLocaleDateString('pt-BR') : null;
 
   return (
     <>
-      <Card className={cn(
-        "overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 group bg-gradient-to-br from-background to-muted/30 border-2 border-border/50 hover:border-primary/30",
-        isMobile && "border-[1px]"
-      )}>
-        <CardContent className="p-0">
-          <AspectRatio ratio={4/5}>
-            <div 
-              className="relative w-full h-full rounded-t-lg overflow-hidden bg-gradient-to-br from-muted to-muted/50 cursor-pointer group"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              {!imageLoaded && (
-                <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted/60 animate-pulse" />
-              )}
-              
-              <img 
-                src={imageUrl} 
-                alt={title}
-                onLoad={() => setImageLoaded(true)}
-                className={cn(
-                  "w-full h-full object-cover transition-all duration-500 group-hover:scale-110",
-                  !imageLoaded && "opacity-0"
-                )}
-              />
-              
-              {/* Overlay com informações */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-between p-2">
-                {/* Top Section */}
-                <div className="flex justify-start">
-                  {code && (
-                    <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0 text-white">
-                      <Hash className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate font-medium block text-xs">{code}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Bottom Section */}
-                <div className="flex w-full flex-wrap items-end justify-between gap-2 text-xs text-white">
-                  {/* Status Badge */}
-                  <div className={cn("flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-sm", status.color)}>
-                    <status.icon className="h-3.5 w-3.5" />
-                    <span>{status.text}</span>
-                  </div>
-                  
-                  {/* Timer/End Date Badge */}
-                  <div className="flex flex-wrap justify-end gap-2">
-                    {status.text === "Ativo" && endDate ? (
-                      <CountdownTimer endDate={endDate} isMobile={isMobile} />
-                    ) : (
-                      formattedEndDate && (
-                        <div className="flex items-center gap-1 bg-black/40 rounded-full px-2 py-1 backdrop-blur-sm min-w-0">
-                          <Calendar className="h-4 w-4 flex-shrink-0" />
-                          <span className="text-xs truncate block">{formattedEndDate}</span>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </AspectRatio>
-        </CardContent>
-        
-        <CardFooter className={cn(
-          "flex justify-between items-center p-3 bg-gradient-to-r from-background to-muted/20 border-t border-border/50",
-          !isMobile && "p-4"
-        )}>
-          <div className="flex flex-col gap-1.5 truncate flex-1 min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-              {title}
-            </p>
-            {currentFolder && (
-              <Badge 
-                variant="outline" 
-                className="text-[10px] w-fit px-2 py-0.5 h-5 bg-primary/10 text-primary border-primary/20"
-              >
-                {currentFolder.name}
-              </Badge>
-            )}
-          </div>
-          
-          <CardDropdownMenu 
-            folderId={folderId}
-            folders={folders}
-            onView={() => setIsDialogOpen(true)}
-            onDownload={handleDownload}
-            onEdit={() => setIsEditDialogOpen(true)}
-            onDelete={() => setIsDeleteDialogOpen(true)}
-            onMoveToFolder={handleMoveToFolder}
-            isLoading={isLoading}
-            isMobile={isMobile}
+      <Card className="w-full relative group">
+        <div className="aspect-video relative overflow-hidden rounded-md">
+          <Image
+            src={card.image_url}
+            alt={card.title}
+            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+            width={500}
+            height={300}
+            style={{ objectFit: "cover" }}
           />
-        </CardFooter>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="absolute top-2 right-2 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 touch-friendly"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Abrir menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+              <Image className="mr-2 h-4 w-4" />
+              <span>Visualizar</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCopyToClipboard}>
+              <Copy className="mr-2 h-4 w-4" />
+              <span>Copiar Código</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+              <Edit3 className="mr-2 h-4 w-4" />
+              <span>Editar</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 focus:text-red-600">
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Excluir</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Dialogs */}
+        <CardViewDialog
+          open={isViewDialogOpen}
+          onOpenChange={setIsViewDialogOpen}
+          title={card.title}
+          imageUrl={card.image_url}
+          code={card.code || ''}
+          startDate={card.start_date ? formatDateForDisplay(card.start_date) : ''}
+          endDate={card.end_date ? formatDateForDisplay(card.end_date) : ''}
+          currentFolder={currentFolder}
+          isMobile={isMobile}
+        />
+
+        <CardEditDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          id={card.id}
+          title={card.title}
+          isMobile={isMobile}
+          onSuccess={(newTitle) => onUpdate(card.id, { title: newTitle })}
+        />
+
+        <CardDeleteDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteCard}
+          isLoading={isDeletingCard}
+          isMobile={isMobile}
+        />
       </Card>
-
-      {/* Dialogs permanecem iguais */}
-      <CardViewDialog 
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        title={title}
-        imageUrl={imageUrl}
-        code={code}
-        startDate={startDate}
-        endDate={endDate}
-        currentFolder={currentFolder}
-        isMobile={isMobile}
-      />
-
-      <CardEditDialog 
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        id={id}
-        title={title}
-        isMobile={isMobile}
-        onSuccess={(newTitle) => onUpdate(id, newTitle)}
-      />
-
-      <CardDeleteDialog 
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        isLoading={isLoading}
-        isMobile={isMobile}
-      />
     </>
   );
 }

@@ -190,7 +190,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
               Confirmar Exclusão
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              Tem certeza que deseja excluir o produto <strong>"{produtoToDelete?.nome}"</strong>?
+              Tem certeza que deseja excluir este produto?
               <br />
               <span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span>
             </AlertDialogDescription>

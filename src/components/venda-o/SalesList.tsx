@@ -271,7 +271,7 @@ export function SalesList({ sales = [], title, onStatusChange, onDelete }: Sales
       />
 
       <SaleDetailsDialog 
-        isOpen={isViewDialogOpen} 
+        open={isViewDialogOpen} 
         onOpenChange={setIsViewDialogOpen} 
         sale={selectedSale} 
       />

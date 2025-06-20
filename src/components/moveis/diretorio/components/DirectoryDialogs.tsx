@@ -85,10 +85,9 @@ export function DirectoryDialogs({
       )}
 
       <DeleteFileDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
+        fileName={selectedFile?.name || ''}
+        isDeleting={false}
         onConfirm={onDeleteFile}
-        fileName={selectedFile?.name}
       />
 
       {selectedFile && !selectedFile.file_type?.includes("pdf") && (
