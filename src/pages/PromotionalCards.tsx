@@ -104,7 +104,7 @@ export default function PromotionalCards() {
 
       {/* Diálogos */}
       <CreateFolderDialog
-        open={isCreateFolderOpen}
+        isOpen={isCreateFolderOpen}
         onOpenChange={setIsCreateFolderOpen}
         sector={selectedSector}
       />

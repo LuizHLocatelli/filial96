@@ -1,10 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FolderPlus } from "lucide-react";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
@@ -12,17 +12,18 @@ import { useMobileDialog } from "@/hooks/useMobileDialog";
 interface CreateFolderDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  sector: "furniture" | "fashion" | "loan" | "service";
   onSuccess?: () => void;
 }
 
 export function CreateFolderDialog({ 
   isOpen, 
   onOpenChange, 
+  sector,
   onSuccess 
 }: CreateFolderDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [folderName, setFolderName] = useState("");
-  const [description, setDescription] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateFolder = async () => {
@@ -47,8 +48,8 @@ export function CreateFolderDialog({
         .from('card_folders')
         .insert({
           name: folderName.trim(),
-          description: description.trim() || null,
-          user_id: user.id
+          sector: sector,
+          created_by: user.id
         });
 
       if (error) throw error;
@@ -59,7 +60,6 @@ export function CreateFolderDialog({
       });
       
       setFolderName("");
-      setDescription("");
       onOpenChange(false);
       
       if (onSuccess) {
@@ -105,18 +105,6 @@ export function CreateFolderDialog({
               placeholder="Digite o nome da pasta"
               required
               className="mt-1"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descrição da pasta (opcional)"
-              rows={3}
-              className="mt-1 resize-none"
             />
           </div>
         </div>

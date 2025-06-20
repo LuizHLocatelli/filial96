@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Trash2, AlertTriangle } from "lucide-react";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
@@ -95,4 +96,4 @@ export function DeleteFolderDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

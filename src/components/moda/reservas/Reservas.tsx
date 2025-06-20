@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Clock, Search, Filter, Grid3X3, List } from "lucide-react";
 import { ReservasStats } from "./components/ReservasStats";
-import { AddReservaDialog } from "./components/AddReservaDialog";
+import { AddReservaButton } from "./components/AddReservaButton";
 import { ReservasFilters } from "./components/ReservasFilters";
 import { ReservaCard } from "./components/ReservaCard";
 import { useReservas } from "./hooks/useReservas";
@@ -140,7 +140,7 @@ export function Reservas() {
                 {filteredReservas.length}
               </Badge>
             </div>
-            <AddReservaDialog variant="default" />
+            <AddReservaButton variant="default" />
           </div>
         </div>
       </div>
@@ -157,7 +157,7 @@ export function Reservas() {
             actions={
               <div className={`flex gap-3 ${isMobile ? 'flex-col w-full' : 'flex-col sm:flex-row items-center'}`}>
                 {/* Botão principal no header - mais proeminente */}
-                <AddReservaDialog 
+                <AddReservaButton 
                   variant="prominent" 
                   className={isMobile ? 'order-1' : ''} 
                 />

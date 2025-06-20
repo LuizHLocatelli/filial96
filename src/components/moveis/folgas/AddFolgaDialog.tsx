@@ -16,25 +16,29 @@ import { useMobileDialog } from "@/hooks/useMobileDialog";
 interface AddFolgaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: any) => void;
-  consultores: Array<{ id: string; nome: string }>;
-  isSubmitting: boolean;
+  onSubmit?: (data: any) => void;
+  isSubmitting?: boolean;
 }
 
 export function AddFolgaDialog({ 
   open, 
   onOpenChange, 
-  onSubmit, 
-  consultores,
-  isSubmitting 
+  isSubmitting = false,
+  onSubmit
 }: AddFolgaDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedConsultor, setSelectedConsultor] = useState<string>("");
   const [observacoes, setObservacoes] = useState("");
 
+  // Mock consultores data - this should come from props or a hook in real implementation
+  const consultores = [
+    { id: "1", nome: "Consultor 1" },
+    { id: "2", nome: "Consultor 2" },
+  ];
+
   const handleSubmit = () => {
-    if (selectedDate && selectedConsultor) {
+    if (selectedDate && selectedConsultor && onSubmit) {
       onSubmit({
         data: selectedDate,
         consultor_id: selectedConsultor,
@@ -56,17 +60,17 @@ export function AddFolgaDialog({
             </div>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Registre uma nova folga para um vendedor
+            Registre uma nova folga para um consultor
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Seleção de Consultor */}
           <div>
-            <Label htmlFor="consultor">Vendedor *</Label>
+            <Label htmlFor="consultor">Consultor *</Label>
             <Select value={selectedConsultor} onValueChange={setSelectedConsultor}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione um vendedor" />
+                <SelectValue placeholder="Selecione um consultor" />
               </SelectTrigger>
               <SelectContent>
                 {consultores.map((consultor) => (
