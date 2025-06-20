@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { useReservas } from "../hooks/useReservas";
 import { ReservaFormData } from "../types";
 import { ProdutoReservaInput } from "./ProdutoReservaInput";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 const formSchema = z.object({
   produtos: z.array(
@@ -33,13 +34,19 @@ const formSchema = z.object({
 });
 
 interface AddReservaDialogProps {
-  variant?: 'default' | 'floating' | 'prominent';
-  className?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (data: ReservaFormData) => void;
+  isSubmitting: boolean;
 }
 
-export function AddReservaDialog({ variant = 'default', className = '' }: AddReservaDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function AddReservaDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  isSubmitting
+}: AddReservaDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const { createReserva } = useReservas();
   const isMobile = useIsMobile();
 
@@ -56,23 +63,7 @@ export function AddReservaDialog({ variant = 'default', className = '' }: AddRes
   });
 
   const handleSubmit = async (data: ReservaFormData) => {
-    setIsSubmitting(true);
-
-    const success = await createReserva(data);
-    
-    if (success) {
-      setOpen(false);
-      form.reset({
-        produtos: [{ nome: '', codigo: '', tamanho: '', quantidade: 1 }],
-        cliente_nome: '',
-        cliente_cpf: '',
-        cliente_vip: false,
-        forma_pagamento: 'crediario',
-        observacoes: ''
-      });
-    }
-    
-    setIsSubmitting(false);
+    onSubmit(data);
   };
 
   const formatCPF = (value: string) => {
@@ -110,17 +101,20 @@ export function AddReservaDialog({ variant = 'default', className = '' }: AddRes
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className={`${getButtonStyles()} ${className}`}>
-          {getButtonContent()}
-        </Button>
-      </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            Criar Nova Reserva
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Plus className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Nova Reserva
+            </div>
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Registre uma nova reserva de produto para o cliente
+          </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
@@ -237,16 +231,22 @@ export function AddReservaDialog({ variant = 'default', className = '' }: AddRes
               )}
             />
 
-            <div className="flex justify-end gap-3 pt-6 border-t">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="px-6">
+            <div {...getMobileFooterProps()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+                className="px-6"
+              >
                 Cancelar
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isSubmitting}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
               >
-                {isSubmitting ? 'Criando...' : 'Criar Reserva'}
+                {isSubmitting ? "Criando..." : "Criar Reserva"}
               </Button>
             </div>
           </form>

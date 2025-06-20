@@ -81,28 +81,28 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header melhorado */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <ShoppingCart className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold">Nova Venda O</h2>
-            <p className="text-sm text-muted-foreground">
-              Registre uma venda de outra filial com entrega ou retirada na nossa loja
-            </p>
-          </div>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header Padronizado */}
+      <div className="flex items-center gap-2">
+        <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+          <ShoppingCart className="h-5 w-5 text-green-600 dark:text-green-400" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            Nova Venda O
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Registre uma venda de outra filial com entrega ou retirada na nossa loja
+          </p>
         </div>
       </div>
 
-      <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-card/80">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Informações da Venda</CardTitle>
-          </div>
+      <Card className="shadow-lg border-0">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold flex items-center gap-2">
+            <FileText className="h-5 w-5 text-green-600" />
+            Informações da Venda
+          </CardTitle>
           <CardDescription>
             Preencha os dados da venda e anexe o cupom fiscal
           </CardDescription>
@@ -110,7 +110,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
 
         <CardContent className="space-y-6">
           {formSubmitError && !selectedFile && (
-            <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{formSubmitError}</AlertDescription>
             </Alert>
@@ -120,7 +120,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Seção: Dados da Venda */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
                   <Calendar className="h-4 w-4" />
                   <span>Dados da Venda</span>
                 </div>
@@ -131,15 +131,14 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                     name="filial"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">Filial da Venda *</FormLabel>
+                        <FormLabel>Filial da Venda *</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="Ex: 001, 002, 003..." 
-                            {...field} 
-                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -149,45 +148,43 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                     name="data_venda"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">Data da Venda *</FormLabel>
+                        <FormLabel>Data da Venda *</FormLabel>
                         <FormControl>
                           <Input 
                             type="date" 
-                            {...field} 
-                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
 
-              <Separator className="bg-border/60" />
+              <Separator />
               
               {/* Seção: Dados do Cliente */}
-              <div className="stack-md">
-                <div className="inline-md text-sm font-medium text-primary">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+                  <User className="h-4 w-4" />
                   <span>Dados do Cliente</span>
                 </div>
                 
-                <div className="grid-responsive-wide">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="nome_cliente"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">Nome do Cliente *</FormLabel>
+                        <FormLabel>Nome do Cliente *</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="Nome completo do cliente" 
-                            {...field} 
-                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -197,28 +194,25 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                     name="telefone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Telefone <span className="text-xs text-muted-foreground">(opcional)</span>
-                        </FormLabel>
+                        <FormLabel>Telefone (opcional)</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="(11) 99999-9999" 
-                            {...field} 
-                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
 
-              <Separator className="bg-border/60" />
+              <Separator />
               
               {/* Seção: Produtos */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
                   <ShoppingCart className="h-4 w-4" />
                   <span>Produtos</span>
                 </div>
@@ -232,32 +226,29 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 />
               </div>
 
-              <Separator className="bg-border/60" />
+              <Separator />
               
               {/* Seção: Entrega e Status */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
                   <Truck className="h-4 w-4" />
                   <span>Entrega e Status</span>
                 </div>
                 
-                <div className="grid-responsive-cards">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="previsao_chegada"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">
-                          Previsão de Chegada <span className="text-xs text-muted-foreground">(opcional)</span>
-                        </FormLabel>
+                        <FormLabel>Previsão de Chegada (opcional)</FormLabel>
                         <FormControl>
                           <Input 
                             type="date" 
-                            {...field} 
-                            className="h-10 border-border/60 focus:border-primary bg-muted/40"
+                            {...field}
                           />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -267,10 +258,10 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                     name="tipo_entrega"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">Tipo de Entrega *</FormLabel>
+                        <FormLabel>Tipo de Entrega *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-10 border-border/60 focus:border-primary bg-muted/40">
+                            <SelectTrigger>
                               <SelectValue placeholder="Selecione o tipo" />
                             </SelectTrigger>
                           </FormControl>
@@ -282,7 +273,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -292,10 +283,10 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">Status *</FormLabel>
+                        <FormLabel>Status *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-10 border-border/60 focus:border-primary bg-muted/40">
+                            <SelectTrigger>
                               <SelectValue placeholder="Selecione o status" />
                             </SelectTrigger>
                           </FormControl>
@@ -307,18 +298,18 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
 
-              <Separator className="bg-border/60" />
+              <Separator />
               
               {/* Seção: Observações */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
                   <FileText className="h-4 w-4" />
                   <span>Informações Adicionais</span>
                 </div>
@@ -326,11 +317,11 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 <ObservacoesField control={form.control} />
               </div>
 
-              <Separator className="bg-border/60" />
+              <Separator />
 
               {/* Seção: Upload do Cupom */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-600">
                   <FileText className="h-4 w-4" />
                   <span>Cupom Fiscal</span>
                 </div>
@@ -344,11 +335,11 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                 />
               </div>
               
-              <CardFooter className="px-0 pt-6">
+              <div className="flex justify-end pt-6 border-t">
                 <Button 
                   type="submit" 
                   disabled={isUploading} 
-                  className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
                 >
                   {isUploading ? (
                     <div className="flex items-center gap-2">
@@ -362,7 +353,7 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                     </div>
                   )}
                 </Button>
-              </CardFooter>
+              </div>
             </form>
           </Form>
         </CardContent>

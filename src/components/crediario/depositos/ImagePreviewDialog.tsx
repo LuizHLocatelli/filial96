@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { Eye, FileText } from "lucide-react";
 
 interface ImagePreviewDialogProps {
   viewImage: string | null;
@@ -9,14 +9,19 @@ interface ImagePreviewDialogProps {
 }
 
 export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDialogProps) {
-  const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   
   return (
     <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
-      <DialogContent {...getMobileDialogProps("4xl", "80vh")} className="max-h-[80vh] overflow-y-auto flex flex-col">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg">Comprovante de Depósito</DialogTitle>
-          <DialogDescription className="text-sm">
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            Comprovante de Depósito
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Visualização do comprovante de depósito bancário
           </DialogDescription>
         </DialogHeader>
@@ -31,14 +36,14 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
             </div>
           )}
         </div>
-        <DialogFooter>
+        <div {...getMobileFooterProps()}>
           <Button 
-            onClick={() => setViewImage(null)} 
-            {...getMobileButtonProps()}
+            onClick={() => setViewImage(null)}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
             Fechar
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

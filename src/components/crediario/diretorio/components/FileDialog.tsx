@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -14,7 +12,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { FileEdit } from 'lucide-react';
 import { DirectoryFile, DirectoryCategory } from '../types';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface FileDialogProps {
   open: boolean;
@@ -41,6 +41,8 @@ export function FileDialog({
   const [categoryId, setCategoryId] = useState<string>(file?.category_id || 'none'); // Default to 'none'
   const [isFeatured, setIsFeatured] = useState(file?.is_featured || false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
 
   useEffect(() => {
     if (file) {
@@ -76,25 +78,53 @@ export function FileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle>Editar Arquivo</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <FileEdit className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Editar Arquivo
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Edite os detalhes do arquivo.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="name">Nome</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nome do arquivo"
-              required
-            />
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="name">Nome do Arquivo *</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Digite o nome do arquivo"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="category">Categoria</Label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sem categoria</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="grid w-full items-center gap-1.5">
+          
+          <div>
             <Label htmlFor="description">Descrição</Label>
             <Textarea
               id="description"
@@ -102,44 +132,43 @@ export function FileDialog({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descrição do arquivo (opcional)"
               rows={3}
+              className="resize-none"
             />
           </div>
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="category">Categoria</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sem categoria</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
+          
+          <div className="flex items-center space-x-3 p-4 bg-muted/30 rounded-lg">
             <Switch
               id="featured"
               checked={isFeatured}
               onCheckedChange={setIsFeatured}
             />
-            <Label htmlFor="featured">Destacar este arquivo</Label>
+            <div>
+              <Label htmlFor="featured" className="cursor-pointer font-medium">
+                Destacar arquivo
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Arquivos destacados aparecem em evidência na listagem
+              </p>
+            </div>
           </div>
-          <DialogFooter>
+          
+          <div {...getMobileFooterProps()}>
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
+              className="px-6"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+            >
+              {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

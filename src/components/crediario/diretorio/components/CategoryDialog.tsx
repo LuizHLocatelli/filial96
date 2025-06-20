@@ -1,10 +1,8 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -12,26 +10,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FolderPlus, Edit3 } from 'lucide-react';
 import { DirectoryCategory } from '../types';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface CategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (name: string, description: string) => Promise<void>;
+  onSave: (name: string, description: string) => void;
+  title: string;
   category?: DirectoryCategory;
-  title?: string;
 }
 
 export function CategoryDialog({ 
   open, 
-  onOpenChange,
-  onSave,
-  category,
-  title = 'Nova Categoria'
+  onOpenChange, 
+  onSave, 
+  title, 
+  category 
 }: CategoryDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (category) {
@@ -43,45 +43,50 @@ export function CategoryDialog({
     }
   }, [category, open]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!name.trim()) {
-      return;
-    }
-    
-    try {
-      setIsSubmitting(true);
-      await onSave(name, description);
+  const handleSave = () => {
+    if (name.trim()) {
+      onSave(name.trim(), description.trim());
       onOpenChange(false);
-    } catch (error) {
-      console.error('Erro ao salvar categoria:', error);
-    } finally {
-      setIsSubmitting(false);
+      if (!category) {
+        setName('');
+        setDescription('');
+      }
     }
   };
 
+  const isEditing = !!category;
+  const IconComponent = isEditing ? Edit3 : FolderPlus;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            {category ? 'Edite os detalhes da categoria.' : 'Crie uma nova categoria para organizar seus arquivos.'}
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <IconComponent className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              {title}
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {category ? 'Edite os dados da categoria.' : 'Crie uma nova categoria para organizar seus arquivos.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="name">Nome</Label>
+        
+        <div className="space-y-6">
+          <div>
+            <Label htmlFor="name">Nome da Categoria *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nome da categoria"
+              placeholder="Digite o nome da categoria"
               required
             />
           </div>
-          <div className="grid w-full items-center gap-1.5">
+          
+          <div>
             <Label htmlFor="description">Descrição</Label>
             <Textarea
               id="description"
@@ -89,21 +94,28 @@ export function CategoryDialog({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descrição da categoria (opcional)"
               rows={3}
+              className="resize-none"
             />
           </div>
-          <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </DialogFooter>
-        </form>
+        </div>
+        
+        <div {...getMobileFooterProps()}>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={!name.trim()}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            {isEditing ? 'Atualizar' : 'Criar Categoria'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

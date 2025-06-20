@@ -13,10 +13,12 @@ import {
   Plus, 
   Calendar,
   User,
-  Clock
+  Clock,
+  UserPlus
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface Contact {
   id: string;
@@ -70,6 +72,8 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
   });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
 
   const contactTypeIcons = {
     phone: Phone,
@@ -136,9 +140,14 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
                 Novo Contato
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent {...getMobileDialogProps("default")}>
               <DialogHeader>
-                <DialogTitle>Registrar Novo Contato</DialogTitle>
+                <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                    <UserPlus className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  Registrar Novo Contato
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
@@ -202,9 +211,21 @@ export function ContactHistory({ clienteId, clienteName }: ContactHistoryProps) 
                   </>
                 )}
 
-                <Button onClick={handleAddContact} className="w-full">
-                  Registrar Contato
-                </Button>
+                <div {...getMobileFooterProps()}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsDialogOpen(false)}
+                    className="px-6"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    onClick={handleAddContact}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+                  >
+                    Registrar Contato
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>

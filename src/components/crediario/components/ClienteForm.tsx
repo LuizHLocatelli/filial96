@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ClienteBasicFields } from "./form-fields/ClienteBasicFields";
@@ -24,7 +23,7 @@ export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         <ClienteBasicFields form={form} />
         
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <ClienteDatesFields form={form} />
           <ClienteIndicatorField />
         </div>
@@ -35,9 +34,20 @@ export function ClienteForm({ cliente, onSubmit, onCancel }: ClienteFormProps) {
         
         <ClienteObservacaoField form={form} />
         
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Salvando..." : cliente ? "Atualizar Cliente" : "Adicionar Cliente"}
-        </Button>
+        <div className="flex justify-end gap-3 pt-6 border-t">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} className="px-6">
+              Cancelar
+            </Button>
+          )}
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            {isSubmitting ? "Salvando..." : cliente ? "Atualizar Cliente" : "Adicionar Cliente"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

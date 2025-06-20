@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -14,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Download, FileText, BarChart3, Users, Activity } from 'lucide-react';
 import { PDFExportOptions, MonitoringData } from '../hooks/usePDFExport';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface PDFExportDialogProps {
   open: boolean;
@@ -46,6 +46,8 @@ export function PDFExportDialog({
     periodo: selectedTimeRange,
   });
 
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+
   const handleExport = () => {
     onExport({
       ...options,
@@ -67,43 +69,62 @@ export function PDFExportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-              <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
-            Exportar Relatório PDF - Monitoramento Moda
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Download className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <div>Exportar Relatório PDF</div>
+              <div className="text-sm font-normal text-muted-foreground">
+                Monitoramento Moda
+              </div>
+            </div>
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm text-muted-foreground">
             Configure as opções de exportação para gerar seu relatório personalizado de monitoramento
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6">
           {/* Resumo dos dados */}
           <div className="p-4 bg-muted/50 rounded-lg">
-            <h4 className="font-medium mb-2 flex items-center gap-2">
+            <h4 className="font-medium mb-3 flex items-center gap-2">
               <Activity className="h-4 w-4" />
               Dados a serem exportados:
             </h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>Total de eventos: {totalEvents}</div>
-              <div>Usuários únicos: {uniqueUsers}</div>
-              <div>Seções visitadas: {uniqueSections}</div>
-              <div>Tempo total: {Math.floor(totalDuration / 60)}min</div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="text-center">
+                <div className="font-semibold text-lg text-blue-600">{totalEvents}</div>
+                <div className="text-muted-foreground">Total de eventos</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-lg text-green-600">{uniqueUsers}</div>
+                <div className="text-muted-foreground">Usuários únicos</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-lg text-purple-600">{uniqueSections}</div>
+                <div className="text-muted-foreground">Seções visitadas</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-lg text-orange-600">{Math.floor(totalDuration / 60)}min</div>
+                <div className="text-muted-foreground">Tempo total</div>
+              </div>
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">
+            <div className="mt-3 text-center p-2 bg-primary/10 rounded text-sm text-primary">
               Período: {selectedTimeRange === '24h' ? '24 horas' : selectedTimeRange === '7d' ? '7 dias' : '30 dias'}
             </div>
           </div>
 
           {/* Template Selection */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Label className="text-base font-medium">Modelo do Relatório</Label>
             <RadioGroup
               value={options.template}
               onValueChange={(value) => updateOption('template', value as PDFExportOptions['template'])}
             >
-              <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
+              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50">
                 <RadioGroupItem value="compacto" id="compacto" />
                 <div className="flex-1">
                   <Label htmlFor="compacto" className="cursor-pointer font-medium">
@@ -118,7 +139,7 @@ export function PDFExportDialog({
                 </div>
               </div>
               
-              <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
+              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50">
                 <RadioGroupItem value="detalhado" id="detalhado" />
                 <div className="flex-1">
                   <Label htmlFor="detalhado" className="cursor-pointer font-medium">
@@ -133,7 +154,7 @@ export function PDFExportDialog({
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
+              <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50">
                 <RadioGroupItem value="executivo" id="executivo" />
                 <div className="flex-1">
                   <Label htmlFor="executivo" className="cursor-pointer font-medium">
@@ -153,9 +174,9 @@ export function PDFExportDialog({
           <Separator />
 
           {/* Content Options */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Label className="text-base font-medium">Conteúdo do Relatório</Label>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="includeStats"
@@ -205,9 +226,9 @@ export function PDFExportDialog({
           <Separator />
 
           {/* Organization Options */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <Label className="text-base font-medium">Organização dos Dados</Label>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="groupBySection"
@@ -239,32 +260,49 @@ export function PDFExportDialog({
           </div>
 
           {/* Preview da configuração */}
-          <div className="p-3 bg-primary/5 dark:bg-primary/10 rounded-lg border border-primary/20">
-            <h4 className="font-medium text-primary mb-2">
+          <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200 dark:border-green-800">
+            <h4 className="font-medium text-green-800 dark:text-green-200 mb-3">
               Pré-visualização da configuração:
             </h4>
-            <div className="text-sm text-primary/80 space-y-1">
-              <div>• Modelo: {options.template === 'compacto' ? 'Compacto' : options.template === 'detalhado' ? 'Detalhado' : 'Executivo'}</div>
-              <div>• Estatísticas: {options.includeStats ? 'Incluídas' : 'Não incluídas'}</div>
-              <div>• Organização: {options.groupBySection ? 'Por seção' : options.groupByUser ? 'Por usuário' : 'Lista simples'}</div>
-              <div>• Detalhes técnicos: {options.includeMetadata ? 'Incluídos' : 'Não incluídos'}</div>
+            <div className="text-sm text-green-700 dark:text-green-300 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                Modelo: {options.template === 'compacto' ? 'Compacto' : options.template === 'detalhado' ? 'Detalhado' : 'Executivo'}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                Estatísticas: {options.includeStats ? 'Incluídas' : 'Não incluídas'}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                Organização: {options.groupBySection ? 'Por seção' : options.groupByUser ? 'Por usuário' : 'Lista simples'}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                Detalhes técnicos: {options.includeMetadata ? 'Incluídos' : 'Não incluídos'}
+              </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <div {...getMobileFooterProps()}>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-6"
+          >
             Cancelar
           </Button>
           <Button 
             onClick={handleExport}
             disabled={isExporting}
-            className="bg-primary hover:bg-primary/90"
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
             <Download className="h-4 w-4 mr-2" />
             {isExporting ? 'Gerando PDF...' : 'Gerar PDF'}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

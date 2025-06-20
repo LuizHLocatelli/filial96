@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { RegistroVendaDialog } from './components/RegistroVendaDialog';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 export function ProdutoFoco() {
   const {
@@ -52,6 +53,8 @@ export function ProdutoFoco() {
   const [viewingProduto, setViewingProduto] = useState<ProdutoFocoWithImages | null>(null);
   const [deletingProduto, setDeletingProduto] = useState<string | null>(null);
   const [vendaProduto, setVendaProduto] = useState<ProdutoFocoWithImages | null>(null);
+
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
 
   const handleCreateProduto = async (dados: any, imagens?: File[]) => {
     const success = await createProduto(dados, imagens);
@@ -224,7 +227,7 @@ export function ProdutoFoco() {
 
       {/* Dialogs */}
       <Dialog open={showForm} onOpenChange={closeForm}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+        <DialogContent {...getMobileDialogProps("default")}>
           <DialogHeader>
             <DialogTitle>
               {editingProduto ? 'Editar Produto Foco' : 'Adicionar Produto Foco'}
@@ -270,7 +273,7 @@ export function ProdutoFoco() {
               Todas as imagens associadas também serão removidas.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter {...getMobileFooterProps()}>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteProduto} className="bg-destructive text-destructive-foreground">
               Excluir

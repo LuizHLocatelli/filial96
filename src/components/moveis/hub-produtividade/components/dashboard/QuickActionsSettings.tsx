@@ -15,274 +15,143 @@ import {
   Heart,
   Trash2,
   Info,
-  Move
+  Move,
+  Zap
 } from 'lucide-react';
 import { useQuickActionPreferences } from '../../hooks/useQuickActionPreferences';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface QuickActionsSettingsProps {
-  handlers: any;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  settings: {
+    showAddRotina: boolean;
+    showAddOrientacao: boolean;
+    showAddTarefa: boolean;
+    showBuscaAvancada: boolean;
+    showRelatorios: boolean;
+    showFiltros: boolean;
+  };
+  onSettingsChange: (settings: any) => void;
 }
 
-export function QuickActionsSettings({ handlers }: QuickActionsSettingsProps) {
-  const [open, setOpen] = useState(false);
-  const {
-    preferences,
-    toggleFavorite,
-    isFavorite,
-    toggleShowOnlyFavorites,
-    toggleKeyboardShortcuts,
-    resetPreferences,
-    getMostUsedActions
-  } = useQuickActionPreferences();
-  
-  const { getShortcutsList } = useKeyboardShortcuts(handlers, preferences.enableKeyboardShortcuts);
+export function QuickActionsSettings({ 
+  open, 
+  onOpenChange, 
+  settings, 
+  onSettingsChange 
+}: QuickActionsSettingsProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
 
-  const actions = [
-    { id: 'nova-rotina', title: 'Nova Rotina', description: 'Criar nova rotina obrigatória' },
-    { id: 'nova-orientacao', title: 'Nova Orientação', description: 'Adicionar VM ou informativo' },
-    { id: 'nova-tarefa', title: 'Nova Tarefa', description: 'Criar nova tarefa' },
-    { id: 'busca-avancada', title: 'Busca Avançada', description: 'Buscar com filtros' },
-    { id: 'filtros-data', title: 'Por Data', description: 'Filtros temporais' },
-    { id: 'relatorios', title: 'Relatórios', description: 'Analytics e métricas' },
-    { id: 'ver-rotinas', title: 'Ver Rotinas', description: 'Acessar todas rotinas' },
-    { id: 'ver-orientacoes', title: 'Ver Orientações', description: 'Acessar informativos' },
-    { id: 'monitoramento', title: 'Monitoramento', description: 'Ver acompanhamento' },
-    { id: 'filtros', title: 'Filtros', description: 'Aplicar filtros' },
-    { id: 'atualizar', title: 'Atualizar', description: 'Recarregar dados' },
-    { id: 'exportar', title: 'Exportar', description: 'Baixar relatórios' }
-  ];
-
-  const mostUsedActions = getMostUsedActions(5);
-  const shortcuts = getShortcutsList();
-
-  const handleResetPreferences = () => {
-    if (confirm('Tem certeza que deseja resetar todas as preferências? Esta ação não pode ser desfeita.')) {
-      resetPreferences();
-    }
+  const handleToggle = (key: string, value: boolean) => {
+    onSettingsChange({
+      ...settings,
+      [key]: value
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Settings className="h-4 w-4" />
-          Configurar
-        </Button>
-      </DialogTrigger>
-      
-              <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Configurações das Ações Rápidas
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Settings className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            Configurar Ações Rápidas
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="favorites" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="favorites" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              Favoritos
-            </TabsTrigger>
-            <TabsTrigger value="shortcuts" className="flex items-center gap-2">
-              <Keyboard className="h-4 w-4" />
-              Atalhos
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Estatísticas
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Geral
-            </TabsTrigger>
-          </TabsList>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Escolha quais ações rápidas devem aparecer no painel
+          </p>
 
-          <TabsContent value="favorites" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  Gerenciar Favoritos
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="show-only-favorites"
-                    checked={preferences.showOnlyFavorites}
-                    onCheckedChange={toggleShowOnlyFavorites}
-                  />
-                  <Label htmlFor="show-only-favorites">
-                    Mostrar apenas ações favoritas
-                  </Label>
-                </div>
-                
-                <Separator />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {actions.map((action) => (
-                    <Card key={action.id} className="relative">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <h4 className="font-medium">{action.title}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {action.description}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleFavorite(action.id)}
-                            className={`ml-2 ${isFavorite(action.id) ? 'text-yellow-500' : 'text-muted-foreground'}`}
-                          >
-                            <Star className={`h-4 w-4 ${isFavorite(action.id) ? 'fill-current' : ''}`} />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="addRotina" className="flex-1">
+                Adicionar Rotina
+              </Label>
+              <Switch
+                id="addRotina"
+                checked={settings.showAddRotina}
+                onCheckedChange={(checked) => handleToggle('showAddRotina', checked)}
+              />
+            </div>
 
-          <TabsContent value="shortcuts" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Keyboard className="h-5 w-5" />
-                  Atalhos de Teclado
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="enable-shortcuts"
-                    checked={preferences.enableKeyboardShortcuts}
-                    onCheckedChange={toggleKeyboardShortcuts}
-                  />
-                  <Label htmlFor="enable-shortcuts">
-                    Habilitar atalhos de teclado
-                  </Label>
-                </div>
-                
-                {preferences.enableKeyboardShortcuts && (
-                  <>
-                    <Separator />
-                    <div className="space-y-3">
-                      <h4 className="font-medium">Atalhos Disponíveis:</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {shortcuts.map((shortcut, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded">
-                            <span className="text-sm">{shortcut.description}</span>
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {shortcut.combination}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="addOrientacao" className="flex-1">
+                Adicionar Orientação
+              </Label>
+              <Switch
+                id="addOrientacao"
+                checked={settings.showAddOrientacao}
+                onCheckedChange={(checked) => handleToggle('showAddOrientacao', checked)}
+              />
+            </div>
 
-          <TabsContent value="analytics" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Estatísticas de Uso
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {mostUsedActions.length > 0 ? (
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Ações Mais Utilizadas:</h4>
-                    <div className="space-y-2">
-                      {mostUsedActions.map((stat, index) => {
-                        const action = actions.find(a => a.id === stat.actionId);
-                        return (
-                          <div key={stat.actionId} className="flex items-center justify-between p-3 bg-muted/50 rounded">
-                            <div className="flex items-center gap-3">
-                              <Badge variant="outline" className="w-6 h-6 p-0 flex items-center justify-center">
-                                {index + 1}
-                              </Badge>
-                              <span className="font-medium">{action?.title}</span>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm font-medium">{stat.count} vezes</div>
-                              <div className="text-xs text-muted-foreground">
-                                Última vez: {new Date(stat.lastUsed).toLocaleDateString('pt-BR')}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Nenhum dado de uso disponível ainda.</p>
-                    <p className="text-sm">Use as ações rápidas para ver estatísticas aqui.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="addTarefa" className="flex-1">
+                Adicionar Tarefa
+              </Label>
+              <Switch
+                id="addTarefa"
+                checked={settings.showAddTarefa}
+                onCheckedChange={(checked) => handleToggle('showAddTarefa', checked)}
+              />
+            </div>
 
-          <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Configurações Gerais
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <h4 className="font-medium">Informações:</h4>
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Info className="h-4 w-4" />
-                      <span>Total de ações favoritas: {preferences.favorites.length}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Keyboard className="h-4 w-4" />
-                      <span>Atalhos de teclado: {preferences.enableKeyboardShortcuts ? 'Habilitados' : 'Desabilitados'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4" />
-                      <span>Ações rastreadas: {Object.keys(preferences.usageStats).length}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-3">
-                  <h4 className="font-medium text-destructive">Zona de Perigo:</h4>
-                  <Button 
-                    variant="destructive" 
-                    onClick={handleResetPreferences}
-                    className="gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Resetar Todas as Preferências
-                  </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Esta ação irá apagar todos os favoritos, estatísticas e configurações.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="buscaAvancada" className="flex-1">
+                Busca Avançada
+              </Label>
+              <Switch
+                id="buscaAvancada"
+                checked={settings.showBuscaAvancada}
+                onCheckedChange={(checked) => handleToggle('showBuscaAvancada', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="relatorios" className="flex-1">
+                Relatórios
+              </Label>
+              <Switch
+                id="relatorios"
+                checked={settings.showRelatorios}
+                onCheckedChange={(checked) => handleToggle('showRelatorios', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="filtros" className="flex-1">
+                Filtros por Data
+              </Label>
+              <Switch
+                id="filtros"
+                checked={settings.showFiltros}
+                onCheckedChange={(checked) => handleToggle('showFiltros', checked)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div {...getMobileFooterProps()}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={() => onOpenChange(false)}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            Salvar Configurações
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 export function Reservas() {
   const { reservas, isLoading, updateReservaStatus, deleteReserva, fetchReservas } = useReservas();
@@ -33,6 +34,8 @@ export function Reservas() {
     cliente_vip: 'all',
     search: ''
   });
+
+  const { getMobileDialogProps } = useMobileDialog();
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -226,14 +229,20 @@ export function Reservas() {
                     )}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="w-[95vw] max-w-md bg-white/95 dark:bg-gray-900/95 border-green-200/50 dark:border-green-700/50">
+                <DialogContent {...getMobileDialogProps("default")}>
                   <DialogHeader>
-                    <DialogTitle className="text-gray-800 dark:text-gray-200/90">Filtros</DialogTitle>
-                    <DialogDescription className="text-green-600 dark:text-green-400/80">
+                    <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                        <Filter className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      Filtros
+                    </DialogTitle>
+                    <DialogDescription className="text-sm text-muted-foreground">
                       Refine sua busca por reservas
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="mt-6">
+                  
+                  <div className="space-y-6">
                     <ReservasFilters filters={filters} onFilterChange={handleFilterChange} />
                   </div>
                 </DialogContent>

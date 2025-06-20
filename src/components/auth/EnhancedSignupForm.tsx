@@ -55,87 +55,124 @@ export function EnhancedSignupForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSignUp)}>
-        <CardContent className="space-y-4 sm:space-y-6 pt-4 sm:pt-6">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Nome completo</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <User className="h-4 w-4 text-muted-foreground" />
+        <CardContent className="space-y-6 pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome Completo *</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <Input
+                        {...field}
+                        placeholder="Seu nome completo"
+                        autoComplete="name"
+                        className="pl-10"
+                        required
+                      />
                     </div>
-                    <Input
-                      {...field}
-                      placeholder="Seu nome completo"
-                      autoComplete="name"
-                      className="pl-10 h-10 sm:h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">E-mail</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail *</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="seu@email.com"
+                        autoComplete="email"
+                        className="pl-10"
+                        required
+                      />
                     </div>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="seu@email.com"
-                      autoComplete="email"
-                      className="pl-10 h-10 sm:h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Telefone</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefone</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <Input
+                        {...field}
+                        type="tel"
+                        placeholder="(11) 99999-9999"
+                        autoComplete="tel"
+                        className="pl-10"
+                      />
                     </div>
-                    <Input
-                      {...field}
-                      type="tel"
-                      placeholder="(11) 99999-9999"
-                      autoComplete="tel"
-                      className="pl-10 h-10 sm:h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Função *</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <div className="flex items-center space-x-2">
+                          <Shield className="h-4 w-4 text-muted-foreground" />
+                          <SelectValue placeholder="Selecione uma função" />
+                        </div>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="crediarista">Crediarista</SelectItem>
+                      <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
+                      <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
+                      <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           
           <FormField
             control={form.control}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Senha</FormLabel>
+                <FormLabel>Senha *</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -146,7 +183,8 @@ export function EnhancedSignupForm() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Mínimo 6 caracteres"
                       autoComplete="new-password"
-                      className="pl-10 pr-10 h-10 sm:h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200"
+                      className="pl-10 pr-10"
+                      required
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-1">
                       <Button
@@ -170,54 +208,23 @@ export function EnhancedSignupForm() {
               </FormItem>
             )}
           />
-          
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Função</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="h-10 sm:h-12 bg-background/50 border-muted-foreground/20 focus:border-primary transition-all duration-200">
-                      <div className="flex items-center space-x-2">
-                        <Shield className="h-4 w-4 text-muted-foreground" />
-                        <SelectValue placeholder="Selecione uma função" />
-                      </div>
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="gerente">Gerente</SelectItem>
-                    <SelectItem value="crediarista">Crediarista</SelectItem>
-                    <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
-                    <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
-                    <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </CardContent>
         
-        <CardFooter>
+        <CardFooter className="pt-6">
           <Button 
-            className="w-full h-10 sm:h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105" 
             type="submit" 
             disabled={isLoading}
           >
             {isLoading ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>Criando conta...</span>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />
-                <span>Criar conta</span>
+                <span>Criar Conta</span>
               </div>
             )}
           </Button>

@@ -1,16 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Trash2, X, AlertTriangle, FileText } from "lucide-react";
+import { Trash2, AlertTriangle, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Orientacao } from "../types";
 import { useOrientacoesCrud } from "../hooks/useOrientacoesCrud";
@@ -30,7 +28,7 @@ export function DeleteOrientacaoDialog({
   onSuccess
 }: DeleteOrientacaoDialogProps) {
   const { deleteOrientacao, isLoading } = useOrientacoesCrud();
-  const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
+  const { getMobileDialogProps, getMobileFooterProps, getMobileButtonProps } = useMobileDialog();
   const [tarefasRelacionadas, setTarefasRelacionadas] = useState<any[]>([]);
   const [carregandoTarefas, setCarregandoTarefas] = useState(false);
 
@@ -75,18 +73,22 @@ export function DeleteOrientacaoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("lg", "80vh")} className="max-h-[80vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("medium")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
-            <Trash2 className="h-5 w-5" />
-            Excluir {tipoLabel}
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Trash2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            Confirmar Exclusão
           </DialogTitle>
           <DialogDescription className="text-sm">
-            Tem certeza que deseja excluir "{orientacao.titulo}"?
+            Tem certeza que deseja excluir o {tipoLabel.toLowerCase()} <strong>"{orientacao.titulo}"</strong>?
+            <br />
+            <span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 max-h-[50vh] overflow-y-auto">
+        <div className="space-y-4">
           {carregandoTarefas ? (
             <div className="flex items-center justify-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
@@ -100,55 +102,51 @@ export function DeleteOrientacaoDialog({
                   <p className="font-medium text-sm">
                     Esta orientação possui {tarefasRelacionadas.length} tarefa(s) relacionada(s):
                   </p>
-                  <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
-                    {tarefasRelacionadas.slice(0, 3).map((tarefa) => (
-                      <li key={tarefa.id} className="flex items-center gap-2">
-                        <FileText className="h-3 w-3 flex-shrink-0" />
-                        <span className="break-words">{tarefa.titulo}</span>
-                      </li>
-                    ))}
-                    {tarefasRelacionadas.length > 3 && (
-                      <li className="text-muted-foreground text-xs">
-                        ... e mais {tarefasRelacionadas.length - 3} tarefa(s)
-                      </li>
-                    )}
-                  </ul>
+                  <div className="max-h-32 overflow-y-auto">
+                    <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
+                      {tarefasRelacionadas.slice(0, 5).map((tarefa) => (
+                        <li key={tarefa.id} className="flex items-center gap-2">
+                          <FileText className="h-3 w-3 flex-shrink-0" />
+                          <span className="break-words">{tarefa.titulo}</span>
+                        </li>
+                      ))}
+                      {tarefasRelacionadas.length > 5 && (
+                        <li className="text-muted-foreground text-xs">
+                          ... e mais {tarefasRelacionadas.length - 5} tarefa(s)
+                        </li>
+                      )}
+                    </ul>
+                  </div>
                   <p className="text-xs sm:text-sm font-medium">
-                    Ao excluir esta orientação, a relação com essas tarefas será removida, mas as tarefas serão mantidas.
+                    ⚠️ As tarefas relacionadas serão mantidas, mas perderão a vinculação com esta orientação.
                   </p>
                 </div>
               </AlertDescription>
             </Alert>
-          ) : (
-            <Alert>
-              <AlertDescription className="text-sm">
-                Esta ação não pode ser desfeita.
-              </AlertDescription>
-            </Alert>
-          )}
+          ) : null}
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <div {...getMobileFooterProps()}>
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
             {...getMobileButtonProps()}
+            className="rounded-lg"
           >
-            <X className="h-4 w-4 mr-2" />
             Cancelar
           </Button>
           <Button
-            variant="destructive"
             onClick={handleDelete}
             disabled={isLoading || carregandoTarefas}
             {...getMobileButtonProps()}
+            className="bg-red-600 hover:bg-red-700 rounded-lg"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            {isLoading ? "Excluindo..." : "Excluir"}
+            {isLoading ? "Excluindo..." : `Excluir ${tipoLabel}`}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

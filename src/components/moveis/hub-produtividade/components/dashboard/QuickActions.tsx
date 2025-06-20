@@ -13,7 +13,8 @@ import {
   CheckSquare,
   Users,
   Star,
-  Settings
+  Settings,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -109,8 +110,7 @@ export function QuickActions({
         trackUsage('nova-rotina');
         onNovaRotina();
       },
-      color: "from-primary to-emerald-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-600 to-emerald-600",
       stats: { active: 12 },
       priority: "high"
     },
@@ -123,8 +123,7 @@ export function QuickActions({
         trackUsage('nova-orientacao');
         onNovaOrientacao();
       },
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-500 to-green-600",
       stats: { pending: 8 },
       priority: "high"
     },
@@ -137,8 +136,7 @@ export function QuickActions({
         trackUsage('nova-tarefa');
         onNovaTarefa();
       },
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-600 to-emerald-600",
       stats: { sales: 24 },
       priority: "high"
     },
@@ -151,8 +149,7 @@ export function QuickActions({
         trackUsage('busca-avancada');
         onBuscaAvancada();
       },
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-500 to-emerald-500",
       stats: { thisMonth: 156 },
       priority: "medium"
     },
@@ -165,8 +162,7 @@ export function QuickActions({
         trackUsage('filtros-data');
         onFiltrosPorData();
       },
-      color: "from-indigo-500 to-indigo-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-500 to-emerald-500",
       stats: { files: 7 },
       priority: "medium"
     },
@@ -179,8 +175,7 @@ export function QuickActions({
         trackUsage('relatorios');
         onRelatorios();
       },
-      color: "from-pink-500 to-pink-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-600 to-emerald-600",
       stats: { active: 5 },
       priority: "medium"
     },
@@ -196,7 +191,6 @@ export function QuickActions({
         window.location.href = currentUrl.toString();
       },
       color: "from-emerald-500 to-emerald-600",
-      bgColor: "bg-primary/10",
       stats: null,
       priority: "low"
     },
@@ -211,8 +205,7 @@ export function QuickActions({
         currentUrl.searchParams.set('tab', 'orientacoes');
         window.location.href = currentUrl.toString();
       },
-      color: "from-cyan-500 to-cyan-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-500 to-emerald-500",
       stats: null,
       priority: "low"
     },
@@ -227,8 +220,7 @@ export function QuickActions({
         currentUrl.searchParams.set('tab', 'monitoramento');
         window.location.href = currentUrl.toString();
       },
-      color: "from-violet-500 to-violet-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-600 to-emerald-600",
       stats: null,
       priority: "low"
     },
@@ -242,7 +234,6 @@ export function QuickActions({
         onShowFilters?.();
       },
       color: "from-slate-500 to-slate-600",
-      bgColor: "bg-primary/10",
       stats: null,
       priority: "low"
     },
@@ -256,7 +247,6 @@ export function QuickActions({
         onRefreshData();
       },
       color: "from-gray-500 to-gray-600",
-      bgColor: "bg-primary/10",
       stats: null,
       isLoading: isRefreshing,
       priority: "low"
@@ -270,8 +260,7 @@ export function QuickActions({
         trackUsage('exportar');
         onExportData();
       },
-      color: "from-teal-500 to-teal-600",
-      bgColor: "bg-primary/10",
+      color: "from-green-500 to-emerald-500",
       stats: { pending: 3 },
       priority: "low"
     }
@@ -297,25 +286,32 @@ export function QuickActions({
   const visibleSections = getVisibleSections();
 
   return (
-    <div className="space-y-4">
-      {/* Header com título e botão de configurações - condicional */}
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header Padronizado */}
       {!hideHeader && (
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Ações Rápidas</h3>
-            <p className="text-sm text-muted-foreground">
-              {preferences.showOnlyFavorites && preferences.favorites.length > 0 
-                ? `Mostrando ${visibleSections.length} favoritos`
-                : `${visibleSections.length} ações disponíveis`
-              }
-              {preferences.enableKeyboardShortcuts && " • Atalhos habilitados"}
-            </p>
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                Ações Rápidas
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {preferences.showOnlyFavorites && preferences.favorites.length > 0 
+                  ? `Mostrando ${visibleSections.length} favoritos`
+                  : `${visibleSections.length} ações disponíveis`
+                }
+                {preferences.enableKeyboardShortcuts && " • Atalhos habilitados"}
+              </p>
+            </div>
           </div>
           <QuickActionsSettings handlers={keyboardHandlers} />
         </div>
       )}
 
-      {/* Grid de ações - Layout melhorado para desktop */}
+      {/* Grid de ações - Layout padronizado */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {visibleSections.map((section, index) => {
           const Icon = section.icon;
@@ -324,11 +320,11 @@ export function QuickActions({
           return (
             <Card 
               key={section.id}
-              className={`hover-lift cursor-pointer transition-all duration-300 border-0 shadow-soft hover:shadow-medium group ${section.bgColor} relative`}
+              className="hover:shadow-lg cursor-pointer transition-all duration-300 group relative"
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={section.onClick}
             >
-              <CardContent className={`${isMobile ? 'p-3' : 'p-4 lg:p-5'}`}>
+              <CardContent className="p-4">
                 {/* Indicador de favorito */}
                 {isActionFavorite && (
                   <div className="absolute top-2 right-2">
@@ -336,58 +332,55 @@ export function QuickActions({
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <div className={`p-2 lg:p-3 rounded-lg bg-gradient-to-r ${section.color} group-hover:scale-110 transition-transform duration-200`}>
+                <div className="space-y-3">
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${section.color} group-hover:scale-110 transition-transform duration-200`}>
                     {section.isLoading ? (
-                      <RefreshCw className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5 lg:h-6 lg:w-6'} text-white animate-spin`} />
+                      <RefreshCw className="h-5 w-5 text-white animate-spin" />
                     ) : (
-                      <Icon className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5 lg:h-6 lg:w-6'} text-white`} />
+                      <Icon className="h-5 w-5 text-white" />
                     )}
                   </div>
-                  <div className="space-y-1">
-                    <h3 className={`${isMobile ? 'text-xs' : 'text-sm lg:text-base'} font-semibold leading-tight`}>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold leading-tight">
                       {section.title}
                     </h3>
-                    {!isMobile && section.subtitle && (
-                      <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
+                    {section.subtitle && (
+                      <p className="text-xs text-muted-foreground leading-tight">
                         {section.subtitle}
                       </p>
                     )}
+                    
+                    {/* Badges de estatísticas */}
                     <div className="flex flex-wrap gap-1">
-                      {section.title === "Nova Rotina" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                          {section.stats.active}
-                        </Badge>
-                      )}
-                      {section.title === "Nova Orientação" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                          {section.stats.pending}
-                        </Badge>
-                      )}
-                      {section.title === "Nova Tarefa" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5 text-green-600">
-                          {section.stats.sales}
-                        </Badge>
-                      )}
-                      {section.title === "Busca Avançada" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                          {section.stats.thisMonth}
-                        </Badge>
-                      )}
-                      {section.title === "Por Data" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                          {section.stats.files}
-                        </Badge>
-                      )}
-                      {section.title === "Relatórios" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                          {section.stats.active}
-                        </Badge>
-                      )}
-                      {section.title === "Exportar" && section.stats && (
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                          {section.stats.pending}
-                        </Badge>
+                      {section.stats && (
+                        <>
+                          {section.stats.active && (
+                            <Badge variant="outline" className="text-xs px-2 py-1 bg-green-50 text-green-700 border-green-200">
+                              {section.stats.active}
+                            </Badge>
+                          )}
+                          {section.stats.pending && (
+                            <Badge variant="outline" className="text-xs px-2 py-1 bg-yellow-50 text-yellow-700 border-yellow-200">
+                              {section.stats.pending}
+                            </Badge>
+                          )}
+                          {section.stats.sales && (
+                            <Badge variant="outline" className="text-xs px-2 py-1 bg-green-50 text-green-700 border-green-200">
+                              {section.stats.sales}
+                            </Badge>
+                          )}
+                          {section.stats.thisMonth && (
+                            <Badge variant="outline" className="text-xs px-2 py-1">
+                              {section.stats.thisMonth}
+                            </Badge>
+                          )}
+                          {section.stats.files && (
+                            <Badge variant="outline" className="text-xs px-2 py-1">
+                              {section.stats.files}
+                            </Badge>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -401,9 +394,11 @@ export function QuickActions({
       {/* Mensagem quando não há ações visíveis */}
       {visibleSections.length === 0 && preferences.showOnlyFavorites && (
         <div className="text-center py-8 text-muted-foreground">
-          <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Nenhuma ação favorita selecionada.</p>
-          <p className="text-sm">Configure suas ações favoritas nas configurações.</p>
+          <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Star className="h-8 w-8 text-green-600 dark:text-green-400 opacity-50" />
+          </div>
+          <p className="text-lg font-medium">Nenhuma ação favorita selecionada</p>
+          <p className="text-sm">Configure suas ações favoritas nas configurações</p>
         </div>
       )}
     </div>

@@ -808,8 +808,8 @@
   }
   
   .dark .deposit-card.pending {
-    background: hsl(var(--blue-950)) / 0.2;
-    border-color: hsl(var(--blue-800));
+    background: hsl(var(--green-950)) / 0.2;
+    border-color: hsl(var(--green-800));
   }
   
   .dark .deposit-card.missed {

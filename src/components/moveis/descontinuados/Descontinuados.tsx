@@ -1,12 +1,12 @@
-
 import { useState } from 'react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, Heart } from 'lucide-react';
+import { ArrowLeft, Package, Heart, AlertTriangle } from 'lucide-react';
 import { useDescontinuados } from './hooks/useDescontinuados';
 import { ProdutoCard } from './components/ProdutoCard';
 import { FiltrosDescontinuados } from './components/FiltrosDescontinuados';
 import { AddProdutoDialog } from './components/AddProdutoDialog';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface DescontinuadosProps {
   onBack: () => void;
@@ -26,6 +26,7 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
   const [showFavoritos, setShowFavoritos] = useState(false);
+  const { getMobileAlertDialogProps, getMobileButtonProps } = useMobileDialog();
 
   const handleDeleteConfirm = () => {
     if (produtoToDelete) {
@@ -182,18 +183,26 @@ export function Descontinuados({ onBack }: DescontinuadosProps) {
 
       {/* Dialog de Confirmação de Exclusão */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto">
+        <AlertDialogContent {...getMobileAlertDialogProps("medium")}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir este produto descontinuado? Esta ação não pode ser desfeita.
+            <AlertDialogTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Confirmar Exclusão
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              Tem certeza que deseja excluir o produto <strong>"{produtoToDelete?.nome}"</strong>?
+              <br />
+              <span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel {...getMobileButtonProps()} className="rounded-lg">
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
+              {...getMobileButtonProps()}
+              className="bg-red-600 hover:bg-red-700 rounded-lg"
             >
               Excluir
             </AlertDialogAction>

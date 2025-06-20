@@ -15,7 +15,8 @@ import {
   Star,
   Eye,
   X,
-  Download
+  Download,
+  Package
 } from 'lucide-react';
 import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
@@ -30,6 +31,7 @@ import {
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface ProdutoFocoDetailsProps {
   produto: ProdutoFocoWithImages | null;
@@ -39,6 +41,8 @@ interface ProdutoFocoDetailsProps {
 
 export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDetailsProps) {
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null);
+
+  const { getMobileDialogProps } = useMobileDialog();
 
   if (!produto) return null;
 
@@ -66,15 +70,25 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
-          <DialogHeader className="px-2 sm:px-0">
-            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              {produto.ativo && <Star className="h-5 w-5 text-yellow-500" />}
-              {produto.nome_produto}
+        <DialogContent {...getMobileDialogProps("default")}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  {produto.ativo && <Star className="h-4 w-4 text-yellow-500" />}
+                  {produto.nome_produto}
+                </div>
+                <div className="text-sm font-normal text-muted-foreground">
+                  Detalhes do Produto Foco
+                </div>
+              </div>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+          <div className="space-y-4 sm:space-y-6">
             {/* Informações Básicas */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -230,7 +244,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {/* Modal de Zoom da Imagem */}
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
-          <DialogContent className="max-w-4xl max-h-[85vh] p-0 sm:rounded-xl rounded-2xl mx-2 sm:mx-auto">
+          <DialogContent {...getMobileDialogProps("extraLarge")}>
             <DialogHeader className="sr-only">
               <DialogTitle>Visualização Ampliada</DialogTitle>
               <DialogDescription>

@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ptBR } from "date-fns/locale";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 // ============================================================================
 // Subcomponente para renderizar um item de depósito
@@ -26,6 +27,8 @@ const DepositoItem = ({
   getStatusBadge,
   isAfterDeadline,
   handleDeleteConfirm,
+  getMobileAlertDialogProps,
+  getMobileFooterProps,
 }: {
   deposito: Deposito;
   isMobile: boolean;
@@ -35,6 +38,8 @@ const DepositoItem = ({
   getStatusBadge: (deposito: Deposito) => React.ReactNode;
   isAfterDeadline: (deposito: Deposito) => boolean;
   handleDeleteConfirm: (depositoId: string) => void;
+  getMobileAlertDialogProps: () => any;
+  getMobileFooterProps: () => any;
 }) => {
   const handleDeleteTriggerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -76,12 +81,12 @@ const DepositoItem = ({
                     Excluir
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="w-[95vw] max-w-md rounded-xl m-2 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+                <AlertDialogContent {...getMobileAlertDialogProps()}>
                   <AlertDialogHeader>
                     <AlertDialogTitle className="flex items-center gap-2 text-base"><AlertTriangle className="h-4 w-4 text-amber-500" />Confirmar Exclusão</AlertDialogTitle>
                     <AlertDialogDescription className="text-sm">Excluir depósito de <strong>{format(deposito.data, "dd/MM/yyyy 'às' HH:mm")}</strong>?<br /><span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span></AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter className="flex-col gap-2 sm:flex-row"><AlertDialogCancel className="w-full sm:w-auto rounded-lg">Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteConfirm(deposito.id)} className="w-full sm:w-auto bg-red-600 hover:bg-red-700 rounded-lg">Excluir</AlertDialogAction></AlertDialogFooter>
+                  <AlertDialogFooter {...getMobileFooterProps()}><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteConfirm(deposito.id)} className="bg-red-600 hover:bg-red-700">Excluir</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
             )}
@@ -117,12 +122,12 @@ const DepositoItem = ({
                   Excluir
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-xl dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+              <AlertDialogContent {...getMobileAlertDialogProps()}>
                 <AlertDialogHeader>
                   <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-amber-500" />Confirmar Exclusão</AlertDialogTitle>
                   <AlertDialogDescription>Tem certeza de que deseja excluir este depósito de <strong>{format(deposito.data, "dd/MM/yyyy 'às' HH:mm")}</strong>?<br /><span className="text-red-600 font-medium">Esta ação não pode ser desfeita.</span></AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter><AlertDialogCancel className="rounded-lg">Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteConfirm(deposito.id)} className="bg-red-600 hover:bg-red-700 rounded-lg">Excluir Depósito</AlertDialogAction></AlertDialogFooter>
+                <AlertDialogFooter {...getMobileFooterProps()}><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteConfirm(deposito.id)} className="bg-red-600 hover:bg-red-700">Excluir Depósito</AlertDialogAction></AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           )}
@@ -173,6 +178,8 @@ export function DepositFormDialog({
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageScale, setImageScale] = useState(1);
   const [imageRotation, setImageRotation] = useState(0);
+
+  const { getMobileDialogProps, getMobileAlertDialogProps, getMobileFooterProps } = useMobileDialog();
 
   useEffect(() => {
     if (depositoId && depositosForDay.length > 0) {
@@ -249,131 +256,126 @@ export function DepositFormDialog({
   return (
     <>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className={`dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10
-          ${isMobile 
-            ? 'w-[95vw] max-w-sm rounded-2xl mx-auto max-h-[90vh]' 
-            : `max-w-4xl ${showForm ? 'max-h-[85vh]' : 'sm:max-w-2xl max-h-[80vh]'}`
-          }
-          flex flex-col`}>
-          <DialogHeader className={`
-            ${isMobile ? 'px-4 pt-4 pb-3' : 'px-6 py-4'} 
-            bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/50 dark:to-emerald-950/50 border-b shrink-0 rounded-t-xl
-          `}>
-            <DialogTitle className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold flex items-center gap-2`}>
-              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} bg-green-100 dark:bg-green-950/50 rounded-full flex items-center justify-center`}>
-                <FileText className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-green-600 dark:text-green-400`} />
+        <DialogContent {...getMobileDialogProps("default")}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate">Depósito Bancário</div>
+              <div>
+                <div>Depósito Bancário</div>
                 {selectedDay && (
-                  <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-normal text-muted-foreground truncate`}>
-                    {format(selectedDay, isMobile ? "dd/MM/yy" : "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  <div className="text-sm font-normal text-muted-foreground">
+                    {format(selectedDay, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                   </div>
                 )}
               </div>
             </DialogTitle>
           </DialogHeader>
           
-          <ScrollArea className={`flex-1 min-h-0 ${isMobile ? 'max-h-[60vh]' : 'max-h-[50vh]'} overflow-y-auto`}>
-            <div className={`space-y-4 ${isMobile ? 'p-4' : 'p-6'}`}>
-              
-              {depositosForDay.length > 0 && (
+          <div className="space-y-6">
+            
+            {depositosForDay.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-lg flex items-center justify-center">
+                    <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="text-base font-semibold">
+                    Depósitos Registrados
+                  </h3>
+                </div>
+                
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} bg-green-100 dark:bg-green-950/50 rounded-lg flex items-center justify-center`}>
-                      <Clock className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-green-600 dark:text-green-400`} />
-                    </div>
-                    <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-semibold`}>
-                      Depósitos Registrados
-                    </h3>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {depositosForDay.map(deposito => (
-                      <DepositoItem
-                        key={deposito.id}
-                        deposito={deposito}
-                        isMobile={isMobile}
-                        deletingId={deletingId}
-                        onViewDeposito={onViewDeposito}
-                        onDeleteDeposito={onDeleteDeposito}
-                        getStatusBadge={getStatusBadge}
-                        isAfterDeadline={isAfterDepositDeadline}
-                        handleDeleteConfirm={handleDeleteConfirm}
-                      />
-                    ))}
-                  </div>
-
-                  {!showForm && (
-                     <Button onClick={onAddNewDeposito} variant="outline" className="w-full border-dashed border-2 hover:bg-green-50 hover:border-green-300 hover:text-green-700 dark:hover:bg-green-950/50 dark:hover:border-green-400 dark:hover:text-green-400 py-2 h-10 text-sm">
-                        <Upload className="h-3 w-3 mr-2" />
-                        Registrar Novo Depósito
-                      </Button>
-                  )}
-
+                  {depositosForDay.map(deposito => (
+                    <DepositoItem
+                      key={deposito.id}
+                      deposito={deposito}
+                      isMobile={isMobile}
+                      deletingId={deletingId}
+                      onViewDeposito={onViewDeposito}
+                      onDeleteDeposito={onDeleteDeposito}
+                      getStatusBadge={getStatusBadge}
+                      isAfterDeadline={isAfterDepositDeadline}
+                      handleDeleteConfirm={handleDeleteConfirm}
+                      getMobileAlertDialogProps={getMobileAlertDialogProps}
+                      getMobileFooterProps={getMobileFooterProps}
+                    />
+                  ))}
                 </div>
-              )}
-              
-              {showForm && (
+
+                {!showForm && (
+                   <Button onClick={onAddNewDeposito} variant="outline" className="w-full border-dashed border-2 hover:bg-green-50 hover:border-green-300 hover:text-green-700 dark:hover:bg-green-950/50 dark:hover:border-green-400 dark:hover:text-green-400 py-3">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Registrar Novo Depósito
+                    </Button>
+                )}
+
+              </div>
+            )}
+            
+            {showForm && (
+              <div className="space-y-6">
+                 {depositosForDay.length > 0 && <Separator />}
                 <div className="space-y-4">
-                   {depositosForDay.length > 0 && <Separator />}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-8 h-8 bg-green-100 dark:bg-green-950/50 rounded-lg flex items-center justify-center`}>
-                        <Upload className={`h-4 w-4 text-green-600 dark:text-green-400`} />
-                      </div>
-                      <Label className={`text-base font-semibold`}>
-                        {depositoId ? 'Editar Comprovante' : 'Novo Comprovante'}
-                      </Label>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-lg flex items-center justify-center">
+                      <Upload className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
-                    
-                    {previewUrl ? (
-                      <div className="relative">
-                        <div className="border rounded-xl p-2 bg-muted/30 cursor-pointer group" onClick={handleOpenImageModal}>
-                          <img src={previewUrl} alt="Comprovante" className={`max-h-48 max-w-full object-contain mx-auto rounded-lg`} />
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-xl"><div className="bg-white/90 dark:bg-black/90 rounded-full p-2"><ZoomIn className="h-4 w-4 text-green-600" /></div></div>
-                        </div>
-                        <Button variant="destructive" size="sm" className="absolute top-1 right-1 rounded-full h-7 w-7 p-0" onClick={handleRemoveFile} aria-label="Remover imagem"><X className="h-4 w-4" /></Button>
-                      </div>
-                    ) : (
-                      <label htmlFor="file-upload" className="border-2 border-dashed border-muted-foreground/25 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/30 p-4 text-center transition-colors">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-950/50 rounded-full flex items-center justify-center mb-3">
-                          <Upload className="h-6 w-6 text-green-600 dark:text-green-400" />
-                        </div>
-                        <h3 className="text-sm font-semibold mb-1">Adicionar Comprovante</h3>
-                        <p className="text-xs text-muted-foreground">Toque para selecionar ou arraste aqui</p>
-                        <Input id="file-upload" ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                      </label>
-                    )}
+                    <Label className="text-base font-semibold">
+                      {depositoId ? 'Editar Comprovante' : 'Novo Comprovante'}
+                    </Label>
                   </div>
                   
-                  <div className={`bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-3`}>
-                    <div className="flex items-start space-x-3">
-                      <Checkbox id="ja-incluido" checked={jaIncluido} onCheckedChange={(checked) => setJaIncluido(checked === true)} className="mt-0.5 data-[state=checked]:bg-amber-600" />
-                      <div className="grid gap-0.5 leading-tight">
-                        <label htmlFor="ja-incluido" className="text-sm font-semibold cursor-pointer text-amber-800 dark:text-amber-200">
-                          Depósito incluído na Tesouraria/P2K?
-                        </label>
-                        <p className="text-xs text-amber-700 dark:text-amber-300">
-                          Marque se o valor já foi processado.
-                        </p>
+                  {previewUrl ? (
+                    <div className="relative">
+                      <div className="border rounded-xl p-4 bg-muted/30 cursor-pointer group" onClick={handleOpenImageModal}>
+                        <img src={previewUrl} alt="Comprovante" className="max-h-48 max-w-full object-contain mx-auto rounded-lg" />
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-xl">
+                          <div className="bg-white/90 dark:bg-black/90 rounded-full p-2">
+                            <ZoomIn className="h-4 w-4 text-green-600" />
+                          </div>
+                        </div>
                       </div>
+                      <Button variant="destructive" size="sm" className="absolute top-2 right-2 rounded-full h-8 w-8 p-0" onClick={handleRemoveFile} aria-label="Remover imagem">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <label htmlFor="file-upload" className="border-2 border-dashed border-muted-foreground/25 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/30 p-8 text-center transition-colors">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mb-4">
+                        <Upload className="h-6 w-6 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h3 className="text-base font-semibold mb-2">Adicionar Comprovante</h3>
+                      <p className="text-sm text-muted-foreground">Clique para selecionar ou arraste aqui</p>
+                      <Input id="file-upload" ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                    </label>
+                  )}
+                </div>
+                
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-4">
+                  <div className="flex items-start space-x-3">
+                    <Checkbox id="ja-incluido" checked={jaIncluido} onCheckedChange={(checked) => setJaIncluido(checked === true)} className="mt-0.5 data-[state=checked]:bg-amber-600" />
+                    <div className="grid gap-1 leading-tight">
+                      <label htmlFor="ja-incluido" className="text-sm font-semibold cursor-pointer text-amber-800 dark:text-amber-200">
+                        Depósito incluído na Tesouraria/P2K?
+                      </label>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        Marque se o valor já foi processado.
+                      </p>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </ScrollArea>
+              </div>
+            )}
+          </div>
           
           {showForm && (
-            <DialogFooter className={`
-              bg-gradient-to-r from-muted/30 to-muted/50 dark:from-muted/20 dark:to-muted/40 border-t shrink-0 rounded-b-xl
-              ${isMobile ? 'p-3 flex-col gap-2' : 'px-6 py-4 flex-row gap-3'}
-            `}>
+            <div {...getMobileFooterProps()}>
               <Button 
                 variant="outline" 
                 onClick={() => onCloseDialog ? onCloseDialog() : setOpenDialog(false)}
-                className={`${isMobile ? "w-full order-2 h-11" : "h-10"} rounded-lg`}
+                className="px-6"
                 disabled={isUploading}
               >
                 Cancelar
@@ -381,42 +383,86 @@ export function DepositFormDialog({
               <Button 
                 onClick={() => handleSubmit(jaIncluido)} 
                 disabled={!previewUrl || isUploading}
-                className={`${isMobile ? "w-full order-1 h-12 text-base" : "h-10"} rounded-lg bg-green-600 hover:bg-green-700 shadow-lg`}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
               >
                 {isUploading ? (
-                  <div className="flex items-center justify-center gap-2"><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div><span>Salvando...</span></div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                    <span>Salvando...</span>
+                  </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2"><CheckCircle className="h-4 w-4" /><span>{depositoId ? "Atualizar" : "Registrar"}</span></div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>{depositoId ? "Atualizar" : "Registrar"}</span>
+                  </div>
                 )}
               </Button>
-            </DialogFooter>
+            </div>
           )}
         </DialogContent>
       </Dialog>
       
       {previewUrl && (
         <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
-          <DialogContent className={`${isMobile ? 'w-[98vw] h-[95vh]' : 'w-[95vw] h-[90vh]'} max-w-none m-1 p-0 bg-black/95 border-none rounded-2xl`}>
-            <DialogTitle className="sr-only">Visualização do Comprovante</DialogTitle>
-            <div className="relative w-full h-full flex items-center justify-center">
+          <DialogContent {...getMobileDialogProps("extraLarge")}>
+            <DialogHeader className="sr-only">
+              <DialogTitle>Visualização do Comprovante</DialogTitle>
+            </DialogHeader>
+            
+            <div className="relative w-full h-full flex items-center justify-center p-4 bg-black rounded-lg">
+              {/* Header com controles */}
               <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
                 <div className="bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2">
                   <h3 className="text-white text-sm font-medium">Comprovante de Depósito</h3>
                   {selectedDay && <p className="text-white/70 text-xs">{format(selectedDay, "dd/MM/yyyy", { locale: ptBR })}</p>}
                 </div>
+                
                 <div className="flex items-center gap-2">
                   <div className="bg-black/50 backdrop-blur-sm rounded-lg p-1 flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={handleZoomOut} disabled={imageScale <= 0.5}><ZoomOut className="h-4 w-4" /></Button>
-                    <span className="text-white text-xs px-2 min-w-[50px] text-center">{Math.round(imageScale * 100)}%</span>
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={handleZoomIn} disabled={imageScale >= 3}><ZoomIn className="h-4 w-4" /></Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-white hover:bg-white/20 h-8 w-8" 
+                      onClick={handleZoomOut} 
+                      disabled={imageScale <= 0.5}
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </Button>
+                    <span className="text-white text-xs px-2 min-w-[50px] text-center">
+                      {Math.round(imageScale * 100)}%
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-white hover:bg-white/20 h-8 w-8" 
+                      onClick={handleZoomIn} 
+                      disabled={imageScale >= 3}
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </Button>
                     <div className="w-px h-4 bg-white/20 mx-1"></div>
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={handleRotate}><RotateCw className="h-4 w-4" /></Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-white hover:bg-white/20 h-8 w-8" 
+                      onClick={handleRotate}
+                    >
+                      <RotateCw className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8 bg-black/50 backdrop-blur-sm rounded-lg" onClick={handleCloseImageModal}>
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-white hover:bg-white/20 h-8 w-8 bg-black/50 backdrop-blur-sm rounded-lg" 
+                    onClick={handleCloseImageModal}
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
+              
+              {/* Imagem */}
               <img
                 src={previewUrl}
                 alt="Comprovante de depósito em tela cheia"

@@ -1,49 +1,61 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { AlertTriangle, Trash2 } from "lucide-react";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface ConfirmDeleteDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  produtoNome?: string;
+  productName: string;
+  isDeleting?: boolean;
 }
 
 export function ConfirmDeleteDialog({ 
-  isOpen, 
-  onClose, 
+  open, 
+  onOpenChange, 
   onConfirm, 
-  produtoNome 
+  productName,
+  isDeleting = false 
 }: ConfirmDeleteDialogProps) {
+  const { getMobileAlertDialogProps, getMobileFooterProps } = useMobileDialog();
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-destructive" />
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent {...getMobileAlertDialogProps()}>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2 text-base">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
             Confirmar Exclusão
-          </DialogTitle>
-          <DialogDescription>
-            Tem certeza que deseja excluir o produto foco{produtoNome ? ` "${produtoNome}"` : ''}? 
-            Esta ação não pode ser desfeita.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="flex gap-3 justify-end pt-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-sm">
+            Tem certeza que deseja excluir o produto <strong>"{productName}"</strong>?
+            <br />
+            <span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter {...getMobileFooterProps()}>
+          <AlertDialogCancel disabled={isDeleting}>
             Cancelar
-          </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm}>
-            Excluir
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {isDeleting ? "Excluindo..." : "Excluir"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 } 

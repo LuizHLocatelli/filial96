@@ -32,6 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 // Schema para configurações de segurança
 const securitySettingsSchema = z.object({
@@ -143,6 +144,8 @@ export function SecuritySettingsForm() {
   
   const deviceInfo = useDeviceDetection();
   const currentLocation = useLocationDetection();
+
+  const { getMobileAlertDialogProps, getMobileFooterProps } = useMobileDialog();
 
   const form = useForm<z.infer<typeof securitySettingsSchema>>({
     resolver: zodResolver(securitySettingsSchema),
@@ -349,45 +352,26 @@ export function SecuritySettingsForm() {
                       Desconectar Sessão
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent {...getMobileAlertDialogProps()}>
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-yellow-500" />
                         Desconectar Sessão
                       </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza que deseja desconectar?
+                        Você precisará fazer login novamente para acessar sua conta neste dispositivo.
+                      </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogDescription>
-                      <div>
-                        <h3 className="text-lg font-medium mb-2">Desconectar Sessão</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Isso irá desconectar sua conta deste dispositivo.
-                        </p>
-                      </div>
-                      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" onClick={() => setShowLogoutDialog(true)}>
-                            Desconectar
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Tem certeza que deseja desconectar?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Você precisará fazer login novamente para acessar sua conta neste dispositivo.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={handleSignOut}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Desconectar
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </AlertDialogDescription>
+                    <AlertDialogFooter {...getMobileFooterProps()}>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleSignOut}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Desconectar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               </div>

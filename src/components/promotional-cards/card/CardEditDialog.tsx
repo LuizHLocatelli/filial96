@@ -1,115 +1,288 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, Edit3, Upload, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface CardEditDialogProps {
-  isOpen: boolean;
+  card: any;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
-  id: string;
-  title: string;
-  isMobile?: boolean;
-  onSuccess?: (newTitle: string) => void;
+  onSave: (data: any) => void;
+  isSubmitting: boolean;
 }
 
 export function CardEditDialog({ 
-  isOpen, 
+  card, 
+  open, 
   onOpenChange, 
-  id, 
-  title,
-  isMobile,
-  onSuccess
+  onSave, 
+  isSubmitting 
 }: CardEditDialogProps) {
-  const [editedTitle, setEditedTitle] = useState(title);
-  const [isLoading, setIsLoading] = useState(false);
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  
+  const [formData, setFormData] = useState({
+    title: card?.title || '',
+    content: card?.content || '',
+    status: card?.status || 'rascunho',
+    valid_from: card?.valid_from ? new Date(card.valid_from) : undefined,
+    valid_until: card?.valid_until ? new Date(card.valid_until) : undefined,
+    sector: card?.sector || ''
+  });
 
-  const handleUpdateTitle = async () => {
-    if (!editedTitle.trim()) {
-      toast({
-        title: "Erro",
-        description: "O título não pode ficar vazio",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('promotional_cards')
-        .update({ title: editedTitle.trim() })
-        .eq('id', id);
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('Arquivo muito grande. Máximo 5MB.');
+        return;
+      }
       
-      if (error) throw error;
-      
-      toast({
-        title: "Sucesso",
-        description: "Título atualizado com sucesso"
-      });
-      
-      onOpenChange(false);
-      if (onSuccess) onSuccess(editedTitle.trim());
-    } catch (error) {
-      console.error('Error updating card title:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o título",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
+      setNewImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
+  const removeNewImage = () => {
+    setNewImage(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl('');
+    }
+  };
+
+  const handleSave = () => {
+    if (formData.title.trim()) {
+      const submitData = {
+        ...formData,
+        ...(newImage && { image: newImage })
+      };
+      onSave(submitData);
+    }
+  };
+
+  const getCurrentImageUrl = () => {
+    if (previewUrl) return previewUrl;
+    return card?.image_url || '';
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-w-[90vw] p-4 sm:p-6 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg">Editar Card</DialogTitle>
-          <DialogDescription>
-            Altere o título do card promocional
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Edit3 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Editar Card
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Modifique as informações do card promocional
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          handleUpdateTitle();
-        }} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="card-title" className="text-xs sm:text-sm">Título</Label>
-            <Input
-              id="card-title"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
-              placeholder="Digite o título do card"
-              disabled={isLoading}
-              className="text-xs sm:text-sm h-8 sm:h-10"
-            />
+
+        <div className="space-y-6">
+          {/* Informações Básicas */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Informações Básicas</h3>
+            
+            <div>
+              <Label htmlFor="title">Título *</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Título do card"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Status do card" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rascunho">Rascunho</SelectItem>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="inativo">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="sector">Setor</Label>
+                <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Setor do card" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="furniture">Móveis</SelectItem>
+                    <SelectItem value="fashion">Moda</SelectItem>
+                    <SelectItem value="loan">Crediário</SelectItem>
+                    <SelectItem value="service">Serviços</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="content">Conteúdo</Label>
+              <Textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) => handleInputChange('content', e.target.value)}
+                placeholder="Conteúdo do card promocional"
+                rows={4}
+                className="resize-none"
+              />
+            </div>
           </div>
-          
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-              className="text-xs sm:text-sm h-8 sm:h-10"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !editedTitle.trim()}
-              className="text-xs sm:text-sm h-8 sm:h-10"
-            >
-              {isLoading ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : "Salvar"}
-            </Button>
+
+          {/* Período de Validade */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Período de Validade</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Data de Início</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.valid_from && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.valid_from ? format(formData.valid_from, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.valid_from}
+                      onSelect={(date) => handleInputChange('valid_from', date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label>Data de Fim</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.valid_until && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.valid_until ? format(formData.valid_until, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.valid_until}
+                      onSelect={(date) => handleInputChange('valid_until', date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
           </div>
-        </form>
+
+          {/* Imagem */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Imagem</h3>
+            
+            {getCurrentImageUrl() ? (
+              <div className="relative max-w-md">
+                <img
+                  src={getCurrentImageUrl()}
+                  alt="Preview do card"
+                  className="w-full h-48 object-cover rounded-lg border"
+                />
+                {newImage && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={removeNewImage}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ) : null}
+
+            <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-green-400 transition-colors">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Upload className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <p className="text-sm text-muted-foreground mb-2">
+                {getCurrentImageUrl() ? 'Alterar imagem' : 'Selecionar imagem'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                PNG, JPG até 5MB
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div {...getMobileFooterProps()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={!formData.title.trim() || isSubmitting}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            <Edit3 className="mr-2 h-4 w-4" />
+            {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MetaCategoria, MetaFocoForm } from "../../types/metasTypes";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Target } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface MetaFocoDialogProps {
   open: boolean;
@@ -29,6 +29,7 @@ export function MetaFocoDialog({
   onSubmit, 
   isLoading 
 }: MetaFocoDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [formData, setFormData] = useState<MetaFocoForm>({
     data_foco: format(new Date(), 'yyyy-MM-dd'),
     categoria_id: '',
@@ -68,14 +69,24 @@ export function MetaFocoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent {...getMobileDialogProps("medium")}>
         <DialogHeader>
-          <DialogTitle>Criar Meta Foco</DialogTitle>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Criar Meta Foco
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Defina uma meta específica para impulsionar os resultados em um dia determinado
+          </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="titulo">Título da Meta Foco</Label>
+            <Label htmlFor="titulo">Título da Meta Foco *</Label>
             <Input
               id="titulo"
               value={formData.titulo}
@@ -85,15 +96,15 @@ export function MetaFocoDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Data</Label>
+              <Label>Data da Meta *</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal",
                       !selectedDate && "text-muted-foreground"
                     )}
                   >
@@ -114,7 +125,7 @@ export function MetaFocoDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="valor_meta">Valor da Meta</Label>
+              <Label htmlFor="valor_meta">Valor da Meta *</Label>
               <Input
                 id="valor_meta"
                 type="number"
@@ -129,7 +140,7 @@ export function MetaFocoDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="categoria">Categoria</Label>
+            <Label htmlFor="categoria">Categoria *</Label>
             <Select 
               value={formData.categoria_id} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, categoria_id: value }))}
@@ -149,21 +160,32 @@ export function MetaFocoDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição (opcional)</Label>
+            <Label htmlFor="descricao">Descrição</Label>
             <Textarea
               id="descricao"
               value={formData.descricao || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
               placeholder="Descrição da meta foco..."
               rows={3}
+              className="resize-none"
             />
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div {...getMobileFooterProps()}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+              className="px-6"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading} className="flex-1">
+            <Button 
+              type="submit" 
+              disabled={isLoading || !formData.titulo.trim() || !formData.categoria_id || formData.valor_meta <= 0}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+            >
               {isLoading ? "Criando..." : "Criar Meta Foco"}
             </Button>
           </div>

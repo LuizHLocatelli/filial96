@@ -36,6 +36,7 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { DateRange } from 'react-day-picker';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface FiltrosPorDataProps {
   open: boolean;
@@ -87,6 +88,8 @@ export function FiltrosPorData({
   tarefas,
   onFiltersApply 
 }: FiltrosPorDataProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+
   const [filters, setFilters] = useState<DateFilters>({
     dateRange: undefined,
     periodType: 'preset',
@@ -254,14 +257,18 @@ export function FiltrosPorData({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-              <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("large")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
-            Filtros por Data
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Filter className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Filtros por Data
+            </div>
           </DialogTitle>
-          <DialogDescription>
-            Configure filtros temporais avançados para analisar suas atividades
+          <DialogDescription className="text-sm text-muted-foreground">
+            Filtre e organize suas informações por períodos específicos
           </DialogDescription>
         </DialogHeader>
 
@@ -471,26 +478,23 @@ export function FiltrosPorData({
                 )}
               </CardContent>
             </Card>
-
-            <div className="space-y-2">
-              <Button 
-                onClick={handleApplyFilters} 
-                className="w-full"
-                disabled={!currentRange?.from || !currentRange?.to}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Aplicar Filtros
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-                className="w-full"
-              >
-                Cancelar
-              </Button>
-            </div>
           </div>
+        </div>
+
+        <div {...getMobileFooterProps()}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleApplyFilters}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            Aplicar Filtros
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

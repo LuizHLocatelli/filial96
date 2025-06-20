@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,7 +20,8 @@ import { useClienteTableLogic } from "./hooks/useClienteTableLogic";
 import { ClienteTableRow } from "./components/ClienteTableRow";
 import { EmptyState } from "./components/EmptyState";
 import { calcularDiasAtraso } from "./utils/clienteUtils";
-import { Search, MessageSquare, Phone } from "lucide-react";
+import { Search, MessageSquare, Phone, History, Send } from "lucide-react";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface ClientesDataTableProps {
   clientes: Cliente[];
@@ -32,6 +32,8 @@ interface ClientesDataTableProps {
 export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTableProps) {
   const [selectedClienteForContact, setSelectedClienteForContact] = useState<Cliente | null>(null);
   const [selectedClienteForTemplate, setSelectedClienteForTemplate] = useState<Cliente | null>(null);
+
+  const { getMobileDialogProps } = useMobileDialog();
 
   const {
     searchTerm,
@@ -172,9 +174,14 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
       </Card>
 
       <Dialog open={!!selectedClienteForContact} onOpenChange={() => setSelectedClienteForContact(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent {...getMobileDialogProps("default")}>
           <DialogHeader>
-            <DialogTitle>Histórico de Contatos</DialogTitle>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <History className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              Histórico de Contatos
+            </DialogTitle>
           </DialogHeader>
           {selectedClienteForContact && (
             <ContactHistory
@@ -186,9 +193,14 @@ export function ClientesDataTable({ clientes, onEdit, onDelete }: ClientesDataTa
       </Dialog>
 
       <Dialog open={!!selectedClienteForTemplate} onOpenChange={() => setSelectedClienteForTemplate(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent {...getMobileDialogProps("default")}>
           <DialogHeader>
-            <DialogTitle>Templates de Mensagem</DialogTitle>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Send className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              Templates de Mensagem
+            </DialogTitle>
           </DialogHeader>
           {selectedClienteForTemplate && (
             <MessageTemplates

@@ -61,7 +61,7 @@ export function GlassAppLayout({ children }: GlassAppLayoutProps) {
 
       {/* Ambient Light Effects */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-blue-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-green-500/5" />
         <div className="absolute inset-0 bg-gradient-to-tl from-purple-500/3 via-transparent to-pink-500/3" />
       </div>
     </div>

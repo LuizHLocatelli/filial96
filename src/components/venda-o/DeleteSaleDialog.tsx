@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Trash2, AlertTriangle } from "lucide-react";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface DeleteSaleDialogProps {
@@ -23,26 +24,33 @@ export function DeleteSaleDialog({
   onConfirmDelete,
   itemName = "esta venda",
 }: DeleteSaleDialogProps) {
-  const { getMobileButtonProps } = useMobileDialog();
-  
+  const { getMobileAlertDialogProps, getMobileButtonProps } = useMobileDialog();
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] sm:max-w-[500px] mx-auto dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+      <AlertDialogContent {...getMobileAlertDialogProps("medium")}>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-base sm:text-lg">Confirmar exclusão</AlertDialogTitle>
+          <AlertDialogTitle className="flex items-center gap-2 text-base">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            Confirmar Exclusão
+          </AlertDialogTitle>
           <AlertDialogDescription className="text-sm">
-            Tem certeza que deseja excluir {itemName}? Esta ação não pode ser desfeita.
+            Tem certeza que deseja excluir <strong>{itemName}</strong>? 
+            <br />
+            <span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
-          <AlertDialogCancel {...getMobileButtonProps()}>
+        <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+          <AlertDialogCancel {...getMobileButtonProps()} className="rounded-lg">
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirmDelete} 
             {...getMobileButtonProps()}
+            className="bg-red-600 hover:bg-red-700 rounded-lg"
           >
-            Excluir
+            <Trash2 className="mr-2 h-4 w-4" />
+            Excluir Venda
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

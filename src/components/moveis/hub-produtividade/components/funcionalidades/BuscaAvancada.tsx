@@ -26,6 +26,7 @@ import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 // Tipos para as propriedades
 interface BuscaAvancadaProps {
@@ -76,6 +77,7 @@ export function BuscaAvancada({
   tarefas,
   onResultsSelect 
 }: BuscaAvancadaProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [filters, setFilters] = useState<SearchFilters>(INITIAL_FILTERS);
   const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -296,14 +298,18 @@ export function BuscaAvancada({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-              <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("extraLarge")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            Busca Avançada
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Search className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Busca Avançada
+            </div>
           </DialogTitle>
-          <DialogDescription>
-            Pesquise com filtros detalhados em rotinas, orientações e tarefas
+          <DialogDescription className="text-sm text-muted-foreground">
+            Encontre orientações, tarefas, consultores e rotinas rapidamente
           </DialogDescription>
         </DialogHeader>
 
@@ -617,6 +623,25 @@ export function BuscaAvancada({
               </div>
             )}
           </div>
+        </div>
+
+        <div {...getMobileFooterProps()}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="px-6"
+          >
+            Fechar
+          </Button>
+          {searchResults && searchResults.totalFound > 0 && (
+            <Button 
+              onClick={() => onResultsSelect(searchResults)}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Aplicar Resultados
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

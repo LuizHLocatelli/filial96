@@ -1,135 +1,110 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Orientacao } from "./types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, FileText, User, Eye } from "lucide-react";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { PDFViewer } from "@/components/ui/pdf-viewer";
-import { useEffect } from "react";
-import { useOrientacoesMonitoring } from "../hub-produtividade/hooks/useOrientacoesMonitoring";
+import { Orientacao } from "./types";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface OrientacaoViewerDialogProps {
+  orientacao: Orientacao | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  orientacao: Orientacao;
 }
 
 export function OrientacaoViewerDialog({
+  orientacao,
   open,
-  onOpenChange,
-  orientacao
+  onOpenChange
 }: OrientacaoViewerDialogProps) {
-  const { registerView } = useOrientacoesMonitoring();
-  const { getMobileButtonProps } = useMobileDialog();
-  const isPdf = orientacao.arquivo_tipo.includes("pdf");
-  const isImage = orientacao.arquivo_tipo.includes("image");
-  
-  // Registrar visualização quando o dialog for aberto
-  useEffect(() => {
-    if (open && orientacao?.id) {
-      registerView(orientacao.id);
-    }
-  }, [open, orientacao?.id, registerView]);
-  
-  const renderContent = () => {
-    if (isImage) {
-      return (
-        <div className="w-full max-h-[60vh] overflow-auto">
-          <img
-            src={orientacao.arquivo_url}
-            alt={orientacao.titulo}
-            className="max-w-full h-auto mx-auto object-contain"
-          />
-        </div>
-      );
-    } else if (isPdf) {
-      return (
-        <div className="w-full h-[60vh] border rounded-lg bg-muted/10">
-          <PDFViewer url={orientacao.arquivo_url} className="h-full" />
-        </div>
-      );
-    } else {
-      return (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground text-sm">
-            Este tipo de arquivo não pode ser visualizado diretamente.
-            Por favor, faça o download para visualizá-lo.
-          </p>
-        </div>
-      );
-    }
-  };
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
 
-  const getTipoBadge = (tipo: string) => {
-    switch (tipo) {
-      case "vm":
-        return <Badge variant="outline" className="bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-primary/20 dark:from-primary/20 dark:to-primary/10 dark:text-primary dark:border-primary/30">VM</Badge>;
-      case "informativo":
-        return <Badge variant="outline" className="bg-gradient-to-r from-accent/50 to-accent/30 text-accent-foreground border-accent/40 dark:from-accent/30 dark:to-accent/20 dark:text-accent-foreground dark:border-accent/50">Informativo</Badge>;
-      default:
-        return <Badge variant="outline" className="bg-gradient-to-r from-muted/50 to-muted/30 text-muted-foreground border-muted/40 dark:from-muted/30 dark:to-muted/20 dark:text-muted-foreground dark:border-muted/50">Outro</Badge>;
-    }
-  };
+  if (!orientacao) return null;
 
-  const handleDownload = () => {
-    window.open(orientacao.arquivo_url, "_blank");
-  };
+  const tipoLabel = orientacao.tipo === 'vm' ? 'VM' : 'Informativo';
+  const tipoColor = orientacao.tipo === 'vm' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${
-        isPdf 
-          ? 'w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] max-h-[85vh] sm:w-[95vw] sm:max-w-[95vw] sm:max-h-[80vh]' 
-          : 'w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-4xl max-h-[80vh]'
-      } overflow-hidden flex flex-col`}>
-        <DialogHeader className="pb-2 sm:pb-4 flex-shrink-0">
-          <DialogTitle className="text-base sm:text-xl flex flex-col gap-2">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <div className="flex items-start sm:items-center gap-2 flex-wrap min-w-0">
-                <span className="font-semibold text-sm sm:text-lg break-words">{orientacao.titulo}</span>
-                {getTipoBadge(orientacao.tipo)}
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleDownload} 
-                className="w-full sm:w-auto whitespace-nowrap text-xs sm:text-sm"
-                {...getMobileButtonProps()}
-              >
-                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                Download
-              </Button>
+      <DialogContent {...getMobileDialogProps("default")}>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Visualizar {tipoLabel}
             </div>
           </DialogTitle>
-          <DialogDescription className="text-xs sm:text-sm">
-            {orientacao.descricao ? orientacao.descricao.substring(0, 100) + (orientacao.descricao.length > 100 ? '...' : '') : 'Visualização de orientação'}
+          <DialogDescription className="text-sm text-muted-foreground">
+            Detalhes completos da orientação
           </DialogDescription>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-muted-foreground mt-2 sm:mt-1 gap-1">
-            <span>
-              {orientacao.criado_por_nome && `Por: ${orientacao.criado_por_nome}`}
-            </span>
-            <span>
-              {formatDistanceToNow(new Date(orientacao.data_criacao), {
-                addSuffix: true,
-                locale: ptBR,
-              })}
-            </span>
-          </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden min-h-0">
-          {!isPdf && orientacao.descricao && (
-            <div className="mb-4 overflow-y-auto max-h-32 flex-shrink-0">
-              <p className="whitespace-pre-wrap text-sm">{orientacao.descricao}</p>
+        <div className="space-y-6">
+          {/* Header com tipo e título */}
+          <div className="space-y-3">
+            <Badge className={tipoColor}>
+              {tipoLabel}
+            </Badge>
+            <h2 className="text-xl font-semibold">{orientacao.titulo}</h2>
+          </div>
+
+          {/* Metadados */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>Criado em: {format(new Date(orientacao.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span>Por: {orientacao.user_name || 'Sistema'}</span>
+            </div>
+          </div>
+
+          {/* Conteúdo */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Conteúdo</h3>
+            <div className="prose prose-sm max-w-none p-4 bg-background border rounded-lg">
+              {orientacao.conteudo ? (
+                <div dangerouslySetInnerHTML={{ __html: orientacao.conteudo }} />
+              ) : (
+                <p className="text-muted-foreground italic">Nenhum conteúdo definido</p>
+              )}
+            </div>
+          </div>
+
+          {/* Anexos */}
+          {orientacao.anexos && orientacao.anexos.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Anexos</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {orientacao.anexos.map((anexo, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="flex-1 text-sm">{anexo.nome}</span>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={anexo.url} download target="_blank" rel="noopener noreferrer">
+                        Download
+                      </a>
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+        </div>
 
-          <div className={`${isPdf ? 'h-full' : 'mt-4 border-t pt-4 flex-1'} overflow-hidden`}>
-            {renderContent()}
-          </div>
+        <div {...getMobileFooterProps()}>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => onOpenChange(false)} 
+            className="px-6"
+          >
+            Fechar
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

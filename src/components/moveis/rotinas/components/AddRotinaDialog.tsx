@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RotinaFormData } from '../types';
-import { X, Zap, Calendar } from 'lucide-react';
+import { X, Zap, Calendar, Plus } from 'lucide-react';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface AddRotinaDialogProps {
   open: boolean;
@@ -38,6 +39,7 @@ const diasDaSemana = [
 ];
 
 export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<RotinaFormData>({
     nome: '',
@@ -133,10 +135,17 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("medium")}>
         <DialogHeader>
-          <DialogTitle>Nova Rotina</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Plus className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Nova Rotina
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Crie uma nova rotina para organizar suas tarefas obrigatórias.
           </DialogDescription>
         </DialogHeader>
@@ -310,16 +319,21 @@ export function AddRotinaDialog({ open, onOpenChange, onSubmit }: AddRotinaDialo
             )}
           </Card>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div {...getMobileFooterProps()}>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="px-6"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+            >
               {isSubmitting ? 'Criando...' : 'Criar Rotina'}
             </Button>
           </div>

@@ -16,7 +16,8 @@ import {
   Edit,
   Trash2,
   Eye,
-  ShoppingCart
+  ShoppingCart,
+  Package
 } from 'lucide-react';
 import { ProdutoFocoCard } from './components/ProdutoFocoCard';
 import { ProdutoFocoForm } from './components/ProdutoFocoForm';
@@ -26,6 +27,7 @@ import { ConfirmDeleteDialog } from './components/ConfirmDeleteDialog';
 import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 export function ProdutoFoco() {
   const { trackProdutoFocoEvent } = useModaTracking();
@@ -48,6 +50,8 @@ export function ProdutoFoco() {
   const [vendaProduto, setVendaProduto] = useState<ProdutoFocoWithImages | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  const { getMobileDialogProps } = useMobileDialog();
 
   useEffect(() => {
     // Registrar acesso à seção de produto foco
@@ -256,10 +260,18 @@ export function ProdutoFoco() {
 
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+        <DialogContent {...getMobileDialogProps("default")}>
           <DialogHeader>
-            <DialogTitle>
-              {editingProduto ? 'Editar Produto Foco' : 'Novo Produto Foco'}
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <div>{editingProduto ? 'Editar Produto Foco' : 'Novo Produto Foco'}</div>
+                <div className="text-sm font-normal text-muted-foreground">
+                  {editingProduto ? 'Atualize as informações' : 'Gerenciar prioridades de venda'}
+                </div>
+              </div>
             </DialogTitle>
             <DialogDescription>
               {editingProduto 
@@ -289,19 +301,29 @@ export function ProdutoFoco() {
       />
 
       {/* Registrar Venda Dialog */}
-      <RegistrarVendaDialog
-        produto={vendaProduto}
-        isOpen={!!vendaProduto}
-        onClose={() => setVendaProduto(null)}
-        onSuccess={handleVendaRegistrada}
-      />
+      {vendaProduto && (
+        <RegistrarVendaDialog
+          open={!!vendaProduto}
+          onOpenChange={(open) => {
+            if (!open) setVendaProduto(null);
+          }}
+          produtoNome={vendaProduto.nome_produto}
+          onSubmit={async (vendaData) => {
+            // Aqui você pode implementar a lógica de salvar a venda
+            console.log('Venda registrada:', vendaData);
+            handleVendaRegistrada();
+          }}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDeleteDialog
-        isOpen={!!deletingProduto}
-        onClose={() => setDeletingProduto(null)}
+        open={!!deletingProduto}
+        onOpenChange={(open) => {
+          if (!open) setDeletingProduto(null);
+        }}
         onConfirm={confirmDeleteProduto}
-        produtoNome={produtos.find(p => p.id === deletingProduto)?.nome_produto || ''}
+        productName={produtos.find(p => p.id === deletingProduto)?.nome_produto || ''}
       />
     </div>
   );

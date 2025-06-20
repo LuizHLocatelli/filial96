@@ -1,101 +1,153 @@
-
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
-import { DirectoryFile } from '../types';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Badge } from '@/components/ui/badge';
 import { PDFViewer } from '@/components/ui/pdf-viewer';
+import { Eye, Download, FileText, Image, Calendar, User } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { DirectoryFile } from '../types';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface FileViewerProps {
+  file: DirectoryFile | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  file: DirectoryFile | null;
 }
 
-export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
+export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+
   if (!file) return null;
 
-  const isPdf = file.file_type?.includes('pdf') || file.name?.toLowerCase().endsWith('.pdf');
-  const isImage = file.file_type?.includes('image') || 
-                  /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(file.name || '');
+  const isPdf = file.type?.includes('pdf');
+  const isImage = file.type?.includes('image');
   
-  const handleDialogChange = (newOpen: boolean) => {
-    onOpenChange(newOpen);
+  const handleDownload = () => {
+    window.open(file.url, '_blank');
   };
-  
-  return (
-    <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogContent className={`${
-        isPdf 
-          ? 'w-[95vw] max-w-[95vw] max-h-[85vh]' 
-          : 'sm:max-w-[900px] max-h-[80vh]'
-      } overflow-hidden flex flex-col`}>
-        <DialogHeader className="pb-2">
-          <DialogTitle>{file.name}</DialogTitle>
-          {file.description && (
-            <DialogDescription>
-              {file.description}
-            </DialogDescription>
-          )}
-        </DialogHeader>
-        
-        <div className="flex-1 overflow-hidden">
-          {isPdf && (
-            <div className="w-full h-full">
-              <PDFViewer 
-                url={file.file_url} 
-                className="h-full w-full" 
-              />
-            </div>
-          )}
-          
-          {isImage && (
-            <div className="w-full overflow-y-auto py-4">
-              <AspectRatio ratio={16 / 9} className="bg-muted">
-                <img
-                  src={file.file_url}
-                  alt={file.name}
-                  className="w-full h-full object-contain rounded-md"
-                />
-              </AspectRatio>
-            </div>
-          )}
-          
-          {!isPdf && !isImage && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                Pré-visualização não disponível para este tipo de arquivo.
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Clique no botão abaixo para baixar e visualizar o arquivo.
-              </p>
-            </div>
-          )}
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const renderContent = () => {
+    if (isImage) {
+      return (
+        <div className="w-full max-h-[60vh] overflow-auto border rounded-lg bg-muted/10 p-4">
+          <img
+            src={file.url}
+            alt={file.name}
+            className="max-w-full h-auto mx-auto object-contain rounded-lg"
+          />
         </div>
-        
-        {!isPdf && (
-          <DialogFooter className="pt-2">
-            <Button asChild>
-              <a 
-                href={file.file_url} 
-                download 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                <span>Baixar</span>
-              </a>
-            </Button>
-          </DialogFooter>
-        )}
+      );
+    } else if (isPdf) {
+      return (
+        <div className="w-full h-[60vh] border rounded-lg">
+          <PDFViewer url={file.url} className="h-full rounded-lg" />
+        </div>
+      );
+    } else {
+      return (
+        <div className="text-center py-16 border-2 border-dashed border-muted rounded-lg">
+          <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
+          </div>
+          <p className="text-muted-foreground mb-2">
+            Este tipo de arquivo não pode ser visualizado diretamente.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Por favor, faça o download para visualizá-lo.
+          </p>
+        </div>
+      );
+    }
+  };
+
+  const getFileIcon = () => {
+    if (isImage) return Image;
+    if (isPdf) return FileText;
+    return FileText;
+  };
+
+  const FileIcon = getFileIcon();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent {...getMobileDialogProps('default')}>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="break-words">{file.name}</span>
+                <Badge variant="outline" className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 text-green-700 dark:text-green-300">
+                  <FileIcon className="w-3 h-3 mr-1" />
+                  {file.type?.split('/')[1]?.toUpperCase() || 'FILE'}
+                </Badge>
+              </div>
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {file.description || 'Visualização de arquivo'}
+          </DialogDescription>
+          
+          {/* Metadados do arquivo */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mt-4">
+            {file.size && (
+              <div className="flex items-center gap-2 text-sm">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                <span>Tamanho: {formatFileSize(file.size)}</span>
+              </div>
+            )}
+            {file.created_at && (
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span>Criado: {format(new Date(file.created_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
+              </div>
+            )}
+            {file.uploaded_by_name && (
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span>Por: {file.uploaded_by_name}</span>
+              </div>
+            )}
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {renderContent()}
+        </div>
+
+        <div {...getMobileFooterProps()}>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => onOpenChange(false)} 
+            className="px-6"
+          >
+            Fechar
+          </Button>
+          <Button 
+            onClick={handleDownload}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

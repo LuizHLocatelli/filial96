@@ -132,51 +132,51 @@ export function ProdutoFocoForm({
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg sm:text-xl">
+      <CardHeader>
+        <CardTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
           {produto ? 'Editar Produto Foco' : 'Novo Produto Foco'}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Informações Básicas */}
-          <div className="grid grid-cols-1 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="nome_produto" className="text-sm">Nome do Produto *</Label>
+              <Label htmlFor="nome_produto">Nome do Produto *</Label>
               <Input
                 id="nome_produto"
                 value={formData.nome_produto}
                 onChange={(e) => setFormData(prev => ({ ...prev, nome_produto: e.target.value }))}
+                placeholder="Nome do produto"
                 required
-                className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="codigo_produto" className="text-sm">Código do Produto *</Label>
+              <Label htmlFor="codigo_produto">Código do Produto *</Label>
               <Input
                 id="codigo_produto"
                 value={formData.codigo_produto}
                 onChange={(e) => setFormData(prev => ({ ...prev, codigo_produto: e.target.value }))}
+                placeholder="Código do produto"
                 required
-                className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="categoria" className="text-sm">Categoria *</Label>
+              <Label htmlFor="categoria">Categoria *</Label>
               <Input
                 id="categoria"
                 value={formData.categoria}
                 onChange={(e) => setFormData(prev => ({ ...prev, categoria: e.target.value }))}
+                placeholder="Categoria do produto"
                 required
-                className="mt-1"
               />
             </div>
           </div>
 
           {/* Preços */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="preco_de" className="text-sm">Preço De (R$) *</Label>
+              <Label htmlFor="preco_de">Preço De (R$) *</Label>
               <Input
                 id="preco_de"
                 type="number"
@@ -184,13 +184,12 @@ export function ProdutoFocoForm({
                 min="0"
                 value={formData.preco_de}
                 onChange={(e) => setFormData(prev => ({ ...prev, preco_de: e.target.value }))}
-                required
-                className="mt-1"
                 placeholder="0,00"
+                required
               />
             </div>
             <div>
-              <Label htmlFor="preco_por" className="text-sm">Preço Por (R$) *</Label>
+              <Label htmlFor="preco_por">Preço Por (R$) *</Label>
               <Input
                 id="preco_por"
                 type="number"
@@ -198,20 +197,19 @@ export function ProdutoFocoForm({
                 min="0"
                 value={formData.preco_por}
                 onChange={(e) => setFormData(prev => ({ ...prev, preco_por: e.target.value }))}
-                required
-                className="mt-1"
                 placeholder="0,00"
+                required
               />
             </div>
           </div>
 
           {/* Período */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-sm">Data de Início *</Label>
+              <Label>Data de Início *</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal mt-1">
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {format(formData.periodo_inicio, 'dd/MM/yyyy', { locale: ptBR })}
                   </Button>
@@ -227,10 +225,10 @@ export function ProdutoFocoForm({
               </Popover>
             </div>
             <div>
-              <Label className="text-sm">Data de Fim *</Label>
+              <Label>Data de Fim *</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal mt-1">
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {format(formData.periodo_fim, 'dd/MM/yyyy', { locale: ptBR })}
                   </Button>
@@ -248,44 +246,43 @@ export function ProdutoFocoForm({
           </div>
 
           <div>
-            <Label htmlFor="meta_vendas" className="text-sm">Meta de Vendas (unidades)</Label>
+            <Label htmlFor="meta_vendas">Meta de Vendas (unidades)</Label>
             <Input
               id="meta_vendas"
               type="number"
               min="0"
               value={formData.meta_vendas}
               onChange={(e) => setFormData(prev => ({ ...prev, meta_vendas: e.target.value }))}
-              className="mt-1"
               placeholder="0"
             />
           </div>
 
           <div>
-            <Label htmlFor="motivo_foco" className="text-sm">Motivo do Foco</Label>
+            <Label htmlFor="motivo_foco">Motivo do Foco</Label>
             <Textarea
               id="motivo_foco"
               value={formData.motivo_foco}
               onChange={(e) => setFormData(prev => ({ ...prev, motivo_foco: e.target.value }))}
+              placeholder="Descreva o motivo pelo qual este produto está em foco"
               rows={2}
-              className="mt-1 resize-none"
             />
           </div>
 
           <div>
-            <Label htmlFor="informacoes_adicionais" className="text-sm">Informações Adicionais</Label>
+            <Label htmlFor="informacoes_adicionais">Informações Adicionais</Label>
             <Textarea
               id="informacoes_adicionais"
               value={formData.informacoes_adicionais}
               onChange={(e) => setFormData(prev => ({ ...prev, informacoes_adicionais: e.target.value }))}
+              placeholder="Informações adicionais sobre o produto"
               rows={3}
-              className="mt-1 resize-none"
             />
           </div>
 
           {/* Argumentos de Venda */}
           <div>
-            <Label className="text-sm">Argumentos de Venda</Label>
-            <div className="space-y-2 mt-1">
+            <Label>Argumentos de Venda</Label>
+            <div className="space-y-4">
               <div className="flex gap-2">
                 <Input
                   value={novoArgumento}
@@ -301,7 +298,7 @@ export function ProdutoFocoForm({
               {formData.argumentos_venda.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.argumentos_venda.map((argumento, index) => (
-                    <Badge key={index} variant="secondary" className="pr-1 text-xs">
+                    <Badge key={index} variant="secondary" className="pr-1">
                       {argumento}
                       <Button
                         type="button"
@@ -321,23 +318,23 @@ export function ProdutoFocoForm({
 
           {/* Upload de Imagens */}
           <div>
-            <Label className="text-sm">Imagens do Produto</Label>
-            <div className="space-y-4 mt-1">
+            <Label>Imagens do Produto</Label>
+            <div className="space-y-4">
               <div>
                 <Input
                   type="file"
                   accept="image/*"
                   multiple
                   onChange={handleFileUpload}
-                  className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                  className="cursor-pointer"
                 />
               </div>
               
               {/* Imagens Existentes (apenas para edição) */}
               {produto && produto.imagens.length > 0 && (
                 <div>
-                  <Label className="text-xs text-muted-foreground">Imagens Atuais</Label>
-                  <div className="grid-responsive-files gap-sm mt-2">
+                  <Label className="text-sm text-muted-foreground">Imagens Atuais</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                     {produto.imagens.map((imagem) => (
                       <div key={imagem.id} className="relative group">
                         <img
@@ -365,8 +362,8 @@ export function ProdutoFocoForm({
               {/* Novas Imagens (para criação) */}
               {novasImagens.length > 0 && (
                 <div>
-                  <Label className="text-xs text-muted-foreground">Novas Imagens</Label>
-                  <div className="grid-responsive-files gap-sm mt-2">
+                  <Label className="text-sm text-muted-foreground">Novas Imagens</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                     {previewUrls.map((url, index) => (
                       <div key={index} className="relative group">
                         <img
@@ -401,11 +398,15 @@ export function ProdutoFocoForm({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4">
-            <Button type="button" variant="outline" onClick={onCancel} className="order-2 sm:order-1">
+          <div className="flex justify-end gap-3 pt-6 border-t">
+            <Button type="button" variant="outline" onClick={onCancel} className="px-6">
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="order-1 sm:order-2">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+            >
               {isSubmitting ? 'Salvando...' : produto ? 'Atualizar' : 'Criar'}
             </Button>
           </div>

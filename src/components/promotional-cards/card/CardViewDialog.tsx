@@ -1,163 +1,164 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Download, Calendar, Hash, Folder, Clock } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import React from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { CalendarDays, Eye, Download, Calendar, User, Tag } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface CardViewDialogProps {
-  isOpen: boolean;
+  card: any;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
-  title: string;
-  imageUrl: string;
-  code?: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  currentFolder?: { id: string; name: string } | undefined;
-  isMobile?: boolean;
+  onEdit?: () => void;
 }
 
-export function CardViewDialog({
-  isOpen,
-  onOpenChange,
-  title,
-  imageUrl,
-  code,
-  startDate,
-  endDate,
-  currentFolder,
-  isMobile
-}: CardViewDialogProps) {
-  const handleDownload = async () => {
+export function CardViewDialog({ card, open, onOpenChange, onEdit }: CardViewDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+
+  if (!card) return null;
+
+  const formatDate = (dateString: string) => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      
-      // Create a download link
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${title.replace(/\s+/g, '_')}.${blob.type.split('/')[1]}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: "Sucesso",
-        description: "Download iniciado"
-      });
-    } catch (error) {
-      console.error('Error downloading image:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível fazer o download",
-        variant: "destructive"
-      });
+      return format(new Date(dateString), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+    } catch {
+      return 'Data inválida';
     }
   };
 
-  const formattedStartDate = startDate 
-    ? format(new Date(startDate), "dd/MM/yyyy", { locale: ptBR }) 
-    : null;
-  const formattedEndDate = endDate 
-    ? format(new Date(endDate), "dd/MM/yyyy", { locale: ptBR }) 
-    : null;
-  
-  const getStatus = (): { text: string; color: string } => {
-    const now = new Date();
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-
-    if (end && end < now) return { text: "Expirado", color: "text-red-500" };
-    if (start && start > now) return { text: "Agendado", color: "text-primary" };
-    if (start && end && start <= now && end >= now) return { text: "Ativo", color: "text-green-500" };
-    return { text: "Válido", color: "text-gray-500" };
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ativo':
+        return 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300';
+      case 'inativo':
+        return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
+      case 'rascunho':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-950 dark:text-gray-300';
+      default:
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
+    }
   };
-  
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-w-[95vw] p-4 sm:p-6 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg flex items-center justify-between">
-            <span className="font-semibold text-primary">{title}</span>
-            {code && (
-              <Badge variant="outline" className="ml-2 px-2 whitespace-nowrap">
-                Código: {code}
-              </Badge>
-            )}
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Visualizar Card
+            </div>
           </DialogTitle>
-          <DialogDescription className="flex items-center gap-2">
-            <Clock className={cn("h-4 w-4", getStatus().color)} />
-            <span className={cn("font-semibold", getStatus().color)}>{getStatus().text}</span>
-            <span className="text-muted-foreground text-xs"> (de {formattedStartDate || '?'} a {formattedEndDate || '?'})</span>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Detalhes completos do card promocional
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="flex flex-col gap-4">
-          {/* Card Image with shadow and border */}
-          <div className="w-full max-h-[60vh] overflow-hidden rounded-lg shadow-md border border-border">
-            <img 
-              src={imageUrl} 
-              alt={title}
-              className="w-full h-full object-contain"
-            />
+
+        <div className="space-y-6">
+          {/* Header com status e título */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Badge className={getStatusColor(card.status)}>
+                {card.status?.toUpperCase() || 'INDEFINIDO'}
+              </Badge>
+              {card.created_at && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>{formatDate(card.created_at)}</span>
+                </div>
+              )}
+            </div>
+            <h2 className="text-xl font-semibold">{card.title || 'Sem título'}</h2>
           </div>
-          
-          {/* Card Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-accent rounded-lg">
-            {code && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <Hash className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Código do Card</p>
-                  <p className="text-muted-foreground">{code}</p>
-                </div>
+
+          {/* Metadados */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+            {card.sector && (
+              <div className="flex items-center gap-2 text-sm">
+                <Tag className="h-4 w-4 text-muted-foreground" />
+                <span>Setor: {card.sector}</span>
               </div>
             )}
-            
-            {formattedStartDate && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Início da Validade</p>
-                  <p className="text-muted-foreground">{formattedStartDate}</p>
-                </div>
-              </div>
-            )}
-            {formattedEndDate && (
-                <div className="flex items-center gap-2 text-xs sm:text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                        <p className="font-medium">Fim da Validade</p>
-                        <p className="text-muted-foreground">{formattedEndDate}</p>
-                    </div>
-                </div>
-            )}
-            
-            {currentFolder && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <Folder className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Pasta</p>
-                  <p className="text-muted-foreground">{currentFolder.name}</p>
-                </div>
+            {card.created_by_name && (
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span>Criado por: {card.created_by_name}</span>
               </div>
             )}
           </div>
-          
-          {/* Actions */}
-          <div className="flex justify-end mt-2">
+
+          {/* Conteúdo/Descrição */}
+          {card.content && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Conteúdo</h3>
+              <div className="prose prose-sm max-w-none p-4 bg-background border rounded-lg">
+                <div dangerouslySetInnerHTML={{ __html: card.content }} />
+              </div>
+            </div>
+          )}
+
+          {/* Imagem do card */}
+          {card.image_url && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Imagem</h3>
+              <Card>
+                <CardContent className="p-4">
+                  <img
+                    src={card.image_url}
+                    alt={card.title || 'Card promocional'}
+                    className="w-full h-auto max-h-96 object-contain rounded-lg border"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Datas de validade */}
+          {(card.valid_from || card.valid_until) && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <CalendarDays className="h-5 w-5 text-green-600" />
+                Período de Validade
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+                {card.valid_from && (
+                  <div>
+                    <span className="text-sm font-medium">Válido a partir de:</span>
+                    <p className="text-sm">{formatDate(card.valid_from)}</p>
+                  </div>
+                )}
+                {card.valid_until && (
+                  <div>
+                    <span className="text-sm font-medium">Válido até:</span>
+                    <p className="text-sm">{formatDate(card.valid_until)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div {...getMobileFooterProps()}>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={() => onOpenChange(false)} 
+            className="px-6"
+          >
+            Fechar
+          </Button>
+          {onEdit && (
             <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={handleDownload}
-              className="text-xs sm:text-sm px-3"
+              onClick={onEdit}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
             >
-              <Download className="mr-2 h-3.5 w-3.5" />
-              Download
+              Editar Card
             </Button>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

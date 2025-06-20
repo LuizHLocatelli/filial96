@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Edit3 } from "lucide-react";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 export interface Folder {
   id: string;
@@ -20,6 +22,7 @@ interface EditFolderDialogProps {
 }
 
 export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: EditFolderDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [name, setName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -76,42 +79,52 @@ export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: Ed
       }
       onOpenChange(open);
     }}>
-      <DialogContent className="sm:max-w-[425px] dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
+      <DialogContent {...getMobileDialogProps("small")}>
         <DialogHeader>
-          <DialogTitle>Editar Pasta</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Edit3 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Editar Pasta
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Altere o nome da pasta para organizar melhor seus cards promocionais
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="folder-name-edit" className="text-right">
-              Nome
-            </Label>
+        
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="folder-name-edit">Nome da Pasta *</Label>
             <Input
               id="folder-name-edit"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
+              placeholder="Digite o nome da pasta..."
               autoFocus
             />
           </div>
         </div>
-        <DialogFooter>
+        
+        <div {...getMobileFooterProps()}>
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)} 
             disabled={isProcessing}
+            className="px-6"
           >
             Cancelar
           </Button>
           <Button 
             onClick={handleUpdateFolder} 
             disabled={isProcessing || !name.trim()}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
+            <Edit3 className="mr-2 h-4 w-4" />
             {isProcessing ? "Salvando..." : "Salvar Alterações"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

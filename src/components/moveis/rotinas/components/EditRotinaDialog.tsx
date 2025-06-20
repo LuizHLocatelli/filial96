@@ -5,14 +5,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Edit3, Calendar, Users, Target } from 'lucide-react';
 import { RotinaFormData, RotinaWithStatus } from '../types';
-import { X } from 'lucide-react';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface EditRotinaDialogProps {
   rotina: RotinaWithStatus;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: RotinaFormData) => Promise<boolean>;
+  isSubmitting: boolean;
 }
 
 const categoriasPredefinidas = [
@@ -36,8 +40,8 @@ const diasDaSemana = [
   { value: 'domingo', label: 'Domingo' }
 ];
 
-export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditRotinaDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit, isSubmitting }: EditRotinaDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [formData, setFormData] = useState<RotinaFormData>({
     nome: '',
     descricao: '',
@@ -122,24 +126,52 @@ export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditR
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle>Editar Rotina</DialogTitle>
-          <DialogDescription>
-            Edite as informações da rotina selecionada.
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Edit3 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Editar Rotina
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Modifique os dados da rotina existente
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nome">Nome da Rotina *</Label>
-            <Input
-              id="nome"
-              value={formData.nome}
-              onChange={(e) => handleInputChange('nome', e.target.value)}
-              placeholder="Ex: Limpeza do balcão"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome da Rotina *</Label>
+              <Input
+                id="nome"
+                value={formData.nome}
+                onChange={(e) => handleInputChange('nome', e.target.value)}
+                placeholder="Ex: Limpeza do balcão"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categoria">Categoria *</Label>
+              <Select
+                value={formData.categoria}
+                onValueChange={(value) => handleInputChange('categoria', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoriasPredefinidas.map(categoria => (
+                    <SelectItem key={categoria} value={categoria.toLowerCase()}>
+                      {categoria}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -153,7 +185,7 @@ export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditR
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="periodicidade">Periodicidade *</Label>
               <Select
@@ -191,67 +223,54 @@ export function EditRotinaDialog({ rotina, open, onOpenChange, onSubmit }: EditR
                     className="px-2"
                     title="Limpar horário"
                   >
-                    <X className="h-4 w-4" />
+                    <Edit3 className="h-4 w-4" />
                   </Button>
                 )}
               </div>
             </div>
-          </div>
 
-          {formData.periodicidade !== 'diario' && (
-            <div className="space-y-2">
-              <Label htmlFor="dia_preferencial">Dia Preferencial *</Label>
-              <Select
-                value={formData.dia_preferencial}
-                onValueChange={(value) => handleInputChange('dia_preferencial', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um dia" />
-                </SelectTrigger>
-                <SelectContent>
-                  {diasDaSemana.map(dia => (
-                    <SelectItem key={dia.value} value={dia.value}>
-                      {dia.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="categoria">Categoria *</Label>
-            <Select
-              value={formData.categoria}
-              onValueChange={(value) => handleInputChange('categoria', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {categoriasPredefinidas.map(categoria => (
-                  <SelectItem key={categoria} value={categoria.toLowerCase()}>
-                    {categoria}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
-            </Button>
+            {formData.periodicidade !== 'diario' && (
+              <div className="space-y-2">
+                <Label htmlFor="dia_preferencial">Dia Preferencial *</Label>
+                <Select
+                  value={formData.dia_preferencial}
+                  onValueChange={(value) => handleInputChange('dia_preferencial', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um dia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {diasDaSemana.map(dia => (
+                      <SelectItem key={dia.value} value={dia.value}>
+                        {dia.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </form>
+
+        <div {...getMobileFooterProps()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+          >
+            <Edit3 className="mr-2 h-4 w-4" />
+            {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

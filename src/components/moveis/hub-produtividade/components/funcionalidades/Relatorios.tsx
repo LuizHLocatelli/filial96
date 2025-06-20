@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 import { useRelatoriosData } from './relatorios/useRelatoriosData';
 import { RelatoriosControls } from './relatorios/RelatoriosControls';
@@ -100,6 +100,7 @@ export function Relatorios({
   stats,
   inline = false
 }: RelatoriosProps) {
+  const { getMobileDialogProps } = useMobileDialog();
   const relatoriosContentProps = { rotinas, orientacoes, tarefas, stats };
   
   if (inline) {
@@ -121,11 +122,18 @@ export function Relatorios({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[85vh] flex flex-col p-0">
+      <DialogContent {...getMobileDialogProps("extraLarge")} className="flex flex-col p-0">
         <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
-            Relatórios e Análises
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <div>Relatórios e Análises</div>
+              <div className="text-sm font-normal text-muted-foreground">
+                Hub de Produtividade
+              </div>
+            </div>
           </DialogTitle>
           <DialogDescription>
             Análises detalhadas de produtividade e performance

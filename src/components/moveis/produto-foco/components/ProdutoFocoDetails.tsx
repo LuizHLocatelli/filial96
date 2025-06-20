@@ -15,7 +15,9 @@ import {
   Star,
   Eye,
   X,
-  Download
+  Download,
+  Package,
+  ZoomIn
 } from 'lucide-react';
 import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
@@ -40,7 +42,7 @@ interface ProdutoFocoDetailsProps {
 
 export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDetailsProps) {
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null);
-  const { getMobileDialogProps } = useMobileDialog();
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
 
   if (!produto) return null;
 
@@ -68,18 +70,17 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent 
-          {...getMobileDialogProps("6xl", "85vh")}
-          className="max-h-[85vh] overflow-y-auto mx-2 sm:mx-auto"
-        >
-          <DialogHeader className="px-2 sm:px-0">
-            <DialogTitle className="flex items-center gap-2 text-base sm:text-xl">
-              {produto.ativo && <Star className="h-5 w-5 text-yellow-500" />}
-              <span className="break-words">{produto.nome_produto}</span>
+        <DialogContent {...getMobileDialogProps("large")}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              {produto.nome_produto}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 sm:space-y-6 px-2 sm:px-0 max-h-[70vh] overflow-y-auto">
+          <div className="space-y-4">
             {/* Informações Básicas */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -229,18 +230,26 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
               </div>
             )}
           </div>
+
+          <div {...getMobileFooterProps()}>
+            <Button variant="outline" onClick={onClose}>
+              Fechar
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Modal de Zoom da Imagem */}
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
-          <DialogContent 
-            {...getMobileDialogProps("6xl", "85vh")}
-            className="max-h-[85vh] p-2 sm:p-6 mx-2 sm:mx-auto overflow-hidden"
-          >
-            <DialogHeader className="pb-2">
-              <DialogTitle className="text-sm sm:text-base">Visualizar Imagem</DialogTitle>
+          <DialogContent {...getMobileDialogProps("default")}>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                  <ZoomIn className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                Visualizar Imagem
+              </DialogTitle>
             </DialogHeader>
             <div className="flex-1 overflow-hidden flex items-center justify-center max-h-[70vh]">
               <img 
@@ -248,6 +257,11 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
                 alt="Imagem ampliada" 
                 className="max-w-full max-h-full object-contain"
               />
+            </div>
+            <div {...getMobileFooterProps()}>
+              <Button onClick={() => setImagemSelecionada(null)}>
+                Fechar
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

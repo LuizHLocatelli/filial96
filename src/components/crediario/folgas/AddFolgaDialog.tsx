@@ -1,14 +1,15 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, UserX } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Crediarista, Folga } from "./types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,7 @@ export function AddFolgaDialog({
   getCrediaristaNameById,
   getUserNameForFolga
 }: AddFolgaDialogProps) {
-  const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
+  const { getMobileDialogProps, getMobileButtonProps, getMobileFooterProps } = useMobileDialog();
   const hasExistingFolgas = folgasNoDia && folgasNoDia.length > 0;
   const [calendarOpen, setCalendarOpen] = useState(false);
 
@@ -59,45 +60,50 @@ export function AddFolgaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("lg", "80vh")} className="max-h-[80vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg">
-            {hasExistingFolgas ? "Detalhes do Dia & Adicionar Folga" : "Adicionar Folga"}
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <UserX className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              {hasExistingFolgas ? "Detalhes do Dia & Adicionar Folga" : "Adicionar Folga"}
+            </div>
           </DialogTitle>
           {selectedDate && (
-            <DialogDescription className="text-sm">
+            <DialogDescription className="text-sm text-muted-foreground">
               {format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
             </DialogDescription>
           )}
         </DialogHeader>
         
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="space-y-6">
           {hasExistingFolgas && getCrediaristaNameById && getUserNameForFolga && (
             <>
-              <div className="mt-4 mb-2">
-                <h4 className="text-sm sm:text-base font-semibold mb-2 text-primary">
+              <div>
+                <h4 className="text-base font-semibold mb-4 text-green-700 dark:text-green-300">
                   Folgas Registradas Neste Dia:
                 </h4>
-                <ScrollArea className="h-[150px] rounded-md border p-2 bg-muted/30">
-                  <div className="space-y-2.5 pr-2">
+                <ScrollArea className="h-[150px] rounded-md border p-4 bg-muted/30">
+                  <div className="space-y-3">
                     {folgasNoDia.map((folga) => {
                       const crediaristaName = getCrediaristaNameById(folga.crediaristaId) || "N/A";
                       const createdByName = getUserNameForFolga(folga.createdBy) || "N/A";
                       return (
-                        <div key={folga.id} className="p-1.5 border-b last:border-b-0 text-xs">
-                          <div className="flex justify-between items-start gap-1">
-                            <span className="font-medium break-words">{crediaristaName}</span>
-                            <Badge variant="outline" className="text-[10px] whitespace-nowrap">
+                        <div key={folga.id} className="p-3 border-b last:border-b-0 rounded-lg bg-background/50">
+                          <div className="flex justify-between items-start gap-2">
+                            <span className="font-medium">{crediaristaName}</span>
+                            <Badge variant="outline" className="text-xs">
                               Por: {createdByName}
                             </Badge>
                           </div>
                           {folga.motivo && (
-                            <p className="text-muted-foreground mt-0.5 break-words">
+                            <p className="text-muted-foreground mt-1 text-sm">
                               Motivo: {folga.motivo}
                             </p>
                           )}
-                          <p className="text-muted-foreground text-[10px] mt-0.5">
-                            Em: {format(new Date(folga.createdAt), "dd/MM/yy HH:mm")}
+                          <p className="text-muted-foreground text-xs mt-1">
+                            Em: {format(new Date(folga.createdAt), "dd/MM/yyyy HH:mm")}
                           </p>
                         </div>
                       );
@@ -105,26 +111,28 @@ export function AddFolgaDialog({
                   </div>
                 </ScrollArea>
               </div>
-              <Separator className="my-3" />
-              <h4 className="text-sm sm:text-base font-semibold mb-2 text-primary">
+              
+              <Separator />
+              
+              <h4 className="text-base font-semibold text-green-700 dark:text-green-300">
                 Adicionar Nova Folga Para Este Dia:
               </h4>
             </>
           )}
 
-          <div className="space-y-3 py-1">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Crediarista</label>
+          <div className="space-y-6">
+            <div>
+              <Label>Crediarista *</Label>
               <Select
                 value={selectedCrediarista}
                 onValueChange={setSelectedCrediarista}
               >
-                <SelectTrigger className="w-full text-base sm:text-sm">
+                <SelectTrigger>
                   <SelectValue placeholder="Selecione um crediarista" />
                 </SelectTrigger>
                 <SelectContent>
                   {crediaristas.map((crediarista) => (
-                    <SelectItem key={crediarista.id} value={crediarista.id} className="text-sm">
+                    <SelectItem key={crediarista.id} value={crediarista.id}>
                       {crediarista.nome}
                     </SelectItem>
                   ))}
@@ -132,19 +140,19 @@ export function AddFolgaDialog({
               </Select>
             </div>
             
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Data da Folga</label>
+            <div>
+              <Label>Data da Folga *</Label>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={"outline"}
+                    variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal text-base sm:text-sm",
+                      "w-full justify-start text-left font-normal",
                       !selectedDate && "text-muted-foreground"
                     )}
                     disabled={hasExistingFolgas}
                   >
-                    <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                    <CalendarIcon className="mr-2 h-4 w-4" />
                     {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : "Selecione uma data"}
                   </Button>
                 </PopoverTrigger>
@@ -154,40 +162,41 @@ export function AddFolgaDialog({
                     selected={selectedDate}
                     onSelect={handleDateSelect}
                     initialFocus
-                    className="p-2"
                     disabled={hasExistingFolgas}
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Motivo (opcional)</label>
+            <div>
+              <Label>Motivo (opcional)</Label>
               <Textarea
                 placeholder="Informe o motivo da folga"
                 value={motivo}
                 onChange={(e) => setMotivo(e.target.value)}
-                className="resize-none text-base sm:text-sm min-h-[60px]"
+                className="resize-none"
+                rows={3}
               />
             </div>
           </div>
         </div>
         
-        <DialogFooter className="gap-2 sm:gap-0">
+        <div {...getMobileFooterProps()}>
           <Button 
+            type="button"
             variant="outline" 
             onClick={() => onOpenChange(false)} 
-            {...getMobileButtonProps()}
+            className="px-6"
           >
             Cancelar
           </Button>
           <Button 
             onClick={onAddFolga} 
-            {...getMobileButtonProps()}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
             {hasExistingFolgas ? "Adicionar Outra Folga" : "Adicionar Folga"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

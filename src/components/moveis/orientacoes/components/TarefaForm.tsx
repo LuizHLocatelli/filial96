@@ -62,10 +62,17 @@ export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel
   const prioridade = form.watch('prioridade') || 'media';
 
   return (
-    <Card className="p-4 sm:p-6 shadow-soft border">
-      <div className="mb-4 sm:mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg sm:text-xl font-semibold text-foreground">Nova Tarefa</h3>
+    <Card className="p-0 shadow-soft border max-w-4xl max-h-[85vh] overflow-y-auto">
+      <div className="p-6 pb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+            <ListTodo className="h-5 w-5 text-green-600 dark:text-green-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              Nova Tarefa
+            </h3>
+          </div>
           <Button 
             variant="ghost" 
             size="sm" 
@@ -75,8 +82,9 @@ export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel
             <X className="h-4 w-4" />
           </Button>
         </div>
+        
         <div className="flex items-center gap-2 mb-2">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             Crie uma nova tarefa para organizar o trabalho do setor de móveis
           </p>
           {origem !== 'manual' && (
@@ -90,46 +98,189 @@ export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel
         </div>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-          <FormField
-            control={form.control}
-            name="titulo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Título da Tarefa</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Digite o título da tarefa" 
-                    {...field} 
-                    className="text-sm bg-muted/40"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="px-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="prioridade"
+              name="titulo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Prioridade</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || 'media'}>
+                  <FormLabel className="text-sm font-medium">Título da Tarefa *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Digite o título da tarefa" 
+                      {...field} 
+                      className="text-sm"
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="prioridade"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Prioridade</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || 'media'}>
+                      <FormControl>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Selecione a prioridade" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.entries(priorityTypes).map(([value, config]) => (
+                          <SelectItem key={value} value={value}>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs ${config.color.split(' ')[1]}`}>
+                                {config.icon}
+                              </span>
+                              {config.label}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="data_entrega"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-sm font-medium">Data de Entrega</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className="pl-3 text-left font-normal text-sm justify-start"
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: ptBR })
+                            ) : (
+                              <span className="text-muted-foreground">Selecione uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          locale={ptBR}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="orientacao_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Orientação Relacionada</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value || "none"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Selecione uma orientação" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhuma</SelectItem>
+                        {orientacoes.map((orientacao) => (
+                          <SelectItem key={orientacao.id} value={orientacao.id}>
+                            {orientacao.titulo}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="rotina_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Rotina Relacionada</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value || defaultRotina || "none"}
+                      disabled={!!defaultRotina}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Selecione uma rotina" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhuma</SelectItem>
+                        {rotinas.map((rotina) => (
+                          <SelectItem key={rotina.id} value={rotina.id}>
+                            <div className="flex items-center gap-2">
+                              <RotateCcw className="h-3 w-3 text-green-600" />
+                              {rotina.nome}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {defaultRotina && (
+                      <p className="text-xs text-muted-foreground">
+                        Rotina pré-selecionada
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="origem"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium">Origem da Tarefa</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || 'manual'}>
                     <FormControl>
-                      <SelectTrigger className="text-sm bg-muted/40">
-                        <SelectValue placeholder="Selecione a prioridade" />
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Como esta tarefa foi criada?" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(priorityTypes).map(([value, config]) => (
+                      {Object.entries(taskTypes).map(([value, config]) => (
                         <SelectItem key={value} value={value}>
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs ${config.color.split(' ')[1]}`}>
-                              {config.icon}
-                            </span>
+                            {React.createElement(config.icon, {
+                              className: `h-4 w-4 ${config.color}`
+                            })}
                             {config.label}
                           </div>
                         </SelectItem>
@@ -143,179 +294,42 @@ export function TarefaForm({ form, orientacoes, rotinas = [], onSubmit, onCancel
 
             <FormField
               control={form.control}
-              name="data_entrega"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm font-medium">Data de entrega</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className="pl-3 text-left font-normal text-sm justify-start"
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP", { locale: ptBR })
-                          ) : (
-                            <span className="text-muted-foreground">Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        locale={ptBR}
-                        disabled={(date) => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          return date < today;
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="orientacao_id"
+              name="descricao"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Orientação relacionada (opcional)</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    value={field.value || "none"}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="text-sm bg-muted/40">
-                        <SelectValue placeholder="Selecione uma orientação" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">Nenhuma</SelectItem>
-                      {orientacoes.map((orientacao) => (
-                        <SelectItem key={orientacao.id} value={orientacao.id}>
-                          {orientacao.titulo}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="rotina_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Rotina relacionada (opcional)</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    value={field.value || defaultRotina || "none"}
-                    disabled={!!defaultRotina}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="text-sm bg-muted/40">
-                        <SelectValue placeholder="Selecione uma rotina" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">Nenhuma</SelectItem>
-                      {rotinas.map((rotina) => (
-                        <SelectItem key={rotina.id} value={rotina.id}>
-                          <div className="flex items-center gap-2">
-                            <RotateCcw className="h-3 w-3 text-green-600" />
-                            {rotina.nome}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {defaultRotina && (
-                    <p className="text-xs text-muted-foreground">
-                      Rotina pré-selecionada
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="origem"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Origem da Tarefa</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || 'manual'}>
+                  <FormLabel className="text-sm font-medium">Descrição</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="text-sm bg-muted/40">
-                      <SelectValue placeholder="Como esta tarefa foi criada?" />
-                    </SelectTrigger>
+                    <Textarea
+                      placeholder="Descreva os detalhes desta tarefa..."
+                      className="min-h-[120px] text-sm resize-none"
+                      {...field}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {Object.entries(taskTypes).map(([value, config]) => (
-                      <SelectItem key={value} value={value}>
-                        <div className="flex items-center gap-2">
-                          {React.createElement(config.icon, {
-                            className: `h-4 w-4 ${config.color}`
-                          })}
-                          {config.label}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="descricao"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Descrição</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Descreva os detalhes desta tarefa..."
-                    className="min-h-[100px] sm:min-h-[120px] text-sm resize-none bg-muted/40"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onCancel}
-              className="w-full sm:w-auto order-2 sm:order-1"
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" className="w-full sm:flex-1 order-1 sm:order-2">
-              <ListTodo className="mr-2 h-4 w-4" />
-              Criar Tarefa
-            </Button>
-          </div>
-        </form>
-      </Form>
+            <div className="flex justify-end gap-3 pt-6 border-t">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onCancel}
+                className="px-6"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+              >
+                <ListTodo className="mr-2 h-4 w-4" />
+                Criar Tarefa
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </Card>
   );
 }

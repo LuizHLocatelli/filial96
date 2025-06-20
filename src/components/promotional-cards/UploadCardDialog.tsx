@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
+import { ImageUp } from "lucide-react";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface UploadCardDialogProps {
@@ -45,14 +46,21 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("4xl")} className="p-0 dark:bg-zinc-900/60 dark:backdrop-blur-xl dark:border-white/10">
-        <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="text-lg">Novo Card Promocional</DialogTitle>
-          <DialogDescription>
+      <DialogContent {...getMobileDialogProps("default")}>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <ImageUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              Novo Card Promocional
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Faça o upload da imagem e preencha os detalhes para criar um novo material.
           </DialogDescription>
         </DialogHeader>
-        <div className="px-6 pb-6 max-h-[80vh] overflow-y-auto">
+        <div className="space-y-6">
           <CardUploadForm 
             sector={sector}
             title={title}

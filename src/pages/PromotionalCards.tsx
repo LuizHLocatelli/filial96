@@ -45,46 +45,48 @@ export default function PromotionalCards() {
       />
 
       {/* Layout principal */}
-      <div className="space-y-6">
-        <div className="flex flex-col lg:flex-row gap-4">
+      <div className="stack-lg">
+        <div className="grid-responsive-wide">
           {/* Painel de pastas - mais compacto */}
-          <Card className="w-full lg:w-72 bg-gradient-to-br from-background to-muted/20 border border-border/50 shadow-sm">
-            <CardContent className={cn("p-3", !isMobile && "p-4")}>
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold text-sm flex items-center gap-2">
-                  📁 Pastas
-                </h3>
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsCreateFolderOpen(true)}
-                  className="h-7 text-xs px-2.5 bg-primary/5 hover:bg-primary/10 border-primary/20"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Nova
-                </Button>
+          <Card className="w-full lg:w-72 card-responsive bg-gradient-to-br from-background to-muted/20 border border-border/50 shadow-sm">
+            <CardContent className={cn("card-responsive", !isMobile && "p-4")}>
+              <div className="stack-sm">
+                <div className="header-responsive">
+                  <h3 className="font-semibold text-responsive-sm inline-sm">
+                    📁 Pastas
+                  </h3>
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsCreateFolderOpen(true)}
+                    className="button-responsive-sm inline-sm bg-primary/5 hover:bg-primary/10 border-primary/20"
+                  >
+                    <Plus className="touch-friendly" />
+                    Nova
+                  </Button>
+                </div>
+                
+                <FoldersList 
+                  sector={selectedSector}
+                  selectedFolderId={selectedFolderId}
+                  onSelectFolder={setSelectedFolderId}
+                />
               </div>
-              
-              <FoldersList 
-                sector={selectedSector}
-                selectedFolderId={selectedFolderId}
-                onSelectFolder={setSelectedFolderId}
-              />
             </CardContent>
           </Card>
 
           {/* Área principal dos cards - mais espaço */}
-          <div className="flex-1 space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+          <div className="flex-1 stack-md">
+            <div className="header-responsive">
+              <h3 className="font-semibold text-responsive-lg inline-sm">
                 🎨 Galeria de Cards
               </h3>
               <Button
                 onClick={() => setIsUploadCardOpen(true)}
-                className="h-8 sm:h-10 text-xs sm:text-sm px-3 sm:px-4 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
+                className="button-responsive inline-sm"
                 size={isMobile ? "sm" : "default"}
               >
-                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                <Plus className="touch-friendly" />
                 Novo Card
               </Button>
             </div>

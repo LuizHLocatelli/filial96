@@ -1,10 +1,15 @@
-
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Target, Plus, Edit3 } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useMobileDialog } from '@/hooks/useMobileDialog';
 import { MetaCategoria, MetaMensalForm } from "../../types/metasTypes";
 
 interface MetaDialogProps {
@@ -22,6 +27,7 @@ export function MetaDialog({
   onSubmit, 
   isLoading 
 }: MetaDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [formData, setFormData] = useState<MetaMensalForm>({
     categoria_id: categoria?.id || '',
     valor_meta: categoria?.valor_meta_mensal || 0,
@@ -45,21 +51,32 @@ export function MetaDialog({
     }).format(value);
   };
 
+  const isEditing = !!categoria;
+  const IconComponent = isEditing ? Edit3 : Plus;
+
   if (!categoria) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle>
-            {categoria.meta_mensal_id ? 'Editar' : 'Definir'} Meta - {categoria.nome}
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <IconComponent className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              {isEditing ? 'Editar Meta' : 'Nova Meta'}
+            </div>
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {isEditing ? 'Modifique os dados da meta existente.' : 'Defina uma nova meta para acompanhamento.'}
+          </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="valor_meta">Valor da Meta Mensal</Label>
-            <div className="space-y-1">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <Label htmlFor="valor_meta">Valor da Meta Mensal *</Label>
+            <div className="space-y-2">
               <Input
                 id="valor_meta"
                 type="number"
@@ -76,7 +93,7 @@ export function MetaDialog({
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="descricao">Descrição (opcional)</Label>
             <Textarea
               id="descricao"
@@ -87,12 +104,23 @@ export function MetaDialog({
             />
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div {...getMobileFooterProps()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+              className="px-6"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading} className="flex-1">
-              {isLoading ? "Salvando..." : categoria.meta_mensal_id ? "Atualizar Meta" : "Definir Meta"}
+            <Button
+              type="submit"
+              disabled={isLoading || !formData.descricao.trim() || !formData.valor_meta}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
+            >
+              <Target className="mr-2 h-4 w-4" />
+              {isLoading ? 'Salvando...' : isEditing ? 'Atualizar Meta' : 'Criar Meta'}
             </Button>
           </div>
         </form>

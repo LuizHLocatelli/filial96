@@ -1,43 +1,47 @@
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { Eye } from "lucide-react";
 
 interface ImagePreviewDialogProps {
-  viewImage: string | null;
-  setViewImage: (url: string | null) => void;
+  imageUrl: string | null;
+  onClose: () => void;
 }
 
-export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDialogProps) {
-  const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
+export function ImagePreviewDialog({ imageUrl, onClose }: ImagePreviewDialogProps) {
+  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   
   return (
-    <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
-      <DialogContent {...getMobileDialogProps("4xl", "80vh")} className="max-h-[80vh] overflow-y-auto flex flex-col">
+    <Dialog open={!!imageUrl} onOpenChange={onClose}>
+      <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg">Comprovante de Folga</DialogTitle>
-          <DialogDescription className="text-sm">
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            Comprovante de Folga
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
             Visualização do comprovante de folga
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          {viewImage && (
-            <div className="flex justify-center p-2">
-              <img
-                src={viewImage}
-                alt="Comprovante"
-                className="max-h-[50vh] max-w-full object-contain rounded-lg"
-              />
-            </div>
+        <div className="flex justify-center p-2">
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="Comprovante de folga"
+              className="max-h-[60vh] max-w-full object-contain rounded-lg"
+            />
           )}
         </div>
-        <DialogFooter>
+        <div {...getMobileFooterProps()}>
           <Button 
-            onClick={() => setViewImage(null)} 
-            {...getMobileButtonProps()}
+            onClick={onClose}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
             Fechar
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
