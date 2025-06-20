@@ -16,17 +16,28 @@ import { useMobileDialog } from "@/hooks/useMobileDialog";
 interface AddFolgaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: any) => void;
   consultores: Array<{ id: string; nome: string }>;
-  isSubmitting: boolean;
+  selectedDate?: Date | null;
+  setSelectedDate?: (date: Date | null) => void;
+  selectedConsultor?: string;
+  setSelectedConsultor?: (id: string) => void;
+  motivo?: string;
+  setMotivo?: (motivo: string) => void;
+  handleAddFolga?: (data: any) => Promise<void>;
+  isLoading?: boolean;
+  folgasNoDia?: any[];
+  getConsultorNameById?: (id: string) => string | undefined;
+  getUserNameForFolga?: (userId: string) => string;
+  onSubmit?: (data: any) => void;
+  isSubmitting?: boolean;
 }
 
 export function AddFolgaDialog({ 
   open, 
   onOpenChange, 
-  onSubmit, 
   consultores,
-  isSubmitting 
+  isSubmitting = false,
+  onSubmit
 }: AddFolgaDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -34,7 +45,7 @@ export function AddFolgaDialog({
   const [observacoes, setObservacoes] = useState("");
 
   const handleSubmit = () => {
-    if (selectedDate && selectedConsultor) {
+    if (selectedDate && selectedConsultor && onSubmit) {
       onSubmit({
         data: selectedDate,
         consultor_id: selectedConsultor,

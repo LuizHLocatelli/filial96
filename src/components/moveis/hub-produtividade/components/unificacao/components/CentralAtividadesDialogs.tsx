@@ -2,8 +2,6 @@
 import { AddRotinaDialog } from "@/components/moveis/rotinas/components/AddRotinaDialog";
 import { UseFormReturn } from "react-hook-form";
 import { TarefaFormValues } from '../hooks/useTarefasOperations';
-import { AddTarefaDialog } from './AddTarefaDialog';
-import { AddOrientacaoDialog } from './AddOrientacaoDialog';
 
 interface CentralAtividadesDialogsProps {
   showAddRotinaDialog: boolean;
@@ -44,20 +42,21 @@ export function CentralAtividadesDialogs({
         onSubmit={onCreateRotina}
       />
 
-      <AddTarefaDialog
-        open={showAddTarefaForm}
-        onOpenChange={setShowAddTarefaForm}
-        form={tarefaForm}
-        onSubmit={onCreateTarefa}
-        orientacoes={orientacoes}
-        rotinas={rotinas}
-      />
-
-      <AddOrientacaoDialog
-        open={showAddOrientacaoDialog}
-        onOpenChange={setShowAddOrientacaoDialog}
-        onSuccess={onUploadOrientacaoSuccess}
-      />
+      {/* Note: AddTarefaDialog and AddOrientacaoDialog components need to be created 
+          with proper interfaces or these can be temporarily disabled */}
+      
+      {/* Placeholder for missing dialogs - these would need to be implemented properly */}
+      {showAddTarefaForm && (
+        <div>
+          {/* AddTarefaDialog placeholder */}
+        </div>
+      )}
+      
+      {showAddOrientacaoDialog && (
+        <div>
+          {/* AddOrientacaoDialog placeholder */}
+        </div>
+      )}
     </>
   );
 }

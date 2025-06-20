@@ -1,20 +1,20 @@
 
+import React from 'react';
 import { CategoryDialog } from './CategoryDialog';
 import { FileDialog } from './FileDialog';
 import { DeleteFileDialog } from './DeleteFileDialog';
 import { FileViewer } from './FileViewer';
 import { DirectoryCategory, DirectoryFile } from '../types';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface DirectoryDialogsProps {
   // Category dialogs
   categoryDialogOpen: boolean;
   setCategoryDialogOpen: (open: boolean) => void;
-  onAddCategory: (name: string, description: string) => void;
+  onAddCategory: (name: string, description: string) => Promise<void>;
   
   editCategoryDialogOpen: boolean;
   setEditCategoryDialogOpen: (open: boolean) => void;
-  onUpdateCategory: (name: string, description: string) => void;
+  onUpdateCategory: (name: string, description: string) => Promise<void>;
   selectedCategory: DirectoryCategory | null;
   
   // File dialogs
@@ -25,13 +25,12 @@ interface DirectoryDialogsProps {
     description: string;
     category_id: string | null;
     is_featured: boolean;
-  }) => void;
+  }) => Promise<void>;
   
   deleteDialogOpen: boolean;
   setDeleteDialogOpen: (open: boolean) => void;
-  onDeleteFile: () => void;
+  onDeleteFile: () => Promise<void>;
   
-  // File viewer
   viewerOpen: boolean;
   setViewerOpen: (open: boolean) => void;
   
@@ -43,29 +42,23 @@ export function DirectoryDialogs({
   categoryDialogOpen,
   setCategoryDialogOpen,
   onAddCategory,
-  
   editCategoryDialogOpen,
   setEditCategoryDialogOpen,
   onUpdateCategory,
   selectedCategory,
-  
   fileDialogOpen,
   setFileDialogOpen,
   onUpdateFile,
-  
   deleteDialogOpen,
   setDeleteDialogOpen,
   onDeleteFile,
-  
   viewerOpen,
   setViewerOpen,
-  
   selectedFile,
-  categories,
+  categories
 }: DirectoryDialogsProps) {
   return (
     <>
-      {/* Category Dialogs */}
       <CategoryDialog
         open={categoryDialogOpen}
         onOpenChange={setCategoryDialogOpen}
@@ -81,7 +74,6 @@ export function DirectoryDialogs({
         title="Editar Categoria"
       />
 
-      {/* File Dialogs */}
       {selectedFile && (
         <FileDialog
           open={fileDialogOpen}
