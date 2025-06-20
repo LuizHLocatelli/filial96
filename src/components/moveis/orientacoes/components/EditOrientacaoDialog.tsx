@@ -15,6 +15,7 @@ interface EditOrientacaoDialogProps {
   orientacao: Orientacao;
   onSave: (data: Partial<Orientacao>) => void;
   isSubmitting: boolean;
+  onSuccess?: () => void;
 }
 
 export function EditOrientacaoDialog({
@@ -22,7 +23,8 @@ export function EditOrientacaoDialog({
   onOpenChange,
   orientacao,
   onSave,
-  isSubmitting
+  isSubmitting,
+  onSuccess
 }: EditOrientacaoDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   
@@ -51,6 +53,9 @@ export function EditOrientacaoDialog({
   const handleSave = () => {
     if (formData.titulo.trim()) {
       onSave(formData);
+      if (onSuccess) {
+        onSuccess();
+      }
     }
   };
 

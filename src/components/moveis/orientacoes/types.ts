@@ -1,40 +1,19 @@
+
 export interface Orientacao {
   id: string;
   titulo: string;
-  descricao: string;
   tipo: string;
+  descricao: string;
   arquivo_url: string;
   arquivo_nome: string;
   arquivo_tipo: string;
   data_criacao: string;
   criado_por: string;
-  criado_por_nome?: string;
-}
-
-export interface Tarefa {
-  id: string;
-  titulo: string;
-  descricao: string;
-  data_entrega: string;
-  data_criacao: string;
-  data_atualizacao: string;
-  status: string;
-  criado_por: string;
-  orientacao_id: string | null;
-  rotina_id: string | null;
-  origem: 'manual' | 'rotina' | 'orientacao';
-  dependencias?: string[];
-  prioridade: 'baixa' | 'media' | 'alta' | 'urgente';
-}
-
-export interface TarefaExpandida extends Tarefa {
-  rotina_nome?: string;
-  orientacao_titulo?: string;
-  criado_por_nome?: string;
-  dependencias_info?: Array<{
-    id: string;
+  created_at?: string;
+  user_name?: string;
+  conteudo?: string;
+  anexos?: Array<{
     nome: string;
-    tipo: 'rotina' | 'tarefa';
-    status: string;
+    url: string;
   }>;
 }

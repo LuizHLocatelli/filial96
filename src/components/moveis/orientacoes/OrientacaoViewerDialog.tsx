@@ -55,7 +55,7 @@ export function OrientacaoViewerDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>Criado em: {format(new Date(orientacao.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+              <span>Criado em: {format(new Date(orientacao.created_at || orientacao.data_criacao), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-muted-foreground" />

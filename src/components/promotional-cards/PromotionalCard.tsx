@@ -95,7 +95,7 @@ export function PromotionalCard({ card, onUpdate, onDelete, currentFolder }: Pro
     <>
       <Card className="w-full relative group">
         <div className="aspect-video relative overflow-hidden rounded-md">
-          <Image
+          <img
             src={card.image_url}
             alt={card.title}
             className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
