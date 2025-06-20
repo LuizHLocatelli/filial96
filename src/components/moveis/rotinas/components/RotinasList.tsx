@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -59,6 +58,7 @@ export function RotinasList({
   const [loadingCheckboxes, setLoadingCheckboxes] = useState<Set<string>>(new Set());
   const [recentlyClicked, setRecentlyClicked] = useState<Set<string>>(new Set());
   const [expandedRotinas, setExpandedRotinas] = useState<Set<string>>(new Set());
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   const creatorIds = useMemo(() => 
     [...new Set(rotinas.map(r => r.created_by))], 
@@ -152,6 +152,21 @@ export function RotinasList({
       else newSet.add(rotinaId);
       return newSet;
     });
+  };
+
+  const handleEditSubmit = async (data: RotinaFormData) => {
+    if (!editingRotina) return false;
+    
+    setIsSubmittingEdit(true);
+    try {
+      const success = await onEditRotina(editingRotina.id, data);
+      if (success) {
+        setEditingRotina(null);
+      }
+      return success;
+    } finally {
+      setIsSubmittingEdit(false);
+    }
   };
 
   // 3. Conditional Returns - Must be AFTER all hooks.
@@ -277,11 +292,8 @@ export function RotinasList({
           open={!!editingRotina}
           onOpenChange={(open) => !open && setEditingRotina(null)}
           rotina={editingRotina}
-          onSubmit={async (data) => {
-            const success = await onEditRotina(editingRotina.id, data);
-            if (success) setEditingRotina(null);
-            return success;
-          }}
+          onSubmit={handleEditSubmit}
+          isSubmitting={isSubmittingEdit}
         />
       )}
     </div>

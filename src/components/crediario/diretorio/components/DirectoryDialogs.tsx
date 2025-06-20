@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CategoryDialog } from './CategoryDialog';
 import { FileDialog } from './FileDialog';
@@ -86,8 +87,8 @@ export function DirectoryDialogs({
       <DeleteFileDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        onDelete={onDeleteFile}
-        file={selectedFile}
+        onConfirm={onDeleteFile}
+        fileName={selectedFile?.name}
       />
 
       {selectedFile && !selectedFile.file_type.includes("pdf") && (

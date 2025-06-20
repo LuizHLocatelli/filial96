@@ -1,18 +1,19 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
 import { Eye } from "lucide-react";
 
 interface ImagePreviewDialogProps {
-  imageUrl: string | null;
-  onClose: () => void;
+  viewImage: string | null;
+  setViewImage: (imageUrl: string | null) => void;
 }
 
-export function ImagePreviewDialog({ imageUrl, onClose }: ImagePreviewDialogProps) {
+export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   
   return (
-    <Dialog open={!!imageUrl} onOpenChange={onClose}>
+    <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
       <DialogContent {...getMobileDialogProps("default")}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
@@ -26,9 +27,9 @@ export function ImagePreviewDialog({ imageUrl, onClose }: ImagePreviewDialogProp
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center p-2">
-          {imageUrl && (
+          {viewImage && (
             <img
-              src={imageUrl}
+              src={viewImage}
               alt="Comprovante de folga"
               className="max-h-[60vh] max-w-full object-contain rounded-lg"
             />
@@ -36,7 +37,7 @@ export function ImagePreviewDialog({ imageUrl, onClose }: ImagePreviewDialogProp
         </div>
         <div {...getMobileFooterProps()}>
           <Button 
-            onClick={onClose}
+            onClick={() => setViewImage(null)}
             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
             Fechar

@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,7 +17,7 @@ interface AddFolgaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: any) => void;
-  vendedores: Array<{ id: string; nome: string }>;
+  consultores: Array<{ id: string; nome: string }>;
   isSubmitting: boolean;
 }
 
@@ -24,19 +25,19 @@ export function AddFolgaDialog({
   open, 
   onOpenChange, 
   onSubmit, 
-  vendedores,
+  consultores,
   isSubmitting 
 }: AddFolgaDialogProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const [selectedVendedor, setSelectedVendedor] = useState<string>("");
+  const [selectedConsultor, setSelectedConsultor] = useState<string>("");
   const [observacoes, setObservacoes] = useState("");
 
   const handleSubmit = () => {
-    if (selectedDate && selectedVendedor) {
+    if (selectedDate && selectedConsultor) {
       onSubmit({
         data: selectedDate,
-        vendedor_id: selectedVendedor,
+        consultor_id: selectedConsultor,
         observacoes: observacoes.trim()
       });
     }
@@ -55,22 +56,22 @@ export function AddFolgaDialog({
             </div>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Registre uma nova folga para um vendedor
+            Registre uma nova folga para um consultor
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Seleção de Vendedor */}
+          {/* Seleção de Consultor */}
           <div>
-            <Label htmlFor="vendedor">Vendedor *</Label>
-            <Select value={selectedVendedor} onValueChange={setSelectedVendedor}>
+            <Label htmlFor="consultor">Consultor *</Label>
+            <Select value={selectedConsultor} onValueChange={setSelectedConsultor}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione um vendedor" />
+                <SelectValue placeholder="Selecione um consultor" />
               </SelectTrigger>
               <SelectContent>
-                {vendedores.map((vendedor) => (
-                  <SelectItem key={vendedor.id} value={vendedor.id}>
-                    {vendedor.nome}
+                {consultores.map((consultor) => (
+                  <SelectItem key={consultor.id} value={consultor.id}>
+                    {consultor.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -131,7 +132,7 @@ export function AddFolgaDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!selectedDate || !selectedVendedor || isSubmitting}
+            disabled={!selectedDate || !selectedConsultor || isSubmitting}
             className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg transition-all duration-300 px-8 hover:scale-105"
           >
             <UserPlus className="mr-2 h-4 w-4" />
@@ -141,4 +142,4 @@ export function AddFolgaDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}
