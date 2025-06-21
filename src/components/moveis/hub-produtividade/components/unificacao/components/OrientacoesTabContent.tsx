@@ -22,7 +22,7 @@ export function OrientacoesTabContent({ onShowAddOrientacaoDialog }: Orientacoes
         >
           <Button
             onClick={onShowAddOrientacaoDialog}
-            variant="gradient"
+            variant="success"
             size={isMobile ? "sm" : "default"}
           >
             <Upload className="h-4 w-4 mr-2" />
