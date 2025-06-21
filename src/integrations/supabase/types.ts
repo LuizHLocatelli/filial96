@@ -308,6 +308,7 @@ export type Database = {
       }
       crediario_directory_categories: {
         Row: {
+          color: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -316,6 +317,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -324,6 +326,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -989,7 +992,7 @@ export type Database = {
       moda_arquivos: {
         Row: {
           category_id: string | null
-          created_at: string | null
+          created_at: string
           created_by: string | null
           description: string | null
           file_size: number | null
@@ -998,11 +1001,11 @@ export type Database = {
           id: string
           is_featured: boolean | null
           name: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
           category_id?: string | null
-          created_at?: string | null
+          created_at?: string
           created_by?: string | null
           description?: string | null
           file_size?: number | null
@@ -1011,11 +1014,11 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           name: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           category_id?: string | null
-          created_at?: string | null
+          created_at?: string
           created_by?: string | null
           description?: string | null
           file_size?: number | null
@@ -1024,7 +1027,7 @@ export type Database = {
           id?: string
           is_featured?: boolean | null
           name?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1039,30 +1042,30 @@ export type Database = {
       moda_categorias: {
         Row: {
           color: string | null
-          created_at: string | null
+          created_at: string
           created_by: string | null
           description: string | null
           id: string
           name: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
           color?: string | null
-          created_at?: string | null
+          created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
           name: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           color?: string | null
-          created_at?: string | null
+          created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
           name?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1506,6 +1509,7 @@ export type Database = {
       }
       moveis_categorias: {
         Row: {
+          color: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1514,6 +1518,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1522,6 +1527,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
