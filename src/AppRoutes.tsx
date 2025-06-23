@@ -96,7 +96,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <LazyPageWrapper>
-              <LazyPageWrapper>
               <Moda />
             </LazyPageWrapper>
           </ProtectedRoute>
