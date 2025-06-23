@@ -1,12 +1,12 @@
 
-import { lazy, ComponentType } from 'react';
+import { lazy, ComponentType, LazyExoticComponent } from 'react';
 
 /**
  * Hook para lazy loading de componentes com cache
  */
 export function useLazyComponent<T = {}>(
   importFunction: () => Promise<{ default: ComponentType<T> }>
-): ComponentType<T> {
+): LazyExoticComponent<ComponentType<T>> {
   return lazy(importFunction);
 }
 

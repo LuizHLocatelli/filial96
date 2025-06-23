@@ -1,5 +1,5 @@
-
-import { Routes, Route, Navigate, Suspense, lazy } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
