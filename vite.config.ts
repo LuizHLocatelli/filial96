@@ -36,18 +36,15 @@ export default defineConfig(({ mode }) => ({
           supabase: ['@supabase/supabase-js'],
           utils: ['date-fns', 'clsx', 'tailwind-merge'],
           
-          // Feature chunks
+          // Feature chunks - only include actual module files, not directories
           crediario: [
-            'src/pages/Crediario.tsx',
-            'src/components/crediario'
+            'src/pages/Crediario.tsx'
           ],
           moveis: [
-            'src/pages/Moveis.tsx',
-            'src/components/moveis'
+            'src/pages/Moveis.tsx'
           ],
           moda: [
-            'src/pages/Moda.tsx',
-            'src/components/moda'
+            'src/pages/Moda.tsx'
           ],
         },
         chunkFileNames: (chunkInfo) => {
