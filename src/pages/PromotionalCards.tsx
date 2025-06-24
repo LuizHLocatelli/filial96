@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,10 @@ export default function PromotionalCards() {
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <h3 className={cn(
+                      "font-semibold text-foreground flex items-center gap-2",
+                      isMobile ? "text-base" : "text-lg"
+                    )}>
                       <span>📁</span>
                       Pastas
                     </h3>
@@ -91,7 +95,10 @@ export default function PromotionalCards() {
               <CardContent className="p-6">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <h3 className={cn(
+                      "font-semibold text-foreground flex items-center gap-2",
+                      isMobile ? "text-base" : "text-lg"
+                    )}>
                       <span>🎨</span>
                       Galeria de Cards
                     </h3>
