@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,9 +21,9 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
   
   return (
     <Card className="bg-card border border-border shadow-sm">
-      <CardContent className="p-4">
+      <CardContent className={cn("p-3", !isMobile && "p-4")}>
         <div className={cn(
-          "grid gap-3",
+          "grid gap-2",
           isMobile ? "grid-cols-2" : "grid-cols-4"
         )}>
           {sectors.map((sector) => (
@@ -30,8 +31,8 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
               key={sector.value}
               onClick={() => onSectorChange(sector.value)}
               className={cn(
-                "group relative flex items-center justify-center gap-3 rounded-lg transition-all duration-200 border-2",
-                isMobile ? "h-20 flex-col p-3" : "h-16 flex-row p-4",
+                "group relative flex items-center justify-center gap-2 rounded-lg transition-all duration-200 border-2",
+                isMobile ? "h-12 flex-col p-2" : "h-14 flex-row p-3",
                 selectedSector === sector.value
                   ? "btn-primary-standard shadow-md"
                   : "bg-background hover:bg-muted border-border hover:border-border/80 hover:shadow-sm"
@@ -39,22 +40,22 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
             >
               <div className={cn(
                 "flex items-center justify-center rounded-md transition-all duration-200",
-                isMobile ? "w-8 h-8" : "w-6 h-6",
+                isMobile ? "w-5 h-5" : "w-6 h-6",
                 selectedSector === sector.value
                   ? "bg-primary-foreground/20"
                   : "bg-muted"
               )}>
                 <sector.icon className={cn(
                   "transition-all duration-200",
-                  isMobile ? "h-5 w-5" : "h-4 w-4",
+                  isMobile ? "h-3 w-3" : "h-4 w-4",
                   selectedSector === sector.value 
                     ? "text-primary-foreground" 
                     : "text-foreground"
                 )} />
               </div>
               <span className={cn(
-                "font-medium transition-all duration-200 text-center",
-                isMobile ? "text-xs leading-tight" : "text-sm",
+                "font-medium transition-all duration-200 text-center leading-tight",
+                isMobile ? "text-[10px]" : "text-xs",
                 selectedSector === sector.value 
                   ? "text-primary-foreground" 
                   : "text-foreground"
