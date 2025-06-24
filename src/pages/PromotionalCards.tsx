@@ -63,7 +63,7 @@ export default function PromotionalCards() {
                   <div className="flex items-center justify-between">
                     <h3 className={cn(
                       "font-semibold text-foreground flex items-center gap-2",
-                      isMobile ? "text-base" : "text-lg"
+                      isMobile ? "text-sm" : "text-lg"
                     )}>
                       <span>📁</span>
                       Pastas
@@ -97,7 +97,7 @@ export default function PromotionalCards() {
                   <div className="flex items-center justify-between">
                     <h3 className={cn(
                       "font-semibold text-foreground flex items-center gap-2",
-                      isMobile ? "text-base" : "text-lg"
+                      isMobile ? "text-sm" : "text-lg"
                     )}>
                       <span>🎨</span>
                       Galeria de Cards
