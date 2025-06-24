@@ -66,7 +66,7 @@ export function Folgas() {
   }, [folgas, currentMonth, consultores]);
 
   return (
-    <div className="space-y-6">
+    <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold">Folgas</h2>
@@ -81,7 +81,7 @@ export function Folgas() {
       </div>
 
       {/* Cards de Estatísticas */}
-                  <div className="grid-responsive-stats">
+      <div className="grid-responsive-stats">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Folgas no Mês</CardTitle>

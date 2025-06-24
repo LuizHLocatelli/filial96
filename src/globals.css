@@ -1,4 +1,5 @@
 @import url('./styles/aurora.css');
+@import url('./styles/dark-mode-hover-fixes.css');
 
 @tailwind base;
 @tailwind components;

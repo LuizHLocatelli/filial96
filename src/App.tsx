@@ -8,6 +8,7 @@ import { AuthProvider } from "./contexts/auth";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { GlobalSearchProvider } from "./contexts/GlobalSearchContext";
 import AppRoutes from "./AppRoutes";
+import { LazyLoadingDashboard } from "./components/debug/LazyLoadingDashboard";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <AppRoutes />
+              <LazyLoadingDashboard />
             </GlobalSearchProvider>
           </BrowserRouter>
         </TooltipProvider>

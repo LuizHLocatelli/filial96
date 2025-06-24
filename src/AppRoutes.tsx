@@ -3,6 +3,7 @@ import { Suspense, lazy } from "react";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
+import { useIntelligentPreload } from "./hooks/useIntelligentPreload";
 
 // Lazy load das páginas principais
 const HubProdutividade = lazy(() => import("./pages/HubProdutividade"));
@@ -20,6 +21,9 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 
+// Componentes de debug/demonstração
+import { DarkModeHoverDemo } from "./components/debug/DarkModeHoverDemo";
+
 // Componente de loading para Suspense
 const PageLoader = () => (
   <div className="flex items-center justify-center h-screen">
@@ -36,6 +40,15 @@ const LazyPageWrapper = ({ children }: { children: React.ReactNode }) => (
 
 const AppRoutes = () => {
   const { isLoading } = useAuth();
+  
+  // Sistema de preload inteligente
+  const { getStats } = useIntelligentPreload();
+
+  // Log das estatísticas de lazy loading em desenvolvimento
+  if (process.env.NODE_ENV === 'development') {
+    const stats = getStats();
+    console.log('📊 Lazy Loading Stats:', stats);
+  }
 
   // Se a autenticação ainda estiver carregando, mostrar um spinner simples
   if (isLoading) {
@@ -141,6 +154,19 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
+      
+      {/* Rota temporária para demonstração de hover no modo escuro */}
+      <Route 
+        path="/debug/dark-hover" 
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <DarkModeHoverDemo />
+            </AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

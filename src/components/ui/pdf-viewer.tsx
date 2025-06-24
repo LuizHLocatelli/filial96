@@ -1,112 +1,235 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { configurePDFWorker } from './pdf-viewer/PDFWorkerConfig';
+import { ExternalLibraryLoader } from '@/hooks/useLazyComponent';
 import { PDFLoadingState } from './pdf-viewer/PDFLoadingState';
 import { PDFErrorState } from './pdf-viewer/PDFErrorState';
-import { PDFRenderer } from './pdf-viewer/PDFRenderer';
 import { PDFPageCounter } from './pdf-viewer/PDFPageCounter';
 import { PDFEmptyState } from './pdf-viewer/PDFEmptyState';
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Configure PDF.js worker on component load
-configurePDFWorker();
+// Lazy load da biblioteca PDF.js
+const loadPDFLibrary = () => ExternalLibraryLoader.loadLibrary(
+  'pdfjs-dist',
+  () => import('pdfjs-dist')
+);
+
+// Configuração do worker será feita sob demanda
+let isWorkerConfigured = false;
+
+const configurePDFWorkerLazy = async () => {
+  if (isWorkerConfigured) return;
+  
+  const pdfjsLib = await loadPDFLibrary();
+  
+  try {
+    const pdfjsVersion = pdfjsLib.version || '3.11.174';
+    const workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsVersion}/pdf.worker.min.js`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+    
+    console.log('[PDF.js] Worker configurado:', workerSrc);
+    isWorkerConfigured = true;
+  } catch (error) {
+    console.error('[PDF.js] Erro ao configurar worker:', error);
+  }
+};
 
 interface PDFViewerProps {
-  url: string | null | undefined;
+  url?: string;
   className?: string;
 }
 
 export function PDFViewer({ url, className }: PDFViewerProps) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'empty' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [numPages, setNumPages] = useState(0);
-  const [loadAttempts, setLoadAttempts] = useState(0);
-  const prevUrlRef = useRef<string | null | undefined>(undefined);
-  const rendererContainerRef = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'empty'>('idle');
+  const [error, setError] = useState<string>('');
+  const [numPages, setNumPages] = useState<number>(0);
+  const [loadAttempts, setLoadAttempts] = useState<number>(0);
+  const [libraryLoaded, setLibraryLoaded] = useState<boolean>(false);
+  const isMounted = useRef(true);
+  const rendererContainerRef = useRef<HTMLDivElement | null>(null);
   const isMobile = useIsMobile();
 
-  const openPdfInNewWindow = () => {
-    if (url) window.open(url, '_blank');
-  };
+  // Cleanup on unmount
+  useLayoutEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
-  const handlePDFSuccess = (pages: number) => {
-    console.log("PDFViewer: PDF carregado com sucesso. Páginas:", pages);
-    setNumPages(pages);
-    setStatus(pages > 0 ? 'success' : 'empty');
-    setErrorMessage(null);
-  };
-
-  const handlePDFError = (errMessage: string) => {
-    console.log(`PDFViewer: Erro ao carregar PDF. Tentativa atual (0-indexed): ${loadAttempts}, Mensagem: ${errMessage}`);
-    if (loadAttempts < 2) {
-      setLoadAttempts(prev => prev + 1);
-      setStatus('loading');
-    } else {
-      setErrorMessage(errMessage);
-      setStatus('error');
-    }
-  };
-
+  // Preload da biblioteca quando o componente monta
   useEffect(() => {
-    if (url && url !== prevUrlRef.current) {
-      console.log('PDFViewer Effect: Nova URL detectada ou mudança de URL. URL:', url);
-      prevUrlRef.current = url;
-      setLoadAttempts(0);
+    const preloadLibrary = async () => {
+      try {
+        await loadPDFLibrary();
+        await configurePDFWorkerLazy();
+        if (isMounted.current) {
+          setLibraryLoaded(true);
+        }
+      } catch (error) {
+        console.error('[PDF.js] Erro ao precarregar biblioteca:', error);
+        if (isMounted.current) {
+          setError('Erro ao carregar biblioteca PDF');
+          setStatus('error');
+        }
+      }
+    };
+
+    preloadLibrary();
+  }, []);
+
+  // Efeito principal para carregar PDF
+  useEffect(() => {
+    if (!libraryLoaded || !url || !isMounted.current) {
+      if (!url) {
+        setStatus('empty');
+      }
+      return;
+    }
+
+    const loadPDF = async () => {
       setStatus('loading');
-      setErrorMessage(null);
-      setNumPages(0);
-    }
-    else if (!url && prevUrlRef.current) {
-      console.log('PDFViewer Effect: URL tornou-se nula/undefined, anteriormente era:', prevUrlRef.current);
-      prevUrlRef.current = url;
-      setStatus('error');
-      setErrorMessage('URL do PDF não fornecida ou inválida.');
-      setLoadAttempts(0);
-      setNumPages(0);
-    }
-    else if (!url && prevUrlRef.current === undefined && status === 'idle') {
-        console.log('PDFViewer Effect: Montado inicialmente sem URL válida.');
-        prevUrlRef.current = url;
-        setStatus('error');
-        setErrorMessage('URL do PDF não fornecida.');
-    }
-  }, [url, status]);
+      setError('');
+      
+      try {
+        const pdfjsLib = await loadPDFLibrary();
+        await configurePDFWorkerLazy();
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+        
+        if (!isMounted.current) return;
+        
+        const loadingTask = pdfjsLib.getDocument({
+          data,
+          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
+          cMapPacked: true,
+          enableXfa: true,
+          isEvalSupported: false,
+          disableAutoFetch: false,
+          disableStream: false,
+          rangeChunkSize: 65536,
+          withCredentials: false
+        });
 
-  if (status === 'idle' || (status === 'loading' && !url)) {
-    if (!url && prevUrlRef.current === undefined) {
-        return <PDFErrorState className={className} error={"URL do PDF não fornecida."} url="" onOpenExternal={openPdfInNewWindow} />;
-    }
-    return <PDFLoadingState className={className} loadAttempts={loadAttempts} onOpenExternal={openPdfInNewWindow} />;
-  }
+        const pdf = await Promise.race([
+          loadingTask.promise,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout ao carregar PDF')), 20000)
+          )
+        ]) as any;
 
-  if (status === 'loading' && url) {
+        if (!isMounted.current) return;
+
+        setNumPages(pdf.numPages);
+        setStatus('success');
+        
+        // Renderizar todas as páginas
+        await renderAllPages(pdf, pdfjsLib);
+        
+      } catch (error: any) {
+        console.error('[PDF.js] Erro ao carregar PDF:', error);
+        if (isMounted.current) {
+          setError(error.message || 'Erro desconhecido ao carregar PDF');
+          setStatus('error');
+        }
+      }
+    };
+
+    loadPDF();
+  }, [url, libraryLoaded, loadAttempts]);
+
+  const renderAllPages = async (pdf: any, pdfjsLib: any) => {
+    if (!rendererContainerRef.current || !isMounted.current) return;
+
+    const container = rendererContainerRef.current;
+    container.innerHTML = '';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      if (!isMounted.current) break;
+
+      try {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: isMobile ? 1.2 : 1.5 });
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        canvas.className = 'mx-auto mb-4 shadow-lg rounded border max-w-full h-auto';
+        
+        container.appendChild(canvas);
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+
+        await page.render(renderContext).promise;
+        
+      } catch (pageError) {
+        console.error(`Erro ao renderizar página ${pageNum}:`, pageError);
+      }
+    }
+  };
+
+  const handleRetry = () => {
+    setLoadAttempts(prev => prev + 1);
+  };
+
+  const openPdfInNewWindow = () => {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  };
+
+  // Exibir loading da biblioteca
+  if (!libraryLoaded && status !== 'error') {
     return (
-      <div className={cn("w-full h-full relative", className)}>
-        <PDFLoadingState 
-          className="absolute inset-0 z-20 bg-background/80 backdrop-blur-sm"
-          loadAttempts={loadAttempts} 
-          onOpenExternal={openPdfInNewWindow} 
-        />
-        <div style={{ opacity: 0, position: 'absolute', zIndex: -1, width: 0, height: 0, overflow: 'hidden'}}>
-            <PDFRenderer
-            url={url}
-            containerRef={rendererContainerRef}
-            onSuccess={handlePDFSuccess}
-            onError={handlePDFError}
-            loadAttempts={loadAttempts}
-            />
+      <div className={cn("w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800", className)}>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            <p className="text-sm text-muted-foreground">Carregando biblioteca PDF...</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (status === 'error') {
-    return <PDFErrorState className={className} error={errorMessage!} url={url || ""} onOpenExternal={openPdfInNewWindow} />;
+  if (status === 'loading') {
+    return (
+      <div className={cn("w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800", className)}>
+        <PDFLoadingState 
+          loadAttempts={loadAttempts} 
+          onOpenExternal={openPdfInNewWindow}
+        />
+      </div>
+    );
   }
 
-  if (!url && (status === 'success' || status === 'empty')) {
-      console.error("PDFViewer: Estado inválido - sucesso/vazio sem URL.");
-      return <PDFErrorState className={className} error={"Erro interno: URL ausente em estado de sucesso/vazio."} url="" onOpenExternal={openPdfInNewWindow} />;
+  if (status === 'error') {
+    return (
+      <div className={cn("w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800", className)}>
+        <PDFErrorState 
+          error={error}
+          url={url || ''}
+          onOpenExternal={openPdfInNewWindow}
+        />
+      </div>
+    );
+  }
+
+  if (status === 'empty') {
+    return (
+      <div className={cn("w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800", className)}>
+        <PDFEmptyState onOpenExternal={openPdfInNewWindow} />
+      </div>
+    );
   }
 
   return (
@@ -117,18 +240,10 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         </div>
       )}
       
-      <div ref={rendererContainerRef} className="flex-1 overflow-auto overflow-x-hidden bg-muted/40 dark:bg-gray-900 p-0 sm:p-4 flex items-center justify-center">
-        {status === 'success' && url && (
-          <PDFRenderer
-            url={url}
-            containerRef={rendererContainerRef}
-            onSuccess={() => { /* Primary onSuccess handled by hidden renderer; this one might log or do nothing */ }}
-            onError={handlePDFError}
-            loadAttempts={loadAttempts}
-          />
-        )}
-        {status === 'empty' && <PDFEmptyState onOpenExternal={openPdfInNewWindow} />}
-      </div>
+      <div 
+        ref={rendererContainerRef} 
+        className="flex-1 overflow-auto overflow-x-hidden bg-muted/40 dark:bg-gray-900 p-0 sm:p-4 flex flex-col items-center justify-center"
+      />
     </div>
   );
 }

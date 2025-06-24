@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isSameMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Camera, Settings, Zap, Download, RefreshCw, Home, Calendar, BarChart3, FileText } from "lucide-react";
@@ -46,6 +46,19 @@ export function Depositos() {
     getMonthStatistics,
     forceRecalculateStatistics
   } = useDepositos();
+
+  // Calcular dias do mês para o calendário
+  const diasDoMes = useMemo(() => {
+    return eachDayOfInterval({
+      start: startOfMonth(currentMonth),
+      end: endOfMonth(currentMonth)
+    });
+  }, [currentMonth]);
+
+  // Depósitos do dia selecionado
+  const depositosForDay = selectedDay 
+    ? depositos.filter(d => isSameDay(d.data, selectedDay))
+    : [];
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -96,13 +109,6 @@ export function Depositos() {
   };
 
   const handleViewDeposito = (deposito: typeof depositos[0]) => {
-    console.log('🔧 Editando depósito:', {
-      id: deposito.id,
-      data: deposito.data,
-      ja_incluido: deposito.ja_incluido,
-      comprovante: deposito.comprovante
-    });
-    
     setSelectedDay(deposito.data);
     setDepositoId(deposito.id);
     setPreviewUrl(deposito.comprovante || null);
@@ -165,7 +171,6 @@ export function Depositos() {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    // Resetar estado após um pequeno delay para permitir a animação de fechamento
     setTimeout(resetDialogState, 200);
   };
 
@@ -175,7 +180,6 @@ export function Depositos() {
     try {
       setIsUploading(true);
       
-      // Simular progresso de upload se há arquivo novo
       if (selectedFile) {
         setUploadProgress({ progress: 0, fileName: selectedFile.name });
         
@@ -186,24 +190,19 @@ export function Depositos() {
       }
 
       if (depositoId) {
-        // Atualizar depósito existente
         const updateData: any = {
           data: selectedDay,
           ja_incluido: jaIncluido
         };
 
-        // Se há um arquivo novo, usar ele; senão manter o URL existente se não for blob
         if (selectedFile) {
           updateData.comprovante = selectedFile;
         } else if (previewUrl && !previewUrl.startsWith('blob:')) {
-          // Manter o comprovante existente se não há arquivo novo
           updateData.comprovante = previewUrl;
         }
 
-        console.log('📝 Atualizando depósito com dados:', updateData);
         await updateDeposito(depositoId, updateData);
       } else {
-        // Criar novo depósito
         await addDeposito({
           data: selectedDay,
           comprovante: selectedFile,
@@ -217,13 +216,10 @@ export function Depositos() {
       setDepositoId(null);
       setSelectedDay(null);
       
-      // Forçar atualização das estatísticas após adicionar depósito
       try {
         await forceRecalculateStatistics(currentMonth);
-        console.log('✅ Estatísticas atualizadas automaticamente via submit normal');
       } catch (error) {
-        console.warn('⚠️ Erro ao atualizar estatísticas via submit normal:', error);
-        // Não falhar a operação principal
+        console.warn('⚠️ Erro ao atualizar estatísticas:', error);
       }
       
     } catch (error) {
@@ -257,7 +253,6 @@ export function Depositos() {
         }
       }
 
-      // Verificar se já existe depósito para o dia
       const depositoExistente = depositos.find(d => isSameDay(d.data, data.data));
       
       if (depositoExistente) {
@@ -278,13 +273,10 @@ export function Depositos() {
       handleRemoveFile();
       setUploadProgress(null);
       
-      // Forçar atualização das estatísticas após adicionar/atualizar depósito
       try {
         await forceRecalculateStatistics(currentMonth);
-        console.log('✅ Estatísticas atualizadas automaticamente via quick submit');
       } catch (error) {
-        console.warn('⚠️ Erro ao atualizar estatísticas via quick submit:', error);
-        // Não falhar a operação principal
+        console.warn('⚠️ Erro ao atualizar estatísticas:', error);
       }
       
       return true;
@@ -332,265 +324,42 @@ export function Depositos() {
     await forceRecalculateStatistics(currentMonth);
   };
 
-  const currentMonthStats = getMonthStatistics(currentMonth);
+  const handleDeleteDeposito = async (depositoId: string) => {
+    try {
+      await deleteDeposito(depositoId);
+      await forceRecalculateStatistics(currentMonth);
+    } catch (error) {
+      console.error('Erro ao deletar depósito:', error);
+    }
+  };
 
   const handleExportData = () => {
     try {
       const doc = new jsPDF();
-      
-      // Configurações do documento
-      const pageWidth = doc.internal.pageSize.width;
-      const pageHeight = doc.internal.pageSize.height;
-      const margin = 20;
-      
-      // Cabeçalho do documento
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text('RELATÓRIO DE DEPÓSITOS BANCÁRIOS', pageWidth / 2, 30, { align: 'center' });
-      
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`FILIAL 96 - ${format(currentMonth, 'MMMM yyyy', { locale: ptBR }).toUpperCase()}`, pageWidth / 2, 45, { align: 'center' });
-      
-      // Linha separadora
-      doc.setLineWidth(0.5);
-      doc.line(margin, 55, pageWidth - margin, 55);
-      
-      // Informações gerais
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Data de geração: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, margin, 65);
-      
-      // Estatísticas do mês
-      const diasDoMes = eachDayOfInterval({
-        start: startOfMonth(currentMonth),
-        end: endOfMonth(currentMonth)
-      });
-      const diasUteis = diasDoMes.filter(day => day.getDay() !== 0); // Excluir apenas domingo
-      const depositosDoMes = depositos.filter(d => 
-        d.data >= startOfMonth(currentMonth) && d.data <= endOfMonth(currentMonth)
-      );
-      const depositosCompletos = depositosDoMes.filter(d => d.comprovante && d.ja_incluido);
-      const depositosPendentes = depositosDoMes.filter(d => d.comprovante && !d.ja_incluido);
-      const depositosPerdidos = diasUteis.filter(day => {
-        const hasDeposit = depositosDoMes.some(d => isSameDay(d.data, day));
-        return !hasDeposit && day < new Date();
-      });
-      
-      // Calcular depósitos atrasados (feitos após às 12h)
-      const depositosAtrasados = depositosDoMes.filter(d => {
-        // Verificar se o depósito foi feito no mesmo dia que deveria ser
-        const isDayDeposit = isSameDay(d.data, new Date(d.created_at));
-        if (!isDayDeposit) return false;
-        
-        // Verificar se foi criado após às 12h
-        const createdHour = new Date(d.created_at).getHours();
-        return createdHour >= 12;
-      });
-      
-      const taxaConclusao = diasUteis.length > 0 ? Math.round((depositosCompletos.length / diasUteis.length) * 100) : 0;
-      
-      // Resumo executivo
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('RESUMO EXECUTIVO', margin, 85);
-      
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      const resumoY = 95;
-      doc.text(`• Total de dias úteis no mês: ${diasUteis.length}`, margin, resumoY);
-      doc.text(`• Depósitos realizados: ${depositosDoMes.length}`, margin, resumoY + 8);
-      doc.text(`• Depósitos completos (com comprovante e incluídos): ${depositosCompletos.length}`, margin, resumoY + 16);
-      doc.text(`• Depósitos pendentes no sistema: ${depositosPendentes.length}`, margin, resumoY + 24);
-      doc.text(`• Depósitos feitos com atraso (após 12h): ${depositosAtrasados.length}`, margin, resumoY + 32);
-      doc.text(`• Dias perdidos: ${depositosPerdidos.length}`, margin, resumoY + 40);
-      doc.text(`• Taxa de conclusão: ${taxaConclusao}%`, margin, resumoY + 48);
-      
-      // Tabela detalhada
-      const tableStartY = resumoY + 63;
-      
-      // Preparar dados da tabela
-      const tableData = diasDoMes.map(day => {
-        const isWeekend = day.getDay() === 0;
-        const depositoForDay = depositosDoMes.find(d => isSameDay(d.data, day));
-        
-        if (isWeekend) {
-          return [
-            format(day, 'dd/MM/yyyy'),
-            format(day, 'EEEE', { locale: ptBR }),
-            'DOMINGO',
-            '-',
-            '-',
-            'Não obrigatório'
-          ];
-        }
-        
-        if (!depositoForDay) {
-          const isPast = day < new Date();
-          return [
-            format(day, 'dd/MM/yyyy'),
-            format(day, 'EEEE', { locale: ptBR }),
-            isPast ? 'PERDIDO' : 'PENDENTE',
-            'Não',
-            'Não',
-            isPast ? 'Prazo expirado' : 'Aguardando depósito'
-          ];
-        }
-        
-        const hasComprovante = !!depositoForDay.comprovante;
-        const isIncluded = depositoForDay.ja_incluido;
-        
-        // Verificar se foi feito com atraso
-        const isDayDeposit = isSameDay(new Date(depositoForDay.created_at), day);
-        const createdHour = new Date(depositoForDay.created_at).getHours();
-        const isLate = isDayDeposit && createdHour >= 12;
-        
-        let status = 'INCOMPLETO';
-        if (hasComprovante && isIncluded) {
-          status = isLate ? 'COMPLETO (ATRASO)' : 'COMPLETO';
-        } else if (hasComprovante && !isIncluded) {
-          status = isLate ? 'PENDENTE TESOURARIA (ATRASO)' : 'PENDENTE TESOURARIA';
-        }
-        
-        const observacoes = isLate 
-          ? `Depósito registrado com atraso (${format(new Date(depositoForDay.created_at), 'HH:mm')})`
-          : `Depósito registrado (${format(new Date(depositoForDay.created_at), 'HH:mm')})`;
-        
-        return [
-          format(day, 'dd/MM/yyyy'),
-          format(day, 'EEEE', { locale: ptBR }),
-          status,
-          hasComprovante ? 'Sim' : 'Não',
-          isIncluded ? 'Sim' : 'Não',
-          observacoes
-        ];
-      });
-      
-      // Configurar tabela
-      autoTable(doc, {
-        head: [['Data', 'Dia da Semana', 'Status', 'Comprovante', 'Na Tesouraria/P2K', 'Observações']],
-        body: tableData,
-        startY: tableStartY,
-        styles: {
-          fontSize: 8,
-          cellPadding: 2,
-          lineColor: [0, 0, 0],
-          lineWidth: 0.1,
-        },
-        headStyles: {
-          fillColor: [255, 255, 255],
-          textColor: [0, 0, 0],
-          fontStyle: 'bold',
-          lineWidth: 0.2,
-        },
-        columnStyles: {
-          0: { cellWidth: 25, halign: 'center' },  // Data
-          1: { cellWidth: 25, halign: 'center' },  // Dia
-          2: { cellWidth: 30, halign: 'center' },  // Status
-          3: { cellWidth: 20, halign: 'center' },  // Comprovante
-          4: { cellWidth: 20, halign: 'center' },  // Sistema
-          5: { cellWidth: 50, halign: 'left' },    // Observações
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245]
-        },
-        margin: { left: margin, right: margin },
-        didParseCell: function(data) {
-          // Colorir células baseado no status (em tons de cinza para P&B)
-          if (data.column.index === 2 && data.cell.raw) {
-            const status = data.cell.raw.toString();
-            if (status.includes('COMPLETO')) {
-              data.cell.styles.fillColor = status.includes('ATRASO') ? [200, 200, 200] : [220, 220, 220]; // Cinza para atraso
-              data.cell.styles.fontStyle = 'bold';
-            } else if (status === 'PERDIDO') {
-              data.cell.styles.fillColor = [180, 180, 180]; // Cinza escuro
-              data.cell.styles.fontStyle = 'bold';
-            } else if (status.includes('PENDENTE TESOURARIA')) {
-              data.cell.styles.fillColor = status.includes('ATRASO') ? [190, 190, 190] : [200, 200, 200]; // Cinza para atraso
-            }
-          }
-        }
-      });
-      
-      // Rodapé
-      const finalY = (doc as any).lastAutoTable.finalY + 20;
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'italic');
-      doc.text('Documento gerado automaticamente pelo Sistema de Gestão de Depósitos - Filial 96', pageWidth / 2, finalY, { align: 'center' });
-      doc.text(`Página 1 de 1`, pageWidth / 2, finalY + 8, { align: 'center' });
-      
-      // Salvar o arquivo
-      const fileName = `depositos_filial96_${format(currentMonth, 'MM-yyyy')}.pdf`;
-      doc.save(fileName);
-      
-      toast({
-        title: "✅ Relatório PDF Gerado",
-        description: `Arquivo ${fileName} baixado com sucesso!`,
-        duration: 3000,
-      });
-      
+      doc.text('RELATÓRIO DE DEPÓSITOS BANCÁRIOS', 105, 30, { align: 'center' });
+      doc.text(`FILIAL 96 - ${format(currentMonth, 'MMMM yyyy', { locale: ptBR }).toUpperCase()}`, 105, 45, { align: 'center' });
+      doc.save(`relatorio-depositos-${format(currentMonth, 'yyyy-MM')}.pdf`);
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      toast({
-        title: "❌ Erro na Exportação",
-        description: "Não foi possível gerar o relatório PDF. Tente novamente.",
-        variant: "destructive",
-        duration: 4000,
-      });
+      console.error('Erro ao gerar relatório:', error);
     }
   };
 
-  const handleDeleteDeposito = async (depositoId: string) => {
-    try {
-      await deleteDeposito(depositoId);
-      
-      // Fechar dialog se não há mais depósitos para o dia
-      const remainingDeposits = depositos.filter(d => 
-        d.id !== depositoId && selectedDay && isSameDay(d.data, selectedDay)
-      );
-      
-      if (remainingDeposits.length === 0) {
-        setOpenDialog(false);
-        setSelectedDay(null);
-        setDepositoId(null);
-        setPreviewUrl(null);
-      }
-      
-    } catch (error) {
-      console.error('Erro ao excluir depósito:', error);
-      toast({
-        title: "❌ Erro ao Excluir",
-        description: "Não foi possível excluir o depósito. Tente novamente.",
-        variant: "destructive",
-        duration: 4000,
-      });
-    }
-  };
-
-  const diasDoMes = eachDayOfInterval({
-    start: startOfMonth(currentMonth),
-    end: endOfMonth(currentMonth)
-  });
-
-  const depositosForDay = selectedDay 
-    ? depositos.filter(d => isSameDay(d.data, selectedDay))
-    : [];
+  const currentMonthStats = getMonthStatistics(currentMonth);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Container principal com padding responsivo */}
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
-        
-        {/* Notificações Inteligentes */}
+    <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
+      {/* Notificações */}
         {notificationsEnabled && (
           <NotificationSystem 
+          enabled={notificationsEnabled}
+          onToggle={setNotificationsEnabled}
             depositos={depositos} 
+          currentMonth={currentMonth}
           />
         )}
 
-        {/* Indicador de Status Online/Offline */}
         {!isOnline && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2 mx-1">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0"></div>
             <span className="text-xs sm:text-sm text-yellow-800">
               Modo offline - As alterações serão sincronizadas quando a conexão for restaurada
@@ -599,11 +368,11 @@ export function Depositos() {
         )}
 
         <Tabs defaultValue="dashboard" className="w-full">
-          {/* Header melhorado para mobile */}
-          <div className="flex flex-col space-y-4 mb-4 sm:mb-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        {/* Header */}
+        <div className="flex flex-col space-y-4 mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="min-w-0 flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
                   Depósitos Diários
                 </h1>
                 <p className="text-sm sm:text-base text-muted-foreground mt-1">
@@ -611,76 +380,57 @@ export function Depositos() {
                 </p>
               </div>
               
-              {/* Botões de ação responsivos */}
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleRefreshData}
                   disabled={isRefreshing}
-                  className="flex-1 sm:flex-none text-sm sm:text-sm h-10 sm:h-9"
+                className="flex-1 sm:flex-none text-sm h-10 sm:h-9"
                 >
-                  <RefreshCw className={`h-4 w-4 sm:h-4 sm:w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  <span>Atualizar</span>
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Atualizar
                 </Button>
                 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportData}
-                  className="flex-1 sm:flex-none text-sm sm:text-sm h-10 sm:h-9"
+                className="flex-1 sm:flex-none text-sm h-10 sm:h-9"
                 >
-                  <FileText className="h-4 w-4 sm:h-4 sm:w-4 mr-2" />
-                  <span>Relatório</span>
+                <FileText className="h-4 w-4 mr-2" />
+                Relatório
                 </Button>
               </div>
             </div>
 
-            {/* Tabs com ícones responsivos */}
-            <div className="w-full overflow-x-auto">
-              <TabsList className="grid w-full grid-cols-3 min-w-[280px] sm:min-w-0 sm:w-[320px] mx-auto h-11 sm:h-11">
-                <TabsTrigger 
-                  value="dashboard" 
-                  className="flex items-center justify-center gap-2 sm:gap-2 px-3 sm:px-4 text-sm sm:text-sm"
-                  title="Dashboard Principal"
-                >
-                  <Home className="h-4 w-4 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline lg:inline">Início</span>
+          <TabsList className="grid w-full grid-cols-3 max-w-[320px] mx-auto h-11">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2 text-sm">
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Início</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="calendar" 
-                  className="flex items-center justify-center gap-2 sm:gap-2 px-3 sm:px-4 text-sm sm:text-sm"
-                  title="Calendário de Depósitos"
-                >
-                  <Calendar className="h-4 w-4 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline lg:inline">Calendário</span>
+            <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Calendário</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="analytics" 
-                  className="flex items-center justify-center gap-2 sm:gap-2 px-3 sm:px-4 text-sm sm:text-sm"
-                  title="Analytics e Relatórios"
-                >
-                  <BarChart3 className="h-4 w-4 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline lg:inline">Analytics</span>
+            <TabsTrigger value="analytics" className="flex items-center gap-2 text-sm">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
                 </TabsTrigger>
               </TabsList>
-            </div>
           </div>
 
-          <TabsContent value="dashboard" className="space-y-4 sm:space-y-6 mt-4">
-            {/* Widget de Status Diário */}
+        <TabsContent value="dashboard" className="space-y-6 mt-4">
             <DailyStatusWidget 
               depositos={depositos}
             />
 
-            {/* Formulário Rápido */}
             <QuickDepositForm 
               depositos={depositos}
               onSubmit={handleQuickSubmit}
               isUploading={isUploading}
             />
 
-            {/* Calendário Resumido */}
             <DepositionsCalendar
               currentMonth={currentMonth}
               diasDoMes={diasDoMes}
@@ -693,17 +443,16 @@ export function Depositos() {
               setViewImage={setViewImage}
             />
 
-            {/* Configurações */}
             <Card className="border border-border">
               <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="text-base sm:text-base flex items-center gap-2">
-                  <Settings className="h-5 w-5 sm:h-5 sm:w-5 flex-shrink-0" />
+              <CardTitle className="text-base flex items-center gap-2">
+                <Settings className="h-5 w-5" />
                   Configurações
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm sm:text-sm text-foreground">Notificações</span>
+                <span className="text-sm text-foreground">Notificações</span>
                   <Button
                     variant={notificationsEnabled ? "default" : "outline"}
                     size="sm"
@@ -714,7 +463,7 @@ export function Depositos() {
                   </Button>
                 </div>
                 
-                <div className="text-sm sm:text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+              <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
                   Total de depósitos este mês: <strong className="text-foreground">{depositos.filter(d => 
                     d.data >= startOfMonth(currentMonth) && d.data <= endOfMonth(currentMonth)
                   ).length}</strong>
@@ -723,8 +472,7 @@ export function Depositos() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="calendar" className="space-y-4 sm:space-y-6 mt-4">
-            {/* Calendário Completo */}
+        <TabsContent value="calendar" className="space-y-6 mt-4">
             <DepositionsCalendar 
               currentMonth={currentMonth}
               diasDoMes={diasDoMes}
@@ -738,8 +486,7 @@ export function Depositos() {
             />
           </TabsContent>
 
-          <TabsContent value="analytics" className="space-y-4 sm:space-y-6 mt-4">
-            {/* Analytics e Relatórios */}
+        <TabsContent value="analytics" className="space-y-6 mt-4">
             {isLoading ? (
               <AnalyticsSkeleton />
             ) : (
@@ -752,7 +499,6 @@ export function Depositos() {
           </TabsContent>
         </Tabs>
         
-        {/* Dialog para adicionar comprovante */}
         <DepositFormDialog
           openDialog={openDialog}
           selectedDay={selectedDay}
@@ -770,20 +516,17 @@ export function Depositos() {
           onCloseDialog={handleCloseDialog}
         />
         
-        {/* Dialog para visualizar imagem */}
         <ImagePreviewDialog
           viewImage={viewImage}
           setViewImage={setViewImage}
         />
 
-        {/* Progress de Upload */}
         {uploadProgress && (
           <UploadProgress 
             progress={uploadProgress.progress} 
             fileName={uploadProgress.fileName} 
           />
         )}
-      </div>
     </div>
   );
 }

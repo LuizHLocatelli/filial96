@@ -124,10 +124,10 @@ const DepositoItem = ({
               </AlertDialogTrigger>
               <AlertDialogContent {...getMobileAlertDialogProps()}>
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-amber-500" />Confirmar Exclusão</AlertDialogTitle>
-                  <AlertDialogDescription>Tem certeza de que deseja excluir este depósito de <strong>{format(deposito.data, "dd/MM/yyyy 'às' HH:mm")}</strong>?<br /><span className="text-red-600 font-medium">Esta ação não pode ser desfeita.</span></AlertDialogDescription>
+                  <AlertDialogTitle className="flex items-center gap-2 text-base"><AlertTriangle className="h-4 w-4 text-amber-500" />Confirmar Exclusão</AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm">Excluir depósito de <strong>{format(deposito.data, "dd/MM/yyyy 'às' HH:mm")}</strong>?<br /><span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span></AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter {...getMobileFooterProps()}><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteConfirm(deposito.id)} className="bg-red-600 hover:bg-red-700">Excluir Depósito</AlertDialogAction></AlertDialogFooter>
+                <AlertDialogFooter {...getMobileFooterProps()}><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteConfirm(deposito.id)} className="bg-red-600 hover:bg-red-700">Excluir</AlertDialogAction></AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           )}

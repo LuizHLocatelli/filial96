@@ -1,0 +1,193 @@
+/* === CORREÇÕES DE HOVER PARA MODO ESCURO === */
+/* Arquivo dedicado para resolver problemas de visibilidade em hover no modo escuro */
+
+@layer components {
+  /* ========================================
+     🌙 MELHORIAS GLOBAIS DE HOVER - MODO ESCURO  
+     ======================================== */
+
+  /* Correções para elementos com hover:bg-muted */
+  .dark [class*="hover:bg-muted"]:hover {
+    background: hsl(var(--primary) / 0.2) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Correções para elementos com hover:bg-accent */  
+  .dark [class*="hover:bg-accent"]:hover {
+    background: hsl(var(--primary) / 0.25) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
+
+  /* Correções para botões primários */
+  .dark [class*="hover:bg-primary"]:hover {
+    background: hsl(var(--primary)) !important;
+    border-color: hsl(var(--primary)) !important;
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.4) !important;
+  }
+
+  /* Correções para backgrounds transparentes */
+  .dark [class*="hover:bg-background"]:hover {
+    background: hsl(var(--primary) / 0.15) !important;
+  }
+
+  .dark [class*="hover:bg-transparent"]:hover {
+    background: hsl(var(--primary) / 0.1) !important;
+  }
+
+  /* ========================================
+     🎯 CARDS E ELEMENTOS INTERATIVOS
+     ======================================== */
+
+  /* Cards com shadow hover melhorados */
+  .dark [class*="hover:shadow"]:hover {
+    box-shadow: 
+      0 10px 25px rgba(0, 0, 0, 0.4),
+      0 0 15px hsl(var(--primary) / 0.3) !important;
+    border-color: hsl(var(--primary) / 0.5) !important;
+  }
+
+  /* Elementos de lista/tabela */
+  .dark tr:hover,
+  .dark [role="row"]:hover {
+    background: hsl(var(--primary) / 0.1) !important;
+    border-color: hsl(var(--primary) / 0.3) !important;
+  }
+
+  /* ========================================
+     🔘 BOTÕES E NAVEGAÇÃO
+     ======================================== */
+
+  /* Botões ghost melhorados */
+  .dark [class*="hover:bg-border"]:hover {
+    background: hsl(var(--primary) / 0.2) !important;
+    border-color: hsl(var(--primary) / 0.4) !important;
+  }
+
+  /* Elementos de escala hover */
+  .dark [class*="hover:scale"]:hover {
+    background: hsl(var(--primary) / 0.15) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Group hovers */
+  .dark .group:hover [class*="group-hover:bg-accent"] {
+    background: hsl(var(--primary) / 0.2) !important;
+  }
+
+  .dark .group:hover [class*="group-hover:opacity-100"] {
+    background: hsl(var(--primary) / 0.1) !important;
+  }
+
+  /* ========================================
+     🚨 ELEMENTOS CRÍTICOS
+     ======================================== */
+
+  /* Botões de delete melhorados */
+  .dark [class*="hover:bg-red"]:hover {
+    background: hsl(0 84% 45%) !important;
+    color: white !important;
+    border-color: hsl(0 84% 55%) !important;
+  }
+
+  .dark [class*="hover:text-red"]:hover {
+    color: hsl(0 84% 65%) !important;
+  }
+
+  /* ========================================
+     ⚡ ESTADOS ESPECIAIS
+     ======================================== */
+
+  /* Links e textos hover */
+  .dark [class*="hover:text-foreground"]:hover {
+    color: hsl(var(--primary)) !important;
+  }
+
+  .dark [class*="hover:underline"]:hover {
+    text-decoration-color: hsl(var(--primary)) !important;
+  }
+
+  /* ========================================
+     🔧 CLASSES CUSTOMIZADAS
+     ======================================== */
+
+  /* Cards interativos customizados */
+  .dark .interactive-card:hover {
+    background: hsl(var(--card)) !important;
+    border-color: hsl(var(--primary) / 0.4) !important;
+    box-shadow: 
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      0 0 15px hsl(var(--primary) / 0.2) !important;
+  }
+
+  /* Hover lift customizado */
+  .dark .hover-lift:hover {
+    background: hsl(var(--primary) / 0.1) !important;
+    border-color: hsl(var(--primary) / 0.3) !important;
+    box-shadow: 
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      0 0 10px hsl(var(--primary) / 0.2) !important;
+  }
+
+  /* Btn hover scale customizado */
+  .dark .btn-hover-scale:hover {
+    background: hsl(var(--primary) / 0.15) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Glass effects melhorados */
+  .dark .glass-hover:hover {
+    background: var(--glass-bg-light) !important;
+    border-color: hsl(var(--primary) / 0.4) !important;
+    box-shadow: 
+      0 12px 24px rgba(0, 0, 0, 0.4),
+      0 0 20px hsl(var(--primary) / 0.3) !important;
+  }
+
+  /* ========================================
+     🎪 TRANSIÇÕES GLOBAIS
+     ======================================== */
+
+  /* Transições suaves para todos os elementos hover no modo escuro */
+  .dark *:hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* ========================================
+     🌟 CASOS ESPECIAIS
+     ======================================== */
+
+  /* Para elementos que precisam manter comportamento original */
+  .dark .preserve-hover-original:hover {
+    all: revert !important;
+  }
+
+  /* Para elementos que precisam de hover ainda mais forte */
+  .dark .enhanced-dark-hover:hover {
+    background: hsl(var(--primary) / 0.3) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border-color: hsl(var(--primary)) !important;
+    box-shadow: 
+      0 12px 28px rgba(0, 0, 0, 0.4),
+      0 0 25px hsl(var(--primary) / 0.4) !important;
+  }
+
+  /* ========================================
+     📱 MOBILE E TOUCH ESPECÍFICOS
+     ======================================== */
+
+  /* Melhorias para dispositivos touch no modo escuro */
+  @media (hover: hover) and (pointer: fine) {
+    .dark [class*="hover:"]:hover {
+      transition: all 0.15s ease-out !important;
+    }
+  }
+
+  /* Para dispositivos touch, usar estados focus */
+  @media (hover: none) and (pointer: coarse) {
+    .dark [class*="hover:"]:focus,
+    .dark [class*="hover:"]:active {
+      background: hsl(var(--primary) / 0.2) !important;
+      border-color: hsl(var(--primary) / 0.4) !important;
+    }
+  }
+} 
