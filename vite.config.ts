@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ['react', 'react-dom'],
   },
   build: {
     rollupOptions: {
@@ -37,9 +38,6 @@ export default defineConfig(({ mode }) => ({
           utils: ['date-fns', 'clsx', 'tailwind-merge'],
           
           // Feature chunks - only include actual module files, not directories
-          crediario: [
-            'src/pages/Crediario.tsx'
-          ],
           moveis: [
             'src/pages/Moveis.tsx'
           ],
@@ -65,10 +63,10 @@ export default defineConfig(({ mode }) => ({
       'react-dom',
       'react-router-dom',
       '@supabase/supabase-js',
+      '@tanstack/react-query',
     ],
     exclude: [
       // Excluir componentes que serão lazy loaded
-      'src/pages/Crediario',
       'src/pages/Moveis', 
       'src/pages/Moda',
       'src/pages/Atividades',
