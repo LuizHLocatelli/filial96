@@ -9,47 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      activities: {
-        Row: {
-          action: string
-          id: string
-          task_id: string
-          task_title: string
-          task_type: string
-          timestamp: string
-          user_id: string
-          user_name: string
-        }
-        Insert: {
-          action: string
-          id?: string
-          task_id: string
-          task_title: string
-          task_type: string
-          timestamp?: string
-          user_id: string
-          user_name: string
-        }
-        Update: {
-          action?: string
-          id?: string
-          task_id?: string
-          task_title?: string
-          task_type?: string
-          timestamp?: string
-          user_id?: string
-          user_name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activities_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+
       attachments: {
         Row: {
           created_at: string
@@ -2060,30 +2020,7 @@ export type Database = {
         }
         Relationships: []
       }
-      notification_read_status: {
-        Row: {
-          activity_id: string
-          created_at: string
-          id: string
-          read: boolean
-          user_id: string
-        }
-        Insert: {
-          activity_id: string
-          created_at?: string
-          id?: string
-          read?: boolean
-          user_id: string
-        }
-        Update: {
-          activity_id?: string
-          created_at?: string
-          id?: string
-          read?: boolean
-          user_id?: string
-        }
-        Relationships: []
-      }
+
       ocr_logs: {
         Row: {
           confidence: number

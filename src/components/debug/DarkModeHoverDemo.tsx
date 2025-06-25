@@ -219,13 +219,13 @@ export function DarkModeHoverDemo() {
           </div>
 
           {/* Instruções */}
-          <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/30">
+          <Card className="bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800/30">
             <CardHeader>
-              <CardTitle className="text-blue-800 dark:text-blue-200">
+              <CardTitle className="text-gray-800 dark:text-gray-200">
                 💡 Como Testar
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-blue-700 dark:text-blue-300">
+            <CardContent className="text-gray-700 dark:text-gray-300">
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>Alterne entre modo claro e escuro usando o botão de tema</li>
                 <li>Passe o mouse sobre os elementos acima no modo escuro</li>

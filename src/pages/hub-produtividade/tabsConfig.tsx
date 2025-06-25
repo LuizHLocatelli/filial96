@@ -1,14 +1,11 @@
-
 import { 
   Activity,
-  CheckSquare, 
   FileText, 
   BarChart3,
   Users,
   Target
 } from "lucide-react";
 import { HubDashboard } from "@/components/moveis/hub-produtividade/components/dashboard/HubDashboard";
-import { CentralAtividades } from "@/components/moveis/hub-produtividade/components/unificacao/CentralAtividades";
 import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/components/OrientacoesMonitoramento";
 import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
 import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
@@ -64,17 +61,6 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden p-6">
           <MetasDashboard />
-        </div>
-      )
-    },
-    {
-      value: "atividades",
-      label: "Atividades",
-      icon: CheckSquare,
-      description: "Rotinas, Tarefas e Informativos",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <CentralAtividades />
         </div>
       )
     },

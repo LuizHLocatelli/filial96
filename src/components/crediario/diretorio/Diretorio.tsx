@@ -28,7 +28,7 @@ export function Diretorio() {
   } = useDirectoryOperations();
 
   return (
-    <div className="space-y-6">
+    <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
       <DirectoryHeader 
         sector="crediário"
         description="Organize e acesse documentos importantes para o setor de crediário"

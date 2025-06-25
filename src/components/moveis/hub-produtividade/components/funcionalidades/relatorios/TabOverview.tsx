@@ -63,7 +63,7 @@ export const TabOverview = ({ productivityMetrics, weeklyData }: TabOverviewProp
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Atividades por Semana</CardTitle>
+          <CardTitle className="text-lg">Tarefas por Semana</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -71,7 +71,7 @@ export const TabOverview = ({ productivityMetrics, weeklyData }: TabOverviewProp
               <div key={index} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span>Semana {week.week}</span>
-                  <span className="font-medium">{week.total} atividades</span>
+                  <span className="font-medium">{week.total} tarefas</span>
                 </div>
                 <Progress value={(week.total / Math.max(1, ...weeklyData.map(w => w.total))) * 100} className="h-2" />
               </div>

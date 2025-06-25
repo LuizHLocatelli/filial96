@@ -95,16 +95,17 @@ export interface ProductivityStats {
   };
 }
 
-export interface ActivityItem {
-  id: string;
-  type: 'rotina' | 'orientacao' | 'tarefa';
-  title: string;
-  description?: string;
-  timestamp: string;
-  status: 'concluida' | 'pendente' | 'atrasada' | 'nova';
-  user: string;
-  action: 'criada' | 'concluida' | 'atualizada' | 'deletada';
-}
+// Sistema de atividades foi removido
+// export interface ActivityItem {
+//   id: string;
+//   type: 'rotina' | 'orientacao' | 'tarefa';
+//   title: string;
+//   description?: string;
+//   timestamp: string;
+//   status: 'concluida' | 'pendente' | 'atrasada' | 'nova';
+//   user: string;
+//   action: 'criada' | 'concluida' | 'atualizada' | 'deletada';
+// }
 
 export interface HubFilters {
   searchTerm: string;
@@ -170,11 +171,13 @@ export interface HubContextType {
   
   // Dados
   stats: ProductivityStats;
-  activities: ActivityItem[];
+  // Sistema de atividades foi removido
+  // activities: ActivityItem[];
   
   // Loading states
   isLoadingStats: boolean;
-  isLoadingActivities: boolean;
+  // Sistema de atividades foi removido
+  // isLoadingActivities: boolean;
   
   // Filters
   filters: HubFilters;

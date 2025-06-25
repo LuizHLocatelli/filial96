@@ -79,12 +79,10 @@ export default function HubProdutividade() {
     orientacoes: orientacoes || [],
     tarefas: tarefas || [],
     onViewRotina: (rotinaId) => {
-      setSearchParams({ tab: "atividades" });
-      // Aqui poderia implementar scroll para a rotina específica
+      // Função removida - atividades foram removidas do sistema
     },
     onViewTarefa: (tarefaId) => {
-      setSearchParams({ tab: "atividades" });
-      // Aqui poderia implementar scroll para a tarefa específica
+      // Função removida - atividades foram removidas do sistema
     },
     onRelatorios: () => setShowRelatorios(true)
   });

@@ -27,18 +27,13 @@ export function useHubHandlers({
   const handleNovaRotina = () => {
     console.log("🔄 Handler Nova Rotina executado");
     try {
-      // Navegar para a tab de atividades e definir parâmetro para nova rotina
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set('tab', 'atividades');
-      currentUrl.searchParams.set('action', 'new-rotina');
-      
-      console.log("🔄 Navegando para:", currentUrl.pathname + currentUrl.search);
-      navigate(currentUrl.pathname + currentUrl.search);
-      setCurrentSection('atividades');
+          // Função removida - atividades foram removidas do sistema
+    console.log("🔄 Nova rotina desabilitada - sistema de atividades removido");
       
       toast({
-        title: "Nova Rotina",
-        description: "Redirecionando para criação de rotina...",
+        title: "Funcionalidade Removida",
+        description: "O sistema de atividades foi removido",
+        variant: "destructive",
         duration: 2000,
       });
     } catch (error) {
@@ -54,18 +49,13 @@ export function useHubHandlers({
   const handleNovaOrientacao = () => {
     console.log("📖 Handler Nova Orientação executado");
     try {
-      // Navegar para a tab de atividades (orientações) e definir parâmetro
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set('tab', 'atividades');
-      currentUrl.searchParams.set('action', 'new-orientacao');
-      
-      console.log("📖 Navegando para:", currentUrl.pathname + currentUrl.search);
-      navigate(currentUrl.pathname + currentUrl.search);
-      setCurrentSection('atividades');
+          // Função removida - atividades foram removidas do sistema
+    console.log("📖 Nova orientação desabilitada - sistema de atividades removido");
       
       toast({
-        title: "Nova Orientação",
-        description: "Redirecionando para upload de orientação...",
+        title: "Funcionalidade Removida",
+        description: "O sistema de atividades foi removido",
+        variant: "destructive",
         duration: 2000,
       });
     } catch (error) {
@@ -81,18 +71,13 @@ export function useHubHandlers({
   const handleNovaTarefa = () => {
     console.log("✅ Handler Nova Tarefa executado");
     try {
-      // Navegar para a tab de atividades e definir parâmetro para nova tarefa
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set('tab', 'atividades');
-      currentUrl.searchParams.set('action', 'new-tarefa');
-      
-      console.log("✅ Navegando para:", currentUrl.pathname + currentUrl.search);
-      navigate(currentUrl.pathname + currentUrl.search);
-      setCurrentSection('atividades');
+          // Função removida - atividades foram removidas do sistema
+    console.log("✅ Nova tarefa desabilitada - sistema de atividades removido");
       
       toast({
-        title: "Nova Tarefa",
-        description: "Redirecionando para criação de tarefa...",
+        title: "Funcionalidade Removida",
+        description: "O sistema de atividades foi removido",
+        variant: "destructive",
         duration: 2000,
       });
     } catch (error) {

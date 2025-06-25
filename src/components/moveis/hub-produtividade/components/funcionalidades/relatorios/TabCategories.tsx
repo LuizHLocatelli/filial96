@@ -38,7 +38,7 @@ export const TabCategories = ({ categoryStats }: TabCategoriesProps) => {
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Sem dados por categoria</h3>
           <p className="text-muted-foreground">
-            Adicione categorias às suas atividades para ver análises detalhadas.
+            Adicione categorias às suas tarefas para ver análises detalhadas.
           </p>
         </Card>
       )}

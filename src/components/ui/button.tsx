@@ -13,9 +13,9 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground border-2 border-primary shadow-sm hover:bg-primary/90 hover:border-primary/90 hover:shadow-md hover:-translate-y-px",
         destructive: "bg-destructive text-destructive-foreground border-2 border-destructive shadow-sm hover:bg-destructive/90 hover:border-destructive/90 hover:shadow-md hover:-translate-y-px",
-        outline: "bg-background text-foreground border-2 border-border shadow-sm hover:bg-muted hover:border-border/80 hover:shadow-md dark:hover:bg-primary/15 dark:hover:border-primary/40",
+        outline: "bg-background text-foreground border-2 border-border shadow-sm hover:bg-muted hover:border-border/80 hover:shadow-md dark:hover:bg-primary/25 dark:hover:border-primary/50",
         secondary: "bg-secondary text-secondary-foreground border-2 border-secondary shadow-sm hover:bg-secondary/80 hover:border-secondary/80 hover:shadow-md hover:-translate-y-px",
-        ghost: "bg-transparent text-foreground border-2 border-transparent hover:bg-muted hover:border-border/50 dark:hover:bg-primary/15 dark:hover:border-primary/30",
+        ghost: "bg-transparent text-foreground border-2 border-transparent hover:bg-muted hover:border-border/50 dark:hover:bg-primary/25 dark:hover:border-primary/40",
         link: "text-primary underline-offset-4 hover:underline bg-transparent border-0 shadow-none",
         
         // Novos padrões padronizados

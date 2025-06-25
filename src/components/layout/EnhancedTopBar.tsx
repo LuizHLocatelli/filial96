@@ -1,9 +1,9 @@
-
 import { Link } from "react-router-dom";
 import { Home, ChevronRight, Search, X } from "lucide-react";
 import { NotificationsMenu } from "@/components/notifications/NotificationsMenu";
 import { UserMenu } from "../auth/UserMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
@@ -66,7 +66,13 @@ export function EnhancedTopBar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="sticky top-0 z-50 border-b bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-lg"
+      className={cn(
+        "glass-topbar sticky top-0 z-50 h-16",
+        "bg-background/80 dark:bg-background/70 backdrop-blur-lg",
+        "border-b border-border/40 dark:border-border/20",
+        "shadow-sm dark:shadow-lg shadow-black/5 dark:shadow-black/20",
+        location.pathname === "/" ? "transition-all duration-300" : ""
+      )}
     >
       <div className={cn(
         "container flex items-center h-16",
@@ -121,6 +127,17 @@ export function EnhancedTopBar() {
               isSearchOpen={isSearchOpen}
               onSearchToggle={() => setIsSearchOpen(!isSearchOpen)}
             />
+          )}
+
+          {/* Install PWA Button - só mostra quando pode instalar */}
+          {!isMobile && (
+            <motion.div 
+              whileHover={{ scale: 1.05 }} 
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+            >
+              <InstallPWAButton />
+            </motion.div>
           )}
 
           {/* Action buttons com glassmorphism correto */}
@@ -200,6 +217,11 @@ export function EnhancedTopBar() {
               {/* Resultados da pesquisa mobile com estilo específico */}
               <div className="mt-4">
                 <GlobalSearchResults onResultClick={handleMobileSearchClose} isMobile={true} />
+              </div>
+
+              {/* Install PWA Button no mobile search quando disponível */}
+              <div className="mt-4 pt-3 border-t border-border/20">
+                <InstallPWAButton />
               </div>
             </div>
           </motion.div>

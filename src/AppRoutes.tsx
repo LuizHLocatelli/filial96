@@ -10,7 +10,7 @@ const HubProdutividade = lazy(() => import("./pages/HubProdutividade"));
 const Crediario = lazy(() => import("./pages/Crediario"));
 const Moveis = lazy(() => import("./pages/Moveis"));
 const Moda = lazy(() => import("./pages/Moda"));
-const Atividades = lazy(() => import("./pages/Atividades"));
+
 const PdfViewerPage = lazy(() => import("./pages/PdfViewerPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
@@ -114,16 +114,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/atividades" 
-        element={
-          <ProtectedRoute>
-            <LazyPageWrapper>
-              <Atividades />
-            </LazyPageWrapper>
-          </ProtectedRoute>
-        } 
-      />
+
       <Route 
         path="/pdf-viewer" 
         element={

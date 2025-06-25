@@ -304,7 +304,7 @@ export function ProdutoFocoForm({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                        className="h-4 w-4 p-0 ml-1 hover:bg-muted dark:hover:bg-primary/20"
                         onClick={() => removerArgumento(index)}
                       >
                         <X className="h-3 w-3" />

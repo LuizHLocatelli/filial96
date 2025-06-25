@@ -794,4 +794,42 @@
   .lg\:p-8 { padding: var(--space-8); }
   .lg\:grid-cols-4 { grid-template-columns: var(--grid-cols-4); }
   .lg\:grid-cols-5 { grid-template-columns: var(--grid-cols-5); }
+}
+
+/* ========================================
+   📱 MELHORIAS PARA MOBILE EXTRA PEQUENO
+   ======================================== */
+
+/* Melhorias específicas para telas muito pequenas */
+@media (max-width: 374px) {
+  .button-group-responsive {
+    gap: var(--space-1);
+  }
+  
+  .button-responsive-sm {
+    font-size: 0.75rem;
+    padding: 0 var(--space-2);
+    height: 32px;
+    min-width: 44px;
+  }
+  
+  .header-responsive {
+    gap: var(--space-3);
+  }
+  
+  .inline-md {
+    gap: var(--space-2);
+  }
+}
+
+/* Melhorias para mobile pequeno */
+@media (max-width: 474px) {
+  .button-group-responsive {
+    width: 100%;
+  }
+  
+  .button-group-responsive .button-responsive-sm {
+    justify-content: center;
+    flex: 1;
+  }
 } 

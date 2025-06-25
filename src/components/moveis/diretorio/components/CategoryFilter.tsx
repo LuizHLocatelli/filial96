@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
@@ -30,7 +29,7 @@ export function CategoryFilter({
         <Button
           variant="ghost"
           size="icon"
-          className="h-4 w-4 ml-1 hover:bg-transparent"
+          className="h-4 w-4 ml-1 hover:bg-muted dark:hover:bg-primary/20"
           onClick={handleClearCategory}
         >
           <X className="h-3 w-3" />

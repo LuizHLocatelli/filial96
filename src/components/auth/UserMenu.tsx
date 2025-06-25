@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   User, 
@@ -139,7 +138,7 @@ export function UserMenu() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 p-0 hover:bg-transparent">
+        <Button variant="ghost" className="relative h-10 w-10 p-0 hover:bg-muted dark:hover:bg-primary/20">
           <Avatar className="h-9 w-9">
             <AvatarImage 
               src={profile?.avatarUrl} 

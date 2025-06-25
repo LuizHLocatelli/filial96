@@ -119,7 +119,7 @@ export function EnhancedLoginForm() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="p-2 hover:bg-transparent"
+                        className="p-2 hover:bg-muted dark:hover:bg-primary/20"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                       >

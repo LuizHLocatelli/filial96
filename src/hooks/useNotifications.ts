@@ -31,7 +31,7 @@ export function useNotifications() {
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
 
-  // Função para buscar notificações
+  // Função para buscar notificações (sistema removido)
   const fetchNotifications = useCallback(async () => {
     if (!profile?.id || fetchingRef.current) return;
     
@@ -39,60 +39,19 @@ export function useNotifications() {
       fetchingRef.current = true;
       setIsLoading(true);
       
-      console.log("🔔 Buscando atividades para notificações...");
+      console.log("🔔 Sistema de notificações foi removido");
       
-      // Get activities for tasks
-      const { data, error } = await supabase
-        .from("activities")
-        .select("*")
-        .order("timestamp", { ascending: false })
-        .limit(20);
-      
-      if (error) {
-        console.error("❌ Erro ao buscar atividades:", error);
-        throw error;
-      }
-      
-      console.log(`✅ Atividades obtidas: ${data?.length || 0}`);
-      
-      // Buscar o status de leitura das atividades para este usuário
-      const { data: readStatusData, error: readStatusError } = await supabase
-        .from("notification_read_status")
-        .select("*")
-        .eq("user_id", profile.id);
-        
-      if (readStatusError) {
-        console.error("⚠️ Erro ao buscar status de leitura:", readStatusError);
-      }
-      
-      // Criar um mapa de atividades lidas para fácil verificação
-      const readActivityMap = new Map();
-      if (readStatusData) {
-        readStatusData.forEach((status: any) => {
-          readActivityMap.set(status.activity_id, status.read);
-        });
-      }
-      
-      // Transform activities to notifications format
-      const transformedNotifications: Notification[] = (data || []).map((activity: any) => ({
-        id: activity.id,
-        title: `Nova tarefa: ${activity.task_title}`,
-        message: `${activity.user_name || 'Usuário'} ${activity.action} uma tarefa do tipo ${activity.task_type}`,
-        isRead: readActivityMap.get(activity.id) === true,
-        created_at: activity.timestamp,
-        task_id: activity.task_id
-      }));
-      
+      // Sistema de atividades foi removido - retornar lista vazia
       if (mountedRef.current) {
-        setNotifications(transformedNotifications);
-        setUnreadCount(transformedNotifications.filter(n => !n.isRead).length);
+        setNotifications([]);
+        setUnreadCount(0);
       }
     } catch (error) {
       console.error("❌ Erro ao buscar notificações:", error);
       if (mountedRef.current) {
         toast({
-          title: "Erro ao carregar notificações",
-          description: "Não foi possível carregar as notificações. Tente novamente.",
+          title: "Sistema de notificações removido",
+          description: "O sistema de atividades e notificações foi removido.",
           variant: "destructive"
         });
       }
@@ -104,7 +63,7 @@ export function useNotifications() {
     }
   }, [profile?.id, toast]);
 
-  // Função para configurar subscription em tempo real
+  // Função para configurar subscription em tempo real (sistema removido)
   const setupRealtimeSubscription = useCallback(() => {
     if (!profile?.id) return;
 
@@ -114,60 +73,10 @@ export function useNotifications() {
       supabase.removeChannel(channelRef.current);
     }
 
-    // Set up real-time subscription for new activities
-    const channel = supabase
-      .channel(`activities-channel-${profile.id}`)
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'activities'
-        }, 
-        (payload) => {
-          console.log("🆕 Nova atividade detectada:", payload);
-          const newActivity = payload.new as any;
-          
-          // Create notification from activity
-          const newNotification: Notification = {
-            id: newActivity.id,
-            title: `Nova tarefa: ${newActivity.task_title}`,
-            message: `${newActivity.user_name || 'Usuário'} ${newActivity.action} uma tarefa do tipo ${newActivity.task_type}`,
-            isRead: false,
-            created_at: newActivity.timestamp,
-            task_id: newActivity.task_id
-          };
-          
-          console.log("📬 Nova notificação criada:", newNotification);
-          
-          if (mountedRef.current) {
-            // Add the new notification to the state
-            setNotifications(prev => [newNotification, ...prev.slice(0, 19)]); // Manter apenas 20
-            setUnreadCount(prev => prev + 1);
-            
-            // Show toast notification
-            toast({
-              title: newNotification.title,
-              description: newNotification.message,
-            });
-          }
-        })
-      .subscribe((status) => {
-        console.log("📡 Status da subscription:", status);
-        if (status === 'SUBSCRIBED') {
-          console.log("✅ Canal de notificações conectado");
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error("❌ Erro no canal de notificações");
-          // Tentar reconectar após um delay
-          setTimeout(() => {
-            if (mountedRef.current) {
-              setupRealtimeSubscription();
-            }
-          }, 5000);
-        }
-      });
-      
-    channelRef.current = channel;
-  }, [profile?.id, toast]);
+    // Sistema de atividades foi removido - não há mais subscription necessária
+    console.log("📡 Sistema de notificações em tempo real foi removido");
+    channelRef.current = null;
+  }, [profile?.id]);
 
   // Effect para buscar notificações e configurar subscription
   useEffect(() => {
@@ -197,12 +106,12 @@ export function useNotifications() {
     };
   }, []);
 
-  // Mark a notification as read
+  // Mark a notification as read (sistema removido)
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
       if (!profile?.id) return;
       
-      // Update local state first for immediate feedback
+      // Sistema de notificações foi removido - apenas atualizar estado local
       setNotifications(prevNotifications => 
         prevNotifications.map(notification => 
           notification.id === notificationId 
@@ -214,39 +123,13 @@ export function useNotifications() {
       // Update unread count
       setUnreadCount(prev => Math.max(0, prev - 1));
       
-      // Persistir a marcação no banco de dados
-      const { error } = await supabase
-        .from("notification_read_status")
-        .upsert({ 
-          user_id: profile.id,
-          activity_id: notificationId,
-          read: true
-        });
-      
-      if (error) {
-        console.error("❌ Erro ao marcar notificação como lida:", error);
-        // Reverter estado local em caso de erro
-        setNotifications(prevNotifications => 
-          prevNotifications.map(notification => 
-            notification.id === notificationId 
-              ? { ...notification, isRead: false } 
-              : notification
-          )
-        );
-        setUnreadCount(prev => prev + 1);
-        
-        toast({
-          title: "Erro ao marcar notificação",
-          description: "Não foi possível marcar a notificação como lida.",
-          variant: "destructive"
-        });
-      }
+      console.log("Sistema de notificações foi removido - marcação apenas local");
     } catch (error) {
       console.error("❌ Erro ao marcar notificação como lida:", error);
     }
-  }, [profile?.id, toast]);
+  }, [profile?.id]);
 
-  // Mark all notifications as read
+  // Mark all notifications as read (sistema removido)
   const markAllAsRead = useCallback(async () => {
     try {
       if (!profile?.id) return;
@@ -254,45 +137,17 @@ export function useNotifications() {
       const unreadNotifications = notifications.filter(n => !n.isRead);
       if (unreadNotifications.length === 0) return;
       
-      // Update local state first for immediate feedback
+      // Sistema de notificações foi removido - apenas atualizar estado local
       setNotifications(prevNotifications => 
         prevNotifications.map(notification => ({ ...notification, isRead: true }))
       );
       setUnreadCount(0);
       
-      // Prepare data for batch upsert
-      const upsertData = unreadNotifications.map(notification => ({
-        user_id: profile.id,
-        activity_id: notification.id,
-        read: true
-      }));
-      
-      // Persistir a marcação em lote no banco de dados
-      const { error } = await supabase
-        .from("notification_read_status")
-        .upsert(upsertData);
-      
-      if (error) {
-        console.error("❌ Erro ao marcar todas as notificações como lidas:", error);
-        // Reverter estado local em caso de erro
-        setNotifications(prevNotifications => 
-          prevNotifications.map(notification => {
-            const wasUnread = unreadNotifications.some(unread => unread.id === notification.id);
-            return wasUnread ? { ...notification, isRead: false } : notification;
-          })
-        );
-        setUnreadCount(unreadNotifications.length);
-        
-        toast({
-          title: "Erro ao marcar notificações",
-          description: "Não foi possível marcar todas as notificações como lidas.",
-          variant: "destructive"
-        });
-      }
+      console.log("Sistema de notificações foi removido - marcação em lote apenas local");
     } catch (error) {
       console.error("❌ Erro ao marcar todas as notificações como lidas:", error);
     }
-  }, [notifications, profile?.id, toast]);
+  }, [notifications, profile?.id]);
 
   // Função para refrescar notificações manualmente
   const refreshNotifications = useCallback(() => {

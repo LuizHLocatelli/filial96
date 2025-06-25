@@ -42,8 +42,8 @@ export function VendaO() {
   return (
     <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex flex-col space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/30 p-1 rounded-xl max-w-md mx-auto">
+        <div className="flex flex-col space-y-4">
+          <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/30 p-1 rounded-xl">
             <TabsTrigger 
               value="dashboard" 
               className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all"
@@ -62,7 +62,7 @@ export function VendaO() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-0 m-0">
+          <TabsContent value="dashboard" className="mt-6 space-y-0">
             <SalesDashboard 
               sales={sales} 
               isLoading={isLoading} 
@@ -71,7 +71,7 @@ export function VendaO() {
             />
           </TabsContent>
 
-          <TabsContent value="nova" className="space-y-0 m-0">
+          <TabsContent value="nova" className="mt-6 space-y-0">
             <SaleUploader 
               isUploading={isUploading} 
               progress={progress}

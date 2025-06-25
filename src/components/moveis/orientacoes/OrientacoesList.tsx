@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OrientacaoViewerDialog } from "./OrientacaoViewerDialog";
@@ -61,7 +60,7 @@ export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
   }
 
   return (
-    <div className="space-y-4 w-full max-w-full p-4">
+    <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
       <OrientacoesHeader 
         totalCount={typeStats.all}
         vmCount={typeStats.vm}

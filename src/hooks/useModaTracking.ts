@@ -22,40 +22,15 @@ export function useModaTracking() {
     if (!user) return;
 
     try {
-      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Registrar evento principal
-      await supabase
-        .from('moda_monitoramento')
-        .insert([{
-          user_id: user.id,
-          secao: event.secao,
-          session_id: sessionId,
-          timestamp: new Date().toISOString(),
-          acao: event.acao,
-          detalhes: event.detalhes,
-          metadata: event.metadata,
-          ip_address: null, // Será preenchido automaticamente se configurado
-          user_agent: navigator.userAgent
-        }]);
-
-      // Registrar evento detalhado se necessário
-      if (event.metadata || event.detalhes) {
-        await supabase
-          .from('moda_eventos_detalhados')
-          .insert([{
-            user_id: user.id,
-            evento_tipo: event.acao,
-            secao: event.secao,
-            dados: {
-              ...event.detalhes,
-              ...event.metadata,
-              timestamp: new Date().toISOString(),
-              session_id: sessionId
-            },
-            created_at: new Date().toISOString()
-          }]);
-      }
+      // Sistema de tracking simplificado - apenas console log para desenvolvimento
+      console.log('Moda Tracking Event:', {
+        user_id: user.id,
+        secao: event.secao,
+        acao: event.acao,
+        detalhes: event.detalhes,
+        metadata: event.metadata,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
       console.error('Erro ao rastrear evento:', error);
     }

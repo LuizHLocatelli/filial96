@@ -62,7 +62,7 @@ export default function Moveis() {
       label: "Descontinuados",
       icon: Package,
       description: "Produtos com desconto especial",
-      component: <Descontinuados onBack={() => handleNavigate("diretorio")} />,
+      component: <Descontinuados />,
       badge: "PROMOÇÃO"
     },
     {

@@ -1,4 +1,3 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,13 +34,13 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
   };
 
   return (
-    <Card className="border-0 bg-white/70 dark:bg-gray-800/30 backdrop-blur-sm shadow-sm">
+    <Card className="border-2 border-border bg-background shadow-soft">
       <CardContent className="p-3 sm:p-6">
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-green-600 rounded-full flex items-center justify-center shadow-sm">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary border-2 border-primary/20 rounded-full flex items-center justify-center shadow-soft">
             <Filter className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-200">
+          <h3 className="text-base sm:text-lg font-bold text-foreground">
             Filtros
           </h3>
         </div>
@@ -49,35 +48,35 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
         <div className="stack-sm sm:grid-responsive-stats sm:stack-none">
           {/* Busca */}
           <div className="space-y-1 sm:space-y-2">
-            <Label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label className="text-xs sm:text-sm font-semibold text-foreground">
               Buscar
             </Label>
             <div className="relative">
-              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-3 w-3 sm:h-4 sm:w-4" />
+              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3 w-3 sm:h-4 sm:w-4" />
               <Input
                 placeholder="Nome ou código..."
                 value={filters.search}
                 onChange={(e) => updateFilters('search', e.target.value)}
-                className="pl-8 sm:pl-10 h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-gray-200/50 dark:border-gray-600/30 bg-white/80 dark:bg-gray-700/30 shadow-sm"
+                className="pl-8 sm:pl-10 h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-2 border-border bg-background shadow-soft"
               />
             </div>
           </div>
 
           {/* Categoria */}
           <div className="space-y-1 sm:space-y-2">
-            <Label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label className="text-xs sm:text-sm font-semibold text-foreground">
               Categoria
             </Label>
             <Select value={filters.categoria} onValueChange={(value) => updateFilters('categoria', value)}>
-              <SelectTrigger className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-gray-200/50 dark:border-gray-600/30 bg-white/80 dark:bg-gray-700/30 shadow-sm">
+              <SelectTrigger className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-2 border-border bg-background shadow-soft">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-lg sm:rounded-xl bg-white/95 dark:bg-gray-800/95 border-gray-200/50 dark:border-gray-600/30 shadow-lg">
+              <SelectContent className="rounded-lg sm:rounded-xl bg-background border-2 border-border shadow-medium">
                 {categorias.map((categoria) => (
                   <SelectItem 
                     key={categoria.value} 
                     value={categoria.value}
-                    className="text-xs sm:text-sm focus:bg-gray-50/80 dark:focus:bg-gray-700/50"
+                    className="text-xs sm:text-sm focus:bg-muted"
                   >
                     {categoria.label}
                   </SelectItem>
@@ -88,19 +87,19 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
 
           {/* Ordenação */}
           <div className="space-y-1 sm:space-y-2">
-            <Label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label className="text-xs sm:text-sm font-semibold text-foreground">
               Ordenar
             </Label>
             <Select value={filters.ordenacao} onValueChange={(value) => updateFilters('ordenacao', value)}>
-              <SelectTrigger className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-gray-200/50 dark:border-gray-600/30 bg-white/80 dark:bg-gray-700/30 shadow-sm">
+              <SelectTrigger className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-2 border-border bg-background shadow-soft">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-lg sm:rounded-xl bg-white/95 dark:bg-gray-800/95 border-gray-200/50 dark:border-gray-600/30 shadow-lg">
+              <SelectContent className="rounded-lg sm:rounded-xl bg-background border-2 border-border shadow-medium">
                 {ordenacaoOptions.map((option) => (
                   <SelectItem 
                     key={option.value} 
                     value={option.value}
-                    className="text-xs sm:text-sm focus:bg-gray-50/80 dark:focus:bg-gray-700/50"
+                    className="text-xs sm:text-sm focus:bg-muted"
                   >
                     {option.label}
                   </SelectItem>
@@ -111,7 +110,7 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
 
           {/* Faixa de Preço */}
           <div className="space-y-1 sm:space-y-2">
-            <Label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1 sm:gap-2">
+            <Label className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1 sm:gap-2">
               <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
               Preço
             </Label>
@@ -121,14 +120,14 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
                 placeholder="Min"
                 value={filters.preco_min || ''}
                 onChange={(e) => updateFilters('preco_min', e.target.value ? Number(e.target.value) : undefined)}
-                className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-gray-200/50 dark:border-gray-600/30 bg-white/80 dark:bg-gray-700/30 shadow-sm"
+                className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-2 border-border bg-background shadow-soft"
               />
               <Input
                 type="number"
                 placeholder="Max"
                 value={filters.preco_max || ''}
                 onChange={(e) => updateFilters('preco_max', e.target.value ? Number(e.target.value) : undefined)}
-                className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-gray-200/50 dark:border-gray-600/30 bg-white/80 dark:bg-gray-700/30 shadow-sm"
+                className="h-8 sm:h-11 text-xs sm:text-sm rounded-lg sm:rounded-xl border-2 border-border bg-background shadow-soft"
               />
             </div>
           </div>

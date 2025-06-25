@@ -186,23 +186,7 @@ export function NotificationsMenu() {
           </div>
         )}
         
-        {notifications.length > 0 && (
-          <>
-            <DropdownMenuSeparator />
-            <div className="p-2">
-              <Button 
-                variant="ghost" 
-                className="w-full text-xs text-muted-foreground hover:text-foreground" 
-                onClick={() => {
-                  setOpen(false);
-                  navigate('/atividades');
-                }}
-              >
-                Ver todas as atividades
-              </Button>
-            </div>
-          </>
-        )}
+
       </DropdownMenuContent>
     </DropdownMenu>
   );

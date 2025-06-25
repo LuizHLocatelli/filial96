@@ -39,7 +39,7 @@ export const RelatoriosControls = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="completion">Taxa de Conclusão</SelectItem>
-            <SelectItem value="volume">Volume de Atividades</SelectItem>
+
             <SelectItem value="efficiency">Eficiência</SelectItem>
             <SelectItem value="trends">Tendências</SelectItem>
           </SelectContent>

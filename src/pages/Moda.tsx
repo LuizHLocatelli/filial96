@@ -6,12 +6,10 @@ import { Diretorio } from "@/components/moda/diretorio/Diretorio";
 import { Folgas } from "@/components/moda/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
 import { Reservas } from "@/components/moda/reservas/Reservas";
-import { Monitoramento } from "@/components/moda/monitoramento/Monitoramento";
 import { useModaTracking } from "@/hooks/useModaTracking";
 import { 
   FileText, 
   FolderArchive, 
-  BarChart3,
   Shirt,
   TrendingUp,
   Calendar,
@@ -97,13 +95,6 @@ export default function Moda() {
       icon: Calendar,
       description: "Controle de folgas",
       component: <Folgas />
-    },
-    {
-      value: "monitoramento",
-      label: "Monitoramento",
-      icon: BarChart3,
-      description: "Monitoramento de uso",
-      component: <Monitoramento />
     }
   ];
 

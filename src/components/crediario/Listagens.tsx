@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useListagens } from "@/hooks/crediario/useListagens";
 import { ListagemUploader } from "./listagens/ListagemUploader";
@@ -24,21 +23,23 @@ export function Listagens() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6">
-      <div className="md:col-span-1">
-        <ListagemUploader 
-          isUploading={isUploading} 
-          onUpload={handleUpload} 
-        />
-      </div>
+    <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
+      <div className="grid grid-cols-1 gap-6">
+        <div className="md:col-span-1">
+          <ListagemUploader 
+            isUploading={isUploading} 
+            onUpload={handleUpload} 
+          />
+        </div>
 
-      <div className="flex flex-col space-y-6">
-        <ListagemList 
-          listagens={listagens}
-          isLoading={isLoading}
-          onView={handleView}
-          onDelete={handleDelete}
-        />
+        <div className="flex flex-col space-y-6">
+          <ListagemList 
+            listagens={listagens}
+            isLoading={isLoading}
+            onView={handleView}
+            onDelete={handleDelete}
+          />
+        </div>
       </div>
     </div>
   );

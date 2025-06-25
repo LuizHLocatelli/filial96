@@ -1,0 +1,49 @@
+/* Correções para gradientes de texto no modo escuro */
+
+/* Gradientes de verde que ficam muito claros no fundo escuro */
+.dark .bg-gradient-to-r.from-green-600.to-emerald-600.bg-clip-text.text-transparent {
+  background: linear-gradient(to right, theme('colors.green.400'), theme('colors.emerald.400')) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Gradientes de primary que podem ter baixo contraste */
+.dark .bg-gradient-to-r.from-primary.to-primary\/80.bg-clip-text.text-transparent {
+  background: linear-gradient(to right, theme('colors.primary.400'), theme('colors.primary.300')) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Fallback para casos onde o gradiente não funciona bem */
+@media (max-width: 640px) {
+  .dark .bg-gradient-to-r.bg-clip-text.text-transparent {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    color: theme('colors.foreground') !important;
+  }
+}
+
+/* Melhor contraste para dispositivos com pouco contraste */
+@media (prefers-contrast: low) {
+  .dark .bg-gradient-to-r.from-green-600.to-emerald-600.bg-clip-text.text-transparent {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    color: theme('colors.primary.400') !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* Suporte para modo de alto contraste */
+@media (prefers-contrast: high) {
+  .dark .bg-gradient-to-r.bg-clip-text.text-transparent {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    color: theme('colors.primary.300') !important;
+    font-weight: 700 !important;
+  }
+} 

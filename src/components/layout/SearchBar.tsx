@@ -1,4 +1,3 @@
-
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -78,7 +77,7 @@ export function SearchBar({ isMobile, isSearchOpen, onSearchToggle }: SearchBarP
           variant="ghost"
           size="icon"
           onClick={onSearchToggle}
-          className="h-full w-full p-0 hover:bg-transparent"
+          className="h-full w-full p-0 hover:bg-muted dark:hover:bg-primary/20"
           aria-label="Buscar"
         >
           <Search className="h-4 w-4" />

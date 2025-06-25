@@ -72,7 +72,7 @@ export function CollapsibleSection({
           "cursor-pointer select-none outline-none",
           "transition-colors duration-200",
           "hover:bg-accent/40 active:bg-accent/60",
-          "dark:transition-none dark:hover:bg-transparent dark:active:bg-transparent dark:focus:bg-transparent",
+          "dark:hover:bg-primary/20 dark:active:bg-primary/30",
           compact ? "pb-2 px-3 py-2" : "pb-3"
         )}
         onClick={toggleExpanded}
@@ -124,7 +124,7 @@ export function CollapsibleSection({
               className={cn(
                 "transition-all duration-200 outline-none",
                 "hover:bg-muted/50 active:bg-muted",
-                "dark:transition-none dark:hover:bg-transparent dark:active:bg-transparent dark:focus:bg-transparent",
+                "dark:hover:bg-primary/20 dark:active:bg-primary/30",
                 compact ? "h-6 w-6 p-0" : "h-7 w-7 p-0"
               )}
               aria-label={isExpanded ? "Minimizar seção" : "Expandir seção"}

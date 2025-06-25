@@ -6,14 +6,14 @@
 DO $$
 BEGIN
     -- Enable RLS with error handling
-    BEGIN ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.attachments ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.card_folders ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.consultant_goals ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.n8n_vector_store ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.note_folders ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
-    BEGIN ALTER TABLE public.notification_read_status ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
+    -- Sistema de atividades foi removido
+    -- BEGIN ALTER TABLE public.notification_read_status ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.promotional_cards ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.sales_records ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.venda_o_attachments ENABLE ROW LEVEL SECURITY; EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -22,15 +22,7 @@ END $$;
 
 -- 2. Drop existing policies that might conflict and create new ones
 
--- Activities table policies
-DROP POLICY IF EXISTS "Users can view their own activities" ON public.activities;
-DROP POLICY IF EXISTS "Users can create activities" ON public.activities;
 
-CREATE POLICY "Users can view their own activities" ON public.activities
-    FOR SELECT USING (auth.uid() = user_id OR public.is_user_manager());
-
-CREATE POLICY "Users can create activities" ON public.activities
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Attachments table policies
 DROP POLICY IF EXISTS "Users can view attachments they created or are assigned to" ON public.attachments;
@@ -99,16 +91,7 @@ CREATE POLICY "Users can manage their own note folders" ON public.note_folders
     FOR ALL USING (auth.uid() = created_by OR public.is_user_manager())
     WITH CHECK (auth.uid() = created_by OR public.is_user_manager());
 
--- Notification read status policies
-DROP POLICY IF EXISTS "Users can view their own notification status" ON public.notification_read_status;
-DROP POLICY IF EXISTS "Users can update their own notification status" ON public.notification_read_status;
 
-CREATE POLICY "Users can view their own notification status" ON public.notification_read_status
-    FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own notification status" ON public.notification_read_status
-    FOR ALL USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
 
 -- Promotional cards policies
 DROP POLICY IF EXISTS "Users can manage their own promotional cards" ON public.promotional_cards;
@@ -149,7 +132,7 @@ CREATE POLICY "Users can manage their own sales" ON public.venda_o_sales
 -- 3. Add additional security constraints (with error handling)
 DO $$
 BEGIN
-    BEGIN ALTER TABLE public.activities ALTER COLUMN user_id SET NOT NULL; EXCEPTION WHEN OTHERS THEN NULL; END;
+
     BEGIN ALTER TABLE public.attachments ALTER COLUMN task_id SET NOT NULL; EXCEPTION WHEN OTHERS THEN NULL; END;
     BEGIN ALTER TABLE public.tasks ALTER COLUMN created_by SET NOT NULL; EXCEPTION WHEN OTHERS THEN NULL; END;
 END $$;
