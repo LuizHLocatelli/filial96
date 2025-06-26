@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { User, Shield, Settings, Bug } from "lucide-react";
+import { User, Shield, Settings, Bug, Bell } from "lucide-react";
 
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { PersonalInfoForm } from "@/components/profile/PersonalInfoForm";
@@ -16,6 +16,7 @@ import { PasswordForm } from "@/components/profile/PasswordForm";
 import { SecuritySettingsForm } from "@/components/profile/SecuritySettingsForm";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
 import { NotificationsDebug } from "@/components/notifications/NotificationsDebug";
+import { NotificationManager } from "@/components/pwa/NotificationManager";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
@@ -94,6 +95,17 @@ export default function Profile() {
               <DeleteAccountForm />
             </CardContent>
           </Card>
+        </div>
+      )
+    },
+    {
+      value: "notifications",
+      label: "Notificações",
+      icon: Bell,
+      description: "Configurações de notificações PWA",
+      component: (
+        <div className="space-y-6">
+          <NotificationManager autoSetup={false} showTestMode={true} />
         </div>
       )
     },

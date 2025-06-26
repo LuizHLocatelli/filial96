@@ -9,25 +9,36 @@ import { GlobalSearchProvider } from "./contexts/GlobalSearchContext";
 import AppRoutes from "./AppRoutes";
 import { LazyLoadingDashboard } from "./components/debug/LazyLoadingDashboard";
 import { NetworkStatusIndicator } from "./components/pwa/NetworkStatusIndicator";
+import useStatusBarTheme from "./hooks/useStatusBarTheme";
+import "./styles/pwa-status-bar.css";
 
 const queryClient = new QueryClient();
+
+// Componente interno para usar o hook dentro do ThemeProvider
+const AppContent = () => {
+  useStatusBarTheme(); // Aplica a cor da status bar automaticamente
+  
+  return (
+    <AuthProvider>
+      <TooltipProvider>
+        <BrowserRouter>
+          <GlobalSearchProvider>
+            <NetworkStatusIndicator />
+            <Toaster />
+            <Sonner />
+            <AppRoutes />
+            <LazyLoadingDashboard />
+          </GlobalSearchProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <BrowserRouter>
-            <GlobalSearchProvider>
-              <NetworkStatusIndicator />
-              <Toaster />
-              <Sonner />
-              <AppRoutes />
-              <LazyLoadingDashboard />
-            </GlobalSearchProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+      <AppContent />
     </ThemeProvider>
   </QueryClientProvider>
 );

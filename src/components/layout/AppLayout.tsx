@@ -13,7 +13,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isMobile = useIsMobile();
   
   return (
-    <div className="min-h-screen flex flex-col w-full bg-background">
+    <div className="min-h-screen flex flex-col w-full bg-background app-container status-bar-transition">
       <EnhancedTopBar />
       
       {/* Main content com animação suave */}

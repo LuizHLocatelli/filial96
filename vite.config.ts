@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => ({
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
-        theme_color: '#22c55e',
+        theme_color: 'transparent',
         scope: '/',
         id: '/',
         lang: 'pt-BR',
