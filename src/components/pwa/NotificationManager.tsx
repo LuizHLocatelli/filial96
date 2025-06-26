@@ -13,7 +13,7 @@ interface NotificationManagerProps {
   showTestMode?: boolean;
 }
 
-export function NotificationManager({ autoSetup = true, showTestMode = false }: NotificationManagerProps) {
+export function NotificationManager({ autoSetup = false, showTestMode = false }: NotificationManagerProps) {
   const {
     permission,
     isSupported,

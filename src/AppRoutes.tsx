@@ -23,6 +23,7 @@ import ResetPassword from "./pages/ResetPassword";
 
 // Componentes de debug/demonstração
 import { DarkModeHoverDemo } from "./components/debug/DarkModeHoverDemo";
+import { PWANotificationTest } from "./components/debug/PWANotificationTest";
 
 // Componente de loading para Suspense
 const PageLoader = () => (
@@ -146,13 +147,23 @@ const AppRoutes = () => {
         } 
       />
       
-      {/* Rota temporária para demonstração de hover no modo escuro */}
+      {/* Rotas de debug/demonstração */}
       <Route 
         path="/debug/dark-hover" 
         element={
           <ProtectedRoute>
             <AppLayout>
               <DarkModeHoverDemo />
+            </AppLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/debug/pwa-notifications" 
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <PWANotificationTest />
             </AppLayout>
           </ProtectedRoute>
         } 
