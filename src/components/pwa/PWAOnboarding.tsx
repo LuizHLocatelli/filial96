@@ -23,16 +23,20 @@ interface OnboardingStep {
   features: string[];
 }
 
-export const PWAOnboarding = () => {
+interface PWAOnboardingProps {
+  show?: boolean;
+  onComplete?: () => void;
+}
+
+export const PWAOnboarding = ({ show = false, onComplete }: PWAOnboardingProps) => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
 
   const steps: OnboardingStep[] = [
     {
       id: 'welcome',
       title: 'Bem-vindo ao Filial 96 PWA!',
-      description: 'Descubra as novas funcionalidades que tornam sua experiência ainda melhor',
+      description: 'Descubra as funcionalidades que tornam sua experiência ainda melhor',
       icon: <Smartphone className="h-8 w-8" />,
       color: 'blue',
       features: [
@@ -57,15 +61,15 @@ export const PWAOnboarding = () => {
     },
     {
       id: 'install',
-      title: 'Instalar como App',
-      description: 'Tenha acesso rápido direto da tela inicial do seu dispositivo',
+      title: 'App Instalado com Sucesso!',
+      description: 'Agora você tem acesso rápido direto da tela inicial',
       icon: <Download className="h-8 w-8" />,
       color: 'purple',
       features: [
-        'Ícone na tela inicial',
-        'Abrir sem navegador',
-        'Notificações push',
-        'Experiência de app nativo'
+        'Ícone na tela inicial do seu dispositivo',
+        'Abre sem precisar do navegador',
+        'Notificações push (em breve)',
+        'Experiência de app nativo completa'
       ]
     },
     {
@@ -75,7 +79,7 @@ export const PWAOnboarding = () => {
       icon: <Zap className="h-8 w-8" />,
       color: 'yellow',
       features: [
-        'Cache inteligente',
+        'Cache inteligente ativo',
         'Carregamento instantâneo',
         'Menos consumo de dados',
         'Interface mais responsiva'
@@ -84,32 +88,33 @@ export const PWAOnboarding = () => {
   ];
 
   useEffect(() => {
-    // Verificar se o usuário já viu o onboarding
-    const hasSeenKey = 'pwa_onboarding_seen';
-    const seen = localStorage.getItem(hasSeenKey);
-    
-    if (!seen) {
-      // Mostrar onboarding após um pequeno delay
+    // Verificar se já está em modo standalone (PWA instalado)
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+    const isIOSStandalone = (window.navigator as any).standalone === true;
+    const isPWAInstalled = isStandaloneMode || isIOSStandalone;
+
+    // Só mostrar se:
+    // 1. Foi solicitado explicitamente (show=true) OU
+    // 2. PWA foi recém-instalado e usuário não viu onboarding ainda
+    if (show || (isPWAInstalled && !localStorage.getItem('pwa_onboarding_completed'))) {
       const timer = setTimeout(() => {
         setShowOnboarding(true);
-      }, 2000);
+      }, 1000);
       
       return () => clearTimeout(timer);
-    } else {
-      setHasSeenOnboarding(true);
     }
-  }, []);
+  }, [show]);
 
   const handleComplete = () => {
-    localStorage.setItem('pwa_onboarding_seen', 'true');
+    localStorage.setItem('pwa_onboarding_completed', 'true');
     setShowOnboarding(false);
-    setHasSeenOnboarding(true);
+    onComplete?.();
   };
 
   const handleSkip = () => {
-    localStorage.setItem('pwa_onboarding_seen', 'true');
+    localStorage.setItem('pwa_onboarding_completed', 'true');
     setShowOnboarding(false);
-    setHasSeenOnboarding(true);
+    onComplete?.();
   };
 
   const nextStep = () => {
@@ -237,7 +242,7 @@ export const PWAOnboarding = () => {
               onClick={nextStep}
               className="gap-2"
             >
-              {currentStep === steps.length - 1 ? 'Começar' : 'Próximo'}
+              {currentStep === steps.length - 1 ? 'Começar a Usar' : 'Próximo'}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>

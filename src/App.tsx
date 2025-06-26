@@ -9,7 +9,6 @@ import { GlobalSearchProvider } from "./contexts/GlobalSearchContext";
 import AppRoutes from "./AppRoutes";
 import { LazyLoadingDashboard } from "./components/debug/LazyLoadingDashboard";
 import { NetworkStatusIndicator } from "./components/pwa/NetworkStatusIndicator";
-import { PWAOnboarding } from "./components/pwa/PWAOnboarding";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +20,6 @@ const App = () => (
           <BrowserRouter>
             <GlobalSearchProvider>
               <NetworkStatusIndicator />
-              <PWAOnboarding />
               <Toaster />
               <Sonner />
               <AppRoutes />

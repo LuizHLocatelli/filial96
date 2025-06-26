@@ -14,6 +14,7 @@ import {
   Info,
   CheckCircle
 } from 'lucide-react';
+import { PWAOnboarding } from './PWAOnboarding';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -25,6 +26,7 @@ export const InstallPWAButton = () => {
   const [showInstructions, setShowInstructions] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     // Verificar se já está instalado
@@ -49,6 +51,11 @@ export const InstallPWAButton = () => {
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      
+      // Mostrar onboarding após instalação bem-sucedida
+      setTimeout(() => {
+        setShowOnboarding(true);
+      }, 1000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -68,6 +75,7 @@ export const InstallPWAButton = () => {
         
         if (choice.outcome === 'accepted') {
           console.log('Usuário aceitou a instalação');
+          // O onboarding será ativado pelo evento 'appinstalled'
         } else {
           console.log('Usuário rejeitou a instalação');
         }
@@ -127,10 +135,18 @@ export const InstallPWAButton = () => {
 
   if (isInstalled) {
     return (
-      <Button variant="outline" size="sm" className="gap-2" disabled>
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        App Instalado
-      </Button>
+      <>
+        <Button variant="outline" size="sm" className="gap-2" disabled>
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          App Instalado
+        </Button>
+        
+        {/* Onboarding que aparece após instalação */}
+        <PWAOnboarding 
+          show={showOnboarding} 
+          onComplete={() => setShowOnboarding(false)} 
+        />
+      </>
     );
   }
 
