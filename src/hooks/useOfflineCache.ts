@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNetworkStatus } from './useNetworkStatus';
 
 interface CacheEntry<T> {
   data: T;
@@ -30,11 +29,25 @@ export const useOfflineCache = <T>({
   enableSync = true,
   maxRetries = 3
 }: UseOfflineCacheOptions) => {
-  const { isOnline } = useNetworkStatus();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [pendingOperations, setPendingOperations] = useState<PendingOperation[]>([]);
+
+  // Simple network status tracking
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Chaves para localStorage
   const cacheKey = `pwa_cache_${key}`;
@@ -284,4 +297,4 @@ export const useOfflineCache = <T>({
     clearCache,
     syncPendingOperations
   };
-}; 
+};

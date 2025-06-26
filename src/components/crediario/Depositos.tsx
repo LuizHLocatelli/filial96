@@ -352,9 +352,7 @@ export function Depositos() {
         {notificationsEnabled && (
           <NotificationSystem 
           enabled={notificationsEnabled}
-          onToggle={setNotificationsEnabled}
             depositos={depositos} 
-          currentMonth={currentMonth}
           />
         )}
 
