@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     componentTagger(),
     visualizer({
       filename: "bundle-analysis.html",
-      open: true,
+      open: false,
     }),
     VitePWA({
       registerType: 'autoUpdate',
@@ -26,24 +26,16 @@ export default defineConfig(({ mode }) => ({
         name: 'Filial 96 - Sistema de Gerenciamento',
         short_name: 'Filial 96',
         description: 'Sistema completo de gerenciamento da Filial 96 - Móveis, Moda e Crediário',
-        theme_color: '#22c55e',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait-primary',
-        scope: '/',
         start_url: '/',
-        lang: 'pt-BR',
-        categories: ['business', 'productivity'],
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#22c55e',
+        scope: '/',
         id: '/',
+        lang: 'pt-BR',
+        orientation: 'portrait-primary',
+        categories: ['business', 'productivity'],
         prefer_related_applications: false,
-        screenshots: [
-          {
-            src: '/icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            form_factor: 'narrow'
-          }
-        ],
         icons: [
           {
             src: '/icons/icon-72x72.png',
@@ -108,7 +100,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'supabase-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 5 // 5 minutos
+                maxAgeSeconds: 60 * 5
               }
             }
           },
@@ -119,7 +111,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'images-cache',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 dias
+                maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
           },
@@ -151,20 +143,13 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor chunks
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
           supabase: ['@supabase/supabase-js'],
           utils: ['date-fns', 'clsx', 'tailwind-merge'],
-          
-          // Feature chunks - only include actual module files, not directories
-          moveis: [
-            'src/pages/Moveis.tsx'
-          ],
-          moda: [
-            'src/pages/Moda.tsx'
-          ],
+          moveis: ['src/pages/Moveis.tsx'],
+          moda: ['src/pages/Moda.tsx'],
         },
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
@@ -175,7 +160,6 @@ export default defineConfig(({ mode }) => ({
       },
     },
     chunkSizeWarningLimit: 1000,
-    // Otimizar para lazy loading
     target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
   },
   optimizeDeps: {
@@ -187,10 +171,8 @@ export default defineConfig(({ mode }) => ({
       '@tanstack/react-query',
     ],
     exclude: [
-      // Excluir componentes que serão lazy loaded
       'src/pages/Moveis', 
       'src/pages/Moda',
-
     ]
   },
 }));

@@ -3,10 +3,9 @@ import { HubHandlers } from '../../types/hubTypes';
 import { useResponsive } from '@/hooks/use-responsive';
 import { useLayoutPreferences } from '../../hooks/useLayoutPreferences';
 import { StatsOverview } from './StatsOverview';
-import { QuickActions } from './QuickActions';
 import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSection';
 import { DesktopLayout } from './DesktopLayout';
-import { Activity, Zap } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { useEffect } from 'react';
 import { ConexoesVisualizacao } from './ConexoesVisualizacao';
 
@@ -73,29 +72,6 @@ export function HubDashboard({
               />
             </div>
           </CollapsibleSection>
-          
-          <CollapsibleSection
-            title="Ações Rápidas"
-            icon={Zap}
-            defaultExpanded={false}
-            compact={isCompact}
-            persistStateKey="mobile-actions"
-          >
-            <div className="px-1">
-              <QuickActions
-                onNovaRotina={handlers.onNovaRotina}
-                onNovaOrientacao={handlers.onNovaOrientacao}
-                onNovaTarefa={handlers.onNovaTarefa}
-                onRefreshData={handlers.onRefreshData}
-                onExportData={handlers.onExportData}
-                onShowFilters={handlers.onShowFilters}
-                onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
-                onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
-                onRelatorios={handlers.onRelatorios || (() => {})}
-                isRefreshing={isLoading}
-              />
-            </div>
-          </CollapsibleSection>
         </CollapsibleGroup>
       </div>
     );
@@ -120,31 +96,6 @@ export function HubDashboard({
               />
             </div>
           </CollapsibleSection>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CollapsibleSection
-              title="Ações Rápidas"
-              icon={Zap}
-              defaultExpanded={true}
-              compact={isCompact}
-              persistStateKey="tablet-actions"
-            >
-              <div className="px-2">
-                <QuickActions
-                  onNovaRotina={handlers.onNovaRotina}
-                  onNovaOrientacao={handlers.onNovaOrientacao}
-                  onNovaTarefa={handlers.onNovaTarefa}
-                  onRefreshData={handlers.onRefreshData}
-                  onExportData={handlers.onExportData}
-                  onShowFilters={handlers.onShowFilters}
-                  onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
-                  onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
-                  onRelatorios={handlers.onRelatorios || (() => {})}
-                  isRefreshing={isLoading}
-                />
-              </div>
-            </CollapsibleSection>
-          </div>
         </CollapsibleGroup>
       </div>
     );

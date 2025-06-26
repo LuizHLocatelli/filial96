@@ -9,8 +9,8 @@ import {
   Share, 
   MoreVertical,
   Plus,
-  Chrome,
-  Safari,
+  Globe,
+  Monitor,
   Info,
   CheckCircle
 } from 'lucide-react';
@@ -88,7 +88,7 @@ export const InstallPWAButton = () => {
     if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
       return {
         device: 'iOS (Safari)',
-        icon: <Safari className="h-6 w-6" />,
+        icon: <Globe className="h-6 w-6" />,
         steps: [
           'Abra este site no Safari',
           'Toque no botão de compartilhar (quadrado com seta para cima)',
@@ -101,7 +101,7 @@ export const InstallPWAButton = () => {
     if (userAgent.includes('android')) {
       return {
         device: 'Android (Chrome)',
-        icon: <Chrome className="h-6 w-6" />,
+        icon: <Smartphone className="h-6 w-6" />,
         steps: [
           'Abra este site no Google Chrome',
           'Toque no menu (três pontos) no canto superior direito',
@@ -113,7 +113,7 @@ export const InstallPWAButton = () => {
     
     return {
       device: 'Desktop (Chrome/Edge)',
-      icon: <Chrome className="h-6 w-6" />,
+      icon: <Monitor className="h-6 w-6" />,
       steps: [
         'Abra este site no Chrome ou Edge',
         'Clique no ícone de instalação na barra de endereços',

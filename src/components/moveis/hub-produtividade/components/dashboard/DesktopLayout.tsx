@@ -3,13 +3,11 @@ import { HubHandlers } from '../../types/hubTypes';
 import { useResponsive } from '@/hooks/use-responsive';
 import { useLayoutPreferences } from '../../hooks/useLayoutPreferences';
 import { StatsOverview } from './StatsOverview';
-import { QuickActions } from './QuickActions';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   Activity, 
-  Zap, 
   Clock, 
   TrendingUp, 
   Target, 
@@ -42,7 +40,7 @@ export function DesktopLayout({
   return (
     <div className="space-y-4">
       {/* Header com Stats compactos */}
-              <div className="grid-responsive-dashboard">
+      <div className="grid-responsive-dashboard">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 border-green-200/50 dark:border-green-800/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -155,43 +153,34 @@ export function DesktopLayout({
         </Card>
       </div>
 
-      {/* Layout Principal - Duas colunas otimizadas */}
-              <div className="grid-responsive-dashboard xl:grid-cols-12">
-        {/* Coluna Principal - Central de Ferramentas */}
+      {/* Layout Principal - Estatísticas detalhadas */}
+      <div className="grid-responsive-dashboard xl:grid-cols-12">
         <div className="xl:col-span-12 space-y-4">
-          {/* Ações Rápidas */}
+          {/* Estatísticas Detalhadas */}
           <Card className="shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 rounded-lg bg-primary/10">
-                  <Zap className="h-5 w-5 text-primary" />
+                  <Activity className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold">Central de Ferramentas</h2>
+                  <h2 className="text-lg font-semibold">Estatísticas Detalhadas</h2>
                   <p className="text-sm text-muted-foreground">
-                    Acesso rápido às principais funcionalidades
+                    Visão abrangente da sua produtividade
                   </p>
                 </div>
               </div>
 
-              <QuickActions
-                onNovaRotina={handlers.onNovaRotina}
-                onNovaOrientacao={handlers.onNovaOrientacao}
-                onNovaTarefa={handlers.onNovaTarefa}
-                onRefreshData={handlers.onRefreshData}
-                onExportData={handlers.onExportData}
-                onShowFilters={handlers.onShowFilters}
-                onBuscaAvancada={handlers.onBuscaAvancada || (() => {})}
-                onFiltrosPorData={handlers.onFiltrosPorData || (() => {})}
-                onRelatorios={handlers.onRelatorios || (() => {})}
-                isRefreshing={isLoading}
-                hideHeader={true}
+              <StatsOverview 
+                stats={stats} 
+                isLoading={isLoading}
+                onNavigateToSection={handlers.onNavigateToSection}
               />
             </CardContent>
           </Card>
 
           {/* Insights Rápidos */}
-                      <div className="grid-responsive-wide">
+          <div className="grid-responsive-wide">
             <Card className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-0">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
