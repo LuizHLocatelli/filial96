@@ -9,7 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-
       attachments: {
         Row: {
           created_at: string
@@ -1029,33 +1028,6 @@ export type Database = {
         }
         Relationships: []
       }
-      moda_eventos_detalhados: {
-        Row: {
-          created_at: string | null
-          dados: Json
-          evento_tipo: string
-          id: string
-          secao: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          dados: Json
-          evento_tipo: string
-          id?: string
-          secao: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          dados?: Json
-          evento_tipo?: string
-          id?: string
-          secao?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       moda_folgas: {
         Row: {
           consultor_id: string
@@ -1080,90 +1052,6 @@ export type Database = {
           data?: string
           id?: string
           motivo?: string | null
-        }
-        Relationships: []
-      }
-      moda_metricas_diarias: {
-        Row: {
-          arquivos_mais_baixados: Json | null
-          created_at: string | null
-          data: string
-          id: string
-          produtos_mais_visualizados: Json | null
-          secao_mais_acessada: string | null
-          tempo_medio_sessao: number | null
-          total_acoes: number | null
-          total_sessoes: number | null
-          total_usuarios_unicos: number | null
-        }
-        Insert: {
-          arquivos_mais_baixados?: Json | null
-          created_at?: string | null
-          data: string
-          id?: string
-          produtos_mais_visualizados?: Json | null
-          secao_mais_acessada?: string | null
-          tempo_medio_sessao?: number | null
-          total_acoes?: number | null
-          total_sessoes?: number | null
-          total_usuarios_unicos?: number | null
-        }
-        Update: {
-          arquivos_mais_baixados?: Json | null
-          created_at?: string | null
-          data?: string
-          id?: string
-          produtos_mais_visualizados?: Json | null
-          secao_mais_acessada?: string | null
-          tempo_medio_sessao?: number | null
-          total_acoes?: number | null
-          total_sessoes?: number | null
-          total_usuarios_unicos?: number | null
-        }
-        Relationships: []
-      }
-      moda_monitoramento: {
-        Row: {
-          acao: string | null
-          detalhes: Json | null
-          duracao_segundos: number | null
-          id: string
-          ip_address: unknown | null
-          metadata: Json | null
-          referrer: string | null
-          secao: string
-          session_id: string
-          timestamp: string | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          acao?: string | null
-          detalhes?: Json | null
-          duracao_segundos?: number | null
-          id?: string
-          ip_address?: unknown | null
-          metadata?: Json | null
-          referrer?: string | null
-          secao: string
-          session_id: string
-          timestamp?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          acao?: string | null
-          detalhes?: Json | null
-          duracao_segundos?: number | null
-          id?: string
-          ip_address?: unknown | null
-          metadata?: Json | null
-          referrer?: string | null
-          secao?: string
-          session_id?: string
-          timestamp?: string | null
-          user_agent?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }
@@ -1372,48 +1260,6 @@ export type Database = {
           status?: string
           updated_at?: string | null
           venda_id?: string | null
-        }
-        Relationships: []
-      }
-      moda_sessoes_usuario: {
-        Row: {
-          acoes_realizadas: number | null
-          dispositivo: string | null
-          duracao_total_segundos: number | null
-          fim_sessao: string | null
-          id: string
-          inicio_sessao: string | null
-          ip_address: unknown | null
-          navegador: string | null
-          paginas_visitadas: Json | null
-          session_id: string
-          user_id: string | null
-        }
-        Insert: {
-          acoes_realizadas?: number | null
-          dispositivo?: string | null
-          duracao_total_segundos?: number | null
-          fim_sessao?: string | null
-          id?: string
-          inicio_sessao?: string | null
-          ip_address?: unknown | null
-          navegador?: string | null
-          paginas_visitadas?: Json | null
-          session_id: string
-          user_id?: string | null
-        }
-        Update: {
-          acoes_realizadas?: number | null
-          dispositivo?: string | null
-          duracao_total_segundos?: number | null
-          fim_sessao?: string | null
-          id?: string
-          inicio_sessao?: string | null
-          ip_address?: unknown | null
-          navegador?: string | null
-          paginas_visitadas?: Json | null
-          session_id?: string
-          user_id?: string | null
         }
         Relationships: []
       }
@@ -2020,7 +1866,6 @@ export type Database = {
         }
         Relationships: []
       }
-
       ocr_logs: {
         Row: {
           confidence: number
@@ -2396,17 +2241,6 @@ export type Database = {
       get_metas_dashboard_data: {
         Args: { mes_ref?: string }
         Returns: Json
-      }
-      get_moda_monitoring_report: {
-        Args: { days_back?: number }
-        Returns: {
-          total_usuarios: number
-          total_sessoes: number
-          tempo_medio_sessao: number
-          secao_mais_acessada: string
-          total_eventos: number
-          crescimento_percentual: number
-        }[]
       }
       get_orientacoes_viewing_stats: {
         Args: { p_target_roles?: string[] }

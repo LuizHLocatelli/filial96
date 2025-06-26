@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +9,6 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { GlobalSearchProvider } from "./contexts/GlobalSearchContext";
 import AppRoutes from "./AppRoutes";
 import { LazyLoadingDashboard } from "./components/debug/LazyLoadingDashboard";
-import { NetworkStatusIndicator } from "./components/pwa/NetworkStatusIndicator";
 import { PWANotificationPrompt } from "./components/pwa/PWANotificationPrompt";
 import useStatusBarTheme from "./hooks/useStatusBarTheme";
 import "./styles/pwa-status-bar.css";
@@ -24,7 +24,6 @@ const AppContent = () => {
       <TooltipProvider>
         <BrowserRouter>
           <GlobalSearchProvider>
-            <NetworkStatusIndicator />
             <PWANotificationPrompt />
             <Toaster />
             <Sonner />
