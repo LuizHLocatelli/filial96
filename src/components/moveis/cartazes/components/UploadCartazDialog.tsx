@@ -91,6 +91,12 @@ export function UploadCartazDialog({
 
     setIsUploading(true);
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Usuário não autenticado");
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `${fileName}`;
@@ -118,7 +124,8 @@ export function UploadCartazDialog({
           file_url: data.publicUrl,
           file_type: fileType as 'pdf' | 'image',
           folder_id: selectedFolderId,
-          position: 0
+          position: 0,
+          created_by: user.id
         }]);
 
       if (dbError) throw dbError;
