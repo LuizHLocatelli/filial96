@@ -71,6 +71,74 @@ export type Database = {
         }
         Relationships: []
       }
+      cartaz_folders: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      cartazes: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          file_type: string
+          file_url: string
+          folder_id: string | null
+          id: string
+          position: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          file_type: string
+          file_url: string
+          folder_id?: string | null
+          id?: string
+          position?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          file_type?: string
+          file_url?: string
+          folder_id?: string | null
+          id?: string
+          position?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cartazes_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "cartaz_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultant_goals: {
         Row: {
           consultant_id: string

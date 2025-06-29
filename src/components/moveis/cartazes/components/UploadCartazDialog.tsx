@@ -116,7 +116,7 @@ export function UploadCartazDialog({
         .insert([{
           title: title.trim(),
           file_url: data.publicUrl,
-          file_type: fileType,
+          file_type: fileType as 'pdf' | 'image',
           folder_id: selectedFolderId,
           position: 0
         }]);
