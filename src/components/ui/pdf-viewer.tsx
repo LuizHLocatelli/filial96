@@ -10,6 +10,11 @@ interface PDFViewerProps {
   className?: string;
 }
 
+interface PDFDocument {
+  numPages: number;
+  getPage: (pageNumber: number) => Promise<any>;
+}
+
 export function PDFViewer({ url, className }: PDFViewerProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string>('');
@@ -70,13 +75,23 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
   }, [url, workerConfigured]);
 
   const loadPDF = async () => {
-    if (!url || !rendererRef.current || !isMountedRef.current) return;
+    if (!url || !isMountedRef.current) return;
+
+    // Wait for the renderer to be available
+    if (!rendererRef.current) {
+      console.error('[PDF.js] Renderer ref not available');
+      setError('Erro interno: componente não inicializado');
+      setStatus('error');
+      return;
+    }
 
     try {
       const pdfjsLib = await import('pdfjs-dist');
       
       // Clear previous content
-      rendererRef.current.innerHTML = '';
+      if (rendererRef.current) {
+        rendererRef.current.innerHTML = '';
+      }
       
       // Load PDF with timeout
       const loadingTask = pdfjsLib.getDocument({
@@ -91,11 +106,11 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       });
 
       // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise<never>((_, reject) => 
         setTimeout(() => reject(new Error('Timeout: PDF demorou muito para carregar')), 15000)
       );
 
-      const pdf = await Promise.race([loadingTask.promise, timeoutPromise]);
+      const pdf = await Promise.race([loadingTask.promise, timeoutPromise]) as PDFDocument;
 
       if (!isMountedRef.current) return;
 
@@ -114,7 +129,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     }
   };
 
-  const renderAllPages = async (pdf: any, pdfjsLib: any) => {
+  const renderAllPages = async (pdf: PDFDocument, pdfjsLib: any) => {
     if (!rendererRef.current || !isMountedRef.current) return;
 
     const container = rendererRef.current;
@@ -166,15 +181,17 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
             <p className="text-xs text-muted-foreground text-center max-w-md">
               Se o carregamento demorar muito, você pode tentar abrir o PDF externamente.
             </p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={openPdfInNewWindow}
-              className="mt-2"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Abrir em nova aba
-            </Button>
+            {url && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={openPdfInNewWindow}
+                className="mt-2"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Abrir em nova aba
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -191,15 +208,17 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
               <p className="text-sm font-medium text-destructive mb-2">Erro ao carregar PDF</p>
               <p className="text-xs text-muted-foreground">{error}</p>
             </div>
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={openPdfInNewWindow}
-              className="mt-2"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Tentar abrir externamente
-            </Button>
+            {url && (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={openPdfInNewWindow}
+                className="mt-2"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Tentar abrir externamente
+              </Button>
+            )}
           </div>
         </div>
       </div>
