@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, FileImage, Download, X } from "lucide-react";
 import { CartazItem } from "../hooks/useCartazes";
+import { PDFViewer } from "@/components/ui/pdf-viewer";
 
 interface CartazViewDialogProps {
   cartaz: CartazItem;
@@ -28,7 +29,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+      <DialogContent className="max-w-5xl max-h-[95vh] p-0">
         <DialogHeader className="p-6 pb-0">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
@@ -69,23 +70,28 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
           </div>
         </DialogHeader>
         
-        <div className="px-6 pb-6">
-          <div className="bg-muted rounded-lg overflow-hidden">
+        <div className="px-6 pb-6 flex-1 min-h-0">
+          <div className="bg-muted rounded-lg overflow-hidden h-[70vh]">
             {cartaz.file_type === 'image' ? (
               <img 
                 src={cartaz.file_url} 
                 alt={cartaz.title}
-                className="w-full h-auto max-h-[60vh] object-contain"
+                className="w-full h-full object-contain"
+              />
+            ) : cartaz.file_type === 'pdf' ? (
+              <PDFViewer 
+                url={cartaz.file_url} 
+                className="w-full h-full"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex flex-col items-center justify-center h-full">
                 <FileText className="h-16 w-16 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground mb-4">
-                  Visualização de PDF não disponível
+                  Visualização não disponível para este tipo de arquivo
                 </p>
                 <Button onClick={handleDownload}>
                   <Download className="h-4 w-4 mr-2" />
-                  Baixar PDF
+                  Baixar arquivo
                 </Button>
               </div>
             )}
