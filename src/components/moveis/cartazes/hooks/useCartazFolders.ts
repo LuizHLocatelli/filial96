@@ -3,43 +3,41 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
-export interface CartazFolderItem {
+export interface CartazFolder {
   id: string;
   name: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
 }
 
 export function useCartazFolders() {
-  const [folders, setFolders] = useState<CartazFolderItem[]>([]);
+  const [folders, setFolders] = useState<CartazFolder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const fetchFolders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cartaz_folders')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      
+      setFolders(data || []);
+    } catch (error) {
+      console.error('Error fetching folders:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as pastas",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchFolders = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('cartaz_folders')
-          .select('*')
-          .order('name');
-        
-        if (error) throw error;
-        
-        setFolders((data || []) as CartazFolderItem[]);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching folders:', error);
-        setError("Failed to load folders");
-        setFolders([]);
-        toast({
-          title: "Erro",
-          description: "Falha ao carregar pastas",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     fetchFolders();
     
     const channel = supabase
@@ -58,5 +56,5 @@ export function useCartazFolders() {
     };
   }, []);
 
-  return { folders, isLoading, error };
+  return { folders, isLoading, refetch: fetchFolders };
 }

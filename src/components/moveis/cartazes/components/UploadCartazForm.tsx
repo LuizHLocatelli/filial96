@@ -107,14 +107,14 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
       // Salvar no banco
       const { error: dbError } = await supabase
         .from('cartazes')
-        .insert([{
+        .insert({
           title: title.trim(),
           file_url: data.publicUrl,
           file_type: fileType as 'pdf' | 'image',
           folder_id: selectedFolderId,
           position: 0,
           created_by: user.id
-        }]);
+        });
 
       if (dbError) throw dbError;
 

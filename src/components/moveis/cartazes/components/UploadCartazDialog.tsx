@@ -31,7 +31,7 @@ export function UploadCartazDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Novo Cartaz</DialogTitle>
         </DialogHeader>
