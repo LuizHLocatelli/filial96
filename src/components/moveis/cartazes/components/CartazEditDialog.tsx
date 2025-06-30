@@ -9,9 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CartazItem } from "../hooks/useCartazes";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { CartazItem } from "../hooks/useCartazes";
 
 interface CartazEditDialogProps {
   cartaz: CartazItem;
@@ -20,9 +20,14 @@ interface CartazEditDialogProps {
   onUpdate: (id: string, newTitle: string) => void;
 }
 
-export function CartazEditDialog({ cartaz, open, onOpenChange, onUpdate }: CartazEditDialogProps) {
+export function CartazEditDialog({
+  cartaz,
+  open,
+  onOpenChange,
+  onUpdate
+}: CartazEditDialogProps) {
   const [title, setTitle] = useState(cartaz.title);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +41,7 @@ export function CartazEditDialog({ cartaz, open, onOpenChange, onUpdate }: Carta
       return;
     }
 
-    setIsLoading(true);
+    setIsUpdating(true);
     try {
       const { error } = await supabase
         .from('cartazes')
@@ -60,7 +65,7 @@ export function CartazEditDialog({ cartaz, open, onOpenChange, onUpdate }: Carta
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      setIsUpdating(false);
     }
   };
 
@@ -79,7 +84,7 @@ export function CartazEditDialog({ cartaz, open, onOpenChange, onUpdate }: Carta
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Digite o título do cartaz"
-              disabled={isLoading}
+              disabled={isUpdating}
             />
           </div>
           
@@ -88,12 +93,12 @@ export function CartazEditDialog({ cartaz, open, onOpenChange, onUpdate }: Carta
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              disabled={isLoading}
+              disabled={isUpdating}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Salvando..." : "Salvar"}
+            <Button type="submit" disabled={isUpdating}>
+              {isUpdating ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </form>

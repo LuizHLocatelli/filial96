@@ -16,7 +16,6 @@ interface CartazCardProps {
 
 export function CartazCard({ cartaz, onDelete, onMoveToFolder, onUpdate }: CartazCardProps) {
   const [showViewDialog, setShowViewDialog] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleCardClick = () => {
     setShowViewDialog(true);
@@ -24,7 +23,6 @@ export function CartazCard({ cartaz, onDelete, onMoveToFolder, onUpdate }: Carta
 
   const handleDropdownClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowDropdown(!showDropdown);
   };
 
   return (
