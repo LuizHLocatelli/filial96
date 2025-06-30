@@ -47,8 +47,8 @@ export function CartazCard({ cartaz, onDelete, onMoveToFolder, onUpdate }: Carta
               )}
             </div>
 
-            {/* Actions */}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Actions - Always visible */}
+            <div className="absolute top-2 right-2">
               <CartazDropdownMenu
                 cartaz={cartaz}
                 onDelete={onDelete}
