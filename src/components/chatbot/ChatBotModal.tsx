@@ -44,7 +44,7 @@ export function ChatBotModal({ isOpen, onClose }: ChatBotModalProps) {
       opacity: 0,
       x: isMobile ? 0 : 400,
       y: isMobile ? '100%' : 0,
-      scale: isMobile ? 0.95 : 1,
+      scale: isMobile ? 1 : 0.95,
     },
     visible: {
       opacity: 1,
@@ -56,7 +56,7 @@ export function ChatBotModal({ isOpen, onClose }: ChatBotModalProps) {
       opacity: 0,
       x: isMobile ? 0 : 400,
       y: isMobile ? '100%' : 0,
-      scale: isMobile ? 0.95 : 1,
+      scale: isMobile ? 1 : 0.95,
     },
   };
 
@@ -77,7 +77,7 @@ export function ChatBotModal({ isOpen, onClose }: ChatBotModalProps) {
             animate="visible"
             exit="exit"
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100]"
             onClick={onClose}
           />
 
@@ -87,17 +87,16 @@ export function ChatBotModal({ isOpen, onClose }: ChatBotModalProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 500,
-              duration: 0.3,
-            }}
+            transition={
+              isMobile 
+                ? { type: "tween", duration: 0.3, ease: "easeOut" }
+                : { type: "spring", damping: 25, stiffness: 500, duration: 0.3 }
+            }
             className={cn(
-              "fixed z-50 bg-background border border-border shadow-2xl",
+              "fixed z-[101] bg-background border border-border shadow-2xl",
               isMobile
-                ? "bottom-0 left-0 right-0 h-[80vh] rounded-t-2xl"
-                : "top-4 right-4 w-[400px] h-[600px] rounded-2xl"
+                ? "chatbot-modal-mobile bottom-0 left-0 right-0 rounded-t-2xl"
+                : "chatbot-modal-desktop right-4 w-[400px] rounded-2xl"
             )}
             onClick={(e) => e.stopPropagation()}
           >
