@@ -16,11 +16,13 @@ import { GlobalSearchResults } from "./GlobalSearchResults";
 import { useOnClickOutside } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ChatBotButton, ChatBotModal } from "@/components/chatbot";
 
 export function EnhancedTopBar() {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { searchTerm, performSearch, clearSearch } = useGlobalSearch();
   
   // Refs para controle de click outside
@@ -140,6 +142,18 @@ export function EnhancedTopBar() {
             </motion.div>
           )}
 
+          {/* Chat Button */}
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
+          >
+            <ChatBotButton 
+              isOpen={isChatOpen}
+              onClick={() => setIsChatOpen(!isChatOpen)}
+            />
+          </motion.div>
+
           {/* Action buttons com glassmorphism correto */}
           <motion.div 
             whileHover={{ scale: 1.05 }} 
@@ -227,6 +241,12 @@ export function EnhancedTopBar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ChatBot Modal */}
+      <ChatBotModal 
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+      />
     </motion.header>
   );
 }
