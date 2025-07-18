@@ -17,7 +17,7 @@ interface ChatBotState {
   sessionId: string;
 }
 
-const WEBHOOK_URL = 'https://eomn3vt80t8y5rn.m.pipedream.net/';
+const WEBHOOK_URL = 'https://eoxbbhq8cczzpz5.m.pipedream.net';
 const REQUEST_TIMEOUT = 30000; // 30 segundos
 
 export function useChatBot() {
@@ -26,7 +26,7 @@ export function useChatBot() {
     messages: [
       {
         id: uuidv4(),
-        content: 'Olá! Sou seu assistente virtual. Como posso ajudá-lo hoje?',
+        content: 'Bem-vindo! 👋 Sou seu assistente virtual e estou aqui para ajudar com suas dúvidas. Como posso ser útil hoje?',
         isUser: false,
         timestamp: new Date(),
       }
@@ -67,7 +67,7 @@ export function useChatBot() {
       messages: [
         {
           id: uuidv4(),
-          content: 'Conversa limpa! Como posso ajudá-lo?',
+          content: 'O histórico foi limpo! Estou pronto para uma nova conversa.',
           isUser: false,
           timestamp: new Date(),
         }

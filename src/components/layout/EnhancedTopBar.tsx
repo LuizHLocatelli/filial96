@@ -16,13 +16,18 @@ import { GlobalSearchResults } from "./GlobalSearchResults";
 import { useOnClickOutside } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ChatBotButton, ChatBotModal } from "@/components/chatbot";
+import { ChatBotButton } from "@/components/chatbot";
 
-export function EnhancedTopBar() {
+interface EnhancedTopBarProps {
+  isChatOpen: boolean;
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function EnhancedTopBar({ isChatOpen, setIsChatOpen }: EnhancedTopBarProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  
   const { searchTerm, performSearch, clearSearch } = useGlobalSearch();
   
   // Refs para controle de click outside
@@ -242,11 +247,7 @@ export function EnhancedTopBar() {
         )}
       </AnimatePresence>
 
-      {/* ChatBot Modal */}
-      <ChatBotModal 
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-      />
+      
     </motion.header>
   );
 }

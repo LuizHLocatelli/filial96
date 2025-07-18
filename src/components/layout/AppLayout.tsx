@@ -7,14 +7,16 @@ import { cn } from "@/lib/utils";
 
 interface AppLayoutProps {
   children: ReactNode;
+  isChatOpen: boolean;
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children, isChatOpen, setIsChatOpen }: AppLayoutProps) {
   const isMobile = useIsMobile();
   
   return (
     <div className="min-h-screen flex flex-col w-full bg-background app-container status-bar-transition">
-      <EnhancedTopBar />
+      <EnhancedTopBar isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
       
       {/* Main content com animação suave */}
       <motion.main 

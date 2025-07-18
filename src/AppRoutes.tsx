@@ -33,13 +33,24 @@ const PageLoader = () => (
 );
 
 // Wrapper para páginas com lazy loading
-const LazyPageWrapper = ({ children }: { children: React.ReactNode }) => (
+interface LazyPageWrapperProps {
+  children: React.ReactNode;
+  isChatOpen: boolean;
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const LazyPageWrapper = ({ children, isChatOpen, setIsChatOpen }: LazyPageWrapperProps) => (
   <Suspense fallback={<PageLoader />}>
-    <AppLayout>{children}</AppLayout>
+    <AppLayout isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>{children}</AppLayout>
   </Suspense>
 );
 
-const AppRoutes = () => {
+interface AppRoutesProps {
+  isChatOpen: boolean;
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
   const { isLoading } = useAuth();
   
   // Sistema de preload inteligente
@@ -69,7 +80,7 @@ const AppRoutes = () => {
         path="/" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <HubProdutividade />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -79,7 +90,7 @@ const AppRoutes = () => {
         path="/cards-promocionais" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <PromotionalCards />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -89,7 +100,7 @@ const AppRoutes = () => {
         path="/crediario" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <Crediario />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -99,7 +110,7 @@ const AppRoutes = () => {
         path="/moveis" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <Moveis />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -109,7 +120,7 @@ const AppRoutes = () => {
         path="/moda" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <Moda />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -120,7 +131,7 @@ const AppRoutes = () => {
         path="/pdf-viewer" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <PdfViewerPage />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -130,7 +141,7 @@ const AppRoutes = () => {
         path="/perfil" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <Profile />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -140,7 +151,7 @@ const AppRoutes = () => {
         path="/gerenciar-usuarios" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper>
+            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <UserManagement />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -152,7 +163,7 @@ const AppRoutes = () => {
         path="/debug/dark-hover" 
         element={
           <ProtectedRoute>
-            <AppLayout>
+            <AppLayout isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <DarkModeHoverDemo />
             </AppLayout>
           </ProtectedRoute>
@@ -162,7 +173,7 @@ const AppRoutes = () => {
         path="/debug/pwa-notifications" 
         element={
           <ProtectedRoute>
-            <AppLayout>
+            <AppLayout isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
               <PWANotificationTest />
             </AppLayout>
           </ProtectedRoute>

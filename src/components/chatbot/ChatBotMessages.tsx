@@ -18,12 +18,12 @@ export function ChatBotMessages({
   messagesEndRef 
 }: ChatBotMessagesProps) {
   return (
-    <ScrollArea className="flex-1 p-4">
+    <ScrollArea className="flex-1 p-4 bg-muted/20">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.3 }}
-        className="space-y-4"
+        className="space-y-5"
       >
         {messages.map((message, index) => (
           <motion.div

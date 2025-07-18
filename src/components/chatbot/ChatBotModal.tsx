@@ -91,12 +91,10 @@ export function ChatBotModal({ isOpen, onClose }: ChatBotModalProps) {
               duration: 0.4,
             }}
             className={cn(
-              "fixed z-[101] bg-background border border-border shadow-2xl",
-              "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
-              "overflow-hidden",
+              "fixed z-[101] bg-background border border-border shadow-2xl overflow-hidden",
               isMobile
-                ? "w-[calc(100%-2rem)] max-w-[450px] h-[80vh] max-h-[min(600px,80vh)] rounded-2xl"
-                : "w-[420px] h-[650px] max-h-[85vh] rounded-2xl"
+                ? "bottom-4 right-4 w-[calc(100%-2rem)] h-[70vh] max-h-[500px] rounded-2xl"
+                : "bottom-8 right-8 w-[420px] h-[650px] max-h-[85vh] rounded-2xl"
             )}
             onClick={(e) => e.stopPropagation()}
           >
