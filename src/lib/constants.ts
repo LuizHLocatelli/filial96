@@ -17,7 +17,7 @@ export const CORS_CONFIG = {
     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFicHNhZmtpb3NsZmpxdGd0dmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5Njg3ODIsImV4cCI6MjA2MTU0NDc4Mn0.UTF4Gi6rDxQ2a3Pf4J2-7J0yPokcks6J8xO93GEhk-w'
   },
   // Configurações de timeout
-  timeout: 30000, // 30 segundos
+  timeout: 300000, // 5 minutos
 } as const;
 
 // Theme constants

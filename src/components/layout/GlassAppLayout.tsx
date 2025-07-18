@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils";
 
 interface GlassAppLayoutProps {
   children: ReactNode;
+  isChatOpen: boolean;
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function GlassAppLayout({ children }: GlassAppLayoutProps) {
+export function GlassAppLayout({ children, isChatOpen, setIsChatOpen }: GlassAppLayoutProps) {
   const isMobile = useIsMobile();
   
   return (
@@ -29,7 +31,7 @@ export function GlassAppLayout({ children }: GlassAppLayoutProps) {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="relative z-30"
       >
-        <EnhancedTopBar />
+        <EnhancedTopBar isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
       </motion.div>
       
       {/* Main content with glassmorphism container */}
