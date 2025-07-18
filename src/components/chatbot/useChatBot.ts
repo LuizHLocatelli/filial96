@@ -137,7 +137,7 @@ export function useChatBot() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Adicionar resposta do bot
-      const botResponse = data.response || data.message || 'Desculpe, não consegui processar sua mensagem.';
+      const botResponse = data.output || 'Desculpe, não consegui processar sua mensagem.';
       addMessage(botResponse, false);
 
     } catch (error) {
