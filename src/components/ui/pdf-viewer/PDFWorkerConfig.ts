@@ -7,10 +7,10 @@ export const configurePDFWorkerLazy = async () => {
   try {
     const pdfjsLib = await import('pdfjs-dist');
     
-    // Desabilitar worker para evitar problemas de carregamento
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+    // Usar worker oficial do unpkg
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.10.38/build/pdf.worker.min.js`;
     
-    console.log('[PDF.js] Worker desabilitado - funcionando sem worker');
+    console.log('[PDF.js] Worker configurado');
     isWorkerConfigured = true;
   } catch (error) {
     console.error('[PDF.js] Erro ao configurar PDF.js:', error);
