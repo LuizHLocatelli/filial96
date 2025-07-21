@@ -229,7 +229,7 @@ export function ProdutosList({
           </p>
         </div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="overflow-x-auto border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>

@@ -185,7 +185,7 @@ export function Estoque() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Package className="h-6 w-6 text-primary" />
           <div>
@@ -195,7 +195,7 @@ export function Estoque() {
             </p>
           </div>
         </div>
-        <Button onClick={() => setNovaContagemOpen(true)} className="gap-2">
+        <Button onClick={() => setNovaContagemOpen(true)} className="gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Nova Contagem
         </Button>
@@ -209,7 +209,7 @@ export function Estoque() {
           <p className="text-muted-foreground mb-4">
             Crie sua primeira contagem de estoque para começar
           </p>
-          <Button onClick={() => setNovaContagemOpen(true)} className="gap-2">
+          <Button onClick={() => setNovaContagemOpen(true)} className="gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Criar Primeira Contagem
           </Button>
