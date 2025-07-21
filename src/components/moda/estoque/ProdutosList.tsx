@@ -179,21 +179,19 @@ export function ProdutosList({
   return (
     <div className="space-y-4">
       {/* Filtros e Busca */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por código do produto..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      <div className="flex flex-col gap-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por código..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="pl-10"
+          />
         </div>
         
         <Select value={filtroSetor} onValueChange={setFiltroSetor}>
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger className="w-full">
             <Filter className="h-4 w-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
@@ -204,14 +202,12 @@ export function ProdutosList({
             <SelectItem value="infantil">Infantil</SelectItem>
           </SelectContent>
         </Select>
-      </div>
 
-      {/* Resumo */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        {/* Resumo */}
+        <div className="text-sm text-muted-foreground">
           {produtosFiltrados.length} produto{produtosFiltrados.length !== 1 ? "s" : ""} • 
           Total: {totalProdutos} unidade{totalProdutos !== 1 ? "s" : ""}
-        </p>
+        </div>
       </div>
 
       {/* Tabela */}
@@ -229,28 +225,107 @@ export function ProdutosList({
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Setor</TableHead>
-                <TableHead>Quantidade</TableHead>
-                <TableHead>Cadastrado</TableHead>
-                {contagemStatus === "em_andamento" && (
-                  <TableHead className="w-12"></TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {produtosFiltrados.map((produto) => {
-                const SetorIcon = getSetorIcon(produto.setor);
-                return (
-                  <TableRow key={produto.id}>
-                    <TableCell className="font-mono">
-                      {produto.codigo_produto}
-                    </TableCell>
-                    <TableCell>
+        <div className="space-y-4">
+          {/* Tabela para desktop */}
+          <div className="hidden md:block">
+            <div className="overflow-x-auto border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Código</TableHead>
+                    <TableHead>Setor</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Cadastrado</TableHead>
+                    {contagemStatus === "em_andamento" && (
+                      <TableHead className="w-12"></TableHead>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {produtosFiltrados.map((produto) => {
+                    const SetorIcon = getSetorIcon(produto.setor);
+                    return (
+                      <TableRow key={produto.id}>
+                        <TableCell className="font-mono">
+                          {produto.codigo_produto}
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={getSetorColor(produto.setor)}
+                          >
+                            <SetorIcon className="h-3 w-3 mr-1" />
+                            {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{produto.quantidade}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDistanceToNow(new Date(produto.created_at), {
+                            addSuffix: true,
+                            locale: ptBR
+                          })}
+                        </TableCell>
+                        {contagemStatus === "em_andamento" && (
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem 
+                                      className="text-destructive focus:text-destructive"
+                                      onSelect={(e) => e.preventDefault()}
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Remover
+                                    </DropdownMenuItem>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Tem certeza que deseja remover este produto da contagem? 
+                                        Esta ação não pode ser desfeita.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => excluirProduto(produto.id)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Remover
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          {/* Cards para mobile */}
+          <div className="block md:hidden space-y-3">
+            {produtosFiltrados.map((produto) => {
+              const SetorIcon = getSetorIcon(produto.setor);
+              return (
+                <div key={produto.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="font-mono text-lg font-semibold">
+                        {produto.codigo_produto}
+                      </p>
                       <Badge 
                         variant="outline" 
                         className={getSetorColor(produto.setor)}
@@ -258,16 +333,15 @@ export function ProdutosList({
                         <SetorIcon className="h-3 w-3 mr-1" />
                         {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
                       </Badge>
-                    </TableCell>
-                    <TableCell>{produto.quantidade}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDistanceToNow(new Date(produto.created_at), {
-                        addSuffix: true,
-                        locale: ptBR
-                      })}
-                    </TableCell>
-                    {contagemStatus === "em_andamento" && (
-                      <TableCell>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Quantidade</p>
+                        <p className="text-lg font-semibold">{produto.quantidade}</p>
+                      </div>
+                      
+                      {contagemStatus === "em_andamento" && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -306,13 +380,20 @@ export function ProdutosList({
                             </AlertDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground">
+                    Cadastrado {formatDistanceToNow(new Date(produto.created_at), {
+                      addSuffix: true,
+                      locale: ptBR
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
