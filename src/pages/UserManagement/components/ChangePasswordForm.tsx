@@ -44,8 +44,8 @@ export function ChangePasswordForm({ user, isOpen, onClose }: ChangePasswordForm
     setIsLoading(true);
 
     try {
-      // Usar o Admin API do Supabase para atualizar senha do usuário
-      const { error } = await supabase.auth.admin.updateUserById(user.id, {
+      // Usando updateUser que funciona para alteração de senha
+      const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
 
