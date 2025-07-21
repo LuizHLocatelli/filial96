@@ -7,28 +7,13 @@ export const configurePDFWorkerLazy = async () => {
   try {
     const pdfjsLib = await import('pdfjs-dist');
     
-    // Usar worker local em vez de CDN externo
-    const workerSrc = new URL(
-      'pdfjs-dist/build/pdf.worker.min.js',
-      import.meta.url
-    ).toString();
+    // Desabilitar worker para evitar problemas de carregamento
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
     
-    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-    
-    console.log('[PDF.js] Worker configurado:', workerSrc);
+    console.log('[PDF.js] Worker desabilitado - funcionando sem worker');
     isWorkerConfigured = true;
   } catch (error) {
-    console.error('[PDF.js] Erro ao configurar worker:', error);
-    
-    // Fallback: tentar sem worker
-    try {
-      const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-      console.log('[PDF.js] Usando fallback sem worker');
-      isWorkerConfigured = true;
-    } catch (fallbackError) {
-      console.error('[PDF.js] Fallback também falhou:', fallbackError);
-      throw error;
-    }
+    console.error('[PDF.js] Erro ao configurar PDF.js:', error);
+    throw error;
   }
 };
