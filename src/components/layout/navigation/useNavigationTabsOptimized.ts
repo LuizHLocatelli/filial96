@@ -41,7 +41,6 @@ export function useNavigationTabsOptimized() {
       '/crediario': () => import('../../../pages/Crediario'),
       '/moveis': () => import('../../../pages/Moveis'),
       '/moda': () => import('../../../pages/Moda'),
-
       '/cards-promocionais': () => import('../../../pages/PromotionalCards'),
     };
 

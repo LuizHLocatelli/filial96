@@ -1101,6 +1101,74 @@ export type Database = {
         }
         Relationships: []
       }
+      moda_estoque_contagens: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          nome: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          nome: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          nome?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      moda_estoque_produtos: {
+        Row: {
+          codigo_produto: string
+          contagem_id: string
+          created_at: string
+          created_by: string
+          id: string
+          quantidade: number
+          setor: string
+          updated_at: string
+        }
+        Insert: {
+          codigo_produto: string
+          contagem_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          quantidade?: number
+          setor: string
+          updated_at?: string
+        }
+        Update: {
+          codigo_produto?: string
+          contagem_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          quantidade?: number
+          setor?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moda_estoque_produtos_contagem_id_fkey"
+            columns: ["contagem_id"]
+            isOneToOne: false
+            referencedRelation: "moda_estoque_contagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moda_folgas: {
         Row: {
           consultor_id: string
@@ -2443,6 +2511,16 @@ export type Database = {
       sparsevec_typmod_in: {
         Args: { "": unknown[] }
         Returns: number
+      }
+      upsert_moda_estoque_produto: {
+        Args: {
+          p_contagem_id: string
+          p_codigo_produto: string
+          p_setor: string
+          p_quantidade: number
+          p_created_by: string
+        }
+        Returns: string
       }
       vector_avg: {
         Args: { "": number[] }
