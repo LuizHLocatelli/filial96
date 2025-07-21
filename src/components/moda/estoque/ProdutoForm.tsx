@@ -88,13 +88,13 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
         .eq("contagem_id", contagemId)
         .eq("codigo_produto", codigoProduto)
         .eq("setor", setor)
-        .single();
+        .maybeSingle();
 
       if (produtoError) throw produtoError;
 
-      const quantidadeAnterior = produtoAtual.quantidade - quantidade;
+      const quantidadeAnterior = produtoAtual ? produtoAtual.quantidade - quantidade : 0;
       
-      if (quantidadeAnterior > 0) {
+      if (quantidadeAnterior > 0 && produtoAtual) {
         toast({
           title: "Produto somado!",
           description: `Produto já existia com ${quantidadeAnterior} unidades. Total agora: ${produtoAtual.quantidade}`
