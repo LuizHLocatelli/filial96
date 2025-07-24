@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       open: false,
     }),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'robots.txt', 'placeholder.svg'],
       manifest: {
         name: 'Filial 96 - Sistema de Gerenciamento',
@@ -95,14 +95,13 @@ export default defineConfig(({ mode }) => ({
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
+            handler: 'NetworkOnly',
             options: {
               cacheName: 'supabase-cache',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 2 // Reduzido para 2 minutos
-              },
-              networkTimeoutSeconds: 3
+                maxEntries: 10,
+                maxAgeSeconds: 30 // 30 segundos apenas
+              }
             }
           },
           {
@@ -121,22 +120,21 @@ export default defineConfig(({ mode }) => ({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'static-resources',
-              networkTimeoutSeconds: 2,
+              networkTimeoutSeconds: 1,
               expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 60 * 30 // 30 minutos apenas
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 5 // 5 minutos apenas
               }
             }
           },
           {
             urlPattern: ({ request }) => request.destination === 'document',
-            handler: 'NetworkFirst',
+            handler: 'NetworkOnly',
             options: {
               cacheName: 'pages-cache',
-              networkTimeoutSeconds: 2,
               expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 5 // 5 minutos para páginas
+                maxEntries: 5,
+                maxAgeSeconds: 60 // 1 minuto apenas
               }
             }
           }
@@ -144,6 +142,7 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
+        ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
         dontCacheBustURLsMatching: /\.\w{8}\./,
         maximumFileSizeToCacheInBytes: 3000000 // 3MB limit
       },
