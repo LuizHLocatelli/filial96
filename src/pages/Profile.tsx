@@ -16,7 +16,7 @@ import { PasswordForm } from "@/components/profile/PasswordForm";
 import { SecuritySettingsForm } from "@/components/profile/SecuritySettingsForm";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
 import { NotificationsDebug } from "@/components/notifications/NotificationsDebug";
-import { NotificationManager } from "@/components/pwa/NotificationManager";
+
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
@@ -98,17 +98,7 @@ export default function Profile() {
         </div>
       )
     },
-    {
-      value: "notifications",
-      label: "Notificações",
-      icon: Bell,
-      description: "Configurações de notificações PWA",
-      component: (
-        <div className="space-y-6">
-          <NotificationManager autoSetup={false} showTestMode={true} />
-        </div>
-      )
-    },
+
     {
       value: "debug",
       label: "Debug Notificações",

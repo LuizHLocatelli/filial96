@@ -3,7 +3,7 @@ import { isSameDay, differenceInMinutes, setHours, setMinutes, setSeconds } from
 import { toast } from "@/hooks/use-toast";
 import { Bell, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
-import { usePWANotifications } from "@/hooks/usePWANotifications";
+
 
 interface NotificationSystemProps {
   depositos: Deposito[];
@@ -22,13 +22,7 @@ interface NotificationConfig {
 export function NotificationSystem({ depositos, enabled = true }: NotificationSystemProps) {
   const [lastNotification, setLastNotification] = useState<string>("");
   
-  // Hook para notificações PWA
-  const {
-    permission,
-    showPersistentNotification,
-    showDepositReminder,
-    showUrgentAlert
-  } = usePWANotifications();
+
   
   // Função para obter notificações do localStorage
   const getStoredNotifications = (): Set<string> => {
@@ -111,21 +105,7 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
       duration: type === 'urgent' || type === 'missed' ? 8000 : 5000,
     });
 
-    // Também enviar notificação PWA se as permissões estiverem ativadas
-    if (permission === 'granted' && (type === 'urgent' || type === 'missed' || type === 'reminder')) {
-      showPersistentNotification({
-        title: message,
-        body: description || '',
-        tag: `deposit-${type}`,
-        requireInteraction: type === 'urgent' || type === 'missed',
-        actions: type === 'reminder' ? [
-          { action: 'open-deposits', title: 'Abrir Depósitos' },
-          { action: 'remind-later', title: 'Lembrar em 30min' }
-        ] : [
-          { action: 'open-deposits', title: 'Ir para Depósitos' }
-        ]
-      });
-    }
+
 
     setLastNotification(notificationKey);
     const newNotifications = new Set(shownNotifications).add(notificationKey);
@@ -305,4 +285,4 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
 
   // Componente não renderiza nada visualmente
   return null;
-} 
+}

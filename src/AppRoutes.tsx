@@ -23,7 +23,6 @@ import ResetPassword from "./pages/ResetPassword";
 
 // Componentes de debug/demonstração
 import { DarkModeHoverDemo } from "./components/debug/DarkModeHoverDemo";
-import { PWANotificationTest } from "./components/debug/PWANotificationTest";
 
 // Componente de loading para Suspense
 const PageLoader = () => (
@@ -169,16 +168,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/debug/pwa-notifications" 
-        element={
-          <ProtectedRoute>
-            <AppLayout isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
-              <PWANotificationTest />
-            </AppLayout>
-          </ProtectedRoute>
-        } 
-      />
+
       
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -20,7 +20,7 @@ import {
 import { useLazyLoadingStats } from '@/hooks/useIntelligentPreload';
 import { lazyLoadingMetrics } from '@/utils/lazyLoadingMetrics';
 import { componentCache, ExternalLibraryLoader } from '@/hooks/useLazyComponent';
-import { CacheDebugPanel } from './CacheDebugPanel';
+
 
 interface LazyLoadingDashboardProps {
   className?: string;
@@ -30,7 +30,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
   const stats = useLazyLoadingStats();
   const [refreshKey, setRefreshKey] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [showCachePanel, setShowCachePanel] = useState(false);
+
 
   // Só mostrar em desenvolvimento
   const isDevelopment = process.env.NODE_ENV === 'development';
@@ -43,10 +43,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
       if (event.ctrlKey && event.shiftKey && event.key === 'L') {
         setIsVisible(prev => !prev);
       }
-      // Ctrl+Shift+C para Cache Panel
-      if (event.ctrlKey && event.shiftKey && event.key === 'C') {
-        setShowCachePanel(prev => !prev);
-      }
+
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -89,7 +86,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
                 Lazy Loading Dashboard
               </CardTitle>
               <CardDescription className="text-xs">
-                Ctrl+Shift+L: Toggle | Ctrl+Shift+C: Cache | Dev
+                Ctrl+Shift+L: Toggle | Dev
               </CardDescription>
             </div>
             <div className="flex gap-1">
@@ -228,14 +225,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
               <Download className="h-3 w-3 mr-1" />
               Limpar Cache
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCachePanel(true)}
-              className="flex-1 text-xs"
-            >
-              🗄️ PWA Cache
-            </Button>
+
           </div>
 
           {/* Tips */}
@@ -247,22 +237,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
     </div>
       )}
 
-      {/* Cache Debug Panel */}
-      {showCachePanel && (
-        <div className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur flex items-center justify-center p-4">
-          <div className="relative">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCachePanel(false)}
-              className="absolute -top-2 -right-2 z-10 h-8 w-8 p-0 rounded-full"
-            >
-              ×
-            </Button>
-            <CacheDebugPanel />
-          </div>
-        </div>
-      )}
+
     </>
   );
-} 
+}

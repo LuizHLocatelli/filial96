@@ -1,12 +1,12 @@
 import { UserMenu } from "../auth/UserMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ChatBotButton } from "@/components/chatbot";
-import { ForceUpdateButton } from "@/components/pwa/ForceUpdateButton";
+
 import { CompanyLogo } from "./CompanyLogo";
 
 interface EnhancedTopBarProps {
@@ -62,16 +62,7 @@ export function EnhancedTopBar({ isChatOpen, setIsChatOpen }: EnhancedTopBarProp
             !isMobile && "ml-4"
           )}
         >
-          {/* Install PWA Button - só mostra quando pode instalar */}
-          {!isMobile && (
-            <motion.div 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <InstallPWAButton />
-            </motion.div>
-          )}
+
 
           {/* Chat Button */}
           <motion.div 
@@ -86,13 +77,7 @@ export function EnhancedTopBar({ isChatOpen, setIsChatOpen }: EnhancedTopBarProp
           </motion.div>
 
           {/* Action buttons com glassmorphism correto */}
-          <motion.div 
-            whileHover={{ scale: 1.05 }} 
-            whileTap={{ scale: 0.95 }}
-            className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
-          >
-            <ForceUpdateButton />
-          </motion.div>
+
           
           <motion.div 
             whileHover={{ scale: 1.05 }} 
