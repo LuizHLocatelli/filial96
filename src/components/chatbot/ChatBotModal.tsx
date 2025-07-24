@@ -93,8 +93,8 @@ export function ChatBotModal({ isOpen, onClose }: ChatBotModalProps) {
             className={cn(
               "fixed z-[101] bg-background border border-border shadow-2xl overflow-hidden",
               isMobile
-                ? "bottom-4 right-4 w-[calc(100%-2rem)] h-[70vh] max-h-[500px] rounded-2xl"
-                : "bottom-8 right-8 w-[420px] h-[650px] max-h-[85vh] rounded-2xl"
+                ? "inset-0 w-full h-full rounded-none"
+                : "inset-0 m-auto w-[420px] h-[650px] max-h-[85vh] rounded-2xl"
             )}
             onClick={(e) => e.stopPropagation()}
           >

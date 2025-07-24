@@ -52,7 +52,7 @@ export function ChatBotInput({ onSendMessage, isLoading }: ChatBotInputProps) {
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.3, duration: 0.3 }}
-      className="p-3 border-t border-border bg-background rounded-b-2xl"
+      className="p-4 border-t border-border bg-background/95 backdrop-blur-sm rounded-b-2xl"
     >
       <div className="flex items-end space-x-2">
         <div className="flex-1 relative">
@@ -65,8 +65,8 @@ export function ChatBotInput({ onSendMessage, isLoading }: ChatBotInputProps) {
             disabled={isLoading}
             className={cn(
               "min-h-[40px] max-h-[120px] resize-none",
-              "border rounded-lg transition-all duration-200 bg-muted/50",
-              "focus:border-primary/50 focus:ring-1 focus:ring-primary/20",
+              "border-2 rounded-xl transition-all duration-200",
+              "focus:border-primary/50 focus:ring-0",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           />
@@ -81,9 +81,8 @@ export function ChatBotInput({ onSendMessage, isLoading }: ChatBotInputProps) {
             disabled={!message.trim() || isLoading}
             size="icon"
             className={cn(
-              "h-10 w-10 rounded-lg",
+              "h-10 w-10 rounded-xl",
               "transition-all duration-200",
-              "bg-primary hover:bg-primary/90 text-primary-foreground",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
             aria-label="Enviar mensagem"
@@ -97,7 +96,18 @@ export function ChatBotInput({ onSendMessage, isLoading }: ChatBotInputProps) {
         </motion.div>
       </div>
 
-      
+      {/* Character counter and hints */}
+      {message.length > 0 && (
+        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+          <span>Enter para enviar, Shift+Enter para nova linha</span>
+          <span className={cn(
+            message.length > 1000 && "text-orange-500",
+            message.length > 1500 && "text-destructive"
+          )}>
+            {message.length}/2000
+          </span>
+        </div>
+      )}
     </motion.div>
   );
 }

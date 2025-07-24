@@ -13,7 +13,7 @@ export function ChatBotHeader({ onClose, onClear }: ChatBotHeaderProps) {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.1, duration: 0.3 }}
-      className="flex items-center justify-between p-3 border-b border-border bg-gradient-to-b from-background to-background/90 backdrop-blur-sm rounded-t-2xl"
+      className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur-sm rounded-t-2xl"
     >
       <div className="flex items-center space-x-3">
         <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">

@@ -17,7 +17,7 @@ interface ChatBotState {
   sessionId: string;
 }
 
-const WEBHOOK_URL = 'https://eoxbbhq8cczzpz5.m.pipedream.net';
+const WEBHOOK_URL = 'https://eomn3vt80t8y5rn.m.pipedream.net/';
 const REQUEST_TIMEOUT = 30000; // 30 segundos
 
 export function useChatBot() {
