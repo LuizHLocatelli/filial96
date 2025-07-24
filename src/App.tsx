@@ -12,7 +12,6 @@ import AppRoutes from "./AppRoutes";
 import { ChatBotModal } from './components/chatbot';
 import { LazyLoadingDashboard } from "./components/debug/LazyLoadingDashboard";
 import { PWANotificationPrompt } from "./components/pwa/PWANotificationPrompt";
-import { ForceUpdateButton } from "./components/pwa/ForceUpdateButton";
 import useStatusBarTheme from "./hooks/useStatusBarTheme";
 import "./styles/pwa-status-bar.css";
 
@@ -34,7 +33,6 @@ const AppContent = () => {
             <AppRoutes isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
             <ChatBotModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
             <LazyLoadingDashboard />
-            <ForceUpdateButton />
           </GlobalSearchProvider>
         </BrowserRouter>
       </TooltipProvider>
