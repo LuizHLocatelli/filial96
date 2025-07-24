@@ -99,9 +99,10 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: 'supabase-cache',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 5
-              }
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 2 // Reduzido para 2 minutos
+              },
+              networkTimeoutSeconds: 3
             }
           },
           {
@@ -110,22 +111,41 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 3 // Reduzido para 3 dias
               }
             }
           },
           {
             urlPattern: /\.(?:js|css)$/,
-            handler: 'StaleWhileRevalidate',
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'static-resources'
+              cacheName: 'static-resources',
+              networkTimeoutSeconds: 2,
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 30 // 30 minutos apenas
+              }
+            }
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              networkTimeoutSeconds: 2,
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 5 // 5 minutos para páginas
+              }
             }
           }
         ],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
-        clientsClaim: true
+        clientsClaim: true,
+        dontCacheBustURLsMatching: /\.\w{8}\./,
+        maximumFileSizeToCacheInBytes: 3000000 // 3MB limit
       },
       devOptions: {
         enabled: true,

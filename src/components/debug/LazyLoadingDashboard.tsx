@@ -20,6 +20,7 @@ import {
 import { useLazyLoadingStats } from '@/hooks/useIntelligentPreload';
 import { lazyLoadingMetrics } from '@/utils/lazyLoadingMetrics';
 import { componentCache, ExternalLibraryLoader } from '@/hooks/useLazyComponent';
+import { CacheDebugPanel } from './CacheDebugPanel';
 
 interface LazyLoadingDashboardProps {
   className?: string;
@@ -29,6 +30,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
   const stats = useLazyLoadingStats();
   const [refreshKey, setRefreshKey] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [showCachePanel, setShowCachePanel] = useState(false);
 
   // Só mostrar em desenvolvimento
   const isDevelopment = process.env.NODE_ENV === 'development';
@@ -36,10 +38,14 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
   useEffect(() => {
     if (!isDevelopment) return;
 
-    // Atalho de teclado para mostrar/esconder dashboard (Ctrl+Shift+L)
+    // Atalhos de teclado para mostrar/esconder dashboard 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'L') {
         setIsVisible(prev => !prev);
+      }
+      // Ctrl+Shift+C para Cache Panel
+      if (event.ctrlKey && event.shiftKey && event.key === 'C') {
+        setShowCachePanel(prev => !prev);
       }
     };
 
@@ -47,7 +53,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDevelopment]);
 
-  if (!isDevelopment || !isVisible) {
+  if (!isDevelopment) {
     return null;
   }
 
@@ -70,8 +76,11 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
     : 100;
 
   return (
-    <div className={`fixed top-4 right-4 z-[9999] max-w-md ${className}`}>
-      <Card className="shadow-2xl border-2 border-primary/20 bg-background/95 backdrop-blur">
+    <>
+      {/* Debug Panel Principal */}
+      {isVisible && (
+        <div className={`fixed top-4 right-4 z-[9999] max-w-md ${className}`}>
+          <Card className="shadow-2xl border-2 border-primary/20 bg-background/95 backdrop-blur">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
@@ -80,7 +89,7 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
                 Lazy Loading Dashboard
               </CardTitle>
               <CardDescription className="text-xs">
-                Ctrl+Shift+L para alternar | Ambiente: Dev
+                Ctrl+Shift+L: Toggle | Ctrl+Shift+C: Cache | Dev
               </CardDescription>
             </div>
             <div className="flex gap-1">
@@ -222,10 +231,10 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => console.table(metrics)}
+              onClick={() => setShowCachePanel(true)}
               className="flex-1 text-xs"
             >
-              Log Detalhado
+              🗄️ PWA Cache
             </Button>
           </div>
 
@@ -236,5 +245,24 @@ export function LazyLoadingDashboard({ className }: LazyLoadingDashboardProps) {
         </CardContent>
       </Card>
     </div>
+      )}
+
+      {/* Cache Debug Panel */}
+      {showCachePanel && (
+        <div className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur flex items-center justify-center p-4">
+          <div className="relative">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCachePanel(false)}
+              className="absolute -top-2 -right-2 z-10 h-8 w-8 p-0 rounded-full"
+            >
+              ×
+            </Button>
+            <CacheDebugPanel />
+          </div>
+        </div>
+      )}
+    </>
   );
 } 
