@@ -5,7 +5,7 @@ export const API_ENDPOINTS = {
   N8N_PROXY: "https://abpsafkioslfjqtgtvbi.supabase.co/functions/v1/n8n-proxy",
   
   // URL original do N8N (para referência - não usar diretamente do frontend)
-  N8N_WEBHOOK_ORIGINAL: "https://filial96.app.n8n.cloud/webhook/44a765ab-fb44-44c3-ab75-5ec334b9cda0",
+  N8N_WEBHOOK_ORIGINAL: "https://luizlocatelli96.app.n8n.cloud/webhook/3a728c9a-cc68-48e4-acf3-e5fa75a50310",
 } as const;
 
 export const CORS_CONFIG = {
@@ -17,7 +17,7 @@ export const CORS_CONFIG = {
     'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFicHNhZmtpb3NsZmpxdGd0dmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU5Njg3ODIsImV4cCI6MjA2MTU0NDc4Mn0.UTF4Gi6rDxQ2a3Pf4J2-7J0yPokcks6J8xO93GEhk-w'
   },
   // Configurações de timeout
-  timeout: 30000, // 30 segundos
+  timeout: 300000, // 5 minutos
 } as const;
 
 // Theme constants

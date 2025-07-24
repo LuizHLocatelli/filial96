@@ -37,13 +37,8 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       if (workerConfigured) return;
       
       try {
-        const pdfjsLib = await import('pdfjs-dist');
-        
-        // Use a reliable CDN for the worker
-        const workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-        pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-        
-        console.log('[PDF.js] Worker configurado:', workerSrc);
+        const { configurePDFWorkerLazy } = await import('./pdf-viewer/PDFWorkerConfig');
+        await configurePDFWorkerLazy();
         
         if (isMountedRef.current) {
           setWorkerConfigured(true);

@@ -6,6 +6,7 @@ import { Diretorio } from "@/components/moda/diretorio/Diretorio";
 import { Folgas } from "@/components/moda/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
 import { Reservas } from "@/components/moda/reservas/Reservas";
+import { Estoque } from "@/components/moda/Estoque";
 import { useModaTracking } from "@/hooks/useModaTracking";
 import { 
   FileText, 
@@ -14,7 +15,8 @@ import {
   TrendingUp,
   Calendar,
   Star,
-  Clock
+  Clock,
+  Package
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -95,6 +97,13 @@ export default function Moda() {
       icon: Calendar,
       description: "Controle de folgas",
       component: <Folgas />
+    },
+    {
+      value: "estoque",
+      label: "Estoque",
+      icon: Package,
+      description: "Contagem de estoque",
+      component: <Estoque />
     }
   ];
 
@@ -117,7 +126,7 @@ export default function Moda() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={4}
+        maxColumns={5}
       />
     </PageLayout>
   );

@@ -14,12 +14,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Edit, Trash2, AlertTriangle } from "lucide-react";
+import { Edit, Trash2, AlertTriangle, Key } from "lucide-react";
 import { UserWithStats, roleColors, roleLabels } from "../types";
 import { getRoleIcon, getInitials, formatDate } from "../utils.tsx";
 import { EditUserForm } from "./EditUserForm";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 import { useAuth } from "@/contexts/auth";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { useState } from "react";
 
 interface UserMobileCardsProps {
   users: UserWithStats[];
@@ -43,6 +45,8 @@ export function UserMobileCards({
   const { profile } = useAuth();
   const { getMobileDialogProps, getMobileButtonProps } = useMobileDialog();
   const isManager = profile?.role === 'gerente';
+  const [changePasswordUser, setChangePasswordUser] = useState<UserWithStats | null>(null);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   return (
     <div className="space-y-3 p-4">
@@ -99,6 +103,21 @@ export function UserMobileCards({
                     )}
                   </DialogContent>
                 </Dialog>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="touch-friendly p-0"
+                  disabled={!isManager || user.id === profile?.id}
+                  onClick={() => {
+                    setChangePasswordUser(user);
+                    setIsChangePasswordOpen(true);
+                  }}
+                  title="Alterar senha"
+                >
+                  <Key className="h-4 w-4" />
+                </Button>
+                
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
@@ -144,6 +163,17 @@ export function UserMobileCards({
           </div>
         </Card>
       ))}
+      
+      {changePasswordUser && (
+        <ChangePasswordForm
+          user={changePasswordUser}
+          isOpen={isChangePasswordOpen}
+          onClose={() => {
+            setIsChangePasswordOpen(false);
+            setChangePasswordUser(null);
+          }}
+        />
+      )}
     </div>
   );
-} 
+}

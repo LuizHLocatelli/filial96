@@ -17,8 +17,8 @@ interface ChatBotState {
   sessionId: string;
 }
 
-const WEBHOOK_URL = 'https://eomn3vt80t8y5rn.m.pipedream.net/';
-const REQUEST_TIMEOUT = 30000; // 30 segundos
+const WEBHOOK_URL = 'https://luizlocatelli96.app.n8n.cloud/webhook/3a728c9a-cc68-48e4-acf3-e5fa75a50310';
+const REQUEST_TIMEOUT = 300000; // 5 minutos
 
 export function useChatBot() {
   const [state, setState] = useState<ChatBotState>({
@@ -137,7 +137,7 @@ export function useChatBot() {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Adicionar resposta do bot
-      const botResponse = data.response || data.message || 'Desculpe, não consegui processar sua mensagem.';
+      const botResponse = data.output || 'Desculpe, não consegui processar sua mensagem.';
       addMessage(botResponse, false);
 
     } catch (error) {

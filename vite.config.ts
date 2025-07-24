@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       open: false,
     }),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'robots.txt', 'placeholder.svg'],
       manifest: {
         name: 'Filial 96 - Sistema de Gerenciamento',
@@ -95,12 +95,12 @@ export default defineConfig(({ mode }) => ({
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
+            handler: 'NetworkOnly',
             options: {
               cacheName: 'supabase-cache',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 5
+                maxEntries: 10,
+                maxAgeSeconds: 30 // 30 segundos apenas
               }
             }
           },
@@ -110,22 +110,41 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 3 // Reduzido para 3 dias
               }
             }
           },
           {
             urlPattern: /\.(?:js|css)$/,
-            handler: 'StaleWhileRevalidate',
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'static-resources'
+              cacheName: 'static-resources',
+              networkTimeoutSeconds: 1,
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 5 // 5 minutos apenas
+              }
+            }
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 // 1 minuto apenas
+              }
             }
           }
         ],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
-        clientsClaim: true
+        clientsClaim: true,
+        ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
+        dontCacheBustURLsMatching: /\.\w{8}\./,
+        maximumFileSizeToCacheInBytes: 3000000 // 3MB limit
       },
       devOptions: {
         enabled: true,
