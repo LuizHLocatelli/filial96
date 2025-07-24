@@ -81,35 +81,45 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
 
       if (error) throw error;
 
-      // Verificar se houve soma de quantidade
-      const { data: produtoAtual, error: produtoError } = await supabase
+      // Buscar informações do produto após inserção para feedback correto
+      const { data: produtoInfo, error: infoError } = await supabase
         .from("moda_estoque_produtos")
         .select("quantidade")
         .eq("contagem_id", contagemId)
         .eq("codigo_produto", codigoProduto)
         .eq("setor", setor)
-        .maybeSingle();
+        .single();
 
-      if (produtoError) throw produtoError;
+      if (infoError) throw infoError;
 
-      const quantidadeAnterior = produtoAtual ? produtoAtual.quantidade - quantidade : 0;
+      // Determinar se foi inserção ou soma
+      const quantidadeAnterior = produtoInfo.quantidade - quantidade;
+      const setorLabel = setores.find(s => s.value === setor)?.label || setor;
       
-      if (quantidadeAnterior > 0 && produtoAtual) {
+      if (quantidadeAnterior > 0) {
         toast({
-          title: "Produto somado!",
-          description: `Produto já existia com ${quantidadeAnterior} unidades. Total agora: ${produtoAtual.quantidade}`
+          title: "✅ Produto somado!",
+          description: `${quantidade} + ${quantidadeAnterior} = ${produtoInfo.quantidade} unidades (${setorLabel})`
         });
       } else {
         toast({
-          title: "Produto adicionado!",
-          description: `${quantidade} unidade(s) do produto ${codigoProduto} no setor ${setor}.`
+          title: "✅ Produto adicionado!",
+          description: `${quantidade} unidade(s) · ${codigoProduto} · ${setorLabel}`
         });
       }
 
-      // Limpar formulário
+      // Limpar formulário e focar no código para produtividade
       setCodigoProduto("");
       setSetor("");
       setQuantidade(1);
+      
+      // Focar no campo código após adicionar produto para fluxo contínuo
+      setTimeout(() => {
+        const codigoInput = document.getElementById('codigo');
+        if (codigoInput) {
+          codigoInput.focus();
+        }
+      }, 100);
       
       onProdutoAdicionado();
     } catch (error) {
