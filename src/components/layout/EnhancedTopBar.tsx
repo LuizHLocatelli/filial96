@@ -17,6 +17,7 @@ import { useOnClickOutside } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ChatBotButton } from "@/components/chatbot";
+import { ForceUpdateButton } from "@/components/pwa/ForceUpdateButton";
 
 interface EnhancedTopBarProps {
   isChatOpen: boolean;
@@ -160,6 +161,14 @@ export function EnhancedTopBar({ isChatOpen, setIsChatOpen }: EnhancedTopBarProp
           </motion.div>
 
           {/* Action buttons com glassmorphism correto */}
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20"
+          >
+            <ForceUpdateButton />
+          </motion.div>
+          
           <motion.div 
             whileHover={{ scale: 1.05 }} 
             whileTap={{ scale: 0.95 }}

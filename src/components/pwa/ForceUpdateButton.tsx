@@ -15,15 +15,14 @@ export function ForceUpdateButton() {
 
   return (
     <Button
-      variant="outline"
-      size="sm"
+      variant="ghost"
+      size="icon"
       onClick={handleForceUpdate}
       disabled={isUpdating}
-      className="fixed bottom-4 right-4 z-50 bg-background/90 backdrop-blur-sm border-primary/20 hover:bg-primary/10"
+      className="h-10 w-10 rounded-xl"
       title="Forçar atualização do app"
     >
-      <RefreshCw className={`w-4 h-4 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
-      {isUpdating ? 'Atualizando...' : 'Atualizar App'}
+      <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
     </Button>
   );
 }
