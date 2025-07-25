@@ -67,13 +67,22 @@ export function EstoqueContagemCard({
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-3">
+    <Card className="group hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary/20 hover:border-l-primary">
+      <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <CardTitle className="text-lg line-clamp-2">{contagem.nome}</CardTitle>
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
+              {contagem.nome}
+            </CardTitle>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge className={getStatusColor(contagem.status)} variant="outline">
+                {getStatusText(contagem.status)}
+              </Badge>
+            </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-60 group-hover:opacity-100 transition-opacity">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -131,26 +140,22 @@ export function EstoqueContagemCard({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        
-        <Badge className={getStatusColor(contagem.status)} variant="outline">
-          {getStatusText(contagem.status)}
-        </Badge>
       </CardHeader>
 
-      <CardContent className="pb-3">
-        <div className="space-y-2 text-sm text-muted-foreground">
-          <div className="flex justify-between">
-            <span>Produtos cadastrados:</span>
-            <span className="font-medium">{contagem.produtos_count || 0}</span>
+      <CardContent className="pb-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <div className="text-2xl font-bold text-primary">{contagem.produtos_count || 0}</div>
+            <div className="text-xs text-muted-foreground">Produtos</div>
           </div>
-          <div className="flex justify-between">
-            <span>Criada:</span>
-            <span>
+          <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <div className="text-xs text-muted-foreground mb-1">Criada</div>
+            <div className="text-sm font-medium">
               {formatDistanceToNow(new Date(contagem.created_at), {
                 addSuffix: true,
                 locale: ptBR
               })}
-            </span>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -158,7 +163,7 @@ export function EstoqueContagemCard({
       <CardFooter className="pt-0">
         <Button 
           variant="outline" 
-          className="w-full" 
+          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" 
           onClick={() => onAbrir(contagem)}
         >
           <Eye className="h-4 w-4 mr-2" />

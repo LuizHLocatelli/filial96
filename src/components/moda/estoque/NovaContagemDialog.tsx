@@ -50,19 +50,21 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-primary" />
-            <DialogTitle>Nova Contagem de Estoque</DialogTitle>
+        <DialogHeader className="text-center space-y-4">
+          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+            <Package className="h-6 w-6 text-primary" />
           </div>
-          <DialogDescription>
-            Crie uma nova contagem para organizar o controle de produtos armazenados.
-          </DialogDescription>
+          <div>
+            <DialogTitle className="text-xl">Nova Contagem de Estoque</DialogTitle>
+            <DialogDescription className="mt-2">
+              Crie uma nova contagem para organizar o controle de produtos armazenados.
+            </DialogDescription>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nome">Nome da Contagem *</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="nome" className="text-sm font-medium">Nome da Contagem *</Label>
             <Input
               id="nome"
               placeholder="Ex: Contagem de Produtos Armazenados do Verão"
@@ -72,25 +74,28 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
               minLength={5}
               maxLength={255}
               disabled={loading}
+              className="text-base"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="inline-block w-1 h-1 bg-muted-foreground rounded-full"></span>
               Mínimo de 5 caracteres
             </p>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => handleOpenChange(false)}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               Cancelar
             </Button>
             <Button 
               type="submit" 
               disabled={nome.trim().length < 5 || loading}
-              className="gap-2"
+              className="w-full sm:w-auto gap-2"
             >
               {loading ? (
                 <>
