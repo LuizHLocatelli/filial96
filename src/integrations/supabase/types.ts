@@ -2344,6 +2344,14 @@ export type Database = {
         Args: { target_user_id: string; target_month: string }
         Returns: undefined
       }
+      can_user_modify_role: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
+      change_user_role: {
+        Args: { target_user_id: string; new_role: string }
+        Returns: Json
+      }
       check_orientacao_completion_by_role: {
         Args: { p_orientacao_id: string; p_target_roles: string[] }
         Returns: {
