@@ -68,24 +68,55 @@ export function PasswordUpdateForm({ token, hash, onSuccess, onError }: Password
         return;
       }
 
+      // Security: Enhanced password validation
+      if (data.password.length < 8) {
+        onError("Senha deve ter pelo menos 8 caracteres.");
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: data.password
       });
 
       if (error) {
-        // Security: Don't expose internal error details
-        console.error('Password update error:', error);
-        onError("Erro ao atualizar senha. Tente novamente.");
+        // Security: Enhanced error handling with audit logging
+        console.error('Password update error:', {
+          error: error.message,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          hasToken: !!token,
+          hasHash: !!hash
+        });
+        
+        // Security: Rate limiting check
+        if (error.message.includes('rate limit')) {
+          onError("Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.");
+        } else if (error.message.includes('token')) {
+          onError("Link de recuperação inválido ou expirado. Solicite um novo link.");
+        } else {
+          onError("Erro ao atualizar senha. Tente novamente.");
+        }
       } else {
-        // Security: Log successful password change for audit
+        // Security: Comprehensive audit logging for successful password change
+        const user = (await supabase.auth.getUser()).data.user;
         console.log('Password updated successfully', { 
           timestamp: new Date().toISOString(),
-          userId: (await supabase.auth.getUser()).data.user?.id
+          userId: user?.id,
+          userEmail: user?.email,
+          method: token ? 'password_reset' : 'direct_update',
+          userAgent: navigator.userAgent
         });
+        
+        // Security: Force sign out after password change for security
+        await supabase.auth.signOut();
         onSuccess();
       }
     } catch (error) {
-      console.error('Unexpected error during password update:', error);
+      console.error('Unexpected error during password update:', {
+        error,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+      });
       onError("Erro inesperado. Tente novamente mais tarde.");
     } finally {
       setIsLoading(false);

@@ -16,20 +16,49 @@ export async function handleUpdatePassword({
   navigate,
 }: UpdatePasswordParams): Promise<boolean> {
   try {
+    // Security: Enhanced password validation
+    if (!password || password.length < 8) {
+      toast({
+        variant: "destructive",
+        title: "Senha inválida",
+        description: "A senha deve ter pelo menos 8 caracteres.",
+      });
+      return false;
+    }
+
+    // Security: Validate password strength
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
+      toast({
+        variant: "destructive",
+        title: "Senha fraca",
+        description: "A senha deve conter ao menos uma letra maiúscula, minúscula, número e caractere especial.",
+      });
+      return false;
+    }
+
     console.log("Iniciando processo de atualização de senha");
     
+    // Security: Sanitize and validate token inputs
+    const sanitizedToken = token?.trim();
+    const sanitizedHash = hash?.trim();
+    
     // Parse hash parameters if present
-    const hashParams = hash ? new URLSearchParams(hash.substring(1)) : null;
-    const accessToken = hashParams?.get("access_token");
-    const refreshToken = hashParams?.get("refresh_token") || "";
-    const type = hashParams?.get("type");
+    const hashParams = sanitizedHash ? new URLSearchParams(sanitizedHash.substring(1)) : null;
+    const accessToken = hashParams?.get("access_token")?.trim();
+    const refreshToken = hashParams?.get("refresh_token")?.trim() || "";
+    const type = hashParams?.get("type")?.trim();
     
     console.log("Formato do token:", { 
-      token: token ? "presente" : "ausente",
-      hash: hash ? "presente" : "ausente", 
+      token: sanitizedToken ? "presente" : "ausente",
+      hash: sanitizedHash ? "presente" : "ausente", 
       accessToken: accessToken ? "presente" : "ausente",
       type: type || "ausente",
-      flowType: type || token ? "recovery" : "desconhecido"
+      flowType: type || sanitizedToken ? "recovery" : "desconhecido"
     });
 
     // If we have an access token in the hash, set the session first
@@ -73,16 +102,16 @@ export async function handleUpdatePassword({
         try {
           console.log("Tentando método alternativo com token específico");
           
-          // Para verificação de token, precisamos de um e-mail
+          // Security: Validate email parameter for token verification
           const urlParams = new URLSearchParams(window.location.search);
-          const email = urlParams.get("email");
+          const email = urlParams.get("email")?.trim().toLowerCase();
           
-          if (!email) {
-            console.error("Email não encontrado nos parâmetros da URL");
+          if (!email || !email.includes('@')) {
+            console.error("Email inválido ou não encontrado nos parâmetros da URL");
             toast({
               variant: "destructive",
               title: "Erro ao redefinir senha",
-              description: "E-mail não encontrado. Por favor, solicite um novo link de recuperação.",
+              description: "E-mail inválido ou não encontrado. Por favor, solicite um novo link de recuperação.",
               duration: 6000,
             });
             setTimeout(() => navigate("/auth?tab=reset"), 2000);
@@ -91,10 +120,10 @@ export async function handleUpdatePassword({
           
           console.log("Verificando OTP com email:", email);
           
-          // Verificar OTP com email E token
+          // Security: Verify OTP with email and sanitized token
           const { error: verifyError } = await supabase.auth.verifyOtp({
             email: email,
-            token: token,
+            token: sanitizedToken,
             type: 'recovery',
           });
           
@@ -151,16 +180,26 @@ export async function handleUpdatePassword({
       }
     }
 
-    // Success path
-    console.log("Senha atualizada com sucesso");
+    // Success path - Security: Enhanced audit logging
+    const user = (await supabase.auth.getUser()).data.user;
+    console.log("Senha atualizada com sucesso", {
+      timestamp: new Date().toISOString(),
+      userId: user?.id,
+      userEmail: user?.email,
+      method: sanitizedToken ? 'password_reset' : 'direct_update',
+      userAgent: navigator.userAgent
+    });
+    
     toast({
       title: "Senha alterada com sucesso",
       description: "Sua senha foi redefinida. Você será redirecionado para o login.",
       duration: 4000,
     });
     
-    // Log out to ensure clean state
-    await supabase.auth.signOut();
+    // Security: Clear all auth state and force clean logout
+    localStorage.clear();
+    sessionStorage.clear();
+    await supabase.auth.signOut({ scope: 'global' });
     
     // Redirect to login after successful update
     setTimeout(() => navigate("/auth"), 2000);
