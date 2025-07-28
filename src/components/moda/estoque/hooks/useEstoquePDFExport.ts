@@ -33,6 +33,16 @@ export function useEstoquePDFExport() {
     options: EstoquePDFExportOptions
   ): Promise<boolean> => {
     try {
+      // Verificar se há produtos para exportar
+      if (!produtos || produtos.length === 0) {
+        toast({
+          title: "Nenhum produto para exportar",
+          description: "A contagem deve ter pelo menos um produto para gerar o PDF.",
+          variant: "destructive"
+        });
+        return false;
+      }
+
       const doc = new jsPDF();
       let yPosition = 20;
 
@@ -201,9 +211,20 @@ export function useEstoquePDFExport() {
       return true;
     } catch (error) {
       console.error("Erro ao exportar PDF:", error);
+      
+      // Verificar se é erro específico do jsPDF
+      let errorMessage = "Não foi possível gerar o arquivo PDF. Tente novamente.";
+      if (error instanceof Error) {
+        if (error.message.includes("autoTable")) {
+          errorMessage = "Erro na geração da tabela. Verifique se há produtos na contagem.";
+        } else if (error.message.includes("font")) {
+          errorMessage = "Erro na fonte do PDF. Tente novamente.";
+        }
+      }
+      
       toast({
         title: "Erro na exportação",
-        description: "Não foi possível gerar o arquivo PDF. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
       return false;
