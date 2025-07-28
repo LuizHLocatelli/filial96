@@ -57,10 +57,13 @@ const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className={`absolute opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground ${
-          isMobile ? 'right-3 top-3 rounded-full' : 'right-4 top-4 rounded-sm'
-        }`}>
-          <X className="h-4 w-4" />
+        <DialogPrimitive.Close className={cn(
+          "absolute z-10 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+          isMobile 
+            ? "right-2 top-2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/20 shadow-sm flex items-center justify-center hover:bg-background/90" 
+            : "right-4 top-4 rounded-sm h-6 w-6 flex items-center justify-center"
+        )}>
+          <X className={cn("text-muted-foreground", isMobile ? "h-4 w-4" : "h-4 w-4")} />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
