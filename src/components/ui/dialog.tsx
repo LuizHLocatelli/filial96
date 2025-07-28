@@ -58,12 +58,12 @@ const DialogContent = React.forwardRef<
       >
         {children}
         <DialogPrimitive.Close className={cn(
-          "absolute z-10 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+          "absolute z-50 ring-offset-background transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
           isMobile 
-            ? "right-2 top-2 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/20 shadow-sm flex items-center justify-center hover:bg-background/90" 
-            : "right-4 top-4 rounded-sm h-6 w-6 flex items-center justify-center"
+            ? "right-2 top-2 h-9 w-9 rounded-full bg-background/95 backdrop-blur-md border border-border/40 shadow-lg flex items-center justify-center hover:bg-background hover:shadow-xl hover:scale-105 active:scale-95" 
+            : "right-3 top-3 h-8 w-8 rounded-full bg-background/90 backdrop-blur-sm border border-border/30 shadow-md flex items-center justify-center hover:bg-background hover:shadow-lg hover:scale-105"
         )}>
-          <X className={cn("text-muted-foreground", isMobile ? "h-4 w-4" : "h-4 w-4")} />
+          <X className={cn("text-foreground/80 hover:text-foreground transition-colors", isMobile ? "h-4 w-4" : "h-4 w-4")} />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

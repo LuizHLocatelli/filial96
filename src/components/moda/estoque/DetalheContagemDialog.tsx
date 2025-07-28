@@ -135,14 +135,14 @@ export function DetalheContagemDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="w-[96vw] max-w-none sm:max-w-4xl h-[95vh] max-h-none p-0 gap-0 flex flex-col overflow-hidden">
-          {/* Header com padding controlado */}
-          <DialogHeader className="flex-shrink-0 p-4 sm:p-6 border-b border-border/10">
+          {/* Header com padding controlado e espaço para botão X */}
+          <DialogHeader className="flex-shrink-0 p-4 sm:p-6 pr-12 sm:pr-14 border-b border-border/10">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Package className="h-5 w-5 text-primary flex-shrink-0" />
+                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                 <div className="min-w-0">
-                  <DialogTitle className="text-lg sm:text-xl truncate">{contagem.nome}</DialogTitle>
-                  <DialogDescription className="text-xs sm:text-sm">
+                  <DialogTitle className="text-base sm:text-lg truncate">{contagem.nome}</DialogTitle>
+                  <DialogDescription className="text-xs">
                     Criada {formatDistanceToNow(new Date(contagem.created_at), {
                       addSuffix: true,
                       locale: ptBR
@@ -150,20 +150,20 @@ export function DetalheContagemDialog({
                   </DialogDescription>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                 <Badge className={getStatusColor(contagem.status)} variant="outline">
-                  <span className="hidden sm:inline">{getStatusText(contagem.status)}</span>
-                  <span className="sm:hidden">{contagem.status === "em_andamento" ? "Em And." : "Final."}</span>
+                  <span className="hidden sm:inline text-xs">{getStatusText(contagem.status)}</span>
+                  <span className="sm:hidden text-xs">{contagem.status === "em_andamento" ? "Em And." : "Final."}</span>
                 </Badge>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setExportDialogOpen(true)}
                   disabled={produtos.length === 0}
-                  className="gap-1 text-xs sm:text-sm px-2 sm:px-3"
+                  className="gap-1 text-xs px-2 sm:px-3 h-7 sm:h-8"
                 >
-                  <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Exportar PDF</span>
+                  <Download className="h-3 w-3" />
+                  <span className="hidden sm:inline">PDF</span>
                   <span className="sm:hidden">PDF</span>
                 </Button>
               </div>
