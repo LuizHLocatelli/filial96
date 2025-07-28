@@ -124,6 +124,13 @@ export function DetalheContagemDialog({
     onContagemAtualizada();
   };
 
+  const handleProdutoAdicionado = () => {
+    carregarProdutos();
+    onContagemAtualizada();
+    // Manter na aba "Adicionar Produto" para agilizar o fluxo de contagem
+    // setActiveTab("produtos"); // Comentado para manter na aba atual
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -180,7 +187,7 @@ export function DetalheContagemDialog({
               <TabsContent value="adicionar" className="mt-4">
                 <ProdutoForm 
                   contagemId={contagem.id}
-                  onProdutoAdicionado={handleProdutoAtualizado}
+                  onProdutoAdicionado={handleProdutoAdicionado}
                 />
               </TabsContent>
             </Tabs>

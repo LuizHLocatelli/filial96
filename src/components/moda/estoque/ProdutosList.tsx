@@ -178,88 +178,120 @@ export function ProdutosList({
 
   return (
     <div className="space-y-4">
-      {/* Filtros e Busca */}
-      <div className="flex flex-col gap-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por código..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="pl-10"
-          />
+      {/* Filtros e Busca - Layout otimizado */}
+      <div className="glass-card p-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por código..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="pl-10 h-10"
+            />
+          </div>
+          
+          <Select value={filtroSetor} onValueChange={setFiltroSetor}>
+            <SelectTrigger className="w-full sm:w-[180px] h-10">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os setores</SelectItem>
+              <SelectItem value="masculino">Masculino</SelectItem>
+              <SelectItem value="feminino">Feminino</SelectItem>
+              <SelectItem value="infantil">Infantil</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        
-        <Select value={filtroSetor} onValueChange={setFiltroSetor}>
-          <SelectTrigger className="w-full">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os setores</SelectItem>
-            <SelectItem value="masculino">Masculino</SelectItem>
-            <SelectItem value="feminino">Feminino</SelectItem>
-            <SelectItem value="infantil">Infantil</SelectItem>
-          </SelectContent>
-        </Select>
 
-        {/* Resumo */}
-        <div className="text-sm text-muted-foreground">
-          {produtosFiltrados.length} produto{produtosFiltrados.length !== 1 ? "s" : ""} • 
-          Total: {totalProdutos} unidade{totalProdutos !== 1 ? "s" : ""}
+        {/* Resumo com estatísticas melhoradas */}
+        <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-border/50">
+          <div className="flex items-center gap-4 text-sm">
+            <Badge variant="secondary" className="font-mono">
+              {produtosFiltrados.length} produto{produtosFiltrados.length !== 1 ? "s" : ""}
+            </Badge>
+            <Badge variant="outline" className="font-mono">
+              {totalProdutos} unidade{totalProdutos !== 1 ? "s" : ""}
+            </Badge>
+          </div>
+          
+          {/* Estatísticas por setor */}
+          {produtosFiltrados.length > 0 && (
+            <div className="flex gap-2 text-xs">
+              {["masculino", "feminino", "infantil"].map(setor => {
+                const count = produtosFiltrados.filter(p => p.setor === setor).length;
+                if (count === 0) return null;
+                return (
+                  <span key={setor} className="text-muted-foreground">
+                    {setor.charAt(0).toUpperCase()}: {count}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Tabela */}
+      {/* Lista de Produtos */}
       {produtosFiltrados.length === 0 ? (
-        <div className="text-center py-8">
-          <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">
+        <div className="glass-card p-8 text-center">
+          <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-medium mb-2 text-foreground">
             {produtos.length === 0 ? "Nenhum produto cadastrado" : "Nenhum produto encontrado"}
           </h3>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground max-w-sm mx-auto">
             {produtos.length === 0 
-              ? "Adicione produtos para começar a contagem" 
-              : "Tente ajustar os filtros de busca"
+              ? "Use a aba 'Adicionar Produto' para começar a contagem" 
+              : "Tente ajustar os filtros de busca para encontrar produtos"
             }
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Tabela para desktop */}
-          <div className="hidden md:block">
-            <div className="overflow-x-auto border rounded-lg">
+          {/* Tabela para desktop - Design otimizado */}
+          <div className="hidden lg:block">
+            <div className="glass-card overflow-hidden">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Código</TableHead>
-                    <TableHead>Setor</TableHead>
-                    <TableHead>Quantidade</TableHead>
-                    <TableHead>Cadastrado</TableHead>
+                <TableHeader className="bg-muted/30">
+                  <TableRow className="border-b border-border/50">
+                    <TableHead className="font-semibold">Código</TableHead>
+                    <TableHead className="font-semibold">Setor</TableHead>
+                    <TableHead className="font-semibold text-center">Qtd</TableHead>
+                    <TableHead className="font-semibold">Cadastrado</TableHead>
                     {contagemStatus === "em_andamento" && (
                       <TableHead className="w-12"></TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {produtosFiltrados.map((produto) => {
+                  {produtosFiltrados.map((produto, index) => {
                     const SetorIcon = getSetorIcon(produto.setor);
                     return (
-                      <TableRow key={produto.id}>
-                        <TableCell className="font-mono">
+                      <TableRow 
+                        key={produto.id} 
+                        className={`hover:bg-muted/20 transition-colors ${
+                          index % 2 === 0 ? 'bg-muted/5' : ''
+                        }`}
+                      >
+                        <TableCell className="font-mono text-lg font-medium">
                           {produto.codigo_produto}
                         </TableCell>
                         <TableCell>
                           <Badge 
                             variant="outline" 
-                            className={getSetorColor(produto.setor)}
+                            className={`${getSetorColor(produto.setor)} font-medium`}
                           >
                             <SetorIcon className="h-3 w-3 mr-1" />
                             {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{produto.quantidade}</TableCell>
-                        <TableCell className="text-muted-foreground">
+                        <TableCell className="text-center">
+                          <Badge variant="secondary" className="font-mono text-base px-3 py-1">
+                            {produto.quantidade}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
                           {formatDistanceToNow(new Date(produto.created_at), {
                             addSuffix: true,
                             locale: ptBR
@@ -269,7 +301,7 @@ export function ProdutosList({
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-destructive/10">
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -315,84 +347,92 @@ export function ProdutosList({
             </div>
           </div>
 
-          {/* Cards para mobile */}
-          <div className="block md:hidden space-y-3">
-            {produtosFiltrados.map((produto) => {
-              const SetorIcon = getSetorIcon(produto.setor);
-              return (
-                <div key={produto.id} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <p className="font-mono text-lg font-semibold">
-                        {produto.codigo_produto}
-                      </p>
-                      <Badge 
-                        variant="outline" 
-                        className={getSetorColor(produto.setor)}
-                      >
-                        <SetorIcon className="h-3 w-3 mr-1" />
-                        {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Quantidade</p>
-                        <p className="text-lg font-semibold">{produto.quantidade}</p>
+          {/* Grid para tablet e mobile - Design aprimorado */}
+          <div className="block lg:hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {produtosFiltrados.map((produto) => {
+                const SetorIcon = getSetorIcon(produto.setor);
+                return (
+                  <div key={produto.id} className="glass-card p-4 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-lg font-bold tracking-wider">
+                            {produto.codigo_produto}
+                          </span>
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className={`${getSetorColor(produto.setor)} font-medium`}
+                        >
+                          <SetorIcon className="h-3 w-3 mr-1" />
+                          {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
+                        </Badge>
                       </div>
                       
-                      {contagemStatus === "em_andamento" && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem 
-                                  className="text-destructive focus:text-destructive"
-                                  onSelect={(e) => e.preventDefault()}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Remover
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Tem certeza que deseja remover este produto da contagem? 
-                                    Esta ação não pode ser desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => excluirProduto(produto.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      <div className="flex items-center gap-3">
+                        <div className="text-center">
+                          <Badge variant="secondary" className="font-mono text-lg px-3 py-1.5">
+                            {produto.quantidade}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground mt-1">unidades</p>
+                        </div>
+                        
+                        {contagemStatus === "em_andamento" && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-destructive/10">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem 
+                                    className="text-destructive focus:text-destructive"
+                                    onSelect={(e) => e.preventDefault()}
                                   >
+                                    <Trash2 className="h-4 w-4 mr-2" />
                                     Remover
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Tem certeza que deseja remover este produto da contagem? 
+                                      Esta ação não pode ser desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => excluirProduto(produto.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Remover
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="pt-2 border-t border-border/30">
+                      <p className="text-xs text-muted-foreground">
+                        Cadastrado {formatDistanceToNow(new Date(produto.created_at), {
+                          addSuffix: true,
+                          locale: ptBR
+                        })}
+                      </p>
                     </div>
                   </div>
-                  
-                  <div className="text-xs text-muted-foreground">
-                    Cadastrado {formatDistanceToNow(new Date(produto.created_at), {
-                      addSuffix: true,
-                      locale: ptBR
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
