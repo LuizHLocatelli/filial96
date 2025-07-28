@@ -1,6 +1,6 @@
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 interface Produto {
   id: string;
@@ -147,7 +147,7 @@ export function useEstoquePDFExport() {
             new Date(produto.created_at).toLocaleDateString('pt-BR')
           ]);
 
-          (doc as any).autoTable({
+          autoTable(doc, {
             head: [['Código', 'Quantidade', 'Data Cadastro']],
             body: tableData,
             startY: yPosition,
@@ -178,7 +178,7 @@ export function useEstoquePDFExport() {
           new Date(produto.created_at).toLocaleDateString('pt-BR')
         ]);
 
-        (doc as any).autoTable({
+        autoTable(doc, {
           head: [['Código', 'Setor', 'Quantidade', 'Data Cadastro']],
           body: tableData,
           startY: yPosition,
