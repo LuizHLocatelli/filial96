@@ -16,7 +16,7 @@ const GlassCard = React.forwardRef<
       ref={ref}
       className={cn(
         `glass-card-${variant}`,
-        "rounded-2xl text-card-foreground glass-hover relative overflow-hidden",
+        "rounded-xl text-card-foreground glass-hover relative overflow-hidden border border-border/20",
         gradientClass,
         className
       )}

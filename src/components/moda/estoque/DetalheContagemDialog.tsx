@@ -134,7 +134,7 @@ export function DetalheContagemDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[90vh] w-[95vw] sm:w-full overflow-hidden flex flex-col p-3 sm:p-6">
           <DialogHeader>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -167,28 +167,32 @@ export function DetalheContagemDialog({
             </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden min-h-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="produtos">Produtos</TabsTrigger>
-                <TabsTrigger value="adicionar" disabled={contagem.status === "finalizada"}>
+              <TabsList className="grid w-full grid-cols-2 mb-2">
+                <TabsTrigger value="produtos" className="text-xs sm:text-sm">Produtos</TabsTrigger>
+                <TabsTrigger value="adicionar" disabled={contagem.status === "finalizada"} className="text-xs sm:text-sm">
                   Adicionar Produto
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="produtos" className="mt-4 flex-1 overflow-y-auto">
-                <ProdutosList 
-                  contagemId={contagem.id} 
-                  contagemStatus={contagem.status}
-                  onProdutoAtualizado={handleProdutoAtualizado}
-                />
+              <TabsContent value="produtos" className="mt-0 flex-1 overflow-y-auto min-h-0">
+                <div className="h-full overflow-y-auto">
+                  <ProdutosList 
+                    contagemId={contagem.id} 
+                    contagemStatus={contagem.status}
+                    onProdutoAtualizado={handleProdutoAtualizado}
+                  />
+                </div>
               </TabsContent>
 
-              <TabsContent value="adicionar" className="mt-4">
-                <ProdutoForm 
-                  contagemId={contagem.id}
-                  onProdutoAdicionado={handleProdutoAdicionado}
-                />
+              <TabsContent value="adicionar" className="mt-0 flex-1 overflow-y-auto min-h-0">
+                <div className="h-full overflow-y-auto">
+                  <ProdutoForm 
+                    contagemId={contagem.id}
+                    onProdutoAdicionado={handleProdutoAdicionado}
+                  />
+                </div>
               </TabsContent>
             </Tabs>
           </div>
