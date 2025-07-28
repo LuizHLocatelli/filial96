@@ -134,14 +134,15 @@ export function DetalheContagemDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] w-[95vw] sm:w-full overflow-hidden flex flex-col p-3 sm:p-6">
-          <DialogHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-primary" />
-                <div>
-                  <DialogTitle className="text-xl">{contagem.nome}</DialogTitle>
-                  <DialogDescription>
+        <DialogContent className="w-[96vw] max-w-none sm:max-w-4xl h-[95vh] max-h-none p-0 gap-0 flex flex-col overflow-hidden">
+          {/* Header com padding controlado */}
+          <DialogHeader className="flex-shrink-0 p-4 sm:p-6 border-b border-border/10">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <Package className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <DialogTitle className="text-lg sm:text-xl truncate">{contagem.nome}</DialogTitle>
+                  <DialogDescription className="text-xs sm:text-sm">
                     Criada {formatDistanceToNow(new Date(contagem.created_at), {
                       addSuffix: true,
                       locale: ptBR
@@ -149,35 +150,50 @@ export function DetalheContagemDialog({
                   </DialogDescription>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <Badge className={getStatusColor(contagem.status)} variant="outline">
-                  {getStatusText(contagem.status)}
+                  <span className="hidden sm:inline">{getStatusText(contagem.status)}</span>
+                  <span className="sm:hidden">{contagem.status === "em_andamento" ? "Em And." : "Final."}</span>
                 </Badge>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setExportDialogOpen(true)}
                   disabled={produtos.length === 0}
-                  className="gap-2"
+                  className="gap-1 text-xs sm:text-sm px-2 sm:px-3"
                 >
-                  <Download className="h-4 w-4" />
-                  Exportar PDF
+                  <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Exportar PDF</span>
+                  <span className="sm:hidden">PDF</span>
                 </Button>
               </div>
             </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden min-h-0">
+          {/* Conteúdo principal com scroll controlado */}
+          <div className="flex-1 min-h-0 overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-2 mb-2">
-                <TabsTrigger value="produtos" className="text-xs sm:text-sm">Produtos</TabsTrigger>
-                <TabsTrigger value="adicionar" disabled={contagem.status === "finalizada"} className="text-xs sm:text-sm">
-                  Adicionar Produto
-                </TabsTrigger>
-              </TabsList>
+              {/* Tabs header */}
+              <div className="flex-shrink-0 px-4 sm:px-6 pt-2">
+                <TabsList className="grid w-full grid-cols-2 h-9">
+                  <TabsTrigger value="produtos" className="text-xs sm:text-sm px-2">
+                    <span className="hidden sm:inline">Produtos</span>
+                    <span className="sm:hidden">Produtos</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="adicionar" 
+                    disabled={contagem.status === "finalizada"} 
+                    className="text-xs sm:text-sm px-2"
+                  >
+                    <span className="hidden sm:inline">Adicionar Produto</span>
+                    <span className="sm:hidden">Adicionar</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-              <TabsContent value="produtos" className="mt-0 flex-1 overflow-y-auto min-h-0">
-                <div className="h-full overflow-y-auto">
+              {/* Conteúdo das tabs com scroll independente */}
+              <TabsContent value="produtos" className="flex-1 mt-0 overflow-hidden">
+                <div className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
                   <ProdutosList 
                     contagemId={contagem.id} 
                     contagemStatus={contagem.status}
@@ -186,8 +202,8 @@ export function DetalheContagemDialog({
                 </div>
               </TabsContent>
 
-              <TabsContent value="adicionar" className="mt-0 flex-1 overflow-y-auto min-h-0">
-                <div className="h-full overflow-y-auto">
+              <TabsContent value="adicionar" className="flex-1 mt-0 overflow-hidden">
+                <div className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
                   <ProdutoForm 
                     contagemId={contagem.id}
                     onProdutoAdicionado={handleProdutoAdicionado}

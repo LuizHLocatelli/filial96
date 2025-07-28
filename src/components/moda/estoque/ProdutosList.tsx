@@ -248,134 +248,136 @@ export function ProdutosList({
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Tabela para desktop - Design otimizado */}
-          <div className="hidden lg:block">
+          <div className="hidden md:block">
             <div className="glass-card overflow-hidden">
-              <Table>
-                <TableHeader className="bg-muted/30">
-                  <TableRow className="border-b border-border/50">
-                    <TableHead className="font-semibold">Código</TableHead>
-                    <TableHead className="font-semibold">Setor</TableHead>
-                    <TableHead className="font-semibold text-center">Qtd</TableHead>
-                    <TableHead className="font-semibold">Cadastrado</TableHead>
-                    {contagemStatus === "em_andamento" && (
-                      <TableHead className="w-12"></TableHead>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {produtosFiltrados.map((produto, index) => {
-                    const SetorIcon = getSetorIcon(produto.setor);
-                    return (
-                      <TableRow 
-                        key={produto.id} 
-                        className={`hover:bg-muted/20 transition-colors ${
-                          index % 2 === 0 ? 'bg-muted/5' : ''
-                        }`}
-                      >
-                        <TableCell className="font-mono text-lg font-medium">
-                          {produto.codigo_produto}
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={`${getSetorColor(produto.setor)} font-medium`}
-                          >
-                            <SetorIcon className="h-3 w-3 mr-1" />
-                            {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant="secondary" className="font-mono text-base px-3 py-1">
-                            {produto.quantidade}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {formatDistanceToNow(new Date(produto.created_at), {
-                            addSuffix: true,
-                            locale: ptBR
-                          })}
-                        </TableCell>
-                        {contagemStatus === "em_andamento" && (
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-destructive/10">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem 
-                                      className="text-destructive focus:text-destructive"
-                                      onSelect={(e) => e.preventDefault()}
-                                    >
-                                      <Trash2 className="h-4 w-4 mr-2" />
-                                      Remover
-                                    </DropdownMenuItem>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Tem certeza que deseja remover este produto da contagem? 
-                                        Esta ação não pode ser desfeita.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                      <AlertDialogAction 
-                                        onClick={() => excluirProduto(produto.id)}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                      >
-                                        Remover
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-muted/30">
+                    <TableRow className="border-b border-border/50">
+                      <TableHead className="font-semibold min-w-[120px]">Código</TableHead>
+                      <TableHead className="font-semibold min-w-[100px]">Setor</TableHead>
+                      <TableHead className="font-semibold text-center min-w-[60px]">Qtd</TableHead>
+                      <TableHead className="font-semibold min-w-[120px]">Cadastrado</TableHead>
+                      {contagemStatus === "em_andamento" && (
+                        <TableHead className="w-12"></TableHead>
+                      )}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {produtosFiltrados.map((produto, index) => {
+                      const SetorIcon = getSetorIcon(produto.setor);
+                      return (
+                        <TableRow 
+                          key={produto.id} 
+                          className={`hover:bg-muted/20 transition-colors ${
+                            index % 2 === 0 ? 'bg-muted/5' : ''
+                          }`}
+                        >
+                          <TableCell className="font-mono text-lg font-medium">
+                            {produto.codigo_produto}
                           </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                          <TableCell>
+                            <Badge 
+                              variant="outline" 
+                              className={`${getSetorColor(produto.setor)} font-medium whitespace-nowrap`}
+                            >
+                              <SetorIcon className="h-3 w-3 mr-1" />
+                              {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="secondary" className="font-mono text-base px-3 py-1">
+                              {produto.quantidade}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
+                            {formatDistanceToNow(new Date(produto.created_at), {
+                              addSuffix: true,
+                              locale: ptBR
+                            })}
+                          </TableCell>
+                          {contagemStatus === "em_andamento" && (
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-destructive/10">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <DropdownMenuItem 
+                                        className="text-destructive focus:text-destructive"
+                                        onSelect={(e) => e.preventDefault()}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Remover
+                                      </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirmar Remoção</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Tem certeza que deseja remover este produto da contagem? 
+                                          Esta ação não pode ser desfeita.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction 
+                                          onClick={() => excluirProduto(produto.id)}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          Remover
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
 
-          {/* Grid para tablet e mobile - Design aprimorado */}
-          <div className="block lg:hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Cards para mobile e tablet - Design completamente responsivo */}
+          <div className="block md:hidden">
+            <div className="space-y-3">
               {produtosFiltrados.map((produto) => {
                 const SetorIcon = getSetorIcon(produto.setor);
                 return (
-                  <div key={produto.id} className="glass-card p-4 hover:shadow-md transition-all duration-200">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="space-y-2 flex-1">
+                  <div key={produto.id} className="glass-card p-3 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-lg font-bold tracking-wider">
+                          <span className="font-mono text-base sm:text-lg font-bold tracking-wider truncate">
                             {produto.codigo_produto}
                           </span>
                         </div>
                         <Badge 
                           variant="outline" 
-                          className={`${getSetorColor(produto.setor)} font-medium`}
+                          className={`${getSetorColor(produto.setor)} font-medium text-xs`}
                         >
                           <SetorIcon className="h-3 w-3 mr-1" />
                           {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         <div className="text-center">
-                          <Badge variant="secondary" className="font-mono text-lg px-3 py-1.5">
+                          <Badge variant="secondary" className="font-mono text-sm px-2 py-1">
                             {produto.quantidade}
                           </Badge>
-                          <p className="text-xs text-muted-foreground mt-1">unidades</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">un.</p>
                         </div>
                         
                         {contagemStatus === "em_andamento" && (
@@ -422,8 +424,8 @@ export function ProdutosList({
                     </div>
                     
                     <div className="pt-2 border-t border-border/30">
-                      <p className="text-xs text-muted-foreground">
-                        Cadastrado {formatDistanceToNow(new Date(produto.created_at), {
+                      <p className="text-xs text-muted-foreground truncate">
+                        {formatDistanceToNow(new Date(produto.created_at), {
                           addSuffix: true,
                           locale: ptBR
                         })}
