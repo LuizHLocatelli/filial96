@@ -49,6 +49,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { EditarProdutoDialog } from "./EditarProdutoDialog";
 
 interface Produto {
   id: string;
@@ -74,6 +75,8 @@ export function ProdutosList({
   const [loading, setLoading] = useState(true);
   const [filtroSetor, setFiltroSetor] = useState("todos");
   const [busca, setBusca] = useState("");
+  const [editarProdutoOpen, setEditarProdutoOpen] = useState(false);
+  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -164,6 +167,18 @@ export function ProdutosList({
   const validarCodigo = (codigo: string) => {
     // Valida se o código tem exatamente 6 ou 9 dígitos
     return codigo.length === 6 || codigo.length === 9;
+  };
+
+  const abrirEdicaoProduto = (produto: Produto) => {
+    setProdutoSelecionado(produto);
+    setEditarProdutoOpen(true);
+  };
+
+  const handleProdutoEditado = () => {
+    carregarProdutos();
+    onProdutoAtualizado();
+    setEditarProdutoOpen(false);
+    setProdutoSelecionado(null);
   };
 
   const produtosComInconformidade = produtos.filter(produto => !validarCodigo(produto.codigo_produto));
@@ -329,6 +344,12 @@ export function ProdutosList({
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                  <DropdownMenuItem 
+                                    onClick={() => abrirEdicaoProduto(produto)}
+                                  >
+                                    <Edit2 className="h-4 w-4 mr-2" />
+                                    Editar
+                                  </DropdownMenuItem>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                       <DropdownMenuItem 
@@ -416,6 +437,12 @@ export function ProdutosList({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem 
+                                onClick={() => abrirEdicaoProduto(produto)}
+                              >
+                                <Edit2 className="h-4 w-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <DropdownMenuItem 
@@ -466,6 +493,14 @@ export function ProdutosList({
           </div>
         </div>
       )}
+
+      {/* Dialog de edição de produto */}
+      <EditarProdutoDialog
+        open={editarProdutoOpen}
+        onOpenChange={setEditarProdutoOpen}
+        produto={produtoSelecionado}
+        onProdutoAtualizado={handleProdutoEditado}
+      />
     </div>
   );
 }

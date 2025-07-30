@@ -9,12 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Download } from "lucide-react";
+import { Package, Download, Edit2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProdutoForm } from "./ProdutoForm";
 import { ProdutosList } from "./ProdutosList";
 import { PDFExportEstoqueDialog } from "./PDFExportEstoqueDialog";
+import { EditarNomeContagemDialog } from "./EditarNomeContagemDialog";
 import { useEstoquePDFExport } from "./hooks/useEstoquePDFExport";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -53,6 +54,7 @@ export function DetalheContagemDialog({
   const [loadingProdutos, setLoadingProdutos] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [editarNomeOpen, setEditarNomeOpen] = useState(false);
   const { exportToPDF } = useEstoquePDFExport();
 
   const getStatusColor = (status: string) => {
@@ -140,8 +142,20 @@ export function DetalheContagemDialog({
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <Package className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                <div className="min-w-0">
-                  <DialogTitle className="text-base sm:text-lg truncate">{contagem.nome}</DialogTitle>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <DialogTitle className="text-base sm:text-lg truncate">{contagem.nome}</DialogTitle>
+                    {contagem.status === "em_andamento" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditarNomeOpen(true)}
+                        className="h-6 w-6 p-0 hover:bg-muted"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                   <DialogDescription className="text-xs">
                     Criada {formatDistanceToNow(new Date(contagem.created_at), {
                       addSuffix: true,
@@ -222,6 +236,13 @@ export function DetalheContagemDialog({
         produtos={produtos}
         onExport={handleExportPDF}
         isExporting={isExporting}
+      />
+
+      <EditarNomeContagemDialog
+        open={editarNomeOpen}
+        onOpenChange={setEditarNomeOpen}
+        contagem={contagem}
+        onContagemAtualizada={onContagemAtualizada}
       />
     </>
   );
