@@ -75,6 +75,7 @@ export function ProdutosList({
   const [loading, setLoading] = useState(true);
   const [filtroSetor, setFiltroSetor] = useState("todos");
   const [busca, setBusca] = useState("");
+  const [filtroValidacao, setFiltroValidacao] = useState("todos");
   const [editarProdutoOpen, setEditarProdutoOpen] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
   const { toast } = useToast();
@@ -186,7 +187,10 @@ export function ProdutosList({
   const produtosFiltrados = produtos.filter(produto => {
     const matchSetor = filtroSetor === "todos" || produto.setor === filtroSetor;
     const matchBusca = busca === "" || produto.codigo_produto.includes(busca);
-    return matchSetor && matchBusca;
+    const matchValidacao = filtroValidacao === "todos" || 
+                          (filtroValidacao === "validos" && validarCodigo(produto.codigo_produto)) ||
+                          (filtroValidacao === "invalidos" && !validarCodigo(produto.codigo_produto));
+    return matchSetor && matchBusca && matchValidacao;
   });
 
   const totalProdutos = produtosFiltrados.reduce((acc, produto) => acc + produto.quantidade, 0);
@@ -224,6 +228,18 @@ export function ProdutosList({
               <SelectItem value="masculino">Masculino</SelectItem>
               <SelectItem value="feminino">Feminino</SelectItem>
               <SelectItem value="infantil">Infantil</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filtroValidacao} onValueChange={setFiltroValidacao}>
+            <SelectTrigger className="w-full sm:w-[160px] h-10">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos códigos</SelectItem>
+              <SelectItem value="validos">Códigos válidos</SelectItem>
+              <SelectItem value="invalidos">Códigos inválidos</SelectItem>
             </SelectContent>
           </Select>
         </div>
