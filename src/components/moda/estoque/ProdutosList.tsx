@@ -500,6 +500,7 @@ export function ProdutosList({
         onOpenChange={setEditarProdutoOpen}
         produto={produtoSelecionado}
         onProdutoAtualizado={handleProdutoEditado}
+        contagemId={contagemId}
       />
     </div>
   );

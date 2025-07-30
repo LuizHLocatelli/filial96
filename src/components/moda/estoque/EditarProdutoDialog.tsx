@@ -33,6 +33,7 @@ interface EditarProdutoDialogProps {
   onOpenChange: (open: boolean) => void;
   produto: Produto | null;
   onProdutoAtualizado: () => void;
+  contagemId: string;
 }
 
 const setores = [
@@ -45,7 +46,8 @@ export function EditarProdutoDialog({
   open, 
   onOpenChange, 
   produto,
-  onProdutoAtualizado 
+  onProdutoAtualizado,
+  contagemId
 }: EditarProdutoDialogProps) {
   const [codigoProduto, setCodigoProduto] = useState("");
   const [setor, setSetor] = useState("");
@@ -102,6 +104,28 @@ export function EditarProdutoDialog({
 
     setLoading(true);
     try {
+      // Verificar se já existe outro produto com o mesmo código e setor na mesma contagem
+      const { data: existingProduct, error: checkError } = await supabase
+        .from("moda_estoque_produtos")
+        .select("id")
+        .eq("contagem_id", contagemId)
+        .eq("codigo_produto", codigoProduto)
+        .eq("setor", setor)
+        .neq("id", produto.id)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingProduct) {
+        toast({
+          title: "Produto já existe",
+          description: `Já existe um produto com o código ${codigoProduto} no setor ${setor} nesta contagem.`,
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("moda_estoque_produtos")
         .update({
