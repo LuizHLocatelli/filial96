@@ -42,7 +42,8 @@ import {
   Trash2, 
   Package,
   User,
-  Baby
+  Baby,
+  AlertTriangle
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -160,6 +161,13 @@ export function ProdutosList({
     }
   };
 
+  const validarCodigo = (codigo: string) => {
+    // Valida se o código tem exatamente 6 ou 9 dígitos
+    return codigo.length === 6 || codigo.length === 9;
+  };
+
+  const produtosComInconformidade = produtos.filter(produto => !validarCodigo(produto.codigo_produto));
+
   const produtosFiltrados = produtos.filter(produto => {
     const matchSetor = filtroSetor === "todos" || produto.setor === filtroSetor;
     const matchBusca = busca === "" || produto.codigo_produto.includes(busca);
@@ -214,6 +222,12 @@ export function ProdutosList({
             <Badge variant="outline" className="font-mono">
               {totalProdutos} unidade{totalProdutos !== 1 ? "s" : ""}
             </Badge>
+            {produtosComInconformidade.length > 0 && (
+              <Badge variant="destructive" className="font-mono">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                {produtosComInconformidade.length} código{produtosComInconformidade.length !== 1 ? "s" : ""} inválido{produtosComInconformidade.length !== 1 ? "s" : ""}
+              </Badge>
+            )}
           </div>
           
           {/* Estatísticas por setor */}
@@ -276,7 +290,15 @@ export function ProdutosList({
                           }`}
                         >
                           <TableCell className="font-mono text-lg font-medium">
-                            {produto.codigo_produto}
+                            <div className="flex items-center gap-2">
+                              {produto.codigo_produto}
+                              {!validarCodigo(produto.codigo_produto) && (
+                                <Badge variant="destructive" className="text-xs">
+                                  <AlertTriangle className="h-3 w-3 mr-1" />
+                                  Inválido
+                                </Badge>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Badge 
@@ -362,6 +384,12 @@ export function ProdutosList({
                           <span className="font-mono text-base sm:text-lg font-bold tracking-wider truncate">
                             {produto.codigo_produto}
                           </span>
+                          {!validarCodigo(produto.codigo_produto) && (
+                            <Badge variant="destructive" className="text-xs">
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              Inválido
+                            </Badge>
+                          )}
                         </div>
                         <Badge 
                           variant="outline" 

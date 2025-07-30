@@ -40,6 +40,11 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
     return numero.slice(0, 9);
   };
 
+  const validarCodigo = (codigo: string) => {
+    // Valida se o código tem exatamente 6 ou 9 dígitos
+    return codigo.length === 6 || codigo.length === 9;
+  };
+
   const handleCodigoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valorFormatado = formatarCodigo(e.target.value);
     setCodigoProduto(valorFormatado);
@@ -52,6 +57,16 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
       toast({
         title: "Erro",
         description: "Todos os campos são obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validação do código do produto
+    if (!validarCodigo(codigoProduto)) {
+      toast({
+        title: "Código inválido",
+        description: "O código do produto deve ter exatamente 6 ou 9 dígitos.",
         variant: "destructive"
       });
       return;
