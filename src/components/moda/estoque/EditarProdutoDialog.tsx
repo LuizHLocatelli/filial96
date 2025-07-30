@@ -107,7 +107,7 @@ export function EditarProdutoDialog({
       // Verificar se já existe outro produto com o mesmo código e setor na mesma contagem
       const { data: existingProduct, error: checkError } = await supabase
         .from("moda_estoque_produtos")
-        .select("id")
+        .select("id, quantidade")
         .eq("contagem_id", contagemId)
         .eq("codigo_produto", codigoProduto)
         .eq("setor", setor)
@@ -117,33 +117,55 @@ export function EditarProdutoDialog({
       if (checkError) throw checkError;
 
       if (existingProduct) {
+        // Se existe, somar as quantidades e deletar o produto atual
+        const novaQuantidade = existingProduct.quantidade + quantidade;
+        
+        // Atualizar o produto existente com a soma das quantidades
+        const { error: updateError } = await supabase
+          .from("moda_estoque_produtos")
+          .update({
+            quantidade: novaQuantidade,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", existingProduct.id);
+
+        if (updateError) throw updateError;
+
+        // Deletar o produto que estava sendo editado
+        const { error: deleteError } = await supabase
+          .from("moda_estoque_produtos")
+          .delete()
+          .eq("id", produto.id);
+
+        if (deleteError) throw deleteError;
+
+        const setorLabel = setores.find(s => s.value === setor)?.label || setor;
+        
         toast({
-          title: "Produto já existe",
-          description: `Já existe um produto com o código ${codigoProduto} no setor ${setor} nesta contagem.`,
-          variant: "destructive"
+          title: "✅ Produtos unificados!",
+          description: `${codigoProduto} · ${novaQuantidade} unidade(s) · ${setorLabel} (quantidades somadas)`
         });
-        setLoading(false);
-        return;
+      } else {
+        // Se não existe, apenas atualizar normalmente
+        const { error } = await supabase
+          .from("moda_estoque_produtos")
+          .update({
+            codigo_produto: codigoProduto,
+            setor: setor,
+            quantidade: quantidade,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", produto.id);
+
+        if (error) throw error;
+
+        const setorLabel = setores.find(s => s.value === setor)?.label || setor;
+        
+        toast({
+          title: "✅ Produto atualizado!",
+          description: `${codigoProduto} · ${quantidade} unidade(s) · ${setorLabel}`
+        });
       }
-
-      const { error } = await supabase
-        .from("moda_estoque_produtos")
-        .update({
-          codigo_produto: codigoProduto,
-          setor: setor,
-          quantidade: quantidade,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", produto.id);
-
-      if (error) throw error;
-
-      const setorLabel = setores.find(s => s.value === setor)?.label || setor;
-      
-      toast({
-        title: "✅ Produto atualizado!",
-        description: `${codigoProduto} · ${quantidade} unidade(s) · ${setorLabel}`
-      });
 
       onProdutoAtualizado();
       onOpenChange(false);
