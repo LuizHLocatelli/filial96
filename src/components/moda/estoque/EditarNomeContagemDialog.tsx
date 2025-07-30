@@ -45,40 +45,46 @@ export function EditarNomeContagemDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!contagem || !nome.trim()) {
+    if (!nome.trim()) {
       toast({
         title: "Erro",
-        description: "O nome da contagem é obrigatório.",
-        variant: "destructive"
+        description: "O nome da contagem não pode estar vazio.",
+        variant: "destructive",
       });
       return;
     }
 
     setLoading(true);
+
     try {
       const { error } = await supabase
         .from("moda_estoque_contagens")
-        .update({
-          nome: nome.trim(),
-          updated_at: new Date().toISOString()
-        })
+        .update({ nome: nome.trim() })
         .eq("id", contagem.id);
 
-      if (error) throw error;
-      
+      if (error) {
+        console.error("Erro ao atualizar contagem:", error);
+        toast({
+          title: "Erro",
+          description: `Erro ao atualizar contagem: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
-        title: "✅ Nome atualizado!",
-        description: `A contagem foi renomeada para "${nome.trim()}"`
+        title: "Sucesso",
+        description: "Nome da contagem atualizado com sucesso!",
       });
 
       onContagemAtualizada();
       onOpenChange(false);
     } catch (error) {
-      console.error("Erro ao atualizar nome da contagem:", error);
+      console.error("Erro ao atualizar contagem:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar o nome da contagem.",
-        variant: "destructive"
+        description: "Erro inesperado ao atualizar contagem.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -89,20 +95,20 @@ export function EditarNomeContagemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg mx-auto">
+        <DialogHeader className="space-y-2 sm:space-y-3">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <Edit2 className="h-5 w-5" />
             Editar Nome da Contagem
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm sm:text-base">
             Altere o nome da contagem para facilitar a identificação.
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nome-contagem">Nome da Contagem *</Label>
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="space-y-2 sm:space-y-3">
+            <Label htmlFor="nome-contagem" className="text-sm sm:text-base">Nome da Contagem *</Label>
             <Input
               id="nome-contagem"
               placeholder="Ex: Contagem Janeiro 2024"
@@ -111,29 +117,36 @@ export function EditarNomeContagemDialog({
               required
               disabled={loading}
               maxLength={100}
+              className="h-10 sm:h-11 text-sm sm:text-base"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Máximo 100 caracteres
             </p>
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base order-2 sm:order-1"
+            >
               Cancelar
             </Button>
             <Button 
               type="submit" 
               disabled={!nome.trim() || loading}
-              className="gap-2"
+              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base gap-1.5 sm:gap-2 order-1 sm:order-2"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Salvando...
+                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                  <span className="hidden sm:inline">Salvando...</span>
+                  <span className="sm:hidden">Salvando</span>
                 </>
               ) : (
                 <>
-                  <Package className="h-4 w-4" />
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                   Salvar Nome
                 </>
               )}

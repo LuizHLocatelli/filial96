@@ -152,21 +152,21 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
           Adicionar Produto
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           Cadastre produtos na contagem. Se o código já existir no mesmo setor, 
           as quantidades serão somadas automaticamente.
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="space-y-4 sm:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="codigo">Código do Produto *</Label>
+              <Label htmlFor="codigo" className="text-sm sm:text-base">Código do Produto *</Label>
               <Input
                 id="codigo"
                 placeholder="123456789"
@@ -175,16 +175,17 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
                 required
                 maxLength={9}
                 disabled={loading}
+                className="font-mono h-10 sm:h-11 text-sm sm:text-base"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Máximo 9 dígitos • Apenas números
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="setor">Setor *</Label>
+              <Label htmlFor="setor" className="text-sm sm:text-base">Setor *</Label>
               <Select value={setor} onValueChange={setSetor} disabled={loading}>
-                <SelectTrigger>
+                <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base">
                   <SelectValue placeholder="Selecione o setor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -205,7 +206,7 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="quantidade">Quantidade *</Label>
+            <Label htmlFor="quantidade" className="text-sm sm:text-base">Quantidade *</Label>
             <Input
               id="quantidade"
               type="number"
@@ -214,7 +215,7 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
               onChange={(e) => setQuantidade(Number(e.target.value))}
               required
               disabled={loading}
-              className="w-32"
+              className="w-32 h-10 sm:h-11 text-sm sm:text-base"
             />
           </div>
 
@@ -240,17 +241,19 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
             <Button 
               type="submit" 
               disabled={!codigoProduto || !setor || quantidade < 1 || loading}
-              className="gap-2"
+              className="gap-2 h-10 sm:h-11 text-sm sm:text-base"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Adicionando...
+                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                  <span className="hidden sm:inline">Adicionando...</span>
+                  <span className="sm:hidden">Adicionando</span>
                 </>
               ) : (
                 <>
-                  <Package className="h-4 w-4" />
-                  Adicionar Produto
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Adicionar Produto</span>
+                  <span className="sm:hidden">Adicionar</span>
                 </>
               )}
             </Button>

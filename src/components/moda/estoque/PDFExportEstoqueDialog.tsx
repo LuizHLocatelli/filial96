@@ -71,13 +71,13 @@ export function PDFExportEstoqueDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg mx-auto">
+        <DialogHeader className="space-y-2 sm:space-y-3">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            <DialogTitle>Exportar Contagem para PDF</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">Exportar Contagem para PDF</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-sm sm:text-base">
             Configure as opções para exportar a contagem de estoque em PDF.
           </DialogDescription>
         </DialogHeader>
@@ -110,36 +110,38 @@ export function PDFExportEstoqueDialog({
           <Separator />
 
           {/* Opções de conteúdo */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
+          <div className="space-y-4 sm:space-y-6">
+            <h4 className="text-sm sm:text-base font-semibold flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5" />
               Opções de Conteúdo
             </h4>
             
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Checkbox
                   id="includeDate"
                   checked={options.includeDate}
                   onCheckedChange={(checked) => updateOption("includeDate", checked as boolean)}
+                  className="h-4 w-4 sm:h-5 sm:w-5"
                 />
                 <label
                   htmlFor="includeDate"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Incluir data de geração
                 </label>
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Checkbox
                   id="includeStats"
                   checked={options.includeStats}
                   onCheckedChange={(checked) => updateOption("includeStats", checked as boolean)}
+                  className="h-4 w-4 sm:h-5 sm:w-5"
                 />
                 <label
                   htmlFor="includeStats"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Incluir estatísticas gerais
                 </label>
@@ -150,33 +152,35 @@ export function PDFExportEstoqueDialog({
           <Separator />
 
           {/* Opções de organização */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold">Organização</h4>
+          <div className="space-y-4 sm:space-y-6">
+            <h4 className="text-sm sm:text-base font-semibold">Organização</h4>
             
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Checkbox
                   id="groupBySetor"
                   checked={options.groupBySetor}
                   onCheckedChange={(checked) => updateOption("groupBySetor", checked as boolean)}
+                  className="h-4 w-4 sm:h-5 sm:w-5"
                 />
                 <label
                   htmlFor="groupBySetor"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Agrupar por setor ({setores.length} setores)
                 </label>
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Checkbox
                   id="includeTotal"
                   checked={options.includeTotal}
                   onCheckedChange={(checked) => updateOption("includeTotal", checked as boolean)}
+                  className="h-4 w-4 sm:h-5 sm:w-5"
                 />
                 <label
                   htmlFor="includeTotal"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Incluir totais no final
                 </label>
@@ -185,19 +189,20 @@ export function PDFExportEstoqueDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isExporting}
+            className="w-full sm:w-auto order-2 sm:order-1"
           >
             Cancelar
           </Button>
           <Button
             onClick={handleExport}
             disabled={isExporting || totalProdutos === 0}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto order-1 sm:order-2"
           >
             {isExporting ? (
               <>

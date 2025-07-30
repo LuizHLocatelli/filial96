@@ -52,6 +52,7 @@
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
+    border-radius: 1rem;
     box-shadow: var(--glass-shadow);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -77,6 +78,7 @@
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
+    border-radius: 1rem;
     box-shadow: var(--glass-shadow);
   }
 
@@ -85,6 +87,7 @@
     backdrop-filter: var(--glass-blur-strong);
     -webkit-backdrop-filter: var(--glass-blur-strong);
     border: 1px solid var(--glass-border);
+    border-radius: 1rem;
     box-shadow: var(--glass-shadow-strong);
   }
 
@@ -548,11 +551,13 @@
     .glass-card {
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
     }
     
     .glass-card-strong {
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
+      border-radius: 1.5rem;
     }
   }
 

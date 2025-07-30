@@ -245,30 +245,31 @@ export function ProdutosList({
         </div>
 
         {/* Resumo com estatísticas melhoradas */}
-        <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-border/50">
-          <div className="flex items-center gap-4 text-sm">
-            <Badge variant="secondary" className="font-mono">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-border/50">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <Badge variant="secondary" className="font-mono text-xs sm:text-sm shrink-0">
               {produtosFiltrados.length} produto{produtosFiltrados.length !== 1 ? "s" : ""}
             </Badge>
-            <Badge variant="outline" className="font-mono">
+            <Badge variant="outline" className="font-mono text-xs sm:text-sm shrink-0">
               {totalProdutos} unidade{totalProdutos !== 1 ? "s" : ""}
             </Badge>
             {produtosComInconformidade.length > 0 && (
-              <Badge variant="destructive" className="font-mono">
+              <Badge variant="destructive" className="font-mono text-xs sm:text-sm shrink-0">
                 <AlertTriangle className="h-3 w-3 mr-1" />
-                {produtosComInconformidade.length} código{produtosComInconformidade.length !== 1 ? "s" : ""} inválido{produtosComInconformidade.length !== 1 ? "s" : ""}
+                <span className="hidden sm:inline">{produtosComInconformidade.length} código{produtosComInconformidade.length !== 1 ? "s" : ""} inválido{produtosComInconformidade.length !== 1 ? "s" : ""}</span>
+                <span className="sm:hidden">{produtosComInconformidade.length} inválido{produtosComInconformidade.length !== 1 ? "s" : ""}</span>
               </Badge>
             )}
           </div>
           
           {/* Estatísticas por setor */}
           {produtosFiltrados.length > 0 && (
-            <div className="flex gap-2 text-xs">
+            <div className="flex flex-wrap gap-2 text-xs">
               {["masculino", "feminino", "infantil"].map(setor => {
                 const count = produtosFiltrados.filter(p => p.setor === setor).length;
                 if (count === 0) return null;
                 return (
-                  <span key={setor} className="text-muted-foreground">
+                  <span key={setor} className="text-muted-foreground whitespace-nowrap">
                     {setor.charAt(0).toUpperCase()}: {count}
                   </span>
                 );
@@ -415,35 +416,41 @@ export function ProdutosList({
                 const SetorIcon = getSetorIcon(produto.setor);
                 return (
                   <div key={produto.id} className="glass-card p-3 hover:shadow-md transition-all duration-200">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-base sm:text-lg font-bold tracking-wider truncate">
-                            {produto.codigo_produto}
-                          </span>
-                          {!validarCodigo(produto.codigo_produto) && (
-                            <Badge variant="destructive" className="text-xs">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Inválido
-                            </Badge>
-                          )}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="font-mono text-base sm:text-lg font-bold tracking-wider truncate">
+                              {produto.codigo_produto}
+                            </span>
+                            {!validarCodigo(produto.codigo_produto) && (
+                              <Badge variant="destructive" className="text-xs shrink-0">
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                <span className="hidden xs:inline">Inválido</span>
+                                <span className="xs:hidden">!</span>
+                              </Badge>
+                            )}
+                          </div>
                         </div>
+                        
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="text-center">
+                            <Badge variant="secondary" className="font-mono text-sm px-2 py-1">
+                              {produto.quantidade}
+                            </Badge>
+                            <p className="text-xs text-muted-foreground mt-0.5">un.</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
                         <Badge 
                           variant="outline" 
-                          className={`${getSetorColor(produto.setor)} font-medium text-xs`}
+                          className={`${getSetorColor(produto.setor)} font-medium text-xs shrink-0`}
                         >
                           <SetorIcon className="h-3 w-3 mr-1" />
                           {produto.setor.charAt(0).toUpperCase() + produto.setor.slice(1)}
                         </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <div className="text-center">
-                          <Badge variant="secondary" className="font-mono text-sm px-2 py-1">
-                            {produto.quantidade}
-                          </Badge>
-                          <p className="text-xs text-muted-foreground mt-0.5">un.</p>
-                        </div>
                         
                         {contagemStatus === "em_andamento" && (
                           <DropdownMenu>

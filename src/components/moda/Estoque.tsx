@@ -174,6 +174,36 @@ export function Estoque() {
     setDetalheContagemOpen(true);
   };
 
+  const handleContagemAtualizada = async () => {
+    await carregarContagens();
+    
+    // Atualizar também a contagem selecionada se ela existir
+    if (contagemSelecionada) {
+      try {
+        const { data: contagemAtualizada, error } = await supabase
+          .from("moda_estoque_contagens")
+          .select("*")
+          .eq("id", contagemSelecionada.id)
+          .single();
+
+        if (!error && contagemAtualizada) {
+          // Buscar contagem de produtos
+          const { count } = await supabase
+            .from("moda_estoque_produtos")
+            .select("*", { count: "exact", head: true })
+            .eq("contagem_id", contagemAtualizada.id);
+
+          setContagemSelecionada({
+            ...contagemAtualizada,
+            produtos_count: count || 0
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar contagem selecionada:", error);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -240,7 +270,7 @@ export function Estoque() {
           open={detalheContagemOpen}
           onOpenChange={setDetalheContagemOpen}
           contagem={contagemSelecionada}
-          onContagemAtualizada={carregarContagens}
+          onContagemAtualizada={handleContagemAtualizada}
         />
       )}
     </div>

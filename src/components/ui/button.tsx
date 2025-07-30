@@ -27,12 +27,12 @@ const buttonVariants = cva(
         warning: "bg-yellow-600 text-white border-2 border-yellow-600 shadow-sm hover:bg-yellow-500 hover:border-yellow-500 hover:shadow-md hover:-translate-y-px"
       },
       size: {
-        default: "h-10 px-4 py-2 rounded-lg text-sm",
-        sm: "h-8 px-3 py-1 rounded-md text-xs",
-        lg: "h-12 px-8 py-3 rounded-lg text-base",
-        icon: "h-10 w-10 rounded-lg",
-        "icon-sm": "h-8 w-8 rounded-md",
-        "icon-lg": "h-12 w-12 rounded-lg",
+        default: "h-10 px-4 py-2 rounded-xl text-sm",
+        sm: "h-8 px-3 py-1 rounded-lg text-xs",
+        lg: "h-12 px-8 py-3 rounded-xl text-base",
+        icon: "h-10 w-10 rounded-xl",
+        "icon-sm": "h-8 w-8 rounded-lg",
+        "icon-lg": "h-12 w-12 rounded-xl",
       },
     },
     defaultVariants: {
