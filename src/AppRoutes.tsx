@@ -34,8 +34,6 @@ const PageLoader = () => (
 // Wrapper para páginas com lazy loading
 interface LazyPageWrapperProps {
   children: React.ReactNode;
-  isChatOpen: boolean;
-  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const LazyPageWrapper = ({ children, isChatOpen, setIsChatOpen }: LazyPageWrapperProps) => (

@@ -7,9 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/auth";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { GlobalSearchProvider } from "./contexts/GlobalSearchContext";
-import { useState } from 'react';
 import AppRoutes from "./AppRoutes";
-import { ChatBotModal } from './components/chatbot';
 import { LazyLoadingDashboard } from "./components/debug/LazyLoadingDashboard";
 
 
@@ -17,8 +15,6 @@ const queryClient = new QueryClient();
 
 // Componente interno para usar o hook dentro do ThemeProvider
 const AppContent = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
   return (
     <AuthProvider>
       <TooltipProvider>
@@ -26,8 +22,7 @@ const AppContent = () => {
           <GlobalSearchProvider>
             <Toaster />
             <Sonner />
-            <AppRoutes isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
-            <ChatBotModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+            <AppRoutes />
             <LazyLoadingDashboard />
           </GlobalSearchProvider>
         </BrowserRouter>

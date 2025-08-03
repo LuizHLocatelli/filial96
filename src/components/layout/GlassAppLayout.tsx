@@ -31,7 +31,7 @@ export function GlassAppLayout({ children, isChatOpen, setIsChatOpen }: GlassApp
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="relative z-30"
       >
-        <EnhancedTopBar isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen} />
+        <EnhancedTopBar />
       </motion.div>
       
       {/* Main content with glassmorphism container */}
