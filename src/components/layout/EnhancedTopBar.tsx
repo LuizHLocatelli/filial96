@@ -5,16 +5,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ChatBotButton } from "@/components/chatbot";
-
 import { CompanyLogo } from "./CompanyLogo";
 
-interface EnhancedTopBarProps {
-  isChatOpen: boolean;
-  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export function EnhancedTopBar({ isChatOpen, setIsChatOpen }: EnhancedTopBarProps) {
+export function EnhancedTopBar() {
   const isMobile = useIsMobile();
   const location = useLocation();
 

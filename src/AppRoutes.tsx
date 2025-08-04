@@ -36,18 +36,13 @@ interface LazyPageWrapperProps {
   children: React.ReactNode;
 }
 
-const LazyPageWrapper = ({ children, isChatOpen, setIsChatOpen }: LazyPageWrapperProps) => (
+const LazyPageWrapper = ({ children }: LazyPageWrapperProps) => (
   <Suspense fallback={<PageLoader />}>
-    <AppLayout isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>{children}</AppLayout>
+    <AppLayout>{children}</AppLayout>
   </Suspense>
 );
 
-interface AppRoutesProps {
-  isChatOpen: boolean;
-  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
+const AppRoutes = () => {
   const { isLoading } = useAuth();
   
   // Sistema de preload inteligente
@@ -77,7 +72,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <HubProdutividade />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -87,7 +82,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/cards-promocionais" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <PromotionalCards />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -97,7 +92,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/crediario" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <Crediario />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -107,7 +102,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/moveis" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <Moveis />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -117,7 +112,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/moda" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <Moda />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -128,7 +123,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/pdf-viewer" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <PdfViewerPage />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -138,7 +133,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/perfil" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <Profile />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -148,7 +143,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/gerenciar-usuarios" 
         element={
           <ProtectedRoute>
-            <LazyPageWrapper isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <LazyPageWrapper>
               <UserManagement />
             </LazyPageWrapper>
           </ProtectedRoute>
@@ -160,7 +155,7 @@ const AppRoutes = ({ isChatOpen, setIsChatOpen }: AppRoutesProps) => {
         path="/debug/dark-hover" 
         element={
           <ProtectedRoute>
-            <AppLayout isChatOpen={isChatOpen} setIsChatOpen={setIsChatOpen}>
+            <AppLayout>
               <DarkModeHoverDemo />
             </AppLayout>
           </ProtectedRoute>

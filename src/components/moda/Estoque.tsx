@@ -195,7 +195,8 @@ export function Estoque() {
 
           setContagemSelecionada({
             ...contagemAtualizada,
-            produtos_count: count || 0
+            produtos_count: count || 0,
+            status: contagemAtualizada.status as "em_andamento" | "finalizada"
           });
         }
       } catch (error) {
