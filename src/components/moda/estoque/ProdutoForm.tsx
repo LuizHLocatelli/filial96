@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Package, User, Baby } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
+import { BarcodeScanner } from "./scanner/BarcodeScanner";
 
 interface ProdutoFormProps {
   contagemId: string;
@@ -31,7 +33,9 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
   const [setor, setSetor] = useState("");
   const [quantidade, setQuantidade] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+const { toast } = useToast();
+  const [scannerEnabled, setScannerEnabled] = useState(false);
+  const [autoAddOnScan, setAutoAddOnScan] = useState(true);
 
   const formatarCodigo = (valor: string) => {
     // Remove tudo que não for número
@@ -50,6 +54,70 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
     setCodigoProduto(valorFormatado);
   };
 
+  const addProduto = async (codigo: string, setorValue: string, qtd: number) => {
+    if (!codigo || !setorValue || qtd < 1) return false;
+    if (!validarCodigo(codigo)) {
+      toast({
+        title: "Código inválido",
+        description: "O código do produto deve ter exatamente 6 ou 9 dígitos.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    setLoading(true);
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        toast({ title: "Erro", description: "Usuário não autenticado.", variant: "destructive" });
+        return false;
+      }
+      const { error: rpcError } = await supabase.rpc("upsert_moda_estoque_produto", {
+        p_contagem_id: contagemId,
+        p_codigo_produto: codigo,
+        p_setor: setorValue,
+        p_quantidade: qtd,
+        p_created_by: user.user.id,
+      });
+      if (rpcError) throw rpcError;
+
+      const { data: produtoInfo, error: infoError } = await supabase
+        .from("moda_estoque_produtos")
+        .select("quantidade")
+        .eq("contagem_id", contagemId)
+        .eq("codigo_produto", codigo)
+        .eq("setor", setorValue)
+        .single();
+      if (infoError) throw infoError;
+
+      const quantidadeAnterior = (produtoInfo?.quantidade ?? 0) - qtd;
+      const setorLabel = setores.find((s) => s.value === setorValue)?.label || setorValue;
+      if (quantidadeAnterior > 0) {
+        toast({
+          title: "✅ Produto somado!",
+          description: `${qtd} + ${quantidadeAnterior} = ${produtoInfo?.quantidade} unidades (${setorLabel})`,
+        });
+      } else {
+        toast({ title: "✅ Produto adicionado!", description: `${qtd} unidade(s) · ${codigo} · ${setorLabel}` });
+      }
+
+      // limpar campos e focar
+      setCodigoProduto("");
+      setQuantidade(1);
+      setTimeout(() => {
+        const codigoInput = document.getElementById("codigo") as HTMLInputElement | null;
+        codigoInput?.focus();
+      }, 80);
+
+      onProdutoAdicionado();
+      return true;
+    } catch (err) {
+      console.error("Erro ao adicionar produto:", err);
+      toast({ title: "Erro", description: "Não foi possível adicionar o produto.", variant: "destructive" });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -72,80 +140,21 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
       return;
     }
 
-    setLoading(true);
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      
-      if (!user.user) {
-        toast({
-          title: "Erro",
-          description: "Usuário não autenticado.",
-          variant: "destructive"
-        });
-        return;
-      }
+    await addProduto(codigoProduto, setor, quantidade);
+  };
 
-      // Usar a função RPC para inserir/somar produtos
-      const { data, error } = await supabase.rpc('upsert_moda_estoque_produto', {
-        p_contagem_id: contagemId,
-        p_codigo_produto: codigoProduto,
-        p_setor: setor,
-        p_quantidade: quantidade,
-        p_created_by: user.user.id
-      });
-
-      if (error) throw error;
-
-      // Buscar informações do produto após inserção para feedback correto
-      const { data: produtoInfo, error: infoError } = await supabase
-        .from("moda_estoque_produtos")
-        .select("quantidade")
-        .eq("contagem_id", contagemId)
-        .eq("codigo_produto", codigoProduto)
-        .eq("setor", setor)
-        .single();
-
-      if (infoError) throw infoError;
-
-      // Determinar se foi inserção ou soma
-      const quantidadeAnterior = produtoInfo.quantidade - quantidade;
-      const setorLabel = setores.find(s => s.value === setor)?.label || setor;
-      
-      if (quantidadeAnterior > 0) {
-        toast({
-          title: "✅ Produto somado!",
-          description: `${quantidade} + ${quantidadeAnterior} = ${produtoInfo.quantidade} unidades (${setorLabel})`
-        });
-      } else {
-        toast({
-          title: "✅ Produto adicionado!",
-          description: `${quantidade} unidade(s) · ${codigoProduto} · ${setorLabel}`
-        });
-      }
-
-      // Limpar formulário e focar no código para produtividade
-      setCodigoProduto("");
-      setSetor("");
-      setQuantidade(1);
-      
-      // Focar no campo código após adicionar produto para fluxo contínuo
-      setTimeout(() => {
-        const codigoInput = document.getElementById('codigo');
-        if (codigoInput) {
-          codigoInput.focus();
-        }
-      }, 100);
-      
-      onProdutoAdicionado();
-    } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
+  const handleScan = async (code: string) => {
+    setCodigoProduto(code);
+    if (!setor) {
       toast({
-        title: "Erro",
-        description: "Não foi possível adicionar o produto.",
-        variant: "destructive"
+        title: "Selecione o setor",
+        description: "Escolha o setor antes de adicionar pelo leitor.",
+        variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      return;
+    }
+    if (autoAddOnScan) {
+      await addProduto(code, setor, 1);
     }
   };
 
@@ -236,6 +245,26 @@ export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProp
               </div>
             </div>
           )}
+
+          {/* Leitor com câmera */}
+          <div className="glass-card p-3 sm:p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">Leitor com Câmera</div>
+              <Switch checked={scannerEnabled} onCheckedChange={setScannerEnabled} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Selecione o setor acima e aponte a câmera para o código (6 ou 9 dígitos).
+              Cada leitura adiciona 1 unidade automaticamente.
+            </p>
+            {scannerEnabled && (
+              <BarcodeScanner
+                enabled={scannerEnabled}
+                onEnabledChange={setScannerEnabled}
+                onDetected={handleScan}
+                allowedLengths={[6, 9]}
+              />
+            )}
+          </div>
 
           <div className="flex gap-2 pt-4">
             <Button 
