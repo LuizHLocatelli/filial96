@@ -66,7 +66,7 @@ export function BarcodeScanner({
         videoRef.current,
         (result, err, controls) => {
           if (result) {
-            const text = (result.getText?.() || result.text || "").trim();
+            const text = (typeof (result as any).getText === 'function' ? (result as any).getText() : "").trim();
             const numeric = text.replace(/\D/g, "");
             const isAllowed = allowedLengths.includes(numeric.length);
             if (numeric && isAllowed) {
