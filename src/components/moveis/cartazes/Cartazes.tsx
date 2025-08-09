@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useCartazes } from "./hooks/useCartazes";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GeradorDeCartaz from "./gerador/GeradorDeCartaz";
 
 export default function Cartazes() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -81,33 +83,55 @@ export default function Cartazes() {
           <div className="flex-1 min-w-0">
             <Card className="bg-card border border-border shadow-sm h-full">
               <CardContent className="p-6">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className={cn(
-                      "font-semibold text-foreground flex items-center gap-2",
-                      isMobile ? "text-sm" : "text-lg"
-                    )}>
-                      <span>🎨</span>
-                      Galeria de Cartazes
-                    </h3>
-                    <Button
-                      onClick={() => setIsUploadCartazOpen(true)}
-                      variant="success"
-                      size={isMobile ? "sm" : "default"}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Novo Cartaz
-                    </Button>
-                  </div>
+                <Tabs defaultValue="galeria" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="galeria">Galeria</TabsTrigger>
+                    <TabsTrigger value="gerar">Gerar Cartaz</TabsTrigger>
+                  </TabsList>
 
-                  <CartazGallery 
-                    folderId={selectedFolderId}
-                    cartazes={cartazes}
-                    setCartazes={setCartazes}
-                    isLoading={isLoading}
-                    onCreateCartaz={() => setIsUploadCartazOpen(true)}
-                  />
-                </div>
+                  <TabsContent value="galeria">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h3 className={cn(
+                          "font-semibold text-foreground flex items-center gap-2",
+                          isMobile ? "text-sm" : "text-lg"
+                        )}>
+                          <span>🎨</span>
+                          Galeria de Cartazes
+                        </h3>
+                        <Button
+                          onClick={() => setIsUploadCartazOpen(true)}
+                          variant="success"
+                          size={isMobile ? "sm" : "default"}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Novo Cartaz
+                        </Button>
+                      </div>
+
+                      <CartazGallery 
+                        folderId={selectedFolderId}
+                        cartazes={cartazes}
+                        setCartazes={setCartazes}
+                        isLoading={isLoading}
+                        onCreateCartaz={() => setIsUploadCartazOpen(true)}
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="gerar">
+                    <div className="space-y-4">
+                      <h3 className={cn(
+                        "font-semibold text-foreground flex items-center gap-2",
+                        isMobile ? "text-sm" : "text-lg"
+                      )}>
+                        <span>🖨️</span>
+                        Gerar Cartaz
+                      </h3>
+                      <GeradorDeCartaz />
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>

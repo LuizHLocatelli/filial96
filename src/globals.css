@@ -1,6 +1,7 @@
 @import url('./styles/aurora.css');
 @import url('./styles/dark-mode-hover-fixes.css');
 @import url('./styles/dark-mode-gradients.css');
+@import url('https://fonts.googleapis.com/css2?family=Gantari:ital,wght@0,100..900;1,100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
