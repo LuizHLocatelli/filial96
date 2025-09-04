@@ -6,6 +6,7 @@ import { ClientesAgendados } from "@/components/crediario/ClientesAgendados";
 import { Depositos } from "@/components/crediario/Depositos";
 import { Folgas } from "@/components/crediario/Folgas";
 import { Diretorio } from "@/components/crediario/diretorio/Diretorio";
+import { CalculadoraCredito } from "@/components/crediario/CalculadoraCredito";
 import { 
   FileText, 
   Users, 
@@ -13,7 +14,8 @@ import {
   Coffee, 
   FolderArchive,
   CreditCard,
-  TrendingUp
+  TrendingUp,
+  Calculator
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -49,6 +51,13 @@ export default function Crediario() {
       icon: Calendar,
       description: "Controle de depósitos",
       component: <Depositos />
+    },
+    {
+      value: "calculadora",
+      label: "Calculadora",
+      icon: Calculator,
+      description: "Calculadora de renegociação",
+      component: <CalculadoraCredito />
     },
     {
       value: "folgas",
