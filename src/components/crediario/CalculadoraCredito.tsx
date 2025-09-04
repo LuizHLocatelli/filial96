@@ -18,7 +18,8 @@ const parcelasOptions: ParcelaOption[] = [
   { value: "1+4", label: "1+4x (Taxa de 5%)", parcelas: 5, taxa: 5 },
   { value: "1+9", label: "1+9x (Taxa de 7%)", parcelas: 10, taxa: 7 },
   { value: "1+14", label: "1+14x (Taxa de 8%)", parcelas: 15, taxa: 8 },
-  { value: "1+19", label: "1+19x (Taxa de 10%)", parcelas: 20, taxa: 10 }
+  { value: "1+19", label: "1+19x (Taxa de 10%)", parcelas: 20, taxa: 10 },
+  { value: "1+24", label: "1+24x (Taxa de 12%)", parcelas: 25, taxa: 12 }
 ];
 
 export function CalculadoraCredito() {
