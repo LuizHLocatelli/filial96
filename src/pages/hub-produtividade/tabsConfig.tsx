@@ -1,16 +1,11 @@
 
 import { 
   Activity,
-  FileText, 
-  BarChart3,
-  Users,
   Target,
   FileImage
 } from "lucide-react";
 import { HubDashboard } from "@/components/moveis/hub-produtividade/components/dashboard/HubDashboard";
-import OrientacoesMonitoramento from "@/components/moveis/hub-produtividade/components/OrientacoesMonitoramento";
 import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
-import { Relatorios } from "@/components/moveis/hub-produtividade/components/funcionalidades/Relatorios";
 import { lazy } from "react";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
@@ -77,34 +72,6 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <Cartazes />
-        </div>
-      )
-    },
-    {
-      value: "monitoramento",
-      label: "Monitoramento",
-      icon: Users,
-      description: "Acompanhamento por cargo",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <OrientacoesMonitoramento />
-        </div>
-      )
-    },
-    {
-      value: "relatorios",
-      label: "Relatórios",
-      icon: BarChart3,
-      description: "Relatórios e análises",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <Relatorios
-            rotinas={rotinas || []}
-            orientacoes={orientacoes || []}
-            tarefas={tarefas || []}
-            stats={stats}
-            inline={true}
-          />
         </div>
       )
     }
