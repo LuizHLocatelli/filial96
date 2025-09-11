@@ -19,7 +19,6 @@ interface TabsConfigProps {
   orientacoes: any[];
   onViewRotina: (rotinaId: string) => void;
   onViewTarefa: (tarefaId: string) => void;
-  onRelatorios: () => void;
 }
 
 export function createTabsConfig({
@@ -30,8 +29,7 @@ export function createTabsConfig({
   tarefas,
   orientacoes,
   onViewRotina,
-  onViewTarefa,
-  onRelatorios
+  onViewTarefa
 }: TabsConfigProps) {
   return [
     {

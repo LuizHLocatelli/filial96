@@ -18,7 +18,6 @@ export default function HubProdutividade() {
   // Estados para dialogs funcionais
   const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
   const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
-  const [showRelatorios, setShowRelatorios] = useState(false);
   
   // Hook para dados
   const {
@@ -67,8 +66,7 @@ export default function HubProdutividade() {
   const handlersWithDialogs = {
     ...handlers,
     onBuscaAvancada: () => setShowBuscaAvancada(true),
-    onFiltrosPorData: () => setShowFiltrosPorData(true),
-    onRelatorios: () => setShowRelatorios(true)
+    onFiltrosPorData: () => setShowFiltrosPorData(true)
   };
 
   const tabsConfig = createTabsConfig({
@@ -84,7 +82,7 @@ export default function HubProdutividade() {
     onViewTarefa: (tarefaId) => {
       // Função removida - atividades foram removidas do sistema
     },
-    onRelatorios: () => setShowRelatorios(true)
+    
   });
 
   return (
@@ -110,12 +108,9 @@ export default function HubProdutividade() {
         setShowBuscaAvancada={setShowBuscaAvancada}
         showFiltrosPorData={showFiltrosPorData}
         setShowFiltrosPorData={setShowFiltrosPorData}
-        showRelatorios={showRelatorios}
-        setShowRelatorios={setShowRelatorios}
         rotinas={rotinas || []}
         orientacoes={orientacoes || []}
         tarefas={tarefas || []}
-        stats={stats}
         onBuscaAvancadaResults={handleBuscaAvancadaResults}
         onFiltrosPorDataApply={handleFiltrosPorDataApply}
       />

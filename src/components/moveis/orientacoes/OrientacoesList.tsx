@@ -21,7 +21,7 @@ export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
   const [selectedOrientacao, setSelectedOrientacao] = useState<Orientacao | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
 
-  const { orientacoes, isLoading, handleViewOrientacao, refetch } = useOrientacoes();
+  const { orientacoes, isLoading, refetch } = useOrientacoes();
   const {
     searchQuery,
     setSearchQuery,
@@ -35,8 +35,6 @@ export function OrientacoesList({ onNovaOrientacao }: OrientacoesListProps) {
   } = useOrientacoesFilters(orientacoes);
 
   const handleViewOrientacaoWrapper = async (orientacao: Orientacao) => {
-    // Registrar visualização usando o hook integrado
-    await handleViewOrientacao(orientacao.id);
     
     if (orientacao.arquivo_tipo.includes("pdf")) {
       const params = new URLSearchParams();
