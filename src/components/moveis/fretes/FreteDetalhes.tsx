@@ -5,39 +5,175 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Frete, FreteItem } from "@/types/frete";
-import { CheckCircle, XCircle, Package, User, Phone, MapPin, DollarSign, FileText } from "lucide-react";
+import { CheckCircle, XCircle, Package, User, Phone, MapPin, DollarSign, FileText, Edit, Trash2, Truck } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface FreteDetalhesProps {
   frete: Frete | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onFreteUpdated?: () => void;
+  onEditFrete?: (frete: Frete) => void;
 }
 
-export function FreteDetalhes({ frete, open, onOpenChange }: FreteDetalhesProps) {
+export function FreteDetalhes({ frete, open, onOpenChange, onFreteUpdated, onEditFrete }: FreteDetalhesProps) {
   const { getMobileDialogProps } = useMobileDialog();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (!frete) return null;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("large")}>
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Detalhes do Frete
-            </DialogTitle>
-            <Badge variant={frete.status === 'Entregue' ? 'default' : 'secondary'}>
-              {frete.status}
-            </Badge>
-          </div>
-        </DialogHeader>
+  const handleDeleteFrete = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('fretes')
+        .delete()
+        .eq('id', frete.id);
 
-        <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      if (error) {
+        console.error('Error deleting frete:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao excluir frete",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Frete excluído com sucesso!",
+      });
+
+      onOpenChange(false);
+      onFreteUpdated?.();
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Erro",
+        description: "Erro inesperado ao excluir frete",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setShowDeleteDialog(false);
+    }
+  };
+
+  const handleStatusChange = async () => {
+    setLoading(true);
+    try {
+      const newStatus = frete.status === 'Pendente de Entrega' ? 'Entregue' : 'Pendente de Entrega';
+      
+      const { error } = await supabase
+        .from('fretes')
+        .update({ status: newStatus })
+        .eq('id', frete.id);
+
+      if (error) {
+        console.error('Error updating status:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao atualizar status",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: `Status alterado para: ${newStatus}`,
+      });
+
+      onFreteUpdated?.();
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Erro",
+        description: "Erro inesperado ao atualizar status",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditFrete = () => {
+    onEditFrete?.(frete);
+    onOpenChange(false);
+  };
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent {...getMobileDialogProps("large")}>
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Detalhes do Frete
+              </DialogTitle>
+              <Badge variant={frete.status === 'Entregue' ? 'default' : 'secondary'}>
+                {frete.status}
+              </Badge>
+            </div>
+            
+            {/* Botões de Ação */}
+            <div className="flex gap-2 mt-4">
+              <Button 
+                onClick={handleStatusChange}
+                disabled={loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Truck className="h-4 w-4" />
+                {frete.status === 'Pendente de Entrega' ? 'Marcar como Entregue' : 'Marcar como Pendente'}
+              </Button>
+              
+              <Button 
+                onClick={handleEditFrete}
+                disabled={loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Editar
+              </Button>
+              
+              <Button 
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={loading}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4" />
+                Excluir
+              </Button>
+            </div>
+          </DialogHeader>
+
+        <div className="space-y-6">
           {/* Cliente */}
           <div className="space-y-3">
             <h3 className="font-semibold flex items-center gap-2">
@@ -178,5 +314,32 @@ export function FreteDetalhes({ frete, open, onOpenChange }: FreteDetalhesProps)
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Diálogo de Confirmação de Exclusão */}
+    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza de que deseja excluir este frete?
+            <br />
+            <strong>Cliente:</strong> {frete.nome_cliente}
+            <br />
+            Esta ação não pode ser desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleDeleteFrete}
+            disabled={loading}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {loading ? 'Excluindo...' : 'Excluir'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

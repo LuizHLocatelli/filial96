@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { signupSchema, type SignupFormValues } from "./schemas/signupSchema";
 import { useSupabaseSignup } from "@/hooks/useSupabaseSignup";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 export function EnhancedSignupForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -124,9 +125,13 @@ export function EnhancedSignupForm() {
                       <Input
                         {...field}
                         type="tel"
-                        placeholder="(11) 99999-9999"
+                        placeholder="(51) 99156-8395"
                         autoComplete="tel"
                         className="pl-10"
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted);
+                        }}
                       />
                     </div>
                   </FormControl>

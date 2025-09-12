@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 interface RegistrarVendaDialogProps {
   open: boolean;
@@ -97,8 +98,11 @@ export function RegistrarVendaDialog({
               <Input
                 id="cliente_telefone"
                 value={formData.cliente_telefone}
-                onChange={(e) => setFormData(prev => ({ ...prev, cliente_telefone: e.target.value }))}
-                placeholder="(11) 99999-9999"
+                onChange={(e) => {
+                  const formatted = formatPhoneNumber(e.target.value);
+                  setFormData(prev => ({ ...prev, cliente_telefone: formatted }));
+                }}
+                placeholder="(51) 99156-8395"
               />
             </div>
           </div>

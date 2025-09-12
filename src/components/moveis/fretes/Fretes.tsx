@@ -11,6 +11,7 @@ export function Fretes() {
   const [selectedFrete, setSelectedFrete] = useState<Frete | null>(null);
   const [detalhesOpen, setDetalhesOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [editingFrete, setEditingFrete] = useState<Frete | null>(null);
 
   const handleFreteClick = (frete: Frete) => {
     setSelectedFrete(frete);
@@ -19,7 +20,24 @@ export function Fretes() {
 
   const handleFreteCreated = () => {
     setDialogOpen(false);
+    setEditingFrete(null);
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleEditFrete = (frete: Frete) => {
+    setEditingFrete(frete);
+    setDialogOpen(true);
+  };
+
+  const handleFreteUpdated = () => {
+    setRefreshTrigger(prev => prev + 1);
+    setSelectedFrete(null);
+    setDetalhesOpen(false);
+  };
+
+  const handleNewFrete = () => {
+    setEditingFrete(null);
+    setDialogOpen(true);
   };
 
   return (
@@ -32,7 +50,7 @@ export function Fretes() {
           </p>
         </div>
         
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={handleNewFrete}>
           <Plus className="h-4 w-4 mr-2" />
           Novo Frete
         </Button>
@@ -47,12 +65,15 @@ export function Fretes() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onFreteCreated={handleFreteCreated}
+        editingFrete={editingFrete}
       />
 
       <FreteDetalhes
         frete={selectedFrete}
         open={detalhesOpen}
         onOpenChange={setDetalhesOpen}
+        onFreteUpdated={handleFreteUpdated}
+        onEditFrete={handleEditFrete}
       />
     </div>
   );

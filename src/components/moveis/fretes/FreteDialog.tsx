@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,14 +18,16 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Trash2 } from "lucide-react";
 import { useFileUpload } from "@/hooks/moveis/useFileUpload";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 interface FreteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onFreteCreated: () => void;
+  editingFrete?: Frete | null;
 }
 
-export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogProps) {
+export function FreteDialog({ open, onOpenChange, onFreteCreated, editingFrete }: FreteDialogProps) {
   const [formData, setFormData] = useState({
     cpf_cliente: "",
     nome_cliente: "",
@@ -43,6 +45,50 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
 
   const { uploadFile } = useFileUpload();
   const { getMobileDialogProps } = useMobileDialog();
+
+  const isEditing = !!editingFrete;
+
+  // Preencher formulário quando for edição
+  useEffect(() => {
+    if (editingFrete && open) {
+      let itensArray = [];
+      try {
+        itensArray = Array.isArray(editingFrete.itens) 
+          ? editingFrete.itens 
+          : JSON.parse(editingFrete.itens || '[]');
+      } catch {
+        itensArray = [];
+      }
+
+      setFormData({
+        cpf_cliente: editingFrete.cpf_cliente || "",
+        nome_cliente: editingFrete.nome_cliente || "",
+        telefone: formatPhoneNumber(editingFrete.telefone || ""),
+        endereco_entrega: editingFrete.endereco_entrega || "",
+        valor_total_nota: editingFrete.valor_total_nota?.toString() || "",
+        valor_frete: editingFrete.valor_frete?.toString() || "",
+        pago: editingFrete.pago || false,
+        status: editingFrete.status || "Pendente de Entrega",
+      });
+      
+      setItens(itensArray);
+      setNotaFiscalUrl(editingFrete.nota_fiscal_url || "");
+    } else if (!editingFrete && open) {
+      // Reset form para novo frete
+      setFormData({
+        cpf_cliente: "",
+        nome_cliente: "",
+        telefone: "",
+        endereco_entrega: "",
+        valor_total_nota: "",
+        valor_frete: "",
+        pago: false,
+        status: "Pendente de Entrega",
+      });
+      setItens([]);
+      setNotaFiscalUrl("");
+    }
+  }, [editingFrete, open]);
 
   const handleImageCaptured = async (imageUrl: string) => {
     setProcessingImage(true);
@@ -63,8 +109,57 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
         return;
       }
 
+      console.log('Response from Edge Function:', data);
+      
       if (data.success && data.data) {
         const notaData: NotaFiscalData = data.data;
+        
+        // Check if we got meaningful data
+        const hasData = notaData.cpf_cliente || notaData.nome_cliente || notaData.valor_total_nota || (notaData.itens && notaData.itens.length > 0);
+        
+        setFormData(prev => ({
+          ...prev,
+          cpf_cliente: notaData.cpf_cliente || "",
+          nome_cliente: notaData.nome_cliente || "",
+          valor_total_nota: notaData.valor_total_nota || "",
+        }));
+        
+        setItens(notaData.itens || []);
+        setNotaFiscalUrl(imageUrl);
+        
+        if (hasData) {
+          // Create detailed success message
+          const extractedItems = notaData.itens?.length || 0;
+          const totalValue = notaData.valor_total_nota;
+          
+          let description = "Dados da nota fiscal extraídos com sucesso!";
+          if (extractedItems > 0 && totalValue) {
+            description += ` Encontrados ${extractedItems} item(ns) com valor total de R$ ${parseFloat(totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`;
+          } else if (extractedItems > 0) {
+            description += ` Encontrados ${extractedItems} item(ns).`;
+          } else if (totalValue) {
+            description += ` Valor total: R$ ${parseFloat(totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`;
+          }
+          
+          toast({
+            title: "Sucesso",
+            description: description,
+          });
+        } else {
+          toast({
+            title: "Aviso",
+            description: "IA não conseguiu extrair dados da nota fiscal. Verifique a qualidade da imagem e preencha os dados manualmente.",
+            variant: "default",
+          });
+        }
+      } else if (data.fallback) {
+        // Handle fallback response - service temporarily unavailable
+        const notaData: NotaFiscalData = data.data || {
+          cpf_cliente: "",
+          nome_cliente: "",
+          valor_total_nota: "",
+          itens: []
+        };
         
         setFormData(prev => ({
           ...prev,
@@ -77,10 +172,17 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
         setNotaFiscalUrl(imageUrl);
         
         toast({
-          title: "Sucesso",
-          description: "Dados da nota fiscal extraídos com sucesso!",
+          title: "Aviso",
+          description: data.error || "Erro ao interpretar resposta da IA. Preencha os dados manualmente.",
+          variant: "default",
         });
+        
+        // Log debug info if available
+        if (data.debug) {
+          console.error('Debug info:', data.debug);
+        }
       } else {
+        console.error('Unexpected response structure:', data);
         toast({
           title: "Erro",
           description: data.error || "Erro ao processar nota fiscal",
@@ -111,9 +213,7 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
 
     setLoading(true);
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      
-      const { error } = await supabase.from('fretes').insert({
+      const freteData = {
         cpf_cliente: formData.cpf_cliente || null,
         nome_cliente: formData.nome_cliente,
         telefone: formData.telefone,
@@ -124,14 +224,34 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
         status: formData.status,
         nota_fiscal_url: notaFiscalUrl || null,
         itens: JSON.stringify(itens),
-        created_by: userData.user?.id,
-      });
+      };
+
+      let error;
+
+      if (isEditing && editingFrete) {
+        // Atualizar frete existente
+        const result = await supabase
+          .from('fretes')
+          .update(freteData)
+          .eq('id', editingFrete.id);
+        error = result.error;
+      } else {
+        // Criar novo frete
+        const { data: userData } = await supabase.auth.getUser();
+        const result = await supabase
+          .from('fretes')
+          .insert({
+            ...freteData,
+            created_by: userData.user?.id,
+          });
+        error = result.error;
+      }
 
       if (error) {
-        console.error('Error creating frete:', error);
+        console.error(`Error ${isEditing ? 'updating' : 'creating'} frete:`, error);
         toast({
           title: "Erro",
-          description: "Erro ao criar frete",
+          description: `Erro ao ${isEditing ? 'atualizar' : 'criar'} frete`,
           variant: "destructive",
         });
         return;
@@ -139,7 +259,7 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
 
       toast({
         title: "Sucesso",
-        description: "Frete criado com sucesso!",
+        description: `Frete ${isEditing ? 'atualizado' : 'criado'} com sucesso!`,
       });
       
       // Reset form
@@ -175,9 +295,9 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("large")} className="max-h-[90vh] overflow-y-auto">
+      <DialogContent {...getMobileDialogProps("large")}>
         <DialogHeader>
-          <DialogTitle>Novo Frete</DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Frete' : 'Novo Frete'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -220,7 +340,11 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
               <Input
                 id="telefone"
                 value={formData.telefone}
-                onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
+                onChange={(e) => {
+                  const formatted = formatPhoneNumber(e.target.value);
+                  setFormData(prev => ({ ...prev, telefone: formatted }));
+                }}
+                placeholder="(51) 99156-8395"
                 required
               />
             </div>
@@ -321,7 +445,7 @@ export function FreteDialog({ open, onOpenChange, onFreteCreated }: FreteDialogP
             </Button>
             <Button onClick={handleSubmit} disabled={loading} className="flex-1">
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Criar Frete
+              {isEditing ? 'Atualizar Frete' : 'Criar Frete'}
             </Button>
           </div>
         </div>

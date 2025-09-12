@@ -15,6 +15,7 @@ import { ProductListInput } from "./ProductListInput";
 import { FileInputZone } from "./FileInputZone";
 import { ObservacoesField } from "./ObservacoesField";
 import { Separator } from "@/components/ui/separator";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 const formSchema = z.object({
   filial: z.string().min(1, "A filial é obrigatória"),
@@ -197,8 +198,12 @@ export function SaleUploader({ isUploading, progress, onUpload }: SaleUploaderPr
                         <FormLabel>Telefone (opcional)</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="(11) 99999-9999" 
+                            placeholder="(51) 99156-8395" 
                             {...field}
+                            onChange={(e) => {
+                              const formatted = formatPhoneNumber(e.target.value);
+                              field.onChange(formatted);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

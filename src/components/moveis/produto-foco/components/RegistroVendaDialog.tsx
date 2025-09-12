@@ -20,6 +20,7 @@ import { useMobileDialog } from '@/hooks/useMobileDialog';
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 interface RegistroVendaDialogProps {
   isOpen: boolean;
@@ -140,8 +141,11 @@ export function RegistroVendaDialog({
               <Input
                 id="cliente_telefone"
                 value={formData.cliente_telefone}
-                onChange={(e) => setFormData(prev => ({ ...prev, cliente_telefone: e.target.value }))}
-                placeholder="(00) 00000-0000"
+                onChange={(e) => {
+                  const formatted = formatPhoneNumber(e.target.value);
+                  setFormData(prev => ({ ...prev, cliente_telefone: formatted }));
+                }}
+                placeholder="(51) 99156-8395"
                 className="mt-1 text-base sm:text-sm"
               />
             </div>

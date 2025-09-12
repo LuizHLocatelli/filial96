@@ -6,6 +6,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/auth";
+import { formatPhoneNumber } from "@/utils/phoneFormatter";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,9 +125,13 @@ export function PersonalInfoForm() {
               <FormLabel>Número de Telefone</FormLabel>
               <FormControl>
                 <Input 
-                  placeholder="(11) 99999-9999" 
+                  placeholder="(51) 99156-8395" 
                   type="tel"
-                  {...field} 
+                  {...field}
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    field.onChange(formatted);
+                  }}
                 />
               </FormControl>
               <FormMessage />
