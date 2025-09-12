@@ -37,3 +37,6 @@ verify_jwt = false
 
 [functions.delete-account-no-jwt]
 verify_jwt = false
+
+[functions.process-nota-fiscal]
+verify_jwt = false

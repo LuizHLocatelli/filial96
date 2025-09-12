@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -785,6 +785,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fretes: {
+        Row: {
+          cpf_cliente: string | null
+          created_at: string
+          created_by: string | null
+          endereco_entrega: string
+          id: string
+          itens: Json
+          nome_cliente: string
+          nota_fiscal_url: string | null
+          pago: boolean
+          status: string
+          telefone: string
+          updated_at: string
+          valor_frete: number
+          valor_total_nota: number | null
+        }
+        Insert: {
+          cpf_cliente?: string | null
+          created_at?: string
+          created_by?: string | null
+          endereco_entrega: string
+          id?: string
+          itens?: Json
+          nome_cliente: string
+          nota_fiscal_url?: string | null
+          pago?: boolean
+          status?: string
+          telefone: string
+          updated_at?: string
+          valor_frete: number
+          valor_total_nota?: number | null
+        }
+        Update: {
+          cpf_cliente?: string | null
+          created_at?: string
+          created_by?: string | null
+          endereco_entrega?: string
+          id?: string
+          itens?: Json
+          nome_cliente?: string
+          nota_fiscal_url?: string | null
+          pago?: boolean
+          status?: string
+          telefone?: string
+          updated_at?: string
+          valor_frete?: number
+          valor_total_nota?: number | null
+        }
+        Relationships: []
       }
       goals: {
         Row: {
@@ -2341,7 +2392,7 @@ export type Database = {
         Returns: unknown
       }
       calculate_deposit_statistics: {
-        Args: { target_user_id: string; target_month: string }
+        Args: { target_month: string; target_user_id: string }
         Returns: undefined
       }
       can_user_modify_role: {
@@ -2349,18 +2400,18 @@ export type Database = {
         Returns: boolean
       }
       change_user_role: {
-        Args: { target_user_id: string; new_role: string }
+        Args: { new_role: string; target_user_id: string }
         Returns: Json
       }
       check_orientacao_completion_by_role: {
         Args: { p_orientacao_id: string; p_target_roles: string[] }
         Returns: {
-          role: string
-          total_users: number
-          viewed_users: number
           completion_percentage: number
           is_complete: boolean
           pending_users: Json
+          role: string
+          total_users: number
+          viewed_users: number
         }[]
       }
       delete_user_account: {
@@ -2394,10 +2445,10 @@ export type Database = {
       get_orientacoes_viewing_stats: {
         Args: { p_target_roles?: string[] }
         Returns: {
-          orientacao_id: string
-          titulo: string
-          tipo: string
           data_criacao: string
+          orientacao_id: string
+          tipo: string
+          titulo: string
           viewing_stats: Json
         }[]
       }
@@ -2471,17 +2522,17 @@ export type Database = {
       }
       match_documents: {
         Args: {
-          query_embedding: string
-          match_threshold?: number
           match_count?: number
+          match_threshold?: number
+          query_embedding: string
         }
         Returns: {
-          id: string
           content: string
-          metadata: Json
           document_id: string
-          source: string
+          id: string
+          metadata: Json
           similarity: number
+          source: string
         }[]
       }
       recalculate_all_deposit_statistics: {
@@ -2522,11 +2573,11 @@ export type Database = {
       }
       upsert_moda_estoque_produto: {
         Args: {
-          p_contagem_id: string
           p_codigo_produto: string
-          p_setor: string
-          p_quantidade: number
+          p_contagem_id: string
           p_created_by: string
+          p_quantidade: number
+          p_setor: string
         }
         Returns: string
       }
