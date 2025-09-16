@@ -125,7 +125,7 @@ export default function CalculadoraIgreen() {
             <div className="p-3 bg-green-500 rounded-xl text-white">
               <Zap className="h-8 w-8" />
             </div>
-            <h1 className="text-4xl md:text-4xl text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl md:text-3xl font-bold text-gray-900 dark:text-white">
               Calculadora iGreen
             </h1>
           </div>
