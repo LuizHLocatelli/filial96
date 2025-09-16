@@ -212,7 +212,7 @@ export default function CalculadoraIgreen() {
                       <div className="text-center">
                         <h3 className="font-semibold">{tipo.label}</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Taxa: R$ {tipo.taxa},00
+                          Taxa: {tipo.taxa} kWh
                         </p>
                       </div>
                     </div>
