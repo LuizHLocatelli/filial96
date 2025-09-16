@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
 
 interface CalculadoraData {
-  nome: string;
   distribuidora: string;
   tipoFornecimento: "monofasico" | "bifasico" | "trifasico" | "";
   consumoMeses: number[];
@@ -31,7 +30,6 @@ const tiposFornecimento = [
 
 export default function CalculadoraIgreen() {
   const [dados, setDados] = useState<CalculadoraData>({
-    nome: "",
     distribuidora: "",
     tipoFornecimento: "",
     consumoMeses: Array(12).fill(0)
@@ -53,7 +51,7 @@ export default function CalculadoraIgreen() {
   };
 
   const calcular = () => {
-    if (!dados.nome || !dados.distribuidora || !dados.tipoFornecimento) {
+    if (!dados.distribuidora || !dados.tipoFornecimento) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha todos os campos obrigatórios.",
@@ -105,7 +103,6 @@ export default function CalculadoraIgreen() {
 
   const limparFormulario = () => {
     setDados({
-      nome: "",
       distribuidora: "",
       tipoFornecimento: "",
       consumoMeses: Array(12).fill(0)
@@ -128,11 +125,11 @@ export default function CalculadoraIgreen() {
             <div className="p-3 bg-green-500 rounded-xl text-white">
               <Zap className="h-8 w-8" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl md:text-4xl text-2xl font-bold text-gray-900 dark:text-white">
               Calculadora iGreen
             </h1>
           </div>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300">
             Descubra se você é elegível para economia na sua conta de luz
           </p>
         </div>
@@ -140,25 +137,15 @@ export default function CalculadoraIgreen() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Formulário */}
           <div className="space-y-6">
-            {/* Dados Pessoais */}
+            {/* Dados da Distribuidora */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calculator className="h-5 w-5" />
-                  Dados Pessoais
+                  Distribuidora de Energia
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome Completo *</Label>
-                  <Input
-                    id="nome"
-                    placeholder="Digite seu nome completo"
-                    value={dados.nome}
-                    onChange={(e) => setDados({ ...dados, nome: e.target.value })}
-                  />
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="distribuidora">Distribuidora de Energia *</Label>
                   <Select value={dados.distribuidora} onValueChange={(value) => setDados({ ...dados, distribuidora: value })}>
@@ -183,11 +170,19 @@ export default function CalculadoraIgreen() {
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5" />
                   Tipo de Fornecimento *
+                </CardTitle>
+                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <span className="font-medium text-blue-800 dark:text-blue-200">
+                      Não sabe qual é o seu tipo de fornecimento?
+                    </span>
+                  </div>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="ml-auto">
-                        <Info className="h-4 w-4" />
-                        Onde ver?
+                      <Button variant="outline" size="sm" className="bg-white dark:bg-gray-800 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900">
+                        <Info className="h-4 w-4 mr-2" />
+                        Clique aqui para ver onde encontrar na sua conta
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-3xl">
@@ -198,7 +193,7 @@ export default function CalculadoraIgreen() {
                       />
                     </DialogContent>
                   </Dialog>
-                </CardTitle>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
