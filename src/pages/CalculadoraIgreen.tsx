@@ -178,21 +178,23 @@ export default function CalculadoraIgreen() {
                       Não sabe qual é o seu tipo de fornecimento?
                     </span>
                   </div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="bg-white dark:bg-gray-800 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900">
-                        <Info className="h-4 w-4 mr-2" />
-                        Clique aqui para ver onde encontrar na sua conta
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl">
-                      <img 
-                        src={ondeverImage} 
-                        alt="Onde encontrar o tipo de fornecimento na conta de luz" 
-                        className="w-full h-auto rounded-lg"
-                      />
-                    </DialogContent>
-                  </Dialog>
+                  <div className="mt-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="bg-white dark:bg-gray-800 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900 w-full sm:w-auto">
+                          <Info className="h-4 w-4 mr-2" />
+                          Clique aqui para ver onde encontrar na sua conta
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl">
+                        <img 
+                          src={ondeverImage} 
+                          alt="Onde encontrar o tipo de fornecimento na conta de luz" 
+                          className="w-full h-auto rounded-lg"
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -333,31 +335,12 @@ export default function CalculadoraIgreen() {
                             </Badge>
                           </div>
                           
-                          <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                            <span>Economia estimada mensal:</span>
-                            <Badge className="bg-green-600">
-                              R$ {resultado.economiaMensal.toFixed(2)}
-                            </Badge>
-                          </div>
+                          
                         </>
                       )}
                     </div>
 
-                    {/* Call to Action */}
-                    {resultado.elegivel && (
-                      <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                          Pronto para economizar?
-                        </h4>
-                        <p className="text-blue-700 dark:text-blue-200 text-sm mb-4">
-                          Entre em contato conosco e comece a economizar na sua conta de luz hoje mesmo!
-                        </p>
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                          <Phone className="h-4 w-4 mr-2" />
-                          Entrar em Contato
-                        </Button>
-                      </div>
-                    )}
+                    
                   </div>
                 ) : (
                   <div className="text-center py-12 text-gray-500 dark:text-gray-400">
