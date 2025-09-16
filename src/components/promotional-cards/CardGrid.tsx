@@ -30,11 +30,7 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: 
     visible: {
       opacity: 1,
       y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
-      }
+      scale: 1
     }
   };
   

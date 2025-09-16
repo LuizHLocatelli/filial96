@@ -1,6 +1,8 @@
 /* === CORREÇÕES DE HOVER PARA MODO ESCURO === */
 /* Arquivo dedicado para resolver problemas de visibilidade em hover no modo escuro */
 
+@tailwind components;
+
 @layer components {
   /* ========================================
      🌙 MELHORIAS GLOBAIS DE HOVER - MODO ESCURO  

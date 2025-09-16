@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CameraCapture } from "./CameraCapture";
-import { FreteItem, NotaFiscalData } from "@/types/frete";
+import { FreteItem, NotaFiscalData, Frete } from "@/types/frete";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Trash2 } from "lucide-react";

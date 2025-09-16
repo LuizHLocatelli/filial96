@@ -1,5 +1,7 @@
 
 /* Responsividade Mobile aprimorada - NavigationTabs */
+@tailwind utilities;
+
 @layer utilities {
   /* Regras específicas para barra circular flutuante no mobile */
   @media (max-width: 767px) {

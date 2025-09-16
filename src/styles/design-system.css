@@ -1,6 +1,8 @@
 /* 🎨 DESIGN SYSTEM UNIFICADO - FILIAL 96 */
 /* Padronização completa de responsividade e espaçamentos */
 
+@tailwind base;
+
 @layer base {
   /* ========================================
      📏 DESIGN TOKENS FUNDAMENTAIS
@@ -72,6 +74,8 @@
     --shadow-strong: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 }
+
+@tailwind components;
 
 @layer components {
   /* ========================================

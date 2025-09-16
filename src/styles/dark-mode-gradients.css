@@ -10,7 +10,7 @@
 
 /* Gradientes de primary que podem ter baixo contraste */
 .dark .bg-gradient-to-r.from-primary.to-primary\/80.bg-clip-text.text-transparent {
-  background: linear-gradient(to right, theme('colors.primary.400'), theme('colors.primary.300')) !important;
+  background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.8)) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
@@ -32,7 +32,7 @@
     background: none !important;
     -webkit-background-clip: unset !important;
     background-clip: unset !important;
-    color: theme('colors.primary.400') !important;
+    color: hsl(var(--primary)) !important;
     font-weight: 600 !important;
   }
 }
@@ -43,7 +43,7 @@
     background: none !important;
     -webkit-background-clip: unset !important;
     background-clip: unset !important;
-    color: theme('colors.primary.300') !important;
+    color: hsl(var(--primary)) !important;
     font-weight: 700 !important;
   }
 } 

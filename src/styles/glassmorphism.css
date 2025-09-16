@@ -1,5 +1,7 @@
 /* === GLASSMORPHISM DESIGN SYSTEM === */
 
+@tailwind base;
+
 @layer base {
   :root {
     /* Glassmorphism Core Variables */
@@ -43,6 +45,8 @@
     --glass-border-highlight: rgba(255, 255, 255, 0.25);
   }
 }
+
+@tailwind components;
 
 @layer components {
   /* === GLASSMORPHISM BASE CLASSES === */

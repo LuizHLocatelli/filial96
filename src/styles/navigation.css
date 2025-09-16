@@ -1,5 +1,7 @@
 
 /* Navigation Component Utilities */
+@tailwind components;
+
 @layer components {
   .nav-glass-effect {
     background: var(--nav-bg-glass);
