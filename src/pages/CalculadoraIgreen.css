@@ -1,43 +1,466 @@
-/* Estilos específicos para a página da Calculadora iGreen */
+/* Calculadora iGreen - Estilos Responsivos Otimizados */
 
-/* Ajustes para dispositivos móveis */
-@media (max-width: 767px) {
-  .calculadora-header {
-    margin-bottom: 1rem;
-  }
-  
-  .calculadora-title {
-    font-size: 1.5rem; /* 24px */
-    line-height: 1.3;
-  }
-  
-  .calculadora-subtitle {
-    font-size: 0.875rem; /* 14px */
-    line-height: 1.4;
-  }
-  
-  .calculadora-icon-container {
-    padding: 0.5rem;
-  }
-  
-  .calculadora-icon {
-    width: 1.5rem !important; /* 24px */
-    height: 1.5rem !important; /* 24px */
+/* Safe Areas para Mobile */
+@supports (padding: max(0px)) {
+  .calculadora-container {
+    padding-left: max(env(safe-area-inset-left), 1rem);
+    padding-right: max(env(safe-area-inset-right), 1rem);
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
   }
 }
 
-/* Ajustes para telas pequenas */
+/* Touch-friendly targets para mobile */
+@media (max-width: 767px) {
+  /* Garante que elementos interativos tenham pelo menos 44px */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Melhora a área de toque dos botões de tipo de fornecimento */
+  .tipo-fornecimento-option {
+    min-height: 60px;
+    touch-action: manipulation;
+  }
+  
+  /* Otimização para inputs numéricos */
+  input[type="number"] {
+    font-size: 16px; /* Previne zoom no iOS */
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  /* Remove spinners nos inputs number */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* Focus visible para melhor acessibilidade - VERSÃO SUTIL */
+.focus-visible {
+  outline: 1px solid hsl(var(--primary) / 0.5);
+  outline-offset: 1px;
+}
+
+/* Override dos estilos de ring muito espessos */
+.calculadora-input:focus,
+.calculadora-select:focus,
+.calculadora-button:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3) !important;
+  border-color: hsl(var(--primary) / 0.5) !important;
+}
+
+/* Remove ring padrão dos inputs da calculadora */
+.calculadora-input:focus-visible,
+.calculadora-select:focus-visible,
+.calculadora-button:focus-visible {
+  --tw-ring-width: 0px !important;
+  --tw-ring-offset-width: 0px !important;
+}
+
+/* Estilo sutil para cards de tipo de fornecimento */
+.tipo-fornecimento-option:focus-visible {
+  outline: 1px solid hsl(var(--primary) / 0.4) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.2) !important;
+}
+
+/* Prevenir bordas grossas nos cards */
+.tipo-fornecimento-option {
+  border-width: 1px !important;
+  transition: all 0.2s ease !important;
+}
+
+.tipo-fornecimento-option:hover {
+  border-width: 1px !important;
+}
+
+/* Glassmorphism consistency */
+.glass-card {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid hsl(var(--border) / 0.2);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Theme toggle específico para calculadora */
+.calculadora-theme-toggle {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Indicador de estado do tema */
+.calculadora-theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.calculadora-theme-toggle:hover::after {
+  opacity: 0.6;
+}
+
+.calculadora-theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsividade do theme toggle */
 @media (max-width: 480px) {
-  .calculadora-title {
-    font-size: 1.25rem; /* 20px */
+  .calculadora-theme-toggle {
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    z-index: 50 !important;
+  }
+}
+
+/* Animação de entrada para o theme toggle */
+.calculadora-theme-toggle {
+  animation: theme-toggle-fade-in 0.6s ease-out 0.3s both;
+}
+
+@keyframes theme-toggle-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* === HEADER FLUTUANTE STYLES === */
+.calculadora-header-flutuante {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Garantir que o header não interfira no conteúdo */
+  min-height: 80px; /* Aumentado para garantir altura consistente */
+  max-height: 120px; /* Altura máxima para evitar header muito alto */
+}
+
+/* Dark mode para header flutuante */
+.dark .calculadora-header-flutuante {
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Hover effect para header flutuante */
+.calculadora-header-flutuante:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.dark .calculadora-header-flutuante:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Theme toggle no header */
+.calculadora-theme-toggle-header {
+  transition: all 0.2s ease;
+}
+
+.calculadora-theme-toggle-header:hover {
+  transform: scale(1.05);
+}
+
+/* === RESPONSIVIDADE HEADER FLUTUANTE === */
+@media (max-width: 768px) {
+  .calculadora-header-flutuante {
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    max-width: 95vw;
+    min-height: 72px; /* Altura mínima consistente em tablets */
+  }
+}
+
+@media (max-width: 640px) {
+  .calculadora-header-flutuante {
+    padding: 1rem;
+    min-height: 68px; /* Altura mínima aumentada para mobile médio */
   }
   
-  .calculadora-subtitle {
-    font-size: 0.75rem; /* 12px */
+  .calculadora-header-flutuante h1 {
+    font-size: 1rem !important;
   }
   
-  .calculadora-icon {
-    width: 1.25rem !important; /* 20px */
-    height: 1.25rem !important; /* 20px */
+  .calculadora-header-flutuante p {
+    font-size: 0.75rem !important;
+  }
+  
+  /* Container do ícone em tablets/mobile médio */
+  .calculadora-header-flutuante .flex-shrink-0:first-child > div {
+    min-width: 46px !important;
+    min-height: 46px !important;
+    padding: 0.75rem !important; /* p-3 equivale a 12px */
+  }
+}
+
+@media (max-width: 480px) {
+  .calculadora-header-flutuante {
+    padding: 0.875rem;
+    max-width: 90vw;
+    min-height: 64px; /* Altura mínima aumentada para mobile pequeno */
+  }
+  
+  .calculadora-header-flutuante h1 {
+    font-size: 0.9rem !important;
+  }
+  
+  .calculadora-header-flutuante p {
+    font-size: 0.7rem !important;
+  }
+  
+  /* Ajustar padding do ícone em mobile */
+  .calculadora-header-flutuante .flex-shrink-0:first-child > div {
+    min-width: 42px !important;
+    min-height: 42px !important;
+    padding: 0.625rem !important; /* p-2.5 equivale a 10px */
+  }
+}
+
+@media (max-width: 380px) {
+  .calculadora-header-flutuante {
+    padding: 0.75rem;
+    max-width: 95vw;
+    min-height: 60px; /* Altura mínima aumentada para mobile muito pequeno */
+  }
+  
+  .calculadora-header-flutuante h1 {
+    font-size: 0.85rem !important;
+  }
+  
+  /* Ícone ainda menor em telas muito pequenas */
+  .calculadora-header-flutuante .flex-shrink-0:first-child > div {
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 0.5rem !important; /* p-2 equivale a 8px */
+  }
+  
+  .calculadora-header-flutuante .flex-shrink-0 {
+    min-width: 44px !important;
+  }
+}
+
+/* Garantir simetria no layout */
+.calculadora-header-flutuante .flex-shrink-0 {
+  min-width: 52px; /* Tamanho proporcional ao novo padding */
+}
+
+/* Container do ícone quadrado */
+.calculadora-header-flutuante .flex-shrink-0:first-child > div {
+  width: fit-content;
+  height: fit-content;
+  min-width: 44px;
+  min-height: 44px;
+  aspect-ratio: 1 / 1; /* Força proporção quadrada */
+}
+
+/* Centralização perfeita do título */
+.calculadora-header-flutuante .flex-1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0; /* Permite truncate funcionar */
+}
+
+/* Melhorar espaçamento entre título e subtítulo */
+.calculadora-header-flutuante h1 {
+  line-height: 1.2;
+  margin-bottom: 0.125rem;
+}
+
+.calculadora-header-flutuante p {
+  line-height: 1.3;
+  opacity: 0.8;
+}
+
+/* Scroll behavior para header flutuante */
+.calculadora-header-flutuante {
+  will-change: transform, box-shadow;
+}
+
+/* Estado quando usuario fez scroll */
+.calculadora-header-scrolled {
+  backdrop-filter: blur(24px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(0) scale(0.98);
+}
+
+.dark .calculadora-header-scrolled {
+  background: rgba(10, 10, 10, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* === ESPAÇAMENTO PARA COMPENSAR HEADER FIXO === */
+.calculadora-container {
+  /* Espaçamento superior generoso para compensar o header fixo */
+  padding-top: 140px !important; /* Forçar aplicação do espaçamento */
+  /* Garantir que o conteúdo sempre apareça abaixo do header */
+  margin-top: 0 !important;
+}
+
+/* Forçar espaçamento no container principal da calculadora */
+.min-h-screen > .container {
+  padding-top: 140px !important;
+}
+
+/* Container principal específico da calculadora */
+.calculadora-main-container {
+  padding-top: 140px !important;
+  margin-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .calculadora-container {
+    padding-top: 160px !important; /* Ajustado para tablets */
+  }
+  
+  .min-h-screen > .container {
+    padding-top: 160px !important;
+  }
+  
+  .calculadora-main-container {
+    padding-top: 160px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .calculadora-container {
+    padding-top: 150px !important; /* Ajustado para mobile médio */
+  }
+  
+  .min-h-screen > .container {
+    padding-top: 150px !important;
+  }
+  
+  .calculadora-main-container {
+    padding-top: 150px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .calculadora-container {
+    padding-top: 140px !important; /* Ajustado para mobile pequeno */
+  }
+  
+  .min-h-screen > .container {
+    padding-top: 140px !important;
+  }
+  
+  .calculadora-main-container {
+    padding-top: 140px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .calculadora-container {
+    padding-top: 130px !important; /* Ajustado para mobile muito pequeno */
+  }
+  
+  .min-h-screen > .container {
+    padding-top: 130px !important;
+  }
+  
+  .calculadora-main-container {
+    padding-top: 130px !important;
+  }
+}
+
+/* Responsividade extrema para telas muito pequenas */
+@media (max-width: 380px) {
+  .calculadora-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .text-responsive {
+    font-size: clamp(0.75rem, 3vw, 1rem);
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+/* Print styles - esconder elementos desnecessários */
+@media print {
+  .fixed,
+  .animate-pulse {
+    display: none !important;
+  }
+  
+  .glass-card {
+    background: white !important;
+    backdrop-filter: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glass-card {
+    background: hsl(var(--background)) !important;
+    backdrop-filter: none !important;
+    border: 2px solid hsl(var(--border)) !important;
   }
 }
