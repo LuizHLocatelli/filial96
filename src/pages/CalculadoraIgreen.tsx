@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Calculator, Zap, CheckCircle, XCircle, Info, Phone, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
+import "./CalculadoraIgreen.css";
 
 interface CalculadoraData {
   distribuidora: string;
@@ -120,16 +121,16 @@ export default function CalculadoraIgreen() {
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center calculadora-header">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-green-500 rounded-xl text-white">
-              <Zap className="h-8 w-8" />
+            <div className="calculadora-icon-container p-2 md:p-3 bg-green-500 rounded-xl text-white">
+              <Zap className="calculadora-icon h-6 w-6 md:h-8 md:w-8" />
             </div>
-            <h1 className="text-3xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="calculadora-title text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               Calculadora iGreen
             </h1>
           </div>
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300">
+          <p className="calculadora-subtitle text-base md:text-xl text-gray-600 dark:text-gray-300">
             Descubra se você é elegível para economia na sua conta de luz
           </p>
         </div>
