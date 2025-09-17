@@ -4,7 +4,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
 import { useIntelligentPreload } from "./hooks/useIntelligentPreload";
-import CalculadoraIgreen from "./pages/CalculadoraIgreen";
+const CalculadoraIgreen = lazy(() => import("./pages/CalculadoraIgreen"));
 
 // Lazy load das páginas principais
 const HubProdutividade = lazy(() => import("./pages/HubProdutividade"));
@@ -19,7 +19,7 @@ const PromotionalCards = lazy(() => import("./pages/PromotionalCards"));
 
 // Páginas que não precisam de lazy loading (são pequenas ou críticas)
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
+const Auth = lazy(() => import("./pages/Auth"));
 import ResetPassword from "./pages/ResetPassword";
 
 // Componentes de debug/demonstração
@@ -63,8 +63,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Rotas públicas */}
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/calculadora-igreen" element={<CalculadoraIgreen />} />
+      <Route path="/auth" element={<Suspense fallback={<PageLoader />}><Auth /></Suspense>} />
+      <Route path="/calculadora-igreen" element={<Suspense fallback={<PageLoader />}><CalculadoraIgreen /></Suspense>} />
       
       {/* Rota de redefinição de senha - pública e acessível sem autenticação */}
       <Route path="/reset-password" element={<ResetPassword />} />
