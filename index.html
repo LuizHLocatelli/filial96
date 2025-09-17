@@ -7,7 +7,21 @@
     <meta name="description" content="Sistema completo de gerenciamento da Filial 96 - Móveis, Moda e Crediário" />
     <meta name="author" content="Filial 96" />
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="transparent" />
+    <meta name="background-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-status-bar-style" content="translucent" />
     
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Filial 96" />
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#22c55e" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
     
     <!-- Icons - Atualizados para usar o novo design -->
     <link rel="icon" type="image/png" href="/icons/icon-32x32.png" sizes="32x32" />
@@ -15,11 +29,25 @@
     <link rel="shortcut icon" href="/favicon.png" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-180x180.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="60x60" href="/icons/icon-60x60.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/icons/icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/icons/icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png" />
     
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest" />
     
-    
-    
-    
+    <!-- Critical PWA meta tags for installation -->
+    <meta name="application-name" content="Filial 96" />
+    <meta name="msapplication-starturl" content="/" />
+    <meta name="mobile-web-app-capable" content="yes" />
     
     <!-- SEO Meta Tags -->
     <meta property="og:title" content="Filial 96 - Sistema de Gerenciamento" />
@@ -38,13 +66,16 @@
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
+    <!-- Splash Screen for iOS -->
     
+    <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
   </head>
 
   <body>
     <div id="root"></div>
     
-    
+    <!-- PWA Update Toast Container -->
+    <div id="pwa-toast" style="display: none;"></div>
     
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
