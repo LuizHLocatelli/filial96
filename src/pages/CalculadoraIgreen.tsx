@@ -6,13 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2, Shield, Lock } from "lucide-react";
+import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ExtremeProtection } from "@/utils/extremeProtection";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
 import "./CalculadoraIgreen.css";
 
@@ -22,9 +21,17 @@ interface CalculadoraData {
   consumoMeses: number[];
 }
 
-// Dados criptografados - obtidos dinamicamente via ExtremeProtection
-const getDistribuidoras = () => ExtremeProtection.getDistribuidoras();
-const getTiposFornecimento = () => ExtremeProtection.getTiposFornecimento();
+const distribuidoras = [
+  { value: "ceee", label: "CEEE", desconto: 10 },
+  { value: "rge", label: "RGE", desconto: 8 },
+  { value: "celesc", label: "Celesc", desconto: 12 }
+];
+
+const tiposFornecimento = [
+  { value: "monofasico", label: "Monofásico", taxa: 30 },
+  { value: "bifasico", label: "Bifásico", taxa: 50 },
+  { value: "trifasico", label: "Trifásico", taxa: 100 }
+];
 
 export default function CalculadoraIgreen() {
   const [dados, setDados] = useState<CalculadoraData>({
@@ -42,50 +49,8 @@ export default function CalculadoraIgreen() {
   const [calculando, setCalculando] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const [protectionActive, setProtectionActive] = useState(false);
-  const [extremeProtectionActive, setExtremeProtectionActive] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-
-  // Effect para inicializar proteção extrema
-  useEffect(() => {
-    const initExtremeProtection = async () => {
-      try {
-        // Inicializa proteção extrema
-        ExtremeProtection.initialize();
-        
-        // Define estado da proteção
-        const isProduction = process.env.NODE_ENV === 'production';
-        setProtectionActive(isProduction);
-        setExtremeProtectionActive(isProduction);
-        
-        // Verifica se pode executar
-        if (isProduction && !ExtremeProtection.canExecute()) {
-          throw new Error('Quantum security check failed');
-        }
-        
-        // Log de desenvolvimento
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔐 Sistema de Proteção EXTREMA configurado para produção');
-        }
-      } catch (error) {
-        console.error('Erro ao configurar proteção extrema:', error);
-        // Em caso de erro em produção, bloqueia acesso
-        if (process.env.NODE_ENV === 'production') {
-          window.location.href = 'about:blank';
-        }
-      }
-    };
-
-    initExtremeProtection();
-    
-    // Cleanup ao desmontar
-    return () => {
-      if (process.env.NODE_ENV === 'production') {
-        ExtremeProtection.destroy();
-      }
-    };
-  }, []);
 
   // Effect para detectar scroll
   useEffect(() => {
@@ -124,16 +89,6 @@ export default function CalculadoraIgreen() {
   };
 
   const calcular = () => {
-    // Verificação de segurança extrema (apenas em produção)
-    if (process.env.NODE_ENV === 'production' && !ExtremeProtection.canExecute()) {
-      toast({
-        title: "🔒 Acesso Negado",
-        description: "Sistema de segurança quântica ativado.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!dados.distribuidora || !dados.tipoFornecimento) {
       toast({
         title: "Campos obrigatórios",
@@ -155,62 +110,33 @@ export default function CalculadoraIgreen() {
 
     setCalculando(true);
     
-    // Processamento criptografado
+    // Simular processamento
     setTimeout(() => {
-      try {
-        // Usa sistema de cálculo criptografado
-        const resultado = process.env.NODE_ENV === 'production' 
-          ? ExtremeProtection.calculateSecure(dados)
-          : calcularDesenvolvimento(dados);
-          
-        setResultado(resultado);
-      } catch (error) {
-        toast({
-          title: "Erro no cálculo",
-          description: "Falha na verificação de segurança.",
-          variant: "destructive",
-        });
-      } finally {
-        setCalculando(false);
-      }
+      const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
+      const mediaConsumo = soma / 12;
+      
+      const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
+      const taxaDesconto = tipoSelecionado?.taxa || 0;
+      
+      const consumoElegivel = mediaConsumo - taxaDesconto;
+      const elegivel = consumoElegivel >= 100;
+      
+      const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
+      const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
+      
+      // Estimativa de economia (baseada em R$ 0,75 por kWh)
+      const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
+
+      setResultado({
+        mediaConsumo,
+        consumoElegivel,
+        elegivel,
+        percentualDesconto,
+        economiaMensal
+      });
+      
+      setCalculando(false);
     }, 1500);
-  };
-
-  // Função de cálculo para desenvolvimento (não criptografada)
-  const calcularDesenvolvimento = (dados: CalculadoraData) => {
-    const distribuidoras = [
-      { value: "ceee", label: "CEEE", desconto: 10 },
-      { value: "rge", label: "RGE", desconto: 8 },
-      { value: "celesc", label: "Celesc", desconto: 12 }
-    ];
-    
-    const tiposFornecimento = [
-      { value: "monofasico", label: "Monofásico", taxa: 30 },
-      { value: "bifasico", label: "Bifásico", taxa: 50 },
-      { value: "trifasico", label: "Trifásico", taxa: 100 }
-    ];
-
-    const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
-    const mediaConsumo = soma / 12;
-    
-    const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
-    const taxaDesconto = tipoSelecionado?.taxa || 0;
-    
-    const consumoElegivel = mediaConsumo - taxaDesconto;
-    const elegivel = consumoElegivel >= 100;
-    
-    const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
-    const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
-    
-    const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
-
-    return {
-      mediaConsumo,
-      consumoElegivel,
-      elegivel,
-      percentualDesconto,
-      economiaMensal
-    };
   };
 
   const limparFormulario = () => {
@@ -223,7 +149,7 @@ export default function CalculadoraIgreen() {
   };
 
   return (
-    <div className="min-h-screen bg-background calculadora-protected">
+    <div className="min-h-screen bg-background">
       {/* SEO Meta Tags */}
       <div className="sr-only">
         <h1>Calculadora Igreen - Desconto na Conta de Luz</h1>
@@ -249,18 +175,8 @@ export default function CalculadoraIgreen() {
         )}>
           <div className="flex items-center gap-3 sm:gap-4">
             {/* Ícone */}
-            <div className="p-3 sm:p-3.5 bg-primary rounded-xl text-primary-foreground shadow-lg flex-shrink-0 transition-all duration-300 flex items-center justify-center relative">
+            <div className="p-3 sm:p-3.5 bg-primary rounded-xl text-primary-foreground shadow-lg flex-shrink-0 transition-all duration-300 flex items-center justify-center">
               <Zap className="h-5 w-5 sm:h-6 sm:w-6" />
-              {protectionActive && (
-                <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1" title="Sistema protegido">
-                  <Shield className="h-2 w-2 text-white" />
-                </div>
-              )}
-              {extremeProtectionActive && (
-                <div className="absolute -bottom-1 -left-1 bg-red-600 rounded-full p-1" title="Proteção EXTREMA ativa">
-                  <Lock className="h-2 w-2 text-white" />
-                </div>
-              )}
             </div>
             
             {/* Título Centralizado */}
@@ -311,11 +227,7 @@ export default function CalculadoraIgreen() {
                       <SelectValue placeholder="Selecione sua distribuidora" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(process.env.NODE_ENV === 'production' ? getDistribuidoras() : [
-                        { value: "ceee", label: "CEEE", desconto: 10 },
-                        { value: "rge", label: "RGE", desconto: 8 },
-                        { value: "celesc", label: "Celesc", desconto: 12 }
-                      ]).map((dist) => (
+                      {distribuidoras.map((dist) => (
                         <SelectItem key={dist.value} value={dist.value}>
                           <span className="flex items-center justify-between w-full">
                             <span>{dist.label}</span>
@@ -368,11 +280,7 @@ export default function CalculadoraIgreen() {
               </CardHeader>
               <CardContent className="space-y-3 sm:space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  {(process.env.NODE_ENV === 'production' ? getTiposFornecimento() : [
-                    { value: "monofasico", label: "Monofásico", taxa: 30 },
-                    { value: "bifasico", label: "Bifásico", taxa: 50 },
-                    { value: "trifasico", label: "Trifásico", taxa: 100 }
-                  ]).map((tipo) => (
+                  {tiposFornecimento.map((tipo) => (
                     <div
                       key={tipo.value}
                       className={cn(
@@ -577,27 +485,6 @@ export default function CalculadoraIgreen() {
         </div>
         </motion.div>
       </div>
-      
-      {/* Indicador de Proteção */}
-      {protectionActive && (
-        <div className="protection-indicator" title="Sistema de proteção ativo">
-          <Shield className="h-3 w-3" />
-        </div>
-      )}
-      
-      {/* Indicador de Proteção EXTREMA */}
-      {extremeProtectionActive && (
-        <div 
-          className="fixed bottom-1rem left-1rem bg-red-600 text-white p-2 rounded-full opacity-70 z-50 pointer-events-none"
-          title="🔐 Proteção EXTREMA Ativa"
-          style={{ bottom: '1rem', left: '1rem' }}
-        >
-          <Lock className="h-3 w-3" />
-        </div>
-      )}
-      
-      {/* Detector de DevTools (invisível) */}
-      <div className="devtools-detector" />
     </div>
   );
 }
