@@ -6,13 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2, Shield } from "lucide-react";
+import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2, Shield, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { initializeProtection, useCodeProtection } from "@/utils/codeProtection";
+import { ExtremeProtection } from "@/utils/extremeProtection";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
 import "./CalculadoraIgreen.css";
 
@@ -22,17 +22,9 @@ interface CalculadoraData {
   consumoMeses: number[];
 }
 
-const distribuidoras = [
-  { value: "ceee", label: "CEEE", desconto: 10 },
-  { value: "rge", label: "RGE", desconto: 8 },
-  { value: "celesc", label: "Celesc", desconto: 12 }
-];
-
-const tiposFornecimento = [
-  { value: "monofasico", label: "Monofásico", taxa: 30 },
-  { value: "bifasico", label: "Bifásico", taxa: 50 },
-  { value: "trifasico", label: "Trifásico", taxa: 100 }
-];
+// Dados criptografados - obtidos dinamicamente via ExtremeProtection
+const getDistribuidoras = () => ExtremeProtection.getDistribuidoras();
+const getTiposFornecimento = () => ExtremeProtection.getTiposFornecimento();
 
 export default function CalculadoraIgreen() {
   const [dados, setDados] = useState<CalculadoraData>({
@@ -51,45 +43,48 @@ export default function CalculadoraIgreen() {
   const [scrolled, setScrolled] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [protectionActive, setProtectionActive] = useState(false);
+  const [extremeProtectionActive, setExtremeProtectionActive] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { isSecure, canExecute } = useCodeProtection();
 
-  // Effect para inicializar proteção
+  // Effect para inicializar proteção extrema
   useEffect(() => {
-    const initProtection = async () => {
+    const initExtremeProtection = async () => {
       try {
-        initializeProtection();
+        // Inicializa proteção extrema
+        ExtremeProtection.initialize();
         
-        // Proteção ativa apenas em produção
+        // Define estado da proteção
         const isProduction = process.env.NODE_ENV === 'production';
         setProtectionActive(isProduction);
+        setExtremeProtectionActive(isProduction);
         
-        // Adiciona proteção específica para a calculadora
-        const protectCalculatorData = () => {
-          // Ofusca dados sensíveis apenas em produção
-          if (isProduction) {
-            Object.freeze(distribuidoras);
-            Object.freeze(tiposFornecimento);
-            
-            // Protege variáveis globais
-            (window as any).calculadoraData = undefined;
-            (window as any).iGreenConfig = undefined;
-          }
-        };
-        
-        protectCalculatorData();
+        // Verifica se pode executar
+        if (isProduction && !ExtremeProtection.canExecute()) {
+          throw new Error('Quantum security check failed');
+        }
         
         // Log de desenvolvimento
         if (process.env.NODE_ENV === 'development') {
-          console.log('🔒 Proteções configuradas para ativação em produção');
+          console.log('🔐 Sistema de Proteção EXTREMA configurado para produção');
         }
       } catch (error) {
-        console.error('Erro ao configurar proteção:', error);
+        console.error('Erro ao configurar proteção extrema:', error);
+        // Em caso de erro em produção, bloqueia acesso
+        if (process.env.NODE_ENV === 'production') {
+          window.location.href = 'about:blank';
+        }
       }
     };
 
-    initProtection();
+    initExtremeProtection();
+    
+    // Cleanup ao desmontar
+    return () => {
+      if (process.env.NODE_ENV === 'production') {
+        ExtremeProtection.destroy();
+      }
+    };
   }, []);
 
   // Effect para detectar scroll
@@ -129,11 +124,11 @@ export default function CalculadoraIgreen() {
   };
 
   const calcular = () => {
-    // Verifica proteção antes de executar (apenas em produção)
-    if (process.env.NODE_ENV === 'production' && (!isSecure || !canExecute())) {
+    // Verificação de segurança extrema (apenas em produção)
+    if (process.env.NODE_ENV === 'production' && !ExtremeProtection.canExecute()) {
       toast({
-        title: "Acesso negado",
-        description: "Sistema de segurança ativado. Tente novamente.",
+        title: "🔒 Acesso Negado",
+        description: "Sistema de segurança quântica ativado.",
         variant: "destructive",
       });
       return;
@@ -160,53 +155,62 @@ export default function CalculadoraIgreen() {
 
     setCalculando(true);
     
-    // Simular processamento com verificação de segurança
+    // Processamento criptografado
     setTimeout(() => {
-      // Verificação adicional durante o cálculo (apenas em produção)
-      if (process.env.NODE_ENV === 'production' && !canExecute()) {
-        setCalculando(false);
-        return;
-      }
-
-      // Algoritmo de cálculo protegido
-      const calcularResultadoSeguro = () => {
-        const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
-        const mediaConsumo = soma / 12;
-        
-        const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
-        const taxaDesconto = tipoSelecionado?.taxa || 0;
-        
-        const consumoElegivel = mediaConsumo - taxaDesconto;
-        const elegivel = consumoElegivel >= 100;
-        
-        const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
-        const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
-        
-        // Estimativa de economia (baseada em R$ 0,75 por kWh)
-        const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
-
-        return {
-          mediaConsumo,
-          consumoElegivel,
-          elegivel,
-          percentualDesconto,
-          economiaMensal
-        };
-      };
-
       try {
-        const resultado = calcularResultadoSeguro();
+        // Usa sistema de cálculo criptografado
+        const resultado = process.env.NODE_ENV === 'production' 
+          ? ExtremeProtection.calculateSecure(dados)
+          : calcularDesenvolvimento(dados);
+          
         setResultado(resultado);
       } catch (error) {
         toast({
           title: "Erro no cálculo",
-          description: "Ocorreu um erro durante o processamento.",
+          description: "Falha na verificação de segurança.",
           variant: "destructive",
         });
       } finally {
         setCalculando(false);
       }
     }, 1500);
+  };
+
+  // Função de cálculo para desenvolvimento (não criptografada)
+  const calcularDesenvolvimento = (dados: CalculadoraData) => {
+    const distribuidoras = [
+      { value: "ceee", label: "CEEE", desconto: 10 },
+      { value: "rge", label: "RGE", desconto: 8 },
+      { value: "celesc", label: "Celesc", desconto: 12 }
+    ];
+    
+    const tiposFornecimento = [
+      { value: "monofasico", label: "Monofásico", taxa: 30 },
+      { value: "bifasico", label: "Bifásico", taxa: 50 },
+      { value: "trifasico", label: "Trifásico", taxa: 100 }
+    ];
+
+    const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
+    const mediaConsumo = soma / 12;
+    
+    const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
+    const taxaDesconto = tipoSelecionado?.taxa || 0;
+    
+    const consumoElegivel = mediaConsumo - taxaDesconto;
+    const elegivel = consumoElegivel >= 100;
+    
+    const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
+    const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
+    
+    const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
+
+    return {
+      mediaConsumo,
+      consumoElegivel,
+      elegivel,
+      percentualDesconto,
+      economiaMensal
+    };
   };
 
   const limparFormulario = () => {
@@ -250,6 +254,11 @@ export default function CalculadoraIgreen() {
               {protectionActive && (
                 <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1" title="Sistema protegido">
                   <Shield className="h-2 w-2 text-white" />
+                </div>
+              )}
+              {extremeProtectionActive && (
+                <div className="absolute -bottom-1 -left-1 bg-red-600 rounded-full p-1" title="Proteção EXTREMA ativa">
+                  <Lock className="h-2 w-2 text-white" />
                 </div>
               )}
             </div>
@@ -302,7 +311,11 @@ export default function CalculadoraIgreen() {
                       <SelectValue placeholder="Selecione sua distribuidora" />
                     </SelectTrigger>
                     <SelectContent>
-                      {distribuidoras.map((dist) => (
+                      {(process.env.NODE_ENV === 'production' ? getDistribuidoras() : [
+                        { value: "ceee", label: "CEEE", desconto: 10 },
+                        { value: "rge", label: "RGE", desconto: 8 },
+                        { value: "celesc", label: "Celesc", desconto: 12 }
+                      ]).map((dist) => (
                         <SelectItem key={dist.value} value={dist.value}>
                           <span className="flex items-center justify-between w-full">
                             <span>{dist.label}</span>
@@ -355,7 +368,11 @@ export default function CalculadoraIgreen() {
               </CardHeader>
               <CardContent className="space-y-3 sm:space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  {tiposFornecimento.map((tipo) => (
+                  {(process.env.NODE_ENV === 'production' ? getTiposFornecimento() : [
+                    { value: "monofasico", label: "Monofásico", taxa: 30 },
+                    { value: "bifasico", label: "Bifásico", taxa: 50 },
+                    { value: "trifasico", label: "Trifásico", taxa: 100 }
+                  ]).map((tipo) => (
                     <div
                       key={tipo.value}
                       className={cn(
@@ -565,6 +582,17 @@ export default function CalculadoraIgreen() {
       {protectionActive && (
         <div className="protection-indicator" title="Sistema de proteção ativo">
           <Shield className="h-3 w-3" />
+        </div>
+      )}
+      
+      {/* Indicador de Proteção EXTREMA */}
+      {extremeProtectionActive && (
+        <div 
+          className="fixed bottom-1rem left-1rem bg-red-600 text-white p-2 rounded-full opacity-70 z-50 pointer-events-none"
+          title="🔐 Proteção EXTREMA Ativa"
+          style={{ bottom: '1rem', left: '1rem' }}
+        >
+          <Lock className="h-3 w-3" />
         </div>
       )}
       
