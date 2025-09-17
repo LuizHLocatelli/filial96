@@ -6,12 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2 } from "lucide-react";
+import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { initializeProtection, useCodeProtection } from "@/utils/codeProtection";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
 import "./CalculadoraIgreen.css";
 
@@ -49,8 +50,47 @@ export default function CalculadoraIgreen() {
   const [calculando, setCalculando] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [protectionActive, setProtectionActive] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { isSecure, canExecute } = useCodeProtection();
+
+  // Effect para inicializar proteção
+  useEffect(() => {
+    const initProtection = async () => {
+      try {
+        initializeProtection();
+        
+        // Proteção ativa apenas em produção
+        const isProduction = process.env.NODE_ENV === 'production';
+        setProtectionActive(isProduction);
+        
+        // Adiciona proteção específica para a calculadora
+        const protectCalculatorData = () => {
+          // Ofusca dados sensíveis apenas em produção
+          if (isProduction) {
+            Object.freeze(distribuidoras);
+            Object.freeze(tiposFornecimento);
+            
+            // Protege variáveis globais
+            (window as any).calculadoraData = undefined;
+            (window as any).iGreenConfig = undefined;
+          }
+        };
+        
+        protectCalculatorData();
+        
+        // Log de desenvolvimento
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔒 Proteções configuradas para ativação em produção');
+        }
+      } catch (error) {
+        console.error('Erro ao configurar proteção:', error);
+      }
+    };
+
+    initProtection();
+  }, []);
 
   // Effect para detectar scroll
   useEffect(() => {
@@ -89,6 +129,16 @@ export default function CalculadoraIgreen() {
   };
 
   const calcular = () => {
+    // Verifica proteção antes de executar (apenas em produção)
+    if (process.env.NODE_ENV === 'production' && (!isSecure || !canExecute())) {
+      toast({
+        title: "Acesso negado",
+        description: "Sistema de segurança ativado. Tente novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!dados.distribuidora || !dados.tipoFornecimento) {
       toast({
         title: "Campos obrigatórios",
@@ -110,32 +160,52 @@ export default function CalculadoraIgreen() {
 
     setCalculando(true);
     
-    // Simular processamento
+    // Simular processamento com verificação de segurança
     setTimeout(() => {
-      const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
-      const mediaConsumo = soma / 12;
-      
-      const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
-      const taxaDesconto = tipoSelecionado?.taxa || 0;
-      
-      const consumoElegivel = mediaConsumo - taxaDesconto;
-      const elegivel = consumoElegivel >= 100;
-      
-      const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
-      const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
-      
-      // Estimativa de economia (baseada em R$ 0,75 por kWh)
-      const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
+      // Verificação adicional durante o cálculo (apenas em produção)
+      if (process.env.NODE_ENV === 'production' && !canExecute()) {
+        setCalculando(false);
+        return;
+      }
 
-      setResultado({
-        mediaConsumo,
-        consumoElegivel,
-        elegivel,
-        percentualDesconto,
-        economiaMensal
-      });
-      
-      setCalculando(false);
+      // Algoritmo de cálculo protegido
+      const calcularResultadoSeguro = () => {
+        const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
+        const mediaConsumo = soma / 12;
+        
+        const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
+        const taxaDesconto = tipoSelecionado?.taxa || 0;
+        
+        const consumoElegivel = mediaConsumo - taxaDesconto;
+        const elegivel = consumoElegivel >= 100;
+        
+        const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
+        const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
+        
+        // Estimativa de economia (baseada em R$ 0,75 por kWh)
+        const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
+
+        return {
+          mediaConsumo,
+          consumoElegivel,
+          elegivel,
+          percentualDesconto,
+          economiaMensal
+        };
+      };
+
+      try {
+        const resultado = calcularResultadoSeguro();
+        setResultado(resultado);
+      } catch (error) {
+        toast({
+          title: "Erro no cálculo",
+          description: "Ocorreu um erro durante o processamento.",
+          variant: "destructive",
+        });
+      } finally {
+        setCalculando(false);
+      }
     }, 1500);
   };
 
@@ -149,7 +219,7 @@ export default function CalculadoraIgreen() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background calculadora-protected">
       {/* SEO Meta Tags */}
       <div className="sr-only">
         <h1>Calculadora Igreen - Desconto na Conta de Luz</h1>
@@ -175,8 +245,13 @@ export default function CalculadoraIgreen() {
         )}>
           <div className="flex items-center gap-3 sm:gap-4">
             {/* Ícone */}
-            <div className="p-3 sm:p-3.5 bg-primary rounded-xl text-primary-foreground shadow-lg flex-shrink-0 transition-all duration-300 flex items-center justify-center">
+            <div className="p-3 sm:p-3.5 bg-primary rounded-xl text-primary-foreground shadow-lg flex-shrink-0 transition-all duration-300 flex items-center justify-center relative">
               <Zap className="h-5 w-5 sm:h-6 sm:w-6" />
+              {protectionActive && (
+                <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1" title="Sistema protegido">
+                  <Shield className="h-2 w-2 text-white" />
+                </div>
+              )}
             </div>
             
             {/* Título Centralizado */}
@@ -485,6 +560,16 @@ export default function CalculadoraIgreen() {
         </div>
         </motion.div>
       </div>
+      
+      {/* Indicador de Proteção */}
+      {protectionActive && (
+        <div className="protection-indicator" title="Sistema de proteção ativo">
+          <Shield className="h-3 w-3" />
+        </div>
+      )}
+      
+      {/* Detector de DevTools (invisível) */}
+      <div className="devtools-detector" />
     </div>
   );
 }
