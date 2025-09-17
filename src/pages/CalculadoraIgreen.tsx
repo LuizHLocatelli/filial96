@@ -10,7 +10,7 @@ import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2 } from "lucide-rea
 import { useToast } from "@/hooks/use-toast";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { CalculatorThemeToggle } from "@/components/theme/CalculatorThemeToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
 import "./CalculadoraIgreen.css";
@@ -172,10 +172,10 @@ export default function CalculadoraIgreen() {
             
             {/* Título Centralizado */}
             <div className="flex-1 text-center min-w-0">
-              <h1 className="text-base sm:text-lg lg:text-xl font-bold text-foreground truncate">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground truncate">
                 Calculadora iGreen
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate opacity-80">
+              <p className="text-sm sm:text-base text-muted-foreground truncate opacity-80">
                 Economia na conta de luz
               </p>
             </div>
@@ -183,7 +183,7 @@ export default function CalculadoraIgreen() {
             {/* Theme Toggle */}
             <div className="flex-shrink-0">
               <div className="calculadora-theme-toggle-header p-1">
-                <ThemeToggle />
+                <CalculatorThemeToggle />
               </div>
             </div>
           </div>
@@ -196,10 +196,10 @@ export default function CalculadoraIgreen() {
           initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
           transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut", delay: 0.1 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6"
         >
           {/* Formulário */}
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-3 sm:space-y-4">
             {/* Dados da Distribuidora */}
             <Card className="glass-card">
               <CardHeader className="pb-3 sm:pb-4">
@@ -334,7 +334,7 @@ export default function CalculadoraIgreen() {
             </Card>
 
             {/* Botões */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-1">
               <Button 
                 onClick={calcular} 
                 className="flex-1 h-10 sm:h-11 text-sm sm:text-base calculadora-button focus:ring-0 focus:ring-offset-0"
@@ -376,59 +376,98 @@ export default function CalculadoraIgreen() {
                     {/* Status de Elegibilidade */}
                     <div className={`p-4 sm:p-6 rounded-lg border text-center transition-all ${
                       resultado.elegivel 
-                        ? "bg-green-50/80 border-green-200 dark:bg-green-950/50 dark:border-green-800"
-                        : "bg-red-50/80 border-red-200 dark:bg-red-950/50 dark:border-red-800"
+                        ? "bg-gradient-to-br from-green-50/90 to-emerald-50/90 border-green-300 dark:from-green-950/60 dark:to-emerald-950/60 dark:border-green-700"
+                        : "bg-gradient-to-br from-amber-50/90 to-orange-50/90 border-amber-300 dark:from-amber-950/60 dark:to-orange-950/60 dark:border-amber-700"
                     }`}>
                       {resultado.elegivel ? (
                         <>
-                          <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-3 sm:mb-4" />
-                          <h3 className="text-base sm:text-xl font-bold text-green-700 dark:text-green-400 mb-2">
-                            Parabéns! Você é elegível ao iGreen Energy
+                          <div className="relative">
+                            <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto mb-3 sm:mb-4 animate-pulse" />
+                            <div className="absolute inset-0 h-12 w-12 sm:h-16 sm:w-16 mx-auto bg-green-400/20 rounded-full animate-ping"></div>
+                          </div>
+                          <h3 className="text-base sm:text-xl font-bold text-green-700 dark:text-green-300 mb-2">
+                            🎉 Excelente Notícia! Seu Cliente é Elegível!
                           </h3>
-                          <p className="text-sm sm:text-base text-green-600 dark:text-green-300">
-                            Seu consumo atende aos critérios do programa
+                          <p className="text-sm sm:text-base text-green-600 dark:text-green-400 mb-3">
+                            O consumo está perfeito para aderir ao iGreen Energy
                           </p>
+                          <div className="bg-white/60 dark:bg-black/20 rounded-lg p-3 mt-3">
+                            <p className="text-xs sm:text-sm text-green-700 dark:text-green-300 font-medium">
+                              💡 Cliente pode economizar na conta de luz com energia 100% limpa!
+                            </p>
+                          </div>
                         </>
                       ) : (
                         <>
-                          <XCircle className="h-12 w-12 sm:h-16 sm:w-16 text-red-500 mx-auto mb-3 sm:mb-4" />
-                          <h3 className="text-base sm:text-xl font-bold text-red-700 dark:text-red-400 mb-2">
-                            Infelizmente você não atende aos critérios
+                          <div className="relative">
+                            <div className="h-12 w-12 sm:h-16 sm:w-16 text-amber-500 mx-auto mb-3 sm:mb-4 flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 rounded-full">
+                              <Zap className="h-6 w-6 sm:h-8 sm:w-8" />
+                            </div>
+                          </div>
+                          <h3 className="text-base sm:text-xl font-bold text-amber-700 dark:text-amber-300 mb-2">
+                            💭 Quase lá! Vamos Analisar as Opções
                           </h3>
-                          <p className="text-sm sm:text-base text-red-600 dark:text-red-300">
-                            É necessário consumo médio acima de 100 kWh
+                          <p className="text-sm sm:text-base text-amber-600 dark:text-amber-400 mb-3">
+                            O consumo atual está um pouco abaixo do mínimo necessário
                           </p>
+                          <div className="bg-white/60 dark:bg-black/20 rounded-lg p-3 mt-3 space-y-2">
+                            <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-300 font-medium">
+                              📋 <strong>Informações Adicionais:</strong>
+                            </p>
+                            <div className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 text-left space-y-1">
+                              <p>• Consumo necessário: <strong>mínimo 100 kWh elegíveis</strong></p>
+                              <p>• Consumo atual: <strong>{resultado.consumoElegivel.toFixed(1)} kWh elegíveis</strong></p>
+                              <p>• Considere: unificar contas ou aguardar aumento no consumo</p>
+                            </div>
+                          </div>
                         </>
                       )}
                     </div>
 
                     {/* Detalhes do Cálculo */}
                     <div className="space-y-3 sm:space-y-4">
-                      <div className="flex justify-between items-center p-2 sm:p-3 bg-muted/50 rounded-lg">
-                        <span className="text-xs sm:text-sm font-medium">Consumo médio mensal:</span>
-                        <Badge variant="secondary" className="text-xs sm:text-sm">
-                          {resultado.mediaConsumo.toFixed(1)} kWh
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex justify-between items-center p-2 sm:p-3 bg-muted/50 rounded-lg">
-                        <span className="text-xs sm:text-sm font-medium">Consumo elegível:</span>
-                        <Badge 
-                          variant={resultado.elegivel ? "default" : "destructive"}
-                          className="text-xs sm:text-sm"
-                        >
-                          {resultado.consumoElegivel.toFixed(1)} kWh
-                        </Badge>
-                      </div>
+                      <div className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/50 rounded-lg p-3 sm:p-4 border border-slate-200/50 dark:border-slate-700/50">
+                        <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                          📊 Análise Detalhada do Consumo
+                        </h4>
+                        
+                        <div className="space-y-2 sm:space-y-3">
+                          <div className="flex justify-between items-center p-2 sm:p-3 bg-white/70 dark:bg-black/20 rounded-lg">
+                            <span className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                              📈 Consumo médio mensal:
+                            </span>
+                            <Badge variant="secondary" className="text-xs sm:text-sm font-semibold">
+                              {resultado.mediaConsumo.toFixed(1)} kWh
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex justify-between items-center p-2 sm:p-3 bg-white/70 dark:bg-black/20 rounded-lg">
+                            <span className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                              ⚡ Consumo elegível:
+                            </span>
+                            <Badge 
+                              variant={resultado.elegivel ? "default" : "destructive"}
+                              className="text-xs sm:text-sm font-semibold"
+                            >
+                              {resultado.consumoElegivel.toFixed(1)} kWh
+                            </Badge>
+                          </div>
 
-                      {resultado.elegivel && (
-                        <div className="flex justify-between items-center p-2 sm:p-3 bg-primary/5 rounded-lg">
-                          <span className="text-xs sm:text-sm font-medium">Desconto aplicável:</span>
-                          <Badge className="bg-primary text-xs sm:text-sm">
-                            {resultado.percentualDesconto}%
-                          </Badge>
+                          {resultado.elegivel && (
+                            <>
+                              <div className="flex justify-between items-center p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20">
+                                <span className="text-xs sm:text-sm font-medium flex items-center gap-2">
+                                  💰 Desconto aplicável:
+                                </span>
+                                <Badge className="bg-primary text-xs sm:text-sm font-semibold">
+                                  {resultado.percentualDesconto}%
+                                </Badge>
+                              </div>
+                              
+                            </>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -448,7 +487,7 @@ export default function CalculadoraIgreen() {
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
           transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut", delay: 0.2 }}
         >
-        <div className="mt-8 sm:mt-12 lg:mt-16 glass-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-soft">
+        <div className="mt-6 sm:mt-8 lg:mt-10 glass-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-soft">
           <div className="text-center mb-4 sm:mb-6">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
               Sobre o iGreen Energy

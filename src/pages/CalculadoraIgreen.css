@@ -160,46 +160,102 @@
   }
 }
 
-/* === HEADER FLUTUANTE STYLES === */
+/* === HEADER FLUTUANTE STYLES - VERDE SUAVIZADO === */
 .calculadora-header-flutuante {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.7), rgba(22, 163, 74, 0.75)) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 8px 32px rgba(34, 197, 94, 0.18),
+    0 2px 8px rgba(34, 197, 94, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   /* Garantir que o header não interfira no conteúdo */
   min-height: 80px; /* Aumentado para garantir altura consistente */
   max-height: 120px; /* Altura máxima para evitar header muito alto */
 }
 
+/* Forçar textos e ícones brancos no header */
+.calculadora-header-flutuante h1 {
+  color: white !important;
+}
+
+.calculadora-header-flutuante p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Forçar apenas o ícone SVG branco, sem alterar o container */
+.calculadora-header-flutuante svg[data-lucide="zap"],
+.calculadora-header-flutuante .lucide-zap,
+.calculadora-header-flutuante .flex-shrink-0 svg {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Bloquear mudanças no container do ícone */
+.calculadora-header-flutuante .bg-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.calculadora-header-flutuante .bg-primary:hover {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
 /* Dark mode para header flutuante */
 .dark .calculadora-header-flutuante {
-  background: rgba(20, 20, 20, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.7), rgba(21, 128, 61, 0.75)) !important;
+  border: 1px solid rgba(34, 197, 94, 0.25) !important;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 32px rgba(22, 163, 74, 0.2),
+    0 2px 8px rgba(22, 163, 74, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Garantir textos brancos também no modo escuro */
+.dark .calculadora-header-flutuante h1 {
+  color: white !important;
+}
+
+.dark .calculadora-header-flutuante p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Forçar apenas o ícone SVG branco no modo escuro */
+.dark .calculadora-header-flutuante svg[data-lucide="zap"],
+.dark .calculadora-header-flutuante .lucide-zap,
+.dark .calculadora-header-flutuante .flex-shrink-0 svg {
+  color: white !important;
+  fill: white !important;
+}
+
+/* Bloquear mudanças no container do ícone no modo escuro */
+.dark .calculadora-header-flutuante .bg-primary {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .calculadora-header-flutuante .bg-primary:hover {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
 }
 
 /* Hover effect para header flutuante */
 .calculadora-header-flutuante:hover {
   transform: translateY(-1px);
   box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 12px 40px rgba(34, 197, 94, 0.22),
+    0 4px 12px rgba(34, 197, 94, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
 .dark .calculadora-header-flutuante:hover {
   box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 12px 40px rgba(22, 163, 74, 0.28),
+    0 4px 12px rgba(22, 163, 74, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Theme toggle no header */
@@ -209,6 +265,54 @@
 
 .calculadora-theme-toggle-header:hover {
   transform: scale(1.05);
+}
+
+/* Proteger ThemeToggle dos estilos do header */
+.calculadora-header-flutuante .calculadora-theme-toggle-header button {
+  background-color: rgba(22, 163, 74, 0.9) !important;
+  color: white !important;
+  border: 1px solid rgba(22, 163, 74, 1) !important;
+}
+
+.calculadora-header-flutuante .calculadora-theme-toggle-header button:hover {
+  background-color: rgba(22, 163, 74, 1) !important;
+  color: white !important;
+  border: 1px solid rgba(22, 163, 74, 1) !important;
+  transform: scale(1.02);
+}
+
+.calculadora-header-flutuante .calculadora-theme-toggle-header button svg {
+  color: white !important;
+  fill: currentColor !important;
+}
+
+.calculadora-header-flutuante .calculadora-theme-toggle-header button:hover svg {
+  color: white !important;
+  fill: currentColor !important;
+}
+
+/* Modo escuro para ThemeToggle */
+.dark .calculadora-header-flutuante .calculadora-theme-toggle-header button {
+  background-color: rgba(34, 197, 94, 0.8) !important;
+  color: white !important;
+  border: 1px solid rgba(34, 197, 94, 1) !important;
+}
+
+.dark .calculadora-header-flutuante .calculadora-theme-toggle-header button:hover {
+  background-color: rgba(34, 197, 94, 1) !important;
+  color: white !important;
+  border: 1px solid rgba(34, 197, 94, 1) !important;
+  transform: scale(1.02);
+}
+
+.dark .calculadora-header-flutuante .calculadora-theme-toggle-header button svg {
+  color: white !important;
+  fill: currentColor !important;
+}
+
+.dark .calculadora-header-flutuante .calculadora-theme-toggle-header button:hover svg {
+  color: white !important;
+  fill: currentColor !important;
 }
 
 /* === RESPONSIVIDADE HEADER FLUTUANTE === */
@@ -332,22 +436,48 @@
 .calculadora-header-scrolled {
   backdrop-filter: blur(24px) saturate(200%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.8), rgba(22, 163, 74, 0.85)) !important;
+  border: 1px solid rgba(34, 197, 94, 0.4) !important;
   box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+    0 12px 40px rgba(34, 197, 94, 0.25),
+    0 4px 16px rgba(34, 197, 94, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
   transform: translateY(0) scale(0.98);
 }
 
+/* Manter textos brancos no estado scrolled */
+.calculadora-header-scrolled h1 {
+  color: white !important;
+}
+
+.calculadora-header-scrolled p {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.calculadora-header-scrolled .flex-shrink-0 svg {
+  color: white !important;
+}
+
 .dark .calculadora-header-scrolled {
-  background: rgba(10, 10, 10, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.8), rgba(21, 128, 61, 0.85)) !important;
+  border: 1px solid rgba(34, 197, 94, 0.35) !important;
   box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    0 12px 40px rgba(22, 163, 74, 0.3),
+    0 4px 16px rgba(22, 163, 74, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Manter textos brancos no modo escuro scrolled */
+.dark .calculadora-header-scrolled h1 {
+  color: white !important;
+}
+
+.dark .calculadora-header-scrolled p {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark .calculadora-header-scrolled .flex-shrink-0 svg {
+  color: white !important;
 }
 
 /* === ESPAÇAMENTO PARA COMPENSAR HEADER FIXO === */
@@ -463,4 +593,10 @@
     backdrop-filter: none !important;
     border: 2px solid hsl(var(--border)) !important;
   }
-}
+}/* Cache Buster - 09/17/2025 07:35:59 */
+/* White Text Update - 09/17/2025 07:37:10 */
+/* Icon Fix - 09/17/2025 07:38:19 */
+/* Hover Fix - 09/17/2025 07:39:50 */
+/* DEFINITIVE FIX - 09/17/2025 07:41:33 */
+/* Theme Toggle Fix - 09/17/2025 07:44:04 */
+/* Theme Toggle Default Colors - 09/17/2025 07:45:32 */

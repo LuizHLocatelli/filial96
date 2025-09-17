@@ -4,7 +4,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
 import { useIntelligentPreload } from "./hooks/useIntelligentPreload";
-import CalculadoraIgreen from "./pages/CalculadoraIgreen";
+import CalculadoraIgreenWrapper from "./pages/CalculadoraIgreenWrapper";
 
 // Lazy load das páginas principais
 const HubProdutividade = lazy(() => import("./pages/HubProdutividade"));
@@ -64,7 +64,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Rotas públicas */}
       <Route path="/auth" element={<Auth />} />
-      <Route path="/calculadora-igreen" element={<CalculadoraIgreen />} />
+      <Route path="/calculadora-igreen" element={<CalculadoraIgreenWrapper />} />
       
       {/* Rota de redefinição de senha - pública e acessível sem autenticação */}
       <Route path="/reset-password" element={<ResetPassword />} />
