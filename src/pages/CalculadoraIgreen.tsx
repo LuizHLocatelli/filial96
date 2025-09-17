@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -48,45 +48,38 @@ export default function CalculadoraIgreen() {
   } | null>(null);
   const [calculando, setCalculando] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
-  // Effect para detectar scroll
+  // Effect para detectar scroll com rAF e listener passivo
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setScrolled(scrollPosition > 50);
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const next = window.scrollY > 50;
+        setScrolled(prev => (prev !== next ? next : prev));
+        ticking = false;
+      });
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true } as AddEventListenerOptions);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Effect para detectar mudanças no tamanho da tela
-  useEffect(() => {
-    const handleResize = () => {
-      setScreenWidth(window.innerWidth);
-    };
+  // Removido estado de resize: usar classes responsivas para padding
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+  const handleConsumoChange = useCallback((index: number, valor: string) => {
+    const parsed = parseFloat(valor);
+    const safeValue = Number.isFinite(parsed) ? parsed : 0;
+    setDados(prev => {
+      const novoConsumo = [...prev.consumoMeses];
+      novoConsumo[index] = safeValue;
+      return { ...prev, consumoMeses: novoConsumo };
+    });
   }, []);
-
-  // Função para calcular padding-top responsivo
-  const getResponsivePadding = () => {
-    if (screenWidth <= 380) return '130px';
-    if (screenWidth <= 480) return '140px';
-    if (screenWidth <= 640) return '150px';
-    if (screenWidth <= 768) return '160px';
-    return '140px';
-  };
-
-  const handleConsumoChange = (index: number, valor: string) => {
-    const novoConsumo = [...dados.consumoMeses];
-    novoConsumo[index] = parseFloat(valor) || 0;
-    setDados({ ...dados, consumoMeses: novoConsumo });
-  };
 
   const calcular = () => {
     if (!dados.distribuidora || !dados.tipoFornecimento) {
@@ -109,7 +102,6 @@ export default function CalculadoraIgreen() {
     }
 
     setCalculando(true);
-    
     // Simular processamento
     setTimeout(() => {
       const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
@@ -134,7 +126,6 @@ export default function CalculadoraIgreen() {
         percentualDesconto,
         economiaMensal
       });
-      
       setCalculando(false);
     }, 1500);
   };
@@ -164,9 +155,9 @@ export default function CalculadoraIgreen() {
       
       {/* Header Flutuante Fixo */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        initial={shouldReduceMotion ? false : { opacity: 0, y: -20 }}
+        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut" }}
         className="absolute top-6 left-0 right-0 z-40 flex justify-center px-4"
       >
         <div className={cn(
@@ -199,12 +190,12 @@ export default function CalculadoraIgreen() {
         </div>
       </motion.div>
 
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl relative z-10 calculadora-main-container" style={{ paddingTop: getResponsivePadding() }}>
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 pt-[140px] sm:pt-[150px] md:pt-[160px] lg:pt-[140px] py-4 sm:py-6 lg:py-8 max-w-7xl relative z-10 calculadora-main-container">
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut", delay: 0.1 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8"
         >
           {/* Formulário */}
@@ -453,9 +444,9 @@ export default function CalculadoraIgreen() {
 
         {/* Footer Informativo */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut", delay: 0.2 }}
         >
         <div className="mt-8 sm:mt-12 lg:mt-16 glass-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-soft">
           <div className="text-center mb-4 sm:mb-6">

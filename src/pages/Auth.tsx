@@ -17,6 +17,8 @@ import { EnhancedLoginForm } from "@/components/auth/EnhancedLoginForm";
 import { EnhancedSignupForm } from "@/components/auth/EnhancedSignupForm";
 import { AuthBackgroundElements } from "@/components/auth/AuthBackgroundElements";
 import { TrustIndicators } from "@/components/auth/TrustIndicators";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("login");
@@ -75,6 +77,16 @@ export default function Auth() {
                     Junte-se à equipe da Filial 96
                   </CardDescription>
                 </CardHeader>
+                
+                <div className="px-6 pb-4">
+                  <Alert variant="destructive" className="bg-red-50 dark:bg-red-950/80 border-red-200 dark:border-red-800">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Atenção:</strong> Para criar uma nova conta, entre em contato com o <strong>Gerente Luiz</strong> para autorização prévia.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+                
                 <EnhancedSignupForm />
               </Card>
             </TabsContent>
