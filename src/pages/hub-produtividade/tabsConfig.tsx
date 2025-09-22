@@ -2,13 +2,15 @@
 import { 
   Activity,
   Target,
-  FileImage
+  FileImage,
+  Bot
 } from "lucide-react";
 import { HubDashboard } from "@/components/moveis/hub-produtividade/components/dashboard/HubDashboard";
 import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
 import { lazy } from "react";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
+const AssistentesAI = lazy(() => import("@/components/assistentes-ai/AssistentesAI"));
 
 interface TabsConfigProps {
   stats: any;
@@ -70,6 +72,17 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <Cartazes />
+        </div>
+      )
+    },
+    {
+      value: "assistentes",
+      label: "Assistentes",
+      icon: Bot,
+      description: "Chatbots assistentes de IA",
+      component: (
+        <div className="border border-border/40 rounded-lg overflow-hidden">
+          <AssistentesAI />
         </div>
       )
     }
