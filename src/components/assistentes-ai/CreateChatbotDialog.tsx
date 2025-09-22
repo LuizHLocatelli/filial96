@@ -61,7 +61,20 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
 
   const testWebhookConnection = async (url: string): Promise<boolean> => {
     try {
-      const response = await fetch(url, {
+      // Tenta primeiro com GET (muitos webhooks só aceitam GET para teste)
+      const getResponse = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (getResponse.ok) {
+        return true;
+      }
+      
+      // Se GET falhar, tenta com POST
+      const postResponse = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +84,8 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
           test: true,
         }),
       });
-      return response.ok;
+      
+      return postResponse.ok;
     } catch {
       return false;
     }
