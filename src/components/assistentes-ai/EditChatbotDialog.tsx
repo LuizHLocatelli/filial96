@@ -77,20 +77,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
 
   const testWebhookConnection = async (url: string): Promise<boolean> => {
     try {
-      // Tenta primeiro com GET (muitos webhooks só aceitam GET para teste)
-      const getResponse = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (getResponse.ok) {
-        return true;
-      }
-      
-      // Se GET falhar, tenta com POST
-      const postResponse = await fetch(url, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,8 +87,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
           test: true,
         }),
       });
-      
-      return postResponse.ok;
+      return response.ok;
     } catch {
       return false;
     }
