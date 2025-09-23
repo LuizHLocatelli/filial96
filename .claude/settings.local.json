@@ -11,7 +11,9 @@
       "mcp__supabase__apply_migration",
       "mcp__supabase__execute_sql",
       "mcp__supabase__get_advisors",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(npx:*)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_be57bbd224b29085f724c47b145f353f20ca2737 npx -y @supabase/mcp-server-supabase --project-ref=abpsafkioslfjqtgtvbi)"
     ]
   },
   "enableAllProjectMcpServers": true,
