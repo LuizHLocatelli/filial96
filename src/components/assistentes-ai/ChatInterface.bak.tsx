@@ -52,11 +52,6 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Scroll to bottom function
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
   useEffect(() => {
     loadConversation();
   }, [chatbot.id, user?.id]);
@@ -140,12 +135,6 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const getCacheKey = useCallback((message: string) => {
     return `${chatbot.id}_${message.toLowerCase().trim()}`;
   }, [chatbot.id]);
-
-  // Load conversations list (placeholder function)
-  const loadConversations = async () => {
-    // This function needs to be implemented based on your requirements
-    console.log("Loading conversations...");
-  };
 
   // Export conversation
   const clearConversation = async () => {

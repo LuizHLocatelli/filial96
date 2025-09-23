@@ -128,16 +128,13 @@ export default function AssistentesAI() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Assistentes de IA</h2>
-          <p className="text-muted-foreground">
-            Gerencie e interaja com chatbots assistentes inteligentes
-          </p>
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6 w-full max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 w-full max-w-full">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight break-words">Assistentes de IA</h2>
         </div>
         {isManager && (
-          <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+          <Button onClick={() => setShowCreateDialog(true)} className="gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             Novo Assistente
           </Button>
@@ -146,16 +143,16 @@ export default function AssistentesAI() {
 
       {chatbots.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-12 px-4">
             <Bot className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum assistente encontrado</h3>
-            <p className="text-muted-foreground text-center mb-4">
+            <h3 className="text-lg font-semibold mb-2 text-center">Nenhum assistente encontrado</h3>
+            <p className="text-muted-foreground text-center mb-4 text-sm md:text-base">
               {isManager
                 ? "Crie seu primeiro assistente de IA para começar a automatizar atendimentos."
                 : "Os assistentes de IA aparecerão aqui quando forem criados pelos gerentes."}
             </p>
             {isManager && (
-              <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+              <Button onClick={() => setShowCreateDialog(true)} className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Criar Primeiro Assistente
               </Button>
@@ -163,20 +160,23 @@ export default function AssistentesAI() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 w-full max-w-full">
           {chatbots.map((chatbot) => (
-            <Card key={chatbot.id} className="hover:shadow-md transition-shadow">
+            <Card key={chatbot.id} className="hover:shadow-md transition-shadow w-full max-w-full overflow-hidden">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bot className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">{chatbot.name}</CardTitle>
+                <div className="flex items-start justify-between gap-2 w-full">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <Bot className="h-5 w-5 text-primary flex-shrink-0" />
+                    <CardTitle className="text-lg truncate min-w-0">{chatbot.name}</CardTitle>
                   </div>
-                  <Badge variant={chatbot.is_active ? "default" : "secondary"}>
+                  <Badge
+                    variant={chatbot.is_active ? "default" : "secondary"}
+                    className="flex-shrink-0 whitespace-nowrap"
+                  >
                     {chatbot.is_active ? "Ativo" : "Inativo"}
                   </Badge>
                 </div>
-                <CardDescription className="text-sm text-muted-foreground">
+                <CardDescription className="text-xs md:text-sm text-muted-foreground">
                   Criado em {new Date(chatbot.created_at).toLocaleDateString('pt-BR')}
                 </CardDescription>
               </CardHeader>
@@ -186,6 +186,7 @@ export default function AssistentesAI() {
                     onClick={() => openChat(chatbot)}
                     className="w-full gap-2"
                     disabled={!chatbot.is_active}
+                    size="sm"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Conversar
@@ -200,7 +201,7 @@ export default function AssistentesAI() {
                         className="flex-1 gap-2"
                       >
                         <Settings className="h-4 w-4" />
-                        Editar
+                        <span className="hidden xs:inline">Editar</span>
                       </Button>
                       <Button
                         variant="outline"
@@ -209,7 +210,7 @@ export default function AssistentesAI() {
                         className="gap-2 text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
-                        Excluir
+                        <span className="hidden xs:inline">Excluir</span>
                       </Button>
                     </div>
                   )}
