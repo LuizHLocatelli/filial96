@@ -44,8 +44,8 @@ export function ChangePasswordForm({ user, isOpen, onClose }: ChangePasswordForm
     setIsLoading(true);
 
     try {
-      // Usando updateUser que funciona para alteração de senha
-      const { error } = await supabase.auth.updateUser({
+      // Using the Admin API to update another user's password
+      const { error } = await supabase.auth.admin.updateUserById(user.id, {
         password: newPassword
       });
 
@@ -61,11 +61,12 @@ export function ChangePasswordForm({ user, isOpen, onClose }: ChangePasswordForm
       setNewPassword('');
       setConfirmPassword('');
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao alterar senha:', error);
+      const errorMessage = error instanceof Error ? error.message : "Erro ao alterar senha do usuário";
       toast({
         title: "Erro",
-        description: error.message || "Erro ao alterar senha do usuário",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

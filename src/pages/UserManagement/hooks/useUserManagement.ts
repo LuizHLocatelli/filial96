@@ -36,7 +36,7 @@ export function useUserManagement() {
         return;
       }
 
-      let authUsers: any = null;
+      let authUsers: { users: { id: string; email?: string; last_sign_in_at?: string }[] } | null = null;
       if (isManager) {
         try {
           const { data, error: authError } = await supabase.auth.admin.listUsers();
@@ -48,8 +48,18 @@ export function useUserManagement() {
         }
       }
 
-      const usersWithStats: UserWithStats[] = (profiles || []).map((profile: any) => {
-        const authUser = authUsers?.users?.find((u: any) => u.id === profile.id);
+      const usersWithStats: UserWithStats[] = (profiles || []).map((profile: { 
+        id: string; 
+        email?: string; 
+        name: string; 
+        role: string; 
+        avatar_url?: string; 
+        display_name?: string; 
+        phone?: string; 
+        created_at: string; 
+        updated_at: string; 
+      }) => {
+        const authUser = authUsers?.users?.find((u) => u.id === profile.id);
         
         return {
           id: profile.id,
@@ -67,7 +77,7 @@ export function useUserManagement() {
 
       setUsers(usersWithStats);
       setFilteredUsers(usersWithStats);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unexpected error fetching users:', error);
       toast({
         title: "Erro Inesperado",
@@ -116,6 +126,15 @@ export function useUserManagement() {
         return;
       }
 
+      // Delete the user from the auth system using admin API
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (authError) {
+        // If auth deletion fails, we should still try to delete from profiles
+        console.error('Auth deletion error:', authError);
+      }
+
+      // Delete the user from the profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
@@ -143,7 +162,7 @@ export function useUserManagement() {
         title: "Usuário Excluído",
         description: `${DOMPurify.sanitize(userName)} foi excluído com sucesso.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unexpected deletion error:', error);
       toast({
         title: "Erro Inesperado",
@@ -201,7 +220,7 @@ export function useUserManagement() {
         title: "Usuário Atualizado",
         description: "Informações atualizadas com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unexpected update error:', error);
       toast({
         title: "Erro Inesperado",
@@ -215,7 +234,7 @@ export function useUserManagement() {
     if (isManager) {
       fetchUsers();
     }
-  }, [isManager]);
+  }, [isManager, fetchUsers]);
 
   return {
     users,
