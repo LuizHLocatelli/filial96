@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -15,9 +15,22 @@ export function useUserManagement() {
   const [editingUser, setEditingUser] = useState<UserWithStats | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  const usersRef = useRef(users);
+  const searchTermRef = useRef(searchTerm);
+  const fetchUsersRef = useRef<() => Promise<void>>();
+  
+  // Update refs when state changes
+  useEffect(() => {
+    usersRef.current = users;
+  }, [users]);
+  
+  useEffect(() => {
+    searchTermRef.current = searchTerm;
+  }, [searchTerm]);
+
   const isManager = profile?.role === 'gerente';
 
-  const fetchUsers = async () => {
+  const fetchUsersInternal = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -87,16 +100,27 @@ export function useUserManagement() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [supabase, toast, isManager, setUsers, setFilteredUsers]);
+
+  // Assign the function to ref so it's always current
+  useEffect(() => {
+    fetchUsersRef.current = fetchUsersInternal;
+  }, [fetchUsersInternal]);
+
+  const fetchUsers = useCallback(() => {
+    if (fetchUsersRef.current) {
+      return fetchUsersRef.current();
+    }
+  }, []);
 
   const handleSearch = (term: string) => {
     const sanitizedTerm = DOMPurify.sanitize(term);
     setSearchTerm(sanitizedTerm);
     
     if (sanitizedTerm === "") {
-      setFilteredUsers(users);
+      setFilteredUsers(usersRef.current);
     } else {
-      const filtered = users.filter(user =>
+      const filtered = usersRef.current.filter(user =>
         user.name.toLowerCase().includes(sanitizedTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(sanitizedTerm.toLowerCase()) ||
         roleLabels[user.role].toLowerCase().includes(sanitizedTerm.toLowerCase())
@@ -116,7 +140,7 @@ export function useUserManagement() {
         return;
       }
 
-      const userToDelete = users.find(u => u.id === userId);
+      const userToDelete = usersRef.current.find(u => u.id === userId);
       if (userToDelete?.role === 'gerente') {
         toast({
           title: "Operação Restrita",
@@ -149,13 +173,13 @@ export function useUserManagement() {
         return;
       }
 
-      const updatedUsers = users.filter(user => user.id !== userId);
+      const updatedUsers = usersRef.current.filter(user => user.id !== userId);
       setUsers(updatedUsers);
       setFilteredUsers(updatedUsers.filter(user =>
-        searchTerm === "" ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        roleLabels[user.role].toLowerCase().includes(searchTerm.toLowerCase())
+        searchTermRef.current === "" ||
+        user.name.toLowerCase().includes(searchTermRef.current.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTermRef.current.toLowerCase()) ||
+        roleLabels[user.role].toLowerCase().includes(searchTermRef.current.toLowerCase())
       ));
 
       toast({
@@ -202,15 +226,15 @@ export function useUserManagement() {
         return;
       }
 
-      const updatedUsers = users.map(user =>
+      const updatedUsers = usersRef.current.map(user =>
         user.id === updatedUser.id ? { ...user, ...updatedUser } : user
       );
       setUsers(updatedUsers);
       setFilteredUsers(updatedUsers.filter(user =>
-        searchTerm === "" ||
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        roleLabels[user.role].toLowerCase().includes(searchTerm.toLowerCase())
+        searchTermRef.current === "" ||
+        user.name.toLowerCase().includes(searchTermRef.current.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTermRef.current.toLowerCase()) ||
+        roleLabels[user.role].toLowerCase().includes(searchTermRef.current.toLowerCase())
       ));
 
       setIsEditDialogOpen(false);
@@ -234,7 +258,7 @@ export function useUserManagement() {
     if (isManager) {
       fetchUsers();
     }
-  }, [isManager, fetchUsers]);
+  }, [isManager]);
 
   return {
     users,
