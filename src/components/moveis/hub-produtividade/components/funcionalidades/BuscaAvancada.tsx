@@ -32,16 +32,12 @@ import { useMobileDialog } from '@/hooks/useMobileDialog';
 interface BuscaAvancadaProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  rotinas: Array<any>;
   orientacoes: Array<any>;
-  tarefas: Array<any>;
   onResultsSelect: (results: SearchResults) => void;
 }
 
 interface SearchResults {
-  rotinas: Array<any>;
   orientacoes: Array<any>;
-  tarefas: Array<any>;
   totalFound: number;
   searchQuery: string;
   appliedFilters: SearchFilters;
@@ -72,9 +68,7 @@ const INITIAL_FILTERS: SearchFilters = {
 export function BuscaAvancada({ 
   open, 
   onOpenChange, 
-  rotinas, 
-  orientacoes, 
-  tarefas,
+  orientacoes,
   onResultsSelect 
 }: BuscaAvancadaProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
@@ -85,28 +79,28 @@ export function BuscaAvancada({
   // Extrair valores únicos para os filtros
   const availableCategories = useMemo(() => {
     const categories = new Set<string>();
-    [...rotinas, ...orientacoes, ...tarefas].forEach(item => {
+    orientacoes.forEach(item => {
       if (item.categoria) categories.add(item.categoria);
     });
     return Array.from(categories).sort();
-  }, [rotinas, orientacoes, tarefas]);
+  }, [orientacoes]);
 
   const availableUsers = useMemo(() => {
     const users = new Set<string>();
-    [...rotinas, ...orientacoes, ...tarefas].forEach(item => {
+    orientacoes.forEach(item => {
       if (item.created_by) users.add(item.created_by);
       if (item.usuario) users.add(item.usuario);
     });
     return Array.from(users).sort();
-  }, [rotinas, orientacoes, tarefas]);
+  }, [orientacoes]);
 
   const availableStatus = useMemo(() => {
     const status = new Set<string>();
-    [...rotinas, ...orientacoes, ...tarefas].forEach(item => {
+    orientacoes.forEach(item => {
       if (item.status) status.add(item.status);
     });
     return Array.from(status).sort();
-  }, [rotinas, orientacoes, tarefas]);
+  }, [orientacoes]);
 
   // Função de busca com ranking por relevância
   const performSearch = () => {
@@ -133,21 +127,7 @@ export function BuscaAvancada({
       };
 
       // Filtrar por termo de busca
-      let filteredRotinas = rotinas.filter(item => {
-        if (searchTerm && !Object.values(item).some(value => 
-          typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-        )) return false;
-        return true;
-      });
-
       let filteredOrientacoes = orientacoes.filter(item => {
-        if (searchTerm && !Object.values(item).some(value => 
-          typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-        )) return false;
-        return true;
-      });
-
-      let filteredTarefas = tarefas.filter(item => {
         if (searchTerm && !Object.values(item).some(value => 
           typeof value === 'string' && value.toLowerCase().includes(searchTerm)
         )) return false;
@@ -156,31 +136,19 @@ export function BuscaAvancada({
 
       // Aplicar filtros adicionais
       if (filters.tipos.length > 0) {
-        if (!filters.tipos.includes('rotinas')) filteredRotinas = [];
         if (!filters.tipos.includes('orientacoes')) filteredOrientacoes = [];
-        if (!filters.tipos.includes('tarefas')) filteredTarefas = [];
       }
 
       if (filters.status.length > 0) {
-        filteredRotinas = filteredRotinas.filter(item => filters.status.includes(item.status));
         filteredOrientacoes = filteredOrientacoes.filter(item => filters.status.includes(item.status || 'ativa'));
-        filteredTarefas = filteredTarefas.filter(item => filters.status.includes(item.status));
       }
 
       if (filters.categorias.length > 0) {
-        filteredRotinas = filteredRotinas.filter(item => filters.categorias.includes(item.categoria));
         filteredOrientacoes = filteredOrientacoes.filter(item => filters.categorias.includes(item.categoria));
-        filteredTarefas = filteredTarefas.filter(item => filters.categorias.includes(item.categoria));
       }
 
       if (filters.usuarios.length > 0) {
-        filteredRotinas = filteredRotinas.filter(item => 
-          filters.usuarios.includes(item.created_by) || filters.usuarios.includes(item.usuario)
-        );
         filteredOrientacoes = filteredOrientacoes.filter(item => 
-          filters.usuarios.includes(item.created_by) || filters.usuarios.includes(item.usuario)
-        );
-        filteredTarefas = filteredTarefas.filter(item => 
           filters.usuarios.includes(item.created_by) || filters.usuarios.includes(item.usuario)
         );
       }
@@ -190,17 +158,7 @@ export function BuscaAvancada({
         const startDate = startOfDay(filters.dateRange.from);
         const endDate = endOfDay(filters.dateRange.to);
         
-        filteredRotinas = filteredRotinas.filter(item => {
-          const itemDate = new Date(item.created_at || item.updated_at);
-          return isWithinInterval(itemDate, { start: startDate, end: endDate });
-        });
-        
         filteredOrientacoes = filteredOrientacoes.filter(item => {
-          const itemDate = new Date(item.created_at || item.updated_at);
-          return isWithinInterval(itemDate, { start: startDate, end: endDate });
-        });
-        
-        filteredTarefas = filteredTarefas.filter(item => {
           const itemDate = new Date(item.created_at || item.updated_at);
           return isWithinInterval(itemDate, { start: startDate, end: endDate });
         });
@@ -208,16 +166,8 @@ export function BuscaAvancada({
 
       // Ordenar por relevância ou outros critérios
       if (filters.ordenacao === 'relevancia' && searchTerm) {
-        filteredRotinas = filteredRotinas
-          .map(item => ({ ...item, _relevance: calculateRelevance(item, 'rotina') }))
-          .sort((a, b) => b._relevance - a._relevance);
-        
         filteredOrientacoes = filteredOrientacoes
           .map(item => ({ ...item, _relevance: calculateRelevance(item, 'orientacao') }))
-          .sort((a, b) => b._relevance - a._relevance);
-        
-        filteredTarefas = filteredTarefas
-          .map(item => ({ ...item, _relevance: calculateRelevance(item, 'tarefa') }))
           .sort((a, b) => b._relevance - a._relevance);
       } else {
         // Outras ordenações
@@ -252,16 +202,12 @@ export function BuscaAvancada({
           }
         };
 
-        filteredRotinas.sort(sortFunction);
         filteredOrientacoes.sort(sortFunction);
-        filteredTarefas.sort(sortFunction);
       }
 
       const results: SearchResults = {
-        rotinas: filteredRotinas,
         orientacoes: filteredOrientacoes,
-        tarefas: filteredTarefas,
-        totalFound: filteredRotinas.length + filteredOrientacoes.length + filteredTarefas.length,
+        totalFound: filteredOrientacoes.length,
         searchQuery: filters.termo,
         appliedFilters: filters
       };
@@ -309,7 +255,7 @@ export function BuscaAvancada({
             </div>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Encontre orientações, tarefas, consultores e rotinas rapidamente
+            Encontre orientações e assistentes rapidamente
           </DialogDescription>
         </DialogHeader>
 
@@ -346,9 +292,7 @@ export function BuscaAvancada({
               <Label>Tipos de Conteúdo</Label>
               <div className="space-y-2">
                 {[
-                  { id: 'rotinas', label: 'Rotinas', icon: Clock },
-                  { id: 'orientacoes', label: 'Orientações', icon: FileText },
-                  { id: 'tarefas', label: 'Tarefas', icon: Check }
+                  { id: 'orientacoes', label: 'Orientações', icon: FileText }
                 ].map(tipo => (
                   <div key={tipo.id} className="flex items-center space-x-2">
                     <Checkbox
@@ -503,40 +447,6 @@ export function BuscaAvancada({
                   </Button>
                 </div>
 
-                {/* Rotinas */}
-                {searchResults.rotinas.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Clock className="h-4 w-4" />
-                        Rotinas ({searchResults.rotinas.length})
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {searchResults.rotinas.slice(0, 5).map(rotina => (
-                        <div key={rotina.id} className="selectable-item">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">{rotina.nome}</h4>
-                            <Badge variant={rotina.status === 'concluida' ? 'default' : 'secondary'}>
-                              {rotina.status}
-                            </Badge>
-                          </div>
-                          {rotina.descricao && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {rotina.descricao.substring(0, 100)}...
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                      {searchResults.rotinas.length > 5 && (
-                        <p className="text-center text-sm text-muted-foreground">
-                          +{searchResults.rotinas.length - 5} rotinas adicionais
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
                 {/* Orientações */}
                 {searchResults.orientacoes.length > 0 && (
                   <Card>
@@ -563,40 +473,6 @@ export function BuscaAvancada({
                       {searchResults.orientacoes.length > 5 && (
                         <p className="text-center text-sm text-muted-foreground">
                           +{searchResults.orientacoes.length - 5} orientações adicionais
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Tarefas */}
-                {searchResults.tarefas.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Check className="h-4 w-4" />
-                        Tarefas ({searchResults.tarefas.length})
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {searchResults.tarefas.slice(0, 5).map(tarefa => (
-                        <div key={tarefa.id} className="selectable-item">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">{tarefa.titulo}</h4>
-                            <Badge variant={tarefa.status === 'concluida' ? 'default' : 'secondary'}>
-                              {tarefa.status}
-                            </Badge>
-                          </div>
-                          {tarefa.descricao && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {tarefa.descricao.substring(0, 100)}...
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                      {searchResults.tarefas.length > 5 && (
-                        <p className="text-center text-sm text-muted-foreground">
-                          +{searchResults.tarefas.length - 5} tarefas adicionais
                         </p>
                       )}
                     </CardContent>

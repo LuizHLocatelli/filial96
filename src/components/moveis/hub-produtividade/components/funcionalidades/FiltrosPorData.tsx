@@ -41,9 +41,7 @@ import { useMobileDialog } from '@/hooks/useMobileDialog';
 interface FiltrosPorDataProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  rotinas: Array<any>;
   orientacoes: Array<any>;
-  tarefas: Array<any>;
   onFiltersApply: (filters: DateFilters) => void;
 }
 
@@ -58,9 +56,7 @@ interface DateFilters {
 
 interface DateStats {
   totalItems: number;
-  rotinasCount: number;
   orientacoesCount: number;
-  tarefasCount: number;
   itemsPerDay: number;
   weekdaysOnly: number;
   completionRate: number;
@@ -83,9 +79,7 @@ const PRESETS = [
 export function FiltrosPorData({ 
   open, 
   onOpenChange, 
-  rotinas, 
-  orientacoes, 
-  tarefas,
+  orientacoes,
   onFiltersApply 
 }: FiltrosPorDataProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
@@ -186,9 +180,7 @@ export function FiltrosPorData({
     if (!currentRange?.from || !currentRange?.to) {
       return {
         totalItems: 0,
-        rotinasCount: 0,
         orientacoesCount: 0,
-        tarefasCount: 0,
         itemsPerDay: 0,
         weekdaysOnly: 0,
         completionRate: 0
@@ -199,22 +191,12 @@ export function FiltrosPorData({
     const end = endOfDay(currentRange.to);
 
     // Filtrar itens no período
-    const filteredRotinas = rotinas.filter(item => {
-      const itemDate = new Date(item.created_at || item.updated_at);
-      return isWithinInterval(itemDate, { start, end });
-    });
-
     const filteredOrientacoes = orientacoes.filter(item => {
       const itemDate = new Date(item.created_at || item.updated_at);
       return isWithinInterval(itemDate, { start, end });
     });
 
-    const filteredTarefas = tarefas.filter(item => {
-      const itemDate = new Date(item.created_at || item.updated_at);
-      return isWithinInterval(itemDate, { start, end });
-    });
-
-    const totalItems = filteredRotinas.length + filteredOrientacoes.length + filteredTarefas.length;
+    const totalItems = filteredOrientacoes.length;
     const totalDays = differenceInDays(end, start) + 1;
     
     // Calcular dias úteis (excluir fins de semana se necessário)
@@ -226,25 +208,18 @@ export function FiltrosPorData({
       }
     }
 
-    // Taxa de conclusão
-    const completedItems = [
-      ...filteredRotinas.filter(r => r.status === 'concluida'),
-      ...filteredTarefas.filter(t => t.status === 'concluida')
-    ].length;
-    
-    const completableItems = filteredRotinas.length + filteredTarefas.length;
-    const completionRate = completableItems > 0 ? (completedItems / completableItems) * 100 : 0;
+    // Since we only have orientacoes now, completion rate calculation is simplified
+    // In the future, if we add more completable items, we'll need to update this logic
+    const completionRate = 0; // Placeholder since orientacoes don't have status
 
     return {
       totalItems,
-      rotinasCount: filteredRotinas.length,
       orientacoesCount: filteredOrientacoes.length,
-      tarefasCount: filteredTarefas.length,
       itemsPerDay: totalDays > 0 ? totalItems / totalDays : 0,
       weekdaysOnly: workingDays,
       completionRate
     };
-  }, [currentRange, rotinas, orientacoes, tarefas, filters.includeWeekends]);
+  }, [currentRange, orientacoes, filters.includeWeekends]);
 
   // Aplicar filtros
   const handleApplyFilters = () => {
@@ -415,16 +390,8 @@ export function FiltrosPorData({
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Rotinas</span>
-                    <Badge variant="secondary">{stats.rotinasCount}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
                     <span className="text-sm">Orientações</span>
                     <Badge variant="secondary">{stats.orientacoesCount}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Tarefas</span>
-                    <Badge variant="secondary">{stats.tarefasCount}</Badge>
                   </div>
                 </div>
 
