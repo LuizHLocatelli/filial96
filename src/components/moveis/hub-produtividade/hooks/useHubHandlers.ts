@@ -148,12 +148,11 @@ export function useHubHandlers({
     setShowFilters(true);
   };
 
-  const handleNavigateToSection = (section: 'dashboard' | 'rotinas' | 'orientacoes' | 'monitoramento') => {
+  const handleNavigateToSection = (section: 'metas' | 'cartazes' | 'orientacoes' | 'monitoramento' | 'assistentes') => {
     console.log("🧭 Handler Navigate to Section executado:", section);
     try {
       const currentUrl = new URL(window.location.href);
-      const tabName = section === 'dashboard' ? 'overview' : section;
-      currentUrl.searchParams.set('tab', tabName);
+      currentUrl.searchParams.set('tab', section);
       navigate(currentUrl.pathname + currentUrl.search);
       setCurrentSection(section);
       
@@ -237,9 +236,7 @@ export function useHubHandlers({
   };
 
   return {
-    onNovaRotina: handleNovaRotina,
     onNovaOrientacao: handleNovaOrientacao,
-    onNovaTarefa: handleNovaTarefa,
     onExportData: handleExportData,
     onSearch: handleSearch,
     onRefreshData: handleRefreshData,

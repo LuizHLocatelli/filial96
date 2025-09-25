@@ -22,9 +22,7 @@ export default function HubProdutividade() {
   // Hook para dados
   const {
     stats,
-    rotinas,
     orientacoes,
-    tarefas,
     isLoading,
     refreshData
   } = useHubData();
@@ -45,7 +43,7 @@ export default function HubProdutividade() {
     setShowFiltrosPorData
   });
 
-  const activeTab = searchParams.get("tab") || "overview";
+  const activeTab = searchParams.get("tab") || "assistentes"; // Changed to "assistentes" as default
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -73,9 +71,7 @@ export default function HubProdutividade() {
     stats,
     isLoading,
     handlers: handlersWithDialogs,
-    rotinas: rotinas || [],
     orientacoes: orientacoes || [],
-    tarefas: tarefas || [],
     onViewRotina: (rotinaId) => {
       // Função removida - atividades foram removidas do sistema
     },
@@ -89,7 +85,7 @@ export default function HubProdutividade() {
     <PageLayout spacing="tight" maxWidth="full">
       <PageHeader
         title="Hub de Produtividade"
-        description="Central de rotinas, tarefas e orientações"
+        description="Central de assistentes de IA e ferramentas"
         icon={Activity}
         iconColor="text-primary"
         variant="default"
@@ -100,7 +96,7 @@ export default function HubProdutividade() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={5}
+        maxColumns={3} // Changed from 5 to 3 since we have fewer tabs
       />
 
       <HubDialogs
@@ -108,9 +104,7 @@ export default function HubProdutividade() {
         setShowBuscaAvancada={setShowBuscaAvancada}
         showFiltrosPorData={showFiltrosPorData}
         setShowFiltrosPorData={setShowFiltrosPorData}
-        rotinas={rotinas || []}
         orientacoes={orientacoes || []}
-        tarefas={tarefas || []}
         onBuscaAvancadaResults={handleBuscaAvancadaResults}
         onFiltrosPorDataApply={handleFiltrosPorDataApply}
       />

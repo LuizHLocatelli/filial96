@@ -4,9 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   ProductivityStats, 
 } from '../types';
-import { useRotinasData } from './useRotinasData';
 import { useOrientacoesData } from './useOrientacoesData';
-import { useTarefasData } from './useTarefasData';
 import { useUsersCache } from './useUsersCache';
 import { calculateProductivityStats } from '../utils/statsCalculator';
 import { useResponsive } from '@/hooks/use-responsive';
@@ -21,25 +19,11 @@ export function useHubData() {
   const lastRefreshRef = useRef<number>(0);
   
   const [stats, setStats] = useState<ProductivityStats>({
-    rotinas: {
-      total: 0,
-      concluidas: 0,
-      pendentes: 0,
-      atrasadas: 0,
-      percentualConclusao: 0
-    },
     orientacoes: {
       total: 0,
       lidas: 0,
       naoLidas: 0,
       recentes: 0
-    },
-    tarefas: {
-      total: 0,
-      concluidas: 0,
-      pendentes: 0,
-      atrasadas: 0,
-      percentualConclusao: 0
     },
     produtividade: {
       score: 0,
@@ -51,57 +35,37 @@ export function useHubData() {
 
   // Usar os novos hooks especializados
   const { 
-    rotinas, 
-    isLoading: isLoadingRotinas, 
-    error: rotinasError,
-    refetch: refetchRotinas 
-  } = useRotinasData();
-  
-  const { 
     orientacoes, 
     isLoading: isLoadingOrientacoes, 
     error: orientacoesError,
     refetch: refetchOrientacoes 
   } = useOrientacoesData();
-  
-  const { 
-    tarefas, 
-    isLoading: isLoadingTarefas, 
-    error: tarefasError,
-    refetch: refetchTarefas 
-  } = useTarefasData();
 
   const { getUserName, isLoading: isLoadingUsers } = useUsersCache();
 
   // Usar useMemo para evitar recálculos desnecessários - MOVIDO PARA ANTES DO DEBUG
   const allDataLoaded = useMemo(() => {
-    return !isLoadingRotinas && !isLoadingOrientacoes && !isLoadingTarefas && !isLoadingUsers;
-  }, [isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers]);
+    return !isLoadingOrientacoes && !isLoadingUsers;
+  }, [isLoadingOrientacoes, isLoadingUsers]);
 
   // Debug logs para mobile - VERSÃO MELHORADA
   useEffect(() => {
     if (isMobile) {
       console.log('📱 [MOBILE DEBUG] useHubData Estado Detalhado:', {
-        statsTotal: stats.rotinas.total + stats.tarefas.total,
+        statsTotal: stats.orientacoes.total,
         isLoadingStats,
-        isLoadingRotinas,
         isLoadingOrientacoes,
-        isLoadingTarefas,
         isLoadingUsers,
         allDataLoaded,
-        rotinasCount: rotinas.length,
         orientacoesCount: orientacoes.length,
-        tarefasCount: tarefas.length,
         userExists: !!user,
         isInitialLoad: isInitialLoadRef.current
       });
     }
-  }, [isMobile, stats, isLoadingStats, isLoadingRotinas, isLoadingOrientacoes, isLoadingTarefas, isLoadingUsers, rotinas, orientacoes, tarefas, allDataLoaded, user]);
+  }, [isMobile, stats, isLoadingStats, isLoadingOrientacoes, isLoadingUsers, orientacoes, allDataLoaded, user]);
 
   // Memoizar os dados para evitar recalculos
-  const memoizedRotinas = useMemo(() => rotinas, [JSON.stringify(rotinas)]);
   const memoizedOrientacoes = useMemo(() => orientacoes, [JSON.stringify(orientacoes)]);
-  const memoizedTarefas = useMemo(() => tarefas, [JSON.stringify(tarefas)]);
 
   // ===== REFRESH DADOS COM FEEDBACK CONTROLADO =====
   const refreshData = useCallback(async () => {
@@ -125,9 +89,7 @@ export function useHubData() {
     
     try {
       await Promise.all([
-        refetchRotinas(),
-        refetchOrientacoes(),
-        refetchTarefas()
+        refetchOrientacoes()
       ]);
       
       // Só mostra toast de sucesso se não for a primeira carga
@@ -147,7 +109,7 @@ export function useHubData() {
         });
       }
     }
-  }, [refetchRotinas, refetchOrientacoes, refetchTarefas, toast]);
+  }, [refetchOrientacoes, toast]);
 
   // ===== EFFECTS =====
   // Effect apenas para primeira carga quando user está disponível
@@ -166,8 +128,20 @@ export function useHubData() {
     try {
       setIsLoadingStats(true);
       
-      // Calcular estatísticas - mesmo que não tenha dados
-      const newStats = calculateProductivityStats(memoizedRotinas, memoizedOrientacoes, memoizedTarefas);
+      // Calcular estatísticas apenas com orientações (vazio temporariamente)
+      const newStats = {
+        ...stats,
+        orientacoes: {
+          total: orientacoes.length,
+          lidas: 0, // Não temos esse dado ainda
+          naoLidas: 0, // Não temos esse dado ainda
+          recentes: 0 // Não temos esse dado ainda
+        },
+        produtividade: {
+          score: 0,
+          meta: 85
+        }
+      };
       setStats(newStats);
       
       console.log('📊 Estatísticas calculadas:', newStats);
@@ -177,27 +151,21 @@ export function useHubData() {
       console.error('❌ Erro ao calcular estatísticas:', error);
       setIsLoadingStats(false);
     }
-  }, [allDataLoaded, memoizedRotinas, memoizedOrientacoes, memoizedTarefas, getUserName]);
+  }, [allDataLoaded, orientacoes]);
 
   // Estados de erro consolidados
   const errors = {
-    rotinas: rotinasError,
-    orientacoes: orientacoesError,
-    tarefas: tarefasError
+    orientacoes: orientacoesError
   };
 
   return {
     // Data
     stats,
-    rotinas: memoizedRotinas,
     orientacoes: memoizedOrientacoes,
-    tarefas: memoizedTarefas,
     
     // Loading states
     isLoadingStats,
-    isLoadingRotinas,
     isLoadingOrientacoes,
-    isLoadingTarefas,
     isLoading: isLoadingStats,
     
     // Error states
@@ -205,8 +173,6 @@ export function useHubData() {
     
     // Actions
     refreshData,
-    fetchRotinas: refetchRotinas,
-    fetchOrientacoes: refetchOrientacoes,
-    fetchTarefas: refetchTarefas
+    fetchOrientacoes: refetchOrientacoes
   };
 }

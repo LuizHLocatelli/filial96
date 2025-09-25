@@ -27,30 +27,12 @@ const searchableItems: SearchResult[] = [
   {
     id: 'hub-produtividade',
     title: 'Hub de Produtividade',
-    description: 'Central de rotinas, tarefas e orientações',
+    description: 'Central de assistentes de IA e ferramentas',
     type: 'page',
     path: '/',
     icon: 'Activity'
   },
   // Subpáginas do Hub de Produtividade
-  {
-    id: 'hub-produtividade-dashboard',
-    title: 'Dashboard - Hub',
-    description: 'Visão geral e métricas do Hub de Produtividade',
-    type: 'section',
-    path: '/?tab=dashboard',
-    section: 'Hub de Produtividade',
-    icon: 'Activity'
-  },
-  {
-    id: 'hub-produtividade-rotinas',
-    title: 'Rotinas - Hub',
-    description: 'Rotinas obrigatórias centralizadas',
-    type: 'section',
-    path: '/?tab=rotinas',
-    section: 'Hub de Produtividade',
-    icon: 'CheckSquare'
-  },
   {
     id: 'hub-produtividade-orientacoes',
     title: 'Informativos e VM - Hub',
@@ -216,22 +198,6 @@ const searchableItems: SearchResult[] = [
     type: 'feature',
     path: '/?tab=orientacoes',
     icon: 'FileText'
-  },
-  {
-    id: 'rotinas',
-    title: 'Rotinas',
-    description: 'Gestão de rotinas obrigatórias',
-    type: 'feature',
-    path: '/?tab=rotinas',
-    icon: 'CheckSquare'
-  },
-  {
-    id: 'tarefas',
-    title: 'Tarefas',
-    description: 'Gestão e acompanhamento de tarefas',
-    type: 'feature',
-    path: '/?tab=orientacoes',
-    icon: 'List'
   },
   
   // Moda
