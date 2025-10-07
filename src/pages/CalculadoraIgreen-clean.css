@@ -1,0 +1,56 @@
+/* Calculadora iGreen - Estilos Essenciais */
+
+/* Touch-friendly targets para mobile */
+@media (max-width: 767px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .tipo-fornecimento-option {
+    min-height: 60px;
+    touch-action: manipulation;
+  }
+  
+  input[type="number"] {
+    font-size: 16px;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* Glassmorphism */
+.glass-card {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid hsl(var(--border) / 0.2);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Tipo de fornecimento */
+.tipo-fornecimento-option {
+  border-width: 1px !important;
+  transition: all 0.2s ease !important;
+}
+
+.tipo-fornecimento-option:hover {
+  border-width: 1px !important;
+}
