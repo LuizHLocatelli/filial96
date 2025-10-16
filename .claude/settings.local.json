@@ -13,7 +13,9 @@
       "mcp__supabase__get_advisors",
       "Bash(npx ts-node:*)",
       "Bash(npx:*)",
-      "Bash(SUPABASE_ACCESS_TOKEN=sbp_be57bbd224b29085f724c47b145f353f20ca2737 npx -y @supabase/mcp-server-supabase --project-ref=abpsafkioslfjqtgtvbi)"
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_be57bbd224b29085f724c47b145f353f20ca2737 npx -y @supabase/mcp-server-supabase --project-ref=abpsafkioslfjqtgtvbi)",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__navigate_page"
     ]
   },
   "enableAllProjectMcpServers": true,
