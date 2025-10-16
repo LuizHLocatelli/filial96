@@ -407,11 +407,11 @@
   aspect-ratio: 1 / 1; /* Força proporção quadrada */
 }
 
-/* Centralização perfeita do título */
+/* Alinhamento à esquerda do título */
 .calculadora-header-flutuante .flex-1 {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-width: 0; /* Permite truncate funcionar */
 }
@@ -482,76 +482,76 @@
 
 /* === ESPAÇAMENTO PARA COMPENSAR HEADER FIXO === */
 .calculadora-container {
-  /* Espaçamento superior generoso para compensar o header fixo */
-  padding-top: 140px !important; /* Forçar aplicação do espaçamento */
+  /* Espaçamento superior uniforme para compensar o header fixo */
+  padding-top: 170px !important;
   /* Garantir que o conteúdo sempre apareça abaixo do header */
   margin-top: 0 !important;
 }
 
 /* Forçar espaçamento no container principal da calculadora */
 .min-h-screen > .container {
-  padding-top: 140px !important;
+  padding-top: 170px !important;
 }
 
 /* Container principal específico da calculadora */
 .calculadora-main-container {
-  padding-top: 140px !important;
+  padding-top: 170px !important;
   margin-top: 0 !important;
 }
 
 @media (max-width: 768px) {
   .calculadora-container {
-    padding-top: 160px !important; /* Ajustado para tablets */
+    padding-top: 155px !important;
   }
   
   .min-h-screen > .container {
-    padding-top: 160px !important;
+    padding-top: 155px !important;
   }
   
   .calculadora-main-container {
-    padding-top: 160px !important;
+    padding-top: 155px !important;
   }
 }
 
 @media (max-width: 640px) {
   .calculadora-container {
-    padding-top: 150px !important; /* Ajustado para mobile médio */
+    padding-top: 155px !important;
   }
   
   .min-h-screen > .container {
-    padding-top: 150px !important;
+    padding-top: 155px !important;
   }
   
   .calculadora-main-container {
-    padding-top: 150px !important;
+    padding-top: 155px !important;
   }
 }
 
 @media (max-width: 480px) {
   .calculadora-container {
-    padding-top: 140px !important; /* Ajustado para mobile pequeno */
+    padding-top: 155px !important;
   }
   
   .min-h-screen > .container {
-    padding-top: 140px !important;
+    padding-top: 155px !important;
   }
   
   .calculadora-main-container {
-    padding-top: 140px !important;
+    padding-top: 155px !important;
   }
 }
 
 @media (max-width: 380px) {
   .calculadora-container {
-    padding-top: 130px !important; /* Ajustado para mobile muito pequeno */
+    padding-top: 155px !important;
   }
   
   .min-h-screen > .container {
-    padding-top: 130px !important;
+    padding-top: 155px !important;
   }
   
   .calculadora-main-container {
-    padding-top: 130px !important;
+    padding-top: 155px !important;
   }
 }
 
@@ -600,3 +600,61 @@
 /* DEFINITIVE FIX - 09/17/2025 07:41:33 */
 /* Theme Toggle Fix - 09/17/2025 07:44:04 */
 /* Theme Toggle Default Colors - 09/17/2025 07:45:32 */
+
+/* === PAINEL DA REGIÃO - FORÇAR ÍCONES BRANCOS === */
+.calculadora-header-flutuante .lucide-map-pin,
+.calculadora-header-flutuante .lucide-sun,
+.calculadora-header-flutuante .lucide-moon {
+  color: white !important;
+  stroke: white !important;
+}
+
+/* Forçar ícone MapPin branco */
+.calculadora-header-flutuante svg[data-lucide="map-pin"],
+.calculadora-header-flutuante .lucide-map-pin {
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+}
+
+/* Forçar ícones Sun/Moon brancos */
+.calculadora-header-flutuante svg[data-lucide="sun"],
+.calculadora-header-flutuante svg[data-lucide="moon"],
+.calculadora-header-flutuante .lucide-sun,
+.calculadora-header-flutuante .lucide-moon {
+  color: white !important;
+  stroke: white !important;
+  fill: none !important;
+}
+
+/* Forçar todos os SVGs dentro do header a serem brancos */
+.calculadora-header-flutuante svg {
+  color: white !important;
+  stroke: white !important;
+}
+
+/* Modo escuro também */
+.dark .calculadora-header-flutuante .lucide-map-pin,
+.dark .calculadora-header-flutuante .lucide-sun,
+.dark .calculadora-header-flutuante .lucide-moon,
+.dark .calculadora-header-flutuante svg[data-lucide="map-pin"],
+.dark .calculadora-header-flutuante svg[data-lucide="sun"],
+.dark .calculadora-header-flutuante svg[data-lucide="moon"],
+.dark .calculadora-header-flutuante svg {
+  color: white !important;
+  stroke: white !important;
+}
+
+/* Garantir que o botão do theme toggle também tenha ícone branco */
+.calculadora-header-flutuante button svg {
+  color: white !important;
+  stroke: white !important;
+}
+
+.dark .calculadora-header-flutuante button svg {
+  color: white !important;
+  stroke: white !important;
+}
+
+/* Cache Buster - Painel da Região Icons Fix */
+/* Cache Buster - Text Alignment Fix - 2025-01-06 */

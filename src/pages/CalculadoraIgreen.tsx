@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,14 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Calculator, Zap, CheckCircle, XCircle, Info, Loader2 } from "lucide-react";
+import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useReducedMotion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { CalculatorThemeToggle } from "@/components/theme/CalculatorThemeToggle";
-import { useIsMobile } from "@/hooks/use-mobile";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
-import "./CalculadoraIgreen.css";
+import "./CalculadoraIgreen-clean.css";
 
 interface CalculadoraData {
   distribuidora: string;
@@ -34,6 +33,7 @@ const tiposFornecimento = [
 ];
 
 export default function CalculadoraIgreen() {
+  const navigate = useNavigate();
   const [dados, setDados] = useState<CalculadoraData>({
     distribuidora: "",
     tipoFornecimento: "",
@@ -47,29 +47,8 @@ export default function CalculadoraIgreen() {
     economiaMensal: number;
   } | null>(null);
   const [calculando, setCalculando] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-
-  // Effect para detectar scroll com rAF e listener passivo
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const next = window.scrollY > 50;
-        setScrolled(prev => (prev !== next ? next : prev));
-        ticking = false;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true } as AddEventListenerOptions);
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Removido estado de resize: usar classes responsivas para padding
 
   const handleConsumoChange = useCallback((index: number, valor: string) => {
     const parsed = parseFloat(valor);
@@ -106,16 +85,16 @@ export default function CalculadoraIgreen() {
     setTimeout(() => {
       const soma = dados.consumoMeses.reduce((acc, valor) => acc + valor, 0);
       const mediaConsumo = soma / 12;
-      
+
       const tipoSelecionado = tiposFornecimento.find(t => t.value === dados.tipoFornecimento);
       const taxaDesconto = tipoSelecionado?.taxa || 0;
-      
+
       const consumoElegivel = mediaConsumo - taxaDesconto;
       const elegivel = consumoElegivel >= 100;
-      
+
       const distribuidoraSelecionada = distribuidoras.find(d => d.value === dados.distribuidora);
       const percentualDesconto = distribuidoraSelecionada?.desconto || 0;
-      
+
       // Estimativa de economia (baseada em R$ 0,75 por kWh)
       const economiaMensal = elegivel ? (consumoElegivel * 0.75 * percentualDesconto) / 100 : 0;
 
@@ -146,53 +125,45 @@ export default function CalculadoraIgreen() {
         <h1>Calculadora Igreen - Desconto na Conta de Luz</h1>
         <p>Calcule se você é elegível para economia de 8% a 12% na sua conta de luz com iGreen Energy</p>
       </div>
-      
+
       {/* Background Pattern Consistency */}
       <div className="fixed inset-0 opacity-30 pointer-events-none dark:opacity-20">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse delay-2000" />
       </div>
-      
-      {/* Header Flutuante Fixo */}
-      <motion.div
-        initial={shouldReduceMotion ? false : { opacity: 0, y: -20 }}
-        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut" }}
-        className="absolute top-6 left-0 right-0 z-40 flex justify-center px-4"
-      >
-        <div className={cn(
-          "glass-card calculadora-header-flutuante p-4 sm:p-5 rounded-2xl shadow-2xl border border-white/20 dark:border-white/10 transition-all duration-300 w-full max-w-xl",
-          scrolled && "calculadora-header-scrolled"
-        )}>
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Ícone */}
-            <div className="p-3 sm:p-3.5 bg-primary rounded-xl text-primary-foreground shadow-lg flex-shrink-0 transition-all duration-300 flex items-center justify-center">
-              <Zap className="h-5 w-5 sm:h-6 sm:w-6" />
-            </div>
-            
-            {/* Título Centralizado */}
-            <div className="flex-1 text-center min-w-0">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground truncate">
-                Calculadora iGreen
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground truncate opacity-80">
-                Economia na conta de luz
-              </p>
-            </div>
-            
-            {/* Theme Toggle */}
-            <div className="flex-shrink-0">
-              <div className="calculadora-theme-toggle-header p-1">
-                <CalculatorThemeToggle />
-              </div>
-            </div>
+
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl relative z-10">
+        {/* Header com Botão Voltar e Theme Toggle */}
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut" }}
+          className="mb-6 sm:mb-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/painel-da-regiao')}
+              className="hover:bg-primary/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Painel da Região
+            </Button>
+            <CalculatorThemeToggle />
           </div>
-        </div>
-      </motion.div>
+          
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              Calculadora iGreen
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Calcule sua economia na conta de luz
+            </p>
+          </div>
+        </motion.div>
 
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 pt-[140px] sm:pt-[150px] md:pt-[160px] lg:pt-[140px] py-4 sm:py-6 lg:py-8 max-w-7xl relative z-10 calculadora-main-container">
-
-        <motion.div 
+        <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
           transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut", delay: 0.1 }}
@@ -250,9 +221,9 @@ export default function CalculadoraIgreen() {
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="bg-white/80 dark:bg-gray-800/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900 w-full text-xs sm:text-sm h-8 sm:h-9 calculadora-button focus:ring-0 focus:ring-offset-0"
                       >
                         <Info className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -260,9 +231,9 @@ export default function CalculadoraIgreen() {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-xs sm:max-w-3xl">
-                      <img 
-                        src={ondeverImage} 
-                        alt="Onde encontrar o tipo de fornecimento na conta de luz" 
+                      <img
+                        src={ondeverImage}
+                        alt="Onde encontrar o tipo de fornecimento na conta de luz"
                         className="w-full h-auto rounded-lg"
                       />
                     </DialogContent>
@@ -274,12 +245,11 @@ export default function CalculadoraIgreen() {
                   {tiposFornecimento.map((tipo) => (
                     <div
                       key={tipo.value}
-                      className={cn(
-                        "p-3 sm:p-4 border rounded-lg cursor-pointer transition-all hover:scale-105 touch-target tipo-fornecimento-option",
+                      className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-all hover:scale-105 touch-target tipo-fornecimento-option ${
                         dados.tipoFornecimento === tipo.value
                           ? "border-primary bg-primary/10 shadow-lg"
                           : "border-border hover:border-primary/30 hover:bg-muted/30"
-                      )}
+                      }`}
                       onClick={() => setDados({ ...dados, tipoFornecimento: tipo.value as any })}
                       tabIndex={0}
                       role="button"
@@ -335,8 +305,8 @@ export default function CalculadoraIgreen() {
 
             {/* Botões */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-1">
-              <Button 
-                onClick={calcular} 
+              <Button
+                onClick={calcular}
                 className="flex-1 h-10 sm:h-11 text-sm sm:text-base calculadora-button focus:ring-0 focus:ring-offset-0"
                 disabled={calculando}
                 size="lg"
@@ -353,8 +323,8 @@ export default function CalculadoraIgreen() {
                   </>
                 )}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={limparFormulario}
                 className="h-10 sm:h-11 text-sm sm:text-base sm:min-w-[120px] calculadora-button focus:ring-0 focus:ring-offset-0"
                 size="lg"
@@ -374,11 +344,10 @@ export default function CalculadoraIgreen() {
                 {resultado ? (
                   <div className="space-y-4 sm:space-y-6">
                     {/* Status de Elegibilidade */}
-                    <div className={`p-4 sm:p-6 rounded-lg border text-center transition-all ${
-                      resultado.elegivel 
-                        ? "bg-gradient-to-br from-green-50/90 to-emerald-50/90 border-green-300 dark:from-green-950/60 dark:to-emerald-950/60 dark:border-green-700"
-                        : "bg-gradient-to-br from-amber-50/90 to-orange-50/90 border-amber-300 dark:from-amber-950/60 dark:to-orange-950/60 dark:border-amber-700"
-                    }`}>
+                    <div className={`p-4 sm:p-6 rounded-lg border text-center transition-all ${resultado.elegivel
+                      ? "bg-gradient-to-br from-green-50/90 to-emerald-50/90 border-green-300 dark:from-green-950/60 dark:to-emerald-950/60 dark:border-green-700"
+                      : "bg-gradient-to-br from-amber-50/90 to-orange-50/90 border-amber-300 dark:from-amber-950/60 dark:to-orange-950/60 dark:border-amber-700"
+                      }`}>
                       {resultado.elegivel ? (
                         <>
                           <div className="relative">
@@ -430,7 +399,7 @@ export default function CalculadoraIgreen() {
                         <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                           📊 Análise Detalhada do Consumo
                         </h4>
-                        
+
                         <div className="space-y-2 sm:space-y-3">
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-white/70 dark:bg-black/20 rounded-lg">
                             <span className="text-xs sm:text-sm font-medium flex items-center gap-2">
@@ -440,12 +409,12 @@ export default function CalculadoraIgreen() {
                               {resultado.mediaConsumo.toFixed(1)} kWh
                             </Badge>
                           </div>
-                          
+
                           <div className="flex justify-between items-center p-2 sm:p-3 bg-white/70 dark:bg-black/20 rounded-lg">
                             <span className="text-xs sm:text-sm font-medium flex items-center gap-2">
                               ⚡ Consumo elegível:
                             </span>
-                            <Badge 
+                            <Badge
                               variant={resultado.elegivel ? "default" : "destructive"}
                               className="text-xs sm:text-sm font-semibold"
                             >
@@ -463,7 +432,7 @@ export default function CalculadoraIgreen() {
                                   {resultado.percentualDesconto}%
                                 </Badge>
                               </div>
-                              
+
                             </>
                           )}
                         </div>
@@ -487,32 +456,32 @@ export default function CalculadoraIgreen() {
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
           transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut", delay: 0.2 }}
         >
-        <div className="mt-6 sm:mt-8 lg:mt-10 glass-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-soft">
-          <div className="text-center mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
-              Sobre o iGreen Energy
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              O iGreen Energy é um programa de energia limpa que permite economia de 8% a 12% na sua conta de luz, 
-              contribuindo para um futuro mais sustentável enquanto você economiza dinheiro.
-            </p>
+          <div className="mt-6 sm:mt-8 lg:mt-10 glass-card rounded-lg p-4 sm:p-6 lg:p-8 shadow-soft">
+            <div className="text-center mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
+                Sobre o iGreen Energy
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                O iGreen Energy é um programa de energia limpa que permite economia de 8% a 12% na sua conta de luz,
+                contribuindo para um futuro mais sustentável enquanto você economiza dinheiro.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-center">
+              <div className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">8% - 12%</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Desconto na conta de luz</p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">100%</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Energia limpa</p>
+              </div>
+              <div className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">0</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Taxa de adesão</p>
+              </div>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-center">
-            <div className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">8% - 12%</div>
-              <p className="text-xs sm:text-sm text-muted-foreground">Desconto na conta de luz</p>
-            </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">100%</div>
-              <p className="text-xs sm:text-sm text-muted-foreground">Energia limpa</p>
-            </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">0</div>
-              <p className="text-xs sm:text-sm text-muted-foreground">Taxa de adesão</p>
-            </div>
-          </div>
-        </div>
         </motion.div>
       </div>
     </div>
