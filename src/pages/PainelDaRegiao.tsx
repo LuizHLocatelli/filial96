@@ -1,14 +1,18 @@
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowLeft } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { BackgroundPattern } from "@/components/painel-regiao/BackgroundPattern";
 import { QuickAccessSection } from "@/components/painel-regiao/QuickAccessSection";
 import { ToolsSection } from "@/components/painel-regiao/ToolsSection";
 import { painelConfig } from "@/config/painel-regiao.config";
+import { CalculatorThemeToggle } from "@/components/theme/CalculatorThemeToggle";
 
 export default function PainelDaRegiao() {
   const shouldReduceMotion = useReducedMotion();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,12 +26,25 @@ export default function PainelDaRegiao() {
       <BackgroundPattern />
 
       <PageLayout spacing="normal" maxWidth="xl">
-        {/* Header */}
+        {/* Header com navegação */}
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
           transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.4, ease: "easeOut" }}
         >
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="hover:bg-primary/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Hub Produtividade
+            </Button>
+            <CalculatorThemeToggle />
+          </div>
+
           <PageHeader
             title="Painel da Região"
             description="Região Litoral - Acesso rápido a ferramentas e recursos"

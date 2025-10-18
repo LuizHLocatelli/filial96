@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAurora } from "@/hooks/useAurora";
 import {
   Card,
@@ -12,18 +13,20 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { EnhancedAuthHeader } from "@/components/auth/EnhancedAuthHeader";
 import { EnhancedLoginForm } from "@/components/auth/EnhancedLoginForm";
 import { EnhancedSignupForm } from "@/components/auth/EnhancedSignupForm";
 import { AuthBackgroundElements } from "@/components/auth/AuthBackgroundElements";
 import { TrustIndicators } from "@/components/auth/TrustIndicators";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, MapPin } from "lucide-react";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("login");
   const formRef = useAurora<HTMLDivElement>();
-  
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
       <AuthBackgroundElements />
@@ -94,6 +97,17 @@ export default function Auth() {
           
           <div className="px-6 pb-6">
             <TrustIndicators />
+
+            <div className="mt-6 pt-6 border-t border-border/50">
+              <Button
+                onClick={() => navigate('/painel-da-regiao')}
+                variant="outline"
+                className="w-full group hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
+                <MapPin className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                Acessar Painel da Região
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -16,7 +16,8 @@ const PdfViewerPage = lazy(() => import("./pages/PdfViewerPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
 const PromotionalCards = lazy(() => import("./pages/PromotionalCards"));
-const PainelDaRegiao = lazy(() => import("./pages/PainelDaRegiao"));
+const PainelDaRegiaoWrapper = lazy(() => import("./pages/PainelDaRegiaoWrapper"));
+const ProcedimentosSSCWrapper = lazy(() => import("./pages/ProcedimentosSSCWrapper"));
 
 // Páginas que não precisam de lazy loading (são pequenas ou críticas)
 import NotFound from "./pages/NotFound";
@@ -66,13 +67,21 @@ const AppRoutes = () => {
       {/* Rotas públicas */}
       <Route path="/auth" element={<Auth />} />
       <Route path="/calculadora-igreen" element={<CalculadoraIgreenWrapper />} />
-      <Route 
-        path="/painel-da-regiao" 
+      <Route
+        path="/painel-da-regiao"
         element={
           <Suspense fallback={<PageLoader />}>
-            <PainelDaRegiao />
+            <PainelDaRegiaoWrapper />
           </Suspense>
-        } 
+        }
+      />
+      <Route
+        path="/procedimentos-ssc"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <ProcedimentosSSCWrapper />
+          </Suspense>
+        }
       />
       
       {/* Rota de redefinição de senha - pública e acessível sem autenticação */}

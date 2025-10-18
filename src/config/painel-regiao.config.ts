@@ -1,8 +1,10 @@
-import { 
-  Headset, 
-  BarChart3, 
-  Video, 
+import {
+  Headset,
+  BarChart3,
+  Video,
   Calculator,
+  AlertCircle,
+  FileText,
 } from "lucide-react";
 import { PainelConfig } from "@/types/painel-regiao";
 
@@ -15,6 +17,14 @@ export const painelConfig: PainelConfig = {
       url: 'https://resolve.applebes.com.br',
       icon: Headset,
       iconColor: 'text-blue-600'
+    },
+    {
+      id: 'zeev',
+      title: 'Zeev',
+      description: 'Sistema de abertura e acompanhamento de chamados',
+      url: 'https://zeev.lebes.com.br',
+      icon: FileText,
+      iconColor: 'text-amber-600'
     },
     {
       id: 'planilha-indicadores',
@@ -42,6 +52,14 @@ export const painelConfig: PainelConfig = {
       icon: Calculator,
       iconColor: 'text-primary',
       badge: 'Popular'
+    },
+    {
+      id: 'procedimentos-ssc',
+      title: 'Procedimentos SSC',
+      description: 'Guia de assistência técnica por fabricante',
+      route: '/procedimentos-ssc',
+      icon: AlertCircle,
+      iconColor: 'text-orange-600'
     }
   ]
 };
