@@ -96,7 +96,7 @@ export default function HubProdutividade() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={3} // Changed from 5 to 3 since we have fewer tabs
+        maxColumns={4} // Changed to 4 to accommodate new Escalas tab
       />
 
       <HubDialogs

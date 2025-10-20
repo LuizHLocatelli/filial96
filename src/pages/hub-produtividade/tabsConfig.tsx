@@ -1,14 +1,16 @@
 
-import { 
+import {
   Target,
   FileImage,
-  Bot
+  Bot,
+  CalendarClock
 } from "lucide-react";
 import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
 import { lazy } from "react";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
 const AssistentesAI = lazy(() => import("@/components/assistentes-ai/AssistentesAI"));
+const EscalasGestao = lazy(() => import("@/components/escalas/EscalasGestao").then(module => ({ default: module.EscalasGestao })));
 
 interface TabsConfigProps {
   stats: any;
@@ -36,6 +38,17 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden p-6">
           <MetasDashboard />
+        </div>
+      )
+    },
+    {
+      value: "escalas",
+      label: "Escalas",
+      icon: CalendarClock,
+      description: "Gestão de escalas e folgas",
+      component: (
+        <div className="border border-border/40 rounded-lg overflow-hidden p-6">
+          <EscalasGestao />
         </div>
       )
     },
