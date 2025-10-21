@@ -158,6 +158,8 @@ export function FormularioEscala({
     }
 
     // Verificar se já existe escala para este funcionário nesta data
+    // IMPORTANTE: Um funcionário só pode ter UMA escala por dia (constraint do banco)
+    // Múltiplos funcionários PODEM trabalhar no mesmo dia
     const escalaExistente = escalasExistentes.find(
       e => e.funcionario_id === funcionarioAtual &&
            e.data === format(dataAtual, 'yyyy-MM-dd') &&
@@ -165,7 +167,20 @@ export function FormularioEscala({
     );
 
     if (escalaExistente) {
-      avisos.push(`⚠️ Já existe uma escala (${escalaExistente.tipo}) para este funcionário nesta data.`);
+      erros.push(`❌ ${escalaExistente.funcionario_nome || 'Este funcionário'} já possui uma escala (${escalaExistente.tipo}) nesta data. Um funcionário não pode ter múltiplas escalas no mesmo dia.`);
+    }
+
+    // Verificar se já existe escala na data da folga compensatória
+    // Se já existir, será reutilizada ao invés de criar uma nova
+    if (folgaCompensatoriaData && (tipoAtual === 'domingo_trabalhado' || tipoAtual === 'feriado_trabalhado')) {
+      const escalaExistenteFolga = escalasExistentes.find(
+        e => e.funcionario_id === funcionarioAtual &&
+             e.data === format(folgaCompensatoriaData, 'yyyy-MM-dd')
+      );
+
+      if (escalaExistenteFolga) {
+        infos.push(`ℹ️ Este funcionário já possui uma escala (${escalaExistenteFolga.tipo}) na data da folga compensatória. A escala existente será vinculada como folga compensatória.`);
+      }
     }
 
     setValidacoes({ erros, avisos, infos });
@@ -187,24 +202,47 @@ export function FormularioEscala({
       // Se tiver folga compensatória, criar primeiro e pegar o ID
       if (data.folga_compensatoria_data &&
           (data.tipo === 'domingo_trabalhado' || data.tipo === 'feriado_trabalhado')) {
-        const folgaData: EscalaFormData = {
-          funcionario_id: data.funcionario_id,
-          data: format(data.folga_compensatoria_data, 'yyyy-MM-dd'),
-          tipo: 'folga',
-          observacao: `Folga compensatória referente a ${data.tipo === 'domingo_trabalhado' ? 'domingo' : 'feriado'} trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
-          modo_teste: modoTeste
-        };
 
-        // Criar a folga e obter o ID retornado
-        // O mutateAsync retorna o resultado da mutation que contém o objeto criado
-        const folgaCriada = await onSubmit(folgaData) as any;
+        const folgaDataStr = format(data.folga_compensatoria_data, 'yyyy-MM-dd');
 
-        // Garantir que capturamos o ID correto do objeto retornado
-        if (folgaCriada && typeof folgaCriada === 'object') {
-          folgaCompensatoriaId = folgaCriada.id || null;
+        // Verificar se já existe escala na data da folga compensatória
+        const jaExisteFolga = escalasExistentes.some(
+          e => e.funcionario_id === data.funcionario_id &&
+               e.data === folgaDataStr &&
+               e.modo_teste === modoTeste
+        );
+
+        if (!jaExisteFolga) {
+          const folgaData: EscalaFormData = {
+            funcionario_id: data.funcionario_id,
+            data: folgaDataStr,
+            tipo: 'folga',
+            observacao: `Folga compensatória referente a ${data.tipo === 'domingo_trabalhado' ? 'domingo' : 'feriado'} trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
+            modo_teste: modoTeste
+          };
+
+          // Criar a folga e obter o ID retornado
+          // O mutateAsync retorna o resultado da mutation que contém o objeto criado
+          const folgaCriada = await onSubmit(folgaData) as any;
+
+          // Garantir que capturamos o ID correto do objeto retornado
+          if (folgaCriada && typeof folgaCriada === 'object') {
+            folgaCompensatoriaId = folgaCriada.id || null;
+          }
+
+          console.log('Folga compensatória criada:', folgaCriada, 'ID:', folgaCompensatoriaId);
+        } else {
+          // Se já existe, buscar o ID da escala existente
+          const escalaExistente = escalasExistentes.find(
+            e => e.funcionario_id === data.funcionario_id &&
+                 e.data === folgaDataStr &&
+                 e.modo_teste === modoTeste
+          );
+          if (escalaExistente) {
+            folgaCompensatoriaId = escalaExistente.id;
+            console.log('Folga compensatória já existe, usando ID:', folgaCompensatoriaId);
+          }
         }
-
-        console.log('Folga compensatória criada:', folgaCriada, 'ID:', folgaCompensatoriaId);
       }
 
       // Criar a escala principal com o ID da folga compensatória
@@ -231,7 +269,9 @@ export function FormularioEscala({
 
           // Verificar se já não existe escala para este funcionário no sábado
           const temEscalaSabado = escalasExistentes.some(
-            e => e.funcionario_id === data.funcionario_id && e.data === sabadoStr
+            e => e.funcionario_id === data.funcionario_id &&
+                 e.data === sabadoStr &&
+                 e.modo_teste === modoTeste
           );
 
           if (!temEscalaSabado) {
@@ -246,6 +286,8 @@ export function FormularioEscala({
 
             console.log('Criando escala de abertura no sábado:', escalaSabado);
             await onSubmit(escalaSabado);
+          } else {
+            console.log('Escala no sábado já existe, pulando criação');
           }
         }
       }
