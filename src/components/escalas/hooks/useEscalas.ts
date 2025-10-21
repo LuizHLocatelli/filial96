@@ -40,7 +40,13 @@ export function useEscalas(mes: number, ano: number, modoTeste: boolean = false)
       toast.success('Escala criada com sucesso!');
     },
     onError: (error: any) => {
-      const message = error.message || 'Erro ao criar escala';
+      let message = error.message || 'Erro ao criar escala';
+
+      // Tratar erro de constraint única de forma amigável
+      if (error.code === '23505' || message.includes('escalas_funcionario_id_data_modo_teste_key')) {
+        message = 'Este funcionário já possui uma escala nesta data. Um funcionário não pode ter múltiplas escalas no mesmo dia.';
+      }
+
       toast.error(message);
     }
   });

@@ -157,41 +157,31 @@ export function FormularioEscala({
       }
     }
 
-    // Verificar se já existe escala para este funcionário nesta data
-    // IMPORTANTE: Um funcionário só pode ter UMA escala por dia (constraint do banco)
-    // Múltiplos funcionários PODEM trabalhar no mesmo dia
-    const escalaExistente = escalasExistentes.find(
-      e => e.funcionario_id === funcionarioAtual &&
-           e.data === format(dataAtual, 'yyyy-MM-dd') &&
-           e.id !== escalaParaEditar?.id
-    );
-
-    if (escalaExistente) {
-      erros.push(`❌ ${escalaExistente.funcionario_nome || 'Este funcionário'} já possui uma escala (${escalaExistente.tipo}) nesta data. Um funcionário não pode ter múltiplas escalas no mesmo dia.`);
-    }
-
-    // Verificar se já existe escala na data da folga compensatória
-    // Se já existir, será reutilizada ao invés de criar uma nova
-    if (folgaCompensatoriaData && (tipoAtual === 'domingo_trabalhado' || tipoAtual === 'feriado_trabalhado')) {
-      const escalaExistenteFolga = escalasExistentes.find(
-        e => e.funcionario_id === funcionarioAtual &&
-             e.data === format(folgaCompensatoriaData, 'yyyy-MM-dd')
-      );
-
-      if (escalaExistenteFolga) {
-        infos.push(`ℹ️ Este funcionário já possui uma escala (${escalaExistenteFolga.tipo}) na data da folga compensatória. A escala existente será vinculada como folga compensatória.`);
-      }
-    }
+    // NOTA: Removida validação de duplicata que dependia de cache
+    // A constraint do banco (funcionario_id, data, modo_teste) já garante unicidade
+    // Se houver tentativa de duplicata, o banco retornará erro apropriado
 
     setValidacoes({ erros, avisos, infos });
   }, [dataAtual, tipoAtual, funcionarioAtual, folgaCompensatoriaData, escalasExistentes, escalaParaEditar]);
 
   const handleSubmit = async (data: FormData) => {
+    console.log('=== INICIANDO SUBMIT ===');
+    console.log('Dados do formulário:', data);
+    console.log('Modo teste:', modoTeste);
+    console.log('Escalas existentes:', escalasExistentes.map(e => ({
+      funcionario: e.funcionario_nome,
+      data: e.data,
+      tipo: e.tipo,
+      modo_teste: e.modo_teste
+    })));
+
     if (validacoes.erros.length > 0) {
+      console.log('Submit bloqueado por erros de validação:', validacoes.erros);
       return;
     }
 
     if (!data.data) {
+      console.log('Submit bloqueado: data não definida');
       return;
     }
 
