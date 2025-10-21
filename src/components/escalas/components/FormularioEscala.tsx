@@ -87,6 +87,21 @@ export function FormularioEscala({
   const dataAtual = form.watch('data');
   const tipoAtual = form.watch('tipo');
   const funcionarioAtual = form.watch('funcionario_id');
+  const folgaCompensatoriaData = form.watch('folga_compensatoria_data');
+
+  // Resetar formulário quando o dialog abrir ou quando escalaParaEditar/dataInicial mudar
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        funcionario_id: escalaParaEditar?.funcionario_id || '',
+        data: escalaParaEditar?.data ? parse(escalaParaEditar.data, 'yyyy-MM-dd', new Date()) :
+              dataInicial ? parse(dataInicial, 'yyyy-MM-dd', new Date()) : undefined,
+        tipo: escalaParaEditar?.tipo || 'trabalho',
+        folga_compensatoria_data: undefined,
+        observacao: escalaParaEditar?.observacao || ''
+      });
+    }
+  }, [open, escalaParaEditar, dataInicial, form]);
 
   // Validações em tempo real
   useEffect(() => {
@@ -129,11 +144,10 @@ export function FormularioEscala({
 
     // REGRA 3: Trabalho em domingo/feriado requer folga compensatória
     if (tipoAtual === 'domingo_trabalhado' || tipoAtual === 'feriado_trabalhado') {
-      if (!form.getValues('folga_compensatoria_data')) {
+      if (!folgaCompensatoriaData) {
         erros.push('❌ Trabalho em domingo/feriado requer folga compensatória. Selecione uma data para folga.');
       } else {
-        const dataFolga = form.getValues('folga_compensatoria_data');
-        const diaFolga = dataFolga ? getDay(dataFolga) : -1;
+        const diaFolga = getDay(folgaCompensatoriaData);
 
         if (diaFolga === 5) {
           erros.push('❌ A folga compensatória não pode ser uma sexta-feira.');
@@ -155,7 +169,7 @@ export function FormularioEscala({
     }
 
     setValidacoes({ erros, avisos, infos });
-  }, [dataAtual, tipoAtual, funcionarioAtual, escalasExistentes, form, escalaParaEditar]);
+  }, [dataAtual, tipoAtual, funcionarioAtual, folgaCompensatoriaData, escalasExistentes, escalaParaEditar]);
 
   const handleSubmit = async (data: FormData) => {
     if (validacoes.erros.length > 0) {
@@ -182,8 +196,15 @@ export function FormularioEscala({
         };
 
         // Criar a folga e obter o ID retornado
-        const folgaCriada = await onSubmit(folgaData);
-        folgaCompensatoriaId = folgaCriada?.id || null;
+        // O mutateAsync retorna o resultado da mutation que contém o objeto criado
+        const folgaCriada = await onSubmit(folgaData) as any;
+
+        // Garantir que capturamos o ID correto do objeto retornado
+        if (folgaCriada && typeof folgaCriada === 'object') {
+          folgaCompensatoriaId = folgaCriada.id || null;
+        }
+
+        console.log('Folga compensatória criada:', folgaCriada, 'ID:', folgaCompensatoriaId);
       }
 
       // Criar a escala principal com o ID da folga compensatória
@@ -196,7 +217,39 @@ export function FormularioEscala({
         folga_compensatoria_id: folgaCompensatoriaId
       };
 
+      console.log('Criando escala principal com dados:', escalaData);
+
       await onSubmit(escalaData);
+
+      // Se for domingo trabalhado, criar escala de abertura no sábado anterior
+      if (data.tipo === 'domingo_trabalhado' && data.data) {
+        const diaSemana = getDay(data.data);
+        if (diaSemana === 0) { // Domingo
+          const sabadoAnterior = new Date(data.data);
+          sabadoAnterior.setDate(sabadoAnterior.getDate() - 1);
+          const sabadoStr = format(sabadoAnterior, 'yyyy-MM-dd');
+
+          // Verificar se já não existe escala para este funcionário no sábado
+          const temEscalaSabado = escalasExistentes.some(
+            e => e.funcionario_id === data.funcionario_id && e.data === sabadoStr
+          );
+
+          if (!temEscalaSabado) {
+            const escalaSabado: EscalaFormData = {
+              funcionario_id: data.funcionario_id,
+              data: sabadoStr,
+              tipo: 'trabalho',
+              eh_abertura: true,
+              observacao: `Abertura automática - Domingo trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
+              modo_teste: modoTeste
+            };
+
+            console.log('Criando escala de abertura no sábado:', escalaSabado);
+            await onSubmit(escalaSabado);
+          }
+        }
+      }
+
       form.reset();
       onOpenChange(false);
     } catch (error) {
@@ -239,7 +292,7 @@ export function FormularioEscala({
                   <FormLabel>Funcionário *</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                     disabled={isLoadingFuncionarios}
                   >
                     <FormControl>
@@ -309,7 +362,7 @@ export function FormularioEscala({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
