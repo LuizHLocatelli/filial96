@@ -37,6 +37,7 @@ import { CalendarIcon, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EscalaFormData, TipoEscala, Funcionario, Escala } from '../types/escalasTypes';
 import { useFuncionarios } from '../hooks/useFuncionarios';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FormularioEscalaProps {
   open: boolean;
@@ -136,7 +137,7 @@ export function FormularioEscala({
       );
 
       if (temEscalaSabado) {
-        infos.push(`ℹ️ Este funcionário será automaticamente designado para abertura no sábado ${format(sabadoAnterior, "dd/MM", { locale: ptBR })}.`);
+        infos.push(`ℹ️ Este funcionário já possui escala no sábado ${format(sabadoAnterior, "dd/MM", { locale: ptBR })}.`);
       } else {
         infos.push(`ℹ️ Uma escala de abertura no sábado ${format(sabadoAnterior, "dd/MM", { locale: ptBR })} será criada automaticamente.`);
       }
@@ -195,24 +196,17 @@ export function FormularioEscala({
 
         const folgaDataStr = format(data.folga_compensatoria_data, 'yyyy-MM-dd');
 
-        // Verificar se já existe escala na data da folga compensatória
-        const jaExisteFolga = escalasExistentes.some(
-          e => e.funcionario_id === data.funcionario_id &&
-               e.data === folgaDataStr &&
-               e.modo_teste === modoTeste
-        );
+        const folgaData: EscalaFormData = {
+          funcionario_id: data.funcionario_id,
+          data: folgaDataStr,
+          tipo: 'folga',
+          observacao: `Folga compensatória referente a ${data.tipo === 'domingo_trabalhado' ? 'domingo' : 'feriado'} trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
+          modo_teste: modoTeste
+        };
 
-        if (!jaExisteFolga) {
-          const folgaData: EscalaFormData = {
-            funcionario_id: data.funcionario_id,
-            data: folgaDataStr,
-            tipo: 'folga',
-            observacao: `Folga compensatória referente a ${data.tipo === 'domingo_trabalhado' ? 'domingo' : 'feriado'} trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
-            modo_teste: modoTeste
-          };
-
+        try {
+          console.log('Criando folga compensatória:', folgaData);
           // Criar a folga e obter o ID retornado
-          // O mutateAsync retorna o resultado da mutation que contém o objeto criado
           const folgaCriada = await onSubmit(folgaData) as any;
 
           // Garantir que capturamos o ID correto do objeto retornado
@@ -220,17 +214,25 @@ export function FormularioEscala({
             folgaCompensatoriaId = folgaCriada.id || null;
           }
 
-          console.log('Folga compensatória criada:', folgaCriada, 'ID:', folgaCompensatoriaId);
-        } else {
-          // Se já existe, buscar o ID da escala existente
-          const escalaExistente = escalasExistentes.find(
-            e => e.funcionario_id === data.funcionario_id &&
-                 e.data === folgaDataStr &&
-                 e.modo_teste === modoTeste
-          );
-          if (escalaExistente) {
-            folgaCompensatoriaId = escalaExistente.id;
-            console.log('Folga compensatória já existe, usando ID:', folgaCompensatoriaId);
+          console.log('✅ Folga compensatória criada:', folgaCriada, 'ID:', folgaCompensatoriaId);
+        } catch (error: any) {
+          // Se o erro for de duplicata, buscar a escala existente no banco
+          if (error?.code === '23505' || error?.message?.includes('escalas_funcionario_id_data_modo_teste_key')) {
+            console.log('ℹ️ Folga compensatória já existe, buscando do cache...');
+            const escalaExistente = escalasExistentes.find(
+              e => e.funcionario_id === data.funcionario_id &&
+                   e.data === folgaDataStr &&
+                   e.modo_teste === modoTeste
+            );
+            if (escalaExistente) {
+              folgaCompensatoriaId = escalaExistente.id;
+              console.log('✅ ID da folga existente recuperado:', folgaCompensatoriaId);
+            } else {
+              console.warn('⚠️ Folga existe mas não está no cache. Continuando sem vincular...');
+            }
+          } else {
+            // Se for outro tipo de erro, propagar
+            throw error;
           }
         }
       }
@@ -248,6 +250,7 @@ export function FormularioEscala({
       console.log('Criando escala principal com dados:', escalaData);
 
       await onSubmit(escalaData);
+      console.log('✅ Escala principal criada com sucesso');
 
       // Se for domingo trabalhado, criar escala de abertura no sábado anterior
       if (data.tipo === 'domingo_trabalhado' && data.data) {
@@ -257,35 +260,53 @@ export function FormularioEscala({
           sabadoAnterior.setDate(sabadoAnterior.getDate() - 1);
           const sabadoStr = format(sabadoAnterior, 'yyyy-MM-dd');
 
-          // Verificar se já não existe escala para este funcionário no sábado
-          const temEscalaSabado = escalasExistentes.some(
-            e => e.funcionario_id === data.funcionario_id &&
-                 e.data === sabadoStr &&
-                 e.modo_teste === modoTeste
-          );
+          const escalaSabado: EscalaFormData = {
+            funcionario_id: data.funcionario_id,
+            data: sabadoStr,
+            tipo: 'trabalho',
+            eh_abertura: true,
+            observacao: `Abertura automática - Domingo trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
+            modo_teste: modoTeste
+          };
 
-          if (!temEscalaSabado) {
-            const escalaSabado: EscalaFormData = {
-              funcionario_id: data.funcionario_id,
-              data: sabadoStr,
-              tipo: 'trabalho',
-              eh_abertura: true,
-              observacao: `Abertura automática - Domingo trabalhado em ${format(data.data, 'dd/MM/yyyy')}`,
-              modo_teste: modoTeste
-            };
-
+          try {
             console.log('Criando escala de abertura no sábado:', escalaSabado);
-            await onSubmit(escalaSabado);
-          } else {
-            console.log('Escala no sábado já existe, pulando criação');
+
+            // Usar Supabase diretamente para silenciar erro 409 sem mostrar toast
+            const { error: sabadoError } = await supabase
+              .from('escalas')
+              .insert([escalaSabado])
+              .select();
+
+            if (sabadoError) {
+              // Se o erro for de duplicata (constraint única), ignorar pois já existe
+              if (sabadoError.code === '23505' || sabadoError.message?.includes('escalas_funcionario_id_data_modo_teste_key')) {
+                console.log('ℹ️ Escala no sábado já existe, continuando...');
+              } else {
+                // Se for outro tipo de erro, propagar
+                throw sabadoError;
+              }
+            } else {
+              console.log('✅ Escala de abertura no sábado criada com sucesso');
+            }
+          } catch (error: any) {
+            // Tratar qualquer erro não esperado
+            console.error('❌ Erro ao criar escala de abertura:', error);
+            throw error;
           }
         }
       }
 
+      console.log('=== SUBMIT CONCLUÍDO COM SUCESSO ===');
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao salvar escala:', error);
+      console.error('❌ ERRO AO SALVAR ESCALA:', error);
+      console.error('Detalhes do erro:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details
+      });
     } finally {
       setIsSubmitting(false);
     }
