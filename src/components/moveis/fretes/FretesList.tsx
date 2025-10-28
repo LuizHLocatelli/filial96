@@ -47,6 +47,7 @@ import {
 
 import { Frete } from "@/types/frete";
 import { formatPhoneNumber } from "@/utils/phoneFormatter";
+import { useMobileDialog } from "@/hooks/useMobileDialog";
 
 interface FretesListProps {
   fretes: Frete[];
@@ -75,6 +76,7 @@ export function FretesList({ fretes, loading, onEdit, onDelete, onView }: Fretes
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [freteToDelete, setFreteToDelete] = useState<string | null>(null);
+  const { getMobileAlertDialogProps } = useMobileDialog();
 
   const filteredFretes = fretes.filter(frete => {
     const matchesSearch = frete.nome_cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -409,19 +411,21 @@ export function FretesList({ fretes, loading, onEdit, onDelete, onView }: Fretes
 
       {/* Dialog de Confirmação de Exclusão */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent {...getMobileAlertDialogProps("small")}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base sm:text-lg">Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm sm:text-base">
               Tem certeza que deseja excluir este frete? Esta ação não pode ser desfeita
               e todos os dados relacionados serão permanentemente removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto h-10 text-sm sm:text-base">
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="w-full sm:w-auto h-10 text-sm sm:text-base bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Excluir
             </AlertDialogAction>

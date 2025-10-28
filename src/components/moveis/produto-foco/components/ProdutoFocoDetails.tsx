@@ -71,16 +71,21 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent {...getMobileDialogProps("large")}>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              {produto.nome_produto}
-            </DialogTitle>
-          </DialogHeader>
+          {/* Fixed Header */}
+          <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+            <DialogHeader className="pr-8">
+              <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                  <Package className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
+                </div>
+                {produto.nome_produto}
+              </DialogTitle>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+            <div className="space-y-4">
             {/* Informações Básicas */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -229,8 +234,10 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
                 </div>
               </div>
             )}
+            </div>
           </div>
 
+          {/* Fixed Footer */}
           <div {...getMobileFooterProps()}>
             <Button variant="outline" onClick={onClose}>
               Fechar
@@ -243,21 +250,30 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
           <DialogContent {...getMobileDialogProps("default")}>
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                  <ZoomIn className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                Visualizar Imagem
-              </DialogTitle>
-            </DialogHeader>
-            <div className="flex-1 overflow-hidden flex items-center justify-center max-h-[70vh]">
-              <img 
-                src={imagemSelecionada} 
-                alt="Imagem ampliada" 
-                className="max-w-full max-h-full object-contain"
-              />
+            {/* Fixed Header */}
+            <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+              <DialogHeader className="pr-8">
+                <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                    <ZoomIn className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  Visualizar Imagem
+                </DialogTitle>
+              </DialogHeader>
             </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+              <div className="flex items-center justify-center">
+                <img
+                  src={imagemSelecionada}
+                  alt="Imagem ampliada"
+                  className="max-w-full h-auto object-contain"
+                />
+              </div>
+            </div>
+
+            {/* Fixed Footer */}
             <div {...getMobileFooterProps()}>
               <Button onClick={() => setImagemSelecionada(null)}>
                 Fechar

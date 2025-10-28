@@ -230,7 +230,7 @@ export default function CalculadoraIgreen() {
                         Ver onde encontrar na conta
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-xs sm:max-w-3xl">
+                    <DialogContent className="max-w-xs sm:max-w-3xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto p-3 md:p-5 lg:p-6">
                       <img
                         src={ondeverImage}
                         alt="Onde encontrar o tipo de fornecimento na conta de luz"

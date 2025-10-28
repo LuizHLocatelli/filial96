@@ -70,21 +70,26 @@ export function MetaFocoDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent {...getMobileDialogProps("medium")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <Target className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              Criar Meta Foco
-            </div>
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Defina uma meta específica para impulsionar os resultados em um dia determinado
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Target className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                Criar Meta Foco
+              </div>
+            </DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground">
+              Defina uma meta específica para impulsionar os resultados em um dia determinado
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="titulo">Título da Meta Foco *</Label>
             <Input
@@ -170,26 +175,29 @@ export function MetaFocoDialog({
               className="resize-none"
             />
           </div>
+          </form>
+        </div>
 
-          <div {...getMobileFooterProps()}>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-              className="px-6"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading || !formData.titulo.trim() || !formData.categoria_id || formData.valor_meta <= 0}
-              variant="success"
-            >
-              {isLoading ? "Criando..." : "Criar Meta Foco"}
-            </Button>
-          </div>
-        </form>
+        {/* Fixed Footer */}
+        <div {...getMobileFooterProps()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading || !formData.titulo.trim() || !formData.categoria_id || formData.valor_meta <= 0}
+            onClick={handleSubmit}
+            variant="success"
+          >
+            {isLoading ? "Criando..." : "Criar Meta Foco"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

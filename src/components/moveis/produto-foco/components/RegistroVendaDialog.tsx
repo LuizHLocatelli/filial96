@@ -94,16 +94,21 @@ export function RegistroVendaDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent {...getMobileDialogProps("default")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <ShoppingCart className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            Registrar Venda
-          </DialogTitle>
-        </DialogHeader>
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
+              </div>
+              Registrar Venda
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+          <div className="space-y-4">
           {/* Informações do produto */}
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
             <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">{produto.nome_produto}</h3>
@@ -211,25 +216,28 @@ export function RegistroVendaDialog({
                 className="mt-1 resize-none text-base sm:text-sm"
               />
             </div>
-
-            <div {...getMobileFooterProps()}>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={onClose}
-                {...getMobileButtonProps()}
-              >
-                Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                {...getMobileButtonProps()}
-              >
-                {isSubmitting ? 'Registrando...' : 'Registrar Venda'}
-              </Button>
-            </div>
           </form>
+          </div>
+        </div>
+
+        {/* Fixed Footer */}
+        <div {...getMobileFooterProps()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            {...getMobileButtonProps()}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            onClick={handleSubmit}
+            {...getMobileButtonProps()}
+          >
+            {isSubmitting ? 'Registrando...' : 'Registrar Venda'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

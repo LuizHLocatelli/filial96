@@ -245,21 +245,26 @@ export function BuscaAvancada({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent {...getMobileDialogProps("extraLarge")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <Search className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              Busca Avançada
-            </div>
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Encontre orientações e assistentes rapidamente
-          </DialogDescription>
-        </DialogHeader>
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Search className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                Busca Avançada
+              </div>
+            </DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground">
+              Encontre orientações e assistentes rapidamente
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Painel de Filtros */}
           <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center justify-between">
@@ -499,23 +504,25 @@ export function BuscaAvancada({
               </div>
             )}
           </div>
+          </div>
         </div>
 
+        {/* Fixed Footer */}
         <div {...getMobileFooterProps()}>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => onOpenChange(false)}
             className="px-6"
           >
             Fechar
           </Button>
           {searchResults && searchResults.totalFound > 0 && (
-            <Button 
+            <Button
               onClick={() => onResultsSelect(searchResults)}
               variant="success"
               size="default"
             >
-              <Search className="h-4 w-4 mr-2" />
+              <Search className="h-4 w-4 md:h-5 md:w-5 mr-2" />
               Aplicar Resultados
             </Button>
           )}

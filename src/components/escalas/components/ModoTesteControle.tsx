@@ -140,10 +140,10 @@ export function ModoTesteControle({
 
       {/* Dialog para aplicar escalas */}
       <AlertDialog open={showAplicarDialog} onOpenChange={setShowAplicarDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="p-3 md:p-5 lg:p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>Aplicar Escalas de Teste</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
+            <AlertDialogTitle className="text-base md:text-lg">Aplicar Escalas de Teste</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2 text-xs md:text-sm">
               <p>
                 Você está prestes a aplicar <strong>{quantidadeEscalasTeste} escala(s)</strong> de teste para a produção.
               </p>
@@ -153,14 +153,14 @@ export function ModoTesteControle({
               <p>Deseja continuar?</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>
+          <AlertDialogFooter className="flex-col md:flex-row gap-2">
+            <AlertDialogCancel disabled={isProcessing} className="w-full md:w-auto h-9 md:h-10 text-xs md:text-sm">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleAplicar}
               disabled={isProcessing}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 w-full md:w-auto h-9 md:h-10 text-xs md:text-sm"
             >
               {isProcessing ? 'Aplicando...' : 'Sim, Aplicar'}
             </AlertDialogAction>
@@ -170,10 +170,10 @@ export function ModoTesteControle({
 
       {/* Dialog para descartar escalas */}
       <AlertDialog open={showDescartarDialog} onOpenChange={setShowDescartarDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="p-3 md:p-5 lg:p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>Descartar Escalas de Teste</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
+            <AlertDialogTitle className="text-base md:text-lg">Descartar Escalas de Teste</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2 text-xs md:text-sm">
               <p>
                 Você está prestes a descartar <strong>{quantidadeEscalasTeste} escala(s)</strong> de teste.
               </p>
@@ -183,14 +183,14 @@ export function ModoTesteControle({
               <p>Deseja continuar?</p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>
+          <AlertDialogFooter className="flex-col md:flex-row gap-2">
+            <AlertDialogCancel disabled={isProcessing} className="w-full md:w-auto h-9 md:h-10 text-xs md:text-sm">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDescartar}
               disabled={isProcessing}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 w-full md:w-auto h-9 md:h-10 text-xs md:text-sm"
             >
               {isProcessing ? 'Descartando...' : 'Sim, Descartar'}
             </AlertDialogAction>

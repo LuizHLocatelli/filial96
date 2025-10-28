@@ -237,7 +237,7 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col gap-3 sm:gap-4">
               <div className="text-center mb-2 sm:mb-4">
-                <h3 className="text-base sm:text-lg font-medium">Capturar Nota Fiscal</h3>
+                <h3 className="text-sm sm:text-lg font-medium">Capturar Nota Fiscal</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   Tire uma foto ou faça upload da imagem da nota fiscal
                 </p>
@@ -248,11 +248,11 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
                 <div className="space-y-2">
                   <Button
                     onClick={isMobile ? openMobileCamera : startCamera}
-                    className="w-full"
+                    className="w-full h-10 sm:h-11"
                     size="default"
                   >
                     <Camera className="h-4 w-4 mr-2" />
-                    <span className="text-sm">
+                    <span className="text-xs sm:text-sm">
                       {isMobile ? "Abrir Câmera" : "Usar Câmera Web"}
                     </span>
                   </Button>
@@ -261,11 +261,11 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
                     <Button
                       onClick={openMobileCamera}
                       variant="outline"
-                      className="w-full"
+                      className="w-full h-10 sm:h-11"
                       size="default"
                     >
                       <Smartphone className="h-4 w-4 mr-2" />
-                      <span className="text-sm">Galeria do Dispositivo</span>
+                      <span className="text-xs sm:text-sm">Galeria do Dispositivo</span>
                     </Button>
                   )}
                 </div>
@@ -296,11 +296,11 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
 
       {isStreaming && (
         <Card>
-          <CardContent className="p-4">
-            <div className="space-y-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="text-center">
-                <h3 className="text-lg font-medium mb-2">Posicione a nota fiscal</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-sm sm:text-lg font-medium mb-2">Posicione a nota fiscal</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Certifique-se de que toda a nota fiscal está visível e legível
                 </p>
               </div>
@@ -317,19 +317,19 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
               <div className="flex gap-2">
                 <Button
                   onClick={capturePhoto}
-                  className="flex-1"
+                  className="flex-1 h-10 sm:h-11"
                   size="default"
                 >
                   <Camera className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Capturar Foto</span>
+                  <span className="text-xs sm:text-sm">Capturar Foto</span>
                 </Button>
                 <Button
                   onClick={stopCamera}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 h-10 sm:h-11"
                   size="default"
                 >
-                  <span className="text-sm">Cancelar</span>
+                  <span className="text-xs sm:text-sm">Cancelar</span>
                 </Button>
               </div>
             </div>
@@ -339,11 +339,11 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
 
       {capturedImage && (
         <Card>
-          <CardContent className="p-4">
-            <div className="space-y-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="text-center">
-                <h3 className="text-lg font-medium mb-2">Imagem Capturada</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-sm sm:text-lg font-medium mb-2">Imagem Capturada</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Verifique se a imagem está nítida e legível
                 </p>
               </div>
@@ -359,20 +359,20 @@ export function ImageCapture({ onImageCaptured, disabled = false }: ImageCapture
                 <Button
                   onClick={retakePhoto}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 h-10 sm:h-11"
                   size="default"
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Nova Foto</span>
+                  <span className="text-xs sm:text-sm">Nova Foto</span>
                 </Button>
                 <Button
                   onClick={resetCapture}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 h-10 sm:h-11"
                   size="default"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Novo Upload</span>
+                  <span className="text-xs sm:text-sm">Novo Upload</span>
                 </Button>
               </div>
             </div>

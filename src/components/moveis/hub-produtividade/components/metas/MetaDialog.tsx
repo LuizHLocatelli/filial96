@@ -59,21 +59,26 @@ export function MetaDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent {...getMobileDialogProps("default")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <IconComponent className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              {isEditing ? 'Editar Meta' : 'Nova Meta'}
-            </div>
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            {isEditing ? 'Modifique os dados da meta existente.' : 'Defina uma nova meta para acompanhamento.'}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <IconComponent className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                {isEditing ? 'Editar Meta' : 'Nova Meta'}
+              </div>
+            </DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground">
+              {isEditing ? 'Modifique os dados da meta existente.' : 'Defina uma nova meta para acompanhamento.'}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Label htmlFor="valor_meta">Valor da Meta Mensal *</Label>
             <div className="space-y-2">
@@ -103,27 +108,30 @@ export function MetaDialog({
               rows={3}
             />
           </div>
+          </form>
+        </div>
 
-          <div {...getMobileFooterProps()}>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-              className="px-6"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !formData.descricao.trim() || !formData.valor_meta}
-              variant="success"
-            >
-              <Target className="mr-2 h-4 w-4" />
-              {isLoading ? 'Salvando...' : isEditing ? 'Atualizar Meta' : 'Criar Meta'}
-            </Button>
-          </div>
-        </form>
+        {/* Fixed Footer */}
+        <div {...getMobileFooterProps()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+            className="px-6"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading || !formData.descricao.trim() || !formData.valor_meta}
+            onClick={handleSubmit}
+            variant="success"
+          >
+            <Target className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+            {isLoading ? 'Salvando...' : isEditing ? 'Atualizar Meta' : 'Criar Meta'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

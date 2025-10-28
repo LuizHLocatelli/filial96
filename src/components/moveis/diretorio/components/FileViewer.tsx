@@ -86,66 +86,71 @@ export function FileViewer({ file, open, onOpenChange }: FileViewerProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent {...getMobileDialogProps('default')}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="break-words">{file.name}</span>
-                <Badge variant="outline" className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 text-green-700 dark:text-green-300">
-                  <FileIcon className="w-3 h-3 mr-1" />
-                  {file.file_type?.split('/')[1]?.toUpperCase() || 'FILE'}
-                </Badge>
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
+                <Eye className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
               </div>
-            </div>
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            {file.description || 'Visualização de arquivo'}
-          </DialogDescription>
-          
-          {/* Metadados do arquivo */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mt-4">
-            {file.file_size && (
-              <div className="flex items-center gap-2 text-sm">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <span>Tamanho: {formatFileSize(file.file_size)}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="break-words text-sm md:text-base">{file.name}</span>
+                  <Badge variant="outline" className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 text-green-700 dark:text-green-300 text-xs">
+                    <FileIcon className="w-3 h-3 mr-1" />
+                    {file.file_type?.split('/')[1]?.toUpperCase() || 'FILE'}
+                  </Badge>
+                </div>
               </div>
-            )}
-            {file.created_at && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Criado: {format(new Date(file.created_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
-              </div>
-            )}
-            {file.created_by && (
-              <div className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span>Por: {file.created_by}</span>
-              </div>
-            )}
-          </div>
-        </DialogHeader>
+            </DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground">
+              {file.description || 'Visualização de arquivo'}
+            </DialogDescription>
 
-        <div className="space-y-6">
+            {/* Metadados do arquivo */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg mt-4">
+              {file.file_size && (
+                <div className="flex items-center gap-2 text-xs md:text-sm">
+                  <FileText className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                  <span>Tamanho: {formatFileSize(file.file_size)}</span>
+                </div>
+              )}
+              {file.created_at && (
+                <div className="flex items-center gap-2 text-xs md:text-sm">
+                  <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                  <span>Criado: {format(new Date(file.created_at), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                </div>
+              )}
+              {file.created_by && (
+                <div className="flex items-center gap-2 text-xs md:text-sm">
+                  <User className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                  <span>Por: {file.created_by}</span>
+                </div>
+              )}
+            </div>
+          </DialogHeader>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
           {renderContent()}
         </div>
 
+        {/* Fixed Footer */}
         <div {...getMobileFooterProps()}>
-          <Button 
+          <Button
             type="button"
-            variant="outline" 
-            onClick={() => onOpenChange(false)} 
+            variant="outline"
+            onClick={() => onOpenChange(false)}
             className="px-6"
           >
             Fechar
           </Button>
-          <Button 
+          <Button
             onClick={handleDownload}
             variant="success"
           >
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 md:h-5 md:w-5 mr-2" />
             Download
           </Button>
         </div>

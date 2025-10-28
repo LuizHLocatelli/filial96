@@ -79,70 +79,70 @@ export function Fretes() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fretes</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Fretes</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie os fretes e entregas dos móveis
           </p>
         </div>
-        <Button onClick={handleCreateFrete}>
+        <Button onClick={handleCreateFrete} className="w-full sm:w-auto h-10 text-sm sm:text-base">
           <Plus className="h-4 w-4 mr-2" />
           Novo Frete
         </Button>
       </div>
 
       {/* Estatísticas */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Fretes</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total de Fretes</CardTitle>
+            <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               fretes cadastrados
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Pendentes</CardTitle>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pendentes}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.pendentes}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               aguardando entrega
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Entregues</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Entregues</CardTitle>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.entregues}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.entregues}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               entregas concluídas
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="col-span-2 lg:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Valor Total</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.valorTotal)}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{formatCurrency(stats.valorTotal)}</div>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               em fretes
             </p>
           </CardContent>
@@ -152,14 +152,14 @@ export function Fretes() {
       {/* Valores Pendentes */}
       {stats.valorPendente > 0 && (
         <Card className="border-amber-200 bg-amber-50">
-          <CardHeader>
-            <CardTitle className="text-amber-800">Valores Pendentes</CardTitle>
+          <CardHeader className="p-3 sm:p-6">
+            <CardTitle className="text-amber-800 text-base sm:text-lg">Valores Pendentes</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-900">
+          <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-amber-900">
               {formatCurrency(stats.valorPendente)}
             </div>
-            <p className="text-sm text-amber-700">
+            <p className="text-xs sm:text-sm text-amber-700">
               em fretes não pagos
             </p>
           </CardContent>

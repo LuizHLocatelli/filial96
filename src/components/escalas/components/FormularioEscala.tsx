@@ -317,32 +317,37 @@ export function FormularioEscala({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {escalaParaEditar ? 'Editar Escala' : 'Nova Escala'}
-            {modoTeste && (
-              <Badge variant="outline" className="ml-2">Modo Teste</Badge>
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            {escalaParaEditar
-              ? 'Edite as informações da escala'
-              : 'Preencha os dados para criar uma nova escala'
-            }
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0 max-w-2xl">
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="flex flex-wrap items-center gap-2 text-base md:text-lg">
+              {escalaParaEditar ? 'Editar Escala' : 'Nova Escala'}
+              {modoTeste && (
+                <Badge variant="outline" className="text-xs md:text-sm">Modo Teste</Badge>
+              )}
+            </DialogTitle>
+            <DialogDescription className="text-xs md:text-sm">
+              {escalaParaEditar
+                ? 'Edite as informações da escala'
+                : 'Preencha os dados para criar uma nova escala'
+              }
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {/* Funcionário */}
-            <FormField
-              control={form.control}
-              name="funcionario_id"
-              rules={{ required: 'Selecione um funcionário' }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Funcionário *</FormLabel>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 md:space-y-4">
+              {/* Funcionário */}
+              <FormField
+                control={form.control}
+                name="funcionario_id"
+                rules={{ required: 'Selecione um funcionário' }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-base">Funcionário *</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
@@ -366,14 +371,14 @@ export function FormularioEscala({
               )}
             />
 
-            {/* Data */}
-            <FormField
-              control={form.control}
-              name="data"
-              rules={{ required: 'Selecione uma data' }}
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data *</FormLabel>
+              {/* Data */}
+              <FormField
+                control={form.control}
+                name="data"
+                rules={{ required: 'Selecione uma data' }}
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="text-sm md:text-base">Data *</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -408,13 +413,13 @@ export function FormularioEscala({
               )}
             />
 
-            {/* Tipo */}
-            <FormField
-              control={form.control}
-              name="tipo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo *</FormLabel>
+              {/* Tipo */}
+              <FormField
+                control={form.control}
+                name="tipo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-base">Tipo *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -439,17 +444,17 @@ export function FormularioEscala({
               )}
             />
 
-            {/* Folga Compensatória */}
-            {mostrarCampoFolgaCompensatoria && (
-              <FormField
-                control={form.control}
-                name="folga_compensatoria_data"
-                rules={{
-                  required: 'Selecione uma data para folga compensatória'
-                }}
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Data da Folga Compensatória *</FormLabel>
+              {/* Folga Compensatória */}
+              {mostrarCampoFolgaCompensatoria && (
+                <FormField
+                  control={form.control}
+                  name="folga_compensatoria_data"
+                  rules={{
+                    required: 'Selecione uma data para folga compensatória'
+                  }}
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="text-sm md:text-base">Data da Folga Compensatória *</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -489,13 +494,13 @@ export function FormularioEscala({
               />
             )}
 
-            {/* Observação */}
-            <FormField
-              control={form.control}
-              name="observacao"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Observação</FormLabel>
+              {/* Observação */}
+              <FormField
+                control={form.control}
+                name="observacao"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm md:text-base">Observação</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Digite observações adicionais..."
@@ -508,50 +513,57 @@ export function FormularioEscala({
               )}
             />
 
-            {/* Validações */}
-            {(validacoes.erros.length > 0 || validacoes.avisos.length > 0 || validacoes.infos.length > 0) && (
-              <div className="space-y-2">
-                {validacoes.erros.map((erro, index) => (
-                  <Alert key={`erro-${index}`} variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>{erro}</AlertDescription>
-                  </Alert>
-                ))}
-                {validacoes.avisos.map((aviso, index) => (
-                  <Alert key={`aviso-${index}`}>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>{aviso}</AlertDescription>
-                  </Alert>
-                ))}
-                {validacoes.infos.map((info, index) => (
-                  <Alert key={`info-${index}`} className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
-                    <Info className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-blue-900 dark:text-blue-100">
-                      {info}
-                    </AlertDescription>
-                  </Alert>
-                ))}
-              </div>
-            )}
+              {/* Validações */}
+              {(validacoes.erros.length > 0 || validacoes.avisos.length > 0 || validacoes.infos.length > 0) && (
+                <div className="space-y-2">
+                  {validacoes.erros.map((erro, index) => (
+                    <Alert key={`erro-${index}`} variant="destructive">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription className="text-xs md:text-sm">{erro}</AlertDescription>
+                    </Alert>
+                  ))}
+                  {validacoes.avisos.map((aviso, index) => (
+                    <Alert key={`aviso-${index}`}>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription className="text-xs md:text-sm">{aviso}</AlertDescription>
+                    </Alert>
+                  ))}
+                  {validacoes.infos.map((info, index) => (
+                    <Alert key={`info-${index}`} className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                      <Info className="h-4 w-4 text-blue-600" />
+                      <AlertDescription className="text-xs md:text-sm text-blue-900 dark:text-blue-100">
+                        {info}
+                      </AlertDescription>
+                    </Alert>
+                  ))}
+                </div>
+              )}
+            </form>
+          </Form>
+        </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={validacoes.erros.length > 0 || isSubmitting}
-              >
-                {isSubmitting ? 'Salvando...' : escalaParaEditar ? 'Atualizar' : 'Criar Escala'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        {/* Fixed Footer */}
+        <div className="flex-shrink-0 border-t bg-background p-3 md:p-5 lg:p-6 pt-3">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+              className="w-full md:w-auto h-9 md:h-10 text-xs md:text-sm"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              onClick={form.handleSubmit(handleSubmit)}
+              disabled={validacoes.erros.length > 0 || isSubmitting}
+              className="w-full md:w-auto h-9 md:h-10 text-xs md:text-sm"
+            >
+              {isSubmitting ? 'Salvando...' : escalaParaEditar ? 'Atualizar' : 'Criar Escala'}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

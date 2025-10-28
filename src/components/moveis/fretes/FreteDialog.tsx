@@ -256,22 +256,25 @@ export function FreteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         {...getMobileDialogProps("large")}
-        className="max-h-[95vh] overflow-y-auto w-[95vw] max-w-4xl p-4 sm:p-6"
+        className="max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0"
       >
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            {isEditing ? 'Editar Frete' : 'Novo Frete'}
-            {iaConfidence !== null && (
-              <Badge variant="secondary" className="ml-2">
-                <Brain className="h-3 w-3 mr-1" />
-                IA: {iaConfidence}%
-              </Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
+        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
+          <DialogHeader className="pr-8">
+            <DialogTitle className="flex flex-wrap items-center gap-2 text-base md:text-lg">
+              <FileText className="h-4 w-4 md:h-5 md:w-5" />
+              <span>{isEditing ? 'Editar Frete' : 'Novo Frete'}</span>
+              {iaConfidence !== null && (
+                <Badge variant="secondary" className="text-xs md:text-sm">
+                  <Brain className="h-3 w-3 mr-1" />
+                  IA: {iaConfidence}%
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4 sm:space-y-6">
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+        <div className="space-y-3 md:space-y-4 lg:space-y-6">
           {/* Captura de Imagem */}
           <div>
             <Label className="text-sm sm:text-base font-medium mb-2 sm:mb-3 block">
@@ -292,36 +295,38 @@ export function FreteDialog({
           <Separator />
 
           {/* Dados do Cliente */}
-          <div className="space-y-3 sm:space-y-4">
-            <Label className="text-sm sm:text-base font-medium">Dados do Cliente</Label>
+          <div className="space-y-3 md:space-y-4">
+            <Label className="text-sm md:text-base font-medium">Dados do Cliente</Label>
 
-            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+            <div className="grid gap-2 md:gap-3 lg:gap-4 grid-cols-1 md:grid-cols-2">
               <div>
-                <Label htmlFor="cpf_cliente">CPF do Cliente</Label>
+                <Label htmlFor="cpf_cliente" className="text-xs md:text-sm">CPF do Cliente</Label>
                 <Input
                   id="cpf_cliente"
                   value={formData.cpf_cliente}
                   onChange={(e) => setFormData(prev => ({ ...prev, cpf_cliente: e.target.value }))}
                   placeholder="000.000.000-00"
+                  className="h-9 md:h-10"
                 />
               </div>
 
               <div>
-                <Label htmlFor="nome_cliente">Nome do Cliente *</Label>
+                <Label htmlFor="nome_cliente" className="text-xs md:text-sm">Nome do Cliente *</Label>
                 <Input
                   id="nome_cliente"
                   value={formData.nome_cliente}
                   onChange={(e) => setFormData(prev => ({ ...prev, nome_cliente: e.target.value }))}
                   required
                   error={validationErrors.nome_cliente}
+                  className="h-9 md:h-10"
                 />
                 {validationErrors.nome_cliente && (
-                  <p className="text-sm text-destructive mt-1">{validationErrors.nome_cliente}</p>
+                  <p className="text-xs md:text-sm text-destructive mt-1">{validationErrors.nome_cliente}</p>
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="telefone">Telefone *</Label>
+              <div className="md:col-span-2">
+                <Label htmlFor="telefone" className="text-xs md:text-sm">Telefone *</Label>
                 <Input
                   id="telefone"
                   value={formData.telefone}
@@ -332,15 +337,16 @@ export function FreteDialog({
                   placeholder="(11) 99999-9999"
                   required
                   error={validationErrors.telefone}
+                  className="h-9 md:h-10"
                 />
                 {validationErrors.telefone && (
-                  <p className="text-sm text-destructive mt-1">{validationErrors.telefone}</p>
+                  <p className="text-xs md:text-sm text-destructive mt-1">{validationErrors.telefone}</p>
                 )}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="endereco_entrega">Endereço de Entrega *</Label>
+              <Label htmlFor="endereco_entrega" className="text-xs md:text-sm">Endereço de Entrega *</Label>
               <Textarea
                 id="endereco_entrega"
                 value={formData.endereco_entrega}
@@ -348,9 +354,10 @@ export function FreteDialog({
                 required
                 error={validationErrors.endereco_entrega}
                 rows={3}
+                className="text-sm md:text-base resize-none"
               />
               {validationErrors.endereco_entrega && (
-                <p className="text-sm text-destructive mt-1">{validationErrors.endereco_entrega}</p>
+                <p className="text-xs md:text-sm text-destructive mt-1">{validationErrors.endereco_entrega}</p>
               )}
             </div>
           </div>
@@ -358,64 +365,65 @@ export function FreteDialog({
           <Separator />
 
           {/* Dados Financeiros */}
-          <div className="space-y-3 sm:space-y-4">
-            <Label className="text-sm sm:text-base font-medium">Dados Financeiros</Label>
+          <div className="space-y-3 md:space-y-4">
+            <Label className="text-sm md:text-base font-medium">Dados Financeiros</Label>
 
-            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+            <div className="grid gap-2 md:gap-3 lg:gap-4 grid-cols-1 md:grid-cols-2">
               <div>
-                <Label htmlFor="valor_total_nota">Valor Total da Nota Fiscal</Label>
+                <Label htmlFor="valor_total_nota" className="text-xs md:text-sm">Valor Total da Nota Fiscal</Label>
                 <CurrencyInput
                   id="valor_total_nota"
                   value={formData.valor_total_nota}
                   onChange={(value) => setFormData(prev => ({ ...prev, valor_total_nota: value }))}
                   placeholder="0,00"
+                  className="h-9 md:h-10 text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <Label htmlFor="valor_frete">Valor do Frete *</Label>
+                <Label htmlFor="valor_frete" className="text-xs md:text-sm">Valor do Frete *</Label>
                 <CurrencyInput
                   id="valor_frete"
                   value={formData.valor_frete}
                   onChange={(value) => setFormData(prev => ({ ...prev, valor_frete: value }))}
                   required
                   placeholder="0,00"
-                  className={validationErrors.valor_frete ? "border-destructive" : ""}
+                  className={`h-9 md:h-10 text-sm md:text-base ${validationErrors.valor_frete ? "border-destructive" : ""}`}
                 />
                 {validationErrors.valor_frete && (
-                  <p className="text-sm text-destructive mt-1">{validationErrors.valor_frete}</p>
+                  <p className="text-xs md:text-sm text-destructive mt-1">{validationErrors.valor_frete}</p>
                 )}
               </div>
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="pago"
-                checked={formData.pago}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, pago: checked }))}
-              />
-              <Label htmlFor="pago">Frete Pago</Label>
-            </div>
+              <div className="flex items-center space-x-2 py-1">
+                <Switch
+                  id="pago"
+                  checked={formData.pago}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, pago: checked }))}
+                />
+                <Label htmlFor="pago" className="text-xs md:text-sm">Frete Pago</Label>
+              </div>
 
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value: any) =>
-                  setFormData(prev => ({ ...prev, status: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map(status => (
-                    <SelectItem key={status} value={status}>
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div>
+                <Label htmlFor="status" className="text-xs md:text-sm">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: any) =>
+                    setFormData(prev => ({ ...prev, status: value }))
+                  }
+                >
+                  <SelectTrigger className="h-9 md:h-10 text-sm md:text-base">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map(status => (
+                      <SelectItem key={status} value={status} className="text-sm md:text-base">
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -423,9 +431,9 @@ export function FreteDialog({
           {formData.items.length > 0 && (
             <>
               <Separator />
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <Label className="text-sm sm:text-base font-medium">
+              <div className="space-y-3 md:space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                  <Label className="text-sm md:text-base font-medium">
                     Itens da Nota Fiscal ({formData.items.length})
                   </Label>
                   <Button
@@ -433,52 +441,54 @@ export function FreteDialog({
                     variant="outline"
                     size="sm"
                     onClick={addItem}
-                    className="w-full sm:w-auto"
+                    className="w-full md:w-auto h-9 text-xs md:text-sm"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                     Adicionar Item
                   </Button>
                 </div>
 
-                <div className="space-y-2 sm:space-y-3 max-h-60 sm:max-h-80 overflow-y-auto">
+                <div className="space-y-2 md:space-y-3 max-h-60 md:max-h-72 lg:max-h-80 overflow-y-auto pr-1">
                   {formData.items.map((item, index) => (
-                    <div key={index} className="p-3 sm:p-4 border rounded-lg space-y-2 sm:space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-medium">Item {index + 1}</span>
+                    <div key={index} className="p-2 md:p-3 lg:p-4 border rounded-lg space-y-2 bg-muted/30">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs md:text-sm font-medium">Item {index + 1}</span>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={() => removeItem(index)}
-                          className="h-8 w-8 p-0"
+                          className="h-7 w-7 md:h-8 md:w-8 p-0"
                         >
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
                         </Button>
                       </div>
 
-                      <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
-                        <div>
-                          <Label htmlFor={`codigo-${index}`} className="text-xs sm:text-sm">Código</Label>
+                      <div className="grid gap-2 md:gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="md:col-span-2 lg:col-span-1">
+                          <Label htmlFor={`codigo-${index}`} className="text-xs md:text-sm">Código</Label>
                           <Input
                             id={`codigo-${index}`}
                             value={item.codigo}
                             onChange={(e) => updateItem(index, 'codigo', e.target.value)}
                             placeholder="Código do produto"
+                            className="h-8 md:h-9 text-xs md:text-sm"
                           />
                         </div>
 
-                        <div>
-                          <Label htmlFor={`descricao-${index}`} className="text-xs sm:text-sm">Descrição</Label>
+                        <div className="md:col-span-2">
+                          <Label htmlFor={`descricao-${index}`} className="text-xs md:text-sm">Descrição</Label>
                           <Input
                             id={`descricao-${index}`}
                             value={item.descricao}
                             onChange={(e) => updateItem(index, 'descricao', e.target.value)}
                             placeholder="Descrição do produto"
+                            className="h-8 md:h-9 text-xs md:text-sm"
                           />
                         </div>
 
                         <div>
-                          <Label htmlFor={`quantidade-${index}`} className="text-xs sm:text-sm">Quantidade</Label>
+                          <Label htmlFor={`quantidade-${index}`} className="text-xs md:text-sm">Qtd.</Label>
                           <CurrencyInput
                             id={`quantidade-${index}`}
                             value={item.quantidade}
@@ -486,26 +496,29 @@ export function FreteDialog({
                             placeholder="1"
                             allowDecimal={true}
                             maxLength={10}
+                            className="h-8 md:h-9 text-xs md:text-sm"
                           />
                         </div>
 
                         <div>
-                          <Label htmlFor={`valor_unitario-${index}`} className="text-xs sm:text-sm">Valor Unitário</Label>
+                          <Label htmlFor={`valor_unitario-${index}`} className="text-xs md:text-sm">Valor Unit.</Label>
                           <CurrencyInput
                             id={`valor_unitario-${index}`}
                             value={item.valor_unitario}
                             onChange={(value) => updateItem(index, 'valor_unitario', value)}
                             placeholder="0,00"
+                            className="h-8 md:h-9 text-xs md:text-sm"
                           />
                         </div>
 
-                        <div className="sm:col-span-2">
-                          <Label htmlFor={`valor_total-${index}`} className="text-xs sm:text-sm">Valor Total</Label>
+                        <div>
+                          <Label htmlFor={`valor_total-${index}`} className="text-xs md:text-sm">Valor Total</Label>
                           <CurrencyInput
                             id={`valor_total-${index}`}
                             value={item.valor_total_item}
                             onChange={(value) => updateItem(index, 'valor_total_item', value)}
                             placeholder="0,00"
+                            className="h-8 md:h-9 text-xs md:text-sm font-medium"
                           />
                         </div>
                       </div>
@@ -517,39 +530,39 @@ export function FreteDialog({
           )}
 
           {formData.items.length === 0 && (
-            <div className="text-center py-4">
+            <div className="text-center py-3 md:py-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={addItem}
+                className="w-full md:w-auto h-9 text-xs md:text-sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-3 w-3 md:h-4 md:w-4 mr-2" />
                 Adicionar Item da Nota Fiscal
               </Button>
             </div>
           )}
+        </div>
+        </div>
 
-          {/* Botões de Ação */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t">
+        {/* Botões de Ação - Fixos no bottom */}
+        <div className="flex-shrink-0 border-t bg-background p-3 md:p-5 lg:p-6 pt-3">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 order-2 sm:order-1"
+              className="flex-1 order-2 md:order-1 h-10 text-sm md:text-base"
               disabled={loading}
-              size="sm"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={loading}
-              className="flex-1 order-1 sm:order-2"
-              size="sm"
+              className="flex-1 order-1 md:order-2 h-10 text-sm md:text-base font-medium"
             >
-              {loading && <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-spin" />}
-              <span className="text-sm sm:text-base">
-                {isEditing ? 'Atualizar Frete' : 'Criar Frete'}
-              </span>
+              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isEditing ? 'Atualizar Frete' : 'Criar Frete'}
             </Button>
           </div>
         </div>
