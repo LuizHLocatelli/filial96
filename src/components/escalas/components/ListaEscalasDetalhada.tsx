@@ -35,7 +35,8 @@ import {
   Search,
   Filter,
   ArrowUpDown,
-  FileText
+  FileText,
+  Moon
 } from 'lucide-react';
 import type { Escala } from '../types/escalasTypes';
 
@@ -120,6 +121,7 @@ export function ListaEscalasDetalhada({
       domingos: escalas.filter(e => e.tipo === 'domingo_trabalhado').length,
       feriados: escalas.filter(e => e.tipo === 'feriado_trabalhado').length,
       aberturas: escalas.filter(e => e.eh_abertura).length,
+      fechamentos: escalas.filter(e => e.eh_fechamento).length,
       funcionariosUnicos: new Set(escalas.map(e => e.funcionario_id)).size
     };
   }, [escalas]);
@@ -143,7 +145,7 @@ export function ListaEscalasDetalhada({
         </div>
 
         {/* Estatísticas Resumidas */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mt-4">
           <Card className="p-3">
             <div className="text-xs text-muted-foreground mb-1">Total</div>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -170,7 +172,11 @@ export function ListaEscalasDetalhada({
           </Card>
           <Card className="p-3">
             <div className="text-xs text-muted-foreground mb-1">Aberturas</div>
-            <div className="text-2xl font-bold text-purple-600">{stats.aberturas}</div>
+            <div className="text-2xl font-bold text-blue-600">{stats.aberturas}</div>
+          </Card>
+          <Card className="p-3">
+            <div className="text-xs text-muted-foreground mb-1">Fechamentos</div>
+            <div className="text-2xl font-bold text-purple-600">{stats.fechamentos}</div>
           </Card>
         </div>
       </CardHeader>
@@ -278,6 +284,12 @@ export function ListaEscalasDetalhada({
                             <Badge variant="outline" className="bg-blue-50 text-blue-700">
                               <Key className="h-3 w-3 mr-1" />
                               Abertura
+                            </Badge>
+                          )}
+                          {escala.eh_fechamento && (
+                            <Badge variant="outline" className="bg-purple-50 text-purple-700">
+                              <Moon className="h-3 w-3 mr-1" />
+                              Fechamento
                             </Badge>
                           )}
                           {escala.folga_compensatoria_id && (

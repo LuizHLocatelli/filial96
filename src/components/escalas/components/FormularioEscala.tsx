@@ -33,6 +33,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CalendarIcon, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EscalaFormData, TipoEscala, Funcionario, Escala } from '../types/escalasTypes';
@@ -53,6 +54,8 @@ interface FormData {
   funcionario_id: string;
   data: Date | undefined;
   tipo: TipoEscala;
+  eh_abertura?: boolean;
+  eh_fechamento?: boolean;
   folga_compensatoria_data?: Date | undefined;
   observacao?: string;
 }
@@ -80,6 +83,8 @@ export function FormularioEscala({
       data: escalaParaEditar?.data ? parse(escalaParaEditar.data, 'yyyy-MM-dd', new Date()) :
             dataInicial ? parse(dataInicial, 'yyyy-MM-dd', new Date()) : undefined,
       tipo: escalaParaEditar?.tipo || 'trabalho',
+      eh_abertura: escalaParaEditar?.eh_abertura || false,
+      eh_fechamento: escalaParaEditar?.eh_fechamento || false,
       folga_compensatoria_data: undefined,
       observacao: escalaParaEditar?.observacao || ''
     }
@@ -98,6 +103,8 @@ export function FormularioEscala({
         data: escalaParaEditar?.data ? parse(escalaParaEditar.data, 'yyyy-MM-dd', new Date()) :
               dataInicial ? parse(dataInicial, 'yyyy-MM-dd', new Date()) : undefined,
         tipo: escalaParaEditar?.tipo || 'trabalho',
+        eh_abertura: escalaParaEditar?.eh_abertura || false,
+        eh_fechamento: escalaParaEditar?.eh_fechamento || false,
         folga_compensatoria_data: undefined,
         observacao: escalaParaEditar?.observacao || ''
       });
@@ -216,19 +223,30 @@ export function FormularioEscala({
 
           console.log('✅ Folga compensatória criada:', folgaCriada, 'ID:', folgaCompensatoriaId);
         } catch (error: any) {
-          // Se o erro for de duplicata, buscar a escala existente no banco
+          // Se o erro for de duplicata, buscar a escala existente no banco de dados
           if (error?.code === '23505' || error?.message?.includes('escalas_funcionario_id_data_modo_teste_key')) {
-            console.log('ℹ️ Folga compensatória já existe, buscando do cache...');
-            const escalaExistente = escalasExistentes.find(
-              e => e.funcionario_id === data.funcionario_id &&
-                   e.data === folgaDataStr &&
-                   e.modo_teste === modoTeste
-            );
-            if (escalaExistente) {
+            console.log('ℹ️ Folga compensatória já existe, buscando no banco de dados...');
+
+            // Buscar diretamente no banco de dados em vez de depender do cache
+            const { data: escalaExistente, error: buscaError } = await supabase
+              .from('escalas')
+              .select('id')
+              .eq('funcionario_id', data.funcionario_id)
+              .eq('data', folgaDataStr)
+              .eq('modo_teste', modoTeste)
+              .single();
+
+            if (buscaError) {
+              console.error('❌ Erro ao buscar folga existente:', buscaError);
+              throw new Error(`Folga compensatória já existe mas não foi possível recuperar o ID: ${buscaError.message}`);
+            }
+
+            if (escalaExistente && escalaExistente.id) {
               folgaCompensatoriaId = escalaExistente.id;
-              console.log('✅ ID da folga existente recuperado:', folgaCompensatoriaId);
+              console.log('✅ ID da folga existente recuperado do banco:', folgaCompensatoriaId);
             } else {
-              console.warn('⚠️ Folga existe mas não está no cache. Continuando sem vincular...');
+              console.error('❌ Folga existe mas não foi possível recuperar o ID');
+              throw new Error('Folga compensatória já existe mas não foi possível recuperar o ID do banco de dados');
             }
           } else {
             // Se for outro tipo de erro, propagar
@@ -242,6 +260,8 @@ export function FormularioEscala({
         funcionario_id: data.funcionario_id,
         data: format(data.data, 'yyyy-MM-dd'),
         tipo: data.tipo,
+        eh_abertura: data.eh_abertura,
+        eh_fechamento: data.eh_fechamento,
         observacao: data.observacao || null,
         modo_teste: modoTeste,
         folga_compensatoria_id: folgaCompensatoriaId
@@ -443,6 +463,57 @@ export function FormularioEscala({
                 </FormItem>
               )}
             />
+
+              {/* Abertura e Fechamento - Mostrar apenas para tipo "trabalho" */}
+              {tipoAtual === 'trabalho' && (
+                <div className="space-y-3">
+                  <FormField
+                    control={form.control}
+                    name="eh_abertura"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm md:text-base">
+                            Abertura da loja
+                          </FormLabel>
+                          <FormDescription>
+                            Este funcionário fará a abertura da loja neste dia
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="eh_fechamento"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm md:text-base">
+                            Fechamento da loja
+                          </FormLabel>
+                          <FormDescription>
+                            Este funcionário fará o fechamento da loja neste dia
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               {/* Folga Compensatória */}
               {mostrarCampoFolgaCompensatoria && (

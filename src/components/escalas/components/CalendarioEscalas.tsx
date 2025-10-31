@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Escala, Feriado, DiaCalendario } from '../types/escalasTypes';
-import { CalendarDays, AlertTriangle, Key, User } from 'lucide-react';
+import { CalendarDays, AlertTriangle, Key, User, Moon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface CalendarioEscalasProps {
@@ -121,6 +121,10 @@ export function CalendarioEscalas({
             <Key className="h-4 w-4 text-blue-600" />
             <span>Abertura</span>
           </div>
+          <div className="flex items-center gap-2">
+            <Moon className="h-4 w-4 text-purple-600" />
+            <span>Fechamento</span>
+          </div>
         </div>
       </div>
     </div>
@@ -143,6 +147,7 @@ function CalendarioDia({ diaInfo, onClick, modoTeste }: CalendarioDiaProps) {
     e.tipo === 'feriado_trabalhado'
   );
   const temAbertura = escalas.some(e => e.eh_abertura);
+  const temFechamento = escalas.some(e => e.eh_fechamento);
   const temConflito = escalas.some(e =>
     (e.tipo === 'domingo_trabalhado' || e.tipo === 'feriado_trabalhado') &&
     !e.folga_compensatoria_id
@@ -193,6 +198,9 @@ function CalendarioDia({ diaInfo, onClick, modoTeste }: CalendarioDiaProps) {
                   {escala.eh_abertura && (
                     <Key className="h-3 w-3 text-blue-600 shrink-0" />
                   )}
+                  {escala.eh_fechamento && (
+                    <Moon className="h-3 w-3 text-purple-600 shrink-0" />
+                  )}
                 </div>
               ))}
 
@@ -233,6 +241,7 @@ function CalendarioDia({ diaInfo, onClick, modoTeste }: CalendarioDiaProps) {
                       'Trabalho'
                     }
                     {e.eh_abertura && ' (Abertura)'}
+                    {e.eh_fechamento && ' (Fechamento)'}
                   </div>
                 ))}
               </div>

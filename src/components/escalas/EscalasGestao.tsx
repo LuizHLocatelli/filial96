@@ -70,8 +70,22 @@ export function EscalasGestao() {
     }
   };
 
-  const handleNovaEscala = () => {
-    setDiaSelecionado(null);
+  const handleNovaEscala = (data?: string) => {
+    if (data) {
+      // Se uma data foi passada, criar um DiaCalendario temporário
+      const diaTemp: DiaCalendario = {
+        dia: parseInt(data.split('-')[2]),
+        data: data,
+        ehDomingo: false,
+        ehSabado: false,
+        ehFeriado: false,
+        escalas: [],
+        conflitos: []
+      };
+      setDiaSelecionado(diaTemp);
+    } else {
+      setDiaSelecionado(null);
+    }
     setDialogEscalaAberto(true);
   };
 
@@ -268,6 +282,7 @@ export function EscalasGestao() {
         onOpenChange={setDialogDiaAberto}
         diaInfo={diaSelecionado}
         onDeletarEscala={deletarEscala}
+        onNovaEscala={handleNovaEscala}
       />
 
       {/* Lista Detalhada de Escalas */}

@@ -8,6 +8,7 @@ export interface Escala {
   data: string;
   tipo: TipoEscala;
   eh_abertura: boolean;
+  eh_fechamento: boolean;
   folga_compensatoria_id?: string | null;
   observacao?: string | null;
   modo_teste: boolean;
@@ -58,6 +59,7 @@ export interface EscalaFormData {
   data: string;
   tipo: TipoEscala;
   eh_abertura?: boolean;
+  eh_fechamento?: boolean;
   folga_compensatoria_id?: string | null;
   observacao?: string;
   modo_teste: boolean;

@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Card } from '@/components/ui/card';
-import { User, Trash2, Key, Calendar, AlertTriangle } from 'lucide-react';
+import { User, Trash2, Key, Calendar, AlertTriangle, Moon, Plus } from 'lucide-react';
 import { useState } from 'react';
 import type { DiaCalendario, Escala } from '../types/escalasTypes';
 
@@ -31,13 +31,15 @@ interface DialogEscalasDiaProps {
   onOpenChange: (open: boolean) => void;
   diaInfo: DiaCalendario | null;
   onDeletarEscala: (id: string) => Promise<void>;
+  onNovaEscala?: (data: string) => void;
 }
 
 export function DialogEscalasDia({
   open,
   onOpenChange,
   diaInfo,
-  onDeletarEscala
+  onDeletarEscala,
+  onNovaEscala
 }: DialogEscalasDiaProps) {
   const [escalaParaDeletar, setEscalaParaDeletar] = useState<Escala | null>(null);
   const [isDeletando, setIsDeletando] = useState(false);
@@ -121,8 +123,9 @@ export function DialogEscalasDia({
                   <p className="text-xs md:text-sm">Nenhuma escala cadastrada para este dia</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {diaInfo.escalas.map((escala, index) => (
+                <>
+                  <div className="space-y-3">
+                    {diaInfo.escalas.map((escala, index) => (
                     <div key={escala.id}>
                       <Card className="p-3 md:p-4 hover:bg-accent/50 transition-colors">
                         <div className="flex items-start justify-between gap-3 md:gap-4">
@@ -142,6 +145,12 @@ export function DialogEscalasDia({
                                 <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
                                   <Key className="h-3 w-3 mr-1" />
                                   Abertura
+                                </Badge>
+                              )}
+                              {escala.eh_fechamento && (
+                                <Badge variant="outline" className="bg-purple-50 text-purple-700 text-xs">
+                                  <Moon className="h-3 w-3 mr-1" />
+                                  Fechamento
                                 </Badge>
                               )}
                             </div>
@@ -187,7 +196,25 @@ export function DialogEscalasDia({
                       )}
                     </div>
                   ))}
-                </div>
+                  </div>
+
+                  {/* Botão para Cadastrar Mais Funcionários */}
+                  {onNovaEscala && (
+                    <div className="pt-3 border-t">
+                      <Button
+                        onClick={() => {
+                          onNovaEscala(diaInfo.data);
+                          onOpenChange(false);
+                        }}
+                        className="w-full"
+                        variant="outline"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Cadastrar Mais Funcionários Neste Dia
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -208,6 +235,11 @@ export function DialogEscalasDia({
               {escalaParaDeletar?.eh_abertura && (
                 <p className="text-yellow-600 dark:text-yellow-500 font-medium">
                   ⚠️ Esta é uma escala de abertura.
+                </p>
+              )}
+              {escalaParaDeletar?.eh_fechamento && (
+                <p className="text-yellow-600 dark:text-yellow-500 font-medium">
+                  ⚠️ Esta é uma escala de fechamento.
                 </p>
               )}
               {escalaParaDeletar?.folga_compensatoria_id && (
