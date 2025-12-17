@@ -132,11 +132,11 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] p-4 sm:p-6">
+      <DialogContent className="sm:max-w-[425px] w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] p-4 sm:p-6 glass-card border-primary/10">
         <div className="w-full max-w-full overflow-hidden">
-          <DialogHeader className="w-full max-w-full">
-            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl break-words">
-              <Bot className="h-5 w-5 flex-shrink-0" />
+          <DialogHeader className="w-full max-w-full pb-4">
+            <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl font-bold break-words bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <Bot className="h-6 w-6 flex-shrink-0 text-primary" />
               Criar Novo Assistente
             </DialogTitle>
             <DialogDescription className="text-sm break-words">
@@ -145,20 +145,20 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full max-w-full">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full max-w-full">
               <div className="w-full max-w-full overflow-hidden">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem className="w-full max-w-full overflow-hidden">
-                      <FormLabel className="text-sm">Nome do Assistente</FormLabel>
+                      <FormLabel className="text-sm font-medium">Nome do Assistente</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Ex: Assistente de Vendas"
                           {...field}
                           disabled={loading}
-                          className="text-sm w-full max-w-full min-w-0 box-border"
+                          className="glass-input text-sm w-full max-w-full min-w-0 box-border"
                         />
                       </FormControl>
                       <FormDescription className="text-xs break-words">
@@ -176,13 +176,13 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                   name="webhookUrl"
                   render={({ field }) => (
                     <FormItem className="w-full max-w-full overflow-hidden">
-                      <FormLabel className="text-sm">URL do Webhook</FormLabel>
+                      <FormLabel className="text-sm font-medium">URL do Webhook</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="https://api.exemplo.com/webhook"
                           {...field}
                           disabled={loading}
-                          className="text-sm w-full max-w-full min-w-0 box-border"
+                          className="glass-input text-sm w-full max-w-full min-w-0 box-border"
                           style={{ wordBreak: 'break-all' }}
                         />
                       </FormControl>
@@ -200,10 +200,10 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                   control={form.control}
                   name="isActive"
                   render={({ field }) => (
-                    <FormItem className="rounded-lg border p-3 w-full max-w-full overflow-hidden">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="space-y-1 flex-1 min-w-0">
-                          <FormLabel className="text-sm">Assistente Ativo</FormLabel>
+                    <FormItem className="rounded-xl border border-primary/10 bg-primary/5 p-4 w-full max-w-full overflow-hidden">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <FormLabel className="text-sm font-medium">Assistente Ativo</FormLabel>
                           <FormDescription className="text-xs break-words">
                             O assistente estará disponível para interação
                           </FormDescription>
@@ -213,7 +213,6 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                             checked={field.value}
                             onCheckedChange={field.onChange}
                             disabled={loading}
-                            className="ml-0 sm:ml-auto"
                           />
                         </FormControl>
                       </div>
@@ -222,17 +221,21 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                 />
               </div>
 
-              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-end">
+              <DialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-end mt-6">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                   disabled={loading}
-                  className="w-full sm:w-auto text-sm"
+                  className="w-full sm:w-auto glass-button-outline"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={loading} className="w-full sm:w-auto text-sm">
+                <Button 
+                  type="submit" 
+                  disabled={loading} 
+                  className="w-full sm:w-auto glass-button-primary"
+                >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Criar Assistente
                 </Button>

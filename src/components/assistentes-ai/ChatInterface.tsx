@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Bot, User, Loader2, Download } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Loader2, Download, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useAurora } from "@/hooks/useAurora";
 import ReactMarkdown from "react-markdown";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Chatbot {
   id: string;
@@ -51,10 +53,13 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const inputRef = useAurora<HTMLDivElement>();
 
   // Scroll to bottom function
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, []);
 
   useEffect(() => {
@@ -70,32 +75,42 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     };
   }, []);
 
-  // Typing animation component
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, typingText, isTyping, scrollToBottom]);
+
+  // Typing indicator component
   const TypingIndicator = () => (
-    <div className="flex gap-3 justify-start">
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarFallback>
-          <Bot className="h-4 w-4" />
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      className="flex gap-3 justify-start"
+    >
+      <Avatar className="h-8 w-8 shrink-0 border border-primary/20">
+        <AvatarFallback className="bg-primary/10">
+          <Bot className="h-4 w-4 text-primary" />
         </AvatarFallback>
       </Avatar>
-      <div className="bg-muted rounded-lg px-3 py-2">
-        <div className="flex items-center gap-1">
-          <span className="text-sm text-muted-foreground">Assistente está digitando</span>
+      <div className="bg-muted/50 backdrop-blur-sm rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-primary/5">
+        <div className="flex items-center gap-2">
           <div className="flex gap-1">
             {[0, 1, 2].map((dot) => (
-              <div
+              <motion.div
                 key={dot}
-                className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce"
-                style={{
-                  animationDelay: `${dot * 0.1}s`,
-                  animationDuration: '0.6s'
+                className="w-1.5 h-1.5 bg-primary/40 rounded-full"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 0.8,
+                  delay: dot * 0.15
                 }}
               />
             ))}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 
   // Streaming text animation
@@ -108,51 +123,33 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
     const typeNextWord = () => {
       if (currentIndex < words.length) {
-        setTypingText(prev => {
-          const newText = prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex];
-          // Auto-scroll during typing every few words
-          if (currentIndex % 5 === 0) {
-            setTimeout(scrollToBottom, 50);
-          }
-          return newText;
-        });
+        setTypingText(prev => prev + (currentIndex > 0 ? ' ' : '') + words[currentIndex]);
         currentIndex++;
-
-        // Adjust typing speed based on text length
-        const delay = Math.min(Math.max(50, 100 - words.length / 10), 150);
+        
+        const delay = Math.min(Math.max(30, 80 - words.length / 15), 120);
         typingTimeoutRef.current = setTimeout(typeNextWord, delay);
       } else {
         setIsTyping(false);
         setTypingText("");
-        // Update the actual message
         setMessages(prev => prev.map(msg =>
           msg.id === messageId ? { ...msg, content: text, isStreaming: false } : msg
         ));
-        // Final scroll when done
-        setTimeout(scrollToBottom, 100);
       }
     };
 
     typeNextWord();
-  }, [scrollToBottom]);
+  }, []);
 
   // Cache key generator
   const getCacheKey = useCallback((message: string) => {
     return `${chatbot.id}_${message.toLowerCase().trim()}`;
   }, [chatbot.id]);
 
-  // Load conversations list (placeholder function)
-  const loadConversations = async () => {
-    // This function needs to be implemented based on your requirements
-    console.log("Loading conversations...");
-  };
-
   // Export conversation
   const clearConversation = async () => {
     if (!user || !conversationId) return;
 
     try {
-      // Create a new conversation in Supabase
       const { data: newConversation, error: createError } = await supabase
         .from('assistentes_conversas')
         .insert({
@@ -165,16 +162,12 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
       if (createError) throw createError;
 
-      // Update state with the new conversation
       setConversationId(newConversation.id);
       setMessages([]);
       
-      // Reload conversations list
-      loadConversations();
-
       toast({
-        title: "Sucesso",
-        description: "Nova conversa iniciada!",
+        title: "Nova conversa",
+        description: "Histórico limpo para esta sessão.",
       });
     } catch (error) {
       console.error('Error creating new conversation:', error);
@@ -208,7 +201,6 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
           timestamp: msg.timestamp
         })));
       } else {
-        // Create new conversation
         const { data: newConversation, error: createError } = await supabase
           .from('assistentes_conversas')
           .insert({
@@ -224,11 +216,6 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       }
     } catch (error) {
       console.error('Error loading conversation:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a conversa.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -251,21 +238,17 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const sendMessageToWebhook = async (message: string, attempt: number = 1): Promise<string> => {
     const cacheKey = getCacheKey(message);
 
-    // Check cache first
     if (responseCache.has(cacheKey)) {
-      console.log('Using cached response for:', message);
       return responseCache.get(cacheKey)!;
     }
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const response = await fetch(chatbot.webhook_url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message,
           chatbot_id: chatbot.id,
@@ -277,86 +260,34 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`Webhook responded with status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Status: ${response.status}`);
 
       const data = await response.json();
+      let botResponse = data.response || data.message || data.text || data.content || data.answer || (typeof data === 'string' ? data : JSON.stringify(data));
 
-      // Log the complete response for debugging
-      console.log('Webhook response:', data);
-
-      // Try multiple possible response formats
-      let botResponse = '';
-
-      if (data.response) {
-        botResponse = data.response;
-      } else if (data.message) {
-        botResponse = data.message;
-      } else if (data.text) {
-        botResponse = data.text;
-      } else if (data.content) {
-        botResponse = data.content;
-      } else if (data.answer) {
-        botResponse = data.answer;
-      } else if (typeof data === 'string') {
-        botResponse = data;
-      } else if (data.data && typeof data.data === 'string') {
-        botResponse = data.data;
-      } else if (data.result && typeof data.result === 'string') {
-        botResponse = data.result;
-      } else {
-        // If none of the expected fields exist, try to stringify the response
-        botResponse = JSON.stringify(data);
-      }
-
-      // If the response is a JSON string, try to parse it to get the actual content
       if (typeof botResponse === 'string' && botResponse.startsWith('{') && botResponse.endsWith('}')) {
         try {
-          const parsedResponse = JSON.parse(botResponse);
-          // Extract the actual message from the parsed JSON
-          if (parsedResponse.output) {
-            botResponse = parsedResponse.output;
-          } else if (parsedResponse.response) {
-            botResponse = parsedResponse.response;
-          } else if (parsedResponse.message) {
-            botResponse = parsedResponse.message;
-          } else if (parsedResponse.text) {
-            botResponse = parsedResponse.text;
-          } else if (parsedResponse.content) {
-            botResponse = parsedResponse.content;
-          }
-        } catch (parseError) {
-          console.log('Could not parse JSON response, using as is:', parseError);
-        }
+          const parsed = JSON.parse(botResponse);
+          botResponse = parsed.output || parsed.response || parsed.message || parsed.text || botResponse;
+        } catch {}
       }
 
       const finalResponse = botResponse || "Desculpe, não consegui processar sua mensagem.";
 
-      // Cache the response
       setResponseCache(prev => {
         const newCache = new Map(prev);
         newCache.set(cacheKey, finalResponse);
-        // Keep only last 50 responses to prevent memory issues
-        if (newCache.size > 50) {
-          const firstKey = newCache.keys().next().value;
-          newCache.delete(firstKey);
-        }
+        if (newCache.size > 50) newCache.delete(newCache.keys().next().value);
         return newCache;
       });
 
       return finalResponse;
     } catch (error) {
-      console.error(`Webhook error (attempt ${attempt}):`, error);
-
-      // Retry logic - up to 3 attempts
       if (attempt < 3) {
-        console.log(`Retrying webhook call, attempt ${attempt + 1}`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+        await new Promise(r => setTimeout(r, 1000 * attempt));
         return sendMessageToWebhook(message, attempt + 1);
       }
-
-      throw new Error("Não foi possível conectar com o assistente. Tente novamente em alguns instantes.");
+      throw new Error("Conexão falhou. Verifique sua internet ou tente mais tarde.");
     }
   };
 
@@ -390,10 +321,8 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       setMessages(messagesWithBot);
       setLoading(false);
 
-      // Start streaming the response
       streamText(botResponse, botMessage.id);
 
-      // Save conversation after streaming is complete
       setTimeout(async () => {
         const finalMessages = messagesWithBot.map(msg =>
           msg.id === botMessage.id ? { ...msg, content: botResponse, isStreaming: false } : msg
@@ -424,162 +353,171 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   };
 
   return (
-    <div className="h-[calc(100vh-100px)] flex flex-col overflow-hidden">
-      <div className="flex-1 flex flex-col h-full">
-        <Card className="flex-1 flex flex-col h-full overflow-hidden rounded-none md:rounded-lg">
-          <CardHeader className="border-b p-3 md:p-6">
-            <div className="flex items-center gap-2 md:gap-3">
+    <div className="h-[calc(100vh-80px)] md:h-[calc(100vh-100px)] flex flex-col overflow-hidden bg-animated-gradient">
+      <div className="flex-1 flex flex-col h-full max-w-5xl mx-auto w-full md:px-4 md:py-2">
+        <Card className="flex-1 flex flex-col h-full overflow-hidden border-none md:border md:glass-card shadow-2xl rounded-none md:rounded-2xl">
+          <CardHeader className="border-b bg-background/50 backdrop-blur-md p-3 md:p-4 z-10">
+            <div className="flex items-center gap-2 md:gap-4">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onBack}
-                className="shrink-0 h-8 w-8 md:h-10 md:w-10"
+                className="shrink-0 h-9 w-9 glass-button-ghost hover:bg-primary/10"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Avatar className="h-8 w-8 md:h-10 md:w-10">
-                <AvatarFallback>
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-inner">
+                  <AvatarFallback className="bg-primary/5">
+                    <Bot className="h-5 w-5 text-primary" />
+                  </AvatarFallback>
+                </Avatar>
+                {chatbot.is_active && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
+                )}
+              </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-base md:text-lg truncate">{chatbot.name}</CardTitle>
-                <p className="text-xs md:text-sm text-muted-foreground truncate">
-                  {chatbot.is_active ? "Online" : "Offline"}
-                </p>
+                <CardTitle className="text-base md:text-xl font-bold truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  {chatbot.name}
+                </CardTitle>
+                <div className="flex items-center gap-1.5">
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {chatbot.is_active ? "Online e Pronto" : "Offline"}
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-1 md:gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={clearConversation}
-                  title="Nova conversa"
-                  className="h-8 w-8 md:h-10 md:w-10"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                    <path d="M3 3v5h5"/>
-                  </svg>
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={clearConversation}
+                title="Nova conversa"
+                className="h-9 w-9 glass-button-ghost"
+              >
+                <RefreshCcw className="h-4 w-4" />
+              </Button>
             </div>
           </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0 relative overflow-hidden">
-          <div
-            className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-4 scroll-smooth"
-            ref={scrollAreaRef}
-            style={{
-              height: 'calc(100vh - 180px)',
-              maxHeight: 'calc(100vh - 180px)',
-              minHeight: '300px',
-              overflowY: 'auto',
-              WebkitOverflowScrolling: 'touch',
-            }}
-          >
-            <div className="space-y-3 md:space-y-4">
-              {messages.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">
-                  <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="px-4">Inicie uma conversa com {chatbot.name}</p>
-                </div>
-              )}
-
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-2 md:gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {message.type === 'bot' && (
-                    <Avatar className="h-7 w-7 md:h-8 md:w-8 shrink-0 mt-1">
-                      <AvatarFallback>
-                        <Bot className="h-3 w-3 md:h-4 md:w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-
-                  <div
-                    className={`max-w-[85%] md:max-w-[70%] rounded-lg px-3 py-2 ${
-                      message.type === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
-                        : 'bg-muted'
-                    }`}
+          <CardContent className="flex-1 flex flex-col p-0 relative bg-muted/5">
+            <div
+              className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth"
+              ref={scrollAreaRef}
+            >
+              <AnimatePresence initial={false}>
+                {messages.length === 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center justify-center py-20 text-center"
                   >
-                    {message.type === 'bot' ? (
-                      <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown
-                          components={{
-                            p: ({ children }) => <p className="mb-1 md:mb-2 last:mb-0">{children}</p>,
-                            h1: ({ children }) => <h1 className="text-base md:text-lg font-bold mb-2">{children}</h1>,
-                            h2: ({ children }) => <h2 className="text-sm md:text-base font-bold mb-2">{children}</h2>,
-                            h3: ({ children }) => <h3 className="text-xs md:text-sm font-bold mb-1">{children}</h3>,
-                            ul: ({ children }) => <ul className="list-disc pl-4 mb-1 md:mb-2">{children}</ul>,
-                            ol: ({ children }) => <ol className="list-decimal pl-4 mb-1 md:mb-2">{children}</ol>,
-                            li: ({ children }) => <li className="mb-0.5 md:mb-1">{children}</li>,
-                            strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-                            em: ({ children }) => <em className="italic">{children}</em>,
-                            code: ({ children }) => <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{children}</code>,
-                            blockquote: ({ children }) => <blockquote className="border-l-2 border-gray-300 pl-2 italic text-sm">{children}</blockquote>,
-                          }}
-                        >
-                          {message.isStreaming ? typingText : message.content}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <p className="text-sm">{message.content}</p>
-                    )}
-                    <p className="text-xs opacity-70 mt-1">
-                      {new Date(message.timestamp).toLocaleTimeString('pt-BR', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                    <div className="bg-primary/5 p-6 rounded-full mb-4 glass-pulse">
+                      <Bot className="h-12 w-12 text-primary/40" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground/80">Olá! Eu sou o {chatbot.name}</h3>
+                    <p className="text-muted-foreground text-sm max-w-xs mt-2">
+                      Como posso ajudar você hoje? Sinta-se à vontade para perguntar qualquer coisa.
                     </p>
-                  </div>
-
-                  {message.type === 'user' && (
-                    <Avatar className="h-7 w-7 md:h-8 md:w-8 shrink-0 mt-1">
-                      <AvatarFallback>
-                        <User className="h-3 w-3 md:h-4 md:w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
-
-              {loading && <TypingIndicator />}
-              {isTyping && !loading && <TypingIndicator />}
-
-              <div ref={messagesEndRef} />
-            </div>
-          </div>
-
-
-          <div className="border-t p-2 md:p-4">
-            <div className="flex gap-2">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Digite sua mensagem..."
-                disabled={loading || !chatbot.is_active}
-                className="flex-1 text-sm md:text-base"
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={!inputMessage.trim() || loading || !chatbot.is_active}
-                size="icon"
-                className="h-9 w-9 md:h-10 md:w-10"
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
+                  </motion.div>
                 )}
-              </Button>
+
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {message.type === 'bot' && (
+                      <Avatar className="h-8 w-8 shrink-0 mt-1 border border-primary/10">
+                        <AvatarFallback className="bg-primary/5 text-[10px]">
+                          <Bot className="h-4 w-4 text-primary" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+
+                    <div
+                      className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
+                        message.type === 'user'
+                          ? 'bg-primary text-primary-foreground rounded-tr-none'
+                          : 'bg-background border border-primary/5 rounded-tl-none'
+                      }`}
+                    >
+                      {message.type === 'bot' ? (
+                        <div className="text-sm md:text-base prose prose-sm dark:prose-invert max-w-none">
+                          <ReactMarkdown
+                            components={{
+                              p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                              ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+                              ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+                              code: ({ children }) => <code className="bg-primary/10 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>,
+                              blockquote: ({ children }) => <blockquote className="border-l-4 border-primary/20 pl-3 italic my-2">{children}</blockquote>,
+                            }}
+                          >
+                            {message.isStreaming ? typingText : message.content}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="text-sm md:text-base leading-relaxed">{message.content}</p>
+                      )}
+                      <div className={`text-[10px] mt-1.5 flex items-center gap-1 ${message.type === 'user' ? 'text-primary-foreground/70 justify-end' : 'text-muted-foreground'}`}>
+                        {new Date(message.timestamp).toLocaleTimeString('pt-BR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+
+                    {message.type === 'user' && (
+                      <Avatar className="h-8 w-8 shrink-0 mt-1 border border-primary/20">
+                        <AvatarFallback className="bg-primary/10">
+                          <User className="h-4 w-4 text-primary" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                  </motion.div>
+                ))}
+                
+                {(loading || isTyping) && <TypingIndicator />}
+              </AnimatePresence>
+              <div ref={messagesEndRef} className="h-2" />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+            <div className="p-4 md:p-6 bg-background/50 backdrop-blur-md border-t">
+              <div 
+                ref={inputRef}
+                className="aurora-effect relative flex gap-2 max-w-4xl mx-auto items-center glass-input p-1.5 rounded-2xl shadow-lg border-primary/10"
+              >
+                <Input
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Escreva uma mensagem..."
+                  disabled={loading || !chatbot.is_active}
+                  className="flex-1 border-none bg-transparent focus-visible:ring-0 text-sm md:text-base h-10 md:h-12"
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={!inputMessage.trim() || loading || !chatbot.is_active}
+                  size="icon"
+                  className={`h-10 w-10 md:h-12 md:w-12 rounded-xl transition-all duration-300 ${
+                    inputMessage.trim() ? 'glass-button-primary scale-100 shadow-lg' : 'opacity-50 scale-95'
+                  }`}
+                >
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-[10px] text-center text-muted-foreground mt-3">
+                Respostas geradas por IA podem conter erros. Verifique informações importantes.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
