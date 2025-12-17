@@ -7,7 +7,6 @@ import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
 import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
-import { Fretes } from "@/components/moveis/fretes/Fretes";
 import { 
   FileText, 
   FolderArchive, 
@@ -16,8 +15,7 @@ import {
   TrendingUp,
   Calendar,
   Star,
-  Package,
-  Truck
+  Package
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
@@ -51,13 +49,6 @@ export default function Moveis() {
       icon: ShoppingCart,
       description: "Vendas de outras filiais",
       component: <VendaO />
-    },
-    {
-      value: "fretes",
-      label: "Fretes",
-      icon: Truck,
-      description: "Gestão de fretes e entregas",
-      component: <Fretes />
     },
     {
       value: "produto-foco",
