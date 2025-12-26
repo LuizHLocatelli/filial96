@@ -1,26 +1,39 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(git restore:*)",
-      "mcp__supabase__get_logs",
-      "mcp__supabase__list_edge_functions",
-      "mcp__supabase__get_edge_function",
-      "Bash(npm run dev:*)",
-      "mcp__supabase__deploy_edge_function",
-      "mcp__supabase__list_tables",
-      "mcp__supabase__apply_migration",
-      "mcp__supabase__execute_sql",
-      "mcp__supabase__get_advisors",
-      "Bash(npx ts-node:*)",
-      "Bash(npx:*)",
-      "Bash(SUPABASE_ACCESS_TOKEN=sbp_be57bbd224b29085f724c47b145f353f20ca2737 npx -y @supabase/mcp-server-supabase --project-ref=abpsafkioslfjqtgtvbi)",
-      "mcp__chrome-devtools__list_pages",
-      "mcp__chrome-devtools__navigate_page",
-      "Bash(find:*)"
-    ]
-  },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "supabase"
-  ]
+    "env": {
+        "ANTHROPIC_BASE_URL": "https://api.minimax.io/anthropic",
+            "ANTHROPIC_AUTH_TOKEN": "SEU_TOKEN_AQUI",
+                "API_TIMEOUT_MS": "3000000",
+                    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
+                        "ANTHROPIC_MODEL": "MiniMax-M2.1",
+                            "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M2.1",
+                                "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M2.1",
+                                    "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M2.1",
+                                        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M2.1"
+                                          },
+                                            "permissions": {
+                                                "allow": [
+                                                      "Bash(find:*)",
+                                                            "Bash(git restore:*)",
+                                                                  "Bash(npm run dev:*)",
+                                                                        "Bash(npx ts-node:*)",
+                                                                              "Bash(npx:*)",
+                                                                                    "Bash(npx -y @supabase/mcp-server-supabase --project-ref=*)",
+                                                                                          "mcp__chrome-devtools__list_pages",
+                                                                                                "mcp__chrome-devtools__navigate_page",
+                                                                                                      "mcp__supabase__apply_migration",
+                                                                                                            "mcp__supabase__deploy_edge_function",
+                                                                                                                  "mcp__supabase__execute_sql",
+                                                                                                                        "mcp__supabase__get_advisors",
+                                                                                                                              "mcp__supabase__get_edge_function",
+                                                                                                                                    "mcp__supabase__get_logs",
+                                                                                                                                          "mcp__supabase__list_edge_functions",
+                                                                                                                                                "mcp__supabase__list_tables"
+                                                                                                                                                    ]
+                                                                                                                                                      },
+                                                                                                                                                        "enableAllProjectMcpServers": true,
+                                                                                                                                                          "enabledMcpjsonServers": [
+                                                                                                                                                              "supabase"
+                                                                                                                                                                ]
+                                                                                                                                                                }
+                                                                                                                                                                
 }
