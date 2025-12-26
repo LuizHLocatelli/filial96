@@ -26,8 +26,7 @@ export function useHubData() {
       recentes: 0
     },
     produtividade: {
-      score: 0,
-      meta: 85
+      score: 0
     }
   });
   
@@ -138,8 +137,7 @@ export function useHubData() {
           recentes: 0 // Não temos esse dado ainda
         },
         produtividade: {
-          score: 0,
-          meta: 85
+          score: 0
         }
       };
       setStats(newStats);

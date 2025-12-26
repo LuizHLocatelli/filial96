@@ -30,8 +30,8 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { hideCloseButton?: boolean }
+>(({ className, children, hideCloseButton, ...props }, ref) => {
   const isMobile = useIsMobile();
   
   return (
@@ -57,15 +57,17 @@ const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className={cn(
-          "absolute z-50 ring-offset-background transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
-          isMobile 
-            ? "right-2 top-2 h-9 w-9 rounded-full bg-background/95 backdrop-blur-md border border-border/40 shadow-lg flex items-center justify-center hover:bg-background hover:shadow-xl hover:scale-105 active:scale-95" 
-            : "right-3 top-3 h-8 w-8 rounded-full bg-background/90 backdrop-blur-sm border border-border/30 shadow-md flex items-center justify-center hover:bg-background hover:shadow-lg hover:scale-105"
-        )}>
-          <X className={cn("text-foreground/80 hover:text-foreground transition-colors", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
+        {!hideCloseButton && (
+          <DialogPrimitive.Close className={cn(
+            "absolute z-50 ring-offset-background transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
+            isMobile 
+              ? "right-2 top-2 h-9 w-9 rounded-full bg-background/95 backdrop-blur-md border border-border/40 shadow-lg flex items-center justify-center hover:bg-background hover:shadow-xl hover:scale-105 active:scale-95" 
+              : "right-3 top-3 h-8 w-8 rounded-full bg-background/90 backdrop-blur-sm border border-border/30 shadow-md flex items-center justify-center hover:bg-background hover:shadow-lg hover:scale-105"
+          )}>
+            <X className={cn("text-foreground/80 hover:text-foreground transition-colors", isMobile ? "h-4 w-4" : "h-4 w-4")} />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
       </DialogPrimitive.Content>
     </DialogPortal>
   );

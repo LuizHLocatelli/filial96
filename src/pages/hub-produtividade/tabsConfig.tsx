@@ -1,11 +1,9 @@
 
 import {
-  Target,
   FileImage,
   Bot,
   CalendarClock
 } from "lucide-react";
-import { MetasDashboard } from "@/components/moveis/hub-produtividade/components/metas/MetasDashboard";
 import { lazy } from "react";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
@@ -30,17 +28,6 @@ export function createTabsConfig({
   onViewTarefa
 }: TabsConfigProps) {
   return [
-    {
-      value: "metas",
-      label: "Metas",
-      icon: Target,
-      description: "Gestão de metas mensais",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden p-6">
-          <MetasDashboard />
-        </div>
-      )
-    },
     {
       value: "escalas",
       label: "Escalas",

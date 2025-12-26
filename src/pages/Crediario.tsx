@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Listagens } from "@/components/crediario/Listagens";
-import { ClientesAgendados } from "@/components/crediario/ClientesAgendados";
 import { Depositos } from "@/components/crediario/Depositos";
 import { Folgas } from "@/components/crediario/Folgas";
 import { Diretorio } from "@/components/crediario/diretorio/Diretorio";
@@ -37,13 +36,6 @@ export default function Crediario() {
       icon: FileText,
       description: "Relatórios e listagens",
       component: <Listagens />
-    },
-    {
-      value: "clientes",
-      label: "Clientes",
-      icon: Users,
-      description: "Gestão de clientes",
-      component: <ClientesAgendados />
     },
     {
       value: "depositos",

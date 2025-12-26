@@ -25,8 +25,8 @@ export function EnhancedTopBar() {
       )}
     >
       <div className={cn(
-        "container flex items-center h-16 justify-between",
-        isMobile ? "px-3" : "px-6"
+        "w-full flex items-center h-16 justify-between",
+        isMobile ? "px-4" : "px-6 lg:px-8"
       )}>
         {/* Left Section - Logo and Navigation */}
         <div className={cn(

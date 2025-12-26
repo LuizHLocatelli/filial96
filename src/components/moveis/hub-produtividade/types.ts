@@ -91,7 +91,6 @@ export interface ProductivityStats {
   };
   produtividade: {
     score: number;
-    meta: number;
   };
 }
 

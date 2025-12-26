@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Bot, Loader2 } from "lucide-react";
+import { Bot, Loader2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -24,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface CreateChatbotDialogProps {
   open: boolean;
@@ -50,60 +49,12 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
     },
   });
 
-  const validateWebhookUrl = (url: string): boolean => {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  };
-
-  const testWebhookConnection = async (url: string): Promise<boolean> => {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: "Test connection",
-          test: true,
-        }),
-      });
-      return response.ok;
-    } catch {
-      return false;
-    }
-  };
-
   const onSubmit = async (data: FormData) => {
     if (!user) return;
     
     setLoading(true);
 
     try {
-      // Validate webhook URL
-      if (!validateWebhookUrl(data.webhookUrl)) {
-        toast({
-          title: "URL inválida",
-          description: "Por favor, insira uma URL válida (http:// ou https://)",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Test webhook connection (optional)
-      const isConnectable = await testWebhookConnection(data.webhookUrl);
-      if (!isConnectable) {
-        toast({
-          title: "Aviso",
-          description: "Não foi possível conectar ao webhook. Verifique se a URL está correta.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       // Create chatbot in database
       const { error } = await supabase
         .from('assistentes_chatbots')
@@ -115,6 +66,12 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
         });
 
       if (error) throw error;
+
+      toast({
+        title: "Sucesso!",
+        description: "Assistente criado com sucesso.",
+        className: "bg-green-500/10 border-green-500/20 text-green-500",
+      });
 
       form.reset();
       onSuccess();
@@ -132,114 +89,139 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] p-4 sm:p-6 glass-card border-primary/10">
-        <div className="w-full max-w-full overflow-hidden">
-          <DialogHeader className="w-full max-w-full pb-4">
-            <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl font-bold break-words bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              <Bot className="h-6 w-6 flex-shrink-0 text-primary" />
-              Criar Novo Assistente
+      <DialogContent 
+        className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl bg-black/40 backdrop-blur-xl ring-1 ring-white/10"
+        hideCloseButton
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+        
+        <DialogHeader className="p-6 pb-2 relative z-10">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2 text-2xl font-light text-white">
+              <span className="p-2 rounded-xl bg-white/5 ring-1 ring-white/10">
+                <Bot className="w-5 h-5 text-primary" />
+              </span>
+              Novo Assistente
             </DialogTitle>
-            <DialogDescription className="text-sm break-words">
-              Configure um novo chatbot assistente de IA com webhook personalizado.
-            </DialogDescription>
-          </DialogHeader>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white/50 hover:text-white hover:bg-white/10 rounded-full"
+              onClick={() => onOpenChange(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <p className="text-white/50 text-sm font-light mt-2">
+            Configure seu novo assistente de IA. Ele estará pronto para interagir assim que criado.
+          </p>
+        </DialogHeader>
 
+        <div className="p-6 pt-2 relative z-10">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full max-w-full">
-              <div className="w-full max-w-full overflow-hidden">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
-                    <FormItem className="w-full max-w-full overflow-hidden">
-                      <FormLabel className="text-sm font-medium">Nome do Assistente</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium text-white/80">Nome do Assistente</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Ex: Assistente de Vendas"
-                          {...field}
-                          disabled={loading}
-                          className="glass-input text-sm w-full max-w-full min-w-0 box-border"
-                        />
+                        <div className="relative group">
+                          <Input
+                            placeholder="Ex: Consultor de Vendas"
+                            {...field}
+                            disabled={loading}
+                            className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-green-500/50 focus:ring-green-500/20 transition-all pl-10 h-12"
+                          />
+                          <Bot className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/30 group-hover:text-green-400 transition-colors" />
+                        </div>
                       </FormControl>
-                      <FormDescription className="text-xs break-words">
-                        Nome que aparecerá para os usuários
-                      </FormDescription>
-                      <FormMessage className="text-xs break-words" />
+                      <FormMessage className="text-red-400 font-light" />
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="w-full max-w-full overflow-hidden">
                 <FormField
                   control={form.control}
                   name="webhookUrl"
                   render={({ field }) => (
-                    <FormItem className="w-full max-w-full overflow-hidden">
-                      <FormLabel className="text-sm font-medium">URL do Webhook</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium text-white/80">Webhook URL</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="https://api.exemplo.com/webhook"
-                          {...field}
-                          disabled={loading}
-                          className="glass-input text-sm w-full max-w-full min-w-0 box-border"
-                          style={{ wordBreak: 'break-all' }}
-                        />
+                        <div className="relative group">
+                          <Input
+                            placeholder="https://seu-endpoint.com/webhook"
+                            {...field}
+                            disabled={loading}
+                            className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-green-500/50 focus:ring-green-500/20 transition-all pl-10 h-12"
+                          />
+                          <Sparkles className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/30 group-hover:text-green-400 transition-colors" />
+                        </div>
                       </FormControl>
-                      <FormDescription className="text-xs break-words">
-                        URL que receberá as mensagens dos usuários
+                      <FormDescription className="text-white/30 text-xs">
+                        Endpoint para processamento das mensagens
                       </FormDescription>
-                      <FormMessage className="text-xs break-words" />
+                      <FormMessage className="text-red-400 font-light" />
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <div className="w-full max-w-full overflow-hidden">
                 <FormField
                   control={form.control}
                   name="isActive"
                   render={({ field }) => (
-                    <FormItem className="rounded-xl border border-primary/10 bg-primary/5 p-4 w-full max-w-full overflow-hidden">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="space-y-0.5 flex-1 min-w-0">
-                          <FormLabel className="text-sm font-medium">Assistente Ativo</FormLabel>
-                          <FormDescription className="text-xs break-words">
-                            O assistente estará disponível para interação
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            disabled={loading}
-                          />
-                        </FormControl>
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition-colors cursor-pointer">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base font-medium text-white cursor-pointer">
+                          Status Ativo
+                        </FormLabel>
+                        <FormDescription className="text-white/40 text-xs">
+                          Disponível para uso imediato
+                        </FormDescription>
                       </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={loading}
+                          className="data-[state=checked]:bg-green-500"
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
               </div>
 
-              <DialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-end mt-6">
+              <div className="flex gap-3 pt-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                   disabled={loading}
-                  className="w-full sm:w-auto glass-button-outline"
+                  className="flex-1 bg-transparent border-white/10 text-white hover:bg-white/5 hover:text-white"
                 >
                   Cancelar
                 </Button>
                 <Button 
                   type="submit" 
-                  disabled={loading} 
-                  className="w-full sm:w-auto glass-button-primary"
+                  disabled={loading || !form.formState.dirtyFields.name} 
+                  className={cn(
+                    "flex-1 bg-green-500 hover:bg-green-600 text-white border-0 transition-all duration-300",
+                    loading && "opacity-80 cursor-not-allowed"
+                  )}
                 >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Criar Assistente
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Criando...
+                    </>
+                  ) : (
+                    "Criar Assistente"
+                  )}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
           </Form>
         </div>

@@ -126,15 +126,6 @@ const searchableItems: SearchResult[] = [
     icon: 'FileText'
   },
   {
-    id: 'crediario-clientes',
-    title: 'Clientes - Crediário',
-    description: 'Gestão de clientes do crediário',
-    type: 'section',
-    path: '/crediario?tab=clientes',
-    section: 'Crediário',
-    icon: 'Users'
-  },
-  {
     id: 'crediario-depositos',
     title: 'Depósitos - Crediário',
     description: 'Controle de depósitos do crediário',

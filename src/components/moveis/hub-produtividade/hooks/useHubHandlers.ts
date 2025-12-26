@@ -148,7 +148,7 @@ export function useHubHandlers({
     setShowFilters(true);
   };
 
-  const handleNavigateToSection = (section: 'metas' | 'cartazes' | 'orientacoes' | 'monitoramento' | 'assistentes') => {
+  const handleNavigateToSection = (section: 'cartazes' | 'orientacoes' | 'monitoramento' | 'assistentes') => {
     console.log("🧭 Handler Navigate to Section executado:", section);
     try {
       const currentUrl = new URL(window.location.href);
