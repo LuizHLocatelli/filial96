@@ -21,18 +21,15 @@ port = 54324
 
 [storage]
 enabled = true
-port = 54325
 
 [auth]
 enabled = true
-port = 54326
 
 [realtime]
 enabled = true
-port = 54327
 
 # Edge Functions Configuration
-[functions.delete-user-fixed]
+[functions.delete-user]
 verify_jwt = false
 
 [functions.delete-account-no-jwt]

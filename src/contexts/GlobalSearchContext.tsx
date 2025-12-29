@@ -71,15 +71,6 @@ const searchableItems: SearchResult[] = [
     icon: 'Sofa'
   },
   {
-    id: 'moveis-diretorio',
-    title: 'Diretório - Móveis',
-    description: 'Arquivos organizados do setor de móveis',
-    type: 'section',
-    path: '/moveis?tab=diretorio',
-    section: 'Móveis',
-    icon: 'FolderArchive'
-  },
-  {
     id: 'moveis-vendao',
     title: 'Venda O - Móveis',
     description: 'Vendas de outras filiais para móveis',

@@ -1327,7 +1327,6 @@ export type Database = {
         Relationships: []
       }
       moveis_folgas: {
-        Row: {
           consultor_id: string
           created_at: string | null
           created_by: string | null

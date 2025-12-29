@@ -42,8 +42,9 @@ export function useMoveiFolgas() {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, name, avatar_url")
-          .eq('role', 'consultor_moveis');
-          
+          .eq('role', 'consultor_moveis')
+          .order('name', { ascending: true });
+
         if (error) {
           console.error("Erro ao buscar consultores:", error);
           toast({
@@ -51,16 +52,17 @@ export function useMoveiFolgas() {
             description: error.message,
             variant: "destructive",
           });
+          setConsultores([]);
           return;
         }
-        
+
         // Transform the data to match the Consultor interface
-        const formattedConsultores: Consultor[] = data.map((profile) => ({
+        const formattedConsultores: Consultor[] = (data || []).map((profile) => ({
           id: profile.id,
-          nome: profile.name,
+          nome: profile.name || "Sem nome",
           avatar: profile.avatar_url || undefined,
         }));
-        
+
         setConsultores(formattedConsultores);
       } catch (error) {
         console.error("Erro ao buscar consultores:", error);
@@ -69,11 +71,12 @@ export function useMoveiFolgas() {
           description: "Não foi possível carregar a lista de consultores.",
           variant: "destructive",
         });
+        setConsultores([]);
       } finally {
         setIsLoadingConsultores(false);
       }
     }
-    
+
     fetchConsultores();
   }, [toast]);
   
@@ -155,7 +158,7 @@ export function useMoveiFolgas() {
           createdAt: folga.created_at,
           createdBy: folga.created_by || undefined,
         }));
-        
+
         setFolgas(formattedFolgas);
       } catch (error) {
         console.error("Erro ao buscar folgas:", error);
@@ -164,14 +167,15 @@ export function useMoveiFolgas() {
           description: "Não foi possível carregar a lista de folgas.",
           variant: "destructive",
         });
+        setFolgas([]);
       } finally {
         setIsLoadingFolgas(false);
       }
     }
-    
+
     fetchFolgas();
   }, [toast]);
-  
+
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
       const newDate = new Date(prev);

@@ -18,3 +18,22 @@ export const clienteFormSchema = z.object({
 
 export type ClienteFormValues = z.infer<typeof clienteFormSchema>;
 
+export const indicatorOptions = [
+  { value: "nao-compareceu", label: "Não Compareceu" },
+  { value: "pagamento", label: "Pagamento" },
+  { value: "negociacao", label: "Negociação" },
+  { value: "relamado", label: "Relamado" },
+  { value: "sem-contato", label: "Sem Contato" },
+];
+
+export const getIndicatorColor = (indicator: string): string => {
+  const colors: Record<string, string> = {
+    "nao-compareceu": "bg-red-500",
+    "pagamento": "bg-green-500",
+    "negociacao": "bg-blue-500",
+    "relamado": "bg-yellow-500",
+    "sem-contato": "bg-gray-500",
+  };
+  return colors[indicator] || "bg-gray-400";
+};
+

@@ -81,14 +81,6 @@ export default function Auth() {
                   </CardDescription>
                 </CardHeader>
                 
-                <div className="px-6 pb-4">
-                  <Alert variant="destructive" className="bg-red-50 dark:bg-red-950/80 border-red-200 dark:border-red-800">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Atenção:</strong> Para criar uma nova conta, entre em contato com o <strong>Gerente Luiz</strong> para autorização prévia.
-                    </AlertDescription>
-                  </Alert>
-                </div>
                 
                 <EnhancedSignupForm />
               </Card>

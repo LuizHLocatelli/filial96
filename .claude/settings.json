@@ -1,7 +1,7 @@
 {
       "env": {
           "ANTHROPIC_BASE_URL": "https://api.minimax.io/anthropic",
-              "ANTHROPIC_AUTH_TOKEN": "sk-api-hQJwZcw5Rohxg3eKP1dBPtxin3kMBLGSXWcL6jar4miROsmRwmi04KvaZMAbdDXOJb0oZw_gsaGoGPYO0XIXURT4cFwgU_1ZRMnly8ue5dZ7rnWRugMSbQo",
+              "ANTHROPIC_AUTH_TOKEN": "sk-cp-SJDTc6_y3MWnWx4pQFtIViLfjiaNarnI-RW7yY_wceE3Djc0mZxnfvnJeg4n0X75BgHZP4JrKlfzgqUUUE7JKre63SxmoWO0sLJT3RNa5nrmqtDUU6_1qMk",
                   "API_TIMEOUT_MS": "3000000",
                       "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
                           "ANTHROPIC_MODEL": "MiniMax-M2.1",
@@ -18,9 +18,7 @@
                                                                           "Bash(npx ts-node:*)",
                                                                                 "Bash(npx:*)",
                                                                                       "Bash(npx -y @supabase/mcp-server-supabase --project-ref=*)",
-                                                                                            "mcp__chrome-devtools__list_pages",
-                                                                                                  "mcp__chrome-devtools__navigate_page",
-                                                                                                        "mcp__supabase__apply_migration",
+                                                                                            "mcp__supabase__apply_migration",
                                                                                                               "mcp__supabase__deploy_edge_function",
                                                                                                                     "mcp__supabase__execute_sql",
                                                                                                                           "mcp__supabase__get_advisors",
@@ -35,5 +33,3 @@
                                                                                                                                                                 "supabase"
                                                                                                                                                                   ]
                                                                                                                                                                   }
-
-}

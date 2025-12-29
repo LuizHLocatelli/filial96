@@ -28,12 +28,26 @@ export function useUserManagement() {
     searchTermRef.current = searchTerm;
   }, [searchTerm]);
 
+  // Verificar se é gerente usando função do banco
+  const isManagerRef = useRef(false);
+
+  useEffect(() => {
+    const checkManagerStatus = async () => {
+      if (profile?.id) {
+        const { data: isManager } = await supabase
+          .rpc('is_user_manager');
+        isManagerRef.current = isManager || false;
+      }
+    };
+    checkManagerStatus();
+  }, [profile?.id]);
+
   const isManager = profile?.role === 'gerente';
 
   const fetchUsersInternal = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -49,15 +63,17 @@ export function useUserManagement() {
         return;
       }
 
+      // Tentar buscar dados de auth users (pode falhar com anon key)
       let authUsers: { users: { id: string; email?: string; last_sign_in_at?: string }[] } | null = null;
-      if (isManager) {
+      if (isManager || isManagerRef.current) {
         try {
           const { data, error: authError } = await supabase.auth.admin.listUsers();
-          if (!authError) {
+          if (!authError && data) {
             authUsers = data;
+            console.log('Auth users loaded:', authUsers.users.length);
           }
         } catch (authError) {
-          console.warn('Auth API error:', authError);
+          console.warn('Auth API não disponível (requer service role key):', authError);
         }
       }
 
@@ -87,6 +103,9 @@ export function useUserManagement() {
           last_sign_in_at: authUser?.last_sign_in_at
         };
       });
+
+      console.log('Users loaded:', usersWithStats.length);
+      console.log('First user:', usersWithStats[0]);
 
       setUsers(usersWithStats);
       setFilteredUsers(usersWithStats);
@@ -140,31 +159,13 @@ export function useUserManagement() {
         return;
       }
 
-      const userToDelete = usersRef.current.find(u => u.id === userId);
-      if (userToDelete?.role === 'gerente') {
-        toast({
-          title: "Operação Restrita",
-          description: "Não é possível excluir outros gerentes.",
-          variant: "destructive",
-        });
-        return;
-      }
+      // Delete user via Edge Function (handles profile + auth deletion safely)
+      const { error } = await supabase.functions.invoke('delete-user', {
+        body: { userId }
+      });
 
-      // Delete the user from the auth system using admin API
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      
-      if (authError) {
-        // If auth deletion fails, we should still try to delete from profiles
-        console.error('Auth deletion error:', authError);
-      }
-
-      // Delete the user from the profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
-
-      if (profileError) {
+      if (error) {
+        console.error('Delete error:', error);
         toast({
           title: "Erro ao Excluir",
           description: "Não foi possível excluir o usuário.",

@@ -95,16 +95,22 @@ export function AddFolgaDialog({
 
           <div>
             <Label htmlFor="consultor">Consultor</Label>
-            <Select value={selectedConsultor} onValueChange={setSelectedConsultor}>
+            <Select value={selectedConsultor} onValueChange={setSelectedConsultor} disabled={consultores.length === 0}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione um consultor" />
+                <SelectValue placeholder={consultores.length === 0 ? "Nenhum consultor disponível" : "Selecione um consultor"} />
               </SelectTrigger>
               <SelectContent>
-                {consultores.map((consultor) => (
-                  <SelectItem key={consultor.id} value={consultor.id}>
-                    {consultor.nome}
-                  </SelectItem>
-                ))}
+                {consultores.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground text-center">
+                    Nenhum consultor encontrado
+                  </div>
+                ) : (
+                  consultores.map((consultor) => (
+                    <SelectItem key={consultor.id} value={consultor.id}>
+                      {consultor.nome}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
