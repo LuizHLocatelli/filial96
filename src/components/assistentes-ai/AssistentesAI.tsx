@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Bot, MessageCircle, Settings, Trash2 } from "lucide-react";
+import { Plus, Bot, MessageCircle, Settings, Trash2, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ interface Chatbot {
   name: string;
   webhook_url: string;
   is_active: boolean;
+  accept_images: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -219,9 +220,17 @@ export default function AssistentesAI() {
                       {chatbot.is_active ? "Ativo" : "Inativo"}
                     </Badge>
                   </div>
-                  <CardDescription className="text-xs md:text-sm text-muted-foreground mt-2">
-                    Criado em {new Date(chatbot.created_at).toLocaleDateString('pt-BR')}
-                  </CardDescription>
+                  <div className="flex items-center gap-2 mt-1">
+                    <CardDescription className="text-xs md:text-sm text-muted-foreground">
+                      Criado em {new Date(chatbot.created_at).toLocaleDateString('pt-BR')}
+                    </CardDescription>
+                    {chatbot.accept_images && (
+                      <Badge variant="outline" className="text-xs gap-1 border-primary/30 text-primary bg-primary/5">
+                        <Image className="w-3 h-3" />
+                        Imagens
+                      </Badge>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4 mt-auto">
                   <div className="flex flex-col gap-2">

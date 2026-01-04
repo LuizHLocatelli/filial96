@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bot, Loader2, Sparkles, X } from "lucide-react";
+import { Bot, Loader2, Sparkles, X, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,6 +28,7 @@ interface Chatbot {
   name: string;
   webhook_url: string;
   is_active: boolean;
+  accept_images: boolean;
 }
 
 interface EditChatbotDialogProps {
@@ -41,6 +42,7 @@ interface FormData {
   name: string;
   webhookUrl: string;
   isActive: boolean;
+  acceptImages: boolean;
 }
 
 export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: EditChatbotDialogProps) {
@@ -52,6 +54,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
       name: "",
       webhookUrl: "",
       isActive: true,
+      acceptImages: false,
     },
   });
 
@@ -61,6 +64,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
         name: chatbot.name,
         webhookUrl: chatbot.webhook_url,
         isActive: chatbot.is_active,
+        acceptImages: chatbot.accept_images || false,
       });
     }
   }, [chatbot, form]);
@@ -78,6 +82,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
           name: data.name,
           webhook_url: data.webhookUrl,
           is_active: data.isActive,
+          accept_images: data.acceptImages,
         })
         .eq('id', chatbot.id);
 
@@ -194,6 +199,32 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
                         </FormLabel>
                         <FormDescription className="text-white/40 text-xs">
                           Disponível para uso imediato
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={loading}
+                          className="data-[state=checked]:bg-green-500"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="acceptImages"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition-colors cursor-pointer">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base font-medium text-white cursor-pointer flex items-center gap-2">
+                          <Image className="w-4 h-4" />
+                          Aceitar Imagens
+                        </FormLabel>
+                        <FormDescription className="text-white/40 text-xs">
+                          Permite enviar imagens no chat
                         </FormDescription>
                       </div>
                       <FormControl>

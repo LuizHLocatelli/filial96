@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Bot, User, Loader2, RefreshCcw, AlertCircle } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Loader2, RefreshCcw, AlertCircle, Image as ImageIcon, X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,12 +26,14 @@ interface Chatbot {
   name: string;
   webhook_url: string;
   is_active: boolean;
+  accept_images: boolean;
 }
 
 interface Message {
   id: string;
   type: 'user' | 'bot';
   content: string;
+  imageUrl?: string;
   timestamp: string;
   isStreaming?: boolean;
 }
@@ -62,10 +64,13 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const [responseCache, setResponseCache] = useState<Map<string, string>>(new Map());
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const inputRef = useAurora<HTMLDivElement>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Scroll to bottom function - melhorado para mobile
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
@@ -207,66 +212,6 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     }
   };
 
-  const sendMessage = async (content?: string) => {
-    const messageToSend = content || inputMessage;
-    if (!messageToSend.trim() || loading) return;
-
-    setErrorMessage(null);
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: messageToSend.trim(),
-      timestamp: new Date().toISOString(),
-    };
-
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    if (!content) setInputMessage("");
-    setLoading(true);
-
-    try {
-      const botResponse = await sendMessageToWebhook(userMessage.content);
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: "",
-        timestamp: new Date().toISOString(),
-        isStreaming: true,
-      };
-
-      const messagesWithBot = [...updatedMessages, botMessage];
-      setMessages(messagesWithBot);
-      setLoading(false);
-
-      streamText(botResponse, botMessage.id);
-
-      setTimeout(async () => {
-        const finalMessages = messagesWithBot.map(msg =>
-          msg.id === botMessage.id ? { ...msg, content: botResponse, isStreaming: false } : msg
-        );
-        await saveConversation(finalMessages);
-      }, botResponse.split(' ').length * 100 + 500);
-
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : "Ocorreu um erro inesperado.";
-      setErrorMessage(errorMsg);
-
-      const errorMessageObj: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: errorMsg,
-        timestamp: new Date().toISOString(),
-      };
-
-      const finalMessages = [...updatedMessages, errorMessageObj];
-      setMessages(finalMessages);
-      await saveConversation(finalMessages);
-      setLoading(false);
-    }
-  };
-
   const loadConversation = async () => {
     if (!user) return;
 
@@ -323,10 +268,10 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     }
   };
 
-  const sendMessageToWebhook = async (message: string, attempt: number = 1): Promise<string> => {
-    const cacheKey = getCacheKey(message);
+  const sendMessageToWebhook = async (message: string, imageBase64?: string, attempt: number = 1): Promise<string> => {
+    const cacheKey = getCacheKey(message + (imageBase64 ? '_with_image' : ''));
 
-    if (responseCache.has(cacheKey)) {
+    if (responseCache.has(cacheKey) && !imageBase64) {
       return responseCache.get(cacheKey)!;
     }
 
@@ -334,15 +279,21 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+      const payload: any = {
+        message,
+        chatbot_id: chatbot.id,
+        user_id: user?.id,
+        conversation_id: conversationId,
+      };
+
+      if (imageBase64) {
+        payload.image = imageBase64;
+      }
+
       const response = await fetch(chatbot.webhook_url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message,
-          chatbot_id: chatbot.id,
-          user_id: user?.id,
-          conversation_id: conversationId,
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
 
@@ -362,18 +313,20 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
       const finalResponse = botResponse || "Desculpe, não consegui processar sua mensagem.";
 
-      setResponseCache(prev => {
-        const newCache = new Map(prev);
-        newCache.set(cacheKey, finalResponse);
-        if (newCache.size > 50) newCache.delete(newCache.keys().next().value);
-        return newCache;
-      });
+      if (!imageBase64) {
+        setResponseCache(prev => {
+          const newCache = new Map(prev);
+          newCache.set(cacheKey, finalResponse);
+          if (newCache.size > 50) newCache.delete(newCache.keys().next().value);
+          return newCache;
+        });
+      }
 
       return finalResponse;
     } catch (error) {
       if (attempt < 3) {
         await new Promise(r => setTimeout(r, 1000 * attempt));
-        return sendMessageToWebhook(message, attempt + 1);
+        return sendMessageToWebhook(message, imageBase64, attempt + 1);
       }
       throw new Error("Conexão falhou. Verifique sua internet ou tente mais tarde.");
     }
@@ -383,6 +336,114 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setImageBase64(base64);
+      setSelectedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImageBase64(null);
+  };
+
+  const sendMessage = async (content?: string) => {
+    const messageToSend = content || inputMessage;
+    if (!messageToSend.trim() && !imageBase64 || loading) return;
+
+    setErrorMessage(null);
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: messageToSend.trim(),
+      imageUrl: imageBase64 || undefined,
+      timestamp: new Date().toISOString(),
+    };
+
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    if (!content) {
+      setInputMessage("");
+      setSelectedImage(null);
+      setImageBase64(null);
+    }
+    setLoading(true);
+
+    try {
+      const botResponse = await sendMessageToWebhook(userMessage.content, userMessage.imageUrl);
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: "",
+        timestamp: new Date().toISOString(),
+        isStreaming: true,
+      };
+
+      const messagesWithBot = [...updatedMessages, botMessage];
+      setMessages(messagesWithBot);
+      setLoading(false);
+
+      streamText(botResponse, botMessage.id);
+
+      setTimeout(async () => {
+        const finalMessages = messagesWithBot.map(msg =>
+          msg.id === botMessage.id ? { ...msg, content: botResponse, isStreaming: false } : msg
+        );
+        await saveConversation(finalMessages);
+      }, botResponse.split(' ').length * 100 + 500);
+
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Ocorreu um erro inesperado.";
+      setErrorMessage(errorMsg);
+
+      const errorMessageObj: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: errorMsg,
+        timestamp: new Date().toISOString(),
+      };
+
+      const finalMessages = [...updatedMessages, errorMessageObj];
+      setMessages(finalMessages);
+      await saveConversation(finalMessages);
+      setLoading(false);
     }
   };
 
@@ -500,6 +561,18 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
                       ) : (
                         <p className="text-sm md:text-base leading-relaxed">{message.content}</p>
                       )}
+
+                      {/* Image display */}
+                      {message.imageUrl && (
+                        <div className="mt-2 rounded-lg overflow-hidden border border-primary/20">
+                          <img
+                            src={message.imageUrl}
+                            alt="Imagem enviada"
+                            className="max-w-full h-auto max-h-60 object-contain"
+                          />
+                        </div>
+                      )}
+
                       <div className={`text-[10px] mt-1.5 flex items-center gap-1 ${message.type === 'user' ? 'text-primary-foreground/70 justify-end' : 'text-muted-foreground'}`}>
                         {new Date(message.timestamp).toLocaleTimeString('pt-BR', {
                           hour: '2-digit',
@@ -549,10 +622,71 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
             </div>
 
             <div className="p-3 md:p-6 bg-background/80 backdrop-blur-md border-t shrink-0">
+              {/* Selected image preview */}
+              <AnimatePresence>
+                {selectedImage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="mb-2 flex items-center gap-2 bg-primary/5 p-2 rounded-lg max-w-xs mx-auto"
+                  >
+                    <div className="relative">
+                      <img
+                        src={selectedImage}
+                        alt="Prévia"
+                        className="h-16 w-16 object-cover rounded-md"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-5 w-5 rounded-full"
+                        onClick={handleRemoveImage}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <span className="text-xs text-muted-foreground flex-1 truncate">
+                      Imagem anexada
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <div
                 ref={inputRef}
                 className="aurora-effect relative flex gap-2 max-w-4xl mx-auto items-center glass-input p-1.5 rounded-xl shadow-lg border-primary/10"
               >
+                {/* Image attachment button */}
+                {chatbot.accept_images && (
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageSelect}
+                    accept="image/*"
+                    className="hidden"
+                    id="chat-image-input"
+                  />
+                )}
+                {chatbot.accept_images && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={loading || !chatbot.is_active}
+                    className={`h-11 w-11 rounded-lg shrink-0 transition-all duration-200 ${
+                      selectedImage ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {selectedImage ? (
+                      <ImageIcon className="h-5 w-5" />
+                    ) : (
+                      <Paperclip className="h-5 w-5" />
+                    )}
+                  </Button>
+                )}
+
                 <Input
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
@@ -562,11 +696,11 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
                   className="flex-1 border-none bg-transparent focus-visible:ring-0 text-sm h-11 min-h-[44px]"
                 />
                 <Button
-                  onClick={sendMessage}
-                  disabled={!inputMessage.trim() || loading || !chatbot.is_active}
+                  onClick={() => sendMessage()}
+                  disabled={(!inputMessage.trim() && !imageBase64) || loading || !chatbot.is_active}
                   size="icon"
                   className={`h-11 w-11 rounded-lg transition-all duration-200 shrink-0 ${
-                    inputMessage.trim() ? 'glass-button-primary' : 'opacity-50'
+                    (inputMessage.trim() || imageBase64) ? 'glass-button-primary' : 'opacity-50'
                   }`}
                 >
                   {loading ? (
