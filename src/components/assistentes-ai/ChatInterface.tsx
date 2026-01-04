@@ -1,9 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Bot, User, Loader2, Download, RefreshCcw } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Loader2, RefreshCcw, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -50,15 +60,17 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [typingText, setTypingText] = useState("");
   const [responseCache, setResponseCache] = useState<Map<string, string>>(new Map());
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showClearDialog, setShowClearDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const inputRef = useAurora<HTMLDivElement>();
 
-  // Scroll to bottom function
-  const scrollToBottom = useCallback(() => {
+  // Scroll to bottom function - melhorado para mobile
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ behavior });
     }
   }, []);
 
@@ -146,8 +158,13 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   }, [chatbot.id]);
 
   // Export conversation
+  const handleClearConversation = () => {
+    setShowClearDialog(true);
+  };
+
   const clearConversation = async () => {
-    if (!user || !conversationId) return;
+    setShowClearDialog(false);
+    if (!user) return;
 
     try {
       const { data: newConversation, error: createError } = await supabase
@@ -164,7 +181,8 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
       setConversationId(newConversation.id);
       setMessages([]);
-      
+      setErrorMessage(null);
+
       toast({
         title: "Nova conversa",
         description: "Histórico limpo para esta sessão.",
@@ -176,6 +194,76 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
         description: "Não foi possível iniciar uma nova conversa.",
         variant: "destructive",
       });
+    }
+  };
+
+  // Retry send message after error
+  const retrySendMessage = () => {
+    const lastUserMessage = messages.findLast(m => m.type === 'user');
+    if (lastUserMessage) {
+      setErrorMessage(null);
+      setMessages(prev => prev.filter(m => m.id !== lastUserMessage.id || prev.filter(x => x.type === 'user').pop()?.id !== m.id));
+      sendMessage(lastUserMessage.content);
+    }
+  };
+
+  const sendMessage = async (content?: string) => {
+    const messageToSend = content || inputMessage;
+    if (!messageToSend.trim() || loading) return;
+
+    setErrorMessage(null);
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: messageToSend.trim(),
+      timestamp: new Date().toISOString(),
+    };
+
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    if (!content) setInputMessage("");
+    setLoading(true);
+
+    try {
+      const botResponse = await sendMessageToWebhook(userMessage.content);
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: "",
+        timestamp: new Date().toISOString(),
+        isStreaming: true,
+      };
+
+      const messagesWithBot = [...updatedMessages, botMessage];
+      setMessages(messagesWithBot);
+      setLoading(false);
+
+      streamText(botResponse, botMessage.id);
+
+      setTimeout(async () => {
+        const finalMessages = messagesWithBot.map(msg =>
+          msg.id === botMessage.id ? { ...msg, content: botResponse, isStreaming: false } : msg
+        );
+        await saveConversation(finalMessages);
+      }, botResponse.split(' ').length * 100 + 500);
+
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Ocorreu um erro inesperado.";
+      setErrorMessage(errorMsg);
+
+      const errorMessageObj: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: errorMsg,
+        timestamp: new Date().toISOString(),
+      };
+
+      const finalMessages = [...updatedMessages, errorMessageObj];
+      setMessages(finalMessages);
+      await saveConversation(finalMessages);
+      setLoading(false);
     }
   };
 
@@ -291,60 +379,6 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     }
   };
 
-  const sendMessage = async () => {
-    if (!inputMessage.trim() || loading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: inputMessage.trim(),
-      timestamp: new Date().toISOString(),
-    };
-
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setInputMessage("");
-    setLoading(true);
-
-    try {
-      const botResponse = await sendMessageToWebhook(userMessage.content);
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: "",
-        timestamp: new Date().toISOString(),
-        isStreaming: true,
-      };
-
-      const messagesWithBot = [...updatedMessages, botMessage];
-      setMessages(messagesWithBot);
-      setLoading(false);
-
-      streamText(botResponse, botMessage.id);
-
-      setTimeout(async () => {
-        const finalMessages = messagesWithBot.map(msg =>
-          msg.id === botMessage.id ? { ...msg, content: botResponse, isStreaming: false } : msg
-        );
-        await saveConversation(finalMessages);
-      }, botResponse.split(' ').length * 100 + 500);
-
-    } catch (error) {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: error instanceof Error ? error.message : "Ocorreu um erro inesperado.",
-        timestamp: new Date().toISOString(),
-      };
-
-      const finalMessages = [...updatedMessages, errorMessage];
-      setMessages(finalMessages);
-      await saveConversation(finalMessages);
-      setLoading(false);
-    }
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -353,56 +387,61 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   };
 
   return (
-    <div className="h-[calc(100vh-80px)] md:h-[calc(100vh-100px)] flex flex-col overflow-hidden bg-animated-gradient">
-      <div className="flex-1 flex flex-col h-full max-w-5xl mx-auto w-full md:px-4 md:py-2">
+    <div className="h-[calc(100dvh-80px)] md:h-[calc(100vh-100px)] flex flex-col bg-animated-gradient overflow-hidden">
+      <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full md:px-4 md:py-2 h-full">
         <Card className="flex-1 flex flex-col h-full overflow-hidden border-none md:border md:glass-card shadow-2xl rounded-none md:rounded-2xl">
-          <CardHeader className="border-b bg-background/50 backdrop-blur-md p-3 md:p-4 z-10">
-            <div className="flex items-center gap-2 md:gap-4">
+          <CardHeader className="border-b bg-background/80 backdrop-blur-md p-3 z-10 shrink-0">
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onBack}
-                className="shrink-0 h-9 w-9 glass-button-ghost hover:bg-primary/10"
+                className="shrink-0 h-11 w-11 md:h-9 md:w-9 glass-button-ghost"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="relative">
-                <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-inner">
-                  <AvatarFallback className="bg-primary/5">
-                    <Bot className="h-5 w-5 text-primary" />
-                  </AvatarFallback>
-                </Avatar>
-                {chatbot.is_active && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
-                )}
-              </div>
+              <Avatar className="h-9 w-9 md:h-10 md:w-10 border-2 border-primary/20">
+                <AvatarFallback className="bg-primary/5">
+                  <Bot className="h-5 w-5 text-primary" />
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-base md:text-xl font-bold truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                <CardTitle className="text-base font-semibold truncate">
                   {chatbot.name}
                 </CardTitle>
                 <div className="flex items-center gap-1.5">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    {chatbot.is_active ? "Online e Pronto" : "Offline"}
+                  <span className={`flex h-2 w-2 rounded-full ${chatbot.is_active ? 'bg-green-500' : 'bg-red-500'} ${chatbot.is_active ? 'animate-pulse' : ''}`} />
+                  <p className="text-xs text-muted-foreground">
+                    {chatbot.is_active ? "Online" : "Offline"}
                   </p>
                 </div>
               </div>
               <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearConversation}
+                className="shrink-0 h-9 text-xs gap-1.5 md:hidden"
+              >
+                <RefreshCcw className="h-3.5 w-3.5" />
+                Novo
+              </Button>
+              <Button
                 variant="ghost"
                 size="icon"
-                onClick={clearConversation}
+                onClick={handleClearConversation}
                 title="Nova conversa"
-                className="h-9 w-9 glass-button-ghost"
+                className="hidden md:flex h-9 w-9 shrink-0"
               >
                 <RefreshCcw className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col p-0 relative bg-muted/5">
+          <CardContent className="flex-1 flex flex-col p-0 relative bg-muted/30 overflow-hidden">
             <div
-              className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scroll-smooth"
+              className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
               ref={scrollAreaRef}
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               <AnimatePresence initial={false}>
                 {messages.length === 0 && (
@@ -480,29 +519,54 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
                 ))}
                 
                 {(loading || isTyping) && <TypingIndicator />}
+
+                {errorMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-start"
+                  >
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-2xl rounded-tl-none px-4 py-3 max-w-[85%] md:max-w-[75%]">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm text-red-500 mb-2">{errorMessage}</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={retrySendMessage}
+                            className="h-8 text-xs border-red-500/30 text-red-500 hover:bg-red-500/10"
+                          >
+                            Tentar novamente
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
-              <div ref={messagesEndRef} className="h-2" />
+              <div ref={messagesEndRef} className="h-2 shrink-0" />
             </div>
 
-            <div className="p-4 md:p-6 bg-background/50 backdrop-blur-md border-t">
-              <div 
+            <div className="p-3 md:p-6 bg-background/80 backdrop-blur-md border-t shrink-0">
+              <div
                 ref={inputRef}
-                className="aurora-effect relative flex gap-2 max-w-4xl mx-auto items-center glass-input p-1.5 rounded-2xl shadow-lg border-primary/10"
+                className="aurora-effect relative flex gap-2 max-w-4xl mx-auto items-center glass-input p-1.5 rounded-xl shadow-lg border-primary/10"
               >
                 <Input
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Escreva uma mensagem..."
+                  placeholder="Digite sua mensagem..."
                   disabled={loading || !chatbot.is_active}
-                  className="flex-1 border-none bg-transparent focus-visible:ring-0 text-sm md:text-base h-10 md:h-12"
+                  className="flex-1 border-none bg-transparent focus-visible:ring-0 text-sm h-11 min-h-[44px]"
                 />
                 <Button
                   onClick={sendMessage}
                   disabled={!inputMessage.trim() || loading || !chatbot.is_active}
                   size="icon"
-                  className={`h-10 w-10 md:h-12 md:w-12 rounded-xl transition-all duration-300 ${
-                    inputMessage.trim() ? 'glass-button-primary scale-100 shadow-lg' : 'opacity-50 scale-95'
+                  className={`h-11 w-11 rounded-lg transition-all duration-200 shrink-0 ${
+                    inputMessage.trim() ? 'glass-button-primary' : 'opacity-50'
                   }`}
                 >
                   {loading ? (
@@ -512,13 +576,28 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
                   )}
                 </Button>
               </div>
-              <p className="text-[10px] text-center text-muted-foreground mt-3">
-                Respostas geradas por IA podem conter erros. Verifique informações importantes.
-              </p>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Diálogo de confirmação para limpar conversa */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent className="glass-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Iniciar nova conversa?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação limpará todo o histórico desta conversa. Esta mudança não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={clearConversation} className="bg-primary hover:bg-primary/90">
+              Iniciar nova conversa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
