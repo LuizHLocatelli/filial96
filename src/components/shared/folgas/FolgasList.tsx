@@ -3,73 +3,75 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Trash2, User, CalendarDays, Info, Calendar as CalendarIcon, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crediarista, Folga } from "./types";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Folga, Consultor } from "@/types/shared/folgas";
 
 interface FolgasListProps {
   folgas: Folga[];
-  getCrediaristaById: (id: string) => Crediarista | undefined;
-  onDeleteFolga: (folgaId: string) => void;
-  onAddFolga: () => void;
+  isLoading: boolean;
+  handleDeleteFolga: (folgaId: string) => void;
+  getConsultorById: (id: string) => Consultor | undefined;
   getUserNameById?: (userId: string) => string | undefined;
+  title?: string;
+  description?: string;
 }
 
-export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFolga, getUserNameById }: FolgasListProps) {
+export function FolgasList({
+  folgas,
+  isLoading,
+  handleDeleteFolga,
+  getConsultorById,
+  getUserNameById,
+  title = "Lista de Folgas",
+  description,
+}: FolgasListProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCrediarista, setSelectedCrediarista] = useState<string>("all");
-  
-  // Lista de crediaristas únicos para o filtro
-  const crediaristas = useMemo(() => {
-    const crediaristaIds = [...new Set(folgas.map(f => f.crediaristaId))];
-    return crediaristaIds.map(id => getCrediaristaById(id)).filter(Boolean) as Crediarista[];
-  }, [folgas, getCrediaristaById]);
+  const [selectedConsultor, setSelectedConsultor] = useState<string>("all");
 
-  // Filtrar folgas baseado na busca e filtros
+  const consultores = useMemo(() => {
+    const consultorIds = [...new Set(folgas.map((f) => f.consultorId))];
+    return consultorIds.map((id) => getConsultorById(id)).filter(Boolean);
+  }, [folgas, getConsultorById]);
+
   const folgasFiltradas = useMemo(() => {
-    return folgas.filter(folga => {
-      const crediarista = getCrediaristaById(folga.crediaristaId);
-      const crediaristaMatch = selectedCrediarista === "all" || folga.crediaristaId === selectedCrediarista;
-      const searchMatch = searchTerm === "" || 
-        (crediarista?.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (folga.motivo?.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      return crediaristaMatch && searchMatch;
-    }).sort((a, b) => b.data.getTime() - a.data.getTime());
-  }, [folgas, searchTerm, selectedCrediarista, getCrediaristaById]);
+    return folgas
+      .filter((folga) => {
+        const consultor = getConsultorById(folga.consultorId);
+        const consultorMatch = selectedConsultor === "all" || folga.consultorId === selectedConsultor;
+        const searchMatch =
+          searchTerm === "" ||
+          consultor?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          folga.motivo?.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const handleDeleteClick = async (folgaId: string) => {
-    console.log("Clique no botão de deletar folga:", folgaId);
-    
-    if (!folgaId) {
-      console.error("ID da folga é inválido");
-      return;
-    }
+        return consultorMatch && searchMatch;
+      })
+      .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+  }, [folgas, searchTerm, selectedConsultor, getConsultorById]);
 
-    try {
-      await onDeleteFolga(folgaId);
-      console.log("Exclusão concluída");
-    } catch (error) {
-      console.error("Erro ao executar onDeleteFolga:", error);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
-    <Card className="border shadow-soft">
+    <Card>
       <CardHeader>
-        <CardTitle>Lista de Folgas</CardTitle>
-        <CardDescription>Gerencie todas as folgas registradas dos crediaristas</CardDescription>
-        
-        {/* Filtros */}
+        <CardTitle>{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
+
         <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Buscar por crediarista ou motivo..."
+                placeholder="Buscar por consultor ou motivo..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -77,34 +79,34 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
             </div>
           </div>
           <div className="w-full sm:w-auto sm:min-w-[200px]">
-            <Select value={selectedCrediarista} onValueChange={setSelectedCrediarista}>
+            <Select value={selectedConsultor} onValueChange={setSelectedConsultor}>
               <SelectTrigger>
                 <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filtrar por crediarista" />
+                <SelectValue placeholder="Filtrar por consultor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os crediaristas</SelectItem>
-                {crediaristas.map((crediarista) => (
-                  <SelectItem key={crediarista.id} value={crediarista.id}>
-                    {crediarista.nome}
+                <SelectItem value="all">Todos os consultores</SelectItem>
+                {consultores.map((consultor) => (
+                  <SelectItem key={consultor.id} value={consultor.id}>
+                    {consultor.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
-        
-        {(searchTerm || selectedCrediarista !== "all") && (
+
+        {(searchTerm || selectedConsultor !== "all") && (
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Mostrando {folgasFiltradas.length} de {folgas.length} folgas
             </p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setSearchTerm("");
-                setSelectedCrediarista("all");
+                setSelectedConsultor("all");
               }}
             >
               Limpar filtros
@@ -119,30 +121,25 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
             <p className="text-muted-foreground">
               {folgas.length === 0 ? "Nenhuma folga registrada" : "Nenhuma folga encontrada com os filtros aplicados"}
             </p>
-            {folgas.length === 0 && (
-              <Button className="mt-4" onClick={onAddFolga}>
-                Adicionar Folga
-              </Button>
-            )}
           </div>
         ) : (
           <div className="space-y-4">
             {folgasFiltradas.map((folga) => {
-              const crediarista = getCrediaristaById(folga.crediaristaId);
+              const consultor = getConsultorById(folga.consultorId);
+              const consultorName = consultor ? consultor.nome : "Consultor não encontrado";
+
               return (
-                <Card key={folga.id} className="border shadow-sm hover:shadow-md transition-shadow">
+                <Card key={folga.id} className="shadow-sm hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                       <div className="flex-1 mb-3 sm:mb-0">
                         <div className="flex items-center mb-2">
                           <User className="h-5 w-5 mr-2 text-primary" />
-                          <span className="font-semibold text-lg">
-                            {crediarista?.nome || "Desconhecido"}
-                          </span>
+                          <span className="font-semibold text-lg">{consultorName}</span>
                         </div>
                         <div className="flex items-center text-sm text-muted-foreground mb-1">
                           <CalendarDays className="h-4 w-4 mr-2" />
-                          <span>{format(folga.data, "dd/MM/yyyy")}</span>
+                          <span>{format(new Date(folga.data), "dd/MM/yyyy", { locale: ptBR })}</span>
                         </div>
                         {folga.motivo && (
                           <div className="flex items-start text-sm text-muted-foreground">
@@ -150,9 +147,7 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger className="text-left">
-                                  <p className="truncate max-w-[200px] sm:max-w-xs">
-                                    {folga.motivo}
-                                  </p>
+                                  <p className="truncate max-w-[200px] sm:max-w-xs">{folga.motivo}</p>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="max-w-xs whitespace-pre-wrap">{folga.motivo}</p>
@@ -163,7 +158,7 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
                         )}
                         {folga.createdAt && (
                           <p className="text-xs text-muted-foreground mt-2">
-                            Registrado em: {format(new Date(folga.createdAt), "dd/MM/yy HH:mm")}
+                            Registrado em: {format(new Date(folga.createdAt), "dd/MM/yy HH:mm", { locale: ptBR })}
                             {folga.createdBy && (
                               <>
                                 {` por ${getUserNameById && folga.createdBy ? getUserNameById(folga.createdBy) || folga.createdBy : folga.createdBy}`}
@@ -177,7 +172,7 @@ export function FolgasList({ folgas, getCrediaristaById, onDeleteFolga, onAddFol
                           size="sm"
                           variant="ghost"
                           className="text-destructive hover:bg-destructive/10 h-9 w-9 p-0"
-                          onClick={() => handleDeleteClick(folga.id)}
+                          onClick={() => handleDeleteFolga(folga.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Excluir</span>

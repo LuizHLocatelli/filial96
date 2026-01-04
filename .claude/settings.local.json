@@ -34,7 +34,12 @@
       "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase link --project-ref abpsafkioslfjqtgtvbi)",
       "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase secrets list)",
       "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase functions deploy delete-user:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run build)",
+      "Bash(npm install:*)",
+      "Bash(npm test -- --run)",
+      "Bash(npm run test:run:*)",
+      "Bash(npm ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

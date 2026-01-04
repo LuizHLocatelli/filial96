@@ -1,52 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, addDays, isSameDay } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Consultor, Folga, FolgaFormValues } from "./types";
+import { Consultor, Folga, UseFolgasConfig, UseFolgasReturn } from "@/types/shared/folgas";
 import { useAuth } from "@/contexts/auth";
 
-// Helper para ler a data do banco (que vem como YYYY-MM-DD) como uma data local.
+// Helpers para manipulação de datas
 const fromDateOnlyString = (dateStr: string): Date => {
   return new Date(`${dateStr}T00:00:00`);
-}
+};
 
-// Helper para converter data para o formato YYYY-MM-DD UTC para evitar problemas de fuso horário
 const toDateOnlyString = (date: Date): string => {
   const d = new Date(date);
   d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
   return d.toISOString().split('T')[0];
-}
+};
 
-export function useMoveiFolgas() {
+export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
   const { toast } = useToast();
   const { user } = useAuth();
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [consultores, setConsultores] = useState<Consultor[]>([]);
-  const [isLoadingConsultores, setIsLoadingConsultores] = useState<boolean>(true);
+  const [isLoadingConsultores, setIsLoadingConsultores] = useState(true);
   const [folgas, setFolgas] = useState<Folga[]>([]);
-  const [isLoadingFolgas, setIsLoadingFolgas] = useState<boolean>(true);
+  const [isLoadingFolgas, setIsLoadingFolgas] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedConsultor, setSelectedConsultor] = useState<string>("");
-  const [motivo, setMotivo] = useState<string>("");
+  const [selectedConsultor, setSelectedConsultor] = useState("");
+  const [motivo, setMotivo] = useState("");
   const [allUsers, setAllUsers] = useState<Array<{ id: string; name: string }>>([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [folgasDoDiaSelecionado, setFolgasDoDiaSelecionado] = useState<Folga[]>([]);
-  
-  // Fetch consultores from database
+
+  // Fetch consultores
   useEffect(() => {
     async function fetchConsultores() {
       setIsLoadingConsultores(true);
       try {
-        // Fetch profiles com role "consultor_moveis"
         const { data, error } = await supabase
           .from("profiles")
           .select("id, name, avatar_url")
-          .eq('role', 'consultor_moveis')
+          .eq('role', config.consultantRole)
           .order('name', { ascending: true });
 
         if (error) {
-          console.error("Erro ao buscar consultores:", error);
           toast({
             title: "Erro ao carregar consultores",
             description: error.message,
@@ -56,7 +54,6 @@ export function useMoveiFolgas() {
           return;
         }
 
-        // Transform the data to match the Consultor interface
         const formattedConsultores: Consultor[] = (data || []).map((profile) => ({
           id: profile.id,
           nome: profile.name || "Sem nome",
@@ -65,7 +62,6 @@ export function useMoveiFolgas() {
 
         setConsultores(formattedConsultores);
       } catch (error) {
-        console.error("Erro ao buscar consultores:", error);
         toast({
           title: "Erro ao carregar consultores",
           description: "Não foi possível carregar a lista de consultores.",
@@ -78,9 +74,9 @@ export function useMoveiFolgas() {
     }
 
     fetchConsultores();
-  }, [toast]);
-  
-  // Fetch all users from profiles table
+  }, [config.consultantRole, toast]);
+
+  // Fetch all users
   useEffect(() => {
     async function fetchAllUsers() {
       setIsLoadingUsers(true);
@@ -88,93 +84,82 @@ export function useMoveiFolgas() {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, name");
-          
+
         if (error) {
-          console.error("Erro ao buscar todos os usuários:", error);
-          toast({
-            title: "Erro ao carregar usuários",
-            description: error.message,
-            variant: "destructive",
-          });
           setAllUsers([]);
           return;
         }
-        
+
         if (data) {
-          const formattedUsers = data.map(profile => ({
+          setAllUsers(data.map(profile => ({
             id: profile.id,
             name: profile.name || "Usuário Desconhecido",
-          }));
-          setAllUsers(formattedUsers);
+          })));
         } else {
           setAllUsers([]);
         }
-      } catch (error) {
-        console.error("Erro ao buscar todos os usuários:", error);
-        toast({
-          title: "Erro ao carregar usuários",
-          description: "Não foi possível carregar a lista de usuários.",
-          variant: "destructive",
-        });
+      } catch {
         setAllUsers([]);
       } finally {
         setIsLoadingUsers(false);
       }
     }
-    
-    fetchAllUsers();
-  }, [toast]);
-  
-  // Fetch folgas from database
-  useEffect(() => {
-    async function fetchFolgas() {
-      setIsLoadingFolgas(true);
-      try {
-        const { data, error } = await supabase
-          .from("moveis_folgas")
-          .select("*");
-          
-        if (error) {
-          console.error("Erro ao buscar folgas:", error);
-          toast({
-            title: "Erro ao carregar folgas",
-            description: error.message,
-            variant: "destructive",
-          });
-          return;
-        }
-        
-        if (!data) {
-          setFolgas([]);
-          return;
-        }
-        
-        // Transform the data to match the Folga interface
-        const formattedFolgas: Folga[] = data.map((folga) => ({
-          id: folga.id,
-          data: fromDateOnlyString(folga.data),
-          consultorId: folga.consultor_id,
-          motivo: folga.motivo || undefined,
-          createdAt: folga.created_at,
-          createdBy: folga.created_by || undefined,
-        }));
 
-        setFolgas(formattedFolgas);
-      } catch (error) {
-        console.error("Erro ao buscar folgas:", error);
+    fetchAllUsers();
+  }, []);
+
+  // Fetch folgas
+  const fetchFolgas = useCallback(async () => {
+    setIsLoadingFolgas(true);
+    try {
+      const { data, error } = await supabase
+        .from(config.tableName)
+        .select("*");
+
+      if (error) {
         toast({
           title: "Erro ao carregar folgas",
-          description: "Não foi possível carregar a lista de folgas.",
+          description: error.message,
           variant: "destructive",
         });
         setFolgas([]);
-      } finally {
-        setIsLoadingFolgas(false);
+        return;
       }
-    }
 
+      if (!data) {
+        setFolgas([]);
+        return;
+      }
+
+      const formattedFolgas: Folga[] = data.map((folga) => ({
+        id: folga.id,
+        data: fromDateOnlyString(folga.data),
+        consultorId: folga.consultor_id,
+        motivo: folga.motivo || undefined,
+        createdAt: folga.created_at,
+        createdBy: folga.created_by || undefined,
+      }));
+
+      setFolgas(formattedFolgas);
+    } catch (error) {
+      toast({
+        title: "Erro ao carregar folgas",
+        description: "Não foi possível carregar a lista de folgas.",
+        variant: "destructive",
+      });
+      setFolgas([]);
+    } finally {
+      setIsLoadingFolgas(false);
+    }
+  }, [config.tableName, toast]);
+
+  useEffect(() => {
     fetchFolgas();
-  }, [toast]);
+  }, [fetchFolgas]);
+
+  const refetchFolgas = useCallback(async () => {
+    await fetchFolgas();
+  }, [fetchFolgas]);
 
   const handlePrevMonth = () => {
     setCurrentMonth((prev) => {
@@ -183,7 +168,7 @@ export function useMoveiFolgas() {
       return newDate;
     });
   };
-  
+
   const handleNextMonth = () => {
     setCurrentMonth((prev) => {
       const newDate = new Date(prev);
@@ -191,16 +176,16 @@ export function useMoveiFolgas() {
       return newDate;
     });
   };
-  
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
-    const folgasParaEsteDia = folgas.filter(f => isSameDay(f.data, date));
+    const folgasParaEsteDia = folgas.filter((f) => isSameDay(f.data, date));
     setFolgasDoDiaSelecionado(folgasParaEsteDia);
     setOpenDialog(true);
     setSelectedConsultor("");
     setMotivo("");
   };
-  
+
   const handleAddFolga = async () => {
     if (!selectedDate) {
       toast({
@@ -210,7 +195,7 @@ export function useMoveiFolgas() {
       });
       return;
     }
-    
+
     if (!selectedConsultor) {
       toast({
         title: "Selecione um consultor",
@@ -219,40 +204,33 @@ export function useMoveiFolgas() {
       });
       return;
     }
-    
-    // Verificar se já existe folga para este consultor nesta data
+
+    // Verificar se já existe folga
     const existingFolga = folgas.find(
-      (folga) =>
-        folga.consultorId === selectedConsultor &&
-        folga.data.toDateString() === selectedDate.toDateString()
+      (f) => isSameDay(f.data, selectedDate) && f.consultorId === selectedConsultor
     );
-    
+
     if (existingFolga) {
       toast({
-        title: "Folga já registrada",
-        description: "Este consultor já possui folga registrada nesta data.",
+        title: "Folga já existe",
+        description: "Este consultor já possui uma folga nesta data.",
         variant: "destructive",
       });
       return;
     }
-    
+
     try {
-      // Format date for Supabase (YYYY-MM-DD format) usando helper para evitar problemas de timezone
-      const formattedDate = toDateOnlyString(selectedDate);
-      
-      // Insert folga into Supabase
       const { data, error } = await supabase
-        .from("moveis_folgas")
+        .from(config.tableName)
         .insert({
-          data: formattedDate,
+          data: toDateOnlyString(selectedDate),
           consultor_id: selectedConsultor,
           motivo: motivo || null,
           created_by: user?.id || null,
         })
         .select();
-        
+
       if (error) {
-        console.error("Erro ao adicionar folga:", error);
         toast({
           title: "Erro ao adicionar folga",
           description: error.message,
@@ -260,7 +238,7 @@ export function useMoveiFolgas() {
         });
         return;
       }
-      
+
       if (data && data.length > 0) {
         const newFolga: Folga = {
           id: data[0].id,
@@ -270,25 +248,24 @@ export function useMoveiFolgas() {
           createdAt: data[0].created_at,
           createdBy: data[0].created_by || undefined,
         };
-        
-        setFolgas([...folgas, newFolga]);
-        
+
+        setFolgas((prev) => [...prev, newFolga]);
+
         if (selectedDate && isSameDay(newFolga.data, selectedDate)) {
-          setFolgasDoDiaSelecionado(prevFolgas => [...prevFolgas, newFolga]);
+          setFolgasDoDiaSelecionado((prev) => [...prev, newFolga]);
         }
 
         toast({
           title: "Folga adicionada",
-          description: `Folga para ${getConsultorById(newFolga.consultorId)?.nome || 'Consultor'} registrada com sucesso.`,
+          description: "A folga foi registrada com sucesso.",
         });
-        
+
         setSelectedDate(null);
         setSelectedConsultor("");
         setMotivo("");
         setOpenDialog(false);
       }
     } catch (error) {
-      console.error("Erro ao adicionar folga:", error);
       toast({
         title: "Erro ao adicionar folga",
         description: "Não foi possível adicionar a folga.",
@@ -296,60 +273,67 @@ export function useMoveiFolgas() {
       });
     }
   };
-  
+
   const handleDeleteFolga = async (folgaId: string) => {
     try {
+      const folgaParaExcluir = folgas.find((f) => f.id === folgaId);
+
+      // Otimistic update
+      setFolgas((prev) => prev.filter((folga) => folga.id !== folgaId));
+      if (selectedDate && folgaParaExcluir && isSameDay(folgaParaExcluir.data, selectedDate)) {
+        setFolgasDoDiaSelecionado((prev) => prev.filter((f) => f.id !== folgaId));
+      }
+
       const { error } = await supabase
-        .from("moveis_folgas")
+        .from(config.tableName)
         .delete()
         .eq("id", folgaId);
-        
+
       if (error) {
-        console.error("Erro ao excluir folga:", error);
+        // Revert on error
+        setFolgas((prev) => [...prev, folgaParaExcluir!]);
+        if (selectedDate && folgaParaExcluir && isSameDay(folgaParaExcluir.data, selectedDate)) {
+          setFolgasDoDiaSelecionado((prev) => [...prev, folgaParaExcluir!]);
+        }
         toast({
-          title: "Erro ao remover folga",
+          title: "Erro ao excluir folga",
           description: error.message,
           variant: "destructive",
         });
         return;
       }
-      
-      // Remove folga from state
-      setFolgas(folgas.filter((folga) => folga.id !== folgaId));
-      
+
+      const consultor = consultores.find((c) => c.id === folgaParaExcluir?.consultorId);
       toast({
-        title: "Folga removida",
-        description: "A folga foi removida com sucesso.",
+        title: "Folga excluída",
+        description: `A folga de ${consultor?.nome || "Consultor"} foi removida.`,
       });
     } catch (error) {
-      console.error("Erro ao excluir folga:", error);
       toast({
-        title: "Erro ao remover folga",
-        description: "Não foi possível remover a folga.",
+        title: "Erro ao excluir folga",
+        description: "Não foi possível excluir a folga.",
         variant: "destructive",
       });
     }
   };
-  
+
   const getConsultorById = (id: string) => {
-    return consultores.find((c) => c.id === id);
+    return consultores.find((consultor) => consultor.id === id);
   };
 
-  // Função para obter o nome do usuário pelo ID
   const getUserNameById = (userId: string): string | undefined => {
-    const foundUser = allUsers.find(u => u.id === userId);
-    return foundUser?.name;
+    const user = allUsers.find((u) => u.id === userId);
+    return user?.name;
   };
-  
-  // Função para gerar semanas do mês
+
   const getWeeks = () => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 });
     const end = endOfMonth(currentMonth);
     const totalDays = eachDayOfInterval({ start, end });
-    
-    const weeks = [];
-    let week = [];
-    
+
+    const weeks: Date[][] = [];
+    let week: Date[] = [];
+
     for (let i = 0; i < totalDays.length; i++) {
       week.push(totalDays[i]);
       if (week.length === 7 || i === totalDays.length - 1) {
@@ -357,8 +341,8 @@ export function useMoveiFolgas() {
         week = [];
       }
     }
-    
-    // Completar a última semana, se necessário
+
+    // Completar última semana se necessário
     if (week.length > 0 && week.length < 7) {
       const lastDay = week[week.length - 1];
       for (let i = 1; i <= 7 - week.length; i++) {
@@ -366,18 +350,16 @@ export function useMoveiFolgas() {
       }
       weeks.push(week);
     }
-    
+
     return weeks;
   };
-  
-  const weeks = getWeeks();
 
   return {
     currentMonth,
     consultores,
     isLoadingConsultores,
-    isLoadingFolgas,
     folgas,
+    isLoadingFolgas,
     openDialog,
     setOpenDialog,
     selectedDate,
@@ -392,10 +374,11 @@ export function useMoveiFolgas() {
     handleDeleteFolga,
     getConsultorById,
     getUserNameById,
-    weeks,
-    allUsers,
-    isLoadingUsers,
     folgasDoDiaSelecionado,
     handleDateClick,
+    allUsers,
+    isLoadingUsers,
+    getWeeks,
+    refetchFolgas,
   };
 }
