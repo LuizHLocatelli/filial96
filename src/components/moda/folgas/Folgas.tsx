@@ -171,30 +171,27 @@ export function Folgas() {
         </Card>
       </div>
 
-      {/* Layout principal */}
-      <div className="grid-responsive-cards lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <FolgasCalendar
-            currentMonth={currentMonth}
-            folgas={folgas}
-            handlePrevMonth={handleTrackedNavigation.bind(null, "prev")}
-            handleNextMonth={handleTrackedNavigation.bind(null, "next")}
-            onDateClick={handleTrackedDateClick}
-            getConsultorById={getConsultorById}
-            title="Calendário de Folgas"
-            description="Clique em um dia para adicionar ou visualizar detalhes das folgas."
-          />
-        </div>
+      <div className="space-y-2">
+        <FolgasCalendar
+          currentMonth={currentMonth}
+          folgas={folgas}
+          handlePrevMonth={handleTrackedNavigation.bind(null, "prev")}
+          handleNextMonth={handleTrackedNavigation.bind(null, "next")}
+          onDateClick={handleTrackedDateClick}
+          getConsultorById={getConsultorById}
+          title="Calendário de Folgas"
+          description="Clique em um dia para adicionar ou visualizar detalhes das folgas."
+        />
 
-        <div>
+        <div className="mt-8">
           <FolgasList
             folgas={folgas}
             handleDeleteFolga={handleDeleteFolgaTracked}
             getConsultorById={getConsultorById}
             getUserNameById={getUserNameById}
             isLoading={isLoadingFolgas}
-            title="Folgas Recentes"
-            description="Últimas folgas registradas"
+            title="Lista de Folgas"
+            description="Gerencie todas as folgas registradas dos consultores de moda"
           />
         </div>
       </div>

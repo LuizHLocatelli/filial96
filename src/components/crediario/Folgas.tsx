@@ -144,29 +144,27 @@ export function Folgas() {
         </Card>
       </div>
 
-      <div className="grid-responsive-cards lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <FolgasCalendar
-            currentMonth={currentMonth}
-            folgas={folgas}
-            handlePrevMonth={handlePrevMonth}
-            handleNextMonth={handleNextMonth}
-            onDateClick={handleDateClick}
-            getConsultorById={getCrediaristaById}
-            title="Calendário de Folgas"
-            description="Clique em um dia para adicionar ou visualizar detalhes das folgas."
-          />
-        </div>
+      <div className="space-y-2">
+        <FolgasCalendar
+          currentMonth={currentMonth}
+          folgas={folgas}
+          handlePrevMonth={handlePrevMonth}
+          handleNextMonth={handleNextMonth}
+          onDateClick={handleDateClick}
+          getConsultorById={getCrediaristaById}
+          title="Calendário de Folgas"
+          description="Clique em um dia para adicionar ou visualizar detalhes das folgas."
+        />
 
-        <div>
+        <div className="mt-8">
           <FolgasList
             folgas={folgas}
             handleDeleteFolga={handleDeleteFolga}
             getConsultorById={getCrediaristaById}
             getUserNameById={getUserNameById}
             isLoading={isLoadingFolgas}
-            title="Folgas Recentes"
-            description="Últimas folgas registradas dos crediaristas"
+            title="Lista de Folgas"
+            description="Gerencie todas as folgas registradas dos crediaristas"
           />
         </div>
       </div>

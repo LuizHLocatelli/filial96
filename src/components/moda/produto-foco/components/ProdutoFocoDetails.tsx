@@ -70,8 +70,8 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent {...getMobileDialogProps("default")}>
-          <DialogHeader>
+        <DialogContent {...getMobileDialogProps("default")} className="flex flex-col max-h-[85vh]">
+          <DialogHeader className="flex-shrink-0 pb-4 border-b">
             <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
                 <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -88,7 +88,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 sm:space-y-6">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-6 py-4">
             {/* Informações Básicas */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div>
@@ -244,23 +244,23 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {/* Modal de Zoom da Imagem */}
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
-          <DialogContent {...getMobileDialogProps("extraLarge")}>
+          <DialogContent hideCloseButton={true} className="max-w-[95vw] max-h-[90vh] p-0">
             <DialogHeader className="sr-only">
               <DialogTitle>Visualização Ampliada</DialogTitle>
               <DialogDescription>
                 Imagem do produto em tamanho ampliado para melhor visualização
               </DialogDescription>
             </DialogHeader>
-            <div className="relative">
-              <img 
-                src={imagemSelecionada} 
+            <div className="relative flex items-center justify-center bg-black/90 rounded-lg overflow-hidden">
+              <img
+                src={imagemSelecionada}
                 alt="Imagem ampliada"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl sm:rounded-xl"
+                className="max-w-full max-h-[85vh] object-contain"
               />
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute top-2 right-2 bg-black/50 text-white hover:bg-black/70 rounded-full"
+                className="absolute top-2 right-2 bg-black/50 text-white hover:bg-black/70 rounded-full h-8 w-8 p-0"
                 onClick={() => setImagemSelecionada(null)}
               >
                 <X className="h-4 w-4" />

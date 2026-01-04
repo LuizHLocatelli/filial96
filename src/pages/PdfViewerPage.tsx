@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowDown, ArrowLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/components/ui/use-toast";
-import { PDFViewer } from "@/components/ui/pdf-viewer";
+import { PDFViewer } from "@/components/ui/pdf-viewer/index";
 
 const PdfViewerPage = () => {
   const [searchParams] = useSearchParams();

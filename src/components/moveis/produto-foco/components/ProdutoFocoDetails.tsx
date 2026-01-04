@@ -84,7 +84,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
             <div className="space-y-4">
             {/* Informações Básicas */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">

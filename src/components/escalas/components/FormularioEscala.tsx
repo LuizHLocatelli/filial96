@@ -337,27 +337,30 @@ export function FormularioEscala({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0 max-w-2xl">
+      <DialogContent className="max-w-2xl md:max-w-3xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0">
         {/* Fixed Header */}
-        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
-          <DialogHeader className="pr-8">
-            <DialogTitle className="flex flex-wrap items-center gap-2 text-base md:text-lg">
-              {escalaParaEditar ? 'Editar Escala' : 'Nova Escala'}
+        <DialogHeader className="flex-shrink-0 p-4 sm:p-5 border-b">
+          <DialogTitle className="flex items-center gap-2 text-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
+              <CalendarIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span>{escalaParaEditar ? 'Editar Escala' : 'Nova Escala'}</span>
               {modoTeste && (
-                <Badge variant="outline" className="text-xs md:text-sm">Modo Teste</Badge>
+                <Badge variant="outline" className="text-xs">Modo Teste</Badge>
               )}
-            </DialogTitle>
-            <DialogDescription className="text-xs md:text-sm">
-              {escalaParaEditar
-                ? 'Edite as informações da escala'
-                : 'Preencha os dados para criar uma nova escala'
-              }
-            </DialogDescription>
-          </DialogHeader>
-        </div>
+            </div>
+          </DialogTitle>
+          <DialogDescription className="text-sm ml-12">
+            {escalaParaEditar
+              ? 'Edite as informações da escala'
+              : 'Preencha os dados para criar uma nova escala'
+            }
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 md:space-y-4">
               {/* Funcionário */}

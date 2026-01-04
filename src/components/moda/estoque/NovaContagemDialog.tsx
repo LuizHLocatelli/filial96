@@ -49,17 +49,17 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg mx-auto">
+      <DialogContent className="max-w-md sm:max-w-lg mx-auto">
         <DialogHeader className="text-center space-y-3 sm:space-y-4">
-          <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center">
-            <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-          </div>
-          <div>
-            <DialogTitle className="text-lg sm:text-xl">Nova Contagem de Estoque</DialogTitle>
-            <DialogDescription className="mt-1 sm:mt-2 text-sm">
-              Crie uma nova contagem para organizar o controle de produtos armazenados.
-            </DialogDescription>
-          </div>
+          <DialogTitle className="flex items-center gap-2 text-lg justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
+              <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <span>Nova Contagem de Estoque</span>
+          </DialogTitle>
+          <DialogDescription className="text-sm">
+            Crie uma nova contagem para organizar o controle de produtos armazenados.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Download, FileText } from 'lucide-react';
 import { DirectoryFile } from '../types';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { PDFViewer } from '@/components/ui/pdf-viewer';
+import { PDFViewer } from '@/components/ui/pdf-viewer/index';
 import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 interface FileViewerProps {

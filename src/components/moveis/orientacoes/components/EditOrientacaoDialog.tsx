@@ -80,7 +80,7 @@ export function EditOrientacaoDialog({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
           <div className="space-y-4 md:space-y-6">
           {/* Informações Básicas */}
           <div className="space-y-4">

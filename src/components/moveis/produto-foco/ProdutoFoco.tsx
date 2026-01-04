@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Star, 
+import {
+  Plus,
+  Star,
   Calendar,
   Target,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Package
 } from 'lucide-react';
 import { useProdutoFoco } from './hooks/useProdutoFoco';
 import { ProdutoFocoCard } from './components/ProdutoFocoCard';
@@ -227,25 +228,30 @@ export function ProdutoFoco() {
 
       {/* Dialogs */}
       <Dialog open={showForm} onOpenChange={closeForm}>
-        <DialogContent {...getMobileDialogProps("default")}>
-          <DialogHeader>
-            <DialogTitle>
-              {editingProduto ? 'Editar Produto Foco' : 'Adicionar Produto Foco'}
+        <DialogContent {...getMobileDialogProps("default")} className="flex flex-col max-h-[85vh]">
+          <DialogHeader className="flex-shrink-0 border-b pb-4">
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
+                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <span>{editingProduto ? 'Editar Produto Foco' : 'Adicionar Produto Foco'}</span>
             </DialogTitle>
-            <DialogDescription>
-              {editingProduto 
-                ? 'Edite as informações do produto foco selecionado.' 
+            <DialogDescription className="text-sm ml-12">
+              {editingProduto
+                ? 'Edite as informações do produto foco selecionado.'
                 : 'Adicione um novo produto foco para orientar as vendas.'
               }
             </DialogDescription>
           </DialogHeader>
-          <ProdutoFocoForm
-            produto={editingProduto || undefined}
-            onSubmit={editingProduto ? handleUpdateProduto : handleCreateProduto}
-            onCancel={closeForm}
-            onUploadImagem={editingProduto ? handleUploadImagem : undefined}
-            onDeleteImagem={editingProduto ? handleDeleteImagem : undefined}
-          />
+          <div className="flex-1 min-h-0 overflow-y-auto py-4">
+            <ProdutoFocoForm
+              produto={editingProduto || undefined}
+              onSubmit={editingProduto ? handleUpdateProduto : handleCreateProduto}
+              onCancel={closeForm}
+              onUploadImagem={editingProduto ? handleUploadImagem : undefined}
+              onDeleteImagem={editingProduto ? handleDeleteImagem : undefined}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

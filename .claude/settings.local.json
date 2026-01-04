@@ -40,7 +40,9 @@
       "Bash(npm test -- --run)",
       "Bash(npm run test:run:*)",
       "Bash(npm ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm view:*)",
+      "Bash(npm run lint)"
     ]
   },
   "enableAllProjectMcpServers": true,

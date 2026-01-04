@@ -136,12 +136,14 @@ export function DetalheContagemDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] sm:h-[85vh] max-h-[800px] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="max-w-4xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0">
           {/* Header com padding controlado e espaço para botão X */}
-          <DialogHeader className="flex-shrink-0 p-4 sm:p-5 pr-12 sm:pr-14 border-b border-border/10">
+          <DialogHeader className="flex-shrink-0 p-4 sm:p-5 border-b">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <Package className="h-5 w-5 text-primary flex-shrink-0" />
+                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <DialogTitle className="text-base sm:text-lg truncate font-semibold">{contagem.nome}</DialogTitle>
@@ -184,7 +186,7 @@ export function DetalheContagemDialog({
           </DialogHeader>
 
           {/* Conteúdo principal com scroll controlado */}
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
               <div className="flex-shrink-0 px-4 sm:px-5 pt-3">
@@ -194,9 +196,9 @@ export function DetalheContagemDialog({
                     <span className="hidden sm:inline">Produtos</span>
                     <span className="sm:hidden">Lista</span>
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="adicionar" 
-                    disabled={contagem.status === "finalizada"} 
+                  <TabsTrigger
+                    value="adicionar"
+                    disabled={contagem.status === "finalizada"}
                     className="text-sm px-3"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -206,11 +208,11 @@ export function DetalheContagemDialog({
                 </TabsList>
               </div>
 
-              {/* Conteúdo das tabs com scroll independente */}
+              {/* Conteúdo das tabs com scroll */}
               <TabsContent value="produtos" className="flex-1 mt-0 overflow-hidden">
-                <div className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-5 py-4">
-                  <ProdutosList 
-                    contagemId={contagem.id} 
+                <div className="h-full overflow-y-auto px-4 sm:px-5 py-4">
+                  <ProdutosList
+                    contagemId={contagem.id}
                     contagemStatus={contagem.status}
                     onProdutoAtualizado={handleProdutoAtualizado}
                   />
@@ -218,8 +220,8 @@ export function DetalheContagemDialog({
               </TabsContent>
 
               <TabsContent value="adicionar" className="flex-1 mt-0 overflow-hidden">
-                <div className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-5 py-4">
-                  <ProdutoForm 
+                <div className="h-full overflow-y-auto px-4 sm:px-5 py-4">
+                  <ProdutoForm
                     contagemId={contagem.id}
                     onProdutoAdicionado={handleProdutoAdicionado}
                   />

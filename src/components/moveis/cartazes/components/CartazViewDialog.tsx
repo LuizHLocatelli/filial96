@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, FileImage, Download, X } from "lucide-react";
+import { FileText, FileImage, Download } from "lucide-react";
 import { CartazItem } from "../hooks/useCartazes";
-import { PDFViewer } from "@/components/ui/pdf-viewer";
+import { PDFViewer } from "@/components/ui/pdf-viewer/index";
 
 interface CartazViewDialogProps {
   cartaz: CartazItem;
@@ -29,49 +29,39 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[95vh] p-0">
-        <DialogHeader className="p-6 pb-0">
-          <div className="flex items-start justify-between">
+      <DialogContent className="max-w-5xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogHeader className="flex-shrink-0 p-4 sm:p-5 border-b">
+          <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-lg font-semibold mb-2">
-                {cartaz.title}
+              <DialogTitle className="flex items-center gap-2 text-lg">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
+                  {cartaz.file_type === 'pdf' ? (
+                    <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <FileImage className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  )}
+                </div>
+                <span className="truncate">{cartaz.title}</span>
               </DialogTitle>
-              <Badge variant="secondary" className="text-xs">
-                {cartaz.file_type === 'pdf' ? (
-                  <>
-                    <FileText className="h-3 w-3 mr-1" />
-                    PDF
-                  </>
-                ) : (
-                  <>
-                    <FileImage className="h-3 w-3 mr-1" />
-                    Imagem
-                  </>
-                )}
+              <Badge variant="secondary" className="ml-12 text-xs mt-1">
+                {cartaz.file_type === 'pdf' ? 'PDF' : 'Imagem'}
               </Badge>
             </div>
-            <div className="flex items-center gap-2 ml-4">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleDownload}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onOpenChange(false)}
-              >
-                <X className="h-4 w-4" />
+                <span className="hidden sm:inline">Download</span>
               </Button>
             </div>
           </div>
         </DialogHeader>
         
-        <div className="px-6 pb-6 flex-1 min-h-0">
-          <div className="bg-muted rounded-lg overflow-hidden h-[70vh]">
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <div className="bg-muted h-full min-h-[50vh]">
             {cartaz.file_type === 'image' ? (
               <img 
                 src={cartaz.file_url} 

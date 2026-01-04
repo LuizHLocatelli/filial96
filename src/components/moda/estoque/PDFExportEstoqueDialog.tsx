@@ -71,13 +71,15 @@ export function PDFExportEstoqueDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg mx-auto">
+      <DialogContent className="max-w-md sm:max-w-lg mx-auto">
         <DialogHeader className="space-y-2 sm:space-y-3">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <DialogTitle className="text-lg sm:text-xl">Exportar Contagem para PDF</DialogTitle>
-          </div>
-          <DialogDescription className="text-sm sm:text-base">
+          <DialogTitle className="flex items-center gap-2 text-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
+              <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <span>Exportar Contagem para PDF</span>
+          </DialogTitle>
+          <DialogDescription className="text-sm ml-12">
             Configure as opções para exportar a contagem de estoque em PDF.
           </DialogDescription>
         </DialogHeader>
