@@ -65,7 +65,7 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -268,10 +268,10 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     }
   };
 
-  const sendMessageToWebhook = async (message: string, imageBase64?: string, attempt: number = 1): Promise<string> => {
-    const cacheKey = getCacheKey(message + (imageBase64 ? '_with_image' : ''));
+  const sendMessageToWebhook = async (message: string, imageFile?: File, attempt: number = 1): Promise<string> => {
+    const cacheKey = getCacheKey(message + (imageFile ? '_with_image' : ''));
 
-    if (responseCache.has(cacheKey) && !imageBase64) {
+    if (responseCache.has(cacheKey) && !imageFile) {
       return responseCache.get(cacheKey)!;
     }
 
@@ -279,21 +279,19 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const payload: any = {
-        message,
-        chatbot_id: chatbot.id,
-        user_id: user?.id,
-        conversation_id: conversationId,
-      };
+      const formData = new FormData();
+      formData.append('message', message);
+      formData.append('chatbot_id', chatbot.id);
+      formData.append('user_id', user?.id || '');
+      formData.append('conversation_id', conversationId || '');
 
-      if (imageBase64) {
-        payload.image = imageBase64;
+      if (imageFile) {
+        formData.append('image', imageFile);
       }
 
       const response = await fetch(chatbot.webhook_url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: formData,
         signal: controller.signal,
       });
 
@@ -313,7 +311,7 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
       const finalResponse = botResponse || "Desculpe, não consegui processar sua mensagem.";
 
-      if (!imageBase64) {
+      if (!imageFile) {
         setResponseCache(prev => {
           const newCache = new Map(prev);
           newCache.set(cacheKey, finalResponse);
@@ -326,7 +324,7 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     } catch (error) {
       if (attempt < 3) {
         await new Promise(r => setTimeout(r, 1000 * attempt));
-        return sendMessageToWebhook(message, imageBase64, attempt + 1);
+        return sendMessageToWebhook(message, imageFile, attempt + 1);
       }
       throw new Error("Conexão falhou. Verifique sua internet ou tente mais tarde.");
     }
@@ -363,15 +361,10 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
-      setImageBase64(base64);
-      setSelectedImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    const objectUrl = URL.createObjectURL(file);
+      setImageFile(file);
+      setSelectedImage(objectUrl);
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -379,12 +372,12 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
   const handleRemoveImage = () => {
     setSelectedImage(null);
-    setImageBase64(null);
+    setImageFile(null);
   };
 
   const sendMessage = async (content?: string) => {
     const messageToSend = content || inputMessage;
-    if (!messageToSend.trim() && !imageBase64 || loading) return;
+    if (!messageToSend.trim() && !imageFile || loading) return;
 
     setErrorMessage(null);
 
@@ -392,7 +385,7 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       id: Date.now().toString(),
       type: 'user',
       content: messageToSend.trim(),
-      imageUrl: imageBase64 || undefined,
+      imageUrl: selectedImage || undefined,
       timestamp: new Date().toISOString(),
     };
 
@@ -401,12 +394,12 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
     if (!content) {
       setInputMessage("");
       setSelectedImage(null);
-      setImageBase64(null);
+      setImageFile(null);
     }
     setLoading(true);
 
     try {
-      const botResponse = await sendMessageToWebhook(userMessage.content, userMessage.imageUrl);
+      const botResponse = await sendMessageToWebhook(userMessage.content, imageFile || undefined);
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -697,10 +690,10 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
                 />
                 <Button
                   onClick={() => sendMessage()}
-                  disabled={(!inputMessage.trim() && !imageBase64) || loading || !chatbot.is_active}
+                  disabled={(!inputMessage.trim() && !imageFile) || loading || !chatbot.is_active}
                   size="icon"
                   className={`h-11 w-11 rounded-lg transition-all duration-200 shrink-0 ${
-                    (inputMessage.trim() || imageBase64) ? 'glass-button-primary' : 'opacity-50'
+                    (inputMessage.trim() || imageFile) ? 'glass-button-primary' : 'opacity-50'
                   }`}
                 >
                   {loading ? (
