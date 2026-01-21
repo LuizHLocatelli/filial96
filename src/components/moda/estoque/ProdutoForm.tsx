@@ -19,21 +19,21 @@ import { BarcodeScanner } from "./scanner/BarcodeScanner";
 
 interface ProdutoFormProps {
   contagemId: string;
+  contagemSetor: string;
   onProdutoAdicionado: () => void;
 }
 
-const setores = [
+const contagemSetores = [
   { value: "masculino", label: "Masculino", icon: User },
   { value: "feminino", label: "Feminino", icon: User },
   { value: "infantil", label: "Infantil", icon: Baby }
 ];
 
-export function ProdutoForm({ contagemId, onProdutoAdicionado }: ProdutoFormProps) {
+export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: ProdutoFormProps) {
   const [codigoProduto, setCodigoProduto] = useState("");
-  const [setor, setSetor] = useState("");
   const [quantidade, setQuantidade] = useState(1);
   const [loading, setLoading] = useState(false);
-const { toast } = useToast();
+  const { toast } = useToast();
   const [scannerEnabled, setScannerEnabled] = useState(false);
   const [autoAddOnScan, setAutoAddOnScan] = useState(true);
 
@@ -49,13 +49,17 @@ const { toast } = useToast();
     return codigo.length === 6 || codigo.length === 9;
   };
 
+  const getSetorLabel = (contagemSetorValue: string) => {
+    return contagemSetores.find((s) => s.value === contagemSetorValue)?.label || contagemSetorValue;
+  };
+
   const handleCodigoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valorFormatado = formatarCodigo(e.target.value);
     setCodigoProduto(valorFormatado);
   };
 
-  const addProduto = async (codigo: string, setorValue: string, qtd: number) => {
-    if (!codigo || !setorValue || qtd < 1) return false;
+  const addProduto = async (codigo: string, contagemSetorValue: string, qtd: number) => {
+    if (!codigo || !contagemSetorValue || qtd < 1) return false;
     if (!validarCodigo(codigo)) {
       toast({
         title: "Código inválido",
@@ -74,30 +78,30 @@ const { toast } = useToast();
       const { error: rpcError } = await supabase.rpc("upsert_moda_estoque_produto", {
         p_contagem_id: contagemId,
         p_codigo_produto: codigo,
-        p_setor: setorValue,
+        p_contagemSetor: contagemSetor,
         p_quantidade: qtd,
         p_created_by: user.user.id,
-      });
+      } as unknown as any);
       if (rpcError) throw rpcError;
 
-      const { data: produtoInfo, error: infoError } = await supabase
+      const { data: produtoInfo, error: infoError } = await (supabase
         .from("moda_estoque_produtos")
         .select("quantidade")
         .eq("contagem_id", contagemId)
         .eq("codigo_produto", codigo)
-        .eq("setor", setorValue)
-        .single();
-      if (infoError) throw infoError;
+        .eq("contagemSetor", contagemSetor)
+        .single() as unknown as { data: { quantidade: number } | null; error: Error | null });
+      if (infoError || !produtoInfo) throw infoError || new Error("Produto não encontrado");
 
-      const quantidadeAnterior = (produtoInfo?.quantidade ?? 0) - qtd;
-      const setorLabel = setores.find((s) => s.value === setorValue)?.label || setorValue;
+      const quantidadeAnterior = (produtoInfo.quantidade ?? 0) - qtd;
+      const contagemSetorLabel = getSetorLabel(contagemSetor);
       if (quantidadeAnterior > 0) {
         toast({
           title: "✅ Produto somado!",
-          description: `${qtd} + ${quantidadeAnterior} = ${produtoInfo?.quantidade} unidades (${setorLabel})`,
+          description: `${qtd} + ${quantidadeAnterior} = ${produtoInfo.quantidade} unidades (${contagemSetorLabel})`,
         });
       } else {
-        toast({ title: "✅ Produto adicionado!", description: `${qtd} unidade(s) · ${codigo} · ${setorLabel}` });
+        toast({ title: "✅ Produto adicionado!", description: `${qtd} unidade(s) · ${codigo} · ${contagemSetorLabel}` });
       }
 
       // limpar campos e focar
@@ -121,7 +125,7 @@ const { toast } = useToast();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!codigoProduto || !setor || quantidade < 1) {
+    if (!codigoProduto || !contagemSetor || quantidade < 1) {
       toast({
         title: "Erro",
         description: "Todos os campos são obrigatórios.",
@@ -140,21 +144,21 @@ const { toast } = useToast();
       return;
     }
 
-    await addProduto(codigoProduto, setor, quantidade);
+    await addProduto(codigoProduto, contagemSetor, quantidade);
   };
 
   const handleScan = async (code: string) => {
     setCodigoProduto(code);
-    if (!setor) {
+    if (!contagemSetor) {
       toast({
-        title: "Selecione o setor",
-        description: "Escolha o setor antes de adicionar pelo leitor.",
+        title: "Selecione o contagemSetor",
+        description: "Escolha o contagemSetor antes de adicionar pelo leitor.",
         variant: "destructive",
       });
       return;
     }
     if (autoAddOnScan) {
-      await addProduto(code, setor, 1);
+      await addProduto(code, contagemSetor, 1);
     }
   };
 
@@ -166,7 +170,7 @@ const { toast } = useToast();
           Adicionar Produto
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm">
-          Cadastre produtos na contagem. Se o código já existir no mesmo setor, 
+          Cadastre produtos na contagem. Se o código já existir no mesmo contagemSetor, 
           as quantidades serão somadas automaticamente.
         </CardDescription>
       </CardHeader>
@@ -192,25 +196,15 @@ const { toast } = useToast();
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="setor" className="text-sm sm:text-base">Setor *</Label>
-              <Select value={setor} onValueChange={setSetor} disabled={loading}>
-                <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base">
-                  <SelectValue placeholder="Selecione o setor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {setores.map((setorOption) => {
-                    const Icon = setorOption.icon;
-                    return (
-                      <SelectItem key={setorOption.value} value={setorOption.value}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          {setorOption.label}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              <Label className="text-sm sm:text-base">Setor</Label>
+              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border">
+                <Badge variant="secondary" className="text-sm">
+                  {getSetorLabel(contagemSetor)}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  Definido na criação da contagem
+                </span>
+              </div>
             </div>
           </div>
 
@@ -229,7 +223,7 @@ const { toast } = useToast();
           </div>
 
           {/* Preview do produto */}
-          {codigoProduto && setor && (
+          {codigoProduto && contagemSetor && (
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-sm text-muted-foreground mb-2">Preview:</p>
               <div className="flex items-center gap-2">
@@ -237,7 +231,7 @@ const { toast } = useToast();
                   {codigoProduto}
                 </Badge>
                 <Badge>
-                  {setores.find(s => s.value === setor)?.label}
+                  {contagemSetores.find(s => s.value === contagemSetor)?.label}
                 </Badge>
                 <span className="text-sm">
                   {quantidade} unidade{quantidade > 1 ? "s" : ""}
@@ -246,22 +240,22 @@ const { toast } = useToast();
             </div>
           )}
 
-          {/* Leitor com câmera */}
+            {/* Leitor com câmera */}
           <div className="glass-card p-3 sm:p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">Leitor com Câmera</div>
               <Switch checked={scannerEnabled} onCheckedChange={setScannerEnabled} />
             </div>
             <p className="text-xs text-muted-foreground">
-              Selecione o setor acima e aponte a câmera para o código (6 ou 9 dígitos).
-              Cada leitura adiciona 1 unidade automaticamente.
+              Modo contínuo: cada leitura adiciona 1 unidade automaticamente.
+              histórico das últimas 50 leituras disponível.
             </p>
             {scannerEnabled && (
               <BarcodeScanner
                 enabled={scannerEnabled}
-                onEnabledChange={setScannerEnabled}
-                onDetected={handleScan}
-                allowedLengths={[6, 9]}
+                onScan={handleScan}
+                showHistory={true}
+                beepEnabled={true}
               />
             )}
           </div>
@@ -269,7 +263,7 @@ const { toast } = useToast();
           <div className="flex gap-2 pt-4">
             <Button 
               type="submit" 
-              disabled={!codigoProduto || !setor || quantidade < 1 || loading}
+              disabled={!codigoProduto || !contagemSetor || quantidade < 1 || loading}
               className="gap-2 h-10 sm:h-11 text-sm sm:text-base"
             >
               {loading ? (

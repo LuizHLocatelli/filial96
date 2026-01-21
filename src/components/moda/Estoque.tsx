@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface Contagem {
   id: string;
   nome: string;
+  setor: string;
   status: "em_andamento" | "finalizada";
   created_at: string;
   created_by: string;
@@ -77,6 +78,7 @@ export function Estoque() {
       const contagensFormatadas = contagensComProdutos.map((contagem) => ({
         id: contagem.id,
         nome: contagem.nome,
+        setor: contagem.setor || "",
         status: contagem.status as "em_andamento" | "finalizada",
         created_at: contagem.created_at,
         created_by: contagem.created_by,
@@ -96,7 +98,7 @@ export function Estoque() {
     }
   };
 
-  const criarContagem = async (nome: string) => {
+  const criarContagem = async (nome: string, setor: string) => {
     try {
       const { data: user } = await supabase.auth.getUser();
 
@@ -113,8 +115,9 @@ export function Estoque() {
         .from("moda_estoque_contagens")
         .insert({
           nome,
+          setor,
           created_by: user.user.id,
-        })
+        } as any)
         .select()
         .single();
 
@@ -166,7 +169,7 @@ export function Estoque() {
     try {
       const { error } = await supabase
         .from("moda_estoque_contagens")
-        .update({ status: novoStatus })
+        .update({ status: novoStatus } as any)
         .eq("id", id);
 
       if (error) throw error;
@@ -215,6 +218,7 @@ export function Estoque() {
             ...contagemAtualizada,
             produtos_count: count || 0,
             status: contagemAtualizada.status as "em_andamento" | "finalizada",
+            setor: contagemAtualizada.setor || "",
           });
         }
       } catch (error) {

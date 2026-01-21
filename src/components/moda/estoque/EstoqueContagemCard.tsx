@@ -25,11 +25,18 @@ import { ptBR } from "date-fns/locale";
 interface Contagem {
   id: string;
   nome: string;
+  setor: string;
   status: "em_andamento" | "finalizada";
   created_at: string;
   created_by: string;
   produtos_count?: number;
 }
+
+const setores = [
+  { value: "masculino", label: "Masculino" },
+  { value: "feminino", label: "Feminino" },
+  { value: "infantil", label: "Infantil" }
+];
 
 interface EstoqueContagemCardProps {
   contagem: Contagem;
@@ -66,6 +73,23 @@ export function EstoqueContagemCard({
     }
   };
 
+  const getSetorColor = (setor: string) => {
+    switch (setor) {
+      case "masculino":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "feminino":
+        return "bg-pink-100 text-pink-800 border-pink-200";
+      case "infantil":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getSetorLabel = (setor: string) => {
+    return setores.find((s) => s.value === setor)?.label || setor;
+  };
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-l-4 border-l-primary/20 hover:border-l-primary">
       <CardHeader className="pb-4">
@@ -74,9 +98,12 @@ export function EstoqueContagemCard({
             <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
               {contagem.nome}
             </CardTitle>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge className={getStatusColor(contagem.status)} variant="outline">
                 {getStatusText(contagem.status)}
+              </Badge>
+              <Badge className={getSetorColor(contagem.setor)} variant="outline">
+                {getSetorLabel(contagem.setor)}
               </Badge>
             </div>
           </div>

@@ -892,6 +892,7 @@ export type Database = {
           created_by: string
           id: string
           nome: string
+          setor: string | null
           status: string
           updated_at: string
         }
@@ -900,6 +901,7 @@ export type Database = {
           created_by: string
           id?: string
           nome: string
+          setor?: string | null
           status?: string
           updated_at?: string
         }
@@ -908,6 +910,7 @@ export type Database = {
           created_by?: string
           id?: string
           nome?: string
+          setor?: string | null
           status?: string
           updated_at?: string
         }

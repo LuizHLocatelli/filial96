@@ -10,29 +10,44 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package } from "lucide-react";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Package, User, Baby } from "lucide-react";
 
 interface NovaContagemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCriar: (nome: string) => void;
+  onCriar: (nome: string, setor: string) => void;
 }
+
+const setores = [
+  { value: "masculino", label: "Masculino", icon: User },
+  { value: "feminino", label: "Feminino", icon: User },
+  { value: "infantil", label: "Infantil", icon: Baby }
+];
 
 export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagemDialogProps) {
   const [nome, setNome] = useState("");
+  const [setor, setSetor] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (nome.trim().length < 5) {
+    if (nome.trim().length < 5 || !setor) {
       return;
     }
 
     setLoading(true);
     try {
-      await onCriar(nome.trim());
+      await onCriar(nome.trim(), setor);
       setNome("");
+      setSetor("");
     } finally {
       setLoading(false);
     }
@@ -43,6 +58,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
       onOpenChange(newOpen);
       if (!newOpen) {
         setNome("");
+        setSetor("");
       }
     }
   };
@@ -67,7 +83,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
             <Label htmlFor="nome" className="text-sm font-medium">Nome da Contagem *</Label>
             <Input
               id="nome"
-              placeholder="Ex: Contagem de Produtos Armazenados do Verão"
+              placeholder="Ex: Contagem de Produtos Femininos do Verão"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               required
@@ -79,6 +95,32 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <span className="inline-block w-1 h-1 bg-muted-foreground rounded-full"></span>
               Mínimo de 5 caracteres
+            </p>
+          </div>
+
+          <div className="space-y-2 sm:space-y-3">
+            <Label htmlFor="setor" className="text-sm font-medium">Setor da Contagem *</Label>
+            <Select value={setor} onValueChange={setSetor} disabled={loading}>
+              <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base">
+                <SelectValue placeholder="Selecione o setor" />
+              </SelectTrigger>
+              <SelectContent>
+                {setores.map((setorOption) => {
+                  const Icon = setorOption.icon;
+                  return (
+                    <SelectItem key={setorOption.value} value={setorOption.value}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {setorOption.label}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="inline-block w-1 h-1 bg-muted-foreground rounded-full"></span>
+              Todos os produtos cadastrados serão deste setor
             </p>
           </div>
 
@@ -94,7 +136,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
             </Button>
             <Button 
               type="submit" 
-              disabled={nome.trim().length < 5 || loading}
+              disabled={nome.trim().length < 5 || !setor || loading}
               className="w-full sm:w-auto gap-2 h-10 sm:h-11 text-sm"
             >
               {loading ? (

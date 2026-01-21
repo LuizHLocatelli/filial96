@@ -3,6 +3,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 // Constantes para tamanhos padronizados de diálogos com 3 breakpoints (mobile, medium, large)
 // Padrão: <768px (mobile) | 768-1024px (medium) | ≥1024px (large)
+// Estrutura corrigida para scroll vertical: flex flex-col com overflow-hidden no container e overflow-y-auto no conteúdo
 export const DIALOG_SIZES = {
   small: "sm:max-w-md max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
   medium: "sm:max-w-2xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
@@ -11,6 +12,10 @@ export const DIALOG_SIZES = {
   extraLarge: "max-w-6xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
   fullscreen: "max-w-none max-h-none w-screen h-screen overflow-hidden flex flex-col"
 } as const;
+
+// Classe para área de conteúdo scrollável dentro do diálogo
+// Deve ser usada no elemento que contém o conteúdo principal (entre header e footer)
+export const DIALOG_SCROLLABLE_CONTENT = "flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent";
 
 export type DialogSizeKey = keyof typeof DIALOG_SIZES;
 
@@ -65,5 +70,6 @@ export function useMobileDialog() {
     getMobileFormProps,
     getMobileFooterProps,
     DIALOG_SIZES,
+    DIALOG_SCROLLABLE_CONTENT,
   };
 }

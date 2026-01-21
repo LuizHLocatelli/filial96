@@ -18,6 +18,7 @@ import { PDFExportEstoqueDialog } from "./PDFExportEstoqueDialog";
 import { EditarNomeContagemDialog } from "./EditarNomeContagemDialog";
 import { useEstoquePDFExport } from "./hooks/useEstoquePDFExport";
 import { supabase } from "@/integrations/supabase/client";
+import { DIALOG_SCROLLABLE_CONTENT } from "@/hooks/useMobileDialog";
 
 interface Produto {
   id: string;
@@ -30,6 +31,7 @@ interface Produto {
 interface Contagem {
   id: string;
   nome: string;
+  setor: string;
   status: "em_andamento" | "finalizada";
   created_at: string;
   created_by: string;
@@ -92,10 +94,10 @@ export function DetalheContagemDialog({
 
       if (error) throw error;
 
-      const produtosFormatados = data?.map(produto => ({
+      const produtosFormatados = (data || []).map(produto => ({
         ...produto,
         setor: produto.setor as "masculino" | "feminino" | "infantil"
-      })) || [];
+      }));
 
       setProdutos(produtosFormatados);
     } catch (error) {
@@ -185,8 +187,8 @@ export function DetalheContagemDialog({
             </div>
           </DialogHeader>
 
-          {/* Conteúdo principal com scroll controlado */}
-          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          {/* Conteúdo principal com scroll controlado - estrutura flex adequada */}
+          <div className={`flex-1 min-h-0 flex flex-col ${DIALOG_SCROLLABLE_CONTENT}`}>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
               <div className="flex-shrink-0 px-4 sm:px-5 pt-3">
@@ -209,24 +211,27 @@ export function DetalheContagemDialog({
               </div>
 
               {/* Conteúdo das tabs com scroll */}
-              <TabsContent value="produtos" className="flex-1 mt-0 overflow-hidden">
-                <div className="h-full overflow-y-auto px-4 sm:px-5 py-4">
-                  <ProdutosList
-                    contagemId={contagem.id}
-                    contagemStatus={contagem.status}
-                    onProdutoAtualizado={handleProdutoAtualizado}
-                  />
-                </div>
-              </TabsContent>
+              <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4">
+                <TabsContent value="produtos" className="mt-0 h-full" asChild>
+                  <div className="h-full">
+                    <ProdutosList
+                      contagemId={contagem.id}
+                      contagemStatus={contagem.status}
+                      onProdutoAtualizado={handleProdutoAtualizado}
+                    />
+                  </div>
+                </TabsContent>
 
-              <TabsContent value="adicionar" className="flex-1 mt-0 overflow-hidden">
-                <div className="h-full overflow-y-auto px-4 sm:px-5 py-4">
-                  <ProdutoForm
-                    contagemId={contagem.id}
-                    onProdutoAdicionado={handleProdutoAdicionado}
-                  />
-                </div>
-              </TabsContent>
+                <TabsContent value="adicionar" className="mt-0 h-full" asChild>
+                  <div className="h-full">
+                    <ProdutoForm
+                      contagemId={contagem.id}
+                      contagemSetor={contagem.setor}
+                      onProdutoAdicionado={handleProdutoAdicionado}
+                    />
+                  </div>
+                </TabsContent>
+              </div>
             </Tabs>
           </div>
         </DialogContent>
