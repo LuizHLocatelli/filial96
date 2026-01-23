@@ -85,10 +85,12 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
         recognition.lang = 'pt-BR';
 
         recognition.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map((result: any) => result[0]?.transcript || '')
-            .join('');
-          setInputMessage(prev => prev + transcript);
+          const resultIndex = event.resultIndex;
+          const result = event.results[resultIndex];
+          if (result && result[0]) {
+            const transcript = result[0].transcript;
+            setInputMessage(transcript);
+          }
         };
 
         recognition.onerror = (event: any) => {
