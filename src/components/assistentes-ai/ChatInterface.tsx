@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Bot, User, Loader2, RefreshCcw, AlertCircle, Image as ImageIcon, X, Paperclip } from "lucide-react";
+import { ArrowLeft, Send, Bot, User, Loader2, RefreshCcw, AlertCircle, Image as ImageIcon, X, Paperclip, Mic, MicOff, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,11 +66,65 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const inputRef = useAurora<HTMLDivElement>();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'pt-BR';
+
+        recognition.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0]?.transcript || '')
+            .join('');
+          setInputMessage(prev => prev + transcript);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsRecording(false);
+          if (event.error !== 'no-speech') {
+            toast({
+              title: "Erro no reconhecimento de voz",
+              description: "Não foi possível capturar sua voz. Tente novamente.",
+              variant: "destructive",
+            });
+          }
+        };
+
+        recognition.onend = () => {
+          setIsRecording(false);
+        };
+
+        recognitionRef.current = recognition;
+        setSpeechSupported(true);
+      } else {
+        setSpeechSupported(false);
+      }
+    }
+  }, [toast]);
+
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) return;
+
+    if (isRecording) {
+      recognitionRef.current.stop();
+    } else {
+      setInputMessage('');
+      recognitionRef.current.start();
+    }
+  };
 
   // Scroll to bottom function - melhorado para mobile
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
@@ -215,6 +269,8 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
   const loadConversation = async () => {
     if (!user) return;
 
+    const cacheKey = `chat_${chatbot.id}_${user.id}`;
+
     try {
       const { data, error } = await supabase
         .from('assistentes_conversas')
@@ -229,10 +285,17 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
       if (data && data.length > 0) {
         setConversationId(data[0].id);
         const savedMessages = (data[0].messages as any[]) || [];
-        setMessages(savedMessages.map(msg => ({
+        const formattedMessages = savedMessages.map(msg => ({
           ...msg,
           timestamp: msg.timestamp
-        })));
+        }));
+        setMessages(formattedMessages);
+
+        localStorage.setItem(cacheKey, JSON.stringify({
+          conversationId: data[0].id,
+          messages: formattedMessages,
+          timestamp: Date.now()
+        }));
       } else {
         const { data: newConversation, error: createError } = await supabase
           .from('assistentes_conversas')
@@ -246,25 +309,56 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
 
         if (createError) throw createError;
         setConversationId(newConversation.id);
+
+        localStorage.setItem(cacheKey, JSON.stringify({
+          conversationId: newConversation.id,
+          messages: [],
+          timestamp: Date.now()
+        }));
       }
     } catch (error) {
       console.error('Error loading conversation:', error);
+
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setConversationId(parsed.conversationId);
+          setMessages(parsed.messages || []);
+        } catch (e) {
+          console.error('Error parsing cached conversation:', e);
+        }
+      }
     }
   };
 
   const saveConversation = async (updatedMessages: Message[]) => {
-    if (!conversationId) return;
+    const cacheKey = `chat_${chatbot.id}_${user?.id}`;
 
     try {
-      await supabase
-        .from('assistentes_conversas')
-        .update({
-          messages: updatedMessages as any,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', conversationId);
+      if (conversationId) {
+        await supabase
+          .from('assistentes_conversas')
+          .update({
+            messages: updatedMessages as any,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', conversationId);
+      }
+
+      localStorage.setItem(cacheKey, JSON.stringify({
+        conversationId,
+        messages: updatedMessages,
+        timestamp: Date.now()
+      }));
     } catch (error) {
       console.error('Error saving conversation:', error);
+
+      localStorage.setItem(cacheKey, JSON.stringify({
+        conversationId,
+        messages: updatedMessages,
+        timestamp: Date.now()
+      }));
     }
   };
 
@@ -676,6 +770,26 @@ export function ChatInterface({ chatbot, onBack }: ChatInterfaceProps) {
                       <ImageIcon className="h-5 w-5" />
                     ) : (
                       <Paperclip className="h-5 w-5" />
+                    )}
+                  </Button>
+                )}
+
+                {speechSupported && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleVoiceInput}
+                    disabled={loading || !chatbot.is_active}
+                    className={`h-11 w-11 rounded-lg shrink-0 transition-all duration-200 ${
+                      isRecording ? 'text-red-500 animate-pulse' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    title={isRecording ? "Parar gravação" : "Entrar com voz"}
+                  >
+                    {isRecording ? (
+                      <Mic className="h-5 w-5" />
+                    ) : (
+                      <MicOff className="h-5 w-5" />
                     )}
                   </Button>
                 )}

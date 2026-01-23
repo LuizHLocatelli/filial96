@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Bot, MessageCircle, Settings, Trash2, Image } from "lucide-react";
+import { Plus, Bot, MessageCircle, Settings, Trash2, Image, Search, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +33,19 @@ export default function AssistentesAI() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   const isManager = profile?.role === 'gerente';
+
+  const filteredChatbots = chatbots.filter(chatbot => {
+    const matchesSearch = chatbot.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === "all" ||
+      (filterStatus === "active" && chatbot.is_active) ||
+      (filterStatus === "inactive" && !chatbot.is_active);
+    return matchesSearch && matchesStatus;
+  });
 
   useEffect(() => {
     fetchChatbots();
@@ -170,6 +181,67 @@ export default function AssistentesAI() {
         )}
       </motion.div>
 
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row gap-3 w-full max-w-full"
+      >
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Buscar assistentes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-primary/20 bg-background/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all text-sm"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={filterStatus === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterStatus("all")}
+            className={`gap-2 ${filterStatus === "all" ? "glass-button-primary" : "glass-button-outline"}`}
+          >
+            <Filter className="h-4 w-4" />
+            Todos
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-xs">
+              {chatbots.length}
+            </span>
+          </Button>
+          <Button
+            variant={filterStatus === "active" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterStatus("active")}
+            className={`gap-2 ${filterStatus === "active" ? "bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30" : "glass-button-outline"}`}
+          >
+            Ativos
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-green-500/10 text-xs">
+              {chatbots.filter(c => c.is_active).length}
+            </span>
+          </Button>
+          <Button
+            variant={filterStatus === "inactive" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterStatus("inactive")}
+            className={`gap-2 ${filterStatus === "inactive" ? "bg-red-500/20 text-red-500 border-red-500/30 hover:bg-red-500/30" : "glass-button-outline"}`}
+          >
+            Inativos
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/10 text-xs">
+              {chatbots.filter(c => !c.is_active).length}
+            </span>
+          </Button>
+        </div>
+      </motion.div>
+
       {chatbots.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -195,6 +267,37 @@ export default function AssistentesAI() {
             </CardContent>
           </Card>
         </motion.div>
+      ) : filteredChatbots.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <Card className="glass-card border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="bg-primary/10 p-4 rounded-full mb-4">
+                <Search className="h-16 w-16 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-center">Nenhum assistente encontrado</h3>
+              <p className="text-muted-foreground text-center mb-6 text-sm md:text-base max-w-md">
+                {searchQuery
+                  ? "Tente ajustar sua busca ou remover os filtros aplicados."
+                  : "Os assistentes de IA aparecerão aqui quando forem criados pelos gerentes."}
+              </p>
+              {searchQuery && (
+                <Button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setFilterStatus("all");
+                  }}
+                  className="gap-2 w-full sm:w-auto glass-button-primary"
+                >
+                  <X className="h-4 w-4" />
+                  Limpar filtros
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       ) : (
         <motion.div 
           variants={container}
@@ -202,7 +305,7 @@ export default function AssistentesAI() {
           animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full"
         >
-          {chatbots.map((chatbot) => (
+          {filteredChatbots.map((chatbot) => (
             <motion.div key={chatbot.id} variants={item}>
               <Card className="glass-card glass-hover h-full flex flex-col overflow-hidden border-primary/10">
                 <CardHeader className="pb-3">
