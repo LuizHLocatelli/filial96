@@ -78,7 +78,7 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
       const { error: rpcError } = await supabase.rpc("upsert_moda_estoque_produto", {
         p_contagem_id: contagemId,
         p_codigo_produto: codigo,
-        p_contagemSetor: contagemSetor,
+        p_setor: contagemSetor,
         p_quantidade: qtd,
         p_created_by: user.user.id,
       } as unknown as any);

@@ -2301,13 +2301,13 @@ export type Database = {
       }
       upsert_moda_estoque_produto: {
         Args: {
-          p_codigo_produto: string
           p_contagem_id: string
-          p_created_by: string
-          p_quantidade: number
+          p_codigo_produto: string
           p_setor: string
+          p_quantidade: number
+          p_created_by: string
         }
-        Returns: string
+        Returns: unknown
       }
       vector_avg: {
         Args: { "": number[] }
