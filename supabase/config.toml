@@ -37,3 +37,6 @@ verify_jwt = false
 
 [functions.process-nota-fiscal]
 verify_jwt = false
+
+[functions.gemini-agent]
+verify_jwt = true

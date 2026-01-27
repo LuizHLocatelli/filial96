@@ -14,6 +14,15 @@
         "SUPABASE_ACCESS_TOKEN": "sbp_50e590de98f0fac2d7940b2aa5b8383b23bb7706"
       },
       "enabled": true
+    },
+    "context7": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "enabled": true
     }
   }
 }

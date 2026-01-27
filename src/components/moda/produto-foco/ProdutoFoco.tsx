@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
-import { useModaTracking } from '@/hooks/useModaTracking';
 import { useProdutoFoco } from './hooks/useProdutoFoco';
 import { 
   Plus, 
@@ -30,7 +29,6 @@ import { ptBR } from 'date-fns/locale';
 import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 export function ProdutoFoco() {
-  const { trackProdutoFocoEvent } = useModaTracking();
   const {
     produtos,
     produtoAtivo,
@@ -53,62 +51,38 @@ export function ProdutoFoco() {
 
   const { getMobileDialogProps } = useMobileDialog();
 
-  useEffect(() => {
-    // Registrar acesso à seção de produto foco
-    trackProdutoFocoEvent('acesso_produto_foco');
-  }, [trackProdutoFocoEvent]);
-
-  useEffect(() => {
-    if (produtos.length > 0) {
-      // Rastrear dados carregados
-      trackProdutoFocoEvent('dados_carregados', {
-        total_produtos: produtos.length,
-        produtos_ativos: produtos.filter(p => p.ativo).length
-      });
-    }
-  }, [produtos, trackProdutoFocoEvent]);
-
   const handleCreateProduto = () => {
-    trackProdutoFocoEvent('criar_produto_iniciado');
     setEditingProduto(null);
     setShowForm(true);
   };
 
   const handleEditProduto = (produto: ProdutoFocoWithImages) => {
-    trackProdutoFocoEvent('editar_produto_iniciado', produto);
     setEditingProduto(produto);
     setShowForm(true);
   };
 
   const handleDeleteProduto = (produtoId: string) => {
-    const produto = produtos.find(p => p.id === produtoId);
-    trackProdutoFocoEvent('deletar_produto_iniciado', produto);
     setDeletingProduto(produtoId);
   };
 
   const confirmDeleteProduto = async () => {
     if (!deletingProduto) return;
 
-    const produto = produtos.find(p => p.id === deletingProduto);
     await deleteProduto(deletingProduto);
     setDeletingProduto(null);
-    trackProdutoFocoEvent('produto_deletado', produto);
   };
 
   const handleViewDetails = (produto: ProdutoFocoWithImages) => {
-    trackProdutoFocoEvent('produto_visualizado', produto);
     setViewingProduto(produto);
   };
 
   const handleRegistrarVenda = (produto: ProdutoFocoWithImages) => {
-    trackProdutoFocoEvent('registrar_venda_iniciado', produto);
     setVendaProduto(produto);
   };
 
   const handleVendaRegistrada = () => {
-    trackProdutoFocoEvent('venda_registrada', vendaProduto);
     setVendaProduto(null);
-    refetch(); // Recarregar para atualizar estatísticas
+    refetch();
   };
 
   const handleFormSubmit = async (formData: any, imagens?: File[]) => {
@@ -117,16 +91,14 @@ export function ProdutoFoco() {
       
       if (isEditingMode) {
         await updateProduto(editingProduto.id, formData);
-        trackProdutoFocoEvent('produto_atualizado', { ...formData, id: editingProduto.id });
       } else {
         await createProduto(formData, imagens);
-        trackProdutoFocoEvent('produto_criado', formData);
       }
       
       setShowForm(false);
       setEditingProduto(null);
     } catch (error) {
-      trackProdutoFocoEvent('erro_formulario', { erro: error, modo: editingProduto ? 'edicao' : 'criacao' });
+      console.error('Erro ao salvar produto:', error);
     }
   };
 

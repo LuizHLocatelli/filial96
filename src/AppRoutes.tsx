@@ -3,7 +3,6 @@ import { Suspense, lazy } from "react";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { useAuth } from "./contexts/auth";
-import { useIntelligentPreload } from "./hooks/useIntelligentPreload";
 import CalculadoraIgreenWrapper from "./pages/CalculadoraIgreenWrapper";
 
 // Lazy load das páginas principais
@@ -24,6 +23,8 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import FlappyBird from "./pages/FlappyBird";
+import AgenteMultimodal from "./pages/agente-multimodal/AgenteMultimodal";
+import AgenteMultimodalCreate from "./pages/agente-multimodal/AgenteMultimodalCreate";
 
 // Componentes de debug/demonstração
 import { DarkModeHoverDemo } from "./components/debug/DarkModeHoverDemo";
@@ -49,15 +50,6 @@ const LazyPageWrapper = ({ children }: LazyPageWrapperProps) => (
 const AppRoutes = () => {
   const { isLoading } = useAuth();
   
-  // Sistema de preload inteligente
-  const { getStats } = useIntelligentPreload();
-
-  // Log das estatísticas de lazy loading em desenvolvimento
-  if (process.env.NODE_ENV === 'development') {
-    const stats = getStats();
-    console.log('📊 Lazy Loading Stats:', stats);
-  }
-
   // Se a autenticação ainda estiver carregando, mostrar um spinner simples
   if (isLoading) {
     return <PageLoader />;
@@ -169,6 +161,28 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <LazyPageWrapper>
               <UserManagement />
+            </LazyPageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+
+      {/* Rotas de Agente Multimodal */}
+      <Route 
+        path="/agente-multimodal" 
+        element={
+          <ProtectedRoute>
+            <LazyPageWrapper>
+              <AgenteMultimodal />
+            </LazyPageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/agente-multimodal/criar" 
+        element={
+          <ProtectedRoute>
+            <LazyPageWrapper>
+              <AgenteMultimodalCreate />
             </LazyPageWrapper>
           </ProtectedRoute>
         } 

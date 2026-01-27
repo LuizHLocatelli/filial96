@@ -11,10 +11,11 @@
         "SUPABASE_ACCESS_TOKEN": "sbp_be57bbd224b29085f724c47b145f353f20ca2737"
       }
     },
-    "chrome-devtools": {
+    "context7": {
       "command": "npx",
       "args": [
-        "chrome-devtools-mcp@latest"
+        "-y",
+        "@upstash/context7-mcp"
       ]
     }
   }

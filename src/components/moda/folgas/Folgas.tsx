@@ -6,7 +6,6 @@ import { isSameMonth, addDays } from "date-fns";
 import { useFolgas } from "@/hooks/shared/useFolgas";
 import { FolgasCalendar, FolgasList, FolgasSummary, AddFolgaDialog } from "@/components/shared/folgas";
 import { UseFolgasConfig } from "@/types/shared/folgas";
-import { useModaTracking } from "@/hooks/useModaTracking";
 
 // Configuração específica para o módulo de Moda
 const modaFolgasConfig: UseFolgasConfig = {
@@ -17,7 +16,6 @@ const modaFolgasConfig: UseFolgasConfig = {
 };
 
 export function Folgas() {
-  const { trackFolgasEvent } = useModaTracking();
   const {
     currentMonth,
     consultores,
@@ -68,34 +66,6 @@ export function Folgas() {
     };
   }, [folgas, currentMonth, consultores]);
 
-  const handleTrackedDateClick = (date: Date) => {
-    trackFolgasEvent("data_selecionada", { data: date.toISOString() });
-    handleDateClick(date);
-  };
-
-  const handleTrackedNavigation = (direction: "prev" | "next") => {
-    trackFolgasEvent("navegacao_calendario", { direcao: direction });
-    if (direction === "prev") {
-      handlePrevMonth();
-    } else {
-      handleNextMonth();
-    }
-  };
-
-  const handleAddFolgaTracked = async () => {
-    trackFolgasEvent("adicionar_folga_clicado");
-    await handleAddFolga();
-  };
-
-  const handleDeleteFolgaTracked = async (folgaId: string) => {
-    const folga = folgas.find((f) => f.id === folgaId);
-    trackFolgasEvent("deletar_folga_iniciado", folga);
-    await handleDeleteFolga(folgaId);
-    if (refetchFolgas) {
-      setTimeout(() => refetchFolgas(), 100);
-    }
-  };
-
   return (
     <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -105,7 +75,6 @@ export function Folgas() {
         </div>
         <Button
           onClick={() => {
-            trackFolgasEvent("adicionar_folga_clicado");
             handleDateClick(selectedDate || new Date());
           }}
         >
@@ -175,9 +144,9 @@ export function Folgas() {
         <FolgasCalendar
           currentMonth={currentMonth}
           folgas={folgas}
-          handlePrevMonth={handleTrackedNavigation.bind(null, "prev")}
-          handleNextMonth={handleTrackedNavigation.bind(null, "next")}
-          onDateClick={handleTrackedDateClick}
+          handlePrevMonth={handlePrevMonth}
+          handleNextMonth={handleNextMonth}
+          onDateClick={handleDateClick}
           getConsultorById={getConsultorById}
           title="Calendário de Folgas"
           description="Clique em um dia para adicionar ou visualizar detalhes das folgas."
@@ -186,7 +155,7 @@ export function Folgas() {
         <div className="mt-8">
           <FolgasList
             folgas={folgas}
-            handleDeleteFolga={handleDeleteFolgaTracked}
+            handleDeleteFolga={handleDeleteFolga}
             getConsultorById={getConsultorById}
             getUserNameById={getUserNameById}
             isLoading={isLoadingFolgas}
@@ -206,7 +175,7 @@ export function Folgas() {
         setSelectedConsultor={setSelectedConsultor}
         motivo={motivo}
         setMotivo={setMotivo}
-        handleAddFolga={handleAddFolgaTracked}
+        handleAddFolga={handleAddFolga}
         isLoading={isLoadingConsultores}
         folgasNoDia={folgasDoDiaSelecionado}
         getConsultorNameById={getConsultorName}
