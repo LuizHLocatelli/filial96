@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -16,86 +15,59 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
   const fetchFiles = async () => {
     setIsLoading(true);
     try {
-      console.log('Fetching files from table:', tableName, 'with categoryId:', categoryId);
+      let query = supabase
+        .from('crediario_directory_files')
+        .select('*');
       
-      let query;
-      
-      // Using explicit table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos').select('*');
-      } else {
-        query = supabase.from('crediario_directory_files').select('*');
-      }
-      
-      // Apply category filter if provided
       if (categoryId) {
         query = query.eq('category_id', categoryId);
       }
       
-      // Apply ordering
       query = query.order('created_at', { ascending: false });
 
-      console.log('Executing query...');
       const { data, error } = await query;
 
       if (error) {
-        console.error('Supabase error:', error);
         throw error;
       }
 
-      console.log('Files fetched successfully:', data?.length || 0);
-      
-      // Convert data to DirectoryFile format with safety check
-      const convertedFiles: DirectoryFile[] = (data || []).map(item => ({
-        id: item.id,
-        name: item.name || '',
-        description: item.description || '',
-        file_url: item.file_url || '',
-        file_type: item.file_type || '',
-        file_size: item.file_size || null,
-        category_id: item.category_id || null,
-        is_featured: item.is_featured || false,
-        created_at: item.created_at || new Date().toISOString(),
-        updated_at: item.updated_at || new Date().toISOString(),
-        created_by: item.created_by || null
-      }));
-      
-      setFiles(convertedFiles);
+      const typedData = (data || []) as unknown as DirectoryFile[];
+      setFiles(typedData);
     } catch (error: any) {
       console.error('Erro ao buscar arquivos:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar a lista de arquivos.',
+        description: 'Não foi possível carregar os arquivos.',
         variant: 'destructive',
       });
-      setFiles([]); // Garantir que sempre seja um array
     } finally {
       setIsLoading(false);
     }
   };
 
-  const addFile = async (fileData: Partial<DirectoryFile>) => {
+  const addFile = async (file: {
+    name: string;
+    description?: string;
+    file_url: string;
+    file_type: string;
+    file_size?: number;
+    category_id?: string;
+    is_featured?: boolean;
+  }) => {
     try {
-      console.log('Adding file:', fileData);
-      
-      // Convert "none" to null for category_id
-      if (fileData.category_id === "none") {
-        fileData.category_id = null;
-      }
-      
-      let query;
-      
-      // Using explicit table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
-      
-      const { error } = await query.insert([fileData]);
+      const { error } = await supabase
+        .from('crediario_directory_files')
+        .insert({
+          name: file.name,
+          description: file.description,
+          file_url: file.file_url,
+          file_type: file.file_type,
+          file_size: file.file_size,
+          category_id: file.category_id,
+          is_featured: file.is_featured || false,
+        });
 
       if (error) {
-        console.error('Error adding file:', error);
         throw error;
       }
 
@@ -118,39 +90,22 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
   const updateFile = async (
     id: string,
     updates: {
-      name: string;
-      description: string;
-      category_id: string | null;
-      is_featured: boolean;
+      name?: string;
+      description?: string;
+      category_id?: string | null;
+      is_featured?: boolean;
     }
   ) => {
     try {
-      console.log('Updating file:', id, updates);
-      
-      // Convert "none" to null for category_id
-      if (updates.category_id === "none") {
-        updates.category_id = null;
-      }
-      
-      let query;
-      
-      // Using explicit table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
-      
-      const { error } = await query.update({
-        name: updates.name,
-        description: updates.description,
-        category_id: updates.category_id,
-        is_featured: updates.is_featured,
-        updated_at: new Date().toISOString(),
-      }).eq('id', id);
+      const { error } = await supabase
+        .from('crediario_directory_files')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
 
       if (error) {
-        console.error('Error updating file:', error);
         throw error;
       }
 
@@ -170,23 +125,14 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
     }
   };
 
-  const deleteFile = async (id: string, fileUrl: string) => {
+  const deleteFile = async (id: string) => {
     try {
-      console.log('Deleting file:', id);
-      
-      let query;
-      
-      // Using explicit table names to avoid Supabase client type errors
-      if (tableName === 'moveis_arquivos') {
-        query = supabase.from('moveis_arquivos');
-      } else {
-        query = supabase.from('crediario_directory_files');
-      }
-      
-      const { error } = await query.delete().eq('id', id);
+      const { error } = await supabase
+        .from('crediario_directory_files')
+        .delete()
+        .eq('id', id);
 
       if (error) {
-        console.error('Error deleting file:', error);
         throw error;
       }
 

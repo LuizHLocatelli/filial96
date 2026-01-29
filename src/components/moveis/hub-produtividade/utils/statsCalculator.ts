@@ -57,8 +57,7 @@ export function calculateProductivityStats(
     orientacoes: orientacoesStats,
     tarefas: tarefasStats,
     produtividade: {
-      score: produtividadeScore,
-      meta: 85
+      score: produtividadeScore
     }
   };
 }

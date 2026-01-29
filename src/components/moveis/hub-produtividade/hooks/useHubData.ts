@@ -19,11 +19,25 @@ export function useHubData() {
   const lastRefreshRef = useRef<number>(0);
   
   const [stats, setStats] = useState<ProductivityStats>({
+    rotinas: {
+      total: 0,
+      concluidas: 0,
+      pendentes: 0,
+      atrasadas: 0,
+      percentualConclusao: 0
+    },
     orientacoes: {
       total: 0,
       lidas: 0,
       naoLidas: 0,
       recentes: 0
+    },
+    tarefas: {
+      total: 0,
+      concluidas: 0,
+      pendentes: 0,
+      atrasadas: 0,
+      percentualConclusao: 0
     },
     produtividade: {
       score: 0

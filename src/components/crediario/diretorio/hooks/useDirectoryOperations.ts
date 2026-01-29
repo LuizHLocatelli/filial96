@@ -64,7 +64,7 @@ export function useDirectoryOperations() {
 
   const handleDeleteFileConfirm = async () => {
     if (!fileOps.selectedFile) return;
-    await deleteFile(fileOps.selectedFile.id, fileOps.selectedFile.file_url);
+    await deleteFile(fileOps.selectedFile.id);
   };
 
   const handleFileUpload = async (file: File, categoryId: string | null, isFeatured: boolean) => {

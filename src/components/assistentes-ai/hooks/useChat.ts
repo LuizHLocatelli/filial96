@@ -278,7 +278,7 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
   }, [messages, saveConversation, sendMessageToWebhook, streamText]);
 
   const retryMessage = useCallback(() => {
-    const lastUserMessage = messages.findLast(m => m.type === 'user');
+    const lastUserMessage = [...messages].reverse().find(m => m.type === 'user');
     if (lastUserMessage) {
       setError(null);
       const filteredMessages = messages.filter(m => m.id !== lastUserMessage.id);
