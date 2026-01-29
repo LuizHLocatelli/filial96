@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -16,23 +15,15 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      // Use type assertion for table name instead of dynamic query
-      let query;
-      
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_categorias') {
-        query = supabase.from('moveis_categorias');
-      } else {
-        query = supabase.from('crediario_directory_categories');
-      }
-      
-      const { data, error } = await query.select('*').order('name');
+      const { data, error } = await supabase
+        .from('crediario_directory_categories')
+        .select('*')
+        .order('name');
 
       if (error) {
         throw error;
       }
 
-      // Use type assertion to properly cast the data
       const typedData = (data || []) as unknown as DirectoryCategory[];
       setCategories(typedData);
     } catch (error: any) {
@@ -49,19 +40,12 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const addCategory = async (name: string, description?: string) => {
     try {
-      let query;
-      
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_categorias') {
-        query = supabase.from('moveis_categorias');
-      } else {
-        query = supabase.from('crediario_directory_categories');
-      }
-      
-      const { error } = await query.insert({
-        name,
-        description,
-      });
+      const { error } = await supabase
+        .from('crediario_directory_categories')
+        .insert({
+          name,
+          description,
+        });
 
       if (error) {
         throw error;
@@ -88,20 +72,14 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
     updates: { name: string; description?: string }
   ) => {
     try {
-      let query;
-      
-      // Using hardcoded table names to avoid Supabase client type errors
-      if (tableName === 'moveis_categorias') {
-        query = supabase.from('moveis_categorias');
-      } else {
-        query = supabase.from('crediario_directory_categories');
-      }
-      
-      const { error } = await query.update({
-        name: updates.name,
-        description: updates.description,
-        updated_at: new Date().toISOString(),
-      }).eq('id', id);
+      const { error } = await supabase
+        .from('crediario_directory_categories')
+        .update({
+          name: updates.name,
+          description: updates.description,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id);
 
       if (error) {
         throw error;
@@ -125,37 +103,17 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   const deleteCategory = async (id: string) => {
     try {
-      // Determine correct tables based on the current table
-      let categoryTable, filesTable;
-      
-      if (tableName === 'moveis_categorias') {
-        categoryTable = 'moveis_categorias';
-        filesTable = 'moveis_arquivos';
-      } else {
-        categoryTable = 'crediario_directory_categories';
-        filesTable = 'crediario_directory_files';
-      }
-      
       // First, update the files of this category to have no category
-      if (filesTable === 'moveis_arquivos') {
-        await supabase.from('moveis_arquivos')
-          .update({ category_id: null })
-          .eq('category_id', id);
-      } else {
-        await supabase.from('crediario_directory_files')
-          .update({ category_id: null })
-          .eq('category_id', id);
-      }
+      await supabase
+        .from('crediario_directory_files')
+        .update({ category_id: null })
+        .eq('category_id', id);
 
       // Now remove the category
-      let query;
-      if (categoryTable === 'moveis_categorias') {
-        query = supabase.from('moveis_categorias');
-      } else {
-        query = supabase.from('crediario_directory_categories');
-      }
-      
-      const { error } = await query.delete().eq('id', id);
+      const { error } = await supabase
+        .from('crediario_directory_categories')
+        .delete()
+        .eq('id', id);
 
       if (error) {
         throw error;

@@ -211,7 +211,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         numPages={numPages}
         currentPage={currentPage}
         scale={scale}
-        isLoading={status === 'loading'}
+        isLoading={status === 'idle' || status === 'loading' as any}
         onPageChange={handlePageChange}
         onScaleChange={handleScaleChange}
         onDownload={handleDownload}
