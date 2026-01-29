@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       assistentes_chatbots: {
         Row: {
+          accept_images: boolean | null
           created_at: string
           created_by: string
           id: string
@@ -25,6 +26,7 @@ export type Database = {
           webhook_url: string
         }
         Insert: {
+          accept_images?: boolean | null
           created_at?: string
           created_by: string
           id?: string
@@ -34,6 +36,7 @@ export type Database = {
           webhook_url: string
         }
         Update: {
+          accept_images?: boolean | null
           created_at?: string
           created_by?: string
           id?: string
@@ -236,6 +239,27 @@ export type Database = {
           data?: string
           id?: string
           ja_incluido?: boolean | null
+        }
+        Relationships: []
+      }
+      crediario_depositos_reset: {
+        Row: {
+          created_at: string | null
+          id: string
+          reset_by: string | null
+          reset_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          reset_by?: string | null
+          reset_date?: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          reset_by?: string | null
+          reset_date?: string
         }
         Relationships: []
       }
@@ -493,52 +517,155 @@ export type Database = {
           },
         ]
       }
+      frete_items: {
+        Row: {
+          codigo: string | null
+          created_at: string | null
+          created_by: string | null
+          descricao: string
+          frete_id: string
+          id: string
+          ordem: number | null
+          quantidade: number | null
+          valor_total_item: number | null
+          valor_unitario: number | null
+        }
+        Insert: {
+          codigo?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          descricao: string
+          frete_id: string
+          id?: string
+          ordem?: number | null
+          quantidade?: number | null
+          valor_total_item?: number | null
+          valor_unitario?: number | null
+        }
+        Update: {
+          codigo?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          descricao?: string
+          frete_id?: string
+          id?: string
+          ordem?: number | null
+          quantidade?: number | null
+          valor_total_item?: number | null
+          valor_unitario?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frete_items_frete_id_fkey"
+            columns: ["frete_id"]
+            isOneToOne: false
+            referencedRelation: "fretes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      frete_processing_logs: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          extracted_data: Json | null
+          frete_id: string | null
+          id: string
+          image_url: string
+          processing_time_ms: number | null
+          raw_response: string | null
+          success: boolean | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          extracted_data?: Json | null
+          frete_id?: string | null
+          id?: string
+          image_url: string
+          processing_time_ms?: number | null
+          raw_response?: string | null
+          success?: boolean | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          extracted_data?: Json | null
+          frete_id?: string | null
+          id?: string
+          image_url?: string
+          processing_time_ms?: number | null
+          raw_response?: string | null
+          success?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frete_processing_logs_frete_id_fkey"
+            columns: ["frete_id"]
+            isOneToOne: false
+            referencedRelation: "fretes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fretes: {
         Row: {
+          comprovante_entrega_url: string | null
           cpf_cliente: string | null
-          created_at: string
+          created_at: string | null
           created_by: string | null
           endereco_entrega: string
           id: string
-          itens: Json
           nome_cliente: string
           nota_fiscal_url: string | null
-          pago: boolean
-          status: string
+          pago: boolean | null
+          processamento_ia_confidence: number | null
+          processamento_ia_log_id: string | null
+          status: string | null
           telefone: string
-          updated_at: string
+          updated_at: string | null
           valor_frete: number
           valor_total_nota: number | null
         }
         Insert: {
+          comprovante_entrega_url?: string | null
           cpf_cliente?: string | null
-          created_at?: string
+          created_at?: string | null
           created_by?: string | null
           endereco_entrega: string
           id?: string
-          itens?: Json
           nome_cliente: string
           nota_fiscal_url?: string | null
-          pago?: boolean
-          status?: string
+          pago?: boolean | null
+          processamento_ia_confidence?: number | null
+          processamento_ia_log_id?: string | null
+          status?: string | null
           telefone: string
-          updated_at?: string
+          updated_at?: string | null
           valor_frete: number
           valor_total_nota?: number | null
         }
         Update: {
+          comprovante_entrega_url?: string | null
           cpf_cliente?: string | null
-          created_at?: string
+          created_at?: string | null
           created_by?: string | null
           endereco_entrega?: string
           id?: string
-          itens?: Json
           nome_cliente?: string
           nota_fiscal_url?: string | null
-          pago?: boolean
-          status?: string
+          pago?: boolean | null
+          processamento_ia_confidence?: number | null
+          processamento_ia_log_id?: string | null
+          status?: string | null
           telefone?: string
-          updated_at?: string
+          updated_at?: string | null
           valor_frete?: number
           valor_total_nota?: number | null
         }
@@ -930,86 +1057,6 @@ export type Database = {
         }
         Relationships: []
       }
-      moveis_arquivos: {
-        Row: {
-          category_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          is_featured: boolean | null
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          file_size?: number | null
-          file_type: string
-          file_url: string
-          id?: string
-          is_featured?: boolean | null
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          file_size?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          is_featured?: boolean | null
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "moveis_arquivos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "moveis_categorias"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      moveis_categorias: {
-        Row: {
-          color: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       moveis_descontinuados: {
         Row: {
           categoria: string
@@ -1068,6 +1115,7 @@ export type Database = {
         Relationships: []
       }
       moveis_folgas: {
+        Row: {
           consultor_id: string
           created_at: string | null
           created_by: string | null
@@ -1107,6 +1155,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      moveis_frete_localidades: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          localidade: string
+          observacoes: string | null
+          updated_at: string | null
+          valor: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          localidade: string
+          observacoes?: string | null
+          updated_at?: string | null
+          valor?: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          localidade?: string
+          observacoes?: string | null
+          updated_at?: string | null
+          valor?: number
+        }
+        Relationships: []
       }
       moveis_orientacoes: {
         Row: {
@@ -1648,44 +1726,44 @@ export type Database = {
           },
         ]
       }
-      sales_records: {
+      ssc_procedimentos: {
         Row: {
-          consultant_id: string
+          canais: Json
+          categoria: string
+          contatos_exclusivos: Json[] | null
           created_at: string | null
-          goal_id: string
+          fabricante: string
           id: string
-          value: number
+          links_principais: Json[] | null
+          observacoes: string[] | null
+          procedimento: string
+          updated_at: string | null
         }
         Insert: {
-          consultant_id: string
+          canais?: Json
+          categoria: string
+          contatos_exclusivos?: Json[] | null
           created_at?: string | null
-          goal_id: string
+          fabricante: string
           id?: string
-          value: number
+          links_principais?: Json[] | null
+          observacoes?: string[] | null
+          procedimento: string
+          updated_at?: string | null
         }
         Update: {
-          consultant_id?: string
+          canais?: Json
+          categoria?: string
+          contatos_exclusivos?: Json[] | null
           created_at?: string | null
-          goal_id?: string
+          fabricante?: string
           id?: string
-          value?: number
+          links_principais?: Json[] | null
+          observacoes?: string[] | null
+          procedimento?: string
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "sales_records_consultant_id_fkey"
-            columns: ["consultant_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sales_records_goal_id_fkey"
-            columns: ["goal_id"]
-            isOneToOne: false
-            referencedRelation: "goals"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -1853,21 +1931,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      agendar_calculo_metas_individuais: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      agendar_calculo_metas_individuais: { Args: never; Returns: undefined }
       agendar_calculo_metas_individuais_teste: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: undefined
       }
-      binary_quantize: {
-        Args: { "": string } | { "": unknown }
-        Returns: unknown
-      }
+      aplicar_escalas_teste: { Args: never; Returns: number }
       calculate_deposit_statistics: {
         Args: { target_month: string; target_user_id: string }
         Returns: undefined
+      }
+      calculate_frete_items_total: {
+        Args: { frete_uuid: string }
+        Returns: number
       }
       can_user_modify_role: {
         Args: { target_user_id: string }
@@ -1888,14 +1964,17 @@ export type Database = {
           viewed_users: number
         }[]
       }
-      delete_user_account: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
+      check_user_role: {
+        Args: { required_role: string; user_id: string }
+        Returns: boolean
       }
-      ensure_user_profile: {
-        Args: { user_id: string }
-        Returns: Json
-      }
+      delete_user_account: { Args: never; Returns: Json }
+      descartar_escalas_teste: { Args: never; Returns: number }
+      eh_domingo: { Args: { data_param: string }; Returns: boolean }
+      eh_feriado: { Args: { data_param: string }; Returns: boolean }
+      eh_sabado: { Args: { data_param: string }; Returns: boolean }
+      eh_sexta_feira: { Args: { data_param: string }; Returns: boolean }
+      ensure_user_profile: { Args: { user_id: string }; Returns: Json }
       get_featured_directory_files: {
         Args: { limit_count?: number }
         Returns: {
@@ -1911,7 +1990,14 @@ export type Database = {
           name: string
           updated_at: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "crediario_directory_files"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
+      get_last_depositos_reset: { Args: never; Returns: string }
       get_orientacoes_viewing_stats: {
         Args: { p_target_roles?: string[] }
         Returns: {
@@ -1922,70 +2008,10 @@ export type Database = {
           viewing_stats: Json
         }[]
       }
-      get_user_role: {
-        Args: { user_id?: string }
-        Returns: string
-      }
-      halfvec_avg: {
-        Args: { "": number[] }
-        Returns: unknown
-      }
-      halfvec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      halfvec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      halfvec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      hnsw_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_sparsevec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnswhandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      is_manager: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_user_manager: {
-        Args: { user_id?: string }
-        Returns: boolean
-      }
-      ivfflat_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflathandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      l2_norm: {
-        Args: { "": unknown } | { "": unknown }
-        Returns: number
-      }
-      l2_normalize: {
-        Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: string
-      }
+      get_user_role: { Args: { user_id?: string }; Returns: string }
+      is_gerente: { Args: { user_id: string }; Returns: boolean }
+      is_manager: { Args: never; Returns: boolean }
+      is_user_manager: { Args: never; Returns: boolean }
       match_documents: {
         Args: {
           match_count?: number
@@ -2001,10 +2027,27 @@ export type Database = {
           source: string
         }[]
       }
-      recalculate_all_deposit_statistics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
+      obter_escalas_mes: {
+        Args: {
+          ano_param: number
+          mes_param: number
+          modo_teste_param?: boolean
+        }
+        Returns: {
+          data: string
+          eh_abertura: boolean
+          folga_compensatoria_id: string
+          funcionario_email: string
+          funcionario_id: string
+          funcionario_nome: string
+          id: string
+          modo_teste: boolean
+          observacao: string
+          tipo: string
+        }[]
       }
+      obter_sabado_anterior: { Args: { data_param: string }; Returns: string }
+      recalculate_all_deposit_statistics: { Args: never; Returns: undefined }
       register_orientacao_view: {
         Args: { p_orientacao_id: string; p_user_id?: string }
         Returns: Json
@@ -2024,52 +2067,35 @@ export type Database = {
           name: string
           updated_at: string
         }[]
-      }
-      sparsevec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      sparsevec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      sparsevec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
+        SetofOptions: {
+          from: "*"
+          to: "crediario_directory_files"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       upsert_moda_estoque_produto: {
         Args: {
-          p_contagem_id: string
           p_codigo_produto: string
-          p_setor: string
-          p_quantidade: number
+          p_contagem_id: string
           p_created_by: string
+          p_quantidade: number
+          p_setor: string
         }
-        Returns: unknown
-      }
-      vector_avg: {
-        Args: { "": number[] }
         Returns: string
       }
-      vector_dims: {
-        Args: { "": string } | { "": unknown }
-        Returns: number
-      }
-      vector_norm: {
-        Args: { "": string }
-        Returns: number
-      }
-      vector_out: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      vector_send: {
-        Args: { "": string }
-        Returns: string
-      }
-      vector_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
+      verificar_conflitos_escala: {
+        Args: {
+          data_fim_param: string
+          data_inicio_param: string
+          funcionario_id_param: string
+          modo_teste_param?: boolean
+        }
+        Returns: {
+          data: string
+          mensagem: string
+          tipo_conflito: string
+        }[]
       }
     }
     Enums: {
