@@ -14,6 +14,7 @@ interface DepositionsCalendarProps {
   diasDoMes: Date[];
   depositos: Deposito[];
   monthStatistics?: DepositoStatistics | null;
+  lastResetDate?: Date | null;
   handlePrevMonth: () => void;
   handleNextMonth: () => void;
   handleSelectDay: (day: Date) => void;
@@ -26,6 +27,7 @@ export function DepositionsCalendar({
   diasDoMes,
   depositos,
   monthStatistics,
+  lastResetDate,
   handlePrevMonth,
   handleNextMonth,
   handleSelectDay,
@@ -45,7 +47,22 @@ export function DepositionsCalendar({
     
     // Considerar apenas dias a partir de 18/06/2025 (início do uso do sistema)
     const isBeforeSystemStart = day < DEPOSIT_SYSTEM_START_DATE;
-    const hasPassed = today > dayEndOfDay && !isBeforeSystemStart; // Dia já passou completamente e está após início do sistema
+    
+    // Se há uma data de reset, considerar apenas dias após o reset
+    const isBeforeLastReset = lastResetDate ? day < lastResetDate : false;
+    
+    // Dia já passou completamente, está após início do sistema e após o último reset (se houver)
+    const hasPassed = today > dayEndOfDay && !isBeforeSystemStart && !isBeforeLastReset;
+    
+    // Se é antes do último reset, mostrar como não aplicável
+    if (isBeforeLastReset) {
+      return {
+        status: 'not-applicable',
+        color: 'bg-muted border-border text-muted-foreground dark:bg-muted dark:border-border dark:text-muted-foreground',
+        icon: null,
+        label: 'Período anterior ao reset'
+      };
+    }
     
     if (isWeekend) {
       return {
@@ -127,15 +144,16 @@ export function DepositionsCalendar({
     // Para o mês atual, sempre calcular dinamicamente para garantir dados em tempo real
     if (isCurrentMonth || !monthStatistics) {
       // Cálculo dinâmico em tempo real
-      // Filtrar dias considerando apenas a partir da data de início do sistema
+      // Filtrar dias considerando apenas a partir da data de início do sistema E após o último reset
       const effectiveStartDate = new Date(Math.max(
         new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getTime(),
-        DEPOSIT_SYSTEM_START_DATE.getTime()
+        DEPOSIT_SYSTEM_START_DATE.getTime(),
+        lastResetDate ? lastResetDate.getTime() : 0
       ));
       
       const workingDays = diasDoMes.filter(day => 
         day.getDay() !== 0 && // Excluir apenas domingo
-        day >= effectiveStartDate // Considerar apenas dias após início do sistema
+        day >= effectiveStartDate // Considerar apenas dias após início do sistema e reset
       );
       
       const completeDays = workingDays.filter(day => {
@@ -170,7 +188,7 @@ export function DepositionsCalendar({
       missedDays: 0,
       completion: 0
     };
-  }, [monthStatistics, diasDoMes, depositos, currentMonth]);
+  }, [monthStatistics, diasDoMes, depositos, currentMonth, lastResetDate]);
 
   const stats = monthlyStats;
 

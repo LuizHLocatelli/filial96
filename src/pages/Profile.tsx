@@ -15,7 +15,7 @@ import { EmailForm } from "@/components/profile/EmailForm";
 import { PasswordForm } from "@/components/profile/PasswordForm";
 import { SecuritySettingsForm } from "@/components/profile/SecuritySettingsForm";
 import { DeleteAccountForm } from "@/components/profile/DeleteAccountForm";
-import { NotificationsDebug } from "@/components/notifications/NotificationsDebug";
+// import { NotificationsDebug } from "@/components/notifications/NotificationsDebug";
 
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -115,7 +115,8 @@ export default function Profile() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <NotificationsDebug />
+              {/* <NotificationsDebug /> */}
+              <p className="text-muted-foreground">Componente temporariamente indisponível</p>
             </CardContent>
           </Card>
         </div>

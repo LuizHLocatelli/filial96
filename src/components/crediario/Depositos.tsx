@@ -1,12 +1,24 @@
 import { useState, useEffect, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isSameMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Camera, Settings, Zap, Download, RefreshCw, Home, Calendar, BarChart3, FileText } from "lucide-react";
+import { Camera, Settings, Zap, Download, RefreshCw, Home, Calendar, BarChart3, FileText, Trash2, AlertTriangle, Crown } from "lucide-react";
+import { useAuth } from "@/contexts/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useDepositos } from "@/hooks/crediario/useDepositos";
 import { DailyStatusWidget } from "./depositos/DailyStatusWidget";
 import { QuickDepositForm } from "./depositos/QuickDepositForm";
@@ -35,13 +47,17 @@ export function Depositos() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const { toast } = useToast();
+  const { profile } = useAuth();
+  const isManager = profile?.role === 'gerente';
   const { 
     depositos, 
     statistics,
     isLoading, 
+    lastResetDate,
     addDeposito, 
     updateDeposito, 
     deleteDeposito,
+    clearAllDepositos,
     fetchDepositos,
     getMonthStatistics,
     forceRecalculateStatistics
@@ -333,6 +349,27 @@ export function Depositos() {
     }
   };
 
+  const handleClearAllDepositos = async () => {
+    try {
+      const success = await clearAllDepositos();
+      if (success) {
+        toast({
+          title: "✅ Histórico Removido",
+          description: "Todo o histórico de depósitos foi removido com sucesso.",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao limpar histórico:', error);
+      toast({
+        title: "❌ Erro",
+        description: "Não foi possível remover o histórico de depósitos.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
   const handleExportData = () => {
     try {
       const doc = new jsPDF();
@@ -434,6 +471,7 @@ export function Depositos() {
               diasDoMes={diasDoMes}
               depositos={depositos}
               monthStatistics={currentMonthStats}
+              lastResetDate={lastResetDate}
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
               handleSelectDay={handleSelectDay}
@@ -466,6 +504,51 @@ export function Depositos() {
                     d.data >= startOfMonth(currentMonth) && d.data <= endOfMonth(currentMonth)
                   ).length}</strong>
                 </div>
+
+                {/* Botão de limpar histórico - apenas para gerentes */}
+                {isManager && (
+                  <div className="pt-3 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4 text-yellow-600" />
+                        <span className="text-sm text-foreground font-medium">Gerenciamento</span>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="text-xs h-8"
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            Limpar Histórico
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2">
+                              <AlertTriangle className="h-5 w-5 text-destructive" />
+                              Confirmar Exclusão
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja remover <strong>TODO</strong> o histórico de depósitos? 
+                              Esta ação não pode ser desfeita e todos os dados de depósitos serão permanentemente excluídos.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={handleClearAllDepositos}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Sim, Remover Tudo
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -476,6 +559,7 @@ export function Depositos() {
               diasDoMes={diasDoMes}
               depositos={depositos}
               monthStatistics={currentMonthStats}
+              lastResetDate={lastResetDate}
               handlePrevMonth={handlePrevMonth}
               handleNextMonth={handleNextMonth}
               handleSelectDay={handleSelectDay}

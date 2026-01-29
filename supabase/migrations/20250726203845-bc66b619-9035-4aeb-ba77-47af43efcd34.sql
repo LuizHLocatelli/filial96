@@ -145,11 +145,6 @@ BEGIN
   -- Log do início da operação
   RAISE LOG 'Iniciando exclusão de dados para usuário: %', current_user_id;
   
-  -- Excluir todas as atividades relacionadas ao usuário
-  DELETE FROM public.activities WHERE user_id = current_user_id;
-  GET DIAGNOSTICS deletion_count = ROW_COUNT;
-  RAISE LOG 'Atividades excluídas: %', deletion_count;
-  
   -- Excluir logs OCR
   DELETE FROM public.ocr_logs WHERE user_id = current_user_id;
   GET DIAGNOSTICS deletion_count = ROW_COUNT;
@@ -189,15 +184,8 @@ BEGIN
   DELETE FROM public.crediario_sticky_notes WHERE created_by = current_user_id;
   DELETE FROM public.note_folders WHERE created_by = current_user_id;
   
-  -- Excluir atividades, comentários e cartões do kanban
-  DELETE FROM public.crediario_kanban_activities WHERE created_by = current_user_id;
-  DELETE FROM public.crediario_kanban_comments WHERE created_by = current_user_id;
-  DELETE FROM public.crediario_kanban_cards WHERE created_by = current_user_id;
-  DELETE FROM public.crediario_kanban_boards WHERE created_by = current_user_id;
-  
   -- Excluir folgas e dados do crediário
   DELETE FROM public.crediario_folgas WHERE created_by = current_user_id;
-  DELETE FROM public.crediario_clientes WHERE created_by = current_user_id;
   DELETE FROM public.crediario_depositos WHERE created_by = current_user_id;
   DELETE FROM public.crediario_listagens WHERE created_by = current_user_id;
   

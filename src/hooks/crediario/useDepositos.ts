@@ -140,6 +140,7 @@ export function useDepositos() {
   const [statistics, setStatistics] = useState<DepositoStatistics[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'reconnecting'>('online');
+  const [lastResetDate, setLastResetDate] = useState<Date | null>(null);
   const { toast } = useToast();
   const { uploadFile, isUploading, progress } = useFileUpload();
 
@@ -180,7 +181,37 @@ export function useDepositos() {
   useEffect(() => {
     fetchDepositos();
     fetchStatistics();
+    fetchLastResetDate();
   }, []);
+
+  const fetchLastResetDate = async () => {
+    if (!isSupabaseConfigured) {
+      setLastResetDate(null);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('crediario_depositos_reset')
+        .select('reset_date')
+        .order('reset_date', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro ao buscar data do último reset:', error);
+      }
+
+      if (data) {
+        setLastResetDate(new Date(data.reset_date));
+      } else {
+        setLastResetDate(null);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar data do último reset:', error);
+      setLastResetDate(null);
+    }
+  };
 
   const fetchDepositos = async () => {
     setIsLoading(true);
@@ -551,6 +582,96 @@ export function useDepositos() {
       });
     }
   };
+
+  const clearAllDepositos = async () => {
+    // Se o Supabase não está configurado, simular limpeza
+    if (!isSupabaseConfigured) {
+      console.log('🔧 Supabase não configurado, simulando limpeza de todos os depósitos...');
+      setDepositos([]);
+      setStatistics([]);
+      
+      toast({
+        title: '✅ Sucesso (Demo)',
+        description: 'Todo o histórico de depósitos foi removido (modo demonstração)',
+        duration: 3000,
+      });
+      
+      return true;
+    }
+    
+    try {
+      await retryWithBackoff(async () => {
+        console.log('🗑️ Limpando todo o histórico de depósitos...');
+        
+        const { error } = await createRobustSupabaseQuery()
+          .from('crediario_depositos')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000'); // Deleta todos os registros
+        
+        if (error) {
+          console.error('❌ Erro ao limpar depósitos:', error);
+          throw error;
+        }
+      }, 3, 2000);
+      
+      console.log('✅ Todo o histórico de depósitos foi removido');
+      
+      // Limpar estatísticas também
+      await retryWithBackoff(async () => {
+        const { error } = await createRobustSupabaseQuery()
+          .from('crediario_depositos_statistics')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000');
+        
+        if (error) {
+          console.error('❌ Erro ao limpar estatísticas:', error);
+          throw error;
+        }
+      }, 3, 2000);
+
+      // Registrar a data do reset
+      await retryWithBackoff(async () => {
+        const { error } = await createRobustSupabaseQuery()
+          .from('crediario_depositos_reset')
+          .insert({
+            reset_date: new Date().toISOString().split('T')[0]
+          });
+        
+        if (error) {
+          console.error('❌ Erro ao registrar data do reset:', error);
+          throw error;
+        }
+      }, 3, 2000);
+      
+      // Recarregar dados
+      await fetchDepositos();
+      await fetchStatistics();
+      await fetchLastResetDate();
+      
+      toast({
+        title: '✅ Sucesso',
+        description: 'Todo o histórico de depósitos foi removido com sucesso',
+        duration: 3000,
+      });
+      
+      return true;
+    } catch (error: any) {
+      console.error('❌ Erro ao limpar histórico de depósitos:', error);
+      
+      const errorMessage = error.message?.includes('Failed to fetch') 
+        ? 'Problema de conexão. Limpeza não foi processada.'
+        : error.message || 'Falha ao limpar histórico de depósitos';
+      
+      toast({
+        title: '❌ Erro',
+        description: errorMessage,
+        variant: 'destructive',
+        duration: 3000,
+      });
+      
+      return false;
+    }
+  };
   
   const saveDeposito = async (
     depositoData: {
@@ -657,9 +778,11 @@ export function useDepositos() {
     statistics,
     isLoading,
     connectionStatus,
+    lastResetDate,
     addDeposito,
     updateDeposito,
     deleteDeposito,
+    clearAllDepositos,
     saveDeposito,
     fetchDepositos,
     fetchStatistics,

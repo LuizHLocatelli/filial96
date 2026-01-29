@@ -22,9 +22,6 @@ const ProcedimentosSSCWrapper = lazy(() => import("./pages/ProcedimentosSSCWrapp
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
-import FlappyBird from "./pages/FlappyBird";
-import AgenteMultimodal from "./pages/agente-multimodal/AgenteMultimodal";
-import AgenteMultimodalCreate from "./pages/agente-multimodal/AgenteMultimodalCreate";
 
 // Componentes de debug/demonstração
 import { DarkModeHoverDemo } from "./components/debug/DarkModeHoverDemo";
@@ -79,9 +76,6 @@ const AppRoutes = () => {
 
       {/* Rota de redefinição de senha - pública e acessível sem autenticação */}
       <Route path="/reset-password" element={<ResetPassword />} />
-
-      {/* Rota do Flappy Bird - jogo público e sem autenticação */}
-      <Route path="/flappy-bird" element={<FlappyBird />} />
       
       {/* Rotas protegidas com lazy loading */}
       <Route 
@@ -166,27 +160,7 @@ const AppRoutes = () => {
         } 
       />
 
-      {/* Rotas de Agente Multimodal */}
-      <Route 
-        path="/agente-multimodal" 
-        element={
-          <ProtectedRoute>
-            <LazyPageWrapper>
-              <AgenteMultimodal />
-            </LazyPageWrapper>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/agente-multimodal/criar" 
-        element={
-          <ProtectedRoute>
-            <LazyPageWrapper>
-              <AgenteMultimodalCreate />
-            </LazyPageWrapper>
-          </ProtectedRoute>
-        } 
-      />
+
       
       {/* Rotas de debug/demonstração */}
       <Route 
