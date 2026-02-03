@@ -16,6 +16,16 @@ const toDateOnlyString = (date: Date): string => {
   return d.toISOString().split('T')[0];
 };
 
+// Type for folga table row
+interface FolgaRow {
+  id: string;
+  data: string;
+  consultor_id: string;
+  motivo?: string | null;
+  created_at?: string;
+  created_by?: string | null;
+}
+
 export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -108,13 +118,31 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
     fetchAllUsers();
   }, []);
 
-  // Fetch folgas
+  // Fetch folgas - using specific tables based on config
   const fetchFolgas = useCallback(async () => {
     setIsLoadingFolgas(true);
     try {
-      const { data, error } = await supabase
-        .from(config.tableName)
-        .select("*");
+      // Use the appropriate table based on config
+      let data: FolgaRow[] | null = null;
+      let error = null;
+
+      if (config.tableName === 'moda_folgas') {
+        const result = await supabase.from('moda_folgas').select('*');
+        data = result.data as FolgaRow[] | null;
+        error = result.error;
+      } else if (config.tableName === 'moveis_folgas') {
+        const result = await supabase.from('moveis_folgas').select('*');
+        data = result.data as FolgaRow[] | null;
+        error = result.error;
+      } else if (config.tableName === 'crediario_folgas') {
+        const result = await supabase.from('crediario_folgas').select('*');
+        // Map crediarista_id to consultor_id for compatibility
+        data = (result.data || []).map((row: any) => ({
+          ...row,
+          consultor_id: row.crediarista_id,
+        })) as FolgaRow[];
+        error = result.error;
+      }
 
       if (error) {
         toast({
@@ -220,15 +248,37 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
     }
 
     try {
-      const { data, error } = await supabase
-        .from(config.tableName)
-        .insert({
-          data: toDateOnlyString(selectedDate),
-          consultor_id: selectedConsultor,
-          motivo: motivo || null,
-          created_by: user?.id || null,
-        })
-        .select();
+      let data = null;
+      let error = null;
+
+      const insertData = {
+        data: toDateOnlyString(selectedDate),
+        motivo: motivo || null,
+        created_by: user?.id || null,
+      };
+
+      if (config.tableName === 'moda_folgas') {
+        const result = await supabase
+          .from('moda_folgas')
+          .insert({ ...insertData, consultor_id: selectedConsultor })
+          .select();
+        data = result.data;
+        error = result.error;
+      } else if (config.tableName === 'moveis_folgas') {
+        const result = await supabase
+          .from('moveis_folgas')
+          .insert({ ...insertData, consultor_id: selectedConsultor })
+          .select();
+        data = result.data;
+        error = result.error;
+      } else if (config.tableName === 'crediario_folgas') {
+        const result = await supabase
+          .from('crediario_folgas')
+          .insert({ ...insertData, crediarista_id: selectedConsultor })
+          .select();
+        data = result.data;
+        error = result.error;
+      }
 
       if (error) {
         toast({
@@ -240,13 +290,14 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
       }
 
       if (data && data.length > 0) {
+        const row = data[0] as any;
         const newFolga: Folga = {
-          id: data[0].id,
-          data: fromDateOnlyString(data[0].data),
-          consultorId: data[0].consultor_id,
-          motivo: data[0].motivo || undefined,
-          createdAt: data[0].created_at,
-          createdBy: data[0].created_by || undefined,
+          id: row.id,
+          data: fromDateOnlyString(row.data),
+          consultorId: row.consultor_id || row.crediarista_id,
+          motivo: row.motivo || undefined,
+          createdAt: row.created_at,
+          createdBy: row.created_by || undefined,
         };
 
         setFolgas((prev) => [...prev, newFolga]);
@@ -278,22 +329,32 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
     try {
       const folgaParaExcluir = folgas.find((f) => f.id === folgaId);
 
-      // Otimistic update
+      // Optimistic update
       setFolgas((prev) => prev.filter((folga) => folga.id !== folgaId));
       if (selectedDate && folgaParaExcluir && isSameDay(folgaParaExcluir.data, selectedDate)) {
         setFolgasDoDiaSelecionado((prev) => prev.filter((f) => f.id !== folgaId));
       }
 
-      const { error } = await supabase
-        .from(config.tableName)
-        .delete()
-        .eq("id", folgaId);
+      let error = null;
+
+      if (config.tableName === 'moda_folgas') {
+        const result = await supabase.from('moda_folgas').delete().eq("id", folgaId);
+        error = result.error;
+      } else if (config.tableName === 'moveis_folgas') {
+        const result = await supabase.from('moveis_folgas').delete().eq("id", folgaId);
+        error = result.error;
+      } else if (config.tableName === 'crediario_folgas') {
+        const result = await supabase.from('crediario_folgas').delete().eq("id", folgaId);
+        error = result.error;
+      }
 
       if (error) {
         // Revert on error
-        setFolgas((prev) => [...prev, folgaParaExcluir!]);
-        if (selectedDate && folgaParaExcluir && isSameDay(folgaParaExcluir.data, selectedDate)) {
-          setFolgasDoDiaSelecionado((prev) => [...prev, folgaParaExcluir!]);
+        if (folgaParaExcluir) {
+          setFolgas((prev) => [...prev, folgaParaExcluir]);
+          if (selectedDate && isSameDay(folgaParaExcluir.data, selectedDate)) {
+            setFolgasDoDiaSelecionado((prev) => [...prev, folgaParaExcluir]);
+          }
         }
         toast({
           title: "Erro ao excluir folga",

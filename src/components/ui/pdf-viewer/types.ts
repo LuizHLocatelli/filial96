@@ -1,18 +1,22 @@
-import type * as pdfjsLib from 'pdfjs-dist';
+// Types for PDF viewer component
+// Using standalone types instead of extending pdfjs-dist types due to version compatibility issues
 
 export interface PDFViewerProps {
   url?: string;
   className?: string;
 }
 
-export interface PDFDocumentProxy extends pdfjsLib.PDFDocumentProxy {
+export interface PDFDocumentProxy {
   numPages: number;
   getPage: (pageNumber: number) => Promise<PDFPageProxy>;
+  destroy: () => void;
 }
 
-export interface PDFPageProxy extends pdfjsLib.PDFPageProxy {
+export interface PDFPageProxy {
   getViewport: (options: { scale: number }) => PDFPageViewport;
   getTextContent: () => Promise<PDFTextContent>;
+  render: (params: { canvasContext: CanvasRenderingContext2D; viewport: PDFPageViewport }) => { promise: Promise<void> };
+  cleanup: () => void;
 }
 
 export interface PDFPageViewport {

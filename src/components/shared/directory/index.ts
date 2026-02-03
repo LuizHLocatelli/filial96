@@ -9,6 +9,6 @@ export { DirectoryDialogs } from "@/components/crediario/diretorio/components/Di
 export { DirectoryHeader } from "@/components/crediario/diretorio/components/DirectoryHeader";
 export { DirectoryToolbar } from "@/components/crediario/diretorio/components/DirectoryToolbar";
 export { FileList } from "@/components/crediario/diretorio/components/FileList";
-export { FileGrid } from "@/components/rediario/diretorio/components/FileGrid";
+export { FileGrid } from "@/components/crediario/diretorio/components/FileGrid";
 export { FileUploader } from "@/components/crediario/diretorio/components/FileUploader";
 export { CategoryFilter } from "@/components/crediario/diretorio/components/CategoryFilter";

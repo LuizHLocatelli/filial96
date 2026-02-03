@@ -26,7 +26,7 @@ export function PDFPageView({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const renderTaskRef = useRef<pdfjsLib.PageTask | null>(null);
+  const renderTaskRef = useRef<{ promise: Promise<void>; cancel: () => void } | null>(null);
 
   useEffect(() => {
     const renderPage = async () => {

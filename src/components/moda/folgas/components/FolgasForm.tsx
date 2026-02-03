@@ -10,8 +10,8 @@ import { CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useModaFolgas } from '../useModaFolgas';
-import { Folga } from '../types';
+import { useFolgas } from '../hooks/useFolgas';
+import { Folga, Consultor } from '../types';
 
 interface FolgasFormProps {
   isOpen: boolean;
@@ -28,9 +28,9 @@ export function FolgasForm({
   isOpen, 
   onClose, 
   onSubmit, 
-  editingFolga 
-}: FolgasFormProps) {
-  const { consultores } = useModaFolgas();
+  editingFolga,
+  consultores = [],
+}: FolgasFormProps & { consultores?: Consultor[] }) {
   const [formData, setFormData] = useState({
     data: new Date(),
     consultorId: '',

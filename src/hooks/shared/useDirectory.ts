@@ -1,7 +1,6 @@
 /**
  * Hook compartilhado para operações do Diretório
- *
- * Este hook pode ser configurado para diferentes setores (moda, crediario, moveis)
+ * Usando tabelas crediario_directory_* que existem no banco
  */
 
 import { useState, useCallback, useMemo } from "react";
@@ -12,10 +11,7 @@ import {
   DirectoryFile,
   DirectoryCategory,
   UseDirectoryConfig,
-  FileOperationProps,
-  CategoryOperationProps,
 } from "@/types/shared/directory";
-import { isSameDay } from "date-fns";
 
 export function useDirectory(config: UseDirectoryConfig) {
   const { toast } = useToast();
@@ -44,36 +40,34 @@ export function useDirectory(config: UseDirectoryConfig) {
   const fetchCategories = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from("directory_categories")
+        .from("crediario_directory_categories")
         .select("*")
-        .eq("sector", config.sector)
         .order("name");
 
       if (error) throw error;
-      setCategories(data || []);
+      setCategories((data || []) as unknown as DirectoryCategory[]);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  }, [config.sector]);
+  }, []);
 
   // Fetch files
   const fetchFiles = useCallback(async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from("directory_files")
+        .from("crediario_directory_files")
         .select("*")
-        .eq("sector", config.sector)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setFiles(data || []);
+      setFiles((data || []) as unknown as DirectoryFile[]);
     } catch (error) {
       console.error("Error fetching files:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [config.sector]);
+  }, []);
 
   // Initial fetch
   const refresh = useCallback(async () => {
@@ -116,8 +110,8 @@ export function useDirectory(config: UseDirectoryConfig) {
   const handleAddCategory = async (name: string, description: string) => {
     try {
       const { error } = await supabase
-        .from("directory_categories")
-        .insert([{ name, description, sector: config.sector, created_by: user?.id }]);
+        .from("crediario_directory_categories")
+        .insert([{ name, description, created_by: user?.id }]);
 
       if (error) throw error;
       await fetchCategories();
@@ -136,7 +130,7 @@ export function useDirectory(config: UseDirectoryConfig) {
     if (!selectedCategory) return;
     try {
       const { error } = await supabase
-        .from("directory_categories")
+        .from("crediario_directory_categories")
         .update({ name, description, updated_at: new Date().toISOString() })
         .eq("id", selectedCategory.id);
 
@@ -188,7 +182,10 @@ export function useDirectory(config: UseDirectoryConfig) {
       }
 
       // Delete from database
-      const { error } = await supabase.from("directory_files").delete().eq("id", selectedFile.id);
+      const { error } = await supabase
+        .from("crediario_directory_files")
+        .delete()
+        .eq("id", selectedFile.id);
       if (error) throw error;
 
       await fetchFiles();
@@ -213,7 +210,7 @@ export function useDirectory(config: UseDirectoryConfig) {
     if (!selectedFile) return;
     try {
       const { error } = await supabase
-        .from("directory_files")
+        .from("crediario_directory_files")
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq("id", selectedFile.id);
 
@@ -251,15 +248,14 @@ export function useDirectory(config: UseDirectoryConfig) {
 
       const { data: urlData } = supabase.storage.from("directory").getPublicUrl(filePath);
 
-      const { error: dbError } = await supabase.from("directory_files").insert([
+      const { error: dbError } = await supabase.from("crediario_directory_files").insert([
         {
           name: file.name,
           category_id: categoryId,
           file_url: urlData.publicUrl,
           file_type: file.type,
           file_size: file.size,
-          sector: config.sector,
-          uploaded_by: user?.id,
+          created_by: user?.id,
         },
       ]);
 

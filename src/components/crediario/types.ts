@@ -1,5 +1,22 @@
 import { z } from "zod";
 
+// Define the Cliente type
+export interface Cliente {
+  id: string;
+  nome: string;
+  conta: string;
+  diaContato: Date;
+  diaPagamento: Date;
+  tipo: "pagamento" | "renegociacao";
+  valorParcelas?: string;
+  contratosNegociados?: string;
+  valorEntrada?: string;
+  qtdParcelas?: string;
+  valorCadaParcela?: string;
+  observacao?: string;
+  indicator?: string;
+}
+
 // Define the form schema
 export const clienteFormSchema = z.object({
   nome: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),

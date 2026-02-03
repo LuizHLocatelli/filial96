@@ -84,13 +84,15 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
       } as unknown as any);
       if (rpcError) throw rpcError;
 
-      const { data: produtoInfo, error: infoError } = await (supabase
+      const result = await supabase
         .from("moda_estoque_produtos")
         .select("quantidade")
         .eq("contagem_id", contagemId)
         .eq("codigo_produto", codigo)
-        .eq("contagemSetor", contagemSetor)
-        .single() as unknown as { data: { quantidade: number } | null; error: Error | null });
+        .eq("setor", contagemSetor)
+        .single();
+      const produtoInfo = result.data as { quantidade: number } | null;
+      const infoError = result.error;
       if (infoError || !produtoInfo) throw infoError || new Error("Produto não encontrado");
 
       const quantidadeAnterior = (produtoInfo.quantidade ?? 0) - qtd;
