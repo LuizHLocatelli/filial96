@@ -7,7 +7,6 @@ interface HubDialogsProps {
   setShowBuscaAvancada: (show: boolean) => void;
   showFiltrosPorData: boolean;
   setShowFiltrosPorData: (show: boolean) => void;
-  orientacoes: any[];
   onBuscaAvancadaResults: (results: any) => void;
   onFiltrosPorDataApply: (filters: any) => void;
 }
@@ -17,7 +16,6 @@ export function HubDialogs({
   setShowBuscaAvancada,
   showFiltrosPorData,
   setShowFiltrosPorData,
-  orientacoes,
   onBuscaAvancadaResults,
   onFiltrosPorDataApply
 }: HubDialogsProps) {
@@ -26,14 +24,12 @@ export function HubDialogs({
       <BuscaAvancada
         open={showBuscaAvancada}
         onOpenChange={setShowBuscaAvancada}
-        orientacoes={orientacoes}
         onResultsSelect={onBuscaAvancadaResults}
       />
 
       <FiltrosPorData
         open={showFiltrosPorData}
         onOpenChange={setShowFiltrosPorData}
-        orientacoes={orientacoes}
         onFiltersApply={onFiltrosPorDataApply}
       />
 

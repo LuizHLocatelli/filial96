@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { PackagePlus, Calendar, DollarSign } from 'lucide-react';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
+import { PackagePlus, DollarSign } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface AddProdutoDialogProps {
   onAdd: (produtoData: any, file?: File) => Promise<void>;
 }
 
 export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -79,141 +79,141 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent {...getMobileDialogProps("default")}>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary border-2 border-primary/20 rounded-full flex items-center justify-center shadow-soft">
-                <PackagePlus className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                Adicionar Produto Descontinuado
-              </div>
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              Registre um novo produto descontinuado no sistema
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent 
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden`}
+          hideCloseButton
+        >
+          <StandardDialogHeader
+            icon={PackagePlus}
+            iconColor="primary"
+            title="Adicionar Produto Descontinuado"
+            description="Registre um novo produto descontinuado no sistema"
+            onClose={handleClose}
+            loading={isSubmitting}
+          />
 
-          <div className="space-y-6">
-            {/* Informações Básicas */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Informações Básicas</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="nome" className="text-foreground">Nome do Produto *</Label>
-                  <Input
-                    id="nome"
-                    value={formData.nome}
-                    onChange={(e) => handleInputChange('nome', e.target.value)}
-                    placeholder="Nome do produto"
-                    required
-                    className="border-2 border-border"
-                  />
+          <StandardDialogContent>
+            <div className="space-y-6">
+              {/* Informações Básicas */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-foreground">Informações Básicas</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="nome" className="text-foreground">Nome do Produto *</Label>
+                    <Input
+                      id="nome"
+                      value={formData.nome}
+                      onChange={(e) => handleInputChange('nome', e.target.value)}
+                      placeholder="Nome do produto"
+                      required
+                      className="border-2 border-border"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="codigo" className="text-foreground">Código do Produto *</Label>
+                    <Input
+                      id="codigo"
+                      value={formData.codigo}
+                      onChange={(e) => handleInputChange('codigo', e.target.value)}
+                      placeholder="Código/SKU"
+                      required
+                      className="border-2 border-border"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="codigo" className="text-foreground">Código do Produto *</Label>
-                  <Input
-                    id="codigo"
-                    value={formData.codigo}
-                    onChange={(e) => handleInputChange('codigo', e.target.value)}
-                    placeholder="Código/SKU"
-                    required
-                    className="border-2 border-border"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="categoria" className="text-foreground">Categoria</Label>
+                    <Select value={formData.categoria} onValueChange={(value) => handleInputChange('categoria', value)}>
+                      <SelectTrigger className="border-2 border-border">
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent className="border-2 border-border">
+                        <SelectItem value="moveis">Móveis</SelectItem>
+                        <SelectItem value="eletronicos">Eletrônicos</SelectItem>
+                        <SelectItem value="decoracao">Decoração</SelectItem>
+                        <SelectItem value="iluminacao">Iluminação</SelectItem>
+                        <SelectItem value="outros">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="preco_original" className="text-foreground">Preço Original</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="preco_original"
+                        type="number"
+                        step="0.01"
+                        value={formData.preco_original}
+                        onChange={(e) => handleInputChange('preco_original', e.target.value)}
+                        placeholder="0,00"
+                        className="pl-10 border-2 border-border"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Detalhes da Descontinuação */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-foreground">Detalhes da Descontinuação</h3>
+                
                 <div>
-                  <Label htmlFor="categoria" className="text-foreground">Categoria</Label>
-                  <Select value={formData.categoria} onValueChange={(value) => handleInputChange('categoria', value)}>
+                  <Label htmlFor="motivo_descontinuacao" className="text-foreground">Motivo da Descontinuação</Label>
+                  <Select value={formData.motivo_descontinuacao} onValueChange={(value) => handleInputChange('motivo_descontinuacao', value)}>
                     <SelectTrigger className="border-2 border-border">
-                      <SelectValue placeholder="Selecione uma categoria" />
+                      <SelectValue placeholder="Selecione o motivo" />
                     </SelectTrigger>
                     <SelectContent className="border-2 border-border">
-                      <SelectItem value="moveis">Móveis</SelectItem>
-                      <SelectItem value="eletronicos">Eletrônicos</SelectItem>
-                      <SelectItem value="decoracao">Decoração</SelectItem>
-                      <SelectItem value="iluminacao">Iluminação</SelectItem>
+                      <SelectItem value="baixa_demanda">Baixa Demanda</SelectItem>
+                      <SelectItem value="custo_alto">Custo Alto</SelectItem>
+                      <SelectItem value="novo_modelo">Novo Modelo Disponível</SelectItem>
+                      <SelectItem value="fornecedor">Problemas com Fornecedor</SelectItem>
+                      <SelectItem value="qualidade">Problemas de Qualidade</SelectItem>
                       <SelectItem value="outros">Outros</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <Label htmlFor="preco_original" className="text-foreground">Preço Original</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="preco_original"
-                      type="number"
-                      step="0.01"
-                      value={formData.preco_original}
-                      onChange={(e) => handleInputChange('preco_original', e.target.value)}
-                      placeholder="0,00"
-                      className="pl-10 border-2 border-border"
-                    />
-                  </div>
+                  <Label htmlFor="estoque_restante" className="text-foreground">Estoque Restante</Label>
+                  <Input
+                    id="estoque_restante"
+                    type="number"
+                    value={formData.estoque_restante}
+                    onChange={(e) => handleInputChange('estoque_restante', e.target.value)}
+                    placeholder="Quantidade em estoque"
+                    className="border-2 border-border"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="descricao" className="text-foreground">Descrição/Observações</Label>
+                  <Textarea
+                    id="descricao"
+                    value={formData.descricao}
+                    onChange={(e) => handleInputChange('descricao', e.target.value)}
+                    placeholder="Descrição adicional do produto ou observações sobre a descontinuação"
+                    rows={3}
+                    className="resize-none border-2 border-border"
+                  />
                 </div>
               </div>
             </div>
+          </StandardDialogContent>
 
-            {/* Detalhes da Descontinuação */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">Detalhes da Descontinuação</h3>
-              
-              <div>
-                <Label htmlFor="motivo_descontinuacao" className="text-foreground">Motivo da Descontinuação</Label>
-                <Select value={formData.motivo_descontinuacao} onValueChange={(value) => handleInputChange('motivo_descontinuacao', value)}>
-                  <SelectTrigger className="border-2 border-border">
-                    <SelectValue placeholder="Selecione o motivo" />
-                  </SelectTrigger>
-                  <SelectContent className="border-2 border-border">
-                    <SelectItem value="baixa_demanda">Baixa Demanda</SelectItem>
-                    <SelectItem value="custo_alto">Custo Alto</SelectItem>
-                    <SelectItem value="novo_modelo">Novo Modelo Disponível</SelectItem>
-                    <SelectItem value="fornecedor">Problemas com Fornecedor</SelectItem>
-                    <SelectItem value="qualidade">Problemas de Qualidade</SelectItem>
-                    <SelectItem value="outros">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="estoque_restante" className="text-foreground">Estoque Restante</Label>
-                <Input
-                  id="estoque_restante"
-                  type="number"
-                  value={formData.estoque_restante}
-                  onChange={(e) => handleInputChange('estoque_restante', e.target.value)}
-                  placeholder="Quantidade em estoque"
-                  className="border-2 border-border"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="descricao" className="text-foreground">Descrição/Observações</Label>
-                <Textarea
-                  id="descricao"
-                  value={formData.descricao}
-                  onChange={(e) => handleInputChange('descricao', e.target.value)}
-                  placeholder="Descrição adicional do produto ou observações sobre a descontinuação"
-                  rows={3}
-                  className="resize-none border-2 border-border"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div {...getMobileFooterProps()}>
+          <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="px-6 border-2"
+              className={isMobile ? 'w-full' : 'px-6'}
             >
               Cancelar
             </Button>
@@ -221,12 +221,12 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
               onClick={handleSubmit}
               disabled={!formData.nome.trim() || !formData.codigo.trim() || isSubmitting}
               variant="success"
-              className="border-2"
+              className={isMobile ? 'w-full' : ''}
             >
               <PackagePlus className="mr-2 h-4 w-4" />
               {isSubmitting ? 'Adicionando...' : 'Adicionar Produto'}
             </Button>
-          </div>
+          </StandardDialogFooter>
         </DialogContent>
       </Dialog>
     </>

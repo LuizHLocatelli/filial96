@@ -7,7 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft } from "lucide-react";
+import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft, Eye } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useReducedMotion } from "framer-motion";
 import { CalculatorThemeToggle } from "@/components/theme/CalculatorThemeToggle";
@@ -46,9 +48,10 @@ export default function CalculadoraIgreen() {
     percentualDesconto: number;
     economiaMensal: number;
   } | null>(null);
-  const [calculando, setCalculando] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
-  const { toast } = useToast();
+const [calculando, setCalculando] = useState(false);
+const shouldReduceMotion = useReducedMotion();
+const { toast } = useToast();
+const isMobile = useIsMobile();
 
   const handleConsumoChange = useCallback((index: number, valor: string) => {
     const parsed = parseFloat(valor);
@@ -230,12 +233,21 @@ export default function CalculadoraIgreen() {
                         Ver onde encontrar na conta
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-xs sm:max-w-3xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto p-3 md:p-5 lg:p-6">
-                      <img
-                        src={ondeverImage}
-                        alt="Onde encontrar o tipo de fornecimento na conta de luz"
-                        className="w-full h-auto rounded-lg"
+                    <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-3xl p-0'} overflow-hidden`} hideCloseButton>
+                      <StandardDialogHeader
+                        icon={Eye}
+                        iconColor="primary"
+                        title="Tipo de Fornecimento"
+                        description="Veja onde encontrar esta informação na sua conta de luz"
+                        onClose={() => document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}))}
                       />
+                      <StandardDialogContent className="p-4">
+                        <img
+                          src={ondeverImage}
+                          alt="Onde encontrar o tipo de fornecimento na conta de luz"
+                          className="w-full h-auto rounded-lg"
+                        />
+                      </StandardDialogContent>
                     </DialogContent>
                   </Dialog>
                 </div>

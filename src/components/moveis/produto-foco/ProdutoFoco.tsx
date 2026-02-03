@@ -9,32 +9,18 @@ import {
   Target,
   TrendingUp,
   AlertCircle,
-  Package
+  Package,
+  Trash2
 } from 'lucide-react';
 import { useProdutoFoco } from './hooks/useProdutoFoco';
 import { ProdutoFocoCard } from './components/ProdutoFocoCard';
 import { ProdutoFocoForm } from './components/ProdutoFocoForm';
 import { ProdutoFocoDetails } from './components/ProdutoFocoDetails';
 import { ProdutoFocoWithImages } from '@/types/produto-foco';
-import { 
-  Dialog, 
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
 import { RegistroVendaDialog } from './components/RegistroVendaDialog';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
 
 export function ProdutoFoco() {
   const {
@@ -54,8 +40,7 @@ export function ProdutoFoco() {
   const [viewingProduto, setViewingProduto] = useState<ProdutoFocoWithImages | null>(null);
   const [deletingProduto, setDeletingProduto] = useState<string | null>(null);
   const [vendaProduto, setVendaProduto] = useState<ProdutoFocoWithImages | null>(null);
-
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
 
   const handleCreateProduto = async (dados: any, imagens?: File[]) => {
     const success = await createProduto(dados, imagens);
@@ -228,22 +213,22 @@ export function ProdutoFoco() {
 
       {/* Dialogs */}
       <Dialog open={showForm} onOpenChange={closeForm}>
-        <DialogContent {...getMobileDialogProps("default")} className="flex flex-col max-h-[85vh]">
-          <DialogHeader className="flex-shrink-0 border-b pb-4">
-            <DialogTitle className="flex items-center gap-2 text-lg">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <span>{editingProduto ? 'Editar Produto Foco' : 'Adicionar Produto Foco'}</span>
-            </DialogTitle>
-            <DialogDescription className="text-sm ml-12">
-              {editingProduto
-                ? 'Edite as informações do produto foco selecionado.'
-                : 'Adicione um novo produto foco para orientar as vendas.'
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 min-h-0 overflow-y-auto py-4">
+        <DialogContent 
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden max-h-[85vh] flex flex-col`}
+          hideCloseButton
+        >
+          <StandardDialogHeader
+            icon={Package}
+            iconColor="primary"
+            title={editingProduto ? 'Editar Produto Foco' : 'Adicionar Produto Foco'}
+            description={editingProduto
+              ? 'Edite as informações do produto foco selecionado.'
+              : 'Adicione um novo produto foco para orientar as vendas.'
+            }
+            onClose={closeForm}
+          />
+          
+          <StandardDialogContent className="p-0 overflow-y-auto">
             <ProdutoFocoForm
               produto={editingProduto || undefined}
               onSubmit={editingProduto ? handleUpdateProduto : handleCreateProduto}
@@ -251,7 +236,7 @@ export function ProdutoFoco() {
               onUploadImagem={editingProduto ? handleUploadImagem : undefined}
               onDeleteImagem={editingProduto ? handleDeleteImagem : undefined}
             />
-          </div>
+          </StandardDialogContent>
         </DialogContent>
       </Dialog>
 
@@ -270,23 +255,46 @@ export function ProdutoFoco() {
         />
       )}
 
-      <AlertDialog open={!!deletingProduto} onOpenChange={() => setDeletingProduto(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Produto Foco</AlertDialogTitle>
-            <AlertDialogDescription>
+      {/* AlertDialog de Exclusão */}
+      <Dialog open={!!deletingProduto} onOpenChange={() => setDeletingProduto(null)}>
+        <DialogContent 
+          className="max-w-[400px] p-0 overflow-hidden"
+          hideCloseButton
+        >
+          <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-4 border-b border-border/10">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-red-100">
+                  <Trash2 className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold leading-none tracking-tight">
+                    Excluir Produto Foco
+                  </h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Tem certeza que deseja excluir este produto foco? Esta ação não pode ser desfeita.
               Todas as imagens associadas também serão removidas.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter {...getMobileFooterProps()}>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteProduto} className="bg-destructive text-destructive-foreground">
-              Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </p>
+          </div>
+          
+          <div className="p-4 border-t border-border/10">
+            <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-2'}>
+              <Button variant="outline" onClick={() => setDeletingProduto(null)} className={isMobile ? 'w-full' : 'flex-1'}>
+                Cancelar
+              </Button>
+              <Button onClick={handleDeleteProduto} className={`${isMobile ? 'w-full' : 'flex-1'} bg-destructive text-destructive-foreground hover:bg-destructive/90`}>
+                Excluir
+              </Button>
+            </StandardDialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

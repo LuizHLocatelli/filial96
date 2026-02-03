@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,31 +12,22 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { 
   Search, 
   Filter, 
-  X, 
-  Calendar as CalendarIcon,
   RotateCcw,
-  FileText,
-  Clock,
-  User,
-  Tag,
-  Check
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import { useMobileDialog } from '@/hooks/useMobileDialog';
 
-// Tipos para as propriedades
 interface BuscaAvancadaProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  orientacoes: Array<any>;
   onResultsSelect: (results: SearchResults) => void;
 }
 
 interface SearchResults {
-  orientacoes: Array<any>;
+  items: Array<any>;
   totalFound: number;
   searchQuery: string;
   appliedFilters: SearchFilters;
@@ -45,7 +35,6 @@ interface SearchResults {
 
 interface SearchFilters {
   termo: string;
-  tipos: string[];
   status: string[];
   categorias: string[];
   usuarios: string[];
@@ -56,7 +45,6 @@ interface SearchFilters {
 
 const INITIAL_FILTERS: SearchFilters = {
   termo: '',
-  tipos: [],
   status: [],
   categorias: [],
   usuarios: [],
@@ -68,7 +56,6 @@ const INITIAL_FILTERS: SearchFilters = {
 export function BuscaAvancada({ 
   open, 
   onOpenChange, 
-  orientacoes,
   onResultsSelect 
 }: BuscaAvancadaProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
@@ -76,138 +63,15 @@ export function BuscaAvancada({
   const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Extrair valores únicos para os filtros
-  const availableCategories = useMemo(() => {
-    const categories = new Set<string>();
-    orientacoes.forEach(item => {
-      if (item.categoria) categories.add(item.categoria);
-    });
-    return Array.from(categories).sort();
-  }, [orientacoes]);
-
-  const availableUsers = useMemo(() => {
-    const users = new Set<string>();
-    orientacoes.forEach(item => {
-      if (item.created_by) users.add(item.created_by);
-      if (item.usuario) users.add(item.usuario);
-    });
-    return Array.from(users).sort();
-  }, [orientacoes]);
-
-  const availableStatus = useMemo(() => {
-    const status = new Set<string>();
-    orientacoes.forEach(item => {
-      if (item.status) status.add(item.status);
-    });
-    return Array.from(status).sort();
-  }, [orientacoes]);
-
   // Função de busca com ranking por relevância
   const performSearch = () => {
     setIsSearching(true);
     
     setTimeout(() => {
-      const searchTerm = filters.termo.toLowerCase();
-      
-      // Função para calcular score de relevância
-      const calculateRelevance = (item: any, type: string) => {
-        let score = 0;
-        
-        if (item.nome?.toLowerCase().includes(searchTerm)) score += 100;
-        if (item.titulo?.toLowerCase().includes(searchTerm)) score += 100;
-        if (item.descricao?.toLowerCase().includes(searchTerm)) score += 50;
-        if (item.observacoes?.toLowerCase().includes(searchTerm)) score += 30;
-        if (item.categoria?.toLowerCase().includes(searchTerm)) score += 20;
-        
-        // Bonus por tipo de correspondência
-        if (item.nome?.toLowerCase() === searchTerm) score += 200;
-        if (item.titulo?.toLowerCase() === searchTerm) score += 200;
-        
-        return score;
-      };
-
-      // Filtrar por termo de busca
-      let filteredOrientacoes = orientacoes.filter(item => {
-        if (searchTerm && !Object.values(item).some(value => 
-          typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-        )) return false;
-        return true;
-      });
-
-      // Aplicar filtros adicionais
-      if (filters.tipos.length > 0) {
-        if (!filters.tipos.includes('orientacoes')) filteredOrientacoes = [];
-      }
-
-      if (filters.status.length > 0) {
-        filteredOrientacoes = filteredOrientacoes.filter(item => filters.status.includes(item.status || 'ativa'));
-      }
-
-      if (filters.categorias.length > 0) {
-        filteredOrientacoes = filteredOrientacoes.filter(item => filters.categorias.includes(item.categoria));
-      }
-
-      if (filters.usuarios.length > 0) {
-        filteredOrientacoes = filteredOrientacoes.filter(item => 
-          filters.usuarios.includes(item.created_by) || filters.usuarios.includes(item.usuario)
-        );
-      }
-
-      // Filtro por data
-      if (filters.dateRange?.from && filters.dateRange?.to) {
-        const startDate = startOfDay(filters.dateRange.from);
-        const endDate = endOfDay(filters.dateRange.to);
-        
-        filteredOrientacoes = filteredOrientacoes.filter(item => {
-          const itemDate = new Date(item.created_at || item.updated_at);
-          return isWithinInterval(itemDate, { start: startDate, end: endDate });
-        });
-      }
-
-      // Ordenar por relevância ou outros critérios
-      if (filters.ordenacao === 'relevancia' && searchTerm) {
-        filteredOrientacoes = filteredOrientacoes
-          .map(item => ({ ...item, _relevance: calculateRelevance(item, 'orientacao') }))
-          .sort((a, b) => b._relevance - a._relevance);
-      } else {
-        // Outras ordenações
-        const sortFunction = (a: any, b: any) => {
-          let aValue, bValue;
-          
-          switch (filters.ordenacao) {
-            case 'nome':
-              aValue = a.nome || a.titulo || '';
-              bValue = b.nome || b.titulo || '';
-              break;
-            case 'data-criacao':
-              aValue = new Date(a.created_at);
-              bValue = new Date(b.created_at);
-              break;
-            case 'data-atualizacao':
-              aValue = new Date(a.updated_at || a.created_at);
-              bValue = new Date(b.updated_at || b.created_at);
-              break;
-            default:
-              return 0;
-          }
-          
-          if (typeof aValue === 'string') {
-            return filters.direcao === 'asc' 
-              ? aValue.localeCompare(bValue) 
-              : bValue.localeCompare(aValue);
-          } else {
-            return filters.direcao === 'asc' 
-              ? aValue - bValue 
-              : bValue - aValue;
-          }
-        };
-
-        filteredOrientacoes.sort(sortFunction);
-      }
-
+      // Sem dados de orientações, retornar resultados vazios
       const results: SearchResults = {
-        orientacoes: filteredOrientacoes,
-        totalFound: filteredOrientacoes.length,
+        items: [],
+        totalFound: 0,
         searchQuery: filters.termo,
         appliedFilters: filters
       };
@@ -234,7 +98,6 @@ export function BuscaAvancada({
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (filters.termo) count++;
-    if (filters.tipos.length > 0) count++;
     if (filters.status.length > 0) count++;
     if (filters.categorias.length > 0) count++;
     if (filters.usuarios.length > 0) count++;
@@ -257,7 +120,7 @@ export function BuscaAvancada({
               </div>
             </DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground">
-              Encontre orientações e assistentes rapidamente
+              Funcionalidade de busca temporariamente indisponível
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -292,69 +155,24 @@ export function BuscaAvancada({
               />
             </div>
 
-            {/* Tipos */}
+            {/* Status */}
             <div className="space-y-2">
-              <Label>Tipos de Conteúdo</Label>
+              <Label>Status</Label>
               <div className="space-y-2">
-                {[
-                  { id: 'orientacoes', label: 'Orientações', icon: FileText }
-                ].map(tipo => (
-                  <div key={tipo.id} className="flex items-center space-x-2">
+                {['ativo', 'inativo', 'pendente'].map(status => (
+                  <div key={status} className="flex items-center space-x-2">
                     <Checkbox
-                      id={tipo.id}
-                      checked={filters.tipos.includes(tipo.id)}
-                      onCheckedChange={() => toggleArrayFilter('tipos', tipo.id)}
+                      id={`status-${status}`}
+                      checked={filters.status.includes(status)}
+                      onCheckedChange={() => toggleArrayFilter('status', status)}
                     />
-                    <Label htmlFor={tipo.id} className="flex items-center gap-2 cursor-pointer">
-                      <tipo.icon className="h-4 w-4" />
-                      {tipo.label}
+                    <Label htmlFor={`status-${status}`} className="cursor-pointer capitalize">
+                      {status}
                     </Label>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Status */}
-            {availableStatus.length > 0 && (
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <div className="space-y-2">
-                  {availableStatus.map(status => (
-                    <div key={status} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`status-${status}`}
-                        checked={filters.status.includes(status)}
-                        onCheckedChange={() => toggleArrayFilter('status', status)}
-                      />
-                      <Label htmlFor={`status-${status}`} className="cursor-pointer capitalize">
-                        {status}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Categorias */}
-            {availableCategories.length > 0 && (
-              <div className="space-y-2">
-                <Label>Categorias</Label>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {availableCategories.map(categoria => (
-                    <div key={categoria} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`cat-${categoria}`}
-                        checked={filters.categorias.includes(categoria)}
-                        onCheckedChange={() => toggleArrayFilter('categorias', categoria)}
-                      />
-                      <Label htmlFor={`cat-${categoria}`} className="cursor-pointer">
-                        <Badge variant="outline">{categoria}</Badge>
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Período */}
             <div className="space-y-2">
@@ -452,44 +270,12 @@ export function BuscaAvancada({
                   </Button>
                 </div>
 
-                {/* Orientações */}
-                {searchResults.orientacoes.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <FileText className="h-4 w-4" />
-                        Orientações ({searchResults.orientacoes.length})
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {searchResults.orientacoes.slice(0, 5).map(orientacao => (
-                        <div key={orientacao.id} className="selectable-item">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">{orientacao.titulo}</h4>
-                            <Badge variant="outline">{orientacao.categoria}</Badge>
-                          </div>
-                          {orientacao.conteudo && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {orientacao.conteudo.substring(0, 100)}...
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                      {searchResults.orientacoes.length > 5 && (
-                        <p className="text-center text-sm text-muted-foreground">
-                          +{searchResults.orientacoes.length - 5} orientações adicionais
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
                 {searchResults.totalFound === 0 && (
                   <div className="text-center py-12">
                     <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Nenhum resultado encontrado</h3>
                     <p className="text-muted-foreground">
-                      Tente ajustar seus filtros ou usar termos diferentes.
+                      Não há dados disponíveis para busca.
                     </p>
                   </div>
                 )}
@@ -499,7 +285,7 @@ export function BuscaAvancada({
                 <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Pronto para buscar</h3>
                 <p className="text-muted-foreground">
-                  Configure seus filtros e clique em "Buscar" para encontrar o que precisa.
+                  Configure seus filtros e clique em "Buscar".
                 </p>
               </div>
             )}

@@ -1,16 +1,11 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, Eye } from 'lucide-react';
 import { DirectoryFile } from '../types';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { PDFViewer } from '@/components/ui/pdf-viewer/index';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface FileViewerProps {
   open: boolean;
@@ -19,7 +14,7 @@ interface FileViewerProps {
 }
 
 export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
   
   if (!file) return null;
 
@@ -33,72 +28,70 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogContent {...getMobileDialogProps("default")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              {file.name}
-            </div>
-          </DialogTitle>
-          {file.description && (
-            <DialogDescription className="text-sm text-muted-foreground">
-              {file.description}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} overflow-hidden max-h-[90vh] flex flex-col`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Eye}
+          iconColor="primary"
+          title={file.name}
+          description={file.description}
+          onClose={() => onOpenChange(false)}
+        />
         
-        <div className="space-y-6">
-          {isPdf && (
-            <div className="w-full h-[60vh] border rounded-lg">
-              <PDFViewer 
-                url={file.file_url} 
-                className="h-full w-full rounded-lg" 
-              />
-            </div>
-          )}
-          
-          {isImage && (
-            <div className="w-full">
-              <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
-                <img
-                  src={file.file_url}
-                  alt={file.name}
-                  className="w-full h-full object-contain rounded-lg"
+        <StandardDialogContent className="p-0">
+          <div className="space-y-0">
+            {isPdf && (
+              <div className="w-full h-[60vh]">
+                <PDFViewer 
+                  url={file.file_url} 
+                  className="h-full w-full" 
                 />
-              </AspectRatio>
-            </div>
-          )}
-          
-          {!isPdf && !isImage && (
-            <div className="text-center py-16 border-2 border-dashed border-muted rounded-lg">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
-              <p className="text-muted-foreground mb-2">
-                Pré-visualização não disponível para este tipo de arquivo.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Clique no botão abaixo para baixar e visualizar o arquivo.
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+            
+            {isImage && (
+              <div className="w-full p-4">
+                <AspectRatio ratio={16 / 9} className="bg-muted rounded-lg">
+                  <img
+                    src={file.file_url}
+                    alt={file.name}
+                    className="w-full h-full object-contain rounded-lg"
+                  />
+                </AspectRatio>
+              </div>
+            )}
+            
+            {!isPdf && !isImage && (
+              <div className="text-center py-16 p-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
+                </div>
+                <p className="text-muted-foreground mb-2">
+                  Pré-visualização não disponível para este tipo de arquivo.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Clique no botão abaixo para baixar e visualizar o arquivo.
+                </p>
+              </div>
+            )}
+          </div>
+        </StandardDialogContent>
         
-        <div {...getMobileFooterProps()}>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 
             type="button"
             variant="outline" 
             onClick={() => onOpenChange(false)} 
-            className="px-6"
+            className={isMobile ? 'w-full' : 'px-6'}
           >
             Fechar
           </Button>
           <Button 
             asChild
             variant="success"
+            className={isMobile ? 'w-full' : ''}
           >
             <a 
               href={file.file_url} 
@@ -111,7 +104,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
               Baixar
             </a>
           </Button>
-        </div>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

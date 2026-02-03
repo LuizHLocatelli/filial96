@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Bot, Loader2, Sparkles, X, Image } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -21,7 +19,9 @@ import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { Chatbot } from '../types';
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface EditChatbotDialogProps {
   open: boolean;
@@ -39,6 +39,7 @@ interface FormData {
 
 export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: EditChatbotDialogProps) {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<FormData>({
@@ -88,30 +89,21 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 border-b">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-3 text-xl md:text-2xl">
-                <div className="p-2.5 rounded-xl bg-primary/10">
-                  <Bot className="w-6 h-6 text-primary" />
-                </div>
-                Editar Assistente
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-background/50"
-                onClick={() => onOpenChange(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </DialogHeader>
-        </div>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Bot}
+          iconColor="primary"
+          title="Editar Assistente"
+          onClose={() => onOpenChange(false)}
+          loading={loading}
+        />
 
+        <StandardDialogContent className={isMobile ? 'p-4' : 'p-6'}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
@@ -205,20 +197,20 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
               />
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={loading}
-                className="flex-1"
+                className={isMobile ? 'w-full h-10' : 'flex-1'}
               >
                 Cancelar
               </Button>
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="flex-1 gap-2"
+                className={`${isMobile ? 'w-full h-10' : 'flex-1'} gap-2`}
               >
                 {loading ? (
                   <>
@@ -229,9 +221,10 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
                   'Salvar Alterações'
                 )}
               </Button>
-            </div>
+            </StandardDialogFooter>
           </form>
         </Form>
+        </StandardDialogContent>
       </DialogContent>
     </Dialog>
   );

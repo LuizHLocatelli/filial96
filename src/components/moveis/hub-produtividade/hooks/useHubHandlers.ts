@@ -23,50 +23,6 @@ export function useHubHandlers({
 }: UseHubHandlersProps): HubHandlers {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const handleNovaRotina = () => {
-    console.log("🔄 Handler Nova Rotina executado");
-    try {
-          // Função removida - atividades foram removidas do sistema
-    console.log("🔄 Nova rotina desabilitada - sistema de atividades removido");
-      
-      toast({
-        title: "Funcionalidade Removida",
-        description: "O sistema de atividades foi removido",
-        variant: "destructive",
-        duration: 2000,
-      });
-    } catch (error) {
-      console.error("❌ Erro no handler Nova Rotina:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao abrir formulário de nova rotina",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleNovaOrientacao = () => {
-    console.log("📖 Handler Nova Orientação executado");
-    try {
-          // Função removida - atividades foram removidas do sistema
-    console.log("📖 Nova orientação desabilitada - sistema de atividades removido");
-      
-      toast({
-        title: "Funcionalidade Removida",
-        description: "O sistema de atividades foi removido",
-        variant: "destructive",
-        duration: 2000,
-      });
-    } catch (error) {
-      console.error("❌ Erro no handler Nova Orientação:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao abrir formulário de nova orientação",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleNovaTarefa = () => {
     console.log("✅ Handler Nova Tarefa executado");
@@ -148,7 +104,7 @@ export function useHubHandlers({
     setShowFilters(true);
   };
 
-  const handleNavigateToSection = (section: 'cartazes' | 'orientacoes' | 'monitoramento' | 'assistentes') => {
+  const handleNavigateToSection = (section: 'cartazes' | 'monitoramento' | 'assistentes') => {
     console.log("🧭 Handler Navigate to Section executado:", section);
     try {
       const currentUrl = new URL(window.location.href);
@@ -236,7 +192,6 @@ export function useHubHandlers({
   };
 
   return {
-    onNovaOrientacao: handleNovaOrientacao,
     onExportData: handleExportData,
     onSearch: handleSearch,
     onRefreshData: handleRefreshData,

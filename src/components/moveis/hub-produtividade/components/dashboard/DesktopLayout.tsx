@@ -20,9 +20,7 @@ interface DesktopLayoutProps {
   stats: ProductivityStats;
   isLoading: boolean;
   handlers: HubHandlers;
-  rotinas?: any[];
   tarefas?: any[];
-  onViewRotina?: (rotinaId: string) => void;
   onViewTarefa?: (tarefaId: string) => void;
 }
 
@@ -30,9 +28,7 @@ export function DesktopLayout({
   stats,
   isLoading,
   handlers,
-  rotinas = [],
   tarefas = [],
-  onViewRotina,
   onViewTarefa
 }: DesktopLayoutProps) {
   const { isCompact } = useLayoutPreferences();
@@ -58,37 +54,6 @@ export function DesktopLayout({
                   value={stats.produtividade.score} 
                   className="h-1.5 mt-2 bg-green-200 dark:bg-green-800"
                 />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 border-primary/20 dark:border-primary/30">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10 dark:bg-primary/20">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <div className="text-2xl font-bold text-primary">
-                  {stats.rotinas.concluidas}
-                </div>
-                <div className="text-xs text-primary/70">
-                  Rotinas Concluídas
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 h-1.5 bg-primary/20 dark:bg-primary/30 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary transition-all duration-300"
-                      style={{ 
-                        width: `${stats.rotinas.total > 0 ? (stats.rotinas.concluidas / stats.rotinas.total) * 100 : 0}%` 
-                      }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    /{stats.rotinas.total}
-                  </span>
-                </div>
               </div>
             </div>
           </CardContent>
@@ -129,7 +94,7 @@ export function DesktopLayout({
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
-                {(stats.rotinas.atrasadas + stats.tarefas.atrasadas) > 0 ? (
+                {stats.tarefas.atrasadas > 0 ? (
                   <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 ) : (
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -137,12 +102,12 @@ export function DesktopLayout({
               </div>
               <div className="flex-1">
                 <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">
-                  {stats.rotinas.atrasadas + stats.tarefas.atrasadas}
+                  {stats.tarefas.atrasadas}
                 </div>
                 <div className="text-xs text-orange-600 dark:text-orange-400">
                   Itens Atrasados
                 </div>
-                {(stats.rotinas.atrasadas + stats.tarefas.atrasadas) > 0 && (
+                {stats.tarefas.atrasadas > 0 && (
                   <Badge variant="destructive" className="text-xs mt-1">
                     Atenção
                   </Badge>
@@ -189,7 +154,7 @@ export function DesktopLayout({
                   </div>
                   <div className="flex-1">
                     <div className="text-lg font-bold text-primary">
-                      {Math.round((stats.rotinas.concluidas + stats.tarefas.concluidas) / (stats.rotinas.total + stats.tarefas.total) * 100) || 0}%
+                      {Math.round((stats.tarefas.concluidas) / (stats.tarefas.total) * 100) || 0}%
                     </div>
                     <div className="text-xs text-primary/70">
                       Taxa de Conclusão
@@ -207,7 +172,7 @@ export function DesktopLayout({
                   </div>
                   <div className="flex-1">
                     <div className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
-                      {stats.rotinas.pendentes + stats.tarefas.pendentes}
+                      {stats.tarefas.pendentes}
                     </div>
                     <div className="text-xs text-emerald-600 dark:text-emerald-400">
                       Itens Pendentes
@@ -221,4 +186,4 @@ export function DesktopLayout({
       </div>
     </div>
   );
-} 
+}

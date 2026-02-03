@@ -1,4 +1,3 @@
-
 import {
   FileImage,
   Bot
@@ -12,18 +11,12 @@ interface TabsConfigProps {
   stats: any;
   isLoading: boolean;
   handlers: any;
-  orientacoes: any[];
-  onViewRotina: (rotinaId: string) => void;
-  onViewTarefa: (tarefaId: string) => void;
 }
 
 export function createTabsConfig({
   stats,
   isLoading,
-  handlers,
-  orientacoes,
-  onViewRotina,
-  onViewTarefa
+  handlers
 }: TabsConfigProps) {
   return [
     {

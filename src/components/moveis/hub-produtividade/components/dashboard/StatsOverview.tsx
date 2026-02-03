@@ -1,12 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { 
-  CheckCircle2, 
-  Clock, 
-  AlertTriangle, 
-  ListTodo,
   Target,
   TrendingUp,
   Activity
@@ -32,25 +27,11 @@ export function StatsOverview({
   // Debug simplificado
   useEffect(() => {
     if (isMobile) {
-      console.log('📱 [MOBILE] StatsOverview - Loading:', isLoading, 'HasData:', stats.rotinas.total + stats.tarefas.total > 0);
+      console.log('📱 [MOBILE] StatsOverview - Loading:', isLoading, 'HasData:', stats.tarefas.total > 0);
     }
   }, [isMobile, isLoading, stats]);
 
   const statCards = [
-    {
-      title: 'Rotinas Totais',
-      value: stats.rotinas.total,
-      subtitle: 'Rotinas cadastradas',
-      icon: ListTodo,
-      progress: stats.rotinas.total > 0 ? ((stats.rotinas.concluidas / stats.rotinas.total) * 100) : 0,
-      sections: [
-        { label: 'Concluídas', value: stats.rotinas.concluidas, color: 'bg-emerald-500' },
-        { label: 'Pendentes', value: stats.rotinas.pendentes, color: 'bg-primary' },
-        { label: 'Atrasadas', value: stats.rotinas.atrasadas, color: 'bg-red-500' }
-      ],
-      onClick: () => onNavigateToSection?.('rotinas'),
-      gradient: 'from-emerald-50 to-primary/10 dark:from-emerald-950/50 dark:to-primary/20'
-    },
     {
       title: 'Tarefas',
       value: stats.tarefas.total,
@@ -72,9 +53,9 @@ export function StatsOverview({
       <div className="w-full">
         <div className={cn(
           "grid gap-4",
-          isMobile ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"
+          isMobile ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
         )}>
-          {[...Array(2)].map((_, i) => (
+          {[...Array(1)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="space-y-4">
@@ -98,7 +79,7 @@ export function StatsOverview({
   }
 
   // Verificar se as estatísticas têm dados válidos
-  const hasValidData = stats.rotinas.total > 0 || stats.tarefas.total > 0;
+  const hasValidData = stats.tarefas.total > 0;
 
   return (
     <div className="w-full">
@@ -119,7 +100,7 @@ export function StatsOverview({
       {/* Stats Grid - Layout otimizado para mobile */}
       <div className={cn(
         "grid gap-4",
-        isMobile ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"
+        isMobile ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
       )}>
         {statCards.map((card, index) => {
           const Icon = card.icon;
@@ -231,7 +212,7 @@ export function StatsOverview({
                   "font-bold text-emerald-600 dark:text-emerald-400",
                   isMobile ? "text-xl" : "text-2xl"
                 )}>
-                  {stats.rotinas.concluidas + stats.tarefas.concluidas}
+                  {stats.tarefas.concluidas}
                 </div>
                 <p className="text-sm text-muted-foreground">Itens Concluídos</p>
               </div>
@@ -241,7 +222,7 @@ export function StatsOverview({
                   "font-bold text-primary",
                   isMobile ? "text-xl" : "text-2xl"
                 )}>
-                  {stats.rotinas.pendentes + stats.tarefas.pendentes}
+                  {stats.tarefas.pendentes}
                 </div>
                 <p className="text-sm text-muted-foreground">Pendentes</p>
               </div>
@@ -251,7 +232,7 @@ export function StatsOverview({
                   "font-bold text-orange-600 dark:text-orange-400",
                   isMobile ? "text-xl" : "text-2xl"
                 )}>
-                  {stats.rotinas.atrasadas + stats.tarefas.atrasadas}
+                  {stats.tarefas.atrasadas}
                 </div>
                 <p className="text-sm text-muted-foreground">Atrasados</p>
               </div>

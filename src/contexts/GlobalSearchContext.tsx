@@ -34,15 +34,6 @@ const searchableItems: SearchResult[] = [
   },
   // Subpáginas do Hub de Produtividade
   {
-    id: 'hub-produtividade-orientacoes',
-    title: 'Informativos e VM - Hub',
-    description: 'Orientações e visual merchandising',
-    type: 'section',
-    path: '/?tab=orientacoes',
-    section: 'Hub de Produtividade',
-    icon: 'FileText'
-  },
-  {
     id: 'hub-produtividade-monitoramento',
     title: 'Monitoramento - Hub',
     description: 'Acompanhamento por cargo no Hub',
@@ -172,14 +163,6 @@ const searchableItems: SearchResult[] = [
     type: 'feature',
     path: '/?tab=relatorios',
     icon: 'BarChart3'
-  },
-  {
-    id: 'orientacoes',
-    title: 'Orientações',
-    description: 'Documentos de orientação e procedimentos',
-    type: 'feature',
-    path: '/?tab=orientacoes',
-    icon: 'FileText'
   },
   
   // Moda

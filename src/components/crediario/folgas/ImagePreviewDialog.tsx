@@ -1,8 +1,12 @@
-
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
 import { Eye } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
 
 interface ImagePreviewDialogProps {
   viewImage: string | null;
@@ -10,23 +14,24 @@ interface ImagePreviewDialogProps {
 }
 
 export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDialogProps) {
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
   
   return (
     <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
-      <DialogContent {...getMobileDialogProps("default")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <Eye className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            Comprovante de Folga
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Visualização do comprovante de folga
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-center p-2">
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Eye}
+          iconColor="blue"
+          title="Comprovante de Folga"
+          description="Visualização do comprovante de folga"
+          onClose={() => setViewImage(null)}
+          loading={false}
+        />
+
+        <StandardDialogContent className="flex justify-center p-4">
           {viewImage && (
             <img
               src={viewImage}
@@ -34,15 +39,16 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
               className="max-h-[60vh] max-w-full object-contain rounded-lg"
             />
           )}
-        </div>
-        <div {...getMobileFooterProps()}>
+        </StandardDialogContent>
+
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 
             onClick={() => setViewImage(null)}
-            variant="success"
+            className={isMobile ? 'w-full h-10' : ''}
           >
             Fechar
           </Button>
-        </div>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

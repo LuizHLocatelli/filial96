@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+  DialogContent
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +17,12 @@ import { Badge } from "@/components/ui/badge";
 import { Edit2, Package, User, Baby } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
 
 interface Produto {
   id: string;
@@ -49,6 +52,7 @@ export function EditarProdutoDialog({
   onProdutoAtualizado,
   contagemId
 }: EditarProdutoDialogProps) {
+  const isMobile = useIsMobile();
   const [codigoProduto, setCodigoProduto] = useState("");
   const [setor, setSetor] = useState("");
   const [quantidade, setQuantidade] = useState(1);
@@ -142,7 +146,7 @@ export function EditarProdutoDialog({
         const setorLabel = setores.find(s => s.value === setor)?.label || setor;
         
         toast({
-          title: "✅ Produtos unificados!",
+          title: "Produtos unificados!",
           description: `${codigoProduto} · ${novaQuantidade} unidade(s) · ${setorLabel} (quantidades somadas)`
         });
       } else {
@@ -162,7 +166,7 @@ export function EditarProdutoDialog({
         const setorLabel = setores.find(s => s.value === setor)?.label || setor;
         
         toast({
-          title: "✅ Produto atualizado!",
+          title: "Produto atualizado!",
           description: `${codigoProduto} · ${quantidade} unidade(s) · ${setorLabel}`
         });
       }
@@ -185,115 +189,123 @@ export function EditarProdutoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-              <Edit2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <span>Editar Produto</span>
-          </DialogTitle>
-          <DialogDescription className="text-sm ml-12">
-            Altere as informações do produto conforme necessário.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Edit2}
+          iconColor="primary"
+          title="Editar Produto"
+          description="Altere as informações do produto conforme necessário."
+          onClose={() => onOpenChange(false)}
+          loading={loading}
+        />
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="codigo-edit">Código do Produto *</Label>
-              <Input
-                id="codigo-edit"
-                placeholder="123456789"
-                value={codigoProduto}
-                onChange={handleCodigoChange}
-                required
-                maxLength={9}
-                disabled={loading}
-              />
-              <p className="text-xs text-muted-foreground">
-                Máximo 9 dígitos • Apenas números
-              </p>
-            </div>
+        <StandardDialogContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="codigo-edit">Código do Produto *</Label>
+                <Input
+                  id="codigo-edit"
+                  placeholder="123456789"
+                  value={codigoProduto}
+                  onChange={handleCodigoChange}
+                  required
+                  maxLength={9}
+                  disabled={loading}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Máximo 9 dígitos • Apenas números
+                </p>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="setor-edit">Setor *</Label>
-              <Select value={setor} onValueChange={setSetor} disabled={loading}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o setor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {setores.map((setorOption) => {
-                    const Icon = setorOption.icon;
-                    return (
-                      <SelectItem key={setorOption.value} value={setorOption.value}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="h-4 w-4" />
-                          {setorOption.label}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="quantidade-edit">Quantidade *</Label>
-            <Input
-              id="quantidade-edit"
-              type="number"
-              min="1"
-              value={quantidade}
-              onChange={(e) => setQuantidade(Number(e.target.value))}
-              required
-              disabled={loading}
-              className="w-32"
-            />
-          </div>
-
-          {/* Preview do produto */}
-          {codigoProduto && setor && (
-            <div className="p-3 bg-muted rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">Preview:</p>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">
-                  {codigoProduto}
-                </Badge>
-                <Badge>
-                  {setores.find(s => s.value === setor)?.label}
-                </Badge>
-                <span className="text-sm">
-                  {quantidade} unidade{quantidade > 1 ? "s" : ""}
-                </span>
+              <div className="space-y-2">
+                <Label htmlFor="setor-edit">Setor *</Label>
+                <Select value={setor} onValueChange={setSetor} disabled={loading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o setor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {setores.map((setorOption) => {
+                      const Icon = setorOption.icon;
+                      return (
+                        <SelectItem key={setorOption.value} value={setorOption.value}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="h-4 w-4" />
+                            {setorOption.label}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          )}
 
-          <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={!codigoProduto || !setor || quantidade < 1 || loading}
-              className="gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Salvando...
-                </>
-              ) : (
-                <>
-                  <Package className="h-4 w-4" />
-                  Salvar Alterações
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="quantidade-edit">Quantidade *</Label>
+              <Input
+                id="quantidade-edit"
+                type="number"
+                min="1"
+                value={quantidade}
+                onChange={(e) => setQuantidade(Number(e.target.value))}
+                required
+                disabled={loading}
+                className="w-32"
+              />
+            </div>
+
+            {/* Preview do produto */}
+            {codigoProduto && setor && (
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground mb-2">Preview:</p>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">
+                    {codigoProduto}
+                  </Badge>
+                  <Badge>
+                    {setores.find(s => s.value === setor)?.label}
+                  </Badge>
+                  <span className="text-sm">
+                    {quantidade} unidade{quantidade > 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+            )}
+          </form>
+        </StandardDialogContent>
+
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={!codigoProduto || !setor || quantidade < 1 || loading}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Salvando...
+              </>
+            ) : (
+              <>
+                <Package className="h-4 w-4 mr-2" />
+                Salvar Alterações
+              </>
+            )}
+          </Button>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

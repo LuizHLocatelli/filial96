@@ -7,19 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
 import { useReservas } from "./hooks/useReservas";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AddReservaButton } from "./components/AddReservaButton";
 import { ReservasFilters } from "./components/ReservasFilters";
 import { ReservaCard } from "./components/ReservaCard";
 import { Clock as ClockIcon } from "lucide-react";
+import { StandardDialogHeader, StandardDialogContent } from "@/components/ui/standard-dialog";
 
 export function Reservas() {
   const { reservas, isLoading, updateReservaStatus, deleteReserva, fetchReservas } = useReservas();
@@ -33,7 +30,7 @@ export function Reservas() {
     search: "",
   });
 
-  const { getMobileDialogProps } = useMobileDialog();
+  
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -222,16 +219,19 @@ export function Reservas() {
                 )}
               </Button>
             </DialogTrigger>
-            <DialogContent {...getMobileDialogProps("default")}>
-              <DialogHeader>
-                <DialogTitle>Filtros</DialogTitle>
-                <DialogDescription>
-                  Refine sua busca por reservas
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <ReservasFilters filters={filters} onFilterChange={handleFilterChange} />
-              </div>
+            <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-lg p-0'} overflow-hidden`} hideCloseButton>
+              <StandardDialogHeader
+                icon={Filter}
+                iconColor="primary"
+                title="Filtros"
+                description="Refine sua busca por reservas"
+                onClose={() => setShowFiltersDialog(false)}
+              />
+              <StandardDialogContent>
+                <div className="space-y-4">
+                  <ReservasFilters filters={filters} onFilterChange={handleFilterChange} />
+                </div>
+              </StandardDialogContent>
             </DialogContent>
           </Dialog>
         ) : (

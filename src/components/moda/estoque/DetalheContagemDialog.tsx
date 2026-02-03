@@ -1,15 +1,12 @@
 import { useState, useEffect } from "react";
 import { 
   Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+  DialogContent
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Download, Edit2, Plus } from "lucide-react";
+import { Package, Download, Edit2, Plus, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProdutoForm } from "./ProdutoForm";
@@ -18,7 +15,11 @@ import { PDFExportEstoqueDialog } from "./PDFExportEstoqueDialog";
 import { EditarNomeContagemDialog } from "./EditarNomeContagemDialog";
 import { useEstoquePDFExport } from "./hooks/useEstoquePDFExport";
 import { supabase } from "@/integrations/supabase/client";
-import { DIALOG_SCROLLABLE_CONTENT } from "@/hooks/useMobileDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+} from "@/components/ui/standard-dialog";
 
 interface Produto {
   id: string;
@@ -51,6 +52,7 @@ export function DetalheContagemDialog({
   contagem,
   onContagemAtualizada
 }: DetalheContagemDialogProps) {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("produtos");
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loadingProdutos, setLoadingProdutos] = useState(false);
@@ -131,67 +133,65 @@ export function DetalheContagemDialog({
   const handleProdutoAdicionado = () => {
     carregarProdutos();
     onContagemAtualizada();
-    // Manter na aba "Adicionar Produto" para agilizar o fluxo de contagem
-    // setActiveTab("produtos"); // Comentado para manter na aba atual
   };
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col p-0">
-          {/* Header com padding controlado e espaço para botão X */}
-          <DialogHeader className="flex-shrink-0 p-4 sm:p-5 border-b">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <DialogTitle className="text-base sm:text-lg truncate font-semibold">{contagem.nome}</DialogTitle>
-                    {contagem.status === "em_andamento" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditarNomeOpen(true)}
-                        className="h-6 w-6 p-0 hover:bg-muted flex-shrink-0"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                  <DialogDescription className="text-sm text-muted-foreground mt-1">
-                    Criada {formatDistanceToNow(new Date(contagem.created_at), {
-                      addSuffix: true,
-                      locale: ptBR
-                    })}
-                  </DialogDescription>
-                </div>
+        <DialogContent 
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} overflow-hidden flex flex-col`}
+          hideCloseButton
+        >
+          <StandardDialogHeader
+            icon={Package}
+            iconColor="primary"
+            title={
+              <div className="flex items-center gap-2">
+                <span>{contagem.nome}</span>
+                {contagem.status === "em_andamento" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditarNomeOpen(true)}
+                    className="h-6 w-6 p-0 hover:bg-muted flex-shrink-0"
+                  >
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <Badge className={`${getStatusColor(contagem.status)} text-xs px-2 py-1`} variant="outline">
-                  {getStatusText(contagem.status)}
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setExportDialogOpen(true)}
-                  disabled={produtos.length === 0}
-                  className="gap-1.5 text-xs px-3 h-8"
-                >
-                  <Download className="h-3 w-3" />
-                  <span className="hidden sm:inline">Exportar PDF</span>
-                  <span className="sm:hidden">PDF</span>
-                </Button>
-              </div>
+            }
+            description={<>
+              Criada {formatDistanceToNow(new Date(contagem.created_at), {
+                addSuffix: true,
+                locale: ptBR
+              })}
+              <span className="mx-2">•</span>
+              <Badge className={`${getStatusColor(contagem.status)} text-xs px-2 py-0.5`} variant="outline">
+                {getStatusText(contagem.status)}
+              </Badge>
+            </>}
+            onClose={() => onOpenChange(false)}
+            loading={false}
+          >
+            <div className="flex items-center gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExportDialogOpen(true)}
+                disabled={produtos.length === 0}
+                className="gap-1.5 text-xs px-3 h-8"
+              >
+                <Download className="h-3 w-3" />
+                <span className="hidden sm:inline">Exportar PDF</span>
+                <span className="sm:hidden">PDF</span>
+              </Button>
             </div>
-          </DialogHeader>
+          </StandardDialogHeader>
 
-          {/* Conteúdo principal com scroll controlado - estrutura flex adequada */}
-          <div className={`flex-1 min-h-0 flex flex-col ${DIALOG_SCROLLABLE_CONTENT}`}>
+          <StandardDialogContent className="p-0 flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
-              <div className="flex-shrink-0 px-4 sm:px-5 pt-3">
+              <div className="flex-shrink-0 px-4 sm:px-5 pt-3 border-b">
                 <TabsList className="grid w-full grid-cols-2 h-10">
                   <TabsTrigger value="produtos" className="text-sm px-3">
                     <Package className="h-4 w-4 mr-2" />
@@ -233,7 +233,7 @@ export function DetalheContagemDialog({
                 </TabsContent>
               </div>
             </Tabs>
-          </div>
+          </StandardDialogContent>
         </DialogContent>
       </Dialog>
 

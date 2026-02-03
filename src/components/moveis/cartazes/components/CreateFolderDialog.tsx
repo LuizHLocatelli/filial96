@@ -1,17 +1,13 @@
-
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FolderPlus } from "lucide-react";
+import { FolderPlus, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CreateFolderDialogProps {
   isOpen: boolean;
@@ -19,6 +15,7 @@ interface CreateFolderDialogProps {
 }
 
 export function CreateFolderDialog({ isOpen, onOpenChange }: CreateFolderDialogProps) {
+  const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,42 +60,66 @@ export function CreateFolderDialog({ isOpen, onOpenChange }: CreateFolderDialogP
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-              <FolderPlus className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <span>Nova Pasta</span>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent 
+        className={`
+          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'}
+          overflow-hidden
+        `}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={FolderPlus}
+          iconColor="primary"
+          title="Nova Pasta"
+          onClose={() => onOpenChange(false)}
+          loading={isLoading}
+        />
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Nome da Pasta</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Digite o nome da pasta"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Criando..." : "Criar Pasta"}
-            </Button>
-          </div>
-        </form>
+        <StandardDialogContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name" className="text-base">Nome da Pasta</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Digite o nome da pasta"
+                disabled={isLoading}
+                className="h-12 mt-1"
+              />
+            </div>
+          </form>
+        </StandardDialogContent>
+
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isLoading || !name.trim()}
+            onClick={handleSubmit}
+            className={`gap-2 ${isMobile ? 'w-full h-10' : ''}`}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Criando...
+              </>
+            ) : (
+              <>
+                <FolderPlus className="h-4 w-4" />
+                Criar Pasta
+              </>
+            )}
+          </Button>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -6,9 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -16,11 +13,16 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ProdutoFocoWithImages } from '@/types/produto-foco';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, DollarSign } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { formatPhoneNumber } from "@/utils/phoneFormatter";
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
 
 interface RegistroVendaDialogProps {
   isOpen: boolean;
@@ -35,6 +37,7 @@ export function RegistroVendaDialog({
   produto, 
   onRegistrarVenda 
 }: RegistroVendaDialogProps) {
+  const isMobile = useIsMobile();
   const [formData, setFormData] = useState({
     cliente_nome: '',
     cliente_telefone: '',
@@ -44,7 +47,6 @@ export function RegistroVendaDialog({
     observacoes: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getMobileDialogProps, getMobileButtonProps, getMobileFormProps, getMobileFooterProps } = useMobileDialog();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,43 +95,40 @@ export function RegistroVendaDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent {...getMobileDialogProps("default")}>
-        {/* Fixed Header */}
-        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
-          <DialogHeader className="pr-8">
-            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                <ShoppingCart className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
-              </div>
-              Registrar Venda
-            </DialogTitle>
-          </DialogHeader>
-        </div>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={ShoppingCart}
+          iconColor="green"
+          title="Registrar Venda"
+          onClose={() => onClose()}
+          loading={isSubmitting}
+        />
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
-          <div className="space-y-4">
-          {/* Informações do produto */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-            <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">{produto.nome_produto}</h3>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline" className="text-xs">
-                {produto.categoria}
-              </Badge>
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Meta:</span>
-                <p className="font-medium">{produto.vendas_objetivo} vendas</p>
+        <StandardDialogContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Informações do produto */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+              <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">{produto.nome_produto}</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="text-xs">
+                  {produto.categoria}
+                </Badge>
               </div>
-              <div>
-                <span className="text-muted-foreground">Atual:</span>
-                <p className="font-medium">{produto.vendas_atual} vendas</p>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Meta:</span>
+                  <p className="font-medium">{produto.vendas_objetivo} vendas</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Atual:</span>
+                  <p className="font-medium">{produto.vendas_atual} vendas</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <form onSubmit={handleSubmit} {...getMobileFormProps()} className="space-y-4">
             <div>
               <Label htmlFor="cliente_nome" className="text-sm font-medium">Nome do Cliente *</Label>
               <Input
@@ -217,28 +216,27 @@ export function RegistroVendaDialog({
               />
             </div>
           </form>
-          </div>
-        </div>
+        </StandardDialogContent>
 
-        {/* Fixed Footer */}
-        <div {...getMobileFooterProps()}>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
-            {...getMobileButtonProps()}
+            disabled={isSubmitting}
+            className={isMobile ? 'w-full h-10' : ''}
           >
             Cancelar
           </Button>
           <Button
-            type="submit"
+            type="button"
             disabled={isSubmitting}
             onClick={handleSubmit}
-            {...getMobileButtonProps()}
+            className={isMobile ? 'w-full h-10' : ''}
           >
             {isSubmitting ? 'Registrando...' : 'Registrar Venda'}
           </Button>
-        </div>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -1,10 +1,7 @@
-
 import { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +10,12 @@ import { Edit2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { CartazItem } from "../hooks/useCartazes";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
 
 interface CartazEditDialogProps {
   cartaz: CartazItem;
@@ -27,6 +30,7 @@ export function CartazEditDialog({
   onOpenChange,
   onUpdate
 }: CartazEditDialogProps) {
+  const isMobile = useIsMobile();
   const [title, setTitle] = useState(cartaz.title);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -72,42 +76,51 @@ export function CartazEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-              <Edit2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Edit2}
+          iconColor="primary"
+          title="Editar Cartaz"
+          onClose={() => onOpenChange(false)}
+          loading={isUpdating}
+        />
+
+        <StandardDialogContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="title">Título</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Digite o título do cartaz"
+                disabled={isUpdating}
+              />
             </div>
-            <span>Editar Cartaz</span>
-          </DialogTitle>
-        </DialogHeader>
+          </form>
+        </StandardDialogContent>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Título</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Digite o título do cartaz"
-              disabled={isUpdating}
-            />
-          </div>
-          
-          <div className="flex justify-end gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={isUpdating}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? "Salvando..." : "Salvar"}
-            </Button>
-          </div>
-        </form>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={isUpdating}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isUpdating}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            {isUpdating ? "Salvando..." : "Salvar"}
+          </Button>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
-import type { Chatbot, Message, UseChatReturn } from '../types';
+import type { Chatbot, Message, UseChatReturn, WebhookResponse, LegendasResponse, N8nFileData } from '../types';
 
 export function useChat(chatbot: Chatbot): UseChatReturn {
   const { user } = useAuth();
@@ -13,6 +13,7 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [typingText, setTypingText] = useState('');
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [responseCache] = useState<Map<string, string>>(new Map());
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -150,20 +151,151 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
     typeNextWord();
   }, []);
 
+  const parseWebhookResponse = (data: WebhookResponse | N8nFileData[]): {
+    text: string;
+    videoUrl?: string;
+    legendas?: LegendasResponse;
+    generateVideo?: boolean;
+    videoError?: string;
+  } => {
+    // Verifica se é array de arquivos (formato n8n com binary data)
+    if (Array.isArray(data) && data.length > 0) {
+      const fileData = data[0];
+      if (fileData.fileType === 'video' || fileData.mimeType?.startsWith('video/')) {
+        // Constrói URL do arquivo a partir do ID do n8n
+        const fileId = fileData.id;
+        // URL padrão do n8n para acessar arquivos binários
+        // Codifica o fileId para lidar com caracteres especiais como ':' e '/'
+        const encodedFileId = encodeURIComponent(fileId);
+        
+        // Extrai a base URL do n8n (remove /webhook/ ou /webhook-test/ e tudo depois)
+        let baseUrl = chatbot.webhook_url;
+        if (baseUrl.includes('/webhook-test/')) {
+          baseUrl = baseUrl.split('/webhook-test/')[0];
+        } else if (baseUrl.includes('/webhook/')) {
+          baseUrl = baseUrl.split('/webhook/')[0];
+        }
+        
+        const videoUrl = fileId.startsWith('http') 
+          ? fileId 
+          : `${baseUrl}/rest/binary-data/${fileId}`;
+        
+        console.log('[Parse Response] Detected video file from n8n:', {
+          fileName: fileData.fileName,
+          fileSize: fileData.fileSize,
+          fileId: fileId,
+          baseUrl,
+          webhookUrl: chatbot.webhook_url,
+          videoUrl,
+          note: 'IMPORTANTE: O endpoint /rest/binary-data/ requer autenticação do n8n. Configure o workflow para retornar uma URL pública do vídeo (S3, CloudFront, etc).'
+        });
+        
+        // Verifica se a URL é acessível (não é um endpoint protegido do n8n)
+        const isN8nBinaryEndpoint = videoUrl.includes('/rest/binary-data/');
+        
+        if (isN8nBinaryEndpoint) {
+          console.warn('[Parse Response] N8N binary data endpoint detected - requires authentication');
+          return {
+            text: `⚠️ **Vídeo gerado com sucesso!**\n\n📁 Arquivo: ${fileData.fileName}\n📊 Tamanho: ${fileData.fileSize}\n\n**Nota:** O vídeo foi gerado pelo Veo 3.1, mas não pode ser exibido diretamente pois o n8n requer autenticação para acessar arquivos binários.\n\n**Soluções:**\n1. Configure o workflow do n8n para fazer upload do vídeo para S3/CloudFront e retornar a URL pública\n2. Ou faça o download manual do vídeo através do painel do n8n`,
+            videoUrl,
+            generateVideo: false,
+            videoError: 'Endpoint protegido - configure URL pública no workflow do n8n'
+          };
+        }
+        
+        return {
+          text: `Vídeo gerado com sucesso: ${fileData.fileName} (${fileData.fileSize})`,
+          videoUrl,
+          generateVideo: false
+        };
+      }
+    }
+
+    // Cast para WebhookResponse após verificar que não é array
+    const responseData = data as WebhookResponse;
+
+    // Extrai flags de geração de vídeo
+    const shouldGenerateVideo = responseData.response?.generate_video || 
+                                 responseData.response?.video_prompt || 
+                                 responseData.generate_video || 
+                                 responseData.video_prompt;
+    
+    // Verifica se há erro na geração do vídeo
+    const videoError = responseData.response?.videoError || responseData.videoError;
+
+    // Estrutura nova: { response: { legendas, videoUrl, text, generate_video } }
+    if (responseData.response) {
+      return {
+        text: responseData.response.text || responseData.response.message || '',
+        videoUrl: responseData.response.videoUrl,
+        legendas: responseData.response.legendas,
+        generateVideo: !!shouldGenerateVideo,
+        videoError
+      };
+    }
+
+    // Estrutura alternativa: { videoUrl, legendas, text, generate_video }
+    if (responseData.videoUrl || responseData.legendas || shouldGenerateVideo) {
+      return {
+        text: responseData.text || responseData.message || '',
+        videoUrl: responseData.videoUrl,
+        legendas: responseData.legendas,
+        generateVideo: !!shouldGenerateVideo,
+        videoError
+      };
+    }
+
+    // Fallback para estrutura antiga (texto simples)
+    let textResponse = responseData.text || responseData.message || responseData.output || '';
+    
+      // Tenta parsear se for string JSON
+    if (typeof textResponse === 'string' && textResponse.startsWith('{') && textResponse.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(textResponse);
+        const parsedShouldGenerate = parsed.generate_video || parsed.video_prompt;
+        
+        if (parsed.legendas || parsed.videoUrl || parsedShouldGenerate) {
+          return {
+            text: parsed.text || parsed.message || '',
+            videoUrl: parsed.videoUrl,
+            legendas: parsed.legendas,
+            generateVideo: !!parsedShouldGenerate,
+            videoError: parsed.videoError
+          };
+        }
+        textResponse = parsed.output || parsed.response || parsed.message || parsed.text || textResponse;
+      } catch (parseError) {
+        console.error('[Parse Response Error] Failed to parse JSON response:', parseError);
+        console.error('[Parse Response Error] Raw text:', textResponse.substring(0, 200));
+      }
+    }
+
+    return { 
+      text: textResponse || 'Desculpe, não consegui processar sua mensagem.',
+      generateVideo: false 
+    };
+  };
+
   const sendMessageToWebhook = useCallback(async (
     message: string, 
     imageFile?: File, 
     attempt: number = 1
-  ): Promise<string> => {
+  ): Promise<{ text: string; videoUrl?: string; legendas?: LegendasResponse; generateVideo?: boolean; videoError?: string }> => {
     const cacheKey = getCacheKey(message, !!imageFile);
 
     if (responseCache.has(cacheKey) && !imageFile) {
-      return responseCache.get(cacheKey)!;
+      const cached = responseCache.get(cacheKey)!;
+      try {
+        return JSON.parse(cached);
+      } catch {
+        return { text: cached };
+      }
     }
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      // Timeout de 10 minutos para o Veo 3.1 Fast gerar o vídeo
+      const timeoutId = setTimeout(() => controller.abort(), 600000);
 
       const formData = new FormData();
       formData.append('message', message);
@@ -185,31 +317,45 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
 
       if (!response.ok) throw new Error(`Status: ${response.status}`);
 
-      const data = await response.json();
-      let botResponse = data.response || data.message || data.text || data.content || data.answer || (typeof data === 'string' ? data : JSON.stringify(data));
+      const data: WebhookResponse = await response.json();
+      console.log('[Webhook Response] Raw data:', data);
+      
+      const parsed = parseWebhookResponse(data);
+      console.log('[Webhook Response] Parsed:', {
+        text: parsed.text?.substring(0, 100),
+        hasVideoUrl: !!parsed.videoUrl,
+        generateVideo: parsed.generateVideo,
+        hasLegendas: !!parsed.legendas,
+        hasVideoError: !!parsed.videoError
+      });
 
-      if (typeof botResponse === 'string' && botResponse.startsWith('{') && botResponse.endsWith('}')) {
-        try {
-          const parsed = JSON.parse(botResponse);
-          botResponse = parsed.output || parsed.response || parsed.message || parsed.text || botResponse;
-        } catch {
-          // Ignora erro de parse JSON
-        }
+      // Ativa loading de vídeo apenas se deve gerar vídeo mas ainda não tem URL
+      if (parsed.generateVideo && !parsed.videoUrl && !parsed.videoError) {
+        setIsVideoLoading(true);
+      } else {
+        setIsVideoLoading(false);
       }
 
-      const finalResponse = botResponse || 'Desculpe, não consegui processar sua mensagem.';
-
       if (!imageFile) {
-        responseCache.set(cacheKey, finalResponse);
+        responseCache.set(cacheKey, JSON.stringify(parsed));
         if (responseCache.size > 50) {
           const firstKey = responseCache.keys().next().value;
           responseCache.delete(firstKey);
         }
       }
 
-      return finalResponse;
+      return parsed;
     } catch (err) {
+      setIsVideoLoading(false);
+      console.error('[Webhook Error] Attempt:', attempt, '- Error:', err);
+      console.error('[Webhook Error] Details:', {
+        message,
+        chatbotId: chatbot.id,
+        hasImage: !!imageFile,
+        webhookUrl: chatbot.webhook_url
+      });
       if (attempt < 3) {
+        console.log('[Webhook] Retrying attempt:', attempt + 1);
         await new Promise(r => setTimeout(r, 1000 * attempt));
         return sendMessageToWebhook(message, imageFile, attempt + 1);
       }
@@ -238,10 +384,18 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
     try {
       const botResponse = await sendMessageToWebhook(userMessage.content, imageFile);
 
+      // Determina se deve mostrar loading de vídeo
+      // Mostra loading se: deve gerar vídeo (generateVideo=true) AND não tem URL ainda AND não tem erro
+      const shouldShowVideoLoading = botResponse.generateVideo && !botResponse.videoUrl && !botResponse.videoError;
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: '',
+        content: botResponse.text,
+        videoUrl: botResponse.videoUrl,
+        legendas: botResponse.legendas,
+        isVideoLoading: shouldShowVideoLoading,
+        videoError: botResponse.videoError,
         timestamp: new Date().toISOString(),
         isStreaming: true
       };
@@ -250,18 +404,30 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
       setMessages(messagesWithBot);
       setLoading(false);
 
-      streamText(botResponse, botMessage.id);
+      streamText(botResponse.text, botMessage.id);
 
+      const textLength = botResponse.text?.split(' ').length || 0;
       setTimeout(async () => {
         const finalMessages = messagesWithBot.map(msg =>
-          msg.id === botMessage.id ? { ...msg, content: botResponse, isStreaming: false } : msg
+          msg.id === botMessage.id
+            ? { ...msg, content: botResponse.text, isStreaming: false, isVideoLoading: shouldShowVideoLoading }
+            : msg
         );
         await saveConversation(finalMessages);
-      }, botResponse.split(' ').length * 100 + 500);
+      }, textLength * 100 + 500);
 
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro inesperado.';
+      console.error('[Send Message Error]', err);
+      console.error('[Send Message Error] Context:', {
+        message: content,
+        chatbotId: chatbot.id,
+        conversationId,
+        userId: user?.id,
+        errorMessage: errorMsg
+      });
       setError(errorMsg);
+      setIsVideoLoading(false);
 
       const errorMessageObj: Message = {
         id: (Date.now() + 1).toString(),
@@ -278,7 +444,7 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
   }, [messages, saveConversation, sendMessageToWebhook, streamText]);
 
   const retryMessage = useCallback(() => {
-    const lastUserMessage = messages.findLast(m => m.type === 'user');
+    const lastUserMessage = [...messages].reverse().find(m => m.type === 'user');
     if (lastUserMessage) {
       setError(null);
       const filteredMessages = messages.filter(m => m.id !== lastUserMessage.id);
@@ -344,6 +510,7 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
     conversationId,
     isTyping,
     typingText,
+    isVideoLoading,
     sendMessage,
     retryMessage,
     clearConversation,

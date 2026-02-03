@@ -4,9 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   ProductivityStats, 
 } from '../types';
-import { useOrientacoesData } from './useOrientacoesData';
 import { useUsersCache } from './useUsersCache';
-import { calculateProductivityStats } from '../utils/statsCalculator';
 import { useResponsive } from '@/hooks/use-responsive';
 
 export function useHubData() {
@@ -19,12 +17,6 @@ export function useHubData() {
   const lastRefreshRef = useRef<number>(0);
   
   const [stats, setStats] = useState<ProductivityStats>({
-    orientacoes: {
-      total: 0,
-      lidas: 0,
-      naoLidas: 0,
-      recentes: 0
-    },
     produtividade: {
       score: 0
     }
@@ -32,39 +24,25 @@ export function useHubData() {
   
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
-  // Usar os novos hooks especializados
-  const { 
-    orientacoes, 
-    isLoading: isLoadingOrientacoes, 
-    error: orientacoesError,
-    refetch: refetchOrientacoes 
-  } = useOrientacoesData();
-
   const { getUserName, isLoading: isLoadingUsers } = useUsersCache();
 
   // Usar useMemo para evitar recálculos desnecessários - MOVIDO PARA ANTES DO DEBUG
   const allDataLoaded = useMemo(() => {
-    return !isLoadingOrientacoes && !isLoadingUsers;
-  }, [isLoadingOrientacoes, isLoadingUsers]);
+    return !isLoadingUsers;
+  }, [isLoadingUsers]);
 
   // Debug logs para mobile - VERSÃO MELHORADA
   useEffect(() => {
     if (isMobile) {
       console.log('📱 [MOBILE DEBUG] useHubData Estado Detalhado:', {
-        statsTotal: stats.orientacoes.total,
         isLoadingStats,
-        isLoadingOrientacoes,
         isLoadingUsers,
         allDataLoaded,
-        orientacoesCount: orientacoes.length,
         userExists: !!user,
         isInitialLoad: isInitialLoadRef.current
       });
     }
-  }, [isMobile, stats, isLoadingStats, isLoadingOrientacoes, isLoadingUsers, orientacoes, allDataLoaded, user]);
-
-  // Memoizar os dados para evitar recalculos
-  const memoizedOrientacoes = useMemo(() => orientacoes, [JSON.stringify(orientacoes)]);
+  }, [isMobile, stats, isLoadingStats, isLoadingUsers, allDataLoaded, user]);
 
   // ===== REFRESH DADOS COM FEEDBACK CONTROLADO =====
   const refreshData = useCallback(async () => {
@@ -87,9 +65,7 @@ export function useHubData() {
     }
     
     try {
-      await Promise.all([
-        refetchOrientacoes()
-      ]);
+      // Não há mais dados de orientações para buscar
       
       // Só mostra toast de sucesso se não for a primeira carga
       if (!isInitialLoadRef.current) {
@@ -108,7 +84,7 @@ export function useHubData() {
         });
       }
     }
-  }, [refetchOrientacoes, toast]);
+  }, [toast]);
 
   // ===== EFFECTS =====
   // Effect apenas para primeira carga quando user está disponível
@@ -127,15 +103,8 @@ export function useHubData() {
     try {
       setIsLoadingStats(true);
       
-      // Calcular estatísticas apenas com orientações (vazio temporariamente)
+      // Calcular estatísticas vazias (sem orientações)
       const newStats = {
-        ...stats,
-        orientacoes: {
-          total: orientacoes.length,
-          lidas: 0, // Não temos esse dado ainda
-          naoLidas: 0, // Não temos esse dado ainda
-          recentes: 0 // Não temos esse dado ainda
-        },
         produtividade: {
           score: 0
         }
@@ -149,21 +118,17 @@ export function useHubData() {
       console.error('❌ Erro ao calcular estatísticas:', error);
       setIsLoadingStats(false);
     }
-  }, [allDataLoaded, orientacoes]);
+  }, [allDataLoaded]);
 
   // Estados de erro consolidados
-  const errors = {
-    orientacoes: orientacoesError
-  };
+  const errors = {};
 
   return {
     // Data
     stats,
-    orientacoes: memoizedOrientacoes,
     
     // Loading states
     isLoadingStats,
-    isLoadingOrientacoes,
     isLoading: isLoadingStats,
     
     // Error states
@@ -171,6 +136,6 @@ export function useHubData() {
     
     // Actions
     refreshData,
-    fetchOrientacoes: refetchOrientacoes
+    fetchOrientacoes: async () => {} // Função vazia para compatibilidade
   };
 }

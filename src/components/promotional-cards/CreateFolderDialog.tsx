@@ -1,13 +1,13 @@
-
 import { useState } from "react";
+import { FolderPlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { FolderPlus } from "lucide-react";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CreateFolderDialogProps {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export function CreateFolderDialog({
   sector,
   onSuccess 
 }: CreateFolderDialogProps) {
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
   const [folderName, setFolderName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
@@ -79,29 +79,26 @@ export function CreateFolderDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("default")}>
-        {/* Fixed Header */}
-        <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
-          <DialogHeader className="pr-8">
-            <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                <FolderPlus className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                Nova Pasta
-              </div>
-            </DialogTitle>
-            <DialogDescription className="text-xs md:text-sm text-muted-foreground">
-              Crie uma nova pasta para organizar seus cards promocionais
-            </DialogDescription>
-          </DialogHeader>
-        </div>
+      <DialogContent 
+        className={`
+          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'}
+          overflow-hidden
+        `}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={FolderPlus}
+          iconColor="primary"
+          title="Nova Pasta"
+          description="Crie uma nova pasta para organizar seus cards promocionais"
+          onClose={() => onOpenChange(false)}
+          loading={isCreating}
+        />
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
-          <div className="space-y-4 md:space-y-6">
+        <StandardDialogContent>
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="folderName" className="text-sm md:text-base">Nome da Pasta *</Label>
+              <Label htmlFor="folderName" className="text-base">Nome da Pasta *</Label>
               <Input
                 id="folderName"
                 type="text"
@@ -109,31 +106,40 @@ export function CreateFolderDialog({
                 onChange={(e) => setFolderName(e.target.value)}
                 placeholder="Digite o nome da pasta"
                 required
-                className="mt-1 h-9 md:h-10 text-xs md:text-sm"
+                className="mt-1 h-12"
+                disabled={isCreating}
               />
             </div>
           </div>
-        </div>
+        </StandardDialogContent>
 
-        {/* Fixed Footer */}
-        <div {...getMobileFooterProps()}>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isCreating}
-            className="px-6"
+            className={isMobile ? 'w-full h-10' : ''}
           >
             Cancelar
           </Button>
           <Button
             onClick={handleCreateFolder}
             disabled={isCreating || !folderName.trim()}
-            variant="success"
+            className={`gap-2 ${isMobile ? 'w-full h-10' : ''}`}
           >
-            <FolderPlus className="mr-2 h-3 w-3 md:h-4 md:w-4" />
-            {isCreating ? "Criando..." : "Criar Pasta"}
+            {isCreating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Criando...
+              </>
+            ) : (
+              <>
+                <FolderPlus className="h-4 w-4" />
+                Criar Pasta
+              </>
+            )}
           </Button>
-        </div>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

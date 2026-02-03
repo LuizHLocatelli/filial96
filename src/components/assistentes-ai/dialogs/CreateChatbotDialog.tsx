@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Bot, Loader2, Sparkles, X, Image } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -22,7 +20,9 @@ import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { motion, AnimatePresence } from 'framer-motion';
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface CreateChatbotDialogProps {
   open: boolean;
@@ -40,6 +40,7 @@ interface FormData {
 export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateChatbotDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
 
@@ -102,41 +103,31 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-6 border-b">
-          <DialogHeader className="space-y-4">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-3 text-xl md:text-2xl">
-                <div className="p-2.5 rounded-xl bg-primary/10">
-                  <Bot className="w-6 h-6 text-primary" />
-                </div>
-                Novo Assistente
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-background/50"
-                onClick={() => onOpenChange(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div className="flex gap-2">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 flex-1 rounded-full transition-colors ${
-                    i <= step ? 'bg-primary' : 'bg-muted'
-                  }`}
-                />
-              ))}
-            </div>
-          </DialogHeader>
-        </div>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Bot}
+          iconColor="primary"
+          title="Novo Assistente"
+          onClose={() => onOpenChange(false)}
+        >
+          <div className="flex gap-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className={`h-1.5 flex-1 rounded-full transition-colors ${
+                  i <= step ? 'bg-primary' : 'bg-muted'
+                }`}
+              />
+            ))}
+          </div>
+        </StandardDialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <StandardDialogContent className={isMobile ? 'p-4' : 'p-6'}>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <AnimatePresence mode="wait">
               {step === 1 ? (
                 <motion.div
@@ -171,8 +162,8 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                     )}
                   />
 
-                  <div className="flex justify-end">
-                    <Button type="button" onClick={nextStep} className="gap-2">
+                  <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-end'}`}>
+                    <Button type="button" onClick={nextStep} className={`gap-2 ${isMobile ? 'w-full h-10' : ''}`}>
                       Próximo
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -262,20 +253,20 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                     />
                   </div>
 
-                  <div className="flex gap-3">
+                  <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setStep(1)}
                       disabled={loading}
-                      className="flex-1"
+                      className={isMobile ? 'w-full h-10' : 'flex-1'}
                     >
                       Voltar
                     </Button>
                     <Button 
                       type="submit" 
                       disabled={loading || !form.formState.dirtyFields.webhookUrl}
-                      className="flex-1 gap-2"
+                      className={`${isMobile ? 'w-full h-10' : 'flex-1'} gap-2`}
                     >
                       {loading ? (
                         <>
@@ -286,12 +277,13 @@ export function CreateChatbotDialog({ open, onOpenChange, onSuccess }: CreateCha
                         'Criar Assistente'
                       )}
                     </Button>
-                  </div>
+                  </StandardDialogFooter>
                 </motion.div>
               )}
             </AnimatePresence>
           </form>
         </Form>
+        </StandardDialogContent>
       </DialogContent>
     </Dialog>
   );

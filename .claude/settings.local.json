@@ -1,52 +1,35 @@
 {
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://api.minimax.io/anthropic",
-    "ANTHROPIC_AUTH_TOKEN": "sk-cp-SJDTc6_y3MWnWx4pQFtIViLfjiaNarnI-RW7yY_wceE3Djc0mZxnfvnJeg4n0X75BgHZP4JrKlfzgqUUUE7JKre63SxmoWO0sLJT3RNa5nrmqtDUU6_1qMk",
-    "API_TIMEOUT_MS": "3000000",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "ANTHROPIC_MODEL": "MiniMax-M2.1",
-    "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M2.1",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M2.1",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M2.1",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M2.1"
-  },
-  "permissions": {
-    "allow": [
-      "Bash(find:*)",
-      "Bash(git restore:*)",
-      "Bash(npm run dev:*)",
-      "Bash(npx ts-node:*)",
-      "Bash(npx:*)",
-      "Bash(npx -y @supabase/mcp-server-supabase --project-ref=*)",
-      "mcp__supabase__apply_migration",
-      "mcp__supabase__deploy_edge_function",
-      "mcp__supabase__execute_sql",
-      "mcp__supabase__get_advisors",
-      "mcp__supabase__get_edge_function",
-      "mcp__supabase__get_logs",
-      "mcp__supabase__list_edge_functions",
-      "mcp__supabase__list_tables",
-      "mcp__supabase__get_project_url",
-      "mcp__supabase__get_anon_key",
-      "Bash(mkdir:*)",
-      "Bash(rm -rf /workspaces/filial96/src/components/moveis/diretorio)",
-      "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFicHNhZmtpb3NsZmpxdGd0dmJpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTk2ODc4MiwiZXhwIjoyMDYxNTQ0NzgyfQ.GE0IebcEAl7J0tQvuIAv1cWVi1RinsNIu_YAJ2dt7ww\")",
-      "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase link --project-ref abpsafkioslfjqtgtvbi)",
-      "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase secrets list)",
-      "Bash(SUPABASE_ACCESS_TOKEN=\"sbp_ca5eab8c267c7c0103e043a90a1d36ece8a53721\" npx supabase functions deploy delete-user:*)",
-      "Bash(curl:*)",
-      "Bash(npm run build)",
-      "Bash(npm install:*)",
-      "Bash(npm test -- --run)",
-      "Bash(npm run test:run:*)",
-      "Bash(npm ls:*)",
-      "Bash(cat:*)",
-      "Bash(npm view:*)",
-      "Bash(npm run lint)"
-    ]
-  },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "supabase"
-  ]
-}
+      "env": {
+          "ANTHROPIC_BASE_URL": "https://api.moonshot.ai/anthropic",
+              "ANTHROPIC_AUTH_TOKEN": "sk-kimi-RbD1iLhqzpCPCVsfcXj5jU6VwVKSfxlvAszRfanPLL2M8ztMYpLjYSf6vTgKQvot",
+                  "API_TIMEOUT_MS": "8000000",
+                      "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
+                          "ANTHROPIC_MODEL": "kimi-k2.5",
+                              "ANTHROPIC_SMALL_FAST_MODEL": "kimi-k2.5",
+                                  "ANTHROPIC_DEFAULT_SONNET_MODEL": "kimi-k2.5",
+                                      "ANTHROPIC_DEFAULT_OPUS_MODEL": "kimi-k2.5",
+                                          "ANTHROPIC_DEFAULT_HAIKU_MODEL": "kimi-k2.5"
+                                            },
+                                              "permissions": {
+                                                  "allow": [
+                                                        "Bash(find:*)",
+                                                              "Bash(git restore:*)",
+                                                                    "Bash(npm run dev:*)",
+                                                                          "Bash(npx ts-node:*)",
+                                                                                "Bash(npx:*)",
+                                                                                      "Bash(npx -y @supabase/mcp-server-supabase --project-ref=*)",
+                                                                                            "mcp__supabase__apply_migration",
+                                                                                                  "mcp__supabase__deploy_edge_function",
+                                                                                                        "mcp__supabase__execute_sql",
+                                                                                                              "mcp__supabase__get_advisors",
+                                                                                                                    "mcp__supabase__get_edge_function",
+                                                                                                                          "mcp__supabase__get_logs",
+                                                                                                                                "mcp__supabase__list_edge_functions",
+                                                                                                                                      "mcp__supabase__list_tables"
+                                                                                                                                          ]
+                                                                                                                                            },
+                                                                                                                                              "enableAllProjectMcpServers": true,
+                                                                                                                                                "enabledMcpjsonServers": [
+                                                                                                                                                    "supabase"
+                                                                                                                                                      ]
+                                                                                                                                                      }

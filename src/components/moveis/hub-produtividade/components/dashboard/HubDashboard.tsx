@@ -7,15 +7,12 @@ import { CollapsibleSection, CollapsibleGroup } from '../layout/CollapsibleSecti
 import { DesktopLayout } from './DesktopLayout';
 import { Activity } from 'lucide-react';
 import { useEffect } from 'react';
-import { ConexoesVisualizacao } from './ConexoesVisualizacao';
 
 interface HubDashboardProps {
   stats: ProductivityStats;
   isLoading: boolean;
   handlers: HubHandlers;
-  rotinas?: any[];
   tarefas?: any[];
-  onViewRotina?: (rotinaId: string) => void;
   onViewTarefa?: (tarefaId: string) => void;
 }
 
@@ -23,9 +20,7 @@ export function HubDashboard({
   stats,
   isLoading,
   handlers,
-  rotinas = [],
   tarefas = [],
-  onViewRotina,
   onViewTarefa
 }: HubDashboardProps) {
   const { isMobile, isTablet } = useResponsive();
@@ -106,9 +101,7 @@ export function HubDashboard({
       stats={stats}
       isLoading={isLoading}
       handlers={handlers}
-      rotinas={rotinas}
       tarefas={tarefas}
-      onViewRotina={onViewRotina}
       onViewTarefa={onViewTarefa}
     />
   );

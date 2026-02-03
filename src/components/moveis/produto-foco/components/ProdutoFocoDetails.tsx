@@ -1,10 +1,4 @@
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription,
-  DialogHeader, 
-  DialogTitle 
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
@@ -12,9 +6,7 @@ import {
   Target, 
   TrendingUp, 
   Info,
-  Star,
   Eye,
-  X,
   Download,
   Package,
   ZoomIn
@@ -32,7 +24,8 @@ import {
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface ProdutoFocoDetailsProps {
   produto: ProdutoFocoWithImages | null;
@@ -42,7 +35,7 @@ interface ProdutoFocoDetailsProps {
 
 export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDetailsProps) {
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null);
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
 
   if (!produto) return null;
 
@@ -70,215 +63,205 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent {...getMobileDialogProps("large")}>
-          {/* Fixed Header */}
-          <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
-            <DialogHeader className="pr-8">
-              <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                  <Package className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
-                </div>
-                {produto.nome_produto}
-              </DialogTitle>
-            </DialogHeader>
-          </div>
+        <DialogContent 
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} overflow-hidden max-h-[90vh] flex flex-col`}
+          hideCloseButton
+        >
+          <StandardDialogHeader
+            icon={Package}
+            iconColor="primary"
+            title={produto.nome_produto}
+            onClose={onClose}
+          />
 
-          {/* Scrollable Content */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
-            <div className="space-y-4">
-            {/* Informações Básicas */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Código</p>
-                <Badge variant="outline" className="text-xs break-all">{produto.codigo_produto}</Badge>
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Categoria</p>
-                <Badge variant="secondary" className="text-xs break-all">{produto.categoria}</Badge>
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Status</p>
-                <Badge variant={produto.ativo ? "default" : "secondary"} className="text-xs">
-                  {produto.ativo ? "Ativo" : "Inativo"}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Desconto</p>
-                <Badge variant="destructive" className="text-xs">-{desconto.toFixed(0)}%</Badge>
-              </div>
-            </div>
-
-            {/* Galeria de Imagens com proporção 4:5 */}
-            {produto.imagens.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-3 text-sm sm:text-lg">Imagens do Produto</h3>
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {produto.imagens.map((imagem) => (
-                      <CarouselItem key={imagem.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
-                        <div className="space-y-2">
-                          <AspectRatio ratio={4/5}>
-                            <div 
-                              className="w-full h-full bg-muted rounded-lg overflow-hidden cursor-pointer group relative"
-                              onClick={() => setImagemSelecionada(imagem.imagem_url)}
-                            >
-                              <img 
-                                src={imagem.imagem_url} 
-                                alt={imagem.imagem_nome}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform"
-                              />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <Eye className="h-6 w-6 text-white" />
-                              </div>
-                            </div>
-                          </AspectRatio>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="w-full text-xs"
-                            onClick={() => handleDownloadImage(imagem.imagem_url, imagem.imagem_nome)}
-                          >
-                            <Download className="h-3 w-3 mr-1" />
-                            Baixar
-                          </Button>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  {produto.imagens.length > 1 && (
-                    <>
-                      <CarouselPrevious className="hidden sm:flex" />
-                      <CarouselNext className="hidden sm:flex" />
-                    </>
-                  )}
-                </Carousel>
-              </div>
-            )}
-
-            {/* Informações de Preço */}
-            <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-              <h3 className="font-semibold mb-3 text-sm sm:text-lg">Informações de Preço</h3>
+          <StandardDialogContent className="p-0">
+            <div className="space-y-6 p-4">
+              {/* Informações Básicas */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Preço Original</p>
-                  <p className="text-sm sm:text-lg line-through text-muted-foreground">
-                    R$ {produto.preco_de.toFixed(2)}
-                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Código</p>
+                  <Badge variant="outline" className="text-xs break-all">{produto.codigo_produto}</Badge>
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Preço Promocional</p>
-                  <p className="text-lg sm:text-2xl font-bold text-green-600">
-                    R$ {produto.preco_por.toFixed(2)}
-                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Categoria</p>
+                  <Badge variant="secondary" className="text-xs break-all">{produto.categoria}</Badge>
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Status</p>
+                  <Badge variant={produto.ativo ? "default" : "secondary"} className="text-xs">
+                    {produto.ativo ? "Ativo" : "Inativo"}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Desconto</p>
+                  <Badge variant="destructive" className="text-xs">-{desconto.toFixed(0)}%</Badge>
                 </div>
               </div>
-            </div>
 
-            {/* Período e Meta */}
-            <div className="grid grid-cols-1 gap-3 sm:gap-4">
+              {/* Galeria de Imagens com proporção 4:5 */}
+              {produto.imagens.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-3 text-sm sm:text-lg">Imagens do Produto</h3>
+                  <Carousel className="w-full">
+                    <CarouselContent>
+                      {produto.imagens.map((imagem) => (
+                        <CarouselItem key={imagem.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
+                          <div className="space-y-2">
+                            <AspectRatio ratio={4/5}>
+                              <div 
+                                className="w-full h-full bg-muted rounded-lg overflow-hidden cursor-pointer group relative"
+                                onClick={() => setImagemSelecionada(imagem.imagem_url)}
+                              >
+                                <img 
+                                  src={imagem.imagem_url} 
+                                  alt={imagem.imagem_nome}
+                                  className="w-full h-full object-cover hover:scale-105 transition-transform"
+                                />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <Eye className="h-6 w-6 text-white" />
+                                </div>
+                              </div>
+                            </AspectRatio>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full text-xs"
+                              onClick={() => handleDownloadImage(imagem.imagem_url, imagem.imagem_nome)}
+                            >
+                              <Download className="h-3 w-3 mr-1" />
+                              Baixar
+                            </Button>
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    {produto.imagens.length > 1 && (
+                      <>
+                        <CarouselPrevious className="hidden sm:flex" />
+                        <CarouselNext className="hidden sm:flex" />
+                      </>
+                    )}
+                  </Carousel>
+                </div>
+              )}
+
+              {/* Informações de Preço */}
               <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Calendar className="h-4 w-4" />
-                  <h3 className="font-semibold text-xs sm:text-base">Período do Foco</h3>
+                <h3 className="font-semibold mb-3 text-sm sm:text-lg">Informações de Preço</h3>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Preço Original</p>
+                    <p className="text-sm sm:text-lg line-through text-muted-foreground">
+                      R$ {produto.preco_de.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Preço Promocional</p>
+                    <p className="text-lg sm:text-2xl font-bold text-green-600">
+                      R$ {produto.preco_por.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs sm:text-sm break-words">
-                  De {format(new Date(produto.periodo_inicio), 'dd/MM/yyyy', { locale: ptBR })} {' '}
-                  até {format(new Date(produto.periodo_fim), 'dd/MM/yyyy', { locale: ptBR })}
-                </p>
               </div>
 
-              {produto.meta_vendas && (
+              {/* Período e Meta */}
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Target className="h-4 w-4" />
-                    <h3 className="font-semibold text-xs sm:text-base">Meta de Vendas</h3>
+                    <Calendar className="h-4 w-4" />
+                    <h3 className="font-semibold text-xs sm:text-base">Período do Foco</h3>
                   </div>
-                  <p className="text-lg sm:text-2xl font-bold">{produto.meta_vendas} unidades</p>
+                  <p className="text-xs sm:text-sm break-words">
+                    De {format(new Date(produto.periodo_inicio), 'dd/MM/yyyy', { locale: ptBR })} {' '}
+                    até {format(new Date(produto.periodo_fim), 'dd/MM/yyyy', { locale: ptBR })}
+                  </p>
+                </div>
+
+                {produto.meta_vendas && (
+                  <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="h-4 w-4" />
+                      <h3 className="font-semibold text-xs sm:text-base">Meta de Vendas</h3>
+                    </div>
+                    <p className="text-lg sm:text-2xl font-bold">{produto.meta_vendas} unidades</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Motivo do Foco */}
+              {produto.motivo_foco && (
+                <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Info className="h-4 w-4" />
+                    <h3 className="font-semibold text-xs sm:text-base">Motivo do Foco</h3>
+                  </div>
+                  <p className="text-xs sm:text-sm break-words">{produto.motivo_foco}</p>
+                </div>
+              )}
+
+              {/* Informações Adicionais */}
+              {produto.informacoes_adicionais && (
+                <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                  <h3 className="font-semibold mb-2 text-xs sm:text-base">Informações Adicionais</h3>
+                  <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{produto.informacoes_adicionais}</p>
+                </div>
+              )}
+
+              {/* Argumentos de Venda */}
+              {produto.argumentos_venda && produto.argumentos_venda.length > 0 && (
+                <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <TrendingUp className="h-4 w-4" />
+                    <h3 className="font-semibold text-xs sm:text-base">Argumentos de Venda</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {produto.argumentos_venda.map((argumento, index) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                        <p className="text-xs sm:text-sm break-words">{argumento}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
+          </StandardDialogContent>
 
-            {/* Motivo do Foco */}
-            {produto.motivo_foco && (
-              <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Info className="h-4 w-4" />
-                  <h3 className="font-semibold text-xs sm:text-base">Motivo do Foco</h3>
-                </div>
-                <p className="text-xs sm:text-sm break-words">{produto.motivo_foco}</p>
-              </div>
-            )}
-
-            {/* Informações Adicionais */}
-            {produto.informacoes_adicionais && (
-              <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-                <h3 className="font-semibold mb-2 text-xs sm:text-base">Informações Adicionais</h3>
-                <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{produto.informacoes_adicionais}</p>
-              </div>
-            )}
-
-            {/* Argumentos de Venda */}
-            {produto.argumentos_venda && produto.argumentos_venda.length > 0 && (
-              <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="h-4 w-4" />
-                  <h3 className="font-semibold text-xs sm:text-base">Argumentos de Venda</h3>
-                </div>
-                <div className="space-y-2">
-                  {produto.argumentos_venda.map((argumento, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                      <p className="text-xs sm:text-sm break-words">{argumento}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            </div>
-          </div>
-
-          {/* Fixed Footer */}
-          <div {...getMobileFooterProps()}>
-            <Button variant="outline" onClick={onClose}>
+          <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+            <Button variant="outline" onClick={onClose} className={isMobile ? 'w-full' : ''}>
               Fechar
             </Button>
-          </div>
+          </StandardDialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Modal de Zoom da Imagem */}
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
-          <DialogContent {...getMobileDialogProps("default")}>
-            {/* Fixed Header */}
-            <div className="flex-shrink-0 p-3 md:p-5 lg:p-6 pb-0">
-              <DialogHeader className="pr-8">
-                <DialogTitle className="text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                    <ZoomIn className="h-4 w-4 md:h-5 md:w-5 text-green-600 dark:text-green-400" />
-                  </div>
-                  Visualizar Imagem
-                </DialogTitle>
-              </DialogHeader>
-            </div>
+          <DialogContent 
+            className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} overflow-hidden`}
+            hideCloseButton
+          >
+            <StandardDialogHeader
+              icon={ZoomIn}
+              iconColor="primary"
+              title="Visualizar Imagem"
+              onClose={() => setImagemSelecionada(null)}
+            />
 
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
-              <div className="flex items-center justify-center">
-                <img
-                  src={imagemSelecionada}
-                  alt="Imagem ampliada"
-                  className="max-w-full h-auto object-contain"
-                />
-              </div>
-            </div>
+            <StandardDialogContent className="flex items-center justify-center p-4">
+              <img
+                src={imagemSelecionada}
+                alt="Imagem ampliada"
+                className="max-w-full h-auto object-contain"
+              />
+            </StandardDialogContent>
 
-            {/* Fixed Footer */}
-            <div {...getMobileFooterProps()}>
-              <Button onClick={() => setImagemSelecionada(null)}>
+            <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+              <Button onClick={() => setImagemSelecionada(null)} className={isMobile ? 'w-full' : ''}>
                 Fechar
               </Button>
-            </div>
+            </StandardDialogFooter>
           </DialogContent>
         </Dialog>
       )}

@@ -1,20 +1,18 @@
+import { useState } from "react";
+import { AlertTriangle, Loader2, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Trash2, AlertTriangle } from "lucide-react";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DeleteSaleDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onConfirmDelete: () => void;
+  onConfirmDelete: () => Promise<void> | void;
   itemName?: string;
 }
 
@@ -24,36 +22,98 @@ export function DeleteSaleDialog({
   onConfirmDelete,
   itemName = "esta venda",
 }: DeleteSaleDialogProps) {
-  const { getMobileAlertDialogProps, getMobileButtonProps } = useMobileDialog();
+  const isMobile = useIsMobile();
+  const [loading, setLoading] = useState(false);
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await onConfirmDelete();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting sale:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent {...getMobileAlertDialogProps("medium")}>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2 text-base">
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
-            Confirmar Exclusão
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm">
-            Tem certeza que deseja excluir <strong>{itemName}</strong>? 
-            <br />
-            <span className="text-red-600 font-medium text-xs">Esta ação não pode ser desfeita.</span>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-          <AlertDialogCancel {...getMobileButtonProps()} className="rounded-lg">
-            Cancelar
-          </AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={onConfirmDelete} 
-            {...getMobileButtonProps()}
-            className="bg-red-600 hover:bg-red-700 rounded-lg"
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent
+        className={`
+          ${isMobile ? "w-[calc(100%-2rem)] max-w-full p-0" : "sm:max-w-[420px] p-0"}
+          overflow-hidden
+        `}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={AlertTriangle}
+          iconColor="red"
+          title="Confirmar Exclusão"
+          onClose={() => onOpenChange(false)}
+          loading={loading}
+        />
+
+        <StandardDialogContent className="space-y-6">
+          <div
+            className={`
+              flex items-center gap-3
+              ${isMobile ? "p-3" : "p-4"}
+              rounded-xl bg-muted/50
+            `}
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Excluir Venda
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            <div className="text-2xl">🗑️</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{itemName}</p>
+              <p className="text-sm text-muted-foreground">Item selecionado</p>
+            </div>
+          </div>
+
+          <DialogDescription
+            className={`
+              ${isMobile ? "text-sm" : "text-base"}
+              text-center leading-relaxed px-1
+            `}
+          >
+            Tem certeza que deseja excluir <strong>{itemName}</strong>? Esta ação
+            não pode ser desfeita.
+          </DialogDescription>
+        </StandardDialogContent>
+
+        <StandardDialogFooter
+          className={isMobile ? "flex-col gap-2" : "flex-row gap-3"}
+        >
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className={isMobile ? "w-full h-10" : "flex-1"}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={loading}
+            className={`
+              ${isMobile ? "w-full h-10" : "flex-1"}
+              gap-2
+            `}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Excluindo...
+              </>
+            ) : (
+              <>
+                <Trash2 className="h-4 w-4" />
+                Excluir
+              </>
+            )}
+          </Button>
+        </StandardDialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

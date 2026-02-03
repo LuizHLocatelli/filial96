@@ -1,16 +1,18 @@
 import { useState } from "react";
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+  DialogContent
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Package, Calendar, BarChart3 } from "lucide-react";
+import { FileText, Package, BarChart3 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
 
 interface Produto {
   id: string;
@@ -49,6 +51,7 @@ export function PDFExportEstoqueDialog({
   onExport,
   isExporting
 }: PDFExportEstoqueDialogProps) {
+  const isMobile = useIsMobile();
   const [options, setOptions] = useState({
     includeDate: true,
     includeStats: true,
@@ -71,140 +74,138 @@ export function PDFExportEstoqueDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md sm:max-w-lg mx-auto">
-        <DialogHeader className="space-y-2 sm:space-y-3">
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-              <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <span>Exportar Contagem para PDF</span>
-          </DialogTitle>
-          <DialogDescription className="text-sm ml-12">
-            Configure as opções para exportar a contagem de estoque em PDF.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={FileText}
+          iconColor="blue"
+          title="Exportar Contagem para PDF"
+          description="Configure as opções para exportar a contagem de estoque em PDF."
+          onClose={() => onOpenChange(false)}
+          loading={isExporting}
+        />
 
-        <div className="space-y-6">
-          {/* Resumo dos dados */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Resumo da Contagem
-            </h4>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="bg-muted/50 rounded-lg p-3">
-                <p className="text-muted-foreground">Produtos</p>
-                <p className="font-semibold">{totalProdutos}</p>
+        <StandardDialogContent>
+          <div className="space-y-6">
+            {/* Resumo dos dados */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Resumo da Contagem
+              </h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-muted-foreground">Produtos</p>
+                  <p className="font-semibold">{totalProdutos}</p>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-muted-foreground">Unidades</p>
+                  <p className="font-semibold">{totalUnidades}</p>
+                </div>
               </div>
-              <div className="bg-muted/50 rounded-lg p-3">
-                <p className="text-muted-foreground">Unidades</p>
-                <p className="font-semibold">{totalUnidades}</p>
+              <div className="text-sm text-muted-foreground">
+                <strong>Nome:</strong> {contagem.nome}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <strong>Status:</strong> {contagem.status === "em_andamento" ? "Em Andamento" : "Finalizada"}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground">
-              <strong>Nome:</strong> {contagem.nome}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              <strong>Status:</strong> {contagem.status === "em_andamento" ? "Em Andamento" : "Finalizada"}
-            </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          {/* Opções de conteúdo */}
-          <div className="space-y-4 sm:space-y-6">
-            <h4 className="text-sm sm:text-base font-semibold flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5" />
-              Opções de Conteúdo
-            </h4>
-            
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Checkbox
-                  id="includeDate"
-                  checked={options.includeDate}
-                  onCheckedChange={(checked) => updateOption("includeDate", checked as boolean)}
-                  className="h-4 w-4 sm:h-5 sm:w-5"
-                />
-                <label
-                  htmlFor="includeDate"
-                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Incluir data de geração
-                </label>
-              </div>
+            {/* Opções de conteúdo */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Opções de Conteúdo
+              </h4>
               
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Checkbox
-                  id="includeStats"
-                  checked={options.includeStats}
-                  onCheckedChange={(checked) => updateOption("includeStats", checked as boolean)}
-                  className="h-4 w-4 sm:h-5 sm:w-5"
-                />
-                <label
-                  htmlFor="includeStats"
-                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Incluir estatísticas gerais
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="includeDate"
+                    checked={options.includeDate}
+                    onCheckedChange={(checked) => updateOption("includeDate", checked as boolean)}
+                  />
+                  <label
+                    htmlFor="includeDate"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Incluir data de geração
+                  </label>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="includeStats"
+                    checked={options.includeStats}
+                    onCheckedChange={(checked) => updateOption("includeStats", checked as boolean)}
+                  />
+                  <label
+                    htmlFor="includeStats"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Incluir estatísticas gerais
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          {/* Opções de organização */}
-          <div className="space-y-4 sm:space-y-6">
-            <h4 className="text-sm sm:text-base font-semibold">Organização</h4>
-            
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Checkbox
-                  id="groupBySetor"
-                  checked={options.groupBySetor}
-                  onCheckedChange={(checked) => updateOption("groupBySetor", checked as boolean)}
-                  className="h-4 w-4 sm:h-5 sm:w-5"
-                />
-                <label
-                  htmlFor="groupBySetor"
-                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Agrupar por setor ({setores.length} setores)
-                </label>
-              </div>
+            {/* Opções de organização */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold">Organização</h4>
               
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Checkbox
-                  id="includeTotal"
-                  checked={options.includeTotal}
-                  onCheckedChange={(checked) => updateOption("includeTotal", checked as boolean)}
-                  className="h-4 w-4 sm:h-5 sm:w-5"
-                />
-                <label
-                  htmlFor="includeTotal"
-                  className="text-sm sm:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Incluir totais no final
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="groupBySetor"
+                    checked={options.groupBySetor}
+                    onCheckedChange={(checked) => updateOption("groupBySetor", checked as boolean)}
+                  />
+                  <label
+                    htmlFor="groupBySetor"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Agrupar por setor ({setores.length} setores)
+                  </label>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="includeTotal"
+                    checked={options.includeTotal}
+                    onCheckedChange={(checked) => updateOption("includeTotal", checked as boolean)}
+                  />
+                  <label
+                    htmlFor="includeTotal"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Incluir totais no final
+                  </label>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </StandardDialogContent>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isExporting}
-            className="w-full sm:w-auto order-2 sm:order-1"
+            className={isMobile ? 'w-full h-10' : ''}
           >
             Cancelar
           </Button>
           <Button
             onClick={handleExport}
             disabled={isExporting || totalProdutos === 0}
-            className="gap-2 w-full sm:w-auto order-1 sm:order-2"
+            className={isMobile ? 'w-full h-10' : ''}
           >
             {isExporting ? (
               <>
@@ -213,12 +214,12 @@ export function PDFExportEstoqueDialog({
               </>
             ) : (
               <>
-                <FileText className="h-4 w-4" />
+                <FileText className="h-4 w-4 mr-2" />
                 Gerar PDF
               </>
             )}
           </Button>
-        </DialogFooter>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -1,11 +1,15 @@
-
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { UploadCartazForm } from "./UploadCartazForm";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
+import { Upload } from "lucide-react";
 
 interface UploadCartazDialogProps {
   open: boolean;
@@ -20,6 +24,8 @@ export function UploadCartazDialog({
   folderId, 
   onUploadSuccess 
 }: UploadCartazDialogProps) {
+  const isMobile = useIsMobile();
+
   const handleUploadSuccess = () => {
     onOpenChange(false);
     onUploadSuccess();
@@ -31,16 +37,25 @@ export function UploadCartazDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Novo Cartaz</DialogTitle>
-        </DialogHeader>
-        
-        <UploadCartazForm
-          folderId={folderId}
-          onUploadSuccess={handleUploadSuccess}
-          onCancel={handleCancel}
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Upload}
+          iconColor="primary"
+          title="Novo Cartaz"
+          onClose={() => onOpenChange(false)}
+          loading={false}
         />
+
+        <StandardDialogContent>
+          <UploadCartazForm
+            folderId={folderId}
+            onUploadSuccess={handleUploadSuccess}
+            onCancel={handleCancel}
+          />
+        </StandardDialogContent>
       </DialogContent>
     </Dialog>
   );

@@ -13,11 +13,50 @@ export interface Chatbot {
   updated_at: string;
 }
 
+export interface LegendasResponse {
+  urgencia: string;
+  beneficio: string;
+  desejo: string;
+}
+
+export interface N8nFileData {
+  fileExtension: string;
+  fileName: string;
+  fileSize: string;
+  fileType: string;
+  id: string;
+  mimeType: string;
+}
+
+export interface WebhookResponse {
+  response?: {
+    legendas?: LegendasResponse;
+    videoUrl?: string;
+    text?: string;
+    message?: string;
+    generate_video?: boolean;
+    video_prompt?: string;
+    videoError?: string;
+  };
+  videoUrl?: string;
+  legendas?: LegendasResponse;
+  text?: string;
+  message?: string;
+  output?: string;
+  generate_video?: boolean;
+  video_prompt?: string;
+  videoError?: string;
+}
+
 export interface Message {
   id: string;
   type: 'user' | 'bot';
   content: string;
   imageUrl?: string;
+  videoUrl?: string;
+  legendas?: LegendasResponse;
+  isVideoLoading?: boolean;
+  videoError?: string;
   timestamp: string;
   isStreaming?: boolean;
   status?: 'sent' | 'delivered' | 'read';
@@ -104,6 +143,7 @@ export interface UseChatReturn {
   conversationId: string | null;
   isTyping: boolean;
   typingText: string;
+  isVideoLoading: boolean;
   sendMessage: (content: string, imageFile?: File) => Promise<void>;
   retryMessage: () => void;
   clearConversation: () => Promise<void>;

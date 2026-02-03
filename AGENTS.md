@@ -157,3 +157,83 @@ The project uses:
 ## Environment Variables
 
 See `.env` for required variables. Supabase keys are managed via Claude settings.
+
+## Dialog Standards
+
+This project uses a standardized dialog pattern based on the "Assistentes de IA" dialogs. All dialogs should follow this structure for consistency:
+
+### StandardDialog Components
+
+Use the reusable components from `@/components/ui/standard-dialog`:
+
+```typescript
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
+```
+
+### Dialog Structure
+
+Every dialog should follow this 3-part structure:
+
+1. **Header** - With gradient background, icon, title, and close button
+2. **Content** - Scrollable area with form/content
+3. **Footer** - Fixed at bottom with action buttons
+
+### Example Usage
+
+```tsx
+<Dialog open={open} onOpenChange={onOpenChange}>
+  <DialogContent
+    className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+    hideCloseButton
+  >
+    <StandardDialogHeader
+      icon={Bot}
+      iconColor="primary" // primary | red | amber | blue | green
+      title="Novo Assistente"
+      description="Descrição opcional do diálogo"
+      onClose={() => onOpenChange(false)}
+      loading={loading}
+    />
+
+    <StandardDialogContent>
+      {/* Form content goes here */}
+    </StandardDialogContent>
+
+    <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+      <Button variant="outline" onClick={() => onOpenChange(false)}>
+        Cancelar
+      </Button>
+      <Button onClick={handleSubmit} disabled={loading}>
+        {loading ? 'Salvando...' : 'Salvar'}
+      </Button>
+    </StandardDialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Key Features
+
+- **Responsive**: Automatically adjusts padding and layout for mobile/desktop
+- **Gradient Header**: `bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5`
+- **Icon Colors**: Support for primary, red (delete), amber (warning), blue (info), green (success)
+- **Mobile-First**: Uses `useIsMobile()` hook for conditional styling
+- **Accessibility**: Proper focus management and keyboard navigation
+
+### Migration Guide
+
+When updating existing dialogs:
+
+1. Replace custom header markup with `<StandardDialogHeader />`
+2. Wrap content in `<StandardDialogContent />`
+3. Replace custom footer with `<StandardDialogFooter />`
+4. Add `hideCloseButton` to `DialogContent`
+5. Remove padding classes from `DialogContent` (handled by standard components)
+
+Reference implementations:
+- `src/components/assistentes-ai/dialogs/CreateChatbotDialog.tsx`
+- `src/components/assistentes-ai/dialogs/EditChatbotDialog.tsx`
+- `src/components/assistentes-ai/dialogs/DeleteChatbotDialog.tsx`

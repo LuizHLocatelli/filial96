@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+  DialogContent
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Edit2, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  StandardDialogHeader,
+  StandardDialogContent,
+  StandardDialogFooter,
+} from "@/components/ui/standard-dialog";
 
 interface Contagem {
   id: string;
@@ -32,6 +35,7 @@ export function EditarNomeContagemDialog({
   contagem,
   onContagemAtualizada 
 }: EditarNomeContagemDialogProps) {
+  const isMobile = useIsMobile();
   const [nome, setNome] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -95,66 +99,67 @@ export function EditarNomeContagemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md sm:max-w-lg mx-auto">
-        <DialogHeader className="space-y-2 sm:space-y-3">
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center flex-shrink-0">
-              <Edit2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <span>Editar Nome da Contagem</span>
-          </DialogTitle>
-          <DialogDescription className="text-sm ml-12">
-            Altere o nome da contagem para facilitar a identificação.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent 
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Edit2}
+          iconColor="primary"
+          title="Editar Nome da Contagem"
+          description="Altere o nome da contagem para facilitar a identificação."
+          onClose={() => onOpenChange(false)}
+          loading={loading}
+        />
         
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          <div className="space-y-2 sm:space-y-3">
-            <Label htmlFor="nome-contagem" className="text-sm sm:text-base">Nome da Contagem *</Label>
-            <Input
-              id="nome-contagem"
-              placeholder="Ex: Contagem Janeiro 2024"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              disabled={loading}
-              maxLength={100}
-              className="h-10 sm:h-11 text-sm sm:text-base"
-            />
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Máximo 100 caracteres
-            </p>
-          </div>
+        <StandardDialogContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nome-contagem">Nome da Contagem *</Label>
+              <Input
+                id="nome-contagem"
+                placeholder="Ex: Contagem Janeiro 2024"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+                disabled={loading}
+                maxLength={100}
+              />
+              <p className="text-xs text-muted-foreground">
+                Máximo 100 caracteres
+              </p>
+            </div>
+          </form>
+        </StandardDialogContent>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base order-2 sm:order-1"
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={!nome.trim() || loading}
-              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base gap-1.5 sm:gap-2 order-1 sm:order-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
-                  <span className="hidden sm:inline">Salvando...</span>
-                  <span className="sm:hidden">Salvando</span>
-                </>
-              ) : (
-                <>
-                  <Package className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Salvar Nome
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={!nome.trim() || loading}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Salvando...
+              </>
+            ) : (
+              <>
+                <Package className="h-4 w-4 mr-2" />
+                Salvar Nome
+              </>
+            )}
+          </Button>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

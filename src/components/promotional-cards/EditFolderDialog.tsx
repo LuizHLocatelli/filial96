@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
+import { Edit3, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Edit3 } from "lucide-react";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Folder {
   id: string;
@@ -22,7 +23,7 @@ interface EditFolderDialogProps {
 }
 
 export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: EditFolderDialogProps) {
-  const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
+  const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -79,53 +80,67 @@ export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: Ed
       }
       onOpenChange(open);
     }}>
-      <DialogContent {...getMobileDialogProps("small")}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <Edit3 className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
+      <DialogContent 
+        className={`
+          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'}
+          overflow-hidden
+        `}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={Edit3}
+          iconColor="primary"
+          title="Editar Pasta"
+          description="Altere o nome da pasta para organizar melhor seus cards promocionais"
+          onClose={() => onOpenChange(false)}
+          loading={isProcessing}
+        />
+        
+        <StandardDialogContent>
+          <div className="space-y-4">
             <div>
-              Editar Pasta
+              <Label htmlFor="folder-name-edit" className="text-base">Nome da Pasta *</Label>
+              <Input
+                id="folder-name-edit"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Digite o nome da pasta..."
+                autoFocus
+                className="h-12"
+                disabled={isProcessing}
+              />
             </div>
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Altere o nome da pasta para organizar melhor seus cards promocionais
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="folder-name-edit">Nome da Pasta *</Label>
-            <Input
-              id="folder-name-edit"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Digite o nome da pasta..."
-              autoFocus
-            />
           </div>
-        </div>
+        </StandardDialogContent>
         
-        <div {...getMobileFooterProps()}>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)} 
             disabled={isProcessing}
-            className="px-6"
+            className={isMobile ? 'w-full h-10' : ''}
           >
             Cancelar
           </Button>
           <Button 
             onClick={handleUpdateFolder} 
             disabled={isProcessing || !name.trim()}
-            variant="success"
+            className={`gap-2 ${isMobile ? 'w-full h-10' : ''}`}
           >
-            <Edit3 className="mr-2 h-4 w-4" />
-            {isProcessing ? "Salvando..." : "Salvar Alterações"}
+            {isProcessing ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <Edit3 className="h-4 w-4" />
+                Salvar Alterações
+              </>
+            )}
           </Button>
-        </div>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -1,8 +1,9 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
 import { ImageUp } from "lucide-react";
-import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { StandardDialogHeader, StandardDialogContent } from "@/components/ui/standard-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UploadCardDialogProps {
   open: boolean;
@@ -13,7 +14,7 @@ interface UploadCardDialogProps {
 }
 
 export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploadSuccess }: UploadCardDialogProps) {
-  const { getMobileDialogProps } = useMobileDialog();
+  const isMobile = useIsMobile();
   const {
     title,
     code,
@@ -46,21 +47,22 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent {...getMobileDialogProps("default")} className="flex flex-col max-h-[85vh]">
-        <DialogHeader className="flex-shrink-0 border-b pb-4">
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-              <ImageUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              Novo Card Promocional
-            </div>
-          </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            Faça o upload da imagem e preencha os detalhes para criar um novo material.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex-1 min-h-0 overflow-y-auto py-4 space-y-6">
+      <DialogContent 
+        className={`
+          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'}
+          overflow-hidden max-h-[85vh]
+        `}
+        hideCloseButton
+      >
+        <StandardDialogHeader
+          icon={ImageUp}
+          iconColor="primary"
+          title="Novo Card Promocional"
+          description="Faça o upload da imagem e preencha os detalhes para criar um novo material"
+          onClose={handleCancel}
+        />
+        
+        <StandardDialogContent>
           <CardUploadForm 
             sector={sector}
             title={title}
@@ -80,7 +82,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
             isSubmitting={isSubmitting}
             onCancel={handleCancel}
           />
-        </div>
+        </StandardDialogContent>
       </DialogContent>
     </Dialog>
   );

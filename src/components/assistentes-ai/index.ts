@@ -26,4 +26,7 @@ export type {
   FilterStatus,
   UseChatReturn,
   UseVoiceReturn,
+  N8nFileData,
+  WebhookResponse,
+  LegendasResponse,
 } from './types';

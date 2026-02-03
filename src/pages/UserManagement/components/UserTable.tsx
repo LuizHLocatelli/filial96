@@ -21,13 +21,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Edit, Trash2, AlertTriangle, Key } from "lucide-react";
+import { Edit, Trash2, AlertTriangle, Key, Loader2 } from "lucide-react";
 import { UserWithStats, roleColors, roleLabels } from "../types";
 import { getRoleIcon, getInitials, formatDate } from "../utils.tsx";
 import { EditUserForm } from "./EditUserForm";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { useAuth } from "@/contexts/auth";
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UserTableProps {
   users: UserWithStats[];
@@ -49,6 +50,7 @@ export function UserTable({
   onDeleteUser
 }: UserTableProps) {
   const { profile } = useAuth();
+  const isMobile = useIsMobile();
   const isManager = profile?.role === 'gerente';
   const [changePasswordUser, setChangePasswordUser] = useState<UserWithStats | null>(null);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -107,6 +109,7 @@ export function UserTable({
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="hover:bg-primary/10"
                       onClick={() => {
                         setEditingUser(user);
                         setIsEditDialogOpen(true);
@@ -115,7 +118,10 @@ export function UserTable({
                       <Edit className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent 
+                    className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+                    hideCloseButton
+                  >
                     {editingUser && (
                       <EditUserForm
                         user={editingUser}
@@ -132,6 +138,7 @@ export function UserTable({
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="hover:bg-amber-100 hover:text-amber-600"
                   disabled={!isManager || user.id === profile?.id}
                   onClick={() => {
                     setChangePasswordUser(user);
@@ -147,27 +154,39 @@ export function UserTable({
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="hover:bg-red-100 hover:text-red-600"
                       disabled={!isManager || user.id === profile?.id}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="flex items-center gap-2">
-                        <AlertTriangle className="text-yellow-500" />
-                        Confirmar Exclusão
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
+                  <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden">
+                    <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-4 border-b border-border/10">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-red-100">
+                            <AlertTriangle className="h-5 w-5 text-red-600" />
+                          </div>
+                          <div>
+                            <AlertDialogTitle className="text-base font-semibold leading-none tracking-tight">
+                              Confirmar Exclusão
+                            </AlertDialogTitle>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
                         Tem certeza que deseja excluir o usuário{" "}
-                        <strong>{user.name}</strong>? Esta ação não pode ser
+                        <strong className="text-foreground">{user.name}</strong>? Esta ação não pode ser
                         desfeita.
                       </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    </div>
+                    <AlertDialogFooter className="p-4 border-t border-border/10 gap-2">
+                      <AlertDialogCancel className="flex-1 h-10">Cancelar</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => onDeleteUser(user.id, user.name)}
+                        className="flex-1 h-10 bg-red-600 hover:bg-red-700"
                       >
                         Excluir
                       </AlertDialogAction>
@@ -180,16 +199,26 @@ export function UserTable({
         </TableBody>
       </Table>
       
-      {changePasswordUser && (
-        <ChangePasswordForm
-          user={changePasswordUser}
-          isOpen={isChangePasswordOpen}
-          onClose={() => {
-            setIsChangePasswordOpen(false);
-            setChangePasswordUser(null);
-          }}
-        />
-      )}
+      {/* Change Password Dialog */}
+      <Dialog
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      >
+        <DialogContent 
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+          hideCloseButton
+        >
+          {changePasswordUser && (
+            <ChangePasswordForm
+              user={changePasswordUser}
+              onClose={() => {
+                setIsChangePasswordOpen(false);
+                setChangePasswordUser(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

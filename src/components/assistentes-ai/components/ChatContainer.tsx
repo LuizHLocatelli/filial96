@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, AlertCircle, RefreshCcw } from 'lucide-react';
+import { Bot, AlertCircle, RefreshCcw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatHeader } from './ChatHeader';
 import { ChatInput } from './ChatInput';
@@ -16,6 +16,7 @@ export function ChatContainer({ chatbot, onBack }: ChatInterfaceProps) {
     error, 
     isTyping, 
     typingText,
+    isVideoLoading,
     sendMessage, 
     retryMessage, 
     clearConversation 
@@ -78,6 +79,30 @@ export function ChatContainer({ chatbot, onBack }: ChatInterfaceProps) {
 
           {(loading || isTyping) && <TypingIndicator />}
 
+          {isVideoLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex justify-start"
+            >
+              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 border border-primary/20 rounded-2xl rounded-tl-none px-4 py-3 max-w-[85%] md:max-w-[75%]">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Processando vídeo...</p>
+                    <p className="text-xs text-muted-foreground">Veo 3.1 Fast está gerando seu conteúdo</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {error && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -110,7 +135,7 @@ export function ChatContainer({ chatbot, onBack }: ChatInterfaceProps) {
 
       <ChatInput
         onSend={handleSend}
-        disabled={loading || !chatbot.is_active}
+        disabled={loading || isVideoLoading || !chatbot.is_active}
         acceptImages={chatbot.accept_images}
         placeholder={chatbot.is_active ? 'Digite sua mensagem...' : 'Assistente offline'}
       />

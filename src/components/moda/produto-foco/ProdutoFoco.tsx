@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -26,7 +26,8 @@ import { ConfirmDeleteDialog } from './components/ConfirmDeleteDialog';
 import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useMobileDialog } from '@/hooks/useMobileDialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { StandardDialogHeader, StandardDialogContent } from '@/components/ui/standard-dialog';
 
 export function ProdutoFoco() {
   const {
@@ -49,7 +50,7 @@ export function ProdutoFoco() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { getMobileDialogProps } = useMobileDialog();
+  const isMobile = useIsMobile();
 
   const handleCreateProduto = () => {
     setEditingProduto(null);
@@ -232,27 +233,18 @@ export function ProdutoFoco() {
 
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent {...getMobileDialogProps("default")} className="flex flex-col max-h-[85vh]">
-          <DialogHeader className="flex-shrink-0 border-b pb-4">
-            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <div>{editingProduto ? 'Editar Produto Foco' : 'Novo Produto Foco'}</div>
-                <div className="text-sm font-normal text-muted-foreground">
-                  {editingProduto ? 'Atualize as informações' : 'Gerenciar prioridades de venda'}
-                </div>
-              </div>
-            </DialogTitle>
-            <DialogDescription>
-              {editingProduto
-                ? 'Atualize as informações do produto foco'
-                : 'Adicione um novo produto às prioridades de vendas'
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 min-h-0 overflow-y-auto py-4">
+        <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden max-h-[85vh] flex flex-col`} hideCloseButton>
+          <StandardDialogHeader
+            icon={Package}
+            iconColor="primary"
+            title={editingProduto ? 'Editar Produto Foco' : 'Novo Produto Foco'}
+            description={editingProduto ? 'Atualize as informações do produto foco' : 'Adicione um novo produto às prioridades de vendas'}
+            onClose={() => {
+              setShowForm(false);
+              setEditingProduto(null);
+            }}
+          />
+          <StandardDialogContent className="p-0 overflow-y-auto">
             <ProdutoFocoForm
               produto={editingProduto}
               onSubmit={handleFormSubmit}
@@ -263,7 +255,7 @@ export function ProdutoFoco() {
               onUploadImagem={handleUploadImagem}
               onDeleteImagem={handleDeleteImagem}
             />
-          </div>
+          </StandardDialogContent>
         </DialogContent>
       </Dialog>
 

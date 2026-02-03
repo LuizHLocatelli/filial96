@@ -20,7 +20,6 @@ const ROUTE_PATTERNS: RoutePattern[] = [
   { from: '/', to: '/crediario', probability: 0.7, preloadDelay: 2000 },
   { from: '/', to: '/moveis', probability: 0.6, preloadDelay: 3000 },
   { from: '/crediario', to: '/depositos', probability: 0.8, preloadDelay: 1000 },
-  { from: '/moveis', to: '/orientacoes', probability: 0.7, preloadDelay: 1500 },
   { from: '/moda', to: '/reservas', probability: 0.6, preloadDelay: 2000 },
   { from: '/', to: '/cards-promocionais', probability: 0.4, preloadDelay: 5000 },
 ];
@@ -40,13 +39,13 @@ const PRELOAD_STRATEGIES: PreloadStrategy[] = [
   },
   {
     route: '/moveis',
-    components: ['OrientacoesList', 'PDFExportDialog'],
-    libraries: ['jspdf', 'recharts'],
+    components: [],
+    libraries: ['recharts'],
     priority: 'medium'
   },
   {
     route: '/moda',
-    components: ['ReservaCard', 'PDFExportDialog'],
+    components: ['ReservaCard'],
     libraries: ['recharts'],
     priority: 'medium'
   },
@@ -63,8 +62,6 @@ const COMPONENT_IMPORTS: Record<string, () => Promise<any>> = {
   'Moveis': () => import('../pages/Moveis'),
   'Moda': () => import('../pages/Moda'),
   'DepositFormDialog': () => import('../components/crediario/depositos/DepositFormDialog'),
-  'OrientacoesList': () => import('../components/moveis/orientacoes/OrientacoesList'),
-  'PDFExportDialog': () => import('../components/moveis/rotinas/components/PDFExportDialog'),
   'ReservaCard': () => import('../components/moda/reservas/components/ReservaCard'),
   'UploadCardDialog': () => import('../components/promotional-cards/UploadCardDialog'),
   'CardEditDialog': () => import('../components/promotional-cards/CardEditDialog'),
@@ -139,7 +136,7 @@ export function useIntelligentPreload() {
   }, [preloadedComponents]);
 
   const preloadFrequentComponents = useCallback(() => {
-    const frequentComponents = ['MetricsChart', 'ContactsChart', 'OrientacoesList'];
+    const frequentComponents = ['MetricsChart', 'ContactsChart'];
     
     frequentComponents.forEach(componentName => {
       if (!preloadedComponents.has(componentName)) {

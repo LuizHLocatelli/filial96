@@ -12,10 +12,7 @@ import {
   Clock,
   Filter,
   BarChart3,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  ArrowRight
+  Minus
 } from 'lucide-react';
 import { 
   format, 
@@ -41,7 +38,6 @@ import { useMobileDialog } from '@/hooks/useMobileDialog';
 interface FiltrosPorDataProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  orientacoes: Array<any>;
   onFiltersApply: (filters: DateFilters) => void;
 }
 
@@ -56,10 +52,8 @@ interface DateFilters {
 
 interface DateStats {
   totalItems: number;
-  orientacoesCount: number;
   itemsPerDay: number;
   weekdaysOnly: number;
-  completionRate: number;
 }
 
 const PRESETS = [
@@ -79,7 +73,6 @@ const PRESETS = [
 export function FiltrosPorData({ 
   open, 
   onOpenChange, 
-  orientacoes,
   onFiltersApply 
 }: FiltrosPorDataProps) {
   const { getMobileDialogProps, getMobileFooterProps } = useMobileDialog();
@@ -180,23 +173,15 @@ export function FiltrosPorData({
     if (!currentRange?.from || !currentRange?.to) {
       return {
         totalItems: 0,
-        orientacoesCount: 0,
         itemsPerDay: 0,
-        weekdaysOnly: 0,
-        completionRate: 0
+        weekdaysOnly: 0
       };
     }
 
     const start = startOfDay(currentRange.from);
     const end = endOfDay(currentRange.to);
 
-    // Filtrar itens no período
-    const filteredOrientacoes = orientacoes.filter(item => {
-      const itemDate = new Date(item.created_at || item.updated_at);
-      return isWithinInterval(itemDate, { start, end });
-    });
-
-    const totalItems = filteredOrientacoes.length;
+    const totalItems = 0; // Sem dados de orientações
     const totalDays = differenceInDays(end, start) + 1;
     
     // Calcular dias úteis (excluir fins de semana se necessário)
@@ -208,18 +193,12 @@ export function FiltrosPorData({
       }
     }
 
-    // Since we only have orientacoes now, completion rate calculation is simplified
-    // In the future, if we add more completable items, we'll need to update this logic
-    const completionRate = 0; // Placeholder since orientacoes don't have status
-
     return {
       totalItems,
-      orientacoesCount: filteredOrientacoes.length,
       itemsPerDay: totalDays > 0 ? totalItems / totalDays : 0,
-      weekdaysOnly: workingDays,
-      completionRate
+      weekdaysOnly: workingDays
     };
-  }, [currentRange, orientacoes, filters.includeWeekends]);
+  }, [currentRange, filters.includeWeekends]);
 
   // Aplicar filtros
   const handleApplyFilters = () => {
@@ -245,7 +224,7 @@ export function FiltrosPorData({
               </div>
             </DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground">
-              Filtre e organize suas informações por períodos específicos
+              Filtre e organize informações por períodos específicos
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -388,15 +367,8 @@ export function FiltrosPorData({
                     <div className="text-xs text-muted-foreground">Total de Itens</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{stats.completionRate.toFixed(1)}%</div>
+                    <div className="text-2xl font-bold text-green-600">0%</div>
                     <div className="text-xs text-muted-foreground">Taxa de Conclusão</div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Orientações</span>
-                    <Badge variant="secondary">{stats.orientacoesCount}</Badge>
                   </div>
                 </div>
 
@@ -420,21 +392,8 @@ export function FiltrosPorData({
               <CardContent className="space-y-3">
                 {stats.totalItems > 0 ? (
                   <>
-                    {stats.completionRate > 75 && (
-                      <div className="flex items-center gap-2 text-sm text-green-600">
-                        <TrendingUp className="h-4 w-4" />
-                        Excelente produtividade
-                      </div>
-                    )}
-                    {stats.completionRate < 30 && (
-                      <div className="flex items-center gap-2 text-sm text-red-600">
-                        <TrendingDown className="h-4 w-4" />
-                        Muitas tarefas pendentes
-                      </div>
-                    )}
                     {stats.itemsPerDay > 5 && (
                       <div className="flex items-center gap-2 text-sm text-primary">
-                        <ArrowRight className="h-4 w-4" />
                         Período de alta atividade
                       </div>
                     )}
@@ -473,4 +432,4 @@ export function FiltrosPorData({
       </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -4,95 +4,47 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Link2, 
-  CheckSquare, 
   Calendar, 
   TrendingUp,
-  ArrowRight,
-  Clock,
-  AlertCircle,
   ChevronRight
 } from "lucide-react";
-import { RotinaWithStatus } from "../../../rotinas/types";
-import { TarefaExpandida } from "../../../orientacoes/types";
 import { motion } from "framer-motion";
-
-interface ConexoesVisualizacaoProps {
-  rotinas: RotinaWithStatus[];
-  tarefas: TarefaExpandida[];
-  onViewRotina?: (rotinaId: string) => void;
-  onViewTarefa?: (tarefaId: string) => void;
-}
 
 interface ConexaoItem {
   id: string;
   nome: string;
-  tipo: 'rotina' | 'tarefa';
+  tipo: 'tarefa';
   status: string;
   relacionados: number;
   urgencia: 'baixa' | 'media' | 'alta';
 }
 
-export function ConexoesVisualizacao({ 
-  rotinas, 
-  tarefas, 
-  onViewRotina,
-  onViewTarefa 
-}: ConexoesVisualizacaoProps) {
+export function ConexoesVisualizacao() {
   const [conexoes, setConexoes] = useState<ConexaoItem[]>([]);
   const [estatisticas, setEstatisticas] = useState({
-    rotinasComTarefas: 0,
-    tarefasDeRotinas: 0,
+    totalTarefas: 0,
     conexoesTotais: 0,
     produtividadeScore: 0
   });
 
   useEffect(() => {
     calcularConexoes();
-  }, [rotinas, tarefas]);
+  }, []);
 
   const calcularConexoes = () => {
-    // Contar rotinas que têm tarefas relacionadas
-    const rotinasComTarefas = rotinas.filter(rotina => 
-      tarefas.some(tarefa => tarefa.rotina_id === rotina.id)
-    ).length;
-
-    // Contar tarefas que vieram de rotinas
-    const tarefasDeRotinas = tarefas.filter(tarefa => tarefa.rotina_id).length;
-
-    // Calcular conexões totais
-    const conexoesTotais = rotinasComTarefas + tarefasDeRotinas;
-
-    // Calcular score de produtividade baseado nas conexões
-    const totalItens = rotinas.length + tarefas.length;
-    const produtividadeScore = totalItens > 0 ? Math.round((conexoesTotais / totalItens) * 100) : 0;
+    // Calcular estatísticas básicas
+    const totalTarefas = 0;
+    const conexoesTotais = 0;
+    const produtividadeScore = 0;
 
     setEstatisticas({
-      rotinasComTarefas,
-      tarefasDeRotinas,
+      totalTarefas,
       conexoesTotais,
       produtividadeScore
     });
 
-    // Criar lista de conexões para visualização
-    const conexoesList: ConexaoItem[] = [];
-
-    // Adicionar rotinas com suas conexões
-    rotinas.forEach(rotina => {
-      const tarefasRelacionadas = tarefas.filter(t => t.rotina_id === rotina.id).length;
-      if (tarefasRelacionadas > 0) {
-        conexoesList.push({
-          id: rotina.id,
-          nome: rotina.nome,
-          tipo: 'rotina',
-          status: rotina.status || 'pendente',
-          relacionados: tarefasRelacionadas,
-          urgencia: tarefasRelacionadas > 3 ? 'alta' : tarefasRelacionadas > 1 ? 'media' : 'baixa'
-        });
-      }
-    });
-
-    // Limitar a 5 conexões principais para visualização
-    setConexoes(conexoesList.slice(0, 5));
+    // Criar lista de conexões para visualização (vazia agora)
+    setConexoes([]);
   };
 
   const getUrgenciaColor = (urgencia: string) => {
@@ -133,23 +85,6 @@ export function ConexoesVisualizacao({
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Rotinas</span>
-              </div>
-                              <div className="text-2xl font-bold text-primary">
-                {estatisticas.rotinasComTarefas}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Com tarefas vinculadas
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
         <Card className="border-l-4 border-l-purple-500">
           <CardContent className="p-4">
             <div className="space-y-2">
@@ -158,10 +93,10 @@ export function ConexoesVisualizacao({
                 <span className="text-sm font-medium">Tarefas</span>
               </div>
                               <div className="text-2xl font-bold text-emerald-600">
-                {estatisticas.tarefasDeRotinas}
+                {estatisticas.totalTarefas}
               </div>
               <p className="text-xs text-muted-foreground">
-                Geradas por rotinas
+                Tarefas cadastradas
               </p>
             </div>
           </CardContent>
@@ -178,7 +113,7 @@ export function ConexoesVisualizacao({
                 {estatisticas.produtividadeScore}%
               </div>
               <p className="text-xs text-muted-foreground">
-                Score de conexões
+                Score de produtividade
               </p>
             </div>
           </CardContent>
@@ -203,34 +138,19 @@ export function ConexoesVisualizacao({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                   className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
-                  onClick={() => {
-                    if (conexao.tipo === 'rotina') {
-                      onViewRotina?.(conexao.id);
-                    } else {
-                      onViewTarefa?.(conexao.id);
-                    }
-                  }}
                 >
                   <div className="flex items-center gap-3 flex-1">
                     <div className="flex items-center gap-2">
-                      {conexao.tipo === 'rotina' ? (
-                        <CheckSquare className={`h-4 w-4 ${getStatusColor(conexao.status)}`} />
-                      ) : (
-                        <Calendar className={`h-4 w-4 ${getStatusColor(conexao.status)}`} />
-                      )}
+                      <Calendar className={`h-4 w-4 ${getStatusColor(conexao.status)}`} />
                       <span className="font-medium text-sm">{conexao.nome}</span>
                     </div>
                     
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                    
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {conexao.relacionados} relacionado{conexao.relacionados !== 1 ? 's' : ''}
-                      </Badge>
-                      <Badge className={`text-xs ${getUrgenciaColor(conexao.urgencia)}`}>
-                        {conexao.urgencia}
-                      </Badge>
-                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {conexao.relacionados} relacionado{conexao.relacionados !== 1 ? 's' : ''}
+                    </Badge>
+                    <Badge className={`text-xs ${getUrgenciaColor(conexao.urgencia)}`}>
+                      {conexao.urgencia}
+                    </Badge>
                   </div>
                   
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -250,37 +170,12 @@ export function ConexoesVisualizacao({
               <Link2 className="h-12 w-12 mx-auto mb-3 opacity-20" />
               <h3 className="font-medium mb-1">Nenhuma conexão encontrada</h3>
               <p className="text-sm">
-                Crie tarefas vinculadas às rotinas para visualizar as conexões
+                O sistema de conexões foi simplificado
               </p>
             </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Recomendações de Melhoria */}
-      {estatisticas.produtividadeScore < 70 && (
-        <Card className="border-l-4 border-l-yellow-500 bg-yellow-50/50">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div className="space-y-2">
-                <h4 className="font-medium text-yellow-800">
-                  Oportunidades de Melhoria
-                </h4>
-                <div className="text-sm text-yellow-700 space-y-1">
-                  {estatisticas.rotinasComTarefas === 0 && (
-                    <p>• Vincule tarefas às suas rotinas para melhor organização</p>
-                  )}
-                  {estatisticas.tarefasDeRotinas < tarefas.length / 2 && (
-                    <p>• Configure templates automáticos nas rotinas recorrentes</p>
-                  )}
-                  <p>• Score atual: {estatisticas.produtividadeScore}% - Meta: 70%+</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
-} 
+}

@@ -10,9 +10,6 @@ export interface KeyboardShortcut {
 }
 
 export interface HubKeyboardShortcuts {
-  onNovaRotina: () => void;
-  onNovaOrientacao: () => void;
-  onNovaTarefa: () => void;
   onBuscaAvancada: () => void;
   onFiltrosPorData: () => void;
   onRelatorios: () => void;
@@ -26,24 +23,6 @@ export function useKeyboardShortcuts(
 ) {
   // Definir os atalhos de teclado
   const shortcuts: KeyboardShortcut[] = [
-    {
-      key: 'r',
-      ctrl: true,
-      action: handlers.onNovaRotina,
-      description: 'Nova Rotina'
-    },
-    {
-      key: 'o',
-      ctrl: true,
-      action: handlers.onNovaOrientacao,
-      description: 'Nova Orientação'
-    },
-    {
-      key: 't',
-      ctrl: true,
-      action: handlers.onNovaTarefa,
-      description: 'Nova Tarefa'
-    },
     {
       key: 'f',
       ctrl: true,
@@ -146,4 +125,4 @@ export function useKeyboardShortcuts(
     getShortcutsList,
     enabled
   };
-} 
+}

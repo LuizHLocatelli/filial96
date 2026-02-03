@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Activity } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -22,7 +21,6 @@ export default function HubProdutividade() {
   // Hook para dados
   const {
     stats,
-    orientacoes,
     isLoading,
     refreshData
   } = useHubData();
@@ -70,15 +68,7 @@ export default function HubProdutividade() {
   const tabsConfig = createTabsConfig({
     stats,
     isLoading,
-    handlers: handlersWithDialogs,
-    orientacoes: orientacoes || [],
-    onViewRotina: (rotinaId) => {
-      // Função removida - atividades foram removidas do sistema
-    },
-    onViewTarefa: (tarefaId) => {
-      // Função removida - atividades foram removidas do sistema
-    },
-    
+    handlers: handlersWithDialogs
   });
 
   return (
@@ -104,7 +94,6 @@ export default function HubProdutividade() {
         setShowBuscaAvancada={setShowBuscaAvancada}
         showFiltrosPorData={showFiltrosPorData}
         setShowFiltrosPorData={setShowFiltrosPorData}
-        orientacoes={orientacoes || []}
         onBuscaAvancadaResults={handleBuscaAvancadaResults}
         onFiltrosPorDataApply={handleFiltrosPorDataApply}
       />
