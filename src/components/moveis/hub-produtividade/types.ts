@@ -10,9 +10,34 @@ export interface HubSection {
   description?: string;
 }
 
+export interface Tarefa {
+  id: string;
+  titulo: string;
+  descricao: string;
+  status: string;
+  prioridade: string | null;
+  data_entrega: string;
+  data_criacao: string;
+  data_atualizacao: string;
+  criado_por: string;
+  origem: string | null;
+  rotina_id: string | null;
+}
+
 export interface ProductivityStats {
   produtividade: {
     score: number;
+  };
+  tarefas: {
+    total: number;
+    concluidas: number;
+    pendentes: number;
+    atrasadas: number;
+  };
+  rotinas: {
+    total: number;
+    concluidas: number;
+    pendentes: number;
   };
 }
 

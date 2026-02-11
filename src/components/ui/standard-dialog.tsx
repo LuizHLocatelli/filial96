@@ -9,8 +9,8 @@ import { LucideIcon } from "lucide-react";
 interface StandardDialogHeaderProps {
   icon?: LucideIcon;
   iconColor?: "primary" | "red" | "amber" | "blue" | "green";
-  title: string;
-  description?: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
   onClose?: () => void;
   loading?: boolean;
   className?: string;

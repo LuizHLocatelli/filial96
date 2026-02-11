@@ -219,7 +219,6 @@ export function PromotionalCard({
           onOpenChange={setIsDeleteDialogOpen}
           onConfirm={handleDeleteCard}
           isLoading={isDeletingCard}
-          isMobile={isMobile || false}
         />
       </Card>
     </>
