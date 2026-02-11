@@ -1,24 +1,28 @@
 import {
   FileImage,
-  Bot
+  Bot,
+  FileText
 } from "lucide-react";
 import { lazy } from "react";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
 const AssistentesAI = lazy(() => import("@/components/assistentes-ai/AssistentesAI"));
+const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 
 interface TabsConfigProps {
   stats: any;
   isLoading: boolean;
   handlers: any;
+  isManager?: boolean;
 }
 
 export function createTabsConfig({
   stats,
   isLoading,
-  handlers
+  handlers,
+  isManager = false
 }: TabsConfigProps) {
-  return [
+  const tabs = [
     {
       value: "cartazes",
       label: "Cartazes",
@@ -42,4 +46,21 @@ export function createTabsConfig({
       )
     }
   ];
+
+  // Add Curriculos tab only for managers
+  if (isManager) {
+    tabs.push({
+      value: "curriculos",
+      label: "Currículos",
+      icon: FileText,
+      description: "Gerenciamento de currículos recebidos",
+      component: (
+        <div className="border border-border/40 rounded-lg overflow-hidden">
+          <Curriculos />
+        </div>
+      )
+    });
+  }
+
+  return tabs;
 }

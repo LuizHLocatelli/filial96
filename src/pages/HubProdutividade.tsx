@@ -7,6 +7,7 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 // Hooks
 import { useHubData } from "@/components/moveis/hub-produtividade/hooks/useHubData";
 import { useHubHandlers } from "@/components/moveis/hub-produtividade/hooks/useHubHandlers";
+import { useAuth } from "@/contexts/auth";
 
 // Refactored components
 import { createTabsConfig } from "./hub-produtividade/tabsConfig";
@@ -17,7 +18,11 @@ export default function HubProdutividade() {
   // Estados para dialogs funcionais
   const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
   const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
-  
+
+  // Hook para autenticação e perfil
+  const { profile } = useAuth();
+  const isManager = profile?.role === 'gerente';
+
   // Hook para dados
   const {
     stats,
@@ -68,7 +73,8 @@ export default function HubProdutividade() {
   const tabsConfig = createTabsConfig({
     stats,
     isLoading,
-    handlers: handlersWithDialogs
+    handlers: handlersWithDialogs,
+    isManager
   });
 
   return (

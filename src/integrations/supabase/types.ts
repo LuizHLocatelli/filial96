@@ -212,6 +212,50 @@ export type Database = {
           },
         ]
       }
+      curriculos: {
+        Row: {
+          id: string
+          candidate_name: string
+          job_position: string
+          file_url: string
+          file_type: string
+          file_size: number | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          candidate_name: string
+          job_position: string
+          file_url: string
+          file_type: string
+          file_size?: number | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          candidate_name?: string
+          job_position?: string
+          file_url?: string
+          file_type?: string
+          file_size?: number | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       crediario_depositos: {
         Row: {
           comprovante: string | null
