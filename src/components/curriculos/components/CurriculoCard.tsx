@@ -87,16 +87,21 @@ export function CurriculoCard({ curriculo, onView, onDelete }: CurriculoCardProp
           {curriculo.candidate_name}
         </h3>
 
-        {/* Job Position Badge */}
-        <Badge 
-          variant="outline" 
-          className={cn(
-            'w-fit',
-            jobPositionColors[curriculo.job_position as JobPosition]
-          )}
-        >
-          {jobPositionLabels[curriculo.job_position as JobPosition]}
-        </Badge>
+        {/* Job Position Badges */}
+        <div className="flex flex-wrap gap-1">
+          {curriculo.job_position.map((position) => (
+            <Badge 
+              key={position}
+              variant="outline" 
+              className={cn(
+                'text-xs',
+                jobPositionColors[position as JobPosition]
+              )}
+            >
+              {jobPositionLabels[position as JobPosition]}
+            </Badge>
+          ))}
+        </div>
 
         {/* Metadata */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">

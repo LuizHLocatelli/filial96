@@ -3,19 +3,13 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   StandardDialogHeader,
   StandardDialogContent,
   StandardDialogFooter,
 } from '@/components/ui/standard-dialog';
-import { FileUp, Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
+import { FileUp, Upload, X, FileText, Image as ImageIcon, Check } from 'lucide-react';
 import { useCurriculoOperations } from '../hooks/useCurriculoOperations';
 import { useToast } from '@/hooks/use-toast';
 import type { JobPosition } from '@/types/curriculos';
@@ -37,13 +31,20 @@ const ALLOWED_TYPES = [
   'image/webp'
 ];
 
+const JOB_POSITIONS: JobPosition[] = [
+  'crediarista',
+  'consultora_moda',
+  'consultor_moveis',
+  'jovem_aprendiz'
+];
+
 export function UploadCurriculoDialog({
   open,
   onOpenChange,
   onSuccess
 }: UploadCurriculoDialogProps) {
   const [candidateName, setCandidateName] = useState('');
-  const [jobPosition, setJobPosition] = useState<JobPosition | ''>('');
+  const [selectedPositions, setSelectedPositions] = useState<JobPosition[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   
@@ -52,7 +53,7 @@ export function UploadCurriculoDialog({
 
   const resetForm = useCallback(() => {
     setCandidateName('');
-    setJobPosition('');
+    setSelectedPositions([]);
     setFile(null);
     setIsDragging(false);
   }, []);
@@ -97,6 +98,15 @@ export function UploadCurriculoDialog({
     setIsDragging(false);
   }, []);
 
+  const togglePosition = (position: JobPosition) => {
+    setSelectedPositions(prev => {
+      if (prev.includes(position)) {
+        return prev.filter(p => p !== position);
+      }
+      return [...prev, position];
+    });
+  };
+
   const handleSubmit = useCallback(async () => {
     if (!candidateName.trim()) {
       toast({
@@ -107,10 +117,10 @@ export function UploadCurriculoDialog({
       return;
     }
 
-    if (!jobPosition) {
+    if (selectedPositions.length === 0) {
       toast({
         title: 'Vaga obrigatória',
-        description: 'Selecione a vaga pretendida',
+        description: 'Selecione pelo menos uma vaga pretendida',
         variant: 'destructive'
       });
       return;
@@ -127,7 +137,7 @@ export function UploadCurriculoDialog({
 
     const result = await uploadCurriculo({
       candidate_name: candidateName,
-      job_position: jobPosition,
+      job_position: selectedPositions,
       file
     });
 
@@ -146,7 +156,7 @@ export function UploadCurriculoDialog({
         variant: 'destructive'
       });
     }
-  }, [candidateName, jobPosition, file, uploadCurriculo, toast, resetForm, onOpenChange, onSuccess]);
+  }, [candidateName, selectedPositions, file, uploadCurriculo, toast, resetForm, onOpenChange, onSuccess]);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -163,7 +173,7 @@ export function UploadCurriculoDialog({
           icon={FileUp}
           iconColor="primary"
           title="Novo Currículo"
-          description="Cadastre um novo currículo para a vaga"
+          description="Cadastre um novo currículo para as vagas"
           onClose={handleClose}
           loading={isUploading}
         />
@@ -183,34 +193,41 @@ export function UploadCurriculoDialog({
             />
           </div>
 
-          {/* Job Position */}
+          {/* Job Positions - Multi Select */}
           <div className="space-y-2">
-            <Label htmlFor="job-position">
-              Vaga Pretendida <span className="text-red-500">*</span>
+            <Label>
+              Vagas Pretendidas <span className="text-red-500">*</span>
+              <span className="text-xs text-muted-foreground ml-2">
+                (selecione uma ou mais)
+              </span>
             </Label>
-            <Select
-              value={jobPosition}
-              onValueChange={(value) => setJobPosition(value as JobPosition)}
-              disabled={isUploading}
-            >
-              <SelectTrigger id="job-position">
-                <SelectValue placeholder="Selecione a vaga" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="crediarista">
-                  {jobPositionLabels.crediarista}
-                </SelectItem>
-                <SelectItem value="consultora_moda">
-                  {jobPositionLabels.consultora_moda}
-                </SelectItem>
-                <SelectItem value="consultor_moveis">
-                  {jobPositionLabels.consultor_moveis}
-                </SelectItem>
-                <SelectItem value="jovem_aprendiz">
-                  {jobPositionLabels.jovem_aprendiz}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border rounded-lg bg-muted/30">
+              {JOB_POSITIONS.map((position) => (
+                <div
+                  key={position}
+                  className={cn(
+                    "flex items-center space-x-2 p-2 rounded-md cursor-pointer transition-colors",
+                    selectedPositions.includes(position) && "bg-primary/10"
+                  )}
+                  onClick={() => !isUploading && togglePosition(position)}
+                >
+                  <Checkbox
+                    checked={selectedPositions.includes(position)}
+                    onCheckedChange={() => togglePosition(position)}
+                    disabled={isUploading}
+                  />
+                  <span className="text-sm">{jobPositionLabels[position]}</span>
+                  {selectedPositions.includes(position) && (
+                    <Check className="h-3 w-3 ml-auto text-primary" />
+                  )}
+                </div>
+              ))}
+            </div>
+            {selectedPositions.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {selectedPositions.length} vaga{selectedPositions.length !== 1 ? 's' : ''} selecionada{selectedPositions.length !== 1 ? 's' : ''}
+              </p>
+            )}
           </div>
 
           {/* File Upload */}
@@ -288,7 +305,7 @@ export function UploadCurriculoDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isUploading || !candidateName.trim() || !jobPosition || !file}
+            disabled={isUploading || !candidateName.trim() || selectedPositions.length === 0 || !file}
           >
             {isUploading ? 'Salvando...' : 'Salvar Currículo'}
           </Button>

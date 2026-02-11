@@ -76,22 +76,25 @@ export function CurriculoViewDialog({
           </div>
 
           {/* Info Bar */}
-          <div className="px-6 py-4 border-t bg-muted/30 flex flex-wrap items-center gap-4">
-            <Badge 
-              variant="outline" 
-              className={cn(
-                jobPositionColors[curriculo.job_position as JobPosition]
-              )}
-            >
-              {jobPositionLabels[curriculo.job_position as JobPosition]}
-            </Badge>
+          <div className="px-6 py-4 border-t bg-muted/30 flex flex-wrap items-center gap-2">
+            {curriculo.job_position.map((position) => (
+              <Badge 
+                key={position}
+                variant="outline" 
+                className={cn(
+                  jobPositionColors[position as JobPosition]
+                )}
+              >
+                {jobPositionLabels[position as JobPosition]}
+              </Badge>
+            ))}
             
-            <Badge variant="secondary">
+            <Badge variant="secondary" className="ml-2">
               {isPdf ? 'PDF' : 'Imagem'}
             </Badge>
 
             {curriculo.file_size && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground ml-2">
                 {formatFileSize(curriculo.file_size)}
               </span>
             )}

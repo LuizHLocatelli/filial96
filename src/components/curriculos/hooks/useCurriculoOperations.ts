@@ -4,7 +4,7 @@ import type { Curriculo, JobPosition } from '@/types/curriculos';
 
 interface UploadCurriculoData {
   candidate_name: string;
-  job_position: JobPosition;
+  job_position: JobPosition[];
   file: File;
 }
 

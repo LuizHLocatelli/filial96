@@ -7,7 +7,7 @@ export type JobPosition = 'crediarista' | 'consultora_moda' | 'consultor_moveis'
 export interface Curriculo {
   id: string;
   candidate_name: string;
-  job_position: JobPosition;
+  job_position: JobPosition[];
   file_url: string;
   file_type: 'pdf' | 'image';
   file_size?: number;
@@ -18,7 +18,7 @@ export interface Curriculo {
 
 export interface CurriculoFormData {
   candidate_name: string;
-  job_position: JobPosition;
+  job_position: JobPosition[];
   file: File;
 }
 

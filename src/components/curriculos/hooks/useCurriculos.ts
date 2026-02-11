@@ -18,7 +18,8 @@ export function useCurriculos(jobPositionFilter: JobPosition | null = null) {
         .order('created_at', { ascending: false });
 
       if (jobPositionFilter) {
-        query = query.eq('job_position', jobPositionFilter);
+        // Use the contains operator for arrays - checks if array contains the value
+        query = query.contains('job_position', [jobPositionFilter]);
       }
 
       const { data, error: queryError } = await query;
@@ -31,7 +32,7 @@ export function useCurriculos(jobPositionFilter: JobPosition | null = null) {
       const typedData: Curriculo[] = (data || []).map(item => ({
         id: item.id,
         candidate_name: item.candidate_name,
-        job_position: item.job_position as JobPosition,
+        job_position: (item.job_position || []) as JobPosition[],
         file_url: item.file_url,
         file_type: item.file_type as 'pdf' | 'image',
         file_size: item.file_size ?? undefined,

@@ -526,7 +526,7 @@ export type Database = {
           file_type: string
           file_url: string
           id: string
-          job_position: string
+          job_position: string[]
           updated_at: string | null
         }
         Insert: {
@@ -537,7 +537,7 @@ export type Database = {
           file_type: string
           file_url: string
           id?: string
-          job_position: string
+          job_position: string[]
           updated_at?: string | null
         }
         Update: {
@@ -548,7 +548,7 @@ export type Database = {
           file_type?: string
           file_url?: string
           id?: string
-          job_position?: string
+          job_position?: string[]
           updated_at?: string | null
         }
         Relationships: []
