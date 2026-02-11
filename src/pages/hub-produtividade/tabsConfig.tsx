@@ -10,14 +10,12 @@ const AssistentesAI = lazy(() => import("@/components/assistentes-ai/Assistentes
 const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 
 interface TabsConfigProps {
-  stats: any;
   isLoading: boolean;
   handlers: any;
   isManager?: boolean;
 }
 
 export function createTabsConfig({
-  stats,
   isLoading,
   handlers,
   isManager = false

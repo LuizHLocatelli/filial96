@@ -25,7 +25,6 @@ export default function HubProdutividade() {
 
   // Hook para dados
   const {
-    stats,
     isLoading,
     refreshData
   } = useHubData();
@@ -71,7 +70,6 @@ export default function HubProdutividade() {
   };
 
   const tabsConfig = createTabsConfig({
-    stats,
     isLoading,
     handlers: handlersWithDialogs,
     isManager
