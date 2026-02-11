@@ -212,50 +212,6 @@ export type Database = {
           },
         ]
       }
-      curriculos: {
-        Row: {
-          id: string
-          candidate_name: string
-          job_position: string
-          file_url: string
-          file_type: string
-          file_size: number | null
-          created_by: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          candidate_name: string
-          job_position: string
-          file_url: string
-          file_type: string
-          file_size?: number | null
-          created_by?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          candidate_name?: string
-          job_position?: string
-          file_url?: string
-          file_type?: string
-          file_size?: number | null
-          created_by?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "curriculos_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       crediario_depositos: {
         Row: {
           comprovante: string | null
@@ -560,6 +516,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      curriculos: {
+        Row: {
+          candidate_name: string
+          created_at: string | null
+          created_by: string | null
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          job_position: string
+          updated_at: string | null
+        }
+        Insert: {
+          candidate_name: string
+          created_at?: string | null
+          created_by?: string | null
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          job_position: string
+          updated_at?: string | null
+        }
+        Update: {
+          candidate_name?: string
+          created_at?: string | null
+          created_by?: string | null
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          job_position?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       frete_items: {
         Row: {
@@ -1230,77 +1222,6 @@ export type Database = {
         }
         Relationships: []
       }
-      moveis_orientacoes: {
-        Row: {
-          arquivo_nome: string
-          arquivo_tipo: string
-          arquivo_url: string
-          criado_por: string
-          data_criacao: string
-          descricao: string
-          id: string
-          tipo: string
-          titulo: string
-        }
-        Insert: {
-          arquivo_nome: string
-          arquivo_tipo: string
-          arquivo_url: string
-          criado_por: string
-          data_criacao?: string
-          descricao: string
-          id?: string
-          tipo: string
-          titulo: string
-        }
-        Update: {
-          arquivo_nome?: string
-          arquivo_tipo?: string
-          arquivo_url?: string
-          criado_por?: string
-          data_criacao?: string
-          descricao?: string
-          id?: string
-          tipo?: string
-          titulo?: string
-        }
-        Relationships: []
-      }
-      moveis_orientacoes_visualizacoes: {
-        Row: {
-          created_at: string | null
-          id: string
-          orientacao_id: string
-          user_id: string
-          user_role: string
-          viewed_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          orientacao_id: string
-          user_id: string
-          user_role: string
-          viewed_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          orientacao_id?: string
-          user_id?: string
-          user_role?: string
-          viewed_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "moveis_orientacoes_visualizacoes_orientacao_id_fkey"
-            columns: ["orientacao_id"]
-            isOneToOne: false
-            referencedRelation: "moveis_orientacoes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       moveis_produto_foco: {
         Row: {
           argumentos_venda: string[] | null
@@ -1549,7 +1470,6 @@ export type Database = {
           data_entrega: string
           descricao: string
           id: string
-          orientacao_id: string | null
           origem: string | null
           prioridade: string | null
           rotina_id: string | null
@@ -1563,7 +1483,6 @@ export type Database = {
           data_entrega: string
           descricao: string
           id?: string
-          orientacao_id?: string | null
           origem?: string | null
           prioridade?: string | null
           rotina_id?: string | null
@@ -1577,22 +1496,13 @@ export type Database = {
           data_entrega?: string
           descricao?: string
           id?: string
-          orientacao_id?: string | null
           origem?: string | null
           prioridade?: string | null
           rotina_id?: string | null
           status?: string
           titulo?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "moveis_tarefas_orientacao_id_fkey"
-            columns: ["orientacao_id"]
-            isOneToOne: false
-            referencedRelation: "moveis_orientacoes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       n8n_vector_store: {
         Row: {
@@ -1997,17 +1907,6 @@ export type Database = {
         Args: { new_role: string; target_user_id: string }
         Returns: Json
       }
-      check_orientacao_completion_by_role: {
-        Args: { p_orientacao_id: string; p_target_roles: string[] }
-        Returns: {
-          completion_percentage: number
-          is_complete: boolean
-          pending_users: Json
-          role: string
-          total_users: number
-          viewed_users: number
-        }[]
-      }
       check_user_role: {
         Args: { required_role: string; user_id: string }
         Returns: boolean
@@ -2042,16 +1941,6 @@ export type Database = {
         }
       }
       get_last_depositos_reset: { Args: never; Returns: string }
-      get_orientacoes_viewing_stats: {
-        Args: { p_target_roles?: string[] }
-        Returns: {
-          data_criacao: string
-          orientacao_id: string
-          tipo: string
-          titulo: string
-          viewing_stats: Json
-        }[]
-      }
       get_user_role: { Args: { user_id?: string }; Returns: string }
       is_gerente: { Args: { user_id: string }; Returns: boolean }
       is_manager: { Args: never; Returns: boolean }
@@ -2092,10 +1981,6 @@ export type Database = {
       }
       obter_sabado_anterior: { Args: { data_param: string }; Returns: string }
       recalculate_all_deposit_statistics: { Args: never; Returns: undefined }
-      register_orientacao_view: {
-        Args: { p_orientacao_id: string; p_user_id?: string }
-        Returns: Json
-      }
       search_directory_files: {
         Args: { search_term: string }
         Returns: {
