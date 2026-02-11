@@ -17,9 +17,9 @@ export function useHubData() {
   const lastRefreshRef = useRef<number>(0);
   
   const [stats, setStats] = useState<ProductivityStats>({
-    produtividade: {
-      score: 0
-    }
+    produtividade: { score: 0 },
+    tarefas: { total: 0, concluidas: 0, pendentes: 0, atrasadas: 0 },
+    rotinas: { total: 0, concluidas: 0, pendentes: 0 },
   });
   
   const [isLoadingStats, setIsLoadingStats] = useState(true);
@@ -104,10 +104,10 @@ export function useHubData() {
       setIsLoadingStats(true);
       
       // Calcular estatísticas vazias (sem orientações)
-      const newStats = {
-        produtividade: {
-          score: 0
-        }
+      const newStats: ProductivityStats = {
+        produtividade: { score: 0 },
+        tarefas: { total: 0, concluidas: 0, pendentes: 0, atrasadas: 0 },
+        rotinas: { total: 0, concluidas: 0, pendentes: 0 },
       };
       setStats(newStats);
       
