@@ -12,6 +12,7 @@ export interface CartazItem {
   position: number;
   created_by: string;
   created_at: string;
+  month: string | null;
 }
 
 export function useCartazes(folderId: string | null) {
@@ -36,15 +37,18 @@ export function useCartazes(folderId: string | null) {
       
       if (error) throw error;
       
-      const typedCartazes: CartazItem[] = (data || []).map(cartaz => ({
-        id: cartaz.id,
-        title: cartaz.title,
-        file_url: cartaz.file_url,
-        file_type: cartaz.file_type as 'pdf' | 'image',
-        position: cartaz.position,
-        folder_id: cartaz.folder_id,
-        created_by: cartaz.created_by,
-        created_at: cartaz.created_at,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const typedCartazes: CartazItem[] = (data || []).map((cartaz: any) => ({
+        id: String(cartaz.id),
+        title: String(cartaz.title),
+        file_url: String(cartaz.file_url),
+        file_type: (cartaz.file_type || 'image') as 'pdf' | 'image',
+        position: Number(cartaz.position),
+        folder_id: cartaz.folder_id ? String(cartaz.folder_id) : null,
+        created_by: String(cartaz.created_by),
+        created_at: String(cartaz.created_at),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        month: cartaz.month ? String(cartaz.month as any) : null,
       }));
       
       setCartazes(typedCartazes);

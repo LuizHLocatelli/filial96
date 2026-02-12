@@ -20,7 +20,7 @@ interface CartazDropdownMenuProps {
   cartaz: CartazItem;
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cartazId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, newTitle: string) => void;
+  onUpdate: (id: string, newTitle: string, newMonth: string) => void;
   trigger: React.ReactNode;
 }
 

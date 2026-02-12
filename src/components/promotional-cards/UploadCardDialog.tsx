@@ -2,7 +2,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
 import { ImageUp } from "lucide-react";
-import { StandardDialogHeader, StandardDialogContent } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UploadCardDialogProps {
@@ -49,8 +51,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={`
-          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'}
-          overflow-hidden max-h-[85vh]
+          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full' : 'sm:max-w-2xl'}
         `}
         hideCloseButton
       >
@@ -81,8 +82,35 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
             handleSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             onCancel={handleCancel}
+            showActions={false}
           />
         </StandardDialogContent>
+
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !previewUrl || !title}
+            className={isMobile ? 'w-full h-10' : ''}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              'Salvar Card'
+            )}
+          </Button>
+        </StandardDialogFooter>
       </DialogContent>
     </Dialog>
   );

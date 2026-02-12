@@ -6,7 +6,7 @@ interface CartazGridProps {
   cartazes: CartazItem[];
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cartazId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, newTitle: string) => void;
+  onUpdate: (id: string, newTitle: string, newMonth: string) => void;
 }
 
 export function CartazGrid({ cartazes, onDelete, onMoveToFolder, onUpdate }: CartazGridProps) {

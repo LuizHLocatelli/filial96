@@ -8,6 +8,26 @@ import { toast } from "@/components/ui/use-toast";
 import { FileUploadZone } from "./FileUploadZone";
 import { FolderSelector } from "./FolderSelector";
 
+const MONTHS = [
+  { value: "01", label: "Janeiro" },
+  { value: "02", label: "Fevereiro" },
+  { value: "03", label: "Março" },
+  { value: "04", label: "Abril" },
+  { value: "05", label: "Maio" },
+  { value: "06", label: "Junho" },
+  { value: "07", label: "Julho" },
+  { value: "08", label: "Agosto" },
+  { value: "09", label: "Setembro" },
+  { value: "10", label: "Outubro" },
+  { value: "11", label: "Novembro" },
+  { value: "12", label: "Dezembro" },
+];
+
+const getCurrentYearMonth = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+};
+
 interface UploadCartazFormProps {
   folderId: string | null;
   onUploadSuccess: () => void;
@@ -19,6 +39,8 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(folderId);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [month, setMonth] = useState(getCurrentYearMonth());
+  const [year, setYear] = useState(new Date().getFullYear().toString());
 
   const validateFile = (selectedFile: File): boolean => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
@@ -113,7 +135,8 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
           file_type: fileType as 'pdf' | 'image',
           folder_id: selectedFolderId,
           position: 0,
-          created_by: user.id
+          created_by: user.id,
+          month: `${year}-${month}`
         });
 
       if (dbError) throw dbError;
@@ -153,6 +176,44 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
         value={selectedFolderId}
         onChange={setSelectedFolderId}
       />
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="year">Ano</Label>
+          <select
+            id="year"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            disabled={isUploading}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {Array.from({ length: 5 }, (_, i) => {
+              const y = new Date().getFullYear() - 2 + i;
+              return (
+                <option key={y} value={y.toString()}>
+                  {y}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="month">Mês</Label>
+          <select
+            id="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            disabled={isUploading}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {MONTHS.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <FileUploadZone
         file={file}

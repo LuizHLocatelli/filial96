@@ -22,7 +22,7 @@ npm run dev          # Start dev server on port 8080
 ```bash
 npm run build        # Production build
 npm run build:dev    # Development build with source maps
-npm run analyze      # Bundle analysis (opens bundle-analysis.html)
+npm run analyze      # Bundle analysis (outputs to bundle-analysis.html)
 ```
 
 ### Linting
@@ -114,16 +114,64 @@ Import order for components:
 - Mock Supabase in tests using `vi.mock` (see `src/test/setup.ts`)
 - Use Supabase MCP tools for migrations: `supabase_apply_migration`, `supabase_execute_sql`
 
+### Form Validation (Zod + React Hook Form)
+Common patterns for form validation:
+```typescript
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const formSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  email: z.string().email('Email inválido'),
+  phone: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const form = useForm<FormData>({
+  resolver: zodResolver(formSchema),
+  defaultValues: { name: '', email: '', phone: '' },
+});
+```
+
 ### Testing
 - Use Vitest with Testing Library (React Testing Library + jest-dom)
 - Test files: `*.test.ts` or `*.test.tsx` in same directory as source
 - Mock Supabase client and auth context in tests
 - Structure tests with `describe` blocks for type/file and `it` for specific assertions
 
+#### Test Example
+```typescript
+import { vi } from 'vitest';
+import { supabase } from '@/test/setup';
+
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnValue({ data: [], error: null }),
+      insert: vi.fn().mockReturnValue({ data: [], error: null }),
+    })),
+  },
+}));
+```
+
+### Supabase MCP Tools
+Available tools for database operations:
+- `supabase_list_tables` - List all tables in database
+- `supabase_execute_sql` - Execute raw SQL queries
+- `supabase_apply_migration` - Apply DDL migrations
+- `supabase_list_migrations` - List applied migrations
+- `supabase_get_logs` - Get logs (api, postgres, auth, storage, etc.)
+- `supabase_get_advisors` - Get security/performance advisories
+- `supabase_list_edge_functions` - List edge functions
+- `supabase_deploy_edge_function` - Deploy edge functions
+
 ### Supabase Edge Functions
 - Located in `supabase/functions/` with Deno runtime
 - Configure with `deno.json` and `import_map.json`
 - Deploy using `supabase_deploy_edge_function` MCP tool
+- Edge functions require JWT verification by default (can be disabled with `verify_jwt: false`)
 
 ## Architecture
 
@@ -157,6 +205,10 @@ The project uses:
 ## Environment Variables
 
 See `.env` for required variables. Supabase keys are managed via Claude settings.
+
+Required environment variables:
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
 
 ## Dialog Standards
 

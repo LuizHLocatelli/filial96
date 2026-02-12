@@ -30,6 +30,7 @@ interface CardUploadFormProps {
   isSubmitting: boolean;
   onCancel: () => void;
   onSuccess?: () => void;
+  showActions?: boolean;
 }
 
 export function CardUploadForm({
@@ -50,6 +51,7 @@ export function CardUploadForm({
   handleSubmit,
   isSubmitting,
   onCancel,
+  showActions = true,
 }: CardUploadFormProps) {
   const { folders } = useFolders(sector);
   const isMobile = useIsMobile();
@@ -158,6 +160,7 @@ export function CardUploadForm({
         </div>
 
         {/* Botões de Ação */}
+        {showActions && (
         <div className="flex justify-end gap-2 pt-4 border-t border-border mt-2">
           <Button
             type="button"
@@ -184,6 +187,7 @@ export function CardUploadForm({
             )}
           </Button>
         </div>
+        )}
       </div>
     </form>
   );

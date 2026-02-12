@@ -11,7 +11,7 @@ interface CartazCardProps {
   cartaz: CartazItem;
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cartazId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, newTitle: string) => void;
+  onUpdate: (id: string, newTitle: string, newMonth: string) => void;
 }
 
 export function CartazCard({ cartaz, onDelete, onMoveToFolder, onUpdate }: CartazCardProps) {
@@ -66,7 +66,7 @@ export function CartazCard({ cartaz, onDelete, onMoveToFolder, onUpdate }: Carta
             </div>
 
             {/* Type badge */}
-            <div className="absolute top-2 left-2">
+            <div className="absolute top-2 left-2 flex gap-1">
               <Badge variant="secondary" className="text-xs">
                 {cartaz.file_type === 'pdf' ? (
                   <>
@@ -80,6 +80,11 @@ export function CartazCard({ cartaz, onDelete, onMoveToFolder, onUpdate }: Carta
                   </>
                 )}
               </Badge>
+              {cartaz.month && (
+                <Badge variant="outline" className="text-xs bg-background/80">
+                  {cartaz.month}
+                </Badge>
+              )}
             </div>
           </div>
 

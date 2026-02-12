@@ -61,7 +61,7 @@ export function StandardDialogHeader({
   return (
     <div
       className={cn(
-        `bg-gradient-to-br ${colors.bg} border-b`,
+        `bg-gradient-to-br ${colors.bg} border-b flex-shrink-0`,
         isMobile ? "p-4" : "p-6",
         className
       )}

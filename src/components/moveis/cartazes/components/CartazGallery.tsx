@@ -25,7 +25,7 @@ export function CartazGallery({
   onCreateCartaz 
 }: CartazGalleryProps) {
   const { deleteCartaz, moveCartazToFolder } = useCartazOperations();
-  const { searchTerm, setSearchTerm, filteredCartazes, hasResults, isSearching } = useCartazSearch(cartazes);
+  const { searchTerm, setSearchTerm, monthFilter, setMonthFilter, filteredCartazes, hasResults, isSearching } = useCartazSearch(cartazes);
   const [processingCartazIds, setProcessingCartazIds] = useState<Set<string>>(new Set());
 
   const handleDeleteCartaz = async (id: string) => {
@@ -101,10 +101,10 @@ export function CartazGallery({
     }
   };
 
-  const handleUpdateCartaz = (id: string, newTitle: string) => {
+  const handleUpdateCartaz = (id: string, newTitle: string, newMonth: string) => {
     setCartazes(prevCartazes =>
       prevCartazes.map(cartaz =>
-        cartaz.id === id ? { ...cartaz, title: newTitle } : cartaz
+        cartaz.id === id ? { ...cartaz, title: newTitle, month: newMonth } : cartaz
       )
     );
   };
@@ -122,6 +122,8 @@ export function CartazGallery({
           resultsCount={filteredCartazes.length}
           totalCount={cartazes.length}
           isSearching={isSearching}
+          monthFilter={monthFilter}
+          onMonthFilterChange={setMonthFilter}
         />
       )}
 
