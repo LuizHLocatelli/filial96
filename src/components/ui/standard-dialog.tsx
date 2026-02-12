@@ -158,7 +158,7 @@ export function StandardDialogContent({
   return (
     <div
       className={cn(
-        "flex-1 min-h-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent",
+        "flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent",
         isMobile ? "p-4" : "p-6",
         className
       )}

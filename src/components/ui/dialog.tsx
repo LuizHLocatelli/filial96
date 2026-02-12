@@ -20,7 +20,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 overflow-y-auto grid place-items-center",
       className
     )}
     {...props}
@@ -36,40 +36,34 @@ const DialogContent = React.forwardRef<
   
   return (
     <DialogPortal container={typeof document !== 'undefined' ? document.body : undefined}>
-      <DialogOverlay />
-      <DialogPrimitive.Content
-        ref={ref}
-        className={cn(
-          "fixed left-[50%] top-[50%] z-50 flex flex-col w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-0 border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-2xl",
-          "shadow-2xl glass-card-strong",
-          isMobile
-            ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-3xl"
-            : "rounded-2xl",
-          "max-h-[85vh] overflow-hidden",
-          className
-        )}
-        style={{
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          margin: 0
-        }}
-        {...props}
-      >
-        {children}
-        {!hideCloseButton && (
-          <DialogPrimitive.Close className={cn(
-            "absolute z-50 ring-offset-background transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
-            isMobile 
-              ? "right-2 top-2 h-9 w-9 rounded-full bg-background/95 backdrop-blur-md border border-border/40 shadow-lg flex items-center justify-center hover:bg-background hover:shadow-xl hover:scale-105 active:scale-95" 
-              : "right-3 top-3 h-8 w-8 rounded-full bg-background/90 backdrop-blur-sm border border-border/30 shadow-md flex items-center justify-center hover:bg-background hover:shadow-lg hover:scale-105"
-          )}>
-            <X className={cn("text-foreground/80 hover:text-foreground transition-colors", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
-        )}
-      </DialogPrimitive.Content>
+      <DialogOverlay>
+        <DialogPrimitive.Content
+          ref={ref}
+          className={cn(
+            "relative z-50 w-full max-w-lg border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-2xl",
+            "shadow-2xl glass-card-strong flex flex-col",
+            isMobile
+              ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-3xl my-4"
+              : "rounded-2xl my-6",
+            "max-h-[calc(100vh-2rem)] overflow-hidden",
+            className
+          )}
+          {...props}
+        >
+          {children}
+          {!hideCloseButton && (
+            <DialogPrimitive.Close className={cn(
+              "absolute z-50 ring-offset-background transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
+              isMobile 
+                ? "right-2 top-2 h-9 w-9 rounded-full bg-background/95 backdrop-blur-md border border-border/40 shadow-lg flex items-center justify-center hover:bg-background hover:shadow-xl hover:scale-105 active:scale-95" 
+                : "right-3 top-3 h-8 w-8 rounded-full bg-background/90 backdrop-blur-sm border border-border/30 shadow-md flex items-center justify-center hover:bg-background hover:shadow-lg hover:scale-105"
+            )}>
+              <X className={cn("text-foreground/80 hover:text-foreground transition-colors", isMobile ? "h-4 w-4" : "h-4 w-4")} />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          )}
+        </DialogPrimitive.Content>
+      </DialogOverlay>
     </DialogPortal>
   );
 })
