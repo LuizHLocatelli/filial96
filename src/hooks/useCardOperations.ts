@@ -15,7 +15,32 @@ export interface CardItem {
   created_at: string;
 }
 
+export interface CardUpdateData {
+  title?: string;
+  code?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  folder_id?: string | null;
+  aspect_ratio?: "1:1" | "3:4" | "4:5";
+}
+
 export function useCardOperations() {
+  const updateCard = async (id: string, data: CardUpdateData) => {
+    try {
+      const { error } = await supabase
+        .from('promotional_cards')
+        .update(data)
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating card:', error);
+      return false;
+    }
+  };
+
   const deleteCard = async (id: string) => {
     try {
       // First, get the card to find its image URL
@@ -74,5 +99,5 @@ export function useCardOperations() {
     }
   };
 
-  return { deleteCard, moveCardToFolder };
+  return { deleteCard, moveCardToFolder, updateCard };
 }

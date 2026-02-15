@@ -9,6 +9,8 @@ import type { Curriculo, JobPosition } from '@/types/curriculos';
 import { jobPositionLabels, jobPositionColors } from '@/types/curriculos';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { PDFViewer } from '@/components/ui/pdf-viewer/index';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CurriculoViewDialogProps {
   curriculo: Curriculo | null;
@@ -21,6 +23,7 @@ export function CurriculoViewDialog({
   open,
   onOpenChange
 }: CurriculoViewDialogProps) {
+  const isMobile = useIsMobile();
   if (!curriculo) return null;
 
   const isPdf = curriculo.file_type === 'pdf';
@@ -47,7 +50,7 @@ export function CurriculoViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] p-0 max-h-[90vh] overflow-y-auto flex flex-col" hideCloseButton>
+      <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[800px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
         <StandardDialogHeader
           icon={isPdf ? FileText : ImageIcon}
           iconColor="blue"
@@ -56,26 +59,24 @@ export function CurriculoViewDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          {/* Preview */}
-          <div className="relative bg-muted min-h-[400px] max-h-[60vh] overflow-auto flex items-center justify-center">
+        <div className="flex-1 overflow-hidden p-4 sm:p-6">
+          <div className="bg-muted h-[60vh] overflow-hidden rounded-lg">
             {isPdf ? (
-              <iframe
-                src={`${curriculo.file_url}#view=FitH`}
-                title={`Currículo de ${curriculo.candidate_name}`}
-                className="w-full h-[60vh] border-0"
+              <PDFViewer 
+                url={curriculo.file_url} 
+                className="w-full h-full"
               />
             ) : (
               <img
                 src={curriculo.file_url}
                 alt={`Currículo de ${curriculo.candidate_name}`}
-                className="max-w-full max-h-[60vh] object-contain"
+                className="w-full h-full object-contain"
               />
             )}
           </div>
 
           {/* Info Bar */}
-          <div className="px-6 py-4 border-t bg-muted/30 flex flex-wrap items-center gap-2">
+          <div className="mt-4 px-4 py-3 border-t bg-muted/30 rounded-lg flex flex-wrap items-center gap-2">
             {curriculo.job_position.map((position) => (
               <Badge 
                 key={position}
@@ -100,10 +101,11 @@ export function CurriculoViewDialog({
           </div>
         </div>
 
-        <StandardDialogFooter>
+        <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
+            className={isMobile ? 'w-full' : ''}
           >
             <X className="h-4 w-4 mr-1" />
             Fechar
@@ -114,8 +116,9 @@ export function CurriculoViewDialog({
             download
             target="_blank"
             rel="noopener noreferrer"
+            className={isMobile ? 'w-full' : ''}
           >
-            <Button variant="outline">
+            <Button variant="outline" className={isMobile ? 'w-full' : ''}>
               <Download className="h-4 w-4 mr-1" />
               Baixar
             </Button>
@@ -125,8 +128,9 @@ export function CurriculoViewDialog({
             href={curriculo.file_url}
             target="_blank"
             rel="noopener noreferrer"
+            className={isMobile ? 'w-full' : ''}
           >
-            <Button>
+            <Button className={isMobile ? 'w-full' : ''}>
               <ExternalLink className="h-4 w-4 mr-1" />
               Abrir em Nova Aba
             </Button>

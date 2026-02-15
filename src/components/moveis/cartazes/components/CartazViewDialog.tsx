@@ -28,7 +28,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-5xl p-0'} max-h-[90vh] overflow-y-auto flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-5xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -43,8 +43,8 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
           onClose={() => onOpenChange(false)}
         />
         
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 overflow-hidden flex-1">
-          <div className="bg-muted h-full min-h-[50vh]">
+        <div className="flex-1 overflow-hidden p-4 sm:p-6">
+          <div className="bg-muted h-[60vh] overflow-hidden rounded-lg">
             {cartaz.file_type === 'image' ? (
               <img 
                 src={cartaz.file_url} 

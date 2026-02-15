@@ -30,6 +30,11 @@ export const categorias = [
   "Automotivo",
   "Ferramentas",
   "Bicicletas",
+  "Fitness",
+  "Lareiras",
+  "Brinquedos",
+  "Baterias",
+  "Pneus",
   "Outros"
 ] as const;
 
@@ -38,7 +43,7 @@ export const procedimentosSSC: Procedimento[] = [
     id: "acer",
     fabricante: "Acer",
     categoria: "Informática",
-    procedimento: "O cliente deve ligar diretamente para o SAC ou solicitar atendimento via Chat Online no site.",
+    procedimento: "Segmento: Informática. O cliente deve ligar diretamente para o SAC ou solicitar atendimento via Chat Online no site.",
     canais: [
       { tipo: "SAC", valor: "0800 762 2237" },
       { tipo: "Chat Online", valor: "https://service.acer.com/chat/support/pt/BR/" },
@@ -61,10 +66,10 @@ export const procedimentosSSC: Procedimento[] = [
     id: "arno",
     fabricante: "Arno",
     categoria: "Eletroportáteis",
-    procedimento: "O cliente precisa ligar para o SAC e solicitar a postagem. Se houver posto autorizado em um raio de até 30 km, o consumidor deve levar o produto.",
+    procedimento: "Procedimento: Cliente deve ligar para o SAC para solicitar postagem. Se houver autorizada em um raio de 30 km, o cliente deve levar o produto.",
     canais: [
-      { tipo: "SAC", valor: "011 2060 9777" },
-      { tipo: "Postos Autorizados", valor: "https://www.arno.com.br/assistencia-tecnica" }
+      { tipo: "SAC", valor: "(11) 2060-9777" },
+      { tipo: "Lista de P.As", valor: "https://arno.com.br/assistencia-tecnica" }
     ],
     observacoes: ["Casos Especiais: Solicitar apoio à equipe SSC pelo e-mail contato-ssc@lebes.com.br"]
   },
@@ -85,10 +90,10 @@ export const procedimentosSSC: Procedimento[] = [
     id: "asus",
     fabricante: "Asus",
     categoria: "Informática",
-    procedimento: "Atendimento pelo site ou SAC. Devido à LGPD, o cliente deve preencher um formulário online para solicitação de reparo (RMA).",
+    procedimento: "Regra LGPD: O cliente deve preencher o formulário online antes da abertura da ordem de serviço.",
     canais: [
-      { tipo: "SAC", valor: "(11) 3003-0398 (Capitais) / 0800 288 8888 (Demais regiões)" },
-      { tipo: "Solicitação RMA", valor: "https://www2.uranet.com.br/callcenter/asus_rma_site.php" }
+      { tipo: "SAC", valor: "(11) 3003-0398 (Capitais) ou 0800-288-8888 (Interior)" },
+      { tipo: "Formulário RMA", valor: "https://www2.uranet.com.br/callcenter/asus_rma_site.php" }
     ],
     observacoes: ["Cliente deve enviar número do protocolo para priorização da OS (RMA)"]
   },
@@ -116,10 +121,10 @@ export const procedimentosSSC: Procedimento[] = [
     id: "apple",
     fabricante: "Apple",
     categoria: "Telefonia",
-    procedimento: "A Apple não aceita intervenção do lojista/revendedor. O cliente deve contatar diretamente os canais do fabricante.",
+    procedimento: "Regra: Não aceita intervenção do lojista. O cliente deve contatar o fabricante diretamente.",
     canais: [
-      { tipo: "Suporte", valor: "https://support.apple.com/pt-br" },
-      { tipo: "SAC", valor: "0800 761 0880" }
+      { tipo: "Site", valor: "https://support.apple.com/pt-br" },
+      { tipo: "SAC", valor: "0800-761-0880" }
     ],
     observacoes: ["Não aceita intervenção de revenda"]
   },
@@ -127,8 +132,9 @@ export const procedimentosSSC: Procedimento[] = [
     id: "amvox",
     fabricante: "Amvox",
     categoria: "Áudio e Vídeo",
-    procedimento: "Atendimento via WhatsApp ou E-mail.",
+    procedimento: "Site: www.amvox.com.br. Rede de Assistência: Localizar postos no site oficial.",
     canais: [
+      { tipo: "Site", valor: "https://www.amvox.com.br" },
       { tipo: "WhatsApp", valor: "https://api.whatsapp.com/send/?phone=5571992670131&text&type=phone_number&app_absent=0" },
       { tipo: "E-mail", valor: "assistec11@amvox.com.br" },
       { tipo: "SAC", valor: "(71) 3649-8900 ou 0800 284 5032" },
@@ -142,16 +148,15 @@ export const procedimentosSSC: Procedimento[] = [
   },
   {
     id: "bandeirantes",
-    fabricante: "Bandeirantes",
-    categoria: "Outros",
-    procedimento: "A loja deve contatar as representantes comerciais para apoio.",
+    fabricante: "Bandeirantes (Brinquedos)",
+    categoria: "Brinquedos",
+    procedimento: "Representantes (Loja): Marli ou Larissa. Fábrica: WhatsApp disponível.",
     canais: [
-      { tipo: "WhatsApp Fábrica", valor: "11 4674-7244" }
+      { tipo: "WhatsApp Fábrica", valor: "(11) 4674-7244" }
     ],
     contatosExclusivos: [
       { nome: "Marli", tipo: "WhatsApp", valor: "51 98591-4022" },
-      { nome: "Larissa", tipo: "WhatsApp", valor: "51 98549-4669" },
-      { nome: "Escritório", tipo: "E-mail", valor: "lalarep.com@hotmail.com" }
+      { nome: "Larissa", tipo: "WhatsApp", valor: "51 98549-4669" }
     ]
   },
   {
@@ -186,11 +191,12 @@ export const procedimentosSSC: Procedimento[] = [
   },
   {
     id: "britania-philco",
-    fabricante: "Britânia / Philco",
+    fabricante: "Britânia e Philco",
     categoria: "Eletroportáteis",
-    procedimento: "O fabricante não aceita intervenção do varejista. O cliente deve usar os links para abrir reclamações.",
+    procedimento: "Procedimento de Abertura: Para Ar-condicionado, Cooktop/Indução e Informática, é obrigatório anexar as fotos solicitadas pelo fabricante.",
     canais: [
-      { tipo: "Reclamações Críticas", valor: "https://base-britania.movidesk.com/kb" },
+      { tipo: "SAC Britânia", valor: "(11) 4858-1233 (Capitais), (47) 3431-0300 (Demais regiões) ou WhatsApp (47) 98480-2013" },
+      { tipo: "SAC Philco", valor: "(11) 4858-1141 (Capitais)" },
       { tipo: "Atendimento Britânia", valor: "https://britania.force.com/CA/s/" },
       { tipo: "Atendimento Philco", valor: "https://suporte.philco.com.br/s/" }
     ],
@@ -198,10 +204,12 @@ export const procedimentosSSC: Procedimento[] = [
   },
   {
     id: "cadence-oster",
-    fabricante: "Cadence / Oster",
+    fabricante: "Cadence e Oster (Newell Brands Brasil)",
     categoria: "Eletroportáteis",
-    procedimento: "Atendimento pelo SAC, WhatsApp e site.",
+    procedimento: "Canal Exclusivo para Revendedor. Horário: Seg. a Qui. (08h às 17h) e Sex. (08h às 16h).",
     canais: [
+      { tipo: "Canal Exclusivo Revendedor", valor: "(47) 3224-5162", horario: "Seg. a Qui. (08h às 17h) e Sex. (08h às 16h)" },
+      { tipo: "Site", valor: "https://www.cadence.com.br" },
       { tipo: "Apoio ao Consumidor", valor: "https://www.cadence.com.br/apoio-ao-consumidor" },
       { tipo: "WhatsApp", valor: "(47) 99117-2660" },
       { tipo: "Postos Autorizados", valor: "https://www.cadence.com.br/apoio-ao-consumidor/servico-tecnico-autorizado" }
@@ -259,23 +267,23 @@ export const procedimentosSSC: Procedimento[] = [
   {
     id: "dream",
     fabricante: "Dream Fitness",
-    categoria: "Outros",
-    procedimento: "Atendimento por diversos canais.",
+    categoria: "Fitness",
+    procedimento: "SAC: 0300 101 2555 | E-mail: sac@sacfitness.com.br | WhatsApp Televendas: (51) 98278-6261.",
     canais: [
       { tipo: "SAC", valor: "0300 101 2555", horario: "Segunda à sexta, 8:00-17:30" },
-      { tipo: "WhatsApp", valor: "https://api.whatsapp.com/send?phone=%205551996430030" },
+      { tipo: "E-mail", valor: "sac@sacfitness.com.br" },
+      { tipo: "WhatsApp Televendas", valor: "(51) 98278-6261" },
       { tipo: "Fale Conosco", valor: "https://www.dream.com.br/fale-conosco" },
-      { tipo: "Postos", valor: "https://www.dream.com.br/institucional/localize-uma-assistencia-tecnica" },
-      { tipo: "Apoio Técnico", valor: "https://www.dream.com.br/institucional/assistencia-tecnica" }
+      { tipo: "Postos", valor: "https://www.dream.com.br/institucional/localize-uma-assistencia-tecnica" }
     ]
   },
   {
     id: "electrolux",
     fabricante: "Electrolux",
     categoria: "Linha Branca",
-    procedimento: "Primeiro atendimento deve ser pelos canais oficiais.",
+    procedimento: "Canais: atendimento.electrolux.com.br",
     canais: [
-      { tipo: "Canais Oficiais", valor: "https://cuida.electrolux.com.br/contato" },
+      { tipo: "Canais Oficiais", valor: "https://atendimento.electrolux.com.br" },
       { tipo: "SAC Lojista", valor: "3004-2140 (Capitais) / 0800 741 2141 (Demais)" },
       { tipo: "E-mail Lojista", valor: "sac.revenda@electrolux.com.br" }
     ],
@@ -285,12 +293,14 @@ export const procedimentosSSC: Procedimento[] = [
     id: "elgin",
     fabricante: "Elgin",
     categoria: "Linha Branca",
-    procedimento: "O cliente deve entrar no link e solicitar o atendimento, ou verificar o posto autorizado.",
+    procedimento: "Canais Climatização: (11) 3383-5555 (Capitais) ou 0800 703 5446 (Demais localidades).",
     canais: [
-      { tipo: "Chamado", valor: "https://elginbematech.com.br/chamado/open.php" },
+      { tipo: "SAC", valor: "(11) 3383-5555 (Capitais) ou 0800 703 5446 (Demais)" },
+      { tipo: "WhatsApp", valor: "(11) 98386-0054" },
+      { tipo: "E-mail", valor: "sac@elgin.com.br" },
+      { tipo: "Site", valor: "https://www.elgin.com.br/assistencia-tecnica" },
       { tipo: "Postos", valor: "https://www.elgin.com.br/SuporteTecnico/To/Contato" },
-      { tipo: "SAC", valor: "0800 703 5446 (Geral) / 11 3383-5555 (Grande SP)" },
-      { tipo: "WhatsApp", valor: "11 98386-0054" }
+      { tipo: "Chamado", valor: "https://elginbematech.com.br/chamado/open.php" }
     ]
   },
   {
@@ -327,15 +337,17 @@ export const procedimentosSSC: Procedimento[] = [
     ]
   },
   {
-    id: "gradiente",
-    fabricante: "Gradiente",
+    id: "gradiente-lenoxx",
+    fabricante: "Gradiente / Lenoxx",
     categoria: "Áudio e Vídeo",
-    procedimento: "Atendimento por diversas alternativas (site, SAC fone, chat, e-mail).",
+    procedimento: "Site: suportelenoxx.com.br. Exclusivo Revenda disponível.",
     canais: [
-      { tipo: "Site/Chat", valor: "https://www.gradiente.com.br/Institucional/assistencia-tecnica" },
-      { tipo: "SAC", valor: "11 3339 9954 (SP) / 0800 772 9209 (Demais)" },
-      { tipo: "E-mail Consumidor", valor: "sac@gradiente.com.br" },
-      { tipo: "E-mail Lojista", valor: "sac_revenda@gradiente.com.br" }
+      { tipo: "Site", valor: "https://suportelenoxx.com.br" },
+      { tipo: "SAC", valor: "(11) 3339-9954 ou 0800-772-9209" },
+      { tipo: "E-mail Consumidor - Gradiente", valor: "sac@gradiente.com.br" },
+      { tipo: "E-mail Lojista - Gradiente", valor: "sac_revenda@gradiente.com.br" },
+      { tipo: "E-mail Consumidor - Lenoxx", valor: "sac@lenoxx.com.br" },
+      { tipo: "E-mail Lojista - Lenoxx", valor: "sac_revenda@lenoxx.com.br" }
     ],
     observacoes: ["E-mail revenda não repassar a consumidor"]
   },
@@ -343,31 +355,31 @@ export const procedimentosSSC: Procedimento[] = [
     id: "hisense",
     fabricante: "Hisense",
     categoria: "Linha Branca",
-    procedimento: "O cliente deve ligar para o SAC para solicitar a abertura do atendimento.",
+    procedimento: "SAC: 0800-000-1454 | WhatsApp: (11) 98990-8945.",
     canais: [
-      { tipo: "SAC", valor: "0800 000 1454" },
-      { tipo: "E-mail", valor: "sac@hisense.com.br" },
-      { tipo: "WhatsApp", valor: "011 98990-8945" }
+      { tipo: "SAC", valor: "0800-000-1454" },
+      { tipo: "WhatsApp", valor: "(11) 98990-8945" },
+      { tipo: "E-mail", valor: "sac@hisense.com.br" }
     ],
     contatosExclusivos: [
-      { nome: "Sr. Antônio", tipo: "Telefone", valor: "51 993135055" },
-      { nome: "Sr. Antônio", tipo: "E-mail", valor: "acs@aedrep.com.br" }
+      { nome: "Representante (Antônio)", tipo: "Telefone", valor: "(51) 99313-5055" },
+      { nome: "Representante (Antônio)", tipo: "E-mail", valor: "acs@aedrep.com.br" }
     ]
   },
   {
     id: "houston",
-    fabricante: "Houston",
+    fabricante: "Houston (Bicicletas)",
     categoria: "Bicicletas",
-    procedimento: "Atendimento via SAC Fone e e-mail.",
+    procedimento: "SAC: 0800-703-3440 ou 0800-979-3434.",
     canais: [
-      { tipo: "SAC 1", valor: "0800 703 3440" },
-      { tipo: "SAC 2", valor: "0800 979 3434" },
+      { tipo: "SAC 1", valor: "0800-703-3440" },
+      { tipo: "SAC 2", valor: "0800-979-3434" },
       { tipo: "E-mail 1", valor: "sac1@houston.com.br" },
       { tipo: "E-mail 2", valor: "sac2@houston.com.br" }
     ],
     contatosExclusivos: [
-      { nome: "Paulo Soares", tipo: "E-mail", valor: "paulosoares@houston.com.br" },
-      { nome: "Paulo Soares", tipo: "WhatsApp", valor: "51 99849 8147" }
+      { nome: "Técnico (Paulo Soares)", tipo: "E-mail", valor: "paulosoares@houston.com.br" },
+      { nome: "Técnico (Paulo Soares)", tipo: "WhatsApp", valor: "(51) 99849-8147" }
     ]
   },
   {
@@ -424,7 +436,7 @@ export const procedimentosSSC: Procedimento[] = [
     id: "lavorwash",
     fabricante: "Lavorwash",
     categoria: "Eletroportáteis",
-    procedimento: "Atendimento por diversos canais.",
+    procedimento: "Regra Geral: Contato via e-mail astec@lavorwash.com.br com foto da NF e Número de Série. Falta de Acessório/Avaria: Acionar Pós-Vendas via e-mail. Defeito: Cliente deve ser encaminhado à assistência. Se não houver posto em 50 km, a fábrica fornece código de postagem. Defeito na Venda: Enviar e-mail com vídeo do problema para análise.",
     canais: [
       { tipo: "SAL", valor: "0800 770 2715" },
       { tipo: "SAC", valor: "(19) 3936-8555" },
@@ -436,10 +448,10 @@ export const procedimentosSSC: Procedimento[] = [
     id: "lenovo",
     fabricante: "Lenovo",
     categoria: "Informática",
-    procedimento: "O primeiro contato de assistência deve ser pelo link de suporte online. O fabricante tentará uma solução remota antes de passar o código de postagem.",
+    procedimento: "Procedimento: O primeiro contato deve ser online para diagnóstico remoto.",
     canais: [
-      { tipo: "Suporte", valor: "https://pcsupport.lenovo.com/br/pt/" },
-      { tipo: "SAC", valor: "11 3140-0500 (SP) / 0800 885 0500 (Demais)", horario: "Seg-Sex: 08h-20h | Sáb: 08h-14h" }
+      { tipo: "Site", valor: "https://pcsupport.lenovo.com/br/pt/" },
+      { tipo: "SAC", valor: "0800-885-0500", horario: "Seg-Sex: 08h-20h | Sáb: 08h-14h" }
     ],
     contatosExclusivos: [
       { nome: "Filial", tipo: "E-mail", valor: "svarejo1@lenovo.com" }
@@ -447,25 +459,12 @@ export const procedimentosSSC: Procedimento[] = [
     observacoes: ["Prazo de retorno: 48h"]
   },
   {
-    id: "lenoxx",
-    fabricante: "Lenoxx",
-    categoria: "Áudio e Vídeo",
-    procedimento: "Atendimento por diversos canais.",
-    canais: [
-      { tipo: "Site/Postos", valor: "https://suportelenoxx.com.br/" },
-      { tipo: "SAC", valor: "(11) 3339-9954 (SP) / 0800 772 9209 (Demais)" },
-      { tipo: "E-mail Consumidor", valor: "sac@lenoxx.com.br" },
-      { tipo: "E-mail Lojista", valor: "sac_revenda@lenoxx.com.br" }
-    ],
-    observacoes: ["E-mail revenda não repassar a consumidor"]
-  },
-  {
     id: "lg",
     fabricante: "LG",
     categoria: "Áudio e Vídeo",
-    procedimento: "O cliente deve usar o link de suporte para acessar as ferramentas de apoio.",
+    procedimento: "Suporte: www.lg.com",
     canais: [
-      { tipo: "Suporte Geral", valor: "https://www.lg.com/br/suporte" },
+      { tipo: "Suporte", valor: "https://www.lg.com/br/suporte" },
       { tipo: "Reparo Celular", valor: "https://www.lg.com/br/suporte/reparo-garantia/solicitar-reparo-celular" },
       { tipo: "Visita Técnica TV", valor: "https://www.lg.com/br/suporte/reparo-garantia/solicitar-reparo" },
       { tipo: "Postos", valor: "https://www.lg.com/br/suporte/localizar-assistencia-tecnica" },
@@ -500,9 +499,9 @@ export const procedimentosSSC: Procedimento[] = [
   },
   {
     id: "metavila",
-    fabricante: "Metávila",
-    categoria: "Outros",
-    procedimento: "O fornecedor não aceita intervenção de revenda. Todas as reclamações devem ser abertas pelo link.",
+    fabricante: "Metávila (Lareiras)",
+    categoria: "Lareiras",
+    procedimento: "Regra: Não aceita intervenção da revenda. Formulário de Reclamação disponível no link.",
     canais: [
       { tipo: "Reclamações", valor: "https://metavila.movidesk.com/form/3201/" }
     ],
@@ -510,16 +509,17 @@ export const procedimentosSSC: Procedimento[] = [
   },
   {
     id: "midea",
-    fabricante: "Midea Carrier",
+    fabricante: "Midea, Springer, Carrier e Comfee",
     categoria: "Linha Branca",
-    procedimento: "O cliente deve acionar o SAC antes de acionar o posto autorizado.",
+    procedimento: "Atendimento Domiciliar (Onsite): Cliente liga no 0800 para abrir protocolo e aguarda visita técnica. Atendimento Balcão: Para produtos portáteis, o cliente leva ao posto. Atendimento E-Ticket: Emissão de código de postagem via Correios para portáteis.",
     canais: [
-      { tipo: "SAC", valor: "3003 1005 (Capitais) / 0800 648 1005 (Demais)", horario: "Seg-Sex: 08h-20h / Sáb: 08h-14h" },
-      { tipo: "Chat", valor: "https://chat.directtalk.com.br/static/?tenantId=fd48676d-d50f-4f54-9281-3bae22386b7a&templateId=e75075fd-4fd9-4c8e-b878-ea201202fda1&departmentId=8dac0bb3-2d9a-4c35-bea5-e66cd99372c9" },
-      { tipo: "WhatsApp", valor: "11 3003-1005" },
-      { tipo: "Postos (Consulta)", valor: "https://www.midea.com/br/assistencia-tecnica" }
+      { tipo: "SAC Midea/Comfee", valor: "3003-1005 (Capitais) / 0800 648 1005 (Demais)", horario: "Seg-Sex: 08h-20h / Sáb: 08h-14h" },
+      { tipo: "SAC Springer/Carrier", valor: "4003-6707 (Capitais) / 0800 887 6707 (Demais)" },
+      { tipo: "WhatsApp", valor: "(11) 3003-1005" },
+      { tipo: "Postos (Consulta)", valor: "https://www.midea.com/br/assistencia-tecnica" },
+      { tipo: "Chat", valor: "https://chat.directtalk.com.br/static/?tenantId=fd48676d-d50f-4f54-9281-3bae22386b7a&templateId=e75075fd-4fd9-4c8e-b878-ea201202fda1&departmentId=8dac0bb3-2d9a-4c35-bea5-e66cd99372c9" }
     ],
-    observacoes: ["Springer: 4003 6707 (Capitais) / 0800 887 6707 (Demais)"]
+    observacoes: ["Atendimento Domiciliar: Cliente liga no 0800 para abrir protocolo", "Atendimento E-Ticket: Código de postagem via Correios para portáteis"]
   },
   {
     id: "mondial",
@@ -562,9 +562,9 @@ export const procedimentosSSC: Procedimento[] = [
   },
   {
     id: "moura-zeta",
-    fabricante: "Moura / Zeta",
-    categoria: "Automotivo",
-    procedimento: "A loja deve abrir a reclamação via ZEEV/Automotivos e preencher todos os dados solicitados.",
+    fabricante: "Moura e Zeta (Baterias)",
+    categoria: "Baterias",
+    procedimento: "Procedimento: Abrir reclamação via ZEEV / Automotivos. Critérios: Bateria sem dano físico, visor verde, com certificado de garantia original. Validade: Prazo máximo de 9 meses parado em loja. Após 12 meses, vira sucata.",
     canais: [
       { tipo: "ZEEV Automotivos", valor: "Sistema interno" }
     ],
@@ -580,9 +580,9 @@ export const procedimentosSSC: Procedimento[] = [
     id: "multilaser",
     fabricante: "Multilaser",
     categoria: "Telefonia",
-    procedimento: "Atendimento via SAC Fone e WhatsApp.",
+    procedimento: "SAC: (11) 3198-0004 | Mobilidade (Patinetes/Drones): (11) 3198-5812.",
     canais: [
-      { tipo: "SAC CRM", valor: "(11) 3198-0004", horario: "Seg-Sex: 08h-20h50 / Sáb: 08h-14h20" },
+      { tipo: "SAC", valor: "(11) 3198-0004", horario: "Seg-Sex: 08h-20h50 / Sáb: 08h-14h20" },
       { tipo: "WhatsApp", valor: "https://api.whatsapp.com/send/?phone=551131980004", horario: "Seg-Sex: 08h-20h / Sáb: 08h-14h20" },
       { tipo: "Mobilidade", valor: "(11) 3198-5812" },
       { tipo: "Instaladores", valor: "(11) 3198-5890", horario: "Seg-Sex: 08h-20h30 / Sáb: 08h-14h" }
@@ -628,14 +628,82 @@ export const procedimentosSSC: Procedimento[] = [
   {
     id: "pneus-goodyear-pirelli",
     fabricante: "Goodyear / Pirelli",
-    categoria: "Automotivo",
-    procedimento: "A loja deve abrir a reclamação via ZEEV/Automotivos e preencher todos os dados solicitados.",
+    categoria: "Pneus",
+    procedimento: "Procedimento: Abrir ZEEV / Automotivos. Obrigatório: NF, foto do DOT (nº série), data de fabricação (4 dígitos) e fotos nítidas do defeito e banda de rodagem.",
     canais: [
       { tipo: "ZEEV Automotivos", valor: "Sistema interno" }
     ],
     observacoes: [
       "Anexar cópia da NF de venda",
-      "Enviar fotos para análise do fabricante"
+      "Enviar fotos nítidas do defeito",
+      "Foto do DOT (número de série)",
+      "Data de fabricação (4 dígitos)",
+      "Foto da banda de rodagem"
     ]
+  },
+  {
+    id: "athletic",
+    fabricante: "Athletic",
+    categoria: "Fitness",
+    procedimento: "Canais Cliente: WhatsApp e E-mail. Exclusivo Lojista (NÃO FORNECER A CLIENTES): sac.lojista@athletic.com.br",
+    canais: [
+      { tipo: "WhatsApp", valor: "(47) 98456-0743" },
+      { tipo: "E-mail", valor: "sac@athletic.com.br" }
+    ],
+    contatosExclusivos: [
+      { nome: "SAC Lojista", tipo: "E-mail", valor: "sac.lojista@athletic.com.br" },
+      { nome: "Representante (Sr. Jorge)", tipo: "WhatsApp", valor: "(51) 99346-6206" }
+    ],
+    observacoes: ["E-mail sac.lojista@athletic.com.br NÃO FORNECER A CLIENTES"]
+  },
+  {
+    id: "samsung",
+    fabricante: "Samsung",
+    categoria: "Telefonia",
+    procedimento: "SAC: 4004-0000 (Capitais) ou 0800-555-0000. Assistência disponível no site.",
+    canais: [
+      { tipo: "SAC Capitais", valor: "4004-0000" },
+      { tipo: "SAC Demais", valor: "0800-555-0000" },
+      { tipo: "Assistência", valor: "https://www.samsung.com/br/support/service-center/" }
+    ]
+  },
+  {
+    id: "semp-tcl",
+    fabricante: "Semp TCL",
+    categoria: "Áudio e Vídeo",
+    procedimento: "Suporte disponível no site oficial.",
+    canais: [
+      { tipo: "Suporte", valor: "https://www.semptcl.com.br" }
+    ]
+  },
+  {
+    id: "tres-coracoes",
+    fabricante: "Três Corações",
+    categoria: "Eletroportáteis",
+    procedimento: "SAC/WhatsApp: 0800-979-2021",
+    canais: [
+      { tipo: "SAC/WhatsApp", valor: "0800-979-2021" },
+      { tipo: "E-mail", valor: "sactres@3coracoes.com.br" }
+    ]
+  },
+  {
+    id: "urano",
+    fabricante: "Urano (Balanças)",
+    categoria: "Outros",
+    procedimento: "SAC: 0800-51-4276 (Apenas telefone fixo).",
+    canais: [
+      { tipo: "SAC", valor: "0800-51-4276", horario: "Apenas telefone fixo" },
+      { tipo: "Site", valor: "https://www.urano.com.br/atu/" }
+    ]
+  },
+  {
+    id: "xbox-microsoft",
+    fabricante: "Xbox (Microsoft)",
+    categoria: "Áudio e Vídeo",
+    procedimento: "Regra: Não aceita intervenção da revenda. Atendimento direto com o cliente logado no site.",
+    canais: [
+      { tipo: "Site", valor: "https://support.xbox.com/pt-BR/contact-us" }
+    ],
+    observacoes: ["Não aceita intervenção de revenda", "Cliente deve estar logado no site"]
   }
 ];

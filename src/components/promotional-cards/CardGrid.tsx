@@ -8,11 +8,12 @@ interface CardGridProps {
   cards: CardItem[];
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, updates: Partial<CardItem>) => void;
+  onUpdate: (id: string, updates: Partial<CardItem>) => Promise<boolean>;
   sector: "furniture" | "fashion" | "loan" | "service";
+  folderMap?: Map<string, string>;
 }
 
-export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: CardGridProps) {
+export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector, folderMap }: CardGridProps) {
   const isMobile = useIsMobile();
   
   const containerVariants = {
@@ -37,8 +38,8 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: 
   return (
     <motion.div 
       className={cn(
-        "grid gap-6",
-        isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        "grid gap-4",
+        isMobile ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
       )}
       variants={containerVariants}
       initial="hidden"
@@ -58,10 +59,11 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: 
             endDate={card.end_date}
             imageUrl={card.image_url}
             folderId={card.folder_id}
+            folderName={card.folder_id ? folderMap?.get(card.folder_id) : null}
             aspectRatio={card.aspect_ratio}
             onDelete={onDelete}
             onMoveToFolder={onMoveToFolder}
-            onUpdate={(id, updates) => onUpdate(id, updates)}
+            onUpdate={onUpdate}
             sector={sector}
             isMobile={isMobile}
           />

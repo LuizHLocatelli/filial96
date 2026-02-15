@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3 } from "lucide-react";
+import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,26 +23,55 @@ interface FoldersListProps {
 interface FolderItem {
   id: string;
   name: string;
+  cardCount?: number;
 }
 
 export function FoldersList({ sector, selectedFolderId, onSelectFolder }: FoldersListProps) {
   const [folders, setFolders] = useState<FolderItem[]>([]);
+  const [totalCardCount, setTotalCardCount] = useState(0);
   const [selectedFolder, setSelectedFolder] = useState<FolderItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const refetch = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      // Buscar pastas
+      const { data: foldersData, error: foldersError } = await supabase
         .from('card_folders')
         .select('id, name')
         .eq('sector', sector);
 
-      if (error) {
-        throw error;
+      if (foldersError) {
+        throw foldersError;
       }
 
-      setFolders(data || []);
+      // Buscar contagem de cards por pasta
+      const { data: countsData, error: countsError } = await supabase
+        .from('promotional_cards')
+        .select('folder_id', { count: 'exact' })
+        .eq('sector', sector);
+
+      if (countsError) {
+        throw countsError;
+      }
+
+      // Calcular contagem por pasta
+      const countMap = new Map<string, number>();
+      let totalCount = 0;
+      countsData?.forEach(card => {
+        const folderId = card.folder_id || 'null';
+        countMap.set(folderId, (countMap.get(folderId) || 0) + 1);
+        totalCount++;
+      });
+
+      // Adicionar contagem às pastas
+      const foldersWithCounts = (foldersData || []).map(folder => ({
+        ...folder,
+        cardCount: countMap.get(folder.id) || 0
+      }));
+
+      setFolders(foldersWithCounts);
+      setTotalCardCount(totalCount);
     } catch (error) {
       console.error("Error fetching folders:", error);
       toast({
@@ -63,14 +92,26 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
       <div
         onClick={() => onSelectFolder(null)}
         className={cn(
-          "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 group border-2",
+          "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 group border-2",
           selectedFolderId === null 
             ? "btn-primary-standard shadow-sm" 
             : "bg-background hover:bg-muted border-border hover:border-border/80 text-foreground"
         )}
       >
-        <FolderPlus className="h-5 w-5 flex-shrink-0" />
-        <span className="font-medium text-sm">Todos os Cards</span>
+        <div className="flex items-center gap-3">
+          <FolderPlus className="h-5 w-5 flex-shrink-0" />
+          <span className="font-medium text-sm">Todos os Cards</span>
+        </div>
+        {totalCardCount > 0 && (
+          <span className={cn(
+            "text-xs px-2 py-0.5 rounded-full",
+            selectedFolderId === null 
+              ? "bg-primary-foreground/20 text-primary-foreground" 
+              : "bg-muted text-muted-foreground"
+          )}>
+            {totalCardCount}
+          </span>
+        )}
       </div>
 
       {/* Folders list */}
@@ -79,14 +120,26 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
           <div
             onClick={() => onSelectFolder(folder.id)}
             className={cn(
-              "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-2 pr-12",
+              "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 border-2 pr-12",
               selectedFolderId === folder.id 
                 ? "btn-primary-standard shadow-sm" 
                 : "bg-background hover:bg-muted border-border hover:border-border/80 text-foreground"
             )}
           >
-            <Folder className="h-5 w-5 flex-shrink-0" />
-            <span className="font-medium text-sm truncate">{folder.name}</span>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <Folder className="h-5 w-5 flex-shrink-0" />
+              <span className="font-medium text-sm truncate">{folder.name}</span>
+            </div>
+            {(folder.cardCount || 0) > 0 && (
+              <span className={cn(
+                "text-xs px-2 py-0.5 rounded-full flex-shrink-0",
+                selectedFolderId === folder.id 
+                  ? "bg-primary-foreground/20 text-primary-foreground" 
+                  : "bg-muted text-muted-foreground"
+              )}>
+                {folder.cardCount}
+              </span>
+            )}
           </div>
 
           {/* Context menu */}

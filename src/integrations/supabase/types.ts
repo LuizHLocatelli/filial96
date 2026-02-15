@@ -1605,6 +1605,7 @@ export type Database = {
       }
       promotional_cards: {
         Row: {
+          aspect_ratio: string | null
           code: string | null
           created_at: string
           created_by: string
@@ -1618,6 +1619,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          aspect_ratio?: string | null
           code?: string | null
           created_at?: string
           created_by: string
@@ -1631,6 +1633,7 @@ export type Database = {
           title: string
         }
         Update: {
+          aspect_ratio?: string | null
           code?: string | null
           created_at?: string
           created_by?: string

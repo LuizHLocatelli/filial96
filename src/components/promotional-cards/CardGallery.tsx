@@ -1,10 +1,11 @@
-import { useCardOperations, CardItem } from "@/hooks/useCardOperations";
+import { useCardOperations, CardItem, CardUpdateData } from "@/hooks/useCardOperations";
 import { useCardSearch } from "@/hooks/useCardSearch";
+import { useFolders } from "@/hooks/useFolders";
 import { CardGrid } from "@/components/promotional-cards/CardGrid";
 import { CardGalleryEmpty } from "@/components/promotional-cards/CardGalleryEmpty";
 import { CardGalleryLoading } from "@/components/promotional-cards/CardGalleryLoading";
 import { CardSearchBar } from "@/components/promotional-cards/CardSearchBar";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "@/components/ui/use-toast";
 
 interface CardGalleryProps {
@@ -17,9 +18,19 @@ interface CardGalleryProps {
 }
 
 export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCreateCard }: CardGalleryProps) {
-  const { deleteCard, moveCardToFolder } = useCardOperations();
+  const { deleteCard, moveCardToFolder, updateCard } = useCardOperations();
   const { searchTerm, setSearchTerm, filteredCards, hasResults, isSearching } = useCardSearch(cards);
+  const { folders } = useFolders(sector);
   const [processingCardIds, setProcessingCardIds] = useState<Set<string>>(new Set());
+
+  // Criar mapa de pastas para lookup rápido
+  const folderMap = useMemo(() => {
+    const map = new Map<string, string>();
+    folders.forEach(folder => {
+      map.set(folder.id, folder.name);
+    });
+    return map;
+  }, [folders]);
 
   const handleDeleteCard = async (id: string) => {
     if (processingCardIds.has(id)) return false;
@@ -94,12 +105,50 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
     }
   };
 
-  const handleUpdateCard = (id: string, updates: Partial<CardItem>) => {
-    setCards(prevCards =>
-      prevCards.map(card =>
-        card.id === id ? { ...card, ...updates } : card
-      )
-    );
+  const handleUpdateCard = async (id: string, updates: Partial<CardItem>) => {
+    if (processingCardIds.has(id)) return false;
+    
+    setProcessingCardIds(prev => new Set(prev).add(id));
+    try {
+      const updateData: CardUpdateData = updates as CardUpdateData;
+      
+      const success = await updateCard(id, updateData);
+      
+      if (success) {
+        // Atualizar estado local apenas após sucesso na API
+        setCards(prevCards =>
+          prevCards.map(card =>
+            card.id === id ? { ...card, ...updates } : card
+          )
+        );
+        toast({
+          title: "Sucesso",
+          description: "Card atualizado com sucesso"
+        });
+        return true;
+      } else {
+        toast({
+          title: "Erro",
+          description: "Não foi possível atualizar o card",
+          variant: "destructive"
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating card:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o card",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setProcessingCardIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }
   };
 
   if (isLoading) {
@@ -138,6 +187,7 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
           onMoveToFolder={handleMoveToFolder}
           onUpdate={handleUpdateCard}
           sector={sector}
+          folderMap={folderMap}
         />
       )}
     </div>

@@ -8,6 +8,11 @@
     --glass-bg-light: rgba(255, 255, 255, 0.15);
     --glass-bg-medium: rgba(255, 255, 255, 0.10);
     --glass-bg-dark: rgba(255, 255, 255, 0.05);
+    
+    /* Overlay Variables (more opaque for dropdowns, popovers, dialogs) */
+    --glass-overlay-bg-light: rgba(255, 255, 255, 0.95);
+    --glass-overlay-bg-medium: rgba(255, 255, 255, 0.90);
+    --glass-overlay-bg-dark: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.25);
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.20);
@@ -39,6 +44,12 @@
     --glass-bg-light: rgba(0, 0, 0, 0.25);
     --glass-bg-medium: rgba(0, 0, 0, 0.20);
     --glass-bg-dark: rgba(0, 0, 0, 0.15);
+    
+    /* Overlay Variables (more opaque for dropdowns, popovers, dialogs) */
+    --glass-overlay-bg-light: rgba(30, 30, 30, 0.98);
+    --glass-overlay-bg-medium: rgba(25, 25, 25, 0.95);
+    --glass-overlay-bg-dark: rgba(20, 20, 20, 0.92);
+    
     --glass-border: rgba(255, 255, 255, 0.15);
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.30);
     --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.40);
@@ -88,6 +99,34 @@
 
   .glass-card-strong {
     background: var(--glass-bg-dark);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--glass-shadow-strong);
+  }
+
+  /* === OVERLAY CLASSES (for dropdowns, popovers, dialogs - more opaque) === */
+  .glass-overlay {
+    background: var(--glass-overlay-bg-light);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--glass-shadow-strong);
+  }
+
+  .glass-overlay-medium {
+    background: var(--glass-overlay-bg-medium);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: var(--glass-shadow-strong);
+  }
+
+  .glass-overlay-strong {
+    background: var(--glass-overlay-bg-dark);
     backdrop-filter: var(--glass-blur-strong);
     -webkit-backdrop-filter: var(--glass-blur-strong);
     border: 1px solid var(--glass-border);

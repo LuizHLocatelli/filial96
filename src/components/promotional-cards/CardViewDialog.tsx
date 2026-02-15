@@ -108,15 +108,20 @@ export function CardViewDialog({
 
   const handleShareWhatsAppWithImage = async () => {
     try {
+      // Faz download da imagem primeiro
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-      const file = new File([blob], `${title}_card.jpg`, { type: 'image/jpeg' });
+      const file = new File([blob], `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`, { type: blob.type || 'image/jpeg' });
       
       const messageText = code 
         ? `*${title}*\n\nCódigo: ${code}`
         : `*${title}*`;
       
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      // Verifica se é mobile e suporta compartilhamento nativo
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobileDevice && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        // Mobile: tenta usar Web Share API nativa (funciona bem no mobile)
         await navigator.share({
           files: [file],
           title: title,
@@ -128,10 +133,31 @@ export function CardViewDialog({
           description: "Card compartilhado com sucesso.",
         });
       } else {
-        handleShareWhatsApp();
+        // Desktop: faz download automático e abre WhatsApp Web
+        // Cria URL temporária para download
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        // Abre WhatsApp Web com mensagem preparada
+        const encodedMessage = encodeURIComponent(messageText);
+        const whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+        
+        toast({
+          title: "Imagem baixada!",
+          description: "A imagem foi salva. Anexe-a manualmente no WhatsApp Web.",
+          duration: 5000,
+        });
       }
     } catch (error) {
       console.error("Erro ao compartilhar:", error);
+      // Fallback: apenas abre WhatsApp com link
       handleShareWhatsApp();
     }
   };
@@ -140,7 +166,7 @@ export function CardViewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={cn(
-          "max-h-[90vh] overflow-y-auto flex flex-col p-0 gap-0",
+          "max-h-[85vh] overflow-y-auto flex flex-col p-0 gap-0",
           isMobile ? 'w-[calc(100%-2rem)] max-w-full' : 'sm:max-w-md'
         )}
         hideCloseButton
@@ -153,10 +179,12 @@ export function CardViewDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          {/* Imagem com altura máxima controlada */}
           <div className={cn(
-            "relative overflow-hidden bg-background border-b border-border",
-            getAspectRatioClass()
+            "relative overflow-hidden bg-background border border-border rounded-lg mb-5",
+            getAspectRatioClass(),
+            "max-h-[50vh]"
           )}>
             <img
               src={imageUrl}
@@ -165,9 +193,9 @@ export function CardViewDialog({
             />
           </div>
 
-          <div className="p-4 sm:p-6 space-y-5 bg-card">
+          <div className="space-y-5 bg-card">
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-foreground">{title}</h3>
+              <h3 className="text-lg font-semibold text-foreground">{title}</h3>
               <Badge variant="secondary" className="text-xs">
                 {currentFolder.name}
               </Badge>
@@ -222,7 +250,6 @@ export function CardViewDialog({
               <Button 
                 onClick={handleDownload}
                 disabled={isDownloading}
-                size="lg"
                 className="w-full font-medium bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {isDownloading ? (
@@ -235,7 +262,6 @@ export function CardViewDialog({
               
               <Button 
                 onClick={handleShareWhatsAppWithImage}
-                size="lg"
                 className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-medium"
               >
                 <Smartphone className="mr-2 h-4 w-4" />

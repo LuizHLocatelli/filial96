@@ -123,7 +123,7 @@ export function ProcedimentoForm({ procedimento, onSubmit, onCancel }: Procedime
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
+    <Card className="w-full max-w-3xl mx-auto max-h-[85vh] overflow-y-auto">
       <CardHeader className="pb-4 sticky top-0 bg-background z-10 border-b">
         <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
           <Edit2 className="h-5 w-5" />

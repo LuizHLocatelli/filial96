@@ -10,6 +10,7 @@ import {
   Copy,
   Check,
   Wrench,
+  Edit2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,11 +23,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { procedimentosSSC, categorias, Procedimento } from "@/data/procedimentos-ssc";
 import { AdminProcedimentosButton } from "@/components/ssc/AdminProcedimentosButton";
+import { ProcedimentoForm } from "@/components/ssc/ProcedimentoForm";
 import { useProcedimentosSSC } from "@/hooks/useProcedimentosSSC";
-import { ProcedimentoSSC } from "@/types/ssc-procedimentos";
+import { ProcedimentoSSC, ProcedimentoInsert } from "@/types/ssc-procedimentos";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { StandardDialogHeader } from "@/components/ui/standard-dialog";
 
 // Função para converter Procedimento estático para ProcedimentoSSC
 function toProcedimentoSSC(procedimento: Procedimento): ProcedimentoSSC {
@@ -47,15 +56,24 @@ function toProcedimentoSSC(procedimento: Procedimento): ProcedimentoSSC {
 export function ProcedimentosSSC() {
   const shouldReduceMotion = useReducedMotion();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const { profile } = useAuth();
+  const isManager = profile?.role === 'gerente';
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [useDatabase, setUseDatabase] = useState(false);
 
+  // Estados para edição
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingProcedimento, setEditingProcedimento] = useState<ProcedimentoSSC | null>(null);
+
   const {
     procedimentos: procedimentosDb,
     loading: loadingDb,
     fetchProcedimentos,
+    createProcedimento,
+    updateProcedimento,
   } = useProcedimentosSSC();
 
   // Usar dados do banco se disponíveis, senão usar dados estáticos
@@ -153,6 +171,47 @@ export function ProcedimentosSSC() {
       toast({
         title: "Erro",
         description: "Não foi possível copiar o procedimento",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Abrir dialog de edição
+  const handleEdit = (proc: ProcedimentoSSC) => {
+    setEditingProcedimento(proc);
+    setIsEditDialogOpen(true);
+  };
+
+  // Salvar edição
+  const handleSaveEdit = async (dados: Partial<ProcedimentoSSC>) => {
+    try {
+      if (editingProcedimento) {
+        // Verificar se é um procedimento do banco (UUID) ou estático (string simples)
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editingProcedimento.id);
+        
+        if (isUUID) {
+          // Atualizar procedimento existente no banco
+          await updateProcedimento(editingProcedimento.id, dados);
+        } else {
+          // Criar novo procedimento no banco com os dados atualizados
+          await createProcedimento(dados as ProcedimentoInsert);
+        }
+        
+        toast({
+          title: "Sucesso!",
+          description: "Procedimento atualizado com sucesso",
+        });
+        
+        // Recarregar procedimentos do banco
+        await fetchProcedimentos();
+        setUseDatabase(true);
+        setIsEditDialogOpen(false);
+        setEditingProcedimento(null);
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar as alterações",
         variant: "destructive",
       });
     }
@@ -317,24 +376,37 @@ export function ProcedimentosSSC() {
                         {proc.categoria}
                       </Badge>
                     </div>
-                    <Button
-                      variant={copiedId === proc.id ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => copiarProcedimento(proc)}
-                      className="gap-1 shrink-0"
-                    >
-                      {copiedId === proc.id ? (
-                        <>
-                          <Check className="h-4 w-4" />
-                          Copiado
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4" />
-                          Copiar
-                        </>
+                    <div className="flex items-center gap-2">
+                      {isManager && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(proc)}
+                          className="gap-1 shrink-0"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                          Editar
+                        </Button>
                       )}
-                    </Button>
+                      <Button
+                        variant={copiedId === proc.id ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => copiarProcedimento(proc)}
+                        className="gap-1 shrink-0"
+                      >
+                        {copiedId === proc.id ? (
+                          <>
+                            <Check className="h-4 w-4" />
+                            Copiado
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4" />
+                            Copiar
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
 
@@ -488,6 +560,34 @@ export function ProcedimentosSSC() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+          hideCloseButton
+        >
+          <StandardDialogHeader
+            icon={Edit2}
+            iconColor="primary"
+            title="Editar Procedimento"
+            onClose={() => setIsEditDialogOpen(false)}
+          />
+
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            {editingProcedimento && (
+              <ProcedimentoForm
+                procedimento={editingProcedimento}
+                onSubmit={handleSaveEdit}
+                onCancel={() => {
+                  setIsEditDialogOpen(false);
+                  setEditingProcedimento(null);
+                }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

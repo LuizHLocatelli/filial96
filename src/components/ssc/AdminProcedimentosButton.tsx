@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/auth'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -13,8 +12,6 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog'
 
 export function AdminProcedimentosButton() {
-  const { profile } = useAuth()
-  const isManager = profile?.role === 'gerente'
   const isMobile = useIsMobile()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -32,11 +29,11 @@ export function AdminProcedimentosButton() {
   } = useProcedimentosSSC()
 
   useEffect(() => {
-    if (isOpen && isManager) {
+    if (isOpen) {
       fetchProcedimentos()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, isManager])
+  }, [isOpen])
 
   const filteredProcedimentos = procedimentos.filter(p =>
     p.fabricante.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -80,8 +77,6 @@ export function AdminProcedimentosButton() {
       toast.error('Erro ao salvar procedimento')
     }
   }
-
-  if (!isManager) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

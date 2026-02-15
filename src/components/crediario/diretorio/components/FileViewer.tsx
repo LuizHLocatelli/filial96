@@ -29,7 +29,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} max-h-[90vh] overflow-y-auto flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader

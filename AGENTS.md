@@ -593,3 +593,51 @@ import { useAuth } from '@/contexts/Auth';  // Now uses index.ts
 3. **Maintainability**: Clear separation of concerns
 4. **Testability**: Easier to test isolated units
 5. **Code Splitting**: Better opportunities for lazy loading
+
+## Glassmorphism System
+
+This project uses a custom glassmorphism design system defined in `src/styles/glassmorphism.css`.
+
+### CSS Classes
+
+#### Base Classes (translucent effect)
+- `.glass-card` - 15% opacity (light mode), 25% (dark mode)
+- `.glass-card-medium` - 10% opacity (light mode), 20% (dark mode)  
+- `.glass-card-strong` - 5% opacity (light mode), 15% (dark mode)
+
+Used for: Cards, ToolCards, Calculators, Product lists, Auth pages
+
+#### Overlay Classes (opaque - for dropdowns/popovers/dialogs)
+- `.glass-overlay` - 95% opacity (light mode), 98% (dark mode)
+- `.glass-overlay-medium` - 90% opacity
+- `.glass-overlay-strong` - 85% opacity (light mode), 92% (dark mode)
+
+Used for: Dropdown menus, Popovers, Dialogs, Alert dialogs, Toasts
+
+### Components Using Glassmorphism
+
+**Using glass-overlay (opaque):**
+- DropdownMenu (dropdown-menu.tsx)
+- Popover (popover.tsx)
+- Dialog (dialog.tsx)
+- AlertDialog (alert-dialog.tsx)
+- Toaster (sonner/Toaster.tsx)
+
+**Using glass-card (translucent):**
+- ToolCard, LinkCard (painel-regiao/)
+- CalculadoraIgreen cards
+- ProdutosList containers
+- Auth page containers
+- ProcedimentosSSC cards
+
+### When to Use Each
+
+**Use glass-overlay classes for:**
+- Floating UI elements that need to be highly readable
+- Elements that appear over other content
+- Dropdowns, popovers, tooltips, toasts
+
+**Use glass-card classes for:**
+- Background cards and containers
+- Elements that are part of the main layout
+- Decorative glass effects

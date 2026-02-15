@@ -27,10 +27,11 @@ interface PromotionalCardProps {
   endDate?: string | null;
   imageUrl: string;
   folderId: string | null;
+  folderName?: string | null;
   aspectRatio?: "1:1" | "3:4" | "4:5";
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, updates: Partial<CardItem>) => void;
+  onUpdate: (id: string, updates: Partial<CardItem>) => Promise<boolean>;
   sector: "furniture" | "fashion" | "loan" | "service";
   isMobile?: boolean;
 }
@@ -43,6 +44,7 @@ export function PromotionalCard({
   endDate,
   imageUrl,
   folderId,
+  folderName,
   aspectRatio = "4:5",
   onDelete,
   onMoveToFolder,
@@ -137,16 +139,72 @@ export function PromotionalCard({
     }
   };
 
-  const handleShareWhatsApp = (e: React.MouseEvent) => {
+  const handleShareWhatsApp = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const message = encodeURIComponent(
-      `*${title}*\n\n` +
-      (code ? `Código: ${code}\n\n` : '') +
-      `Veja o card: ${imageUrl}`
-    );
-    const whatsappUrl = `https://wa.me/?text=${message}`;
-    window.open(whatsappUrl, '_blank');
+    
+    try {
+      // Faz download da imagem primeiro
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      const messageText = code 
+        ? `*${title}*\n\nCódigo: ${code}`
+        : `*${title}*`;
+      
+      // Verifica se é mobile
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobileDevice && navigator.share && navigator.canShare) {
+        const file = new File([blob], `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`, { type: blob.type || 'image/jpeg' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          // Mobile: usa Web Share API nativa
+          await navigator.share({
+            files: [file],
+            title: title,
+            text: messageText,
+          });
+          
+          toast({
+            title: "Compartilhado!",
+            description: "Card compartilhado com sucesso.",
+          });
+          return;
+        }
+      }
+      
+      // Desktop: faz download automático e abre WhatsApp Web
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      // Abre WhatsApp Web com mensagem preparada
+      const encodedMessage = encodeURIComponent(messageText);
+      const whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
+      window.open(whatsappUrl, '_blank');
+      
+      toast({
+        title: "Imagem baixada!",
+        description: "A imagem foi salva. Anexe-a manualmente no WhatsApp Web.",
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error("Erro ao compartilhar:", error);
+      // Fallback: apenas abre WhatsApp com link
+      const message = encodeURIComponent(
+        `*${title}*\n\n` +
+        (code ? `Código: ${code}\n\n` : '') +
+        `Veja o card: ${imageUrl}`
+      );
+      const whatsappUrl = `https://wa.me/?text=${message}`;
+      window.open(whatsappUrl, '_blank');
+    }
   };
 
   const handleCardClick = (e?: React.MouseEvent) => {
@@ -190,9 +248,12 @@ export function PromotionalCard({
             style={{ objectFit: "cover" }}
           />
           
-          {/* Overlay com ações - visível no hover */}
-          <div 
-            className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3"
+          {/* Overlay com ações - sempre visível em mobile, hover em desktop */}
+          <div
+            className={cn(
+              "absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 transition-all duration-300 flex flex-col justify-between p-2",
+              isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Botão de menu no topo */}
@@ -202,7 +263,7 @@ export function PromotionalCard({
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="h-8 w-8 rounded-full bg-white/95 hover:bg-white text-foreground shadow-md border-0"
+                    className="h-8 w-8 rounded-full bg-white hover:bg-gray-100 text-gray-900 shadow-md border-0"
                   >
                     <MoreHorizontal className="h-4 w-4" />
                     <span className="sr-only">Abrir menu</span>
@@ -234,24 +295,24 @@ export function PromotionalCard({
             
             {/* Botões de ação rápida na parte inferior */}
             <div className={cn(
-              "flex gap-2",
-              isMobile ? "flex-col" : "flex-row"
+              "flex gap-2 justify-center",
+              isMobile ? "flex-row" : "flex-row"
             )}>
               <Button
-                size="sm"
-                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-0 font-medium"
+                size="icon"
+                className="h-9 w-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-0"
                 onClick={handleDownload}
+                title="Baixar imagem"
               >
-                <Download className="mr-1.5 h-4 w-4" />
-                {isMobile ? "Download" : "Baixar"}
+                <Download className="h-4 w-4" />
               </Button>
               <Button
-                size="sm"
-                className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white shadow-md border-0 font-medium"
+                size="icon"
+                className="h-9 w-9 rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white shadow-md border-0"
                 onClick={handleShareWhatsApp}
+                title="Compartilhar no WhatsApp"
               >
-                <Smartphone className="mr-1.5 h-4 w-4" />
-                WhatsApp
+                <Smartphone className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -315,7 +376,7 @@ export function PromotionalCard({
           endDate={endDate ? formatDateForDisplay(endDate) : ''}
           currentFolder={{
             id: folderId || '',
-            name: 'Pasta Principal'
+            name: folderName || 'Sem Pasta'
           }}
           aspectRatio={aspectRatio}
           isMobile={isMobileProp || false}
@@ -326,8 +387,14 @@ export function PromotionalCard({
           onOpenChange={setIsEditDialogOpen}
           id={id}
           title={title}
+          code={code}
+          startDate={startDate}
+          endDate={endDate}
           isMobile={isMobileProp || false}
-          onSuccess={(newTitle) => onUpdate(id, { title: newTitle })}
+          onSuccess={async (updates) => {
+            const result = await onUpdate(id, updates);
+            return result;
+          }}
         />
 
         <CardDeleteDialog
