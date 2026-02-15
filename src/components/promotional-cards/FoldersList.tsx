@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,12 +31,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  useEffect(() => {
-    refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sector]);
-
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('card_folders')
@@ -56,7 +51,11 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         variant: "destructive"
       });
     }
-  };
+  }, [sector]);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch, sector]);
   
   return (
     <div className="space-y-2">

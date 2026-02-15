@@ -19,6 +19,7 @@ export default function PromotionalCards() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
+  const [foldersRefreshKey, setFoldersRefreshKey] = useState(0);
   const isMobile = useIsMobile();
   const { cards, setCards, isLoading, refetch } = useCards(selectedSector, selectedFolderId);
   
@@ -80,6 +81,7 @@ export default function PromotionalCards() {
                   </div>
                   
                   <FoldersList 
+                    key={foldersRefreshKey}
                     sector={selectedSector}
                     selectedFolderId={selectedFolderId}
                     onSelectFolder={setSelectedFolderId}
@@ -132,6 +134,7 @@ export default function PromotionalCards() {
         isOpen={isCreateFolderOpen}
         onOpenChange={setIsCreateFolderOpen}
         sector={selectedSector}
+        onSuccess={() => setFoldersRefreshKey(prev => prev + 1)}
       />
 
       <UploadCardDialog

@@ -24,6 +24,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
     endDate,
     previewUrl,
     isSubmitting,
+    aspectRatio,
     setTitle,
     setCode,
     setStartDate,
@@ -74,6 +75,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
             setEndDate={setEndDate}
             folderId={folderId}
             setFolderId={setFolderId}
+            aspectRatio={aspectRatio}
             previewUrl={previewUrl}
             handleFileChange={handleFileChange}
             removeImage={removeImage}

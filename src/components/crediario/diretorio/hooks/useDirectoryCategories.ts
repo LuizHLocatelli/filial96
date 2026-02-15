@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DirectoryCategory } from '../types';
@@ -8,12 +8,7 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tableName]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -37,7 +32,11 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const addCategory = async (name: string, description?: string) => {
     try {

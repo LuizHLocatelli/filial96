@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/auth";
+import { detectAspectRatio, getImageDimensions } from "@/utils/aspectRatioDetector";
 
 interface CardUploadState {
   title: string;
@@ -13,6 +14,8 @@ interface CardUploadState {
   previewUrl: string | null;
   isSubmitting: boolean;
   folderId: string | null;
+  aspectRatio: "1:1" | "3:4" | "4:5";
+  imageDimensions: { width: number; height: number } | null;
 }
 
 interface UseCardUploadProps {
@@ -31,6 +34,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     previewUrl: null,
     isSubmitting: false,
     folderId: initialFolderId,
+    aspectRatio: "4:5",
+    imageDimensions: null,
   });
   const { user } = useAuth();
 
@@ -44,6 +49,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       previewUrl: null,
       isSubmitting: false,
       folderId: initialFolderId,
+      aspectRatio: "4:5",
+      imageDimensions: null,
     });
   };
 
@@ -67,7 +74,7 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     setState(prev => ({ ...prev, folderId }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     
     if (file) {
@@ -80,16 +87,54 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
         return;
       }
       
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setState(prev => ({
-          ...prev,
-          selectedFile: file,
-          previewUrl: e.target?.result as string
-        }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Detecta dimensões e aspect ratio automaticamente
+        const dimensions = await getImageDimensions(file);
+        const detectedAspectRatio = detectAspectRatio(dimensions.width, dimensions.height);
+        
+        // Create preview URL
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setState(prev => ({
+            ...prev,
+            selectedFile: file,
+            previewUrl: e.target?.result as string,
+            aspectRatio: detectedAspectRatio,
+            imageDimensions: dimensions
+          }));
+        };
+        reader.readAsDataURL(file);
+        
+        // Mostra toast informativo sobre o formato detectado
+        const formatLabels = {
+          "1:1": "Quadrado (1:1)",
+          "3:4": "Retrato (3:4)",
+          "4:5": "Retrato (4:5)"
+        };
+        
+        toast({
+          title: "Formato detectado",
+          description: `Imagem no formato ${formatLabels[detectedAspectRatio]} detectado automaticamente`,
+        });
+      } catch (error) {
+        console.error("Erro ao detectar dimensões da imagem:", error);
+        toast({
+          title: "Aviso",
+          description: "Não foi possível detectar o formato da imagem automaticamente",
+          variant: "default"
+        });
+        
+        // Ainda assim cria o preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setState(prev => ({
+            ...prev,
+            selectedFile: file,
+            previewUrl: e.target?.result as string
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -97,7 +142,9 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     setState(prev => ({
       ...prev,
       selectedFile: null,
-      previewUrl: null
+      previewUrl: null,
+      aspectRatio: "4:5",
+      imageDimensions: null
     }));
   };
 
@@ -181,6 +228,7 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
         end_date: formattedEndDate,
         image_url: imageUrl,
         folder_id: state.folderId,
+        aspect_ratio: state.aspectRatio,
         sector,
         created_by: user.id,
         position

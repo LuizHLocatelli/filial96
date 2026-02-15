@@ -94,10 +94,10 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
     }
   };
 
-  const handleUpdateCard = (id: string, newTitle: string) => {
+  const handleUpdateCard = (id: string, updates: Partial<CardItem>) => {
     setCards(prevCards =>
       prevCards.map(card =>
-        card.id === id ? { ...card, title: newTitle } : card
+        card.id === id ? { ...card, ...updates } : card
       )
     );
   };

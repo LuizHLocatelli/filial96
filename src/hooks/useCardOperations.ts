@@ -10,6 +10,7 @@ export interface CardItem {
   code: string | null;
   start_date: string | null;
   end_date: string | null;
+  aspect_ratio: "1:1" | "3:4" | "4:5";
   created_by: string;
   created_at: string;
 }

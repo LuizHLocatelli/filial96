@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { CardItem } from "@/hooks/useCardOperations";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Copy, Edit3, Trash2, Image } from "lucide-react";
+import { MoreHorizontal, Copy, Edit3, Trash2, Image, Download, Smartphone, ExternalLink } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from 'date-fns';
@@ -27,9 +27,10 @@ interface PromotionalCardProps {
   endDate?: string | null;
   imageUrl: string;
   folderId: string | null;
+  aspectRatio?: "1:1" | "3:4" | "4:5";
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, updates: { title: string }) => void;
+  onUpdate: (id: string, updates: Partial<CardItem>) => void;
   sector: "furniture" | "fashion" | "loan" | "service";
   isMobile?: boolean;
 }
@@ -42,16 +43,31 @@ export function PromotionalCard({
   endDate,
   imageUrl,
   folderId,
+  aspectRatio = "4:5",
   onDelete,
   onMoveToFolder,
   onUpdate,
   sector,
-  isMobile
+  isMobile: isMobileProp
 }: PromotionalCardProps) {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const isMobile = useIsMobile();
+
+  const getAspectRatioClass = () => {
+    switch (aspectRatio) {
+      case "1:1":
+        return "aspect-square";
+      case "3:4":
+        return "aspect-[3/4]";
+      case "4:5":
+        return "aspect-[4/5]";
+      default:
+        return "aspect-[4/5]";
+    }
+  };
 
   const formatDateForDisplay = (dateString: string | null | undefined) => {
     if (!dateString) return '';
@@ -85,20 +101,86 @@ export function PromotionalCard({
     setIsDeletingCard(true);
     try {
       await onDelete(id);
-      // Toast já é mostrado pelo CardGallery.tsx
     } catch (error) {
       console.error("Error deleting card:", error);
-      // Erro já é tratado e mostrado pelo CardGallery.tsx
     } finally {
       setIsDeletingCard(false);
     }
   };
 
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download iniciado!",
+        description: "A imagem do card está sendo baixada.",
+      });
+    } catch (error) {
+      console.error("Erro ao baixar imagem:", error);
+      toast({
+        title: "Erro no download",
+        description: "Não foi possível baixar a imagem.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShareWhatsApp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const message = encodeURIComponent(
+      `*${title}*\n\n` +
+      (code ? `Código: ${code}\n\n` : '') +
+      `Veja o card: ${imageUrl}`
+    );
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleCardClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    console.log('[PromotionalCard] Card clicked, opening view dialog for:', id);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
     <>
-      <Card className="group relative overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-all duration-200">
-        {/* Imagem do card */}
-        <div className="aspect-video relative overflow-hidden">
+      <Card 
+        className="group relative overflow-hidden bg-card border border-border shadow-sm hover:shadow-lg transition-all duration-300"
+      >
+        {/* Imagem do card - clicável para visualização */}
+        <div 
+          className={`${getAspectRatioClass()} relative overflow-hidden cursor-pointer`}
+          onClick={(e) => handleCardClick(e)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              handleCardClick();
+            }
+          }}
+          aria-label={`Visualizar card ${title}`}
+        >
           <img
             src={imageUrl}
             alt={title}
@@ -108,75 +190,115 @@ export function PromotionalCard({
             style={{ objectFit: "cover" }}
           />
           
-          {/* Overlay com informações */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-          
-          {/* Botão de menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          {/* Overlay com ações - visível no hover */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between p-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botão de menu no topo */}
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={handleMenuClick}>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 rounded-full bg-white/95 hover:bg-white text-foreground shadow-md border-0"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Abrir menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    <span>Visualizar</span>
+                  </DropdownMenuItem>
+                  {code && (
+                    <DropdownMenuItem onClick={handleCopyToClipboard}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      <span>Copiar Código</span>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                    <Edit3 className="mr-2 h-4 w-4" />
+                    <span>Editar</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Excluir</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            {/* Botões de ação rápida na parte inferior */}
+            <div className={cn(
+              "flex gap-2",
+              isMobile ? "flex-col" : "flex-row"
+            )}>
               <Button
-                variant="secondary"
                 size="sm"
-                className="absolute top-3 right-3 h-9 w-9 rounded-lg p-0 bg-background/90 hover:bg-background border border-border/50 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-0 font-medium"
+                onClick={handleDownload}
               >
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Abrir menu</span>
+                <Download className="mr-1.5 h-4 w-4" />
+                {isMobile ? "Download" : "Baixar"}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
-                <Image className="mr-2 h-4 w-4" />
-                <span>Visualizar</span>
-              </DropdownMenuItem>
-              {code && (
-                <DropdownMenuItem onClick={handleCopyToClipboard}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  <span>Copiar Código</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-                <Edit3 className="mr-2 h-4 w-4" />
-                <span>Editar</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-red-600 focus:text-red-600">
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Excluir</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Button
+                size="sm"
+                className="flex-1 bg-[#25D366] hover:bg-[#128C7E] text-white shadow-md border-0 font-medium"
+                onClick={handleShareWhatsApp}
+              >
+                <Smartphone className="mr-1.5 h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
+          </div>
+
+          {/* Indicador de clique para visualização */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-0 pointer-events-none">
+            <div className="bg-black/50 rounded-full p-3">
+              <ExternalLink className="h-6 w-6 text-white" />
+            </div>
+          </div>
         </div>
 
-        {/* Informações do card */}
-        <div className="p-4 space-y-3">
+        {/* Informações do card - clicável para visualização */}
+        <div 
+          className="p-4 space-y-2 cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={(e) => handleCardClick(e)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              handleCardClick();
+            }
+          }}
+          aria-label={`Visualizar card ${title}`}
+        >
           <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
             {title}
           </h3>
           
-          <div className="space-y-2 text-xs text-muted-foreground">
+          <div className="space-y-1.5 text-xs">
             {code && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Código:</span>
-                <span className="font-mono bg-muted px-2 py-1 rounded text-foreground">
+                <span className="font-mono bg-muted px-2 py-0.5 rounded text-foreground">
                   {code}
                 </span>
               </div>
             )}
             
             {(startDate || endDate) && (
-              <div className="space-y-1">
-                {startDate && (
-                  <div className="flex items-center justify-between">
-                    <span>Início:</span>
-                    <span className="text-foreground">{formatDateForDisplay(startDate)}</span>
-                  </div>
-                )}
-                {endDate && (
-                  <div className="flex items-center justify-between">
-                    <span>Fim:</span>
-                    <span className="text-foreground">{formatDateForDisplay(endDate)}</span>
-                  </div>
-                )}
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Período:</span>
+                <span className="text-foreground">
+                  {startDate && formatDateForDisplay(startDate)}
+                  {startDate && endDate && ' - '}
+                  {endDate && formatDateForDisplay(endDate)}
+                </span>
               </div>
             )}
           </div>
@@ -195,7 +317,8 @@ export function PromotionalCard({
             id: folderId || '',
             name: 'Pasta Principal'
           }}
-          isMobile={isMobile || false}
+          aspectRatio={aspectRatio}
+          isMobile={isMobileProp || false}
         />
 
         <CardEditDialog
@@ -203,7 +326,7 @@ export function PromotionalCard({
           onOpenChange={setIsEditDialogOpen}
           id={id}
           title={title}
-          isMobile={isMobile || false}
+          isMobile={isMobileProp || false}
           onSuccess={(newTitle) => onUpdate(id, { title: newTitle })}
         />
 

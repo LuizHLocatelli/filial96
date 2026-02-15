@@ -58,6 +58,7 @@ export function CardGrid({ cards, onDelete, onMoveToFolder, onUpdate, sector }: 
             endDate={card.end_date}
             imageUrl={card.image_url}
             folderId={card.folder_id}
+            aspectRatio={card.aspect_ratio}
             onDelete={onDelete}
             onMoveToFolder={onMoveToFolder}
             onUpdate={(id, updates) => onUpdate(id, updates)}

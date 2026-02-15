@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DirectoryFile } from '@/components/crediario/diretorio/types';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -8,7 +8,7 @@ export function useModaDirectoryFiles(categoryId?: string) {
   const [error, setError] = useState<Error | null>(null);
 
   // Buscar arquivos
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     try {
       setIsLoading(true);
       let query = supabase
@@ -34,7 +34,7 @@ export function useModaDirectoryFiles(categoryId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [categoryId]);
 
   // Adicionar arquivo
   const addFile = async (fileData: {
@@ -121,8 +121,7 @@ export function useModaDirectoryFiles(categoryId?: string) {
   // Efeito para buscar arquivos ao montar o componente ou quando a categoria mudar
   useEffect(() => {
     fetchFiles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId]);
+  }, [fetchFiles, categoryId]);
 
   return {
     files,

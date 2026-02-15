@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DirectoryFile } from '../types';
@@ -8,12 +8,7 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchFiles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId, tableName]);
-
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     setIsLoading(true);
     try {
       let query = supabase
@@ -44,7 +39,11 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [categoryId, toast]);
+
+  useEffect(() => {
+    fetchFiles();
+  }, [fetchFiles, categoryId]);
 
   const addFile = async (file: {
     name: string;

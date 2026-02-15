@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DirectoryCategory } from '@/components/crediario/diretorio/types';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -8,7 +8,7 @@ export function useModaDirectoryCategories() {
   const [error, setError] = useState<Error | null>(null);
 
   // Buscar categorias
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -27,7 +27,7 @@ export function useModaDirectoryCategories() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Adicionar categoria
   const addCategory = async (name: string, color: string, description?: string) => {
@@ -94,7 +94,7 @@ export function useModaDirectoryCategories() {
   // Buscar categorias ao montar o componente
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   return {
     categories,

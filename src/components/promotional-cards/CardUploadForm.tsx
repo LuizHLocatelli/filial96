@@ -23,6 +23,7 @@ interface CardUploadFormProps {
   setEndDate: (date: Date | undefined) => void;
   folderId: string | null;
   setFolderId: (folderId: string | null) => void;
+  aspectRatio?: "1:1" | "3:4" | "4:5";
   previewUrl: string | null;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: () => void;
@@ -45,6 +46,7 @@ export function CardUploadForm({
   setEndDate,
   folderId,
   setFolderId,
+  aspectRatio,
   previewUrl,
   handleFileChange,
   removeImage,
@@ -56,6 +58,17 @@ export function CardUploadForm({
   const { folders } = useFolders(sector);
   const isMobile = useIsMobile();
 
+  // Formata o aspect ratio para exibição
+  const getAspectRatioLabel = () => {
+    if (!aspectRatio) return "";
+    const labels: Record<string, string> = {
+      "1:1": "Quadrado (1:1)",
+      "3:4": "Retrato (3:4)",
+      "4:5": "Retrato (4:5)"
+    };
+    return labels[aspectRatio] || "";
+  };
+
   return (
     <form onSubmit={handleSubmit} className="stack-lg lg:grid-responsive-cards lg:gap-8 p-1">
       {/* Coluna da Esquerda: Upload de Imagem */}
@@ -66,6 +79,11 @@ export function CardUploadForm({
           removeImage={removeImage}
           isSubmitting={isSubmitting}
         />
+        {aspectRatio && previewUrl && (
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Formato detectado: <span className="font-medium text-foreground">{getAspectRatioLabel()}</span>
+          </p>
+        )}
       </div>
 
       {/* Coluna da Direita: Campos de Informação */}
