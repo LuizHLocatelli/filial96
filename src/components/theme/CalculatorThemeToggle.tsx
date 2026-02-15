@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCalculatorTheme } from "./CalculatorThemeProvider";
+import { useCalculatorTheme } from "./calculator-theme";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function CalculatorThemeToggle() {

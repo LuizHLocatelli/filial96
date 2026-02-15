@@ -7,10 +7,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PackagePlus, DollarSign } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
+
+interface ProdutoData {
+  nome: string;
+  codigo: string;
+  categoria: string;
+  preco_original: number;
+  descricao: string;
+  motivo_descontinuacao: string;
+  estoque_restante: number;
+}
 
 interface AddProdutoDialogProps {
-  onAdd: (produtoData: any, file?: File) => Promise<void>;
+  onAdd: (produtoData: ProdutoData, file?: File) => Promise<void>;
 }
 
 export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
@@ -80,7 +90,7 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -92,7 +102,7 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
             loading={isSubmitting}
           />
 
-          <StandardDialogContent>
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             <div className="space-y-6">
               {/* Informações Básicas */}
               <div className="space-y-4">
@@ -205,7 +215,7 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
                 </div>
               </div>
             </div>
-          </StandardDialogContent>
+          </div>
 
           <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
             <Button

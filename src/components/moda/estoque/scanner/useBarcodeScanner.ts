@@ -37,7 +37,7 @@ export function useBarcodeScanner({ onScan, onError }: UseBarcodeScannerProps) {
   const playBeep = useCallback(() => {
     try {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       }
       const ctx = audioContextRef.current;
       const oscillator = ctx.createOscillator();
@@ -62,7 +62,9 @@ export function useBarcodeScanner({ onScan, onError }: UseBarcodeScannerProps) {
     if (controlsRef.current) {
       try {
         controlsRef.current.stop();
-      } catch {}
+      } catch {
+        // ignore
+      }
       controlsRef.current = null;
     }
     if (videoRef.current?.srcObject) {
@@ -171,6 +173,7 @@ export function useBarcodeScanner({ onScan, onError }: UseBarcodeScannerProps) {
             }
           }
           if (err && !(err instanceof Error && err.name === 'NotFoundException')) {
+            // ignorar erros de não encontrado
           }
         }
       );
@@ -181,8 +184,9 @@ export function useBarcodeScanner({ onScan, onError }: UseBarcodeScannerProps) {
         hasPermission: true,
         error: null
       }));
-    } catch (error: any) {
-      if (error.name === 'NotAllowedError') {
+    } catch (error) {
+      const errWithName = error as { name?: string };
+      if (errWithName.name === 'NotAllowedError') {
         const err = createScannerError(
           'permission',
           'Acesso à câmera foi negado. Por favor, habilite nas configurações.',
@@ -192,7 +196,7 @@ export function useBarcodeScanner({ onScan, onError }: UseBarcodeScannerProps) {
         );
         setState(prev => ({ ...prev, hasPermission: false, error: err }));
         onError?.(err);
-      } else if (error.name === 'NotReadableError') {
+      } else if (errWithName.name === 'NotReadableError') {
         const err = createScannerError(
           'camera',
           'Câmera está em uso por outro aplicativo.',

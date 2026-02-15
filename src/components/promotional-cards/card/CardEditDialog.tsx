@@ -14,15 +14,25 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
+interface ExtendedCardItem {
+  id: string;
+  title?: string;
+  content?: string;
+  status?: 'ativo' | 'inativo' | 'rascunho';
+  valid_from?: string;
+  valid_until?: string;
+  sector?: string;
+  image_url?: string;
+}
+
 interface CardEditDialogProps {
-  card: any;
+  card: ExtendedCardItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (data: any) => void;
+  onSave: (data: { title: string; content: string; status: 'ativo' | 'inativo' | 'rascunho'; valid_from?: Date; valid_until?: Date; sector: string; imageFile?: File }) => void;
   isSubmitting: boolean;
 }
 
@@ -47,7 +57,7 @@ export function CardEditDialog({
   const [newImage, setNewImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | Date | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -91,7 +101,7 @@ export function CardEditDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -103,7 +113,7 @@ export function CardEditDialog({
           loading={isSubmitting}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-6">
             {/* Informações Básicas */}
             <div className="space-y-4">
@@ -267,7 +277,7 @@ export function CardEditDialog({
               </div>
             </div>
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

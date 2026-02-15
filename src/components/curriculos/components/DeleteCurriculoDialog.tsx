@@ -3,7 +3,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from '@/components/ui/standard-dialog';
 import { Trash2, AlertTriangle } from 'lucide-react';
@@ -52,7 +51,7 @@ export function DeleteCurriculoDialog({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !isDeleting && onOpenChange(open)}>
-      <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden" hideCloseButton>
+      <DialogContent className="sm:max-w-[400px] p-0 max-h-[85vh] overflow-y-auto flex flex-col" hideCloseButton>
         <StandardDialogHeader
           icon={AlertTriangle}
           iconColor="red"
@@ -62,7 +61,7 @@ export function DeleteCurriculoDialog({
           loading={isDeleting}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               Tem certeza que deseja excluir o currículo de:
@@ -76,7 +75,7 @@ export function DeleteCurriculoDialog({
               O arquivo também será removido do sistema.
             </p>
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter>
           <Button

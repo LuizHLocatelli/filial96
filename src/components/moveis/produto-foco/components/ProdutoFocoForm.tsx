@@ -14,7 +14,8 @@ import { Badge } from '@/components/ui/badge';
 
 interface ProdutoFocoFormProps {
   produto?: ProdutoFocoWithImages;
-  onSubmit: (dados: any, imagens?: File[]) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSubmit: (dados: Record<string, any>, imagens?: File[]) => Promise<void>;
   onCancel: () => void;
   onUploadImagem?: (file: File) => Promise<void>;
   onDeleteImagem?: (imagemId: string, imagemUrl: string) => Promise<void>;

@@ -81,7 +81,7 @@ export function useSupabaseSignup(): UseSupabaseSignupReturn {
             } else if (authError.message.includes('Database error') || authError.message.includes('unable to validate email address')) {
               throw new Error('SIGNUP_SERVICE_ERROR');
             } else {
-              supabaseLogger.error('AUTH.SIGNUP', 'Erro detalhado:', authError);
+              supabaseLogger.error('AUTH.SIGNUP', 'Erro detalhado:', { error: authError.message });
               throw new Error(`AUTH_ERROR: ${authError.message}`);
             }
           }
@@ -112,16 +112,16 @@ export function useSupabaseSignup(): UseSupabaseSignupReturn {
             .single();
 
           if (profileError && profileError.code !== 'PGRST116') {
-            supabaseLogger.warn('PROFILE.VERIFY', 'Erro ao verificar perfil, mas não é crítico', profileError);
+            supabaseLogger.warn('PROFILE.VERIFY', 'Erro ao verificar perfil, mas não é crítico', { error: profileError.message });
           } else if (profile) {
             logSupabaseOperation.profile.fetch('Perfil criado automaticamente pelo trigger', { profileId: profile.id });
           } else {
             logSupabaseOperation.profile.fetch('Perfil não encontrado, mas signup foi bem-sucedido');
           }
         });
-      } catch (profileError: any) {
+      } catch (profileError) {
         // Não falha o processo principal - o perfil pode ser criado posteriormente
-        supabaseLogger.warn('PROFILE', 'Não foi possível verificar o perfil, mas signup foi bem-sucedido', profileError);
+        supabaseLogger.warn('PROFILE', 'Não foi possível verificar o perfil, mas signup foi bem-sucedido', { error: String(profileError) });
       }
 
       // Sucesso!
@@ -141,11 +141,11 @@ export function useSupabaseSignup(): UseSupabaseSignupReturn {
       
       return true;
       
-    } catch (error: any) {
-      logSupabaseOperation.auth.error('Erro no signup', error);
+    } catch (error) {
+      logSupabaseOperation.auth.error('Erro no signup', { error: String(error) });
       
       // Tratar erros específicos
-      const errorMessage = error.message || error.toString();
+      const errorMessage = error instanceof Error ? error.message : String(error);
       
       if (errorMessage.includes('EMAIL_ALREADY_EXISTS')) {
         toast({

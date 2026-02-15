@@ -14,7 +14,6 @@ import { CartazItem } from "../hooks/useCartazes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
@@ -95,7 +94,7 @@ export function CartazEditDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -106,7 +105,7 @@ export function CartazEditDialog({
           loading={isUpdating}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="title">Título</Label>
@@ -157,7 +156,7 @@ export function CartazEditDialog({
               </div>
             </div>
           </form>
-        </StandardDialogContent>
+        </div>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

@@ -45,7 +45,7 @@ Deno.serve(async (req: Request) => {
     };
 
     // Helper function to safely update a table
-    const safeUpdate = async (table: string, data: any, column: string, value: string) => {
+    const safeUpdate = async (table: string, data: Record<string, string | null>, column: string, value: string) => {
       try {
         await adminClient.from(table).update(data).eq(column, value);
       } catch (e) {
@@ -70,9 +70,6 @@ Deno.serve(async (req: Request) => {
     await safeDelete("moveis_produto_foco_vendas", "created_by", userId);
     await safeDelete("moveis_tarefas", "criado_por", userId);
     await safeDelete("moveis_descontinuados", "created_by", userId);
-    await safeDelete("venda_o_attachments", "created_by", userId);
-    await safeDelete("venda_o_sales", "created_by", userId);
-    await safeDelete("crediario_listagens", "created_by", userId);
     await safeDelete("crediario_sticky_notes", "created_by", userId);
     await safeDelete("crediario_folgas", "created_by", userId);
     await safeDelete("crediario_folgas", "crediarista_id", userId);
@@ -132,9 +129,10 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Delete error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });

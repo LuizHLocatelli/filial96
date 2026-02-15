@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDialogScroll } from "@/hooks/useDialogScroll";
 import { LucideIcon } from "lucide-react";
 
 interface StandardDialogHeaderProps {
@@ -149,6 +150,12 @@ interface StandardDialogContentProps {
   className?: string;
 }
 
+/**
+ * ⚠️ DEPRECIADO: Este componente tem problemas de scroll no mobile.
+ * Use `<div className="flex-1 overflow-y-auto">` diretamente no lugar deste componente.
+ * 
+ * @deprecated Use div com overflow-y-auto ao invés deste componente
+ */
 export function StandardDialogContent({
   children,
   className,
@@ -158,7 +165,8 @@ export function StandardDialogContent({
   return (
     <div
       className={cn(
-        "flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent",
+        "flex-1 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent",
+        "touch-pan-y select-text",
         isMobile ? "p-4" : "p-6",
         className
       )}

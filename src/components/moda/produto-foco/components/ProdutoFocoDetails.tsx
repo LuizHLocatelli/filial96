@@ -24,10 +24,10 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface ProdutoFocoDetailsProps {
   produto: ProdutoFocoWithImages | null;
@@ -44,12 +44,14 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
   const desconto = ((produto.preco_de - produto.preco_por) / produto.preco_de) * 100;
 
   const handleDownloadImage = async (imageUrl: string, imageName: string) => {
+    let objectUrl: string | null = null;
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       
+      objectUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
+      link.href = objectUrl;
       link.download = `${produto.nome_produto}_${imageName}`;
       document.body.appendChild(link);
       link.click();
@@ -59,6 +61,11 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
     } catch (error) {
       console.error('Erro ao fazer download da imagem:', error);
       toast.error('Erro ao fazer download da imagem');
+    } finally {
+      // Cleanup object URL
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
     }
   };
 
@@ -66,7 +73,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} overflow-hidden max-h-[90vh] flex flex-col`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} max-h-[90vh] overflow-y-auto flex flex-col`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -76,8 +83,8 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
             onClose={onClose}
           />
 
-          <StandardDialogContent className="p-0">
-            <div className="space-y-6 p-4">
+<div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="space-y-6">
               {/* Informações Básicas */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
@@ -227,7 +234,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
                 </div>
               )}
             </div>
-          </StandardDialogContent>
+          </div>
 
           <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
             <Button variant="outline" onClick={onClose} className={isMobile ? 'w-full' : ''}>
@@ -241,7 +248,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
       {imagemSelecionada && (
         <Dialog open={!!imagemSelecionada} onOpenChange={() => setImagemSelecionada(null)}>
           <DialogContent 
-            className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} overflow-hidden`}
+            className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
             hideCloseButton
           >
             <StandardDialogHeader
@@ -252,13 +259,13 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
               onClose={() => setImagemSelecionada(null)}
             />
 
-            <StandardDialogContent className="flex items-center justify-center p-4">
+            <div className="flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-6">
               <img
                 src={imagemSelecionada}
                 alt="Imagem ampliada"
                 className="max-w-full h-auto object-contain"
               />
-            </StandardDialogContent>
+            </div>
 
             <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
               <Button onClick={() => setImagemSelecionada(null)} className={isMobile ? 'w-full' : ''}>

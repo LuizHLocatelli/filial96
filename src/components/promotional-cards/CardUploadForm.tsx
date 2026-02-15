@@ -60,7 +60,6 @@ export function CardUploadForm({
     <form onSubmit={handleSubmit} className="stack-lg lg:grid-responsive-cards lg:gap-8 p-1">
       {/* Coluna da Esquerda: Upload de Imagem */}
       <div className="lg:col-span-1 flex flex-col items-center">
-        <Label className="text-sm font-medium mb-2 self-start w-full">Imagem do Card</Label>
         <CardImageUploader
           previewUrl={previewUrl}
           handleFileChange={handleFileChange}

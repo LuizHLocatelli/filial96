@@ -119,7 +119,7 @@ export function useUserManagement() {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, toast, isManager, setUsers, setFilteredUsers]);
+  }, [isManager, setUsers, setFilteredUsers]);
 
   // Assign the function to ref so it's always current
   useEffect(() => {
@@ -259,6 +259,7 @@ export function useUserManagement() {
     if (isManager) {
       fetchUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isManager]);
 
   return {

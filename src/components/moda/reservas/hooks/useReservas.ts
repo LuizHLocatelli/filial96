@@ -27,9 +27,9 @@ export function useReservas() {
       const data = await fetchReservasApi();
       const typedReservas = processReservaData(data);
       setReservas(typedReservas);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao carregar reservas:', err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
       toast({
         title: "Erro",
         description: "Não foi possível carregar as reservas",
@@ -62,7 +62,7 @@ export function useReservas() {
       });
       await fetchReservas(); // Garante consistência imediata
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao criar reserva:', err);
       toast({
         title: "Erro",
@@ -82,7 +82,7 @@ export function useReservas() {
       });
       await fetchReservas();
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao atualizar reserva:', err);
       toast({
         title: "Erro",
@@ -102,7 +102,7 @@ export function useReservas() {
       });
       await fetchReservas();
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erro ao remover reserva:', err);
       toast({
         title: "Erro",

@@ -157,7 +157,7 @@ export function useEstoquePDFExport() {
             margin: { left: 20, right: 20 }
           });
 
-          yPosition = (doc as any).lastAutoTable.finalY + 15;
+          yPosition = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 15;
         });
       } else {
         // Lista única
@@ -192,7 +192,7 @@ export function useEstoquePDFExport() {
       // Total no final se solicitado
       if (options.includeTotal) {
         const totalUnidades = produtos.reduce((acc, p) => acc + p.quantidade, 0);
-        const currentY = (doc as any).lastAutoTable?.finalY || yPosition;
+        const currentY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || yPosition;
         
         doc.setFontSize(12);
         doc.setFont("helvetica", "bold");

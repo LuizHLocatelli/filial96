@@ -1,17 +1,17 @@
 
 import { useSearchParams } from "react-router-dom";
-import { VendaO } from "@/components/moveis/vendao/VendaO";
 import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
 import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { Fretes } from "@/components/moveis/fretes/Fretes";
+import { ProcedimentosSSC } from "@/components/moveis/procedimentos-ssc/ProcedimentosSSC";
 import {
-  ShoppingCart,
   Sofa,
   Calendar,
   Star,
   Package,
-  Truck
+  Truck,
+  Wrench
 } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -19,20 +19,13 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "vendao";
+  const activeTab = searchParams.get("tab") || "produto-foco";
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
   const tabsConfig = [
-    {
-      value: "vendao",
-      label: "Venda O",
-      icon: ShoppingCart,
-      description: "Vendas de outras filiais",
-      component: <VendaO />
-    },
     {
       value: "produto-foco",
       label: "Produto Foco",
@@ -61,6 +54,14 @@ export default function Moveis() {
       icon: Truck,
       description: "Consulta de valores de frete",
       component: <Fretes />
+    },
+    {
+      value: "procedimentos-ssc",
+      label: "Procedimentos SSC",
+      mobileLabel: "SSC",
+      icon: Wrench,
+      description: "Guia de assistência técnica",
+      component: <ProcedimentosSSC />
     }
   ];
 
@@ -83,7 +84,7 @@ export default function Moveis() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={4}
+        maxColumns={5}
       />
     </PageLayout>
   );

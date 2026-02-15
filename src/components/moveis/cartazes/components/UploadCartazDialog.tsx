@@ -6,7 +6,6 @@ import { UploadCartazForm } from "./UploadCartazForm";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 import { Upload } from "lucide-react";
@@ -38,7 +37,7 @@ export function UploadCartazDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -49,13 +48,13 @@ export function UploadCartazDialog({
           loading={false}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <UploadCartazForm
             folderId={folderId}
             onUploadSuccess={handleUploadSuccess}
             onCancel={handleCancel}
           />
-        </StandardDialogContent>
+        </div>
       </DialogContent>
     </Dialog>
   );

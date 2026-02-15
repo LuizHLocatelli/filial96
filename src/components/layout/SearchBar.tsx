@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useGlobalSearch } from "@/contexts/GlobalSearchContext";
+import { useGlobalSearch } from "@/contexts/globalSearch";
 import { GlobalSearchResults } from "./GlobalSearchResults";
 import { useEffect, useRef } from "react";
 import { useOnClickOutside } from "usehooks-ts";

@@ -3,14 +3,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 // Constantes para tamanhos padronizados de diálogos com 3 breakpoints (mobile, medium, large)
 // Padrão: <768px (mobile) | 768-1024px (medium) | ≥1024px (large)
-// Estrutura corrigida para scroll vertical: flex flex-col com overflow-hidden no container e overflow-y-auto no conteúdo
+// IMPORTANTE: overflow-y-auto deve estar no DialogContent para rolagem funcionar corretamente
 export const DIALOG_SIZES = {
-  small: "sm:max-w-md max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
-  medium: "sm:max-w-2xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
-  default: "max-w-4xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
-  large: "max-w-5xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
-  extraLarge: "max-w-6xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidden flex flex-col",
-  fullscreen: "max-w-none max-h-none w-screen h-screen overflow-hidden flex flex-col"
+  small: "sm:max-w-md max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto flex flex-col",
+  medium: "sm:max-w-2xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto flex flex-col",
+  default: "max-w-4xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto flex flex-col",
+  large: "max-w-5xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto flex flex-col",
+  extraLarge: "max-w-6xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-y-auto flex flex-col",
+  fullscreen: "max-w-none max-h-none w-screen h-screen overflow-y-auto flex flex-col"
 } as const;
 
 // Classe para área de conteúdo scrollável dentro do diálogo
@@ -24,7 +24,7 @@ export function useMobileDialog() {
 
   const getMobileDialogProps = (size: DialogSizeKey = "default", maxHeight?: string) => {
     const baseClasses = isMobile
-      ? `w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] ${maxHeight ? `max-h-[${maxHeight}]` : 'max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh]'} rounded-2xl overflow-hidden flex flex-col p-0`
+      ? `w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] ${maxHeight ? `max-h-[${maxHeight}]` : 'max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh]'} rounded-2xl overflow-y-auto flex flex-col p-0`
       : DIALOG_SIZES[size];
 
     return {

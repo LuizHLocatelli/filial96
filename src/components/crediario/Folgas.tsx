@@ -17,8 +17,9 @@ const crediarioFolgasConfig: UseFolgasConfig = {
 };
 
 // Tipo específico para crediario (renomeado de Consultor)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Crediarista extends Consultor {
-  // pode ter campos adicionais específicos
+  // Pode ter campos adicionais específicos no futuro
 }
 
 export function Folgas() {

@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ptBR } from "date-fns/locale";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 
 // ============================================================================
 // Subcomponente para renderizar um item de depósito
@@ -38,8 +39,10 @@ const DepositoItem = ({
   getStatusBadge: (deposito: Deposito) => React.ReactNode;
   isAfterDeadline: (deposito: Deposito) => boolean;
   handleDeleteConfirm: (depositoId: string) => void;
-  getMobileAlertDialogProps: () => any;
-  getMobileFooterProps: () => any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getMobileAlertDialogProps: () => Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getMobileFooterProps: () => Record<string, any>;
 }) => {
   const handleDeleteTriggerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -256,24 +259,20 @@ export function DepositFormDialog({
   return (
     <>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent {...getMobileDialogProps("default")}>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center">
-                <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <div>Depósito Bancário</div>
-                {selectedDay && (
-                  <div className="text-sm font-normal text-muted-foreground">
-                    {format(selectedDay, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                  </div>
-                )}
-              </div>
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent 
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+          hideCloseButton
+        >
+          <StandardDialogHeader
+            icon={FileText}
+            iconColor="green"
+            title="Depósito Bancário"
+            description={selectedDay ? format(selectedDay, "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : undefined}
+            onClose={() => setOpenDialog(false)}
+            loading={isUploading}
+          />
           
-          <div className="space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             
             {depositosForDay.length > 0 && (
               <div className="space-y-4">
@@ -371,12 +370,12 @@ export function DepositFormDialog({
           </div>
           
           {showForm && (
-            <div {...getMobileFooterProps()}>
+            <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
               <Button 
                 variant="outline" 
                 onClick={() => onCloseDialog ? onCloseDialog() : setOpenDialog(false)}
-                className="px-6"
                 disabled={isUploading}
+                className={isMobile ? 'w-full h-10' : ''}
               >
                 Cancelar
               </Button>
@@ -384,20 +383,21 @@ export function DepositFormDialog({
                 onClick={() => handleSubmit(jaIncluido)} 
                 disabled={!previewUrl || isUploading}
                 variant="success"
+                className={isMobile ? 'w-full h-10' : ''}
               >
                 {isUploading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                    <span>Salvando...</span>
-                  </div>
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Salvando...
+                  </>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4" />
-                    <span>{depositoId ? "Atualizar" : "Registrar"}</span>
-                  </div>
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {depositoId ? "Atualizar" : "Registrar"}
+                  </>
                 )}
               </Button>
-            </div>
+            </StandardDialogFooter>
           )}
         </DialogContent>
       </Dialog>

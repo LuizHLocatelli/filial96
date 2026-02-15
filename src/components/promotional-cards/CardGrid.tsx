@@ -8,7 +8,7 @@ interface CardGridProps {
   cards: CardItem[];
   onDelete: (id: string) => Promise<boolean>;
   onMoveToFolder: (cardId: string, folderId: string | null) => Promise<boolean>;
-  onUpdate: (id: string, updates: any) => void;
+  onUpdate: (id: string, updates: Partial<CardItem>) => void;
   sector: "furniture" | "fashion" | "loan" | "service";
 }
 

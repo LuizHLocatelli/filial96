@@ -5,7 +5,7 @@ import { FileText, FileImage, Download, Eye } from "lucide-react";
 import { CartazItem } from "../hooks/useCartazes";
 import { PDFViewer } from "@/components/ui/pdf-viewer/index";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 
 interface CartazViewDialogProps {
   cartaz: CartazItem;
@@ -28,7 +28,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-5xl p-0'} overflow-hidden max-h-[90vh] flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-5xl p-0'} max-h-[90vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -43,7 +43,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
           onClose={() => onOpenChange(false)}
         />
         
-        <StandardDialogContent className="p-0 overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 overflow-hidden flex-1">
           <div className="bg-muted h-full min-h-[50vh]">
             {cartaz.file_type === 'image' ? (
               <img 
@@ -69,7 +69,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
               </div>
             )}
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

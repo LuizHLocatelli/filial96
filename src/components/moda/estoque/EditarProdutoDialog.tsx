@@ -20,7 +20,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
@@ -190,7 +189,7 @@ export function EditarProdutoDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -202,7 +201,7 @@ export function EditarProdutoDialog({
           loading={loading}
         />
         
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -276,7 +275,7 @@ export function EditarProdutoDialog({
               </div>
             )}
           </form>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

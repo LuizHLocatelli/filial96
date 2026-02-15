@@ -2,11 +2,12 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
+import type { UserProfile } from '@/types/user';
 
 interface UseAuthEffectsProps {
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
-  setProfile: (profile: any) => void;
+  setProfile: (profile: UserProfile | null) => void;
   setIsLoading: (loading: boolean) => void;
   setIsInitialized: (initialized: boolean) => void;
 }

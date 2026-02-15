@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { format, isSameDay, isAfter, setHours, setMinutes, setSeconds } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,8 @@ export function DepositionsCalendar({
 }: DepositionsCalendarProps) {
   const isMobile = useIsMobile();
   
-  // Helper function to get deposit status for a day
-  const getDayStatus = (day: Date) => {
+  // Helper function to get deposit status for a day - memoized
+  const getDayStatus = useCallback((day: Date) => {
     const depositosForDay = depositos.filter(deposito => isSameDay(deposito.data, day));
     const isWeekend = day.getDay() === 0; // Apenas domingo (0) é não obrigatório
     const isToday = isSameDay(day, new Date());
@@ -133,7 +133,7 @@ export function DepositionsCalendar({
       icon: Clock,
       label: 'Incompleto'
     };
-  };
+  }, [depositos, lastResetDate]);
 
   // Calculate monthly stats - use persisted statistics when available
   const monthlyStats = useMemo(() => {
@@ -188,7 +188,7 @@ export function DepositionsCalendar({
       missedDays: 0,
       completion: 0
     };
-  }, [monthStatistics, diasDoMes, depositos, currentMonth, lastResetDate]);
+  }, [monthStatistics, diasDoMes, currentMonth, lastResetDate, getDayStatus]);
 
   const stats = monthlyStats;
 

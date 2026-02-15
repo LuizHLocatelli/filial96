@@ -6,11 +6,13 @@ import { toast } from 'sonner';
 export function useGenericProdutoFocoSales(tableName: string) {
   const { user } = useAuth();
 
-  const registrarVenda = async (dadosVenda: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const registrarVenda = async (dadosVenda: Record<string, any>) => {
     if (!user) return null;
 
     try {
       const { data, error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .from(tableName as any)
         .insert({
           ...dadosVenda,
@@ -33,6 +35,7 @@ export function useGenericProdutoFocoSales(tableName: string) {
   const getVendasPorProduto = async (produtoId: string) => {
     try {
       const { data, error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .from(tableName as any)
         .select('*')
         .eq('produto_foco_id', produtoId)

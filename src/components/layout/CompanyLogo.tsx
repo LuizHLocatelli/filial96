@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useTheme } from "@/contexts/theme";
 
 export function CompanyLogo() {
   const { isDarkMode } = useTheme();

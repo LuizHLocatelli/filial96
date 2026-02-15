@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Paperclip, X, Loader2, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,15 @@ export function ChatInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isRecording, transcript, supported, startRecording, stopRecording } = useVoice();
 
+  // Cleanup object URL quando componente desmontar ou imagem mudar
+  useEffect(() => {
+    return () => {
+      if (selectedImage) {
+        URL.revokeObjectURL(selectedImage);
+      }
+    };
+  }, [selectedImage]);
+
   const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -30,6 +39,11 @@ export function ChatInput({
       return;
     }
 
+    // Revoke URL anterior se existir
+    if (selectedImage) {
+      URL.revokeObjectURL(selectedImage);
+    }
+
     const objectUrl = URL.createObjectURL(file);
     setImageFile(file);
     setSelectedImage(objectUrl);
@@ -37,12 +51,15 @@ export function ChatInput({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }, []);
+  }, [selectedImage]);
 
   const handleRemoveImage = useCallback(() => {
+    if (selectedImage) {
+      URL.revokeObjectURL(selectedImage);
+    }
     setSelectedImage(null);
     setImageFile(null);
-  }, []);
+  }, [selectedImage]);
 
   const handleSend = useCallback(() => {
     if ((!inputMessage.trim() && !imageFile) || disabled) return;

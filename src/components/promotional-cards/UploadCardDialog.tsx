@@ -2,7 +2,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CardUploadForm } from "@/components/promotional-cards/CardUploadForm";
 import { useCardUpload } from "@/hooks/useCardUpload";
 import { ImageUp } from "lucide-react";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -50,9 +50,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`
-          ${isMobile ? 'w-[calc(100%-2rem)] max-w-full' : 'sm:max-w-2xl'}
-        `}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -63,7 +61,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
           onClose={handleCancel}
         />
         
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <CardUploadForm 
             sector={sector}
             title={title}
@@ -84,7 +82,7 @@ export function UploadCardDialog({ open, onOpenChange, sector, folderId, onUploa
             onCancel={handleCancel}
             showActions={false}
           />
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

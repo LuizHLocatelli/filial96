@@ -1,4 +1,4 @@
-import { CalculatorThemeProvider } from "@/components/theme/CalculatorThemeProvider";
+import { CalculatorThemeProvider } from "@/components/theme/calculator-theme";
 import CalculadoraIgreen from "./CalculadoraIgreen";
 
 export default function CalculadoraIgreenWrapper() {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useFileUpload } from '@/hooks/crediario/useFileUpload';
@@ -55,19 +55,25 @@ const mockDepositos: Deposito[] = [
   }
 ];
 
+// Tipo para erros com propriedades comuns
+interface ErrorWithMessage {
+  message?: string;
+  code?: string;
+}
+
 // Função para retry com backoff exponencial
 const retryWithBackoff = async <T>(
   operation: () => Promise<T>,
   maxRetries = 3,
   baseDelay = 1000
 ): Promise<T> => {
-  let lastError: any;
+  let lastError: Error | null = null;
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await operation();
-    } catch (error: any) {
-      lastError = error;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
       
       // Se é o último attempt, rejeita
       if (attempt === maxRetries) {
@@ -75,12 +81,13 @@ const retryWithBackoff = async <T>(
       }
       
       // Verificar se é erro de rede que vale a pena tentar novamente
+      const errorWithMsg = error as ErrorWithMessage;
       const isNetworkError = 
-        error.message?.includes('Failed to fetch') ||
-        error.message?.includes('QUIC_NETWORK_IDLE_TIMEOUT') ||
-        error.message?.includes('ERR_QUIC_PROTOCOL_ERROR') ||
-        error.message?.includes('NetworkError') ||
-        error.code === 'PGRST301'; // Supabase network error
+        errorWithMsg.message?.includes('Failed to fetch') ||
+        errorWithMsg.message?.includes('QUIC_NETWORK_IDLE_TIMEOUT') ||
+        errorWithMsg.message?.includes('ERR_QUIC_PROTOCOL_ERROR') ||
+        errorWithMsg.message?.includes('NetworkError') ||
+        errorWithMsg.code === 'PGRST301'; // Supabase network error
       
       if (!isNetworkError) {
         throw error; // Não tentar novamente para erros não relacionados à rede
@@ -88,7 +95,6 @@ const retryWithBackoff = async <T>(
       
       // Delay exponencial: 1s, 2s, 4s
       const delay = baseDelay * Math.pow(2, attempt);
-      console.log(`🔄 Tentativa ${attempt + 1}/${maxRetries + 1} falhou. Tentando novamente em ${delay}ms...`);
       
       await new Promise(resolve => setTimeout(resolve, delay));
     }
@@ -144,47 +150,37 @@ export function useDepositos() {
   const { toast } = useToast();
   const { uploadFile, isUploading, progress } = useFileUpload();
 
-  const fetchStatistics = async () => {
+  const fetchStatistics = useCallback(async () => {
     // Se o Supabase não está configurado, usar dados mock
     if (!isSupabaseConfigured) {
-      console.log('🔧 Supabase não configurado, usando estatísticas de exemplo...');
       setStatistics([]);
       return;
     }
     
     try {
       const result = await retryWithBackoff(async () => {
-        console.log('📊 Buscando estatísticas...');
-        
         const { data, error } = await createRobustSupabaseQuery()
         .from('crediario_depositos_statistics')
         .select('*')
         .order('month_year', { ascending: false });
 
         if (error) {
-          console.error('❌ Erro na consulta de estatísticas:', error);
+          console.error('Erro na consulta de estatísticas:', error);
           throw error;
         }
 
         return data;
       }, 3, 2000);
 
-      console.log('✅ Estatísticas carregadas com sucesso');
       setStatistics(result || []);
       
-    } catch (error: any) {
-      console.error('❌ Erro ao buscar estatísticas:', error);
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas:', error);
       setStatistics([]);
     }
-  };
-
-  useEffect(() => {
-    fetchDepositos();
-    fetchStatistics();
-    fetchLastResetDate();
   }, []);
 
-  const fetchLastResetDate = async () => {
+  const fetchLastResetDate = useCallback(async () => {
     if (!isSupabaseConfigured) {
       setLastResetDate(null);
       return;
@@ -211,21 +207,20 @@ export function useDepositos() {
       console.error('Erro ao buscar data do último reset:', error);
       setLastResetDate(null);
     }
-  };
+  }, []);
 
-  const fetchDepositos = async () => {
+  const fetchDepositos = useCallback(async () => {
     setIsLoading(true);
     setConnectionStatus('reconnecting');
     
     // Se o Supabase não está configurado, usar dados mock
     if (!isSupabaseConfigured) {
-      console.log('🔧 Supabase não configurado, usando dados de exemplo...');
       setDepositos(mockDepositos);
       setConnectionStatus('online');
       setIsLoading(false);
       
       toast({
-        title: '⚠️ Modo Demonstração',
+        title: 'Modo Demonstração',
         description: 'Supabase não configurado. Usando dados de exemplo.',
         variant: 'default',
         duration: 3000,
@@ -236,61 +231,42 @@ export function useDepositos() {
     
     try {
       const result = await retryWithBackoff(async () => {
-        console.log('🔍 Buscando depósitos...');
-        
         const { data, error } = await createRobustSupabaseQuery()
         .from('crediario_depositos')
         .select('*')
         .order('data', { ascending: false });
 
       if (error) {
-          console.error('❌ Erro na consulta:', error);
+          console.error('Erro na consulta:', error);
         throw error;
       }
 
         return data;
       }, 3, 2000);
 
-      console.log('✅ Depósitos carregados com sucesso');
-
       // Convert string dates to Date objects
-      const formattedData = result.map(item => {
-        console.log('🔄 Convertendo item do banco:', {
-          id: item.id,
-          data_string: item.data,
-          data_converted_OLD: new Date(item.data),
-          data_converted_NEW: parseDateFromDatabase(item.data, item.created_at),
-          data_converted_toString: parseDateFromDatabase(item.data, item.created_at).toString()
-        });
-        
-        return {
-          ...item,
-          data: parseDateFromDatabase(item.data, item.created_at)
-        };
-      });
-
-      console.log('📊 Dados finais formatados:', formattedData.map(item => ({
-        id: item.id,
-        data: item.data,
-        data_toString: item.data.toString()
-      })));
+      const formattedData = (result || []).map(item => ({
+        ...item,
+        data: parseDateFromDatabase(item.data, item.created_at)
+      }));
 
       setDepositos(formattedData);
       setConnectionStatus('online');
       
-    } catch (error: any) {
-      console.error('❌ Erro final ao buscar depósitos:', error);
+    } catch (error) {
+      console.error('Erro ao buscar depósitos:', error);
       setConnectionStatus('offline');
       
       // Mostrar toast com informações detalhadas do erro
-      const errorMessage = error.message?.includes('Failed to fetch') 
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorMessage = errorMsg.includes('Failed to fetch') 
         ? 'Problema de conexão com o servidor. Verifique sua internet.'
-        : error.message?.includes('QUIC') 
+        : errorMsg.includes('QUIC') 
         ? 'Timeout de rede. Tentando reconectar...'
-        : error.message || 'Erro desconhecido';
+        : errorMsg || 'Erro desconhecido';
       
       toast({
-        title: '⚠️ Problema de Conexão',
+        title: 'Problema de Conexão',
         description: errorMessage,
         variant: 'destructive',
         duration: 3000,
@@ -298,14 +274,13 @@ export function useDepositos() {
       
       // Tentar novamente automaticamente após 10 segundos
       setTimeout(() => {
-        console.log('🔄 Tentativa automática de reconexão...');
         fetchDepositos();
       }, 10000);
       
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const addDeposito = async (depositoData: {
     data: Date;
@@ -315,8 +290,6 @@ export function useDepositos() {
   }) => {
     // Se o Supabase não está configurado, usar dados mock
     if (!isSupabaseConfigured) {
-      console.log('🔧 Supabase não configurado, adicionando dados de exemplo...');
-      
       const novoDeposito: Deposito = {
         id: Date.now().toString(),
         data: depositoData.data,
@@ -330,7 +303,7 @@ export function useDepositos() {
       setDepositos(prev => [...prev, novoDeposito]);
       
       toast({
-        title: '✅ Sucesso (Demo)',
+        title: 'Sucesso (Demo)',
         description: 'Depósito adicionado (modo demonstração)',
         duration: 3000,
       });
@@ -355,12 +328,9 @@ export function useDepositos() {
       }
       
       const formattedDate = formatDateForDatabase(depositoData.data);
-      console.log('📅 Data formatada para banco:', formattedDate);
       
       // Inserir depósito no banco com retry
       const data = await retryWithBackoff(async () => {
-        console.log('📝 Inserindo no banco com data:', formattedDate);
-        
         const { data, error } = await createRobustSupabaseQuery()
         .from('crediario_depositos')
         .insert({
@@ -374,19 +344,15 @@ export function useDepositos() {
         .single();
         
       if (error) {
-          console.error('❌ Erro ao inserir:', error);
+          console.error('Erro ao inserir:', error);
         throw error;
       }
 
-        console.log('✅ Dados retornados do banco:', data);
-        
         return data;
       }, 3, 1500);
       
-      console.log('✅ Depósito adicionado com sucesso');
-      
       toast({
-        title: '✅ Sucesso',
+        title: 'Sucesso',
         description: 'Depósito adicionado com sucesso',
         duration: 3000,
       });
@@ -397,22 +363,21 @@ export function useDepositos() {
       // Recalcular estatísticas para o mês do depósito
       try {
         await forceRecalculateStatistics(depositoData.data);
-        console.log('✅ Estatísticas atualizadas automaticamente');
       } catch (error) {
-        console.warn('⚠️ Erro ao atualizar estatísticas automaticamente:', error);
         // Não falhar a operação principal por conta disso
       }
       
       return data;
-    } catch (error: any) {
-      console.error('❌ Erro final ao adicionar depósito:', error);
-      
-      const errorMessage = error.message?.includes('Failed to fetch') 
+    } catch (error) {
+      console.error('Erro ao adicionar depósito:', error);
+
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorMessage = errorMsg.includes('Failed to fetch')
         ? 'Problema de conexão. Depósito não foi salvo.'
-        : error.message || 'Falha ao adicionar depósito';
-      
+        : errorMsg || 'Falha ao adicionar depósito';
+
       toast({
-        title: '❌ Erro',
+        title: 'Erro',
         description: errorMessage,
         variant: 'destructive',
         duration: 3000,
@@ -429,8 +394,6 @@ export function useDepositos() {
   }) => {
     // Se o Supabase não está configurado, simular atualização
     if (!isSupabaseConfigured) {
-      console.log('🔧 Supabase não configurado, simulando atualização...');
-      
       setDepositos(prev => prev.map(dep => 
         dep.id === id 
           ? { 
@@ -444,7 +407,7 @@ export function useDepositos() {
       ));
       
       toast({
-        title: '✅ Sucesso (Demo)',
+        title: 'Sucesso (Demo)',
         description: 'Depósito atualizado (modo demonstração)',
         duration: 3000,
       });
@@ -454,7 +417,8 @@ export function useDepositos() {
     
     try {
       // Convert Date to string for database
-      const formattedUpdates: { [key: string]: any } = { ...updates };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const formattedUpdates: Record<string, any> = { ...updates };
       
       if (updates.data instanceof Date) {
         formattedUpdates.data = formatDateForDatabase(updates.data);
@@ -477,23 +441,19 @@ export function useDepositos() {
       }
       
       await retryWithBackoff(async () => {
-        console.log('📝 Atualizando depósito...');
-        
         const { error } = await createRobustSupabaseQuery()
         .from('crediario_depositos')
         .update(formattedUpdates)
         .eq('id', id);
         
       if (error) {
-          console.error('❌ Erro ao atualizar:', error);
+          console.error('Erro ao atualizar:', error);
         throw error;
       }
       }, 3, 1500);
       
-      console.log('✅ Depósito atualizado com sucesso');
-      
       toast({
-        title: '✅ Sucesso',
+        title: 'Sucesso',
         description: 'Depósito atualizado com sucesso',
         duration: 3000,
       });
@@ -505,21 +465,20 @@ export function useDepositos() {
       if (updates.data) {
         try {
           await forceRecalculateStatistics(updates.data);
-          console.log('✅ Estatísticas atualizadas automaticamente');
         } catch (error) {
-          console.warn('⚠️ Erro ao atualizar estatísticas automaticamente:', error);
           // Não falhar a operação principal por conta disso
         }
       }
-    } catch (error: any) {
-      console.error('❌ Erro final ao atualizar depósito:', error);
-      
-      const errorMessage = error.message?.includes('Failed to fetch') 
+    } catch (error) {
+      console.error('Erro ao atualizar depósito:', error);
+
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorMessage = errorMsg.includes('Failed to fetch')
         ? 'Problema de conexão. Atualização não foi salva.'
-        : error.message || 'Falha ao atualizar depósito';
-      
+        : errorMsg || 'Falha ao atualizar depósito';
+
       toast({
-        title: '❌ Erro',
+        title: 'Erro',
         description: errorMessage,
         variant: 'destructive',
         duration: 3000,
@@ -533,23 +492,19 @@ export function useDepositos() {
       const depositoToDelete = depositos.find(d => d.id === id);
       
       await retryWithBackoff(async () => {
-        console.log('🗑️ Deletando depósito...');
-        
         const { error } = await createRobustSupabaseQuery()
         .from('crediario_depositos')
         .delete()
         .eq('id', id);
         
       if (error) {
-          console.error('❌ Erro ao deletar:', error);
+          console.error('Erro ao deletar:', error);
         throw error;
       }
       }, 3, 1500);
       
-      console.log('✅ Depósito excluído com sucesso');
-      
       toast({
-        title: '✅ Sucesso',
+        title: 'Sucesso',
         description: 'Depósito excluído com sucesso',
         duration: 3000,
       });
@@ -561,21 +516,20 @@ export function useDepositos() {
       if (depositoToDelete) {
         try {
           await forceRecalculateStatistics(depositoToDelete.data);
-          console.log('✅ Estatísticas atualizadas automaticamente');
         } catch (error) {
-          console.warn('⚠️ Erro ao atualizar estatísticas automaticamente:', error);
           // Não falhar a operação principal por conta disso
         }
       }
-    } catch (error: any) {
-      console.error('❌ Erro final ao excluir depósito:', error);
-      
-      const errorMessage = error.message?.includes('Failed to fetch') 
+    } catch (error) {
+      console.error('Erro ao excluir depósito:', error);
+
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorMessage = errorMsg.includes('Failed to fetch')
         ? 'Problema de conexão. Exclusão não foi processada.'
-        : error.message || 'Falha ao excluir depósito';
-      
+        : errorMsg || 'Falha ao excluir depósito';
+
       toast({
-        title: '❌ Erro',
+        title: 'Erro',
         description: errorMessage,
         variant: 'destructive',
         duration: 3000,
@@ -586,12 +540,11 @@ export function useDepositos() {
   const clearAllDepositos = async () => {
     // Se o Supabase não está configurado, simular limpeza
     if (!isSupabaseConfigured) {
-      console.log('🔧 Supabase não configurado, simulando limpeza de todos os depósitos...');
       setDepositos([]);
       setStatistics([]);
       
       toast({
-        title: '✅ Sucesso (Demo)',
+        title: 'Sucesso (Demo)',
         description: 'Todo o histórico de depósitos foi removido (modo demonstração)',
         duration: 3000,
       });
@@ -601,20 +554,16 @@ export function useDepositos() {
     
     try {
       await retryWithBackoff(async () => {
-        console.log('🗑️ Limpando todo o histórico de depósitos...');
-        
         const { error } = await createRobustSupabaseQuery()
           .from('crediario_depositos')
           .delete()
           .neq('id', '00000000-0000-0000-0000-000000000000'); // Deleta todos os registros
         
         if (error) {
-          console.error('❌ Erro ao limpar depósitos:', error);
+          console.error('Erro ao limpar depósitos:', error);
           throw error;
         }
       }, 3, 2000);
-      
-      console.log('✅ Todo o histórico de depósitos foi removido');
       
       // Limpar estatísticas também
       await retryWithBackoff(async () => {
@@ -624,7 +573,7 @@ export function useDepositos() {
           .neq('id', '00000000-0000-0000-0000-000000000000');
         
         if (error) {
-          console.error('❌ Erro ao limpar estatísticas:', error);
+          console.error('Erro ao limpar estatísticas:', error);
           throw error;
         }
       }, 3, 2000);
@@ -638,7 +587,7 @@ export function useDepositos() {
           });
         
         if (error) {
-          console.error('❌ Erro ao registrar data do reset:', error);
+          console.error('Erro ao registrar data do reset:', error);
           throw error;
         }
       }, 3, 2000);
@@ -649,26 +598,27 @@ export function useDepositos() {
       await fetchLastResetDate();
       
       toast({
-        title: '✅ Sucesso',
+        title: 'Sucesso',
         description: 'Todo o histórico de depósitos foi removido com sucesso',
         duration: 3000,
       });
       
       return true;
-    } catch (error: any) {
-      console.error('❌ Erro ao limpar histórico de depósitos:', error);
-      
-      const errorMessage = error.message?.includes('Failed to fetch') 
+    } catch (error) {
+      console.error('Erro ao limpar histórico de depósitos:', error);
+
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const errorMessage = errorMsg.includes('Failed to fetch')
         ? 'Problema de conexão. Limpeza não foi processada.'
-        : error.message || 'Falha ao limpar histórico de depósitos';
-      
+        : errorMsg || 'Falha ao limpar histórico de depósitos';
+
       toast({
-        title: '❌ Erro',
+        title: 'Erro',
         description: errorMessage,
         variant: 'destructive',
         duration: 3000,
       });
-      
+
       return false;
     }
   };
@@ -736,8 +686,6 @@ export function useDepositos() {
       const monthStart = formatDateForDatabase(new Date(month.getFullYear(), month.getMonth(), 1));
       
       await retryWithBackoff(async () => {
-        console.log('🔄 Recalculando estatísticas para:', monthStart);
-        
         const { error } = await createRobustSupabaseQuery()
         .rpc('calculate_deposit_statistics', {
           target_user_id: (await supabase.auth.getUser()).data.user?.id,
@@ -745,33 +693,38 @@ export function useDepositos() {
         });
 
         if (error) {
-          console.error('❌ Erro ao recalcular estatísticas:', error);
+          console.error('Erro ao recalcular estatísticas:', error);
           throw error;
         }
       }, 3, 2000);
-      
-      console.log('✅ Estatísticas recalculadas com sucesso');
       
       // Recarregar estatísticas
       await fetchStatistics();
       
       toast({
-        title: '✅ Estatísticas Atualizadas',
+        title: 'Estatísticas Atualizadas',
         description: 'Estatísticas recalculadas com sucesso',
         duration: 3000,
       });
       
-    } catch (error: any) {
-      console.error('❌ Erro ao forçar recálculo:', error);
-      
+    } catch (error) {
+      console.error('Erro ao forçar recálculo:', error);
+
       toast({
-        title: '❌ Erro',
+        title: 'Erro',
         description: 'Falha ao recalcular estatísticas',
         variant: 'destructive',
         duration: 3000,
       });
     }
   };
+
+  // Effect para carregar dados iniciais
+  useEffect(() => {
+    fetchDepositos();
+    fetchStatistics();
+    fetchLastResetDate();
+  }, [fetchDepositos, fetchStatistics, fetchLastResetDate]);
 
   return {
     depositos,

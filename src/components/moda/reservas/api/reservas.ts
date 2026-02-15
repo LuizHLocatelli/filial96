@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { ReservaFormData, ModaReserva } from '../types';
+import { ReservaFormData, ModaReserva, ProdutoReserva } from '../types';
 
 export const fetchReservasApi = async () => {
   const { data, error } = await supabase
@@ -25,7 +25,7 @@ export const createReservaApi = async (formData: ReservaFormData, userId: string
   }
   
   const insertData = {
-    produtos: formData.produtos as any,
+    produtos: formData.produtos as ProdutoReserva[],
     cliente_nome: formData.cliente_nome,
     cliente_cpf: formData.cliente_cpf,
     cliente_vip: formData.cliente_vip,
@@ -39,13 +39,14 @@ export const createReservaApi = async (formData: ReservaFormData, userId: string
 
   const { error } = await supabase
     .from('moda_reservas')
-    .insert(insertData);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(insertData as any);
 
   if (error) throw error;
 };
 
 export const updateReservaStatusApi = async (id: string, status: ModaReserva['status'], venda_id?: string) => {
-  const updateData: any = { status };
+  const updateData: Record<string, unknown> & { status: typeof status; venda_id?: string } = { status };
   if (venda_id) updateData.venda_id = venda_id;
 
   const { error } = await supabase

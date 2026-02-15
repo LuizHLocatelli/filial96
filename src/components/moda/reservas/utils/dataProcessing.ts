@@ -1,9 +1,22 @@
 
 import { ModaReserva } from '../types';
 
-export const processReservaData = (data: any[]): ModaReserva[] => {
+export interface ReservaData {
+  produtos?: Array<Record<string, unknown>>;
+  produto_nome?: string;
+  produto_codigo?: string;
+  tamanho?: string;
+  quantidade?: number;
+  cliente_vip?: boolean;
+  forma_pagamento?: string;
+  status?: string;
+  id: string;
+  created_at: string;
+}
+
+export const processReservaData = (data: ReservaData[]): ModaReserva[] => {
   // Converte o formato antigo de produto único para o novo formato de múltiplos produtos
-  return (data || []).map((reserva: any) => {
+  return (data || []).map((reserva) => {
     let produtos;
     
     // Verifica se o campo produtos existe (novo formato)

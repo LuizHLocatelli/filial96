@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 
 export interface KeyboardShortcut {
   key: string;
@@ -21,8 +21,8 @@ export function useKeyboardShortcuts(
   handlers: HubKeyboardShortcuts,
   enabled: boolean = true
 ) {
-  // Definir os atalhos de teclado
-  const shortcuts: KeyboardShortcut[] = [
+  // Definir os atalhos de teclado - memoizado para evitar re-criação em cada render
+  const shortcuts = useMemo<KeyboardShortcut[]>(() => [
     {
       key: 'f',
       ctrl: true,
@@ -52,7 +52,7 @@ export function useKeyboardShortcuts(
       action: handlers.onExportData,
       description: 'Exportar'
     }
-  ];
+  ], [handlers]);
 
   // Verificar se uma combinação de teclas corresponde a um atalho
   const matchesShortcut = useCallback((event: KeyboardEvent, shortcut: KeyboardShortcut) => {

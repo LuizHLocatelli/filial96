@@ -214,6 +214,24 @@ Required environment variables:
 
 This project uses a standardized dialog pattern based on the "Assistentes de IA" dialogs. All dialogs should follow this structure for consistency:
 
+### ⚠️ IMPORTANTE: Problema de Scroll Corrigido
+
+**Problema**: As dialogs não permitiam rolagem vertical no mobile/devido a incompatibilidades com Radix UI Dialog + CSS.
+
+**Solução**: Usar um `<div>` simples com `overflow-y-auto` ao invés do `StandardDialogContent` para conteúdo rolável:
+
+```tsx
+// ❌ NÃO USE (não funciona corretamente no mobile)
+<StandardDialogContent>
+  <FormContent />
+</StandardDialogContent>
+
+// ✅ USE ASSIM (funciona perfeitamente)
+<div className="flex-1 overflow-y-auto">
+  <FormContent />
+</div>
+```
+
 ### StandardDialog Components
 
 Use the reusable components from `@/components/ui/standard-dialog`:
@@ -221,25 +239,27 @@ Use the reusable components from `@/components/ui/standard-dialog`:
 ```typescript
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+// Note: StandardDialogContent está com problemas de scroll
 ```
 
 ### Dialog Structure
 
 Every dialog should follow this 3-part structure:
 
-1. **Header** - With gradient background, icon, title, and close button
-2. **Content** - Scrollable area with form/content
-3. **Footer** - Fixed at bottom with action buttons
+1. **Header** - With gradient background, icon, title, and close button (use `StandardDialogHeader`)
+2. **Content** - Scrollable area with form/content (use `<div className="flex-1 overflow-y-auto">`)
+3. **Footer** - Fixed at bottom with action buttons (use `StandardDialogFooter`)
 
-### Example Usage
+### Example Usage (Correto)
+
+**IMPORTANTE**: O `DialogContent` deve ter `overflow-y-auto` para funcionar corretamente:
 
 ```tsx
 <Dialog open={open} onOpenChange={onOpenChange}>
   <DialogContent
-    className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+    className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
     hideCloseButton
   >
     <StandardDialogHeader
@@ -251,9 +271,10 @@ Every dialog should follow this 3-part structure:
       loading={loading}
     />
 
-    <StandardDialogContent>
-      {/* Form content goes here */}
-    </StandardDialogContent>
+    {/* ⚠️ Use div com overflow-y-auto para conteúdo rolável */}
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <FormContent />
+    </div>
 
     <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
       <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -267,9 +288,60 @@ Every dialog should follow this 3-part structure:
 </Dialog>
 ```
 
+### ⚠️ IMPORTANTE: Padding Obrigatório no Conteúdo
+
+**Problema comum**: O conteúdo interno da dialog estava grudado nas bordas, sem espaçamento adequado.
+
+**Solução**: A `<div>` com `flex-1 overflow-y-auto` **DEVE** ter padding `p-4 sm:p-6`:
+
+```tsx
+// ❌ INCORRETO - Sem padding, conteúdo grudado nas bordas
+<div className="flex-1 overflow-y-auto">
+  <form>...</form>
+</div>
+
+// ✅ CORRETO - Com padding adequado
+<div className="flex-1 overflow-y-auto p-4 sm:p-6">
+  <form>...</form>
+</div>
+```
+
+**Por que isso é necessário:**
+- O `DialogContent` usa `p-0` (sem padding) para permitir que o header e footer ocupem toda a largura
+- O padding deve ser aplicado **apenas** na div de conteúdo interna
+- `p-4` para mobile (16px) e `p-6` para desktop (24px) segue o padrão do projeto
+- Isso garante consistência visual em todas as dialogs do sistema
+
+**Arquivos corrigidos em 15/02/2026:**
+- `NovaContagemDialog`, `EditarNomeContagemDialog`, `PDFExportEstoqueDialog` (moda/estoque)
+- `AddProdutoDialog`, `AddFolgaDialog`, `RegistroVendaDialog` (moveis/)
+- `UploadCartazDialog`, `CreateFolderDialog`, `CartazEditDialog`, `CartazDeleteDialog` (moveis/cartazes)
+- `CardEditDialog`, `CardViewDialog`, `CardDeleteDialog` (promotional-cards/card/)
+- `CardViewDialog`, `CardDeleteDialog`, `EditFolderDialog`, `CardEditDialog`, `CreateFolderDialog`, `DeleteFolderDialog` (promotional-cards/)
+- `UploadCurriculoDialog`, `DeleteCurriculoDialog` (curriculos/)
+- `AddFolgaDialog` (shared/folgas/)
+- `RegistrarVendaDialog`, `ConfirmDeleteDialog` (moda/produto-foco/)
+- `AddReservaDialog`, `EditReservaDialog` (moda/reservas/)
+- `FileDialog`, `DeleteFileDialog`, `CategoryDialog` (crediario/diretorio/)
+- `DeleteChatbotDialog` (assistentes-ai/)
+- `CalculadoraIgreen` (pages/)
+- `UploadCardDialog` (promotional-cards/)
+- `ImagePreviewDialog` (crediario/folgas/, crediario/depositos/)
+- `ProdutoFocoDetails` (moda/produto-foco/, moveis/produto-foco/)
+- `DepositFormDialog` (crediario/depositos/)
+- `EditarProdutoDialog` (moda/estoque/)
+- `ProdutoFoco` (moveis/, moda/)
+- `AdminProcedimentosButton` (ssc/)
+- `Reservas` (moda/)
+- `FileViewer` (crediario/diretorio/)
+- `CartazViewDialog` (moveis/cartazes/)
+- `CurriculoViewDialog` (curriculos/)
+
 ### Key Features
 
 - **Responsive**: Automatically adjusts padding and layout for mobile/desktop
+- **Scroll Fix**: Use `max-h-[85vh] overflow-y-auto` no DialogContent para rolagem funcionar
+- **Content Scroll**: Use `<div className="flex-1 overflow-y-auto">` para conteúdo rolável interno
 - **Gradient Header**: `bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5`
 - **Icon Colors**: Support for primary, red (delete), amber (warning), blue (info), green (success)
 - **Mobile-First**: Uses `useIsMobile()` hook for conditional styling
@@ -280,12 +352,244 @@ Every dialog should follow this 3-part structure:
 When updating existing dialogs:
 
 1. Replace custom header markup with `<StandardDialogHeader />`
-2. Wrap content in `<StandardDialogContent />`
+2. **Replace `StandardDialogContent` with `<div className="flex-1 overflow-y-auto">`**
 3. Replace custom footer with `<StandardDialogFooter />`
 4. Add `hideCloseButton` to `DialogContent`
-5. Remove padding classes from `DialogContent` (handled by standard components)
+5. **IMPORTANTE**: Ensure `DialogContent` tem `max-h-[85vh] overflow-y-auto flex flex-col`
+6. Remove padding classes from `DialogContent` (handled by standard components)
 
 Reference implementations:
+- `src/components/moveis/produto-foco/ProdutoFoco.tsx`
 - `src/components/assistentes-ai/dialogs/CreateChatbotDialog.tsx`
 - `src/components/assistentes-ai/dialogs/EditChatbotDialog.tsx`
 - `src/components/assistentes-ai/dialogs/DeleteChatbotDialog.tsx`
+
+## Code Modularization Standards
+
+### Fast Refresh Compliance
+
+To ensure React Fast Refresh works correctly and avoid ESLint warnings (`react-refresh/only-export-components`), follow these modularization patterns:
+
+#### Pattern 1: Separate Hooks from Components
+
+**❌ INCORRECT** - Mixing hooks and components in the same file:
+```tsx
+// LoadingStates.tsx
+export function LoadingSpinner() { ... }
+export function useOnlineStatus() { ... }  // Hook mixed with component
+```
+
+**✅ CORRECT** - Separate files:
+```
+components/crediario/depositos/
+├── LoadingStates.tsx          # Only exports components
+├── hooks/
+│   └── useOnlineStatus.ts     # Only exports hooks
+```
+
+#### Pattern 2: Context Modularization
+
+**Structure for Contexts:**
+```
+src/contexts/Auth/
+├── index.ts          # Public API exports
+├── types.ts          # TypeScript interfaces
+├── AuthContext.tsx   # Context creation
+├── AuthProvider.tsx  # Provider component
+└── useAuth.ts        # Hook for consumers
+```
+
+**Example Implementation:**
+
+`src/contexts/Auth/types.ts`:
+```typescript
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => void;
+}
+```
+
+`src/contexts/Auth/AuthContext.tsx`:
+```typescript
+import { createContext } from 'react';
+import { AuthContextType } from './types';
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+```
+
+`src/contexts/Auth/AuthProvider.tsx`:
+```typescript
+import { useState, useCallback } from 'react';
+import { AuthContext } from './AuthContext';
+import { User } from './types';
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  
+  const signIn = useCallback(async (email: string, password: string) => {
+    // Implementation
+  }, []);
+  
+  const signOut = useCallback(() => {
+    setUser(null);
+  }, []);
+  
+  return (
+    <AuthContext.Provider value={{ user, isLoading: false, signIn, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+```
+
+`src/contexts/Auth/useAuth.ts`:
+```typescript
+import { useContext } from 'react';
+import { AuthContext } from './AuthContext';
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+```
+
+`src/contexts/Auth/index.ts`:
+```typescript
+export { AuthProvider } from './AuthProvider';
+export { useAuth } from './useAuth';
+export type { User, AuthContextType } from './types';
+```
+
+#### Pattern 3: UI Component Modularization
+
+For shadcn/ui components that export both components and utilities:
+
+**Structure:**
+```
+src/components/ui/button/
+├── index.ts           # Public exports
+├── Button.tsx         # Component only
+├── buttonVariants.ts  # Utility function
+└── types.ts           # Shared types
+```
+
+**Example:**
+
+`src/components/ui/button/types.ts`:
+```typescript
+import { VariantProps } from 'class-variance-authority';
+import { buttonVariants } from './buttonVariants';
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+```
+
+`src/components/ui/button/buttonVariants.ts`:
+```typescript
+import { cva } from 'class-variance-authority';
+
+export const buttonVariants = cva(
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap ...',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        // ... more variants
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-9 px-3',
+        lg: 'h-11 px-8',
+        icon: 'h-10 w-10',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+```
+
+`src/components/ui/button/Button.tsx`:
+```typescript
+import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from './buttonVariants';
+import { ButtonProps } from './types';
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+Button.displayName = 'Button';
+
+export { Button };
+```
+
+`src/components/ui/button/index.ts`:
+```typescript
+export { Button } from './Button';
+export { buttonVariants } from './buttonVariants';
+export type { ButtonProps } from './types';
+```
+
+### Migration Checklist
+
+When modularizing a file:
+
+- [ ] Create new directory structure following patterns above
+- [ ] Move types to `types.ts`
+- [ ] Move hooks to `hooks/` subdirectory or separate file
+- [ ] Move utility functions to separate file
+- [ ] Keep only component exports in main file
+- [ ] Update all imports across the codebase
+- [ ] Run `npm run lint` to verify Fast Refresh compliance
+- [ ] Run `npm run build` to ensure no broken imports
+- [ ] Test the application manually
+
+### Import Path Updates
+
+When moving files, update imports using path aliases:
+
+**Before:**
+```typescript
+import { useAuth } from '@/contexts/auth';
+```
+
+**After (modularized):**
+```typescript
+import { useAuth } from '@/contexts/Auth';  // Now uses index.ts
+```
+
+### Benefits of Modularization
+
+1. **Fast Refresh**: Hot reload works correctly during development
+2. **Tree Shaking**: Smaller bundle sizes in production
+3. **Maintainability**: Clear separation of concerns
+4. **Testability**: Easier to test isolated units
+5. **Code Splitting**: Better opportunities for lazy loading

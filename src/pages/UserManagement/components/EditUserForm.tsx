@@ -13,7 +13,7 @@ import {
 import { UserWithStats } from '../types';
 import type { UserRole } from '@/types';
 import { roleLabels, roleColors } from '../types';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getInitials } from '../utils';
 
@@ -72,7 +72,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
         loading={isLoading}
       />
 
-      <StandardDialogContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
+      <div className={`flex-1 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
         <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Avatar Preview */}
         <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">
@@ -169,7 +169,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
           />
         </div>
       </form>
-      </StandardDialogContent>
+      </div>
 
       <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
         <Button 

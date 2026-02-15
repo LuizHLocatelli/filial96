@@ -5,7 +5,7 @@ import { DirectoryFile } from '../types';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { PDFViewer } from '@/components/ui/pdf-viewer/index';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface FileViewerProps {
   open: boolean;
@@ -29,7 +29,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} overflow-hidden max-h-[90vh] flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} max-h-[90vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -40,7 +40,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
           onClose={() => onOpenChange(false)}
         />
         
-        <StandardDialogContent className="p-0">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-0">
             {isPdf && (
               <div className="w-full h-[60vh]">
@@ -77,7 +77,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
               </div>
             )}
           </div>
-        </StandardDialogContent>
+        </div>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

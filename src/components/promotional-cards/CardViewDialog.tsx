@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Eye, Copy } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 
 interface FolderItem {
   id: string;
@@ -46,7 +46,7 @@ export function CardViewDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -57,7 +57,7 @@ export function CardViewDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-4">
             <div className="aspect-video relative overflow-hidden rounded-lg">
               <img
@@ -101,7 +101,7 @@ export function CardViewDialog({
               </div>
             )}
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

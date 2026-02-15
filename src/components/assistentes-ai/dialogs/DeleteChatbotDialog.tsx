@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Chatbot } from '../types';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface DeleteChatbotDialogProps {
   open: boolean;
@@ -57,7 +57,7 @@ export function DeleteChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[420px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[420px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -68,7 +68,7 @@ export function DeleteChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: 
           loading={loading}
         />
 
-        <StandardDialogContent className="space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <div className={`flex items-center gap-3 ${isMobile ? 'p-3' : 'p-4'} rounded-xl bg-muted/50`}>
             <div className={`${isMobile ? 'p-2' : 'p-3'} rounded-xl bg-primary/10 shrink-0`}>
               <Bot className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-primary`} />
@@ -89,7 +89,7 @@ export function DeleteChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: 
           >
             Tem certeza que deseja excluir este assistente? Esta ação não pode ser desfeita.
           </DialogDescription>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter
           className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}

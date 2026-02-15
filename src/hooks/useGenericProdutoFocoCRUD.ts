@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth';
@@ -15,7 +15,7 @@ export function useGenericProdutoFocoCRUD(
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -25,9 +25,9 @@ export function useGenericProdutoFocoCRUD(
 
       if (error) throw error;
       setItems(data as ProdutoFoco[]);
-    } catch (err: any) {
+    } catch (err) {
       console.error(`Erro ao carregar ${tableName}:`, err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
       toast({
         title: "Erro",
         description: `Não foi possível carregar os produtos em foco`,
@@ -36,7 +36,7 @@ export function useGenericProdutoFocoCRUD(
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [tableName, toast]);
 
   const createProduto = async (dadosProduto: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<ProdutoFoco | null> => {
     if (!user) return null;
@@ -99,7 +99,7 @@ export function useGenericProdutoFocoCRUD(
 
   useEffect(() => {
     fetchItems();
-  }, [tableName]);
+  }, [fetchItems, tableName]);
 
   return {
     items,

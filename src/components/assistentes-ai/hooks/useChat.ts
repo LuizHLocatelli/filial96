@@ -279,7 +279,8 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
   const sendMessageToWebhook = useCallback(async (
     message: string, 
     imageFile?: File, 
-    attempt: number = 1
+    attempt: number = 1,
+    abortSignal?: AbortSignal
   ): Promise<{ text: string; videoUrl?: string; legendas?: LegendasResponse; generateVideo?: boolean; videoError?: string }> => {
     const cacheKey = getCacheKey(message, !!imageFile);
 
@@ -296,6 +297,11 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
       const controller = new AbortController();
       // Timeout de 10 minutos para o Veo 3.1 Fast gerar o vídeo
       const timeoutId = setTimeout(() => controller.abort(), 600000);
+
+      // Listen to external abort signal
+      if (abortSignal) {
+        abortSignal.addEventListener('abort', () => controller.abort());
+      }
 
       const formData = new FormData();
       formData.append('message', message);
@@ -318,16 +324,8 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
       if (!response.ok) throw new Error(`Status: ${response.status}`);
 
       const data: WebhookResponse = await response.json();
-      console.log('[Webhook Response] Raw data:', data);
       
       const parsed = parseWebhookResponse(data);
-      console.log('[Webhook Response] Parsed:', {
-        text: parsed.text?.substring(0, 100),
-        hasVideoUrl: !!parsed.videoUrl,
-        generateVideo: parsed.generateVideo,
-        hasLegendas: !!parsed.legendas,
-        hasVideoError: !!parsed.videoError
-      });
 
       // Ativa loading de vídeo apenas se deve gerar vídeo mas ainda não tem URL
       if (parsed.generateVideo && !parsed.videoUrl && !parsed.videoError) {
@@ -347,20 +345,14 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
       return parsed;
     } catch (err) {
       setIsVideoLoading(false);
-      console.error('[Webhook Error] Attempt:', attempt, '- Error:', err);
-      console.error('[Webhook Error] Details:', {
-        message,
-        chatbotId: chatbot.id,
-        hasImage: !!imageFile,
-        webhookUrl: chatbot.webhook_url
-      });
-      if (attempt < 3) {
-        console.log('[Webhook] Retrying attempt:', attempt + 1);
+      if (attempt < 3 && !(err instanceof Error && err.name === 'AbortError')) {
         await new Promise(r => setTimeout(r, 1000 * attempt));
-        return sendMessageToWebhook(message, imageFile, attempt + 1);
+        return sendMessageToWebhook(message, imageFile, attempt + 1, abortSignal);
       }
       throw new Error('Conexão falhou. Verifique sua internet ou tente mais tarde.');
     }
+    // parseWebhookResponse não precisa ser dependência pois é definida no mesmo escopo e não depende de valores externos
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatbot.id, chatbot.webhook_url, conversationId, getCacheKey, responseCache, user?.id]);
 
   const sendMessage = useCallback(async (content: string, imageFile?: File) => {
@@ -369,11 +361,17 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
     setError(null);
     setLoading(true);
 
+    // Criar URL da imagem e armazenar para cleanup
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      imageUrl = URL.createObjectURL(imageFile);
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
       content: content.trim(),
-      imageUrl: imageFile ? URL.createObjectURL(imageFile) : undefined,
+      imageUrl,
       timestamp: new Date().toISOString(),
       status: 'sent'
     };
@@ -381,8 +379,11 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
 
+    // AbortController para cancelar requisição se necessário
+    const abortController = new AbortController();
+
     try {
-      const botResponse = await sendMessageToWebhook(userMessage.content, imageFile);
+      const botResponse = await sendMessageToWebhook(userMessage.content, imageFile, 1, abortController.signal);
 
       // Determina se deve mostrar loading de vídeo
       // Mostra loading se: deve gerar vídeo (generateVideo=true) AND não tem URL ainda AND não tem erro
@@ -418,14 +419,6 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
 
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro inesperado.';
-      console.error('[Send Message Error]', err);
-      console.error('[Send Message Error] Context:', {
-        message: content,
-        chatbotId: chatbot.id,
-        conversationId,
-        userId: user?.id,
-        errorMessage: errorMsg
-      });
       setError(errorMsg);
       setIsVideoLoading(false);
 
@@ -440,8 +433,14 @@ export function useChat(chatbot: Chatbot): UseChatReturn {
       setMessages(finalMessages);
       await saveConversation(finalMessages);
       setLoading(false);
+    } finally {
+      // Cleanup da URL da imagem
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
     }
   }, [messages, saveConversation, sendMessageToWebhook, streamText]);
+  // chatbot.id, conversationId e user?.id são usados internamente em sendMessageToWebhook
 
   const retryMessage = useCallback(() => {
     const lastUserMessage = [...messages].reverse().find(m => m.type === 'user');

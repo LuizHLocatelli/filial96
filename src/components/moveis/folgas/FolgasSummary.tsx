@@ -13,6 +13,7 @@ interface FolgasSummaryProps {
   folgas: Folga[];
   isLoading: boolean;
   currentMonth: Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConsultorById: (id: string) => any;
 }
 

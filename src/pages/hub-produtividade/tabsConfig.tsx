@@ -4,6 +4,7 @@ import {
   FileText
 } from "lucide-react";
 import { lazy } from "react";
+import type { HubHandlers } from "@/components/moveis/hub-produtividade/types/hubTypes";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
 const AssistentesAI = lazy(() => import("@/components/assistentes-ai/AssistentesAI"));
@@ -11,7 +12,7 @@ const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 
 interface TabsConfigProps {
   isLoading: boolean;
-  handlers: any;
+  handlers: HubHandlers;
   isManager?: boolean;
 }
 

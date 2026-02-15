@@ -60,11 +60,11 @@ export function PasswordForm() {
         description: "Sua senha foi alterada com sucesso.",
       });
       form.reset();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Erro ao atualizar senha",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao atualizar sua senha.",
       });
     } finally {
       setLoading(false);

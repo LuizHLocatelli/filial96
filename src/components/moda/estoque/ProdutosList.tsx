@@ -82,6 +82,7 @@ export function ProdutosList({
 
   useEffect(() => {
     carregarProdutos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contagemId]);
 
   const carregarProdutos = async () => {

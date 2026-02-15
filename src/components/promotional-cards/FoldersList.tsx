@@ -33,6 +33,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
 
   useEffect(() => {
     refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sector]);
 
   const refetch = async () => {

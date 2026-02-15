@@ -130,7 +130,7 @@ export function DepositAnalytics({ depositos, currentMonth, monthStatistics }: D
     // Streak atual (dias consecutivos)
     const calculateCurrentStreak = () => {
       let streak = 0;
-      let checkDate = new Date(today);
+      const checkDate = new Date(today);
       
       // Se hoje é domingo, começar no sábado
       while (checkDate.getDay() === 0) {

@@ -10,7 +10,7 @@ import { ModaReserva, ProdutoReserva } from "../types";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, Trash2, Plus, Crown, Edit, Loader2 } from "lucide-react";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EditReservaDialogProps {
@@ -42,6 +42,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
       const { error } = await supabase
         .from('moda_reservas')
         .update({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           produtos: formData.produtos as any,
           cliente_nome: formData.cliente_nome,
           cliente_cpf: formData.cliente_cpf,
@@ -61,7 +62,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
       
       onSuccess();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro ao atualizar reserva:', error);
       toast({
         title: "Erro",
@@ -109,7 +110,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
       <DialogContent 
         className={`
           ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'}
-          overflow-hidden max-h-[85vh]
+          max-h-[85vh] overflow-y-auto flex flex-col
         `}
         hideCloseButton
       >
@@ -120,7 +121,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
           onClose={() => onOpenChange(false)}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Produtos */}
             <div className="space-y-4">
@@ -240,7 +241,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
               <Label>Forma de Pagamento *</Label>
               <Select 
                 value={formData.forma_pagamento} 
-                onValueChange={(value: any) => setFormData(prev => ({ ...prev, forma_pagamento: value }))}
+                onValueChange={(value: ModaReserva['forma_pagamento']) => setFormData(prev => ({ ...prev, forma_pagamento: value }))}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -265,7 +266,7 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
               />
             </div>
           </form>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-import { useGlobalSearch } from "@/contexts/GlobalSearchContext";
+import { useGlobalSearch } from "@/contexts/globalSearch";
 import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
@@ -27,7 +27,7 @@ import {
   List
 } from "lucide-react";
 
-const iconMap = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
   Sofa,
   FileText,
@@ -49,7 +49,7 @@ const iconMap = {
   Clock,
   Shirt,
   List
-} as any;
+};
 
 interface GlobalSearchResultsProps {
   onResultClick?: () => void;

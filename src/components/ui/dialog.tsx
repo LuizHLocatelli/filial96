@@ -20,7 +20,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 overflow-y-auto grid place-items-center",
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 grid place-items-center",
       className
     )}
     {...props}
@@ -45,9 +45,13 @@ const DialogContent = React.forwardRef<
             isMobile
               ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-3xl my-4"
               : "rounded-2xl my-6",
-            "max-h-[calc(100vh-2rem)] overflow-hidden",
+            "max-h-[calc(100vh-2rem)] flex flex-col touch-pan-y overflow-hidden",
             className
           )}
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain'
+          }}
           {...props}
         >
           {children}

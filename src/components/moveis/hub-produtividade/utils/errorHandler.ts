@@ -4,11 +4,11 @@ import { toast } from "@/hooks/use-toast";
 export interface ErrorHandlerOptions {
   showToast?: boolean;
   fallbackMessage?: string;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 }
 
 export function handleError(
-  error: any, 
+  error: unknown, 
   operation: string, 
   options: ErrorHandlerOptions = {}
 ) {
@@ -20,7 +20,7 @@ export function handleError(
 
   console.error(`❌ Erro em ${operation}:`, error);
   
-  const errorMessage = error?.message || fallbackMessage;
+  const errorMessage = error instanceof Error ? error.message : fallbackMessage;
   
   if (showToast) {
     toast({
@@ -34,7 +34,7 @@ export function handleError(
   return errorMessage;
 }
 
-export function withErrorHandling<T extends any[], R>(
+export function withErrorHandling<T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   operation: string,
   options?: ErrorHandlerOptions

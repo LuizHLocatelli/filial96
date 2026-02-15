@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { UserWithStats } from '../types';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getInitials } from '../utils';
 
@@ -140,7 +140,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
         loading={isLoading}
       />
 
-      <StandardDialogContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
+      <div className={`flex-1 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Preview */}
         <div className="flex items-center gap-4 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
@@ -259,7 +259,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
           Gerar Senha Segura
         </Button>
       </form>
-      </StandardDialogContent>
+      </div>
 
       <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
         <Button 

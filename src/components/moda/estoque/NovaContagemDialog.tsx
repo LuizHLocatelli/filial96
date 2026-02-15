@@ -17,7 +17,6 @@ import { Package, User, Baby } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
@@ -69,7 +68,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -81,7 +80,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
           loading={loading}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="space-y-2 sm:space-y-3">
               <Label htmlFor="nome" className="text-sm font-medium">Nome da Contagem *</Label>
@@ -128,7 +127,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
               </p>
             </div>
           </form>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

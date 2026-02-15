@@ -71,12 +71,13 @@ export function useFileUpload() {
       });
       
       return fileData;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro detalhado ao adicionar arquivo:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Ocorreu um erro ao adicionar o arquivo.';
       
       toast({
         title: 'Erro ao fazer upload',
-        description: error.message || 'Ocorreu um erro ao adicionar o arquivo.',
+        description: errorMsg,
         variant: 'destructive',
       });
       

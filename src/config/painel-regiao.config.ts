@@ -3,7 +3,6 @@ import {
   BarChart3,
   Video,
   Calculator,
-  AlertCircle,
   FileText,
 } from "lucide-react";
 import { PainelConfig } from "@/types/painel-regiao";
@@ -52,14 +51,6 @@ export const painelConfig: PainelConfig = {
       icon: Calculator,
       iconColor: 'text-primary',
       badge: 'Popular'
-    },
-    {
-      id: 'procedimentos-ssc',
-      title: 'Procedimentos SSC',
-      description: 'Guia de assistência técnica por fabricante',
-      route: '/procedimentos-ssc',
-      icon: AlertCircle,
-      iconColor: 'text-orange-600'
     }
   ]
 };

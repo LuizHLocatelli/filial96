@@ -2,13 +2,20 @@
 import { BuscaAvancada } from "@/components/moveis/hub-produtividade/components/funcionalidades/BuscaAvancada";
 import { FiltrosPorData } from "@/components/moveis/hub-produtividade/components/funcionalidades/FiltrosPorData";
 
+import type { DateRange } from "react-day-picker";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SearchResults = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DateFilters = any;
+
 interface HubDialogsProps {
   showBuscaAvancada: boolean;
   setShowBuscaAvancada: (show: boolean) => void;
   showFiltrosPorData: boolean;
   setShowFiltrosPorData: (show: boolean) => void;
-  onBuscaAvancadaResults: (results: any) => void;
-  onFiltrosPorDataApply: (filters: any) => void;
+  onBuscaAvancadaResults: (results: SearchResults) => void;
+  onFiltrosPorDataApply: (filters: DateFilters) => void;
 }
 
 export function HubDialogs({

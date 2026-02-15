@@ -9,12 +9,21 @@ import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
+import type { CardItem } from "@/hooks/useCardOperations";
+
+interface ExtendedCardItem extends CardItem {
+  status?: 'ativo' | 'inativo' | 'rascunho';
+  created_by_name?: string;
+  content?: string;
+  valid_from?: string;
+  valid_until?: string;
+}
+
 interface CardViewDialogProps {
-  card: any;
+  card: ExtendedCardItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit?: () => void;
@@ -49,7 +58,7 @@ export function CardViewDialog({ card, open, onOpenChange, onEdit }: CardViewDia
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -61,7 +70,7 @@ export function CardViewDialog({ card, open, onOpenChange, onEdit }: CardViewDia
           loading={false}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-6">
             {/* Header com status e título */}
             <div className="space-y-3">
@@ -145,7 +154,7 @@ export function CardViewDialog({ card, open, onOpenChange, onEdit }: CardViewDia
               </div>
             )}
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

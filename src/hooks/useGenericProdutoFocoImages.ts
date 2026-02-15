@@ -28,6 +28,7 @@ export function useGenericProdutoFocoImages(
         .getPublicUrl(fileName);
 
       const { data, error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .from(tableName as any)
         .insert({
           produto_foco_id: produtoId,
@@ -67,6 +68,7 @@ export function useGenericProdutoFocoImages(
 
       // Deletar do banco
       const { error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .from(tableName as any)
         .delete()
         .eq('id', imagemId);

@@ -9,9 +9,9 @@ function loadStoredHistory(): ScanResult[] {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      return parsed.map((item: any) => ({
+      return parsed.map((item: Record<string, unknown>) => ({
         ...item,
-        timestamp: new Date(item.timestamp)
+        timestamp: new Date(String(item.timestamp))
       }));
     }
   } catch {

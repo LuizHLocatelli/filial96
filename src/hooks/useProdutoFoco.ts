@@ -18,7 +18,7 @@ export function useProdutoFoco(moduleType: ModuleType) {
 
   // Initialize hooks with appropriate table names
   const { produtos, produtoAtivo, isLoading, fetchProdutos, refetch } = useGenericProdutoFocoData(productTable, imageTable);
-  const { createProduto, updateProduto, deleteProduto } = useGenericProdutoFocoCRUD(productTable as any);
+  const { createProduto, updateProduto, deleteProduto } = useGenericProdutoFocoCRUD(productTable as 'moveis_produto_foco' | 'moda_produto_foco');
   const { uploadImagem, deleteImagem, uploadMultipleImages } = useGenericProdutoFocoImages(storageBucket, imageTable, refetch);
   const { registrarVenda, getVendasPorProduto } = useGenericProdutoFocoSales(salesTable);
 

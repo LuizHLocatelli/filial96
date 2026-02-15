@@ -91,7 +91,7 @@ export function UserMobileCards({
                     </Button>
                   </DialogTrigger>
                   <DialogContent 
-                    className={`w-[calc(100%-2rem)] max-w-full p-0 overflow-hidden`}
+                    className={`w-[calc(100%-2rem)] max-w-full p-0 max-h-[85vh] overflow-y-auto flex flex-col`}
                     hideCloseButton
                   >
                     {editingUser && (
@@ -132,7 +132,7 @@ export function UserMobileCards({
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden">
+                  <AlertDialogContent className="max-w-[400px] p-0 max-h-[85vh] overflow-y-auto flex flex-col">
                     <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-4 border-b border-border/10">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">

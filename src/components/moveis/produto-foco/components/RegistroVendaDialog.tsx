@@ -20,7 +20,6 @@ import { formatPhoneNumber } from "@/utils/phoneFormatter";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
@@ -28,7 +27,8 @@ interface RegistroVendaDialogProps {
   isOpen: boolean;
   onClose: () => void;
   produto: ProdutoFocoWithImages;
-  onRegistrarVenda: (dadosVenda: any) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onRegistrarVenda: (dadosVenda: Record<string, any>) => Promise<void>;
 }
 
 export function RegistroVendaDialog({ 
@@ -96,7 +96,7 @@ export function RegistroVendaDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -107,7 +107,7 @@ export function RegistroVendaDialog({
           loading={isSubmitting}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Informações do produto */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
@@ -216,7 +216,7 @@ export function RegistroVendaDialog({
               />
             </div>
           </form>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

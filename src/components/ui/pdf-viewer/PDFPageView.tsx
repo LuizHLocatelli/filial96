@@ -69,8 +69,8 @@ export function PDFPageView({
         await renderTaskRef.current.promise;
 
         setIsLoading(false);
-      } catch (err: any) {
-        if (err.name !== 'CanceledError') {
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'CanceledError') {
           console.error(`Error rendering page ${pageNumber}:`, err);
           setError(err.message || 'Error rendering page');
         }

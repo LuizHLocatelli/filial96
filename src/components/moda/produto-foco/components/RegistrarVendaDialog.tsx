@@ -5,15 +5,23 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ShoppingBag, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatPhoneNumber } from "@/utils/phoneFormatter";
+
+interface VendaData {
+  cliente_nome: string;
+  cliente_telefone: string;
+  valor_venda: number;
+  forma_pagamento: string;
+  observacoes: string;
+}
 
 interface RegistrarVendaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   produtoNome: string;
-  onSubmit: (vendaData: any) => Promise<void>;
+  onSubmit: (vendaData: VendaData) => Promise<void>;
 }
 
 export function RegistrarVendaDialog({ 
@@ -69,7 +77,7 @@ export function RegistrarVendaDialog({
       <DialogContent 
         className={`
           ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'}
-          overflow-hidden
+          max-h-[85vh] overflow-y-auto flex flex-col
         `}
         hideCloseButton
       >
@@ -81,7 +89,7 @@ export function RegistrarVendaDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -147,7 +155,7 @@ export function RegistrarVendaDialog({
               />
             </div>
           </form>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

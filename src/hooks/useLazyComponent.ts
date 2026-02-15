@@ -11,7 +11,7 @@ interface LazyComponentOptions {
 /**
  * Hook avançado para lazy loading de componentes com cache e métricas
  */
-export function useLazyComponent<T = {}>(
+export function useLazyComponent<T = Record<string, unknown>>(
   importFunction: () => Promise<{ default: ComponentType<T> }>,
   componentName: string,
   options: LazyComponentOptions = {}
@@ -55,14 +55,17 @@ export function useLazyComponent<T = {}>(
 /**
  * Sistema de cache para componentes carregados
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ComponentImport = { default: ComponentType<any> };
+
 class ComponentCache {
-  private cache = new Map<string, Promise<{ default: ComponentType<any> }>>();
+  private cache = new Map<string, Promise<ComponentImport>>();
   private loadedComponents = new Set<string>();
 
   preload(
     key: string,
-    importFunction: () => Promise<{ default: ComponentType<any> }>
-  ): Promise<{ default: ComponentType<any> }> {
+    importFunction: () => Promise<ComponentImport>
+  ): Promise<ComponentImport> {
     if (!this.cache.has(key)) {
       this.cache.set(key, importFunction());
     }
@@ -96,9 +99,9 @@ export const componentCache = new ComponentCache();
  * Preload de componente para carregamento antecipado com cache
  */
 export function preloadComponent(
-  importFunction: () => Promise<{ default: ComponentType<any> }>,
+  importFunction: () => Promise<ComponentImport>,
   componentName?: string
-): Promise<{ default: ComponentType<any> }> {
+): Promise<ComponentImport> {
   const key = componentName || importFunction.toString();
   return componentCache.preload(key, importFunction);
 }
@@ -108,7 +111,7 @@ export function preloadComponent(
  */
 export function usePreloadOnHover() {
   const preloadOnHover = (
-    importFunction: () => Promise<{ default: ComponentType<any> }>,
+    importFunction: () => Promise<ComponentImport>,
     componentName?: string
   ) => {
     const key = componentName || importFunction.toString();
@@ -133,85 +136,78 @@ export function usePreloadOnHover() {
 /**
  * Hook para preload baseado em visibilidade (Intersection Observer)
  */
-export function usePreloadOnVisible() {
+export function usePreloadOnVisible(
+  importFunction: () => Promise<ComponentImport>,
+  componentName?: string,
+  threshold: number = 0.1
+) {
   const [ref, setRef] = useState<HTMLElement | null>(null);
+  const key = componentName || importFunction.toString();
 
-  const preloadOnVisible = useCallback((
-    importFunction: () => Promise<{ default: ComponentType<any> }>,
-    componentName?: string,
-    threshold: number = 0.1
-  ) => {
-    const key = componentName || importFunction.toString();
-    
-    useEffect(() => {
-      if (!ref || componentCache.isLoaded(key)) return;
+  useEffect(() => {
+    if (!ref || componentCache.isLoaded(key)) return;
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              preloadComponent(importFunction, componentName);
-              observer.disconnect();
-            }
-          });
-        },
-        { threshold }
-      );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            preloadComponent(importFunction, componentName);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold }
+    );
 
-      observer.observe(ref);
-      return () => observer.disconnect();
-    }, [ref, key, importFunction, componentName, threshold]);
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, key, importFunction, componentName, threshold]);
 
-    return setRef;
-  }, [ref]);
-
-  return { preloadOnVisible };
+  return { ref, setRef };
 }
 
 /**
  * Hook para preload quando o browser estiver idle
  */
-export function usePreloadOnIdle() {
-  const preloadOnIdle = useCallback((
-    importFunction: () => Promise<{ default: ComponentType<any> }>,
-    componentName?: string,
-    timeout: number = 5000
-  ) => {
-    const key = componentName || importFunction.toString();
+export function usePreloadOnIdle(
+  importFunction: () => Promise<ComponentImport>,
+  componentName?: string,
+  timeout: number = 5000
+) {
+  const key = componentName || importFunction.toString();
+  
+  useEffect(() => {
+    if (componentCache.isLoaded(key)) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestIdleCallback = (window as any).requestIdleCallback || ((cb: () => void) => setTimeout(cb, timeout));
     
-    useEffect(() => {
-      if (componentCache.isLoaded(key)) return;
+    const idleHandle = requestIdleCallback(() => {
+      preloadComponent(importFunction, componentName);
+    });
 
-      const requestIdleCallback = (window as any).requestIdleCallback || ((cb: Function) => setTimeout(cb, timeout));
-      
-      const idleHandle = requestIdleCallback(() => {
-        preloadComponent(importFunction, componentName);
-      });
-
-      return () => {
-        if ((window as any).cancelIdleCallback) {
-          (window as any).cancelIdleCallback(idleHandle);
-        } else {
-          clearTimeout(idleHandle);
-        }
-      };
-    }, [key, importFunction, componentName, timeout]);
-  }, []);
-
-  return { preloadOnIdle };
+    return () => {
+      if (typeof idleHandle === 'number') {
+        clearTimeout(idleHandle);
+      }
+    };
+  }, [key, importFunction, componentName, timeout]);
 }
 
 /**
  * Lazy loading para bibliotecas externas pesadas
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LibraryModule = any;
+
 export class ExternalLibraryLoader {
-  private static instances = new Map<string, Promise<any>>();
+  private static instances = new Map<string, Promise<LibraryModule>>();
 
   static async loadLibrary(
     libraryName: string,
-    importFunction: () => Promise<any>,
+    importFunction: () => Promise<LibraryModule>,
     enableMetrics: boolean = true
-  ): Promise<any> {
+  ): Promise<LibraryModule> {
     if (!this.instances.has(libraryName)) {
       if (enableMetrics) {
         lazyLoadingMetrics.startLoading(`library-${libraryName}`);
@@ -234,7 +230,7 @@ export class ExternalLibraryLoader {
     return this.instances.get(libraryName)!;
   }
 
-  static preloadLibrary(libraryName: string, importFunction: () => Promise<any>): void {
+  static preloadLibrary(libraryName: string, importFunction: () => Promise<LibraryModule>): void {
     this.loadLibrary(libraryName, importFunction, false);
   }
 

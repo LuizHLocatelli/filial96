@@ -38,22 +38,8 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
     };
   }, []);
 
-  // Handle URL changes
-  useEffect(() => {
-    if (!url) {
-      setStatus('idle');
-      return;
-    }
-
-    setStatus('loading');
-    setError('');
-    setNumPages(0);
-    setCurrentPage(1);
-    setPdf(null);
-    loadPDF();
-  }, [url]);
-
-  const loadPDF = async () => {
+  // Load PDF function
+  const loadPDF = useCallback(async () => {
     if (!url || !isMountedRef.current) return;
 
     try {
@@ -76,14 +62,30 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
       setPdf(pdfDoc);
       setNumPages(pdfDoc.numPages);
       setStatus('success');
-    } catch (err: any) {
+    } catch (err) {
       console.error('[PDF.js] Error loading PDF:', err);
       if (isMountedRef.current) {
-        setError(err.message || 'Erro desconhecido ao carregar PDF');
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido ao carregar PDF';
+        setError(errorMessage);
         setStatus('error');
       }
     }
-  };
+  }, [url]);
+
+  // Handle URL changes
+  useEffect(() => {
+    if (!url) {
+      setStatus('idle');
+      return;
+    }
+
+    setStatus('loading');
+    setError('');
+    setNumPages(0);
+    setCurrentPage(1);
+    setPdf(null);
+    loadPDF();
+  }, [url, loadPDF]);
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
@@ -211,7 +213,7 @@ export function PDFViewer({ url, className }: PDFViewerProps) {
         numPages={numPages}
         currentPage={currentPage}
         scale={scale}
-        isLoading={status === 'idle' || status === 'loading' as any}
+        isLoading={false}
         onPageChange={handlePageChange}
         onScaleChange={handleScaleChange}
         onDownload={handleDownload}

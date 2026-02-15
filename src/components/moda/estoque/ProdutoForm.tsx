@@ -81,7 +81,7 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
         p_setor: contagemSetor,
         p_quantidade: qtd,
         p_created_by: user.user.id,
-      } as unknown as any);
+      });
       if (rpcError) throw rpcError;
 
       const result = await supabase

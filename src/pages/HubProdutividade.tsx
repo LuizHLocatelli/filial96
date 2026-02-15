@@ -52,11 +52,13 @@ export default function HubProdutividade() {
   };
 
   // Handlers para os dialogs
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleBuscaAvancadaResults = (results: any) => {
     console.log('Resultados da busca avançada:', results);
     // Aqui você pode implementar a lógica para exibir os resultados
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFiltrosPorDataApply = (filters: any) => {
     console.log('Filtros por data aplicados:', filters);
     // Aqui você pode implementar a lógica para aplicar os filtros

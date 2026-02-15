@@ -24,6 +24,7 @@ interface FolgasListProps {
   folgas: Folga[];
   isLoading: boolean;
   handleDeleteFolga: (folgaId: string) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConsultorById: (id: string) => any;
   getUserNameById?: (userId: string) => string | undefined;
 }

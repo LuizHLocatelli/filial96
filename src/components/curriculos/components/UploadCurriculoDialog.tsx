@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from '@/components/ui/standard-dialog';
 import { FileUp, Upload, X, FileText, Image as ImageIcon, Check } from 'lucide-react';
@@ -168,7 +167,7 @@ export function UploadCurriculoDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden" hideCloseButton>
+      <DialogContent className="sm:max-w-[500px] p-0 max-h-[85vh] overflow-y-auto flex flex-col" hideCloseButton>
         <StandardDialogHeader
           icon={FileUp}
           iconColor="primary"
@@ -178,7 +177,7 @@ export function UploadCurriculoDialog({
           loading={isUploading}
         />
 
-        <StandardDialogContent className="space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {/* Candidate Name */}
           <div className="space-y-2">
             <Label htmlFor="candidate-name">
@@ -293,7 +292,7 @@ export function UploadCurriculoDialog({
               </div>
             )}
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter>
           <Button

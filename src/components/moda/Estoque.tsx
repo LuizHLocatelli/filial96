@@ -43,10 +43,6 @@ export function Estoque() {
     }
   }, []);
 
-  useEffect(() => {
-    carregarContagens();
-  }, []);
-
   const carregarContagens = async () => {
     try {
       setLoading(true);
@@ -117,7 +113,7 @@ export function Estoque() {
           nome,
           setor,
           created_by: user.user.id,
-        } as any)
+        })
         .select()
         .single();
 
@@ -169,7 +165,7 @@ export function Estoque() {
     try {
       const { error } = await supabase
         .from("moda_estoque_contagens")
-        .update({ status: novoStatus } as any)
+        .update({ status: novoStatus })
         .eq("id", id);
 
       if (error) throw error;
@@ -226,6 +222,11 @@ export function Estoque() {
       }
     }
   };
+
+  useEffect(() => {
+    carregarContagens();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { total, emAndamentoCount, finalizadasCount } = useMemo(() => {
     const emAndamento = contagens.filter((c) => c.status === "em_andamento").length;
@@ -286,7 +287,7 @@ export function Estoque() {
           </div>
         </div>
         <div>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "todos" | "em_andamento" | "finalizada")}>
             <SelectTrigger>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4" />

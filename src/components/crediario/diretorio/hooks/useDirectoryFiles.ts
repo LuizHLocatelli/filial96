@@ -10,6 +10,7 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
 
   useEffect(() => {
     fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId, tableName]);
 
   const fetchFiles = async () => {
@@ -33,8 +34,8 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
 
       const typedData = (data || []) as unknown as DirectoryFile[];
       setFiles(typedData);
-    } catch (error: any) {
-      console.error('Erro ao buscar arquivos:', error);
+    } catch (err) {
+      console.error('Erro ao buscar arquivos:', err);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar os arquivos.',
@@ -77,11 +78,12 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
       });
 
       fetchFiles();
-    } catch (error: any) {
-      console.error('Erro ao adicionar arquivo:', error);
+    } catch (err) {
+      console.error('Erro ao adicionar arquivo:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro ao adicionar o arquivo.';
       toast({
         title: 'Erro',
-        description: error.message || 'Ocorreu um erro ao adicionar o arquivo.',
+        description: errorMsg,
         variant: 'destructive',
       });
     }
@@ -115,11 +117,12 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
       });
 
       fetchFiles();
-    } catch (error: any) {
-      console.error('Erro ao atualizar arquivo:', error);
+    } catch (err) {
+      console.error('Erro ao atualizar arquivo:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar o arquivo.';
       toast({
         title: 'Erro',
-        description: error.message || 'Ocorreu um erro ao atualizar o arquivo.',
+        description: errorMsg,
         variant: 'destructive',
       });
     }
@@ -142,11 +145,12 @@ export function useDirectoryFiles(categoryId?: string, tableName = 'crediario_di
       });
 
       fetchFiles();
-    } catch (error: any) {
-      console.error('Erro ao excluir arquivo:', error);
+    } catch (err) {
+      console.error('Erro ao excluir arquivo:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro ao excluir o arquivo.';
       toast({
         title: 'Erro',
-        description: error.message || 'Ocorreu um erro ao excluir o arquivo.',
+        description: errorMsg,
         variant: 'destructive',
       });
     }

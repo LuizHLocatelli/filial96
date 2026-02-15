@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePreloadOnHover } from "@/hooks/useLazyComponent";
@@ -37,11 +37,11 @@ export function useNavigationTabsOptimized() {
   const getTabPreloadProps = (path: string) => {
     if (preloadedTabs.has(path)) return {};
 
-    const preloadMap: Record<string, () => Promise<any>> = {
-      '/crediario': () => import('../../../pages/Crediario'),
-      '/moveis': () => import('../../../pages/Moveis'),
-      '/moda': () => import('../../../pages/Moda'),
-      '/cards-promocionais': () => import('../../../pages/PromotionalCards'),
+    const preloadMap: Record<string, () => Promise<{ default: ComponentType<unknown> }>> = {
+      '/crediario': () => import('../../../pages/Crediario') as Promise<{ default: ComponentType<unknown> }>,
+      '/moveis': () => import('../../../pages/Moveis') as Promise<{ default: ComponentType<unknown> }>,
+      '/moda': () => import('../../../pages/Moda') as Promise<{ default: ComponentType<unknown> }>,
+      '/cards-promocionais': () => import('../../../pages/PromotionalCards') as Promise<{ default: ComponentType<unknown> }>,
     };
 
     const importFunction = preloadMap[path];

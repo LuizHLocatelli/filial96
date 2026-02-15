@@ -27,7 +27,7 @@ interface BuscaAvancadaProps {
 }
 
 interface SearchResults {
-  items: Array<any>;
+  items: Array<Record<string, unknown>>;
   totalFound: number;
   searchQuery: string;
   appliedFilters: SearchFilters;
@@ -214,7 +214,7 @@ export function BuscaAvancada({
               <Label>Ordenar por</Label>
               <Select
                 value={filters.ordenacao}
-                onValueChange={(value: any) => setFilters(prev => ({ ...prev, ordenacao: value }))}
+                onValueChange={(value: SearchFilters['ordenacao']) => setFilters(prev => ({ ...prev, ordenacao: value }))}
               >
                 <SelectTrigger>
                   <SelectValue />

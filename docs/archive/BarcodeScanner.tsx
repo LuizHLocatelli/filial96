@@ -64,9 +64,9 @@ export function BarcodeScanner({
       controlsRef.current = await readerRef.current.decodeFromVideoDevice(
         devId,
         videoRef.current,
-        (result, err, controls) => {
+        (result) => {
           if (result) {
-            const text = (typeof (result as any).getText === 'function' ? (result as any).getText() : "").trim();
+            const text = (typeof (result as { getText: () => string }).getText === 'function' ? (result as { getText: () => string }).getText() : "").trim();
             const numeric = text.replace(/\D/g, "");
             const isAllowed = allowedLengths.includes(numeric.length);
             if (numeric && isAllowed) {
@@ -92,7 +92,9 @@ export function BarcodeScanner({
     try {
       controlsRef.current?.stop();
       controlsRef.current = null;
-    } catch {}
+    } catch {
+      // ignore
+    }
     if (pauseTimerRef.current) {
       clearTimeout(pauseTimerRef.current);
       pauseTimerRef.current = null;
@@ -104,14 +106,12 @@ export function BarcodeScanner({
     const stream = videoRef.current?.srcObject as MediaStream | null;
     const track = stream?.getVideoTracks?.()[0];
     if (!track) return;
-    // @ts-ignore advanced constraints types vary by browser
-    const supported = track.getCapabilities?.();
-    if (supported && (supported as any).torch) {
+    const supported = track.getCapabilities?.() as { torch?: boolean } | undefined;
+    if (supported && supported.torch) {
       try {
-        // @ts-ignore
         await track.applyConstraints({ advanced: [{ torch: !isTorchOn }] });
         setIsTorchOn((v) => !v);
-      } catch (e) {
+      } catch {
         // ignore
       }
     }

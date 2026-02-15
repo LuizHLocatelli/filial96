@@ -265,7 +265,8 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     return () => {
       clearInterval(interval);
     };
-  }, [enabled, depositos, isCompleteToday, hasReceiptToday, isIncludedToday]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, depositos, isCompleteToday, hasReceiptToday, isIncludedToday, notificationConfig]);
 
   // Função para solicitar permissão de notificações do browser
   const requestNotificationPermission = async () => {

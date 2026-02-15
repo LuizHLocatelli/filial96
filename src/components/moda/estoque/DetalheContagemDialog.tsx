@@ -18,7 +18,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,
-  StandardDialogContent,
 } from "@/components/ui/standard-dialog";
 
 interface Produto {
@@ -113,8 +112,10 @@ export function DetalheContagemDialog({
     if (open && contagem) {
       carregarProdutos();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, contagem]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleExportPDF = async (options: any) => {
     setIsExporting(true);
     try {
@@ -139,7 +140,7 @@ export function DetalheContagemDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} overflow-hidden flex flex-col`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -188,7 +189,7 @@ export function DetalheContagemDialog({
             </div>
           </StandardDialogHeader>
 
-          <StandardDialogContent className="p-0 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-0 flex flex-col">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
               <div className="flex-shrink-0 px-4 sm:px-5 pt-3 border-b">
@@ -233,7 +234,7 @@ export function DetalheContagemDialog({
                 </TabsContent>
               </div>
             </Tabs>
-          </StandardDialogContent>
+          </div>
         </DialogContent>
       </Dialog>
 

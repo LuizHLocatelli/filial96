@@ -85,17 +85,10 @@ export function PromotionalCard({
     setIsDeletingCard(true);
     try {
       await onDelete(id);
-      toast({
-        title: "Sucesso",
-        description: "Card excluído com sucesso.",
-      });
+      // Toast já é mostrado pelo CardGallery.tsx
     } catch (error) {
       console.error("Error deleting card:", error);
-      toast({
-        title: "Erro",
-        description: "Falha ao excluir o card.",
-        variant: "destructive"
-      });
+      // Erro já é tratado e mostrado pelo CardGallery.tsx
     } finally {
       setIsDeletingCard(false);
     }

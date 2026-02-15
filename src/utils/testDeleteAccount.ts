@@ -79,13 +79,15 @@ export async function testDeleteAccountFunction() {
       debug: debugResult
     };
     
-  } catch (error: any) {
+  } catch (error) {
     console.error("💥 Erro no teste:", error);
+    const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+    const errorStack = error instanceof Error ? error.stack : "";
     return {
       success: false,
       error: "Erro durante o teste",
-      details: error.message,
-      stack: error.stack
+      details: errorMessage,
+      stack: errorStack
     };
   }
 }
@@ -125,11 +127,11 @@ export async function testDeleteUserRPC() {
       details: rpcError
     };
     
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
       error: "Erro ao testar RPC",
-      details: error.message
+      details: error instanceof Error ? error.message : "Erro desconhecido"
     };
   }
 }
@@ -185,11 +187,11 @@ export async function testDeleteUserFixed() {
       result
     };
     
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
       error: "Erro ao testar nova Edge Function",
-      details: error.message
+      details: error instanceof Error ? error.message : "Erro desconhecido"
     };
   }
 }
@@ -251,11 +253,11 @@ export async function testDeleteAccountService() {
       result
     };
     
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
       error: "Erro ao testar Edge Function service",
-      details: error.message
+      details: error instanceof Error ? error.message : "Erro desconhecido"
     };
   }
 }

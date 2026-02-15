@@ -121,6 +121,7 @@ export function useModaDirectoryFiles(categoryId?: string) {
   // Efeito para buscar arquivos ao montar o componente ou quando a categoria mudar
   useEffect(() => {
     fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId]);
 
   return {

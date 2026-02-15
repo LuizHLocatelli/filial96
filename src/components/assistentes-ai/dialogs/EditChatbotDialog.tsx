@@ -21,7 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Chatbot } from '../types';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 
 interface EditChatbotDialogProps {
   open: boolean;
@@ -90,7 +90,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] p-0' : 'sm:max-w-[500px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -101,7 +101,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
           loading={loading}
         />
 
-        <StandardDialogContent className={isMobile ? 'p-4' : 'p-6'}>
+        <div className={`flex-1 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -224,7 +224,7 @@ export function EditChatbotDialog({ open, onOpenChange, chatbot, onSuccess }: Ed
             </StandardDialogFooter>
           </form>
         </Form>
-        </StandardDialogContent>
+        </div>
       </DialogContent>
     </Dialog>
   );

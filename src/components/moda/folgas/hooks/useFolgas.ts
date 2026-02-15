@@ -45,6 +45,7 @@ export function useFolgas() {
   // Buscar folgas do banco
   useEffect(() => {
     fetchFolgas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchFolgas = useCallback(async () => {
@@ -116,11 +117,12 @@ export function useFolgas() {
       });
 
       return novaFolga;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao criar folga:", error);
+      const message = error instanceof Error ? error.message : "Não foi possível criar a folga.";
       toast({
         title: "Erro ao criar folga",
-        description: error.message || "Não foi possível criar a folga.",
+        description: message,
         variant: "destructive",
       });
       throw error;
@@ -179,11 +181,12 @@ export function useFolgas() {
       });
 
       return folgaFinal;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao atualizar folga:", error);
+      const message = error instanceof Error ? error.message : "Não foi possível atualizar a folga.";
       toast({
         title: "Erro ao atualizar folga",
-        description: error.message || "Não foi possível atualizar a folga.",
+        description: message,
         variant: "destructive",
       });
       throw error;
@@ -222,11 +225,12 @@ export function useFolgas() {
         description: "A folga foi removida e a lista foi atualizada.",
         duration: 3000,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao excluir folga:", error);
+      const message = error instanceof Error ? error.message : "Não foi possível excluir a folga.";
       toast({
         title: "Erro ao excluir folga",
-        description: error.message || "Não foi possível excluir a folga.",
+        description: message,
         variant: "destructive",
       });
       throw error;

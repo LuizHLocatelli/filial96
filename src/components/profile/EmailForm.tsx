@@ -67,11 +67,11 @@ export function EmailForm() {
         description: "Verifique seu email para confirmar a alteração.",
       });
       form.reset({ email: data.email, password: "" });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Erro ao atualizar email",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao atualizar seu email.",
       });
     } finally {
       setLoading(false);

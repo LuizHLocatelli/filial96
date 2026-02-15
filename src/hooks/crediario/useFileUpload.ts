@@ -17,7 +17,7 @@ export interface UploadedFile {
   file_url: string;
   file_type: string;
   file_size: number;
-  category_id: any;
+  category_id: string | null;
   is_featured: boolean;
   created_by: string;
 }
@@ -89,11 +89,6 @@ export function useFileUpload() {
       
       console.log('Public URL obtained:', urlData.publicUrl);
       
-      toast({
-        title: 'Upload concluído',
-        description: 'Arquivo adicionado com sucesso.',
-      });
-      
       setProgress(100);
       
       // Get current user ID
@@ -110,12 +105,14 @@ export function useFileUpload() {
         is_featured: false,
         created_by: userId
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro detalhado ao adicionar arquivo:', error);
+      
+      const message = error instanceof Error ? error.message : 'Ocorreu um erro ao adicionar o arquivo.';
       
       toast({
         title: 'Erro ao fazer upload',
-        description: error.message || 'Ocorreu um erro ao adicionar o arquivo.',
+        description: message,
         variant: 'destructive',
       });
       

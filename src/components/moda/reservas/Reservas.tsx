@@ -16,7 +16,7 @@ import { AddReservaButton } from "./components/AddReservaButton";
 import { ReservasFilters } from "./components/ReservasFilters";
 import { ReservaCard } from "./components/ReservaCard";
 import { Clock as ClockIcon } from "lucide-react";
-import { StandardDialogHeader, StandardDialogContent } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader } from "@/components/ui/standard-dialog";
 
 export function Reservas() {
   const { reservas, isLoading, updateReservaStatus, deleteReserva, fetchReservas } = useReservas();
@@ -219,7 +219,7 @@ export function Reservas() {
                 )}
               </Button>
             </DialogTrigger>
-            <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-lg p-0'} overflow-hidden`} hideCloseButton>
+            <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-lg p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
               <StandardDialogHeader
                 icon={Filter}
                 iconColor="primary"
@@ -227,11 +227,11 @@ export function Reservas() {
                 description="Refine sua busca por reservas"
                 onClose={() => setShowFiltersDialog(false)}
               />
-              <StandardDialogContent>
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                 <div className="space-y-4">
                   <ReservasFilters filters={filters} onFilterChange={handleFilterChange} />
                 </div>
-              </StandardDialogContent>
+              </div>
             </DialogContent>
           </Dialog>
         ) : (

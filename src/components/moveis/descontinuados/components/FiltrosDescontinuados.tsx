@@ -29,7 +29,7 @@ export function FiltrosDescontinuados({ filters, onFiltersChange }: FiltrosDesco
     { value: 'preco_desc', label: '💎 Maior Preço' }
   ];
 
-  const updateFilters = (key: keyof DescontinuadosFilters, value: any) => {
+  const updateFilters = (key: keyof DescontinuadosFilters, value: string | number | undefined) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 

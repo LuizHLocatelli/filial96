@@ -224,11 +224,11 @@ export function SecuritySettingsForm() {
         description: "Suas preferências de segurança foram salvas com sucesso.",
         duration: 4000,
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Erro ao salvar configurações",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao salvar as configurações.",
         duration: 5000,
       });
     } finally {
@@ -251,7 +251,7 @@ export function SecuritySettingsForm() {
         window.location.href = '/auth';
       }, 1000);
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("🔴 SecuritySettingsForm: Erro no logout:", error);
       toast({
         variant: "destructive",

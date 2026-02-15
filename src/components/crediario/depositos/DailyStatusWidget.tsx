@@ -32,7 +32,7 @@ export function DailyStatusWidget({ depositos }: DailyStatusWidgetProps) {
   // Calcular streak de dias consecutivos
   const calculateStreak = () => {
     let streak = 0;
-    let checkDate = new Date(today);
+    const checkDate = new Date(today);
     
     // Se hoje é domingo, começar no sábado
     while (checkDate.getDay() === 0) {

@@ -446,33 +446,6 @@ export type Database = {
           },
         ]
       }
-      crediario_listagens: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          id: string
-          indicator: string | null
-          nome: string
-          url: string
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          indicator?: string | null
-          nome: string
-          url: string
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          indicator?: string | null
-          nome?: string
-          url?: string
-        }
-        Relationships: []
-      }
       crediario_sticky_notes: {
         Row: {
           color: string
@@ -1788,95 +1761,6 @@ export type Database = {
           title?: string | null
           type?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      venda_o_attachments: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          file_name: string
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          sale_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          file_name: string
-          file_size?: number | null
-          file_type: string
-          file_url: string
-          id?: string
-          sale_id: string
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          file_name?: string
-          file_size?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          sale_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "venda_o_attachments_sale_id_fkey"
-            columns: ["sale_id"]
-            isOneToOne: false
-            referencedRelation: "venda_o_sales"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      venda_o_sales: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          data_venda: string
-          filial: string
-          id: string
-          nome_cliente: string
-          observacoes: string | null
-          previsao_chegada: string | null
-          produtos: Json
-          status: string
-          telefone: string | null
-          tipo_entrega: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          data_venda: string
-          filial: string
-          id?: string
-          nome_cliente: string
-          observacoes?: string | null
-          previsao_chegada?: string | null
-          produtos: Json
-          status: string
-          telefone?: string | null
-          tipo_entrega: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          data_venda?: string
-          filial?: string
-          id?: string
-          nome_cliente?: string
-          observacoes?: string | null
-          previsao_chegada?: string | null
-          produtos?: Json
-          status?: string
-          telefone?: string | null
-          tipo_entrega?: string
-          updated_at?: string | null
         }
         Relationships: []
       }

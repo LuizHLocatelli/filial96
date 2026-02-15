@@ -10,6 +10,7 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
   useEffect(() => {
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableName]);
 
   const fetchCategories = async () => {
@@ -26,8 +27,8 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
 
       const typedData = (data || []) as unknown as DirectoryCategory[];
       setCategories(typedData);
-    } catch (error: any) {
-      console.error('Erro ao buscar categorias:', error);
+    } catch (err) {
+      console.error('Erro ao buscar categorias:', err);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar as categorias.',
@@ -57,11 +58,12 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
       });
 
       fetchCategories();
-    } catch (error: any) {
-      console.error('Erro ao adicionar categoria:', error);
+    } catch (err) {
+      console.error('Erro ao adicionar categoria:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro ao criar a categoria.';
       toast({
         title: 'Erro',
-        description: error.message || 'Ocorreu um erro ao criar a categoria.',
+        description: errorMsg,
         variant: 'destructive',
       });
     }
@@ -91,11 +93,12 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
       });
 
       fetchCategories();
-    } catch (error: any) {
-      console.error('Erro ao atualizar categoria:', error);
+    } catch (err) {
+      console.error('Erro ao atualizar categoria:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro ao atualizar a categoria.';
       toast({
         title: 'Erro',
-        description: error.message || 'Ocorreu um erro ao atualizar a categoria.',
+        description: errorMsg,
         variant: 'destructive',
       });
     }
@@ -125,11 +128,12 @@ export function useDirectoryCategories(tableName = 'crediario_directory_categori
       });
 
       fetchCategories();
-    } catch (error: any) {
-      console.error('Erro ao excluir categoria:', error);
+    } catch (err) {
+      console.error('Erro ao excluir categoria:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Ocorreu um erro ao excluir a categoria.';
       toast({
         title: 'Erro',
-        description: error.message || 'Ocorreu um erro ao excluir a categoria.',
+        description: errorMsg,
         variant: 'destructive',
       });
     }

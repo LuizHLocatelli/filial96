@@ -27,7 +27,7 @@ import { DepositFormDialog } from "./depositos/DepositFormDialog";
 import { ImagePreviewDialog } from "./depositos/ImagePreviewDialog";
 import { NotificationSystem } from "./depositos/NotificationSystem";
 import { DepositAnalytics } from "./depositos/DepositAnalytics";
-import { UploadProgress, AnalyticsSkeleton } from "./depositos/LoadingStates";
+import { UploadProgress, AnalyticsSkeleton } from "./depositos/components/LoadingStates";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -91,7 +91,7 @@ export function Depositos() {
 
   useEffect(() => {
     fetchDepositos();
-  }, []);
+  }, [fetchDepositos]);
 
   const handlePrevMonth = () => {
     setCurrentMonth(prev => {
@@ -206,7 +206,11 @@ export function Depositos() {
       }
 
       if (depositoId) {
-        const updateData: any = {
+        const updateData: {
+          data: Date;
+          ja_incluido: boolean;
+          comprovante?: File | string;
+        } = {
           data: selectedDay,
           ja_incluido: jaIncluido
         };

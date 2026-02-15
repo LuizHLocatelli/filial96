@@ -4,7 +4,6 @@ import { Eye } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 
@@ -19,7 +18,7 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
   return (
     <Dialog open={!!viewImage} onOpenChange={() => setViewImage(null)}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} overflow-hidden`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -31,7 +30,7 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
           loading={false}
         />
 
-        <StandardDialogContent className="flex justify-center p-4">
+        <div className="flex-1 overflow-y-auto flex justify-center p-4 sm:p-6">
           {viewImage && (
             <img
               src={viewImage}
@@ -39,7 +38,7 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
               className="max-h-[50vh] max-w-full object-contain rounded-lg"
             />
           )}
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

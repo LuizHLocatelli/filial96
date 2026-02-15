@@ -84,6 +84,7 @@ export default function ProcedimentosSSC() {
       }
     };
     tryFetchDb();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filtrar procedimentos

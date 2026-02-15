@@ -7,7 +7,7 @@ export const signupSchema = z.object({
   email: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório"),
   phone: z.string()
     .min(10, "Telefone deve ter no mínimo 10 dígitos")
-    .regex(/^[\d\s\(\)\-\+]+$/, "Formato de telefone inválido"),
+    .regex(/^[\d\s()+-]+$/, "Formato de telefone inválido"),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
   role: z.enum(["gerente", "crediarista", "consultor_moveis", "consultor_moda", "jovem_aprendiz"] as const),
 });

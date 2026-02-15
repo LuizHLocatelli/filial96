@@ -116,12 +116,12 @@ export function useAuthActions({
         console.log("🔄 Redirecionando para login...");
         window.location.href = '/auth';
         
-      } catch (deleteUserError: any) {
+      } catch (deleteUserError) {
         console.error("❌ Erro ao excluir conta:", deleteUserError);
         throw new Error(`Falha ao excluir conta: ${formatErrorForUser(deleteUserError, "Erro desconhecido")}`);
       }
-      
-    } catch (error: any) {
+
+    } catch (error) {
       console.error("💥 Erro completo ao excluir conta:", error);
       toast({
         variant: "destructive",

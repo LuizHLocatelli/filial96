@@ -1,5 +1,5 @@
 // Painel da Região - Public page wrapper with theme provider
-import { CalculatorThemeProvider } from "@/components/theme/CalculatorThemeProvider";
+import { CalculatorThemeProvider } from "@/components/theme/calculator-theme";
 import PainelDaRegiao from "./PainelDaRegiao";
 
 export default function PainelDaRegiaoWrapper() {

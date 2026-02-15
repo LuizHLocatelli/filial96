@@ -63,12 +63,13 @@ export function DeleteAccountForm() {
       // Navigation will be handled inside the deleteAccount function
       setDialogOpen(false);
       
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro capturado no formulário:", error);
+      const message = error instanceof Error ? error.message : "Ocorreu um erro ao excluir sua conta. Por favor, tente novamente.";
       toast({
         variant: "destructive",
         title: "Erro ao excluir conta",
-        description: error.message || "Ocorreu um erro ao excluir sua conta. Por favor, tente novamente.",
+        description: message,
       });
       setLoading(false);
     }

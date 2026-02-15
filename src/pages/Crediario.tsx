@@ -1,19 +1,15 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
-import { Listagens } from "@/components/crediario/Listagens";
 import { Depositos } from "@/components/crediario/Depositos";
 import { Folgas } from "@/components/crediario/Folgas";
 import { Diretorio } from "@/components/crediario/diretorio/Diretorio";
 import { CalculadoraCredito } from "@/components/crediario/CalculadoraCredito";
 import { 
-  FileText, 
-  Users, 
   Calendar, 
   Coffee, 
   FolderArchive,
   CreditCard,
-  TrendingUp,
   Calculator
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -23,20 +19,13 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Crediario() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "listagens";
+  const activeTab = searchParams.get("tab") || "depositos";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
   const tabsConfig = [
-    {
-      value: "listagens",
-      label: "Listagens",
-      icon: FileText,
-      description: "Relatórios e listagens",
-      component: <Listagens />
-    },
     {
       value: "depositos",
       label: "Depósitos",

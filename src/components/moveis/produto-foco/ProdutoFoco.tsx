@@ -16,10 +16,10 @@ import { useProdutoFoco } from './hooks/useProdutoFoco';
 import { ProdutoFocoCard } from './components/ProdutoFocoCard';
 import { ProdutoFocoForm } from './components/ProdutoFocoForm';
 import { ProdutoFocoDetails } from './components/ProdutoFocoDetails';
-import { ProdutoFocoWithImages } from '@/types/produto-foco';
+import { ProdutoFocoWithImages, type ProdutoFoco } from '@/types/produto-foco';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 import { RegistroVendaDialog } from './components/RegistroVendaDialog';
 
 export function ProdutoFoco() {
@@ -42,14 +42,14 @@ export function ProdutoFoco() {
   const [vendaProduto, setVendaProduto] = useState<ProdutoFocoWithImages | null>(null);
   const isMobile = useIsMobile();
 
-  const handleCreateProduto = async (dados: any, imagens?: File[]) => {
+  const handleCreateProduto = async (dados: Omit<ProdutoFoco, 'id' | 'created_at' | 'updated_at' | 'created_by'>, imagens?: File[]) => {
     const success = await createProduto(dados, imagens);
     if (success) {
       setShowForm(false);
     }
   };
 
-  const handleUpdateProduto = async (dados: any) => {
+  const handleUpdateProduto = async (dados: Partial<ProdutoFoco>) => {
     if (editingProduto) {
       await updateProduto(editingProduto.id, dados);
       setEditingProduto(null);
@@ -84,7 +84,7 @@ export function ProdutoFoco() {
     setEditingProduto(null);
   };
 
-  const handleRegistrarVenda = async (dadosVenda: any) => {
+  const handleRegistrarVenda = async (dadosVenda: { cliente_nome: string; cliente_telefone: string; valor_venda: number; forma_pagamento: string; observacoes: string }) => {
     await registrarVenda(dadosVenda);
     setVendaProduto(null);
   };
@@ -214,7 +214,7 @@ export function ProdutoFoco() {
       {/* Dialogs */}
       <Dialog open={showForm} onOpenChange={closeForm}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden max-h-[85vh] flex flex-col`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -228,7 +228,7 @@ export function ProdutoFoco() {
             onClose={closeForm}
           />
           
-          <StandardDialogContent className="p-0 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             <ProdutoFocoForm
               produto={editingProduto || undefined}
               onSubmit={editingProduto ? handleUpdateProduto : handleCreateProduto}
@@ -236,7 +236,7 @@ export function ProdutoFoco() {
               onUploadImagem={editingProduto ? handleUploadImagem : undefined}
               onDeleteImagem={editingProduto ? handleDeleteImagem : undefined}
             />
-          </StandardDialogContent>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -258,7 +258,7 @@ export function ProdutoFoco() {
       {/* AlertDialog de Exclusão */}
       <Dialog open={!!deletingProduto} onOpenChange={() => setDeletingProduto(null)}>
         <DialogContent 
-          className="max-w-[400px] p-0 overflow-hidden"
+          className="max-w-[400px] p-0 max-h-[85vh] overflow-y-auto flex flex-col"
           hideCloseButton
         >
           <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-4 border-b border-border/10">

@@ -57,7 +57,9 @@ const PRELOAD_STRATEGIES: PreloadStrategy[] = [
   }
 ];
 
-const COMPONENT_IMPORTS: Record<string, () => Promise<any>> = {
+type ImportFunction = () => Promise<Record<string, unknown>>;
+
+const COMPONENT_IMPORTS: Record<string, ImportFunction> = {
   'Crediario': () => import('../pages/Crediario'),
   'Moveis': () => import('../pages/Moveis'),
   'Moda': () => import('../pages/Moda'),
@@ -67,7 +69,7 @@ const COMPONENT_IMPORTS: Record<string, () => Promise<any>> = {
   'CardEditDialog': () => import('../components/promotional-cards/CardEditDialog'),
 };
 
-const LIBRARY_IMPORTS: Record<string, () => Promise<any>> = {
+const LIBRARY_IMPORTS: Record<string, ImportFunction> = {
   'recharts': () => import('recharts'),
   'jspdf': () => import('jspdf'),
   'date-fns': () => import('date-fns'),
@@ -161,7 +163,7 @@ export function useIntelligentPreload() {
   }, [location.pathname, preloadByRoute, preloadByStrategy, preloadFrequentComponents]);
 
   useEffect(() => {
-    const requestIdleCallback = (window as any).requestIdleCallback || ((cb: Function) => setTimeout(cb, 100));
+    const requestIdleCallback = (window as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback || ((cb: () => void) => setTimeout(cb, 100));
     
     const idleHandle = requestIdleCallback(() => {
       if (!ExternalLibraryLoader.isLoaded('pdfjs-dist')) {
@@ -170,9 +172,7 @@ export function useIntelligentPreload() {
     });
 
     return () => {
-      if ((window as any).cancelIdleCallback) {
-        (window as any).cancelIdleCallback(idleHandle);
-      } else {
+      if (typeof idleHandle === 'number') {
         clearTimeout(idleHandle);
       }
     };
@@ -181,7 +181,7 @@ export function useIntelligentPreload() {
   return {
     preloadedRoutes: Array.from(preloadedRoutes),
     preloadedComponents: Array.from(preloadedComponents),
-    preloadComponent: (importFunction: () => Promise<any>, componentName: string) => {
+    preloadComponent: (importFunction: ImportFunction, componentName: string) => {
       preloadComponent(importFunction, componentName);
       setPreloadedComponents(prev => new Set([...prev, componentName]));
     }

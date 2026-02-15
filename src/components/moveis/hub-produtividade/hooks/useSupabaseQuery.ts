@@ -9,12 +9,12 @@ export interface QueryOptions {
   showErrorToast?: boolean;
 }
 
-type SupabaseQueryFunction<T> = (client: SupabaseClient) => Promise<{ data: T[] | null; error: any }>;
+type SupabaseQueryResult<T> = { data: T[] | null; error: Error };
 
 export function useSupabaseQuery<T>(
   table: string,
-  queryBuilder: (client: SupabaseClient) => any,
-  dependencies: any[] = [],
+  queryBuilder: (client: SupabaseClient) => Promise<SupabaseQueryResult<T>>,
+  dependencies: unknown[] = [],
   options: QueryOptions = {}
 ) {
   const { retryCount = 2, retryDelay = 2000, showErrorToast = true } = options;
@@ -43,7 +43,7 @@ export function useSupabaseQuery<T>(
       
       setData(result || []);
       console.log(`✅ ${table} carregados:`, result?.length || 0);
-    } catch (queryError: any) {
+    } catch (queryError) {
       console.error(`❌ Erro ao carregar ${table}:`, queryError);
       
       if (attempt < retryCount) {
@@ -67,7 +67,9 @@ export function useSupabaseQuery<T>(
   // Effect para executar query quando dependências mudarem
   useEffect(() => {
     executeQuery();
-  }, [executeQuery, JSON.stringify(dependencies)]); // Usar JSON.stringify para comparar arrays
+    // Usar JSON.stringify para comparar arrays de dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [executeQuery, JSON.stringify(dependencies)]);
 
   const refetch = useCallback(() => {
     setIsLoading(true);

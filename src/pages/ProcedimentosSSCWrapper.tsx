@@ -1,4 +1,4 @@
-import { CalculatorThemeProvider } from "@/components/theme/CalculatorThemeProvider";
+import { CalculatorThemeProvider } from "@/components/theme/calculator-theme";
 import ProcedimentosSSC from "./ProcedimentosSSC";
 
 export default function ProcedimentosSSCWrapper() {

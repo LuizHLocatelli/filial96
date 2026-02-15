@@ -27,7 +27,7 @@ import { ProdutoFocoWithImages } from '@/types/produto-foco';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { StandardDialogHeader, StandardDialogContent } from '@/components/ui/standard-dialog';
+import { StandardDialogHeader } from '@/components/ui/standard-dialog';
 
 export function ProdutoFoco() {
   const {
@@ -86,6 +86,7 @@ export function ProdutoFoco() {
     refetch();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFormSubmit = async (formData: any, imagens?: File[]) => {
     try {
       const isEditingMode = !!editingProduto;
@@ -233,7 +234,7 @@ export function ProdutoFoco() {
 
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} overflow-hidden max-h-[85vh] flex flex-col`} hideCloseButton>
+        <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
           <StandardDialogHeader
             icon={Package}
             iconColor="primary"
@@ -244,7 +245,7 @@ export function ProdutoFoco() {
               setEditingProduto(null);
             }}
           />
-          <StandardDialogContent className="p-0 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             <ProdutoFocoForm
               produto={editingProduto}
               onSubmit={handleFormSubmit}
@@ -255,7 +256,7 @@ export function ProdutoFoco() {
               onUploadImagem={handleUploadImagem}
               onDeleteImagem={handleDeleteImagem}
             />
-          </StandardDialogContent>
+          </div>
         </DialogContent>
       </Dialog>
 

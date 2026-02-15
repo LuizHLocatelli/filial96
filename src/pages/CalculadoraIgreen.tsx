@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft, Eye } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { motion, useReducedMotion } from "framer-motion";
 import { CalculatorThemeToggle } from "@/components/theme/CalculatorThemeToggle";
@@ -233,7 +233,7 @@ const isMobile = useIsMobile();
                         Ver onde encontrar na conta
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-3xl p-0'} overflow-hidden`} hideCloseButton>
+                    <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-3xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
                       <StandardDialogHeader
                         icon={Eye}
                         iconColor="primary"
@@ -241,13 +241,13 @@ const isMobile = useIsMobile();
                         description="Veja onde encontrar esta informação na sua conta de luz"
                         onClose={() => document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}))}
                       />
-                      <StandardDialogContent className="p-4">
+                      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                         <img
                           src={ondeverImage}
                           alt="Onde encontrar o tipo de fornecimento na conta de luz"
                           className="w-full h-auto rounded-lg"
                         />
-                      </StandardDialogContent>
+                      </div>
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -262,12 +262,12 @@ const isMobile = useIsMobile();
                           ? "border-primary bg-primary/10 shadow-lg"
                           : "border-border hover:border-primary/30 hover:bg-muted/30"
                       }`}
-                      onClick={() => setDados({ ...dados, tipoFornecimento: tipo.value as any })}
+                      onClick={() => setDados({ ...dados, tipoFornecimento: tipo.value as CalculadoraData['tipoFornecimento'] })}
                       tabIndex={0}
                       role="button"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
-                          setDados({ ...dados, tipoFornecimento: tipo.value as any });
+                          setDados({ ...dados, tipoFornecimento: tipo.value as CalculadoraData['tipoFornecimento'] });
                         }
                       }}
                     >

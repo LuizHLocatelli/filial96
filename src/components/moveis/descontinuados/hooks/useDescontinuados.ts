@@ -71,7 +71,7 @@ export function useDescontinuados() {
     }
   };
 
-  const createProduto = async (produtoData: any, file?: File) => {
+  const createProduto = async (produtoData: Record<string, string | number>, file?: File) => {
     if (!user) return;
 
     try {
@@ -101,16 +101,19 @@ export function useDescontinuados() {
         imagem_tamanho = file.size;
       }
 
+      const insertData = {
+        ...produtoData,
+        imagem_url,
+        imagem_nome,
+        imagem_tipo,
+        imagem_tamanho,
+        created_by: user.id
+      };
+
       const { error } = await supabase
         .from('moveis_descontinuados')
-        .insert({
-          ...produtoData,
-          imagem_url,
-          imagem_nome,
-          imagem_tipo,
-          imagem_tamanho,
-          created_by: user.id
-        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .insert(insertData as any);
 
       if (error) throw error;
 
@@ -163,6 +166,7 @@ export function useDescontinuados() {
 
   useEffect(() => {
     fetchProdutos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   return {

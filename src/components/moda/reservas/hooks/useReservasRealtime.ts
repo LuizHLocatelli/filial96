@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ModaReserva } from '../types';
-import { processReservaData } from '../utils/dataProcessing';
+import { processReservaData, ReservaData } from '../utils/dataProcessing';
 
 export function useReservasRealtime(
   setReservas: React.Dispatch<React.SetStateAction<ModaReserva[]>>,
@@ -13,7 +13,7 @@ export function useReservasRealtime(
       return;
     }
 
-    const handleRealtimeUpdate = (payload: any) => {
+    const handleRealtimeUpdate = (payload: { eventType: string; new: ReservaData; old: { id: string } }) => {
       if (payload.eventType === 'INSERT') {
         const [processed] = processReservaData([payload.new]);
         setReservas(current => [processed, ...current].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));

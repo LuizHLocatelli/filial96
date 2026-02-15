@@ -205,7 +205,7 @@ export async function handleUpdatePassword({
     setTimeout(() => navigate("/auth"), 2000);
     return true;
     
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erro inesperado ao redefinir senha:", error);
     toast({
       variant: "destructive",

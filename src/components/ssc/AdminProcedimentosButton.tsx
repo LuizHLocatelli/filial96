@@ -8,9 +8,9 @@ import { Plus, Edit2, Trash2, Search, Settings, AlertCircle } from 'lucide-react
 import { toast } from 'sonner'
 import { useProcedimentosSSC } from '@/hooks/useProcedimentosSSC'
 import { ProcedimentoForm } from './ProcedimentoForm'
-import { ProcedimentoSSC } from '@/types/ssc-procedimentos'
+import { ProcedimentoSSC, ProcedimentoInsert } from '@/types/ssc-procedimentos'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from '@/components/ui/standard-dialog'
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog'
 
 export function AdminProcedimentosButton() {
   const { profile } = useAuth()
@@ -35,6 +35,7 @@ export function AdminProcedimentosButton() {
     if (isOpen && isManager) {
       fetchProcedimentos()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isManager])
 
   const filteredProcedimentos = procedimentos.filter(p =>
@@ -69,7 +70,7 @@ export function AdminProcedimentosButton() {
         await updateProcedimento(editingProcedimento.id, dados)
         toast.success('Procedimento atualizado com sucesso')
       } else {
-        await createProcedimento(dados as any)
+        await createProcedimento(dados as ProcedimentoInsert)
         toast.success('Procedimento criado com sucesso')
       }
       setIsFormOpen(false)
@@ -91,7 +92,7 @@ export function AdminProcedimentosButton() {
         </Button>
       </DialogTrigger>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} overflow-hidden max-h-[85vh] flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -101,7 +102,7 @@ export function AdminProcedimentosButton() {
           onClose={() => setIsOpen(false)}
         />
 
-        <StandardDialogContent className="p-0">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Formulário de Add/Edit */}
           {isFormOpen ? (
             <div className="p-4 space-y-4">
@@ -198,7 +199,7 @@ export function AdminProcedimentosButton() {
               )}
             </div>
           )}
-        </StandardDialogContent>
+        </div>
 
         {!isFormOpen && (
           <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>

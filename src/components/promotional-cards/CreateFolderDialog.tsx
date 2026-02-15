@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { StandardDialogHeader, StandardDialogContent, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CreateFolderDialogProps {
@@ -82,7 +82,7 @@ export function CreateFolderDialog({
       <DialogContent 
         className={`
           ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'}
-          overflow-hidden
+          max-h-[85vh] overflow-y-auto flex flex-col
         `}
         hideCloseButton
       >
@@ -95,7 +95,7 @@ export function CreateFolderDialog({
           loading={isCreating}
         />
 
-        <StandardDialogContent>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-4">
             <div>
               <Label htmlFor="folderName" className="text-base">Nome da Pasta *</Label>
@@ -111,7 +111,7 @@ export function CreateFolderDialog({
               />
             </div>
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

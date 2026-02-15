@@ -3,7 +3,7 @@ interface LogEntry {
   level: 'info' | 'warn' | 'error' | 'debug';
   operation: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
   duration?: number;
 }
 
@@ -11,7 +11,7 @@ class SupabaseLogger {
   private logs: LogEntry[] = [];
   private maxLogs = 100;
 
-  log(level: LogEntry['level'], operation: string, message: string, details?: any) {
+  log(level: LogEntry['level'], operation: string, message: string, details?: Record<string, unknown>) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -38,19 +38,19 @@ class SupabaseLogger {
     console.log(`${emoji[level]} [${operation}] ${message}`, details || '');
   }
 
-  info(operation: string, message: string, details?: any) {
+  info(operation: string, message: string, details?: Record<string, unknown>) {
     this.log('info', operation, message, details);
   }
 
-  warn(operation: string, message: string, details?: any) {
+  warn(operation: string, message: string, details?: Record<string, unknown>) {
     this.log('warn', operation, message, details);
   }
 
-  error(operation: string, message: string, details?: any) {
+  error(operation: string, message: string, details?: Record<string, unknown>) {
     this.log('error', operation, message, details);
   }
 
-  debug(operation: string, message: string, details?: any) {
+  debug(operation: string, message: string, details?: Record<string, unknown>) {
     this.log('debug', operation, message, details);
   }
 
@@ -71,7 +71,7 @@ class SupabaseLogger {
       return result;
     } catch (error) {
       const duration = Date.now() - start;
-      this.error(operation, `Falhou após ${duration}ms`, error);
+      this.error(operation, `Falhou após ${duration}ms`, error instanceof Error ? { error: error.message, stack: error.stack } : { error: String(error) });
       throw error;
     }
   }
@@ -94,7 +94,7 @@ class SupabaseLogger {
     const stats = this.logs.reduce((acc, log) => {
       acc[log.level] = (acc[log.level] || 0) + 1;
       return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<LogEntry['level'], number>);
 
     const avgDuration = this.logs
       .filter(log => log.duration)
@@ -120,27 +120,29 @@ class SupabaseLogger {
 // Instância singleton
 export const supabaseLogger = new SupabaseLogger();
 
+type LogDetails = Record<string, unknown>;
+
 // Helper para operações específicas
 export const logSupabaseOperation = {
   auth: {
-    signup: (message: string, details?: any) => supabaseLogger.info('AUTH.SIGNUP', message, details),
-    login: (message: string, details?: any) => supabaseLogger.info('AUTH.LOGIN', message, details),
-    logout: (message: string, details?: any) => supabaseLogger.info('AUTH.LOGOUT', message, details),
-    error: (message: string, details?: any) => supabaseLogger.error('AUTH', message, details),
+    signup: (message: string, details?: LogDetails) => supabaseLogger.info('AUTH.SIGNUP', message, details),
+    login: (message: string, details?: LogDetails) => supabaseLogger.info('AUTH.LOGIN', message, details),
+    logout: (message: string, details?: LogDetails) => supabaseLogger.info('AUTH.LOGOUT', message, details),
+    error: (message: string, details?: LogDetails) => supabaseLogger.error('AUTH', message, details),
   },
   
   database: {
-    select: (table: string, message: string, details?: any) => supabaseLogger.info(`DB.SELECT.${table.toUpperCase()}`, message, details),
-    insert: (table: string, message: string, details?: any) => supabaseLogger.info(`DB.INSERT.${table.toUpperCase()}`, message, details),
-    update: (table: string, message: string, details?: any) => supabaseLogger.info(`DB.UPDATE.${table.toUpperCase()}`, message, details),
-    delete: (table: string, message: string, details?: any) => supabaseLogger.info(`DB.DELETE.${table.toUpperCase()}`, message, details),
-    error: (operation: string, message: string, details?: any) => supabaseLogger.error(`DB.${operation.toUpperCase()}`, message, details),
+    select: (table: string, message: string, details?: LogDetails) => supabaseLogger.info(`DB.SELECT.${table.toUpperCase()}`, message, details),
+    insert: (table: string, message: string, details?: LogDetails) => supabaseLogger.info(`DB.INSERT.${table.toUpperCase()}`, message, details),
+    update: (table: string, message: string, details?: LogDetails) => supabaseLogger.info(`DB.UPDATE.${table.toUpperCase()}`, message, details),
+    delete: (table: string, message: string, details?: LogDetails) => supabaseLogger.info(`DB.DELETE.${table.toUpperCase()}`, message, details),
+    error: (operation: string, message: string, details?: LogDetails) => supabaseLogger.error(`DB.${operation.toUpperCase()}`, message, details),
   },
 
   profile: {
-    create: (message: string, details?: any) => supabaseLogger.info('PROFILE.CREATE', message, details),
-    update: (message: string, details?: any) => supabaseLogger.info('PROFILE.UPDATE', message, details),
-    fetch: (message: string, details?: any) => supabaseLogger.info('PROFILE.FETCH', message, details),
-    error: (message: string, details?: any) => supabaseLogger.error('PROFILE', message, details),
+    create: (message: string, details?: LogDetails) => supabaseLogger.info('PROFILE.CREATE', message, details),
+    update: (message: string, details?: LogDetails) => supabaseLogger.info('PROFILE.UPDATE', message, details),
+    fetch: (message: string, details?: LogDetails) => supabaseLogger.info('PROFILE.FETCH', message, details),
+    error: (message: string, details?: LogDetails) => supabaseLogger.error('PROFILE', message, details),
   }
 }; 

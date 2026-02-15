@@ -25,7 +25,7 @@ const personalInfoSchema = z.object({
   displayName: z.string().min(2, "Nome de exibição deve ter pelo menos 2 caracteres"),
   phone: z.string()
     .min(10, "Telefone deve ter no mínimo 10 dígitos")
-    .regex(/^[\d\s\(\)\-\+]+$/, "Formato de telefone inválido"),
+    .regex(/^[\d\s()+-]+$/, "Formato de telefone inválido"),
 });
 
 export function PersonalInfoForm() {
@@ -77,11 +77,11 @@ export function PersonalInfoForm() {
         title: "Perfil atualizado",
         description: "Suas informações pessoais foram atualizadas com sucesso.",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Erro ao atualizar perfil",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao atualizar seu perfil.",
       });
     } finally {
       setLoading(false);

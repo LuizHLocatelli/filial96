@@ -2,7 +2,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   StandardDialogHeader,
-  StandardDialogContent,
   StandardDialogFooter,
 } from '@/components/ui/standard-dialog';
 import { FileText, Image as ImageIcon, Download, X, ExternalLink } from 'lucide-react';
@@ -48,7 +47,7 @@ export function CurriculoViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden max-h-[90vh]" hideCloseButton>
+      <DialogContent className="sm:max-w-[800px] p-0 max-h-[90vh] overflow-y-auto flex flex-col" hideCloseButton>
         <StandardDialogHeader
           icon={isPdf ? FileText : ImageIcon}
           iconColor="blue"
@@ -57,7 +56,7 @@ export function CurriculoViewDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <StandardDialogContent className="p-0">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Preview */}
           <div className="relative bg-muted min-h-[400px] max-h-[60vh] overflow-auto flex items-center justify-center">
             {isPdf ? (
@@ -99,7 +98,7 @@ export function CurriculoViewDialog({
               </span>
             )}
           </div>
-        </StandardDialogContent>
+        </div>
 
         <StandardDialogFooter>
           <Button

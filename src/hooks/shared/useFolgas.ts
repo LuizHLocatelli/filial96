@@ -21,6 +21,7 @@ interface FolgaRow {
   id: string;
   data: string;
   consultor_id: string;
+  crediarista_id?: string;
   motivo?: string | null;
   created_at?: string;
   created_by?: string | null;
@@ -137,7 +138,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
       } else if (config.tableName === 'crediario_folgas') {
         const result = await supabase.from('crediario_folgas').select('*');
         // Map crediarista_id to consultor_id for compatibility
-        data = (result.data || []).map((row: any) => ({
+        data = (result.data || []).map((row) => ({
           ...row,
           consultor_id: row.crediarista_id,
         })) as FolgaRow[];
@@ -290,7 +291,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
       }
 
       if (data && data.length > 0) {
-        const row = data[0] as any;
+        const row = data[0] as unknown as FolgaRow;
         const newFolga: Folga = {
           id: row.id,
           data: fromDateOnlyString(row.data),
