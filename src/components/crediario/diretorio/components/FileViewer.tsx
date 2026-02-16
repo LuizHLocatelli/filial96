@@ -29,7 +29,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-3xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[900px] p-0'} max-h-[95vh] overflow-y-auto flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -43,7 +43,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-0">
             {isPdf && (
-              <div className="w-full h-[60vh]">
+              <div className="w-full h-[75vh] min-h-[500px]">
                 <PDFViewer 
                   url={file.file_url} 
                   className="h-full w-full" 

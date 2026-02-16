@@ -63,30 +63,30 @@ export function StandardDialogHeader({
     <div
       className={cn(
         `bg-gradient-to-br ${colors.bg} border-b flex-shrink-0`,
-        isMobile ? "p-4" : "p-6",
+        isMobile ? "p-3" : "p-4",
         className
       )}
     >
-      <DialogHeader className={cn(isMobile ? "space-y-3" : "space-y-4")}>
+      <DialogHeader className={cn(isMobile ? "space-y-2" : "space-y-2")}>
         <div className="flex items-center justify-between gap-2">
           <DialogTitle
             className={cn(
               "flex items-center gap-2 flex-1 min-w-0",
-              isMobile ? "text-base" : "text-lg md:text-xl"
+              isMobile ? "text-sm" : "text-base"
             )}
           >
             {Icon && (
               <div
                 className={cn(
                   "rounded-xl shrink-0",
-                  isMobile ? "p-2" : "p-2.5",
+                  isMobile ? "p-1.5" : "p-2",
                   colors.iconBg
                 )}
               >
                 <Icon
                   className={cn(
                     colors.iconText,
-                    isMobile ? "w-5 h-5" : "w-6 h-6"
+                    isMobile ? "w-4 h-4" : "w-5 h-5"
                   )}
                 />
               </div>
@@ -109,7 +109,7 @@ export function StandardDialogHeader({
           <p
             className={cn(
               "text-muted-foreground",
-              isMobile ? "text-sm" : "text-base"
+              isMobile ? "text-xs" : "text-sm"
             )}
           >
             {description}

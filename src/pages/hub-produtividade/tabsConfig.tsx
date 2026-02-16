@@ -1,7 +1,8 @@
 import {
   FileImage,
   Bot,
-  FileText
+  FileText,
+  Radio
 } from "lucide-react";
 import { lazy } from "react";
 import type { HubHandlers } from "@/components/moveis/hub-produtividade/types/hubTypes";
@@ -9,6 +10,7 @@ import type { HubHandlers } from "@/components/moveis/hub-produtividade/types/hu
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
 const AssistentesAI = lazy(() => import("@/components/assistentes-ai/AssistentesAI"));
 const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
+const RadioSection = lazy(() => import("@/components/moveis/hub-produtividade/components/RadioSection"));
 
 interface TabsConfigProps {
   isLoading: boolean;
@@ -41,6 +43,17 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <AssistentesAI />
+        </div>
+      )
+    },
+    {
+      value: "radio",
+      label: "Rádio",
+      icon: Radio,
+      description: "Ouça sua rádio favorita",
+      component: (
+        <div className="border border-border/40 rounded-lg overflow-hidden">
+          <RadioSection />
         </div>
       )
     }

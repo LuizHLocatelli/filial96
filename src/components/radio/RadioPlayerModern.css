@@ -1,0 +1,313 @@
+/* Radio Player Modern - Glassmorphism Design */
+
+.radio-modern-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  
+  /* Usando variáveis do shadcn/ui */
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Top highlight line */
+.radio-modern-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent);
+  opacity: 0.8;
+}
+
+/* Header */
+.radio-modern-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.radio-icon-wrapper {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.8) 0%, 
+    hsl(var(--primary) / 0.6) 100%);
+  border: 1px solid hsl(var(--primary) / 0.3);
+  border-radius: 50%;
+  box-shadow: 
+    0 4px 16px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.radio-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+
+.radio-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.radio-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
+
+/* Live Indicator */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  box-shadow: 0 0 8px hsl(var(--primary) / 0.6);
+}
+
+.live-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--primary));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Player Section */
+.radio-modern-player {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Play Button */
+.play-button {
+  width: 4rem;
+  height: 4rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.8) 0%, 
+    hsl(var(--primary) / 0.6) 100%);
+  border: 1px solid hsl(var(--primary) / 0.3);
+  box-shadow: 
+    0 4px 16px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.play-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.9) 0%, 
+    hsl(var(--primary) / 0.7) 100%);
+  box-shadow: 
+    0 6px 20px hsl(var(--primary) / 0.4),
+    0 0 15px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.play-button.playing {
+  background: linear-gradient(135deg, 
+    hsl(var(--destructive) / 0.8) 0%, 
+    hsl(var(--destructive) / 0.6) 100%);
+  border-color: hsl(var(--destructive) / 0.3);
+  box-shadow: 
+    0 4px 16px hsl(var(--destructive) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.play-button.playing:hover:not(:disabled) {
+  background: linear-gradient(135deg, 
+    hsl(var(--destructive) / 0.9) 0%, 
+    hsl(var(--destructive) / 0.7) 100%);
+  box-shadow: 
+    0 6px 20px hsl(var(--destructive) / 0.4),
+    0 0 15px hsl(var(--destructive) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.play-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Audio Visualizer */
+.visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  height: 2rem;
+}
+
+.visualizer-bar {
+  width: 4px;
+  background: linear-gradient(to top, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+/* Volume Control */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+.volume-button {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.2s ease;
+}
+
+.volume-button:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.volume-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 1.5rem;
+}
+
+/* Custom slider styling */
+.volume-slider [data-orientation="horizontal"] {
+  height: 6px;
+}
+
+.volume-slider [role="slider"] {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border: 2px solid hsl(var(--primary));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.volume-slider [role="slider"]:hover {
+  transform: scale(1.2);
+}
+
+.volume-slider [data-orientation="horizontal"] > span[data-orientation="horizontal"] {
+  background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+}
+
+.volume-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+/* Status Bar */
+.status-bar {
+  width: 100%;
+  padding: 0.75rem;
+  background: hsl(var(--primary) / 0.1);
+  border: 1px solid hsl(var(--primary) / 0.2);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.status-text {
+  font-size: 0.875rem;
+  color: hsl(var(--primary));
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .radio-modern-container {
+    padding: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .radio-title {
+    font-size: 1.125rem;
+  }
+
+  .play-button {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .radio-icon-wrapper {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .radio-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}

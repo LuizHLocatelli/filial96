@@ -50,7 +50,7 @@ export function CurriculoViewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[800px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
+      <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[900px] p-0'} max-h-[95vh] overflow-y-auto flex flex-col`} hideCloseButton>
         <StandardDialogHeader
           icon={isPdf ? FileText : ImageIcon}
           iconColor="blue"
@@ -59,8 +59,8 @@ export function CurriculoViewDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="flex-1 overflow-hidden p-4 sm:p-6">
-          <div className="bg-muted h-[60vh] overflow-hidden rounded-lg">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="bg-muted h-[75vh] min-h-[500px] overflow-hidden rounded-lg">
             {isPdf ? (
               <PDFViewer 
                 url={curriculo.file_url} 

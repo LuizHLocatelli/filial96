@@ -19,6 +19,15 @@ export const searchableItems: SearchResult[] = [
     icon: 'Users'
   },
   {
+    id: 'hub-produtividade-radio',
+    title: 'Rádio - Hub',
+    description: 'Ouça sua rádio favorita no Hub',
+    type: 'section',
+    path: '/?tab=radio',
+    section: 'Hub de Produtividade',
+    icon: 'Radio'
+  },
+  {
     id: 'moveis',
     title: 'Móveis',
     description: 'Gestão completa do setor de móveis',
