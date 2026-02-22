@@ -1,4 +1,8 @@
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "AIzaSyCgXCpR0szI0CTdJN-N2cxhti72Hc8UgCo";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+
+if (!GEMINI_API_KEY) {
+  console.error("GEMINI_API_KEY environment variable is missing.");
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
