@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
       throw new Error("Message is required");
     }
 
-    const modelName = "gemini-2.0-flash"; // Fallback to stable 2.0 version as 3.0 seems unavailable
+    const modelName = "gemini-3-flash-preview";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
 
     // Format the current message
