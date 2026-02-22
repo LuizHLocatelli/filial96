@@ -45,7 +45,7 @@ export default function HubProdutividade() {
     setShowFiltrosPorData
   });
 
-  const activeTab = searchParams.get("tab") || "assistentes"; // Changed to "assistentes" as default
+  const activeTab = searchParams.get("tab") || "cartazes";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -81,7 +81,7 @@ export default function HubProdutividade() {
     <PageLayout spacing="tight" maxWidth="full">
       <PageHeader
         title="Hub de Produtividade"
-        description="Central de assistentes de IA e ferramentas"
+        description="Central de ferramentas e produtividade"
         icon={Activity}
         iconColor="text-primary"
         variant="default"

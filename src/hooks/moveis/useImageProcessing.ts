@@ -126,7 +126,7 @@ export function useImageProcessing(): UseImageProcessingReturn {
       } else {
         toast({
           title: 'Aviso',
-          description: 'A IA não conseguiu extrair dados significativos da nota fiscal. Verifique a qualidade da imagem e preencha os dados manualmente.',
+          description: 'Não foi possível extrair dados significativos da nota fiscal. Verifique a qualidade da imagem e preencha os dados manualmente.',
           variant: 'default',
         });
       }

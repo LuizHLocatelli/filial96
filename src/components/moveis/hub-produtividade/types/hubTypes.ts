@@ -1,6 +1,6 @@
 
 export interface HubSection {
-  id: 'cartazes' | 'monitoramento' | 'assistentes';
+  id: 'cartazes' | 'monitoramento';
   title: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
@@ -10,7 +10,6 @@ export interface HubSection {
 export interface NavigationBadges {
   cartazes?: number;
   monitoramento?: number;
-  assistentes?: number;
 }
 
 export interface HubHandlers {
@@ -22,5 +21,5 @@ export interface HubHandlers {
   onBuscaAvancada?: () => void;
   onFiltrosPorData?: () => void;
   onRelatorios?: () => void;
-  onNavigateToSection?: (section: 'cartazes' | 'monitoramento' | 'assistentes') => void;
+  onNavigateToSection?: (section: 'cartazes' | 'monitoramento') => void;
 }

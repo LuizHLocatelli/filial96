@@ -5,7 +5,7 @@ export function TrustIndicators() {
     {
       icon: LayoutGrid,
       title: "Hub de Produtividade",
-      description: "Assistentes de IA, metas e desempenho em um só lugar."
+      description: "Ferramentas, metas e desempenho em um só lugar."
     },
     {
       icon: Users,

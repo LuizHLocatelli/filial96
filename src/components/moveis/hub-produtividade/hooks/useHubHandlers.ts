@@ -104,7 +104,7 @@ export function useHubHandlers({
     setShowFilters(true);
   };
 
-  const handleNavigateToSection = (section: 'cartazes' | 'monitoramento' | 'assistentes') => {
+  const handleNavigateToSection = (section: 'cartazes' | 'monitoramento') => {
     console.log("🧭 Handler Navigate to Section executado:", section);
     try {
       const currentUrl = new URL(window.location.href);

@@ -1,17 +1,17 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX, Radio } from 'lucide-react';
+import { Volume2, VolumeX, Radio, Play, Pause, Loader2 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
-import './RadioPlayerModern.css';
+import { cn } from '@/lib/utils';
 
 // Visualizer Bar Component
 const VisualizerBar = ({ delay, isPlaying }: { delay: number; isPlaying: boolean }) => (
   <motion.div
-    className="visualizer-bar"
+    className="w-1.5 bg-primary/80 rounded-full"
     animate={{
-      height: isPlaying ? [8, 24, 12, 32, 16, 8] : 4,
+      height: isPlaying ? [12, 32, 16, 40, 24, 12] : 12,
     }}
     transition={{
       duration: 0.8,
@@ -21,25 +21,6 @@ const VisualizerBar = ({ delay, isPlaying }: { delay: number; isPlaying: boolean
       ease: "easeInOut",
     }}
   />
-);
-
-// Live Indicator Component
-const LiveIndicator = () => (
-  <div className="live-indicator">
-    <motion.span
-      className="live-dot"
-      animate={{
-        scale: [1, 1.3, 1],
-        opacity: [1, 0.7, 1],
-      }}
-      transition={{
-        duration: 1.5,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-    />
-    <span className="live-text">Ao vivo</span>
-  </div>
 );
 
 export function RadioPlayerModern() {
@@ -161,115 +142,109 @@ export function RadioPlayerModern() {
   return (
     <TooltipProvider>
       <motion.div
-        className="radio-modern-container"
+        className="glass-card max-w-[420px] w-full mx-auto p-6 md:p-8 flex flex-col items-center gap-8 relative overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Header with Logo */}
-        <div className="radio-modern-header">
-          <motion.div
-            className="radio-icon-wrapper"
-            animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
-            transition={{
-              duration: 20,
-              repeat: isPlaying ? Infinity : 0,
-              ease: "linear",
-            }}
-          >
-            <Radio className="radio-icon" />
-          </motion.div>
-          <div className="radio-title-wrapper">
-            <h3 className="radio-title">Rádio Lebes</h3>
-            <AnimatePresence>
-              {isPlaying && <LiveIndicator />}
-            </AnimatePresence>
+        {/* Decorative Top Highlight */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
+
+        {/* Header Section */}
+        <div className="w-full flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.div
+              className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-inner"
+              animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
+              transition={{ duration: 20, repeat: isPlaying ? Infinity : 0, ease: "linear" }}
+            >
+              <Radio className="w-6 h-6" />
+            </motion.div>
+            <div className="flex flex-col">
+              <h3 className="text-xl font-bold tracking-tight text-foreground m-0 leading-tight">Rádio Lebes</h3>
+              <p className="text-sm text-muted-foreground font-medium">No ar, em toda parte.</p>
+            </div>
           </div>
+          <AnimatePresence>
+            {isPlaying && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20"
+              >
+                <motion.div
+                  animate={{ opacity: [1, 0.4, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                />
+                <span className="text-xs font-bold text-red-500 uppercase tracking-widest">Ao vivo</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Main Player Controls */}
-        <div className="radio-modern-player">
-          {/* Play/Pause Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.button
-                onClick={togglePlay}
-                disabled={isLoading}
-                className={`play-button ${isPlaying ? 'playing' : ''} ${isLoading ? 'loading' : ''}`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <AnimatePresence mode="wait">
-                  {isLoading ? (
-                    <motion.div
-                      key="loading"
-                      className="spinner"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    />
-                  ) : isPlaying ? (
-                    <motion.svg
-                      key="pause"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.5 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <rect x="6" y="4" width="4" height="16" rx="1" />
-                      <rect x="14" y="4" width="4" height="16" rx="1" />
-                    </motion.svg>
-                  ) : (
-                    <motion.svg
-                      key="play"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.5 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </motion.svg>
+        {/* Main Player Section */}
+        <div className="flex flex-col items-center w-full gap-8">
+          <div className="relative flex items-center justify-center">
+            {/* Pulsing Background for Playing State */}
+            {isPlaying && (
+              <motion.div
+                className="absolute inset-0 rounded-full bg-primary/20"
+                animate={{ scale: [1, 1.4], opacity: [0.6, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+              />
+            )}
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={togglePlay}
+                  disabled={isLoading}
+                  className={cn(
+                    "relative z-10 w-24 h-24 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    isPlaying 
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_32px_rgba(var(--primary-rgb),0.3)]" 
+                      : "bg-background border border-border hover:bg-muted text-foreground"
                   )}
-                </AnimatePresence>
-              </motion.button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{isPlaying ? 'Pausar' : 'Tocar'}</p>
-            </TooltipContent>
-          </Tooltip>
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-10 h-10 animate-spin opacity-80" />
+                  ) : isPlaying ? (
+                    <Pause className="w-10 h-10 fill-current opacity-90" />
+                  ) : (
+                    <Play className="w-10 h-10 ml-1.5 fill-current opacity-90" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="font-medium">
+                <p>{isPlaying ? 'Pausar rádio' : 'Tocar rádio'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
-          {/* Audio Visualizer */}
-          <div className="visualizer">
-            {[0, 0.1, 0.2, 0.3, 0.4].map((delay, i) => (
+          {/* Minimalist Audio Visualizer */}
+          <div className="flex items-end justify-center gap-1.5 h-10 w-full">
+            {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6].map((delay, i) => (
               <VisualizerBar key={i} delay={delay} isPlaying={isPlaying} />
             ))}
           </div>
         </div>
 
-        {/* Volume Control */}
-        <div className="volume-control">
+        {/* Volume Control Section */}
+        <div className="w-full flex items-center gap-4 bg-muted/40 rounded-2xl p-4 border border-border/50">
           <Tooltip>
             <TooltipTrigger asChild>
-              <motion.button
+              <button
                 onClick={toggleMute}
-                className="volume-button"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="volume-icon" />
+                  <VolumeX className="w-5 h-5" />
                 ) : (
-                  <Volume2 className="volume-icon" />
+                  <Volume2 className="w-5 h-5" />
                 )}
-              </motion.button>
+              </button>
             </TooltipTrigger>
             <TooltipContent>
               <p>{isMuted ? 'Ativar som' : 'Silenciar'}</p>
@@ -281,27 +256,25 @@ export function RadioPlayerModern() {
             onValueChange={handleVolumeChange}
             max={100}
             step={1}
-            className="volume-slider"
+            className="flex-1 cursor-pointer"
           />
 
-          <span className="volume-value">
+          <span className="text-xs font-semibold text-muted-foreground min-w-[32px] text-right tabular-nums">
             {isMuted ? 0 : volume}%
           </span>
         </div>
-
-        {/* Status Bar */}
+        
+        {/* Status Text (Subtle) */}
         <AnimatePresence>
           {isPlaying && (
-            <motion.div
-              className="status-bar"
+            <motion.p
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
+              className="text-xs text-center text-muted-foreground w-full font-medium"
             >
-              <p className="status-text">
-                Transmitindo: Rádio Lebes - Programação ao vivo
-              </p>
-            </motion.div>
+              Transmitindo a melhor programação.
+            </motion.p>
           )}
         </AnimatePresence>
       </motion.div>

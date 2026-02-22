@@ -15,7 +15,6 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.2",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -57,7 +56,6 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
-    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
     "sharp": "^0.34.2",

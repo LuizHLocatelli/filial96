@@ -7,11 +7,9 @@ import { cn } from "@/lib/utils";
 
 interface GlassAppLayoutProps {
   children: ReactNode;
-  isChatOpen: boolean;
-  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function GlassAppLayout({ children, isChatOpen, setIsChatOpen }: GlassAppLayoutProps) {
+export function GlassAppLayout({ children }: GlassAppLayoutProps) {
   const isMobile = useIsMobile();
   
   return (

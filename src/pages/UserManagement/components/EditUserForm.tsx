@@ -58,7 +58,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
   };
 
   const getRoleBadgeColor = (role: UserRole) => {
-    return roleColors[role] || 'bg-gray-100 text-gray-800 border-gray-300';
+    return roleColors[role] || 'bg-muted text-muted-foreground border-border/50';
   };
 
   return (

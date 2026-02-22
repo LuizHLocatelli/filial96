@@ -4,7 +4,7 @@ export const searchableItems: SearchResult[] = [
   {
     id: 'hub-produtividade',
     title: 'Hub de Produtividade',
-    description: 'Central de assistentes de IA e ferramentas',
+    description: 'Central de ferramentas e produtividade',
     type: 'page',
     path: '/',
     icon: 'Activity'

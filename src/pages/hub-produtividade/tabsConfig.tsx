@@ -1,6 +1,5 @@
 import {
   FileImage,
-  Bot,
   FileText,
   Radio
 } from "lucide-react";
@@ -8,7 +7,6 @@ import { lazy } from "react";
 import type { HubHandlers } from "@/components/moveis/hub-produtividade/types/hubTypes";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
-const AssistentesAI = lazy(() => import("@/components/assistentes-ai/AssistentesAI"));
 const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 const RadioSection = lazy(() => import("@/components/moveis/hub-produtividade/components/RadioSection"));
 
@@ -32,17 +30,6 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <Cartazes />
-        </div>
-      )
-    },
-    {
-      value: "assistentes",
-      label: "Assistentes",
-      icon: Bot,
-      description: "Chatbots assistentes de IA",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <AssistentesAI />
         </div>
       )
     },

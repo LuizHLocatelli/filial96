@@ -56,7 +56,6 @@ Deno.serve(async (req: Request) => {
     // Delete all user-related data from various tables
     // Tables with user_id column
     await safeDelete("ocr_logs", "user_id", userId);
-    await safeDelete("assistentes_conversas", "user_id", userId);
     await safeDelete("crediario_depositos_statistics", "user_id", userId);
 
     // Tables with created_by column
@@ -88,7 +87,6 @@ Deno.serve(async (req: Request) => {
     await safeDelete("cartaz_folders", "created_by", userId);
     await safeDelete("cartazes", "created_by", userId);
     await safeDelete("fretes", "created_by", userId);
-    await safeDelete("assistentes_chatbots", "created_by", userId);
     await safeDelete("attachments", "created_by", userId);
     await safeDelete("card_folders", "created_by", userId);
     await safeDelete("note_folders", "created_by", userId);
