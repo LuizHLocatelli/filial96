@@ -20,8 +20,8 @@ export default function Escalas() {
   const [currentDate] = useState(new Date());
 
   // Show current month
-  const startDateStr = format(startOfWeek(currentDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
-  const endDateStr = format(addDays(new Date(startDateStr), 30), "yyyy-MM-dd");
+  const startDateStr = format(new Date(), "yyyy-MM-01");
+  const endDateStr = format(addDays(new Date(startDateStr), 60), "yyyy-MM-dd");
 
   const queryClient = useQueryClient();
   const { data: escalas, isLoading, refetch } = useQuery({
