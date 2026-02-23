@@ -2,7 +2,8 @@ import {
   FileImage,
   FileText,
   Radio,
-  Bot
+  Bot,
+  CalendarDays
 } from "lucide-react";
 import { lazy } from "react";
 import type { HubHandlers } from "@/components/moveis/hub-produtividade/types/hubTypes";
@@ -11,6 +12,7 @@ const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
 const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 const RadioSection = lazy(() => import("@/components/moveis/hub-produtividade/components/RadioSection"));
 const AssistentesHub = lazy(() => import("@/components/assistentes/components/AssistentesHub").then(module => ({ default: module.AssistentesHub })));
+const Escalas = lazy(() => import("@/components/moveis/escalas/Escalas"));
 
 interface TabsConfigProps {
   isLoading: boolean;
@@ -32,6 +34,17 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
           <Cartazes />
+        </div>
+      )
+    },
+    {
+      value: "escalas",
+      label: "Escalas",
+      icon: CalendarDays,
+      description: "Gestão de horários e cargas",
+      component: (
+        <div className="border border-border/40 rounded-lg overflow-hidden bg-background p-4 md:p-6">
+          <Escalas />
         </div>
       )
     },
