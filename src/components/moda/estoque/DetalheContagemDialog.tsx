@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Download, Edit2, Plus, X } from "lucide-react";
+import { Package, Download, Edit2, Plus, Box, LayoutList } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProdutoForm } from "./ProdutoForm";
@@ -63,11 +63,11 @@ export function DetalheContagemDialog({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "em_andamento":
-        return "bg-amber-100 text-amber-800 border-amber-200";
+        return "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30";
       case "finalizada":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700";
     }
   };
 
@@ -140,12 +140,12 @@ export function DetalheContagemDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col glass-overlay border-none`}
           hideCloseButton
         >
           <StandardDialogHeader
             icon={Package}
-            iconColor="primary"
+            iconColor={contagem.status === 'em_andamento' ? "amber" : "green"}
             title={
               <div className="flex items-center gap-2">
                 <span>{contagem.nome}</span>
@@ -154,9 +154,9 @@ export function DetalheContagemDialog({
                     variant="ghost"
                     size="sm"
                     onClick={() => setEditarNomeOpen(true)}
-                    className="h-6 w-6 p-0 hover:bg-muted flex-shrink-0"
+                    className="h-6 w-6 p-0 hover:bg-muted/50 rounded-full flex-shrink-0 opacity-50 hover:opacity-100"
                   >
-                    <Edit2 className="h-3 w-3" />
+                    <Edit2 className="h-3.5 w-3.5" />
                   </Button>
                 )}
               </div>
@@ -166,13 +166,14 @@ export function DetalheContagemDialog({
                 addSuffix: true,
                 locale: ptBR
               })}
-              <span className="mx-2">•</span>
-              <Badge className={`${getStatusColor(contagem.status)} text-xs px-2 py-0.5`} variant="outline">
+              <span className="mx-2 text-muted-foreground/50">•</span>
+              <Badge className={`${getStatusColor(contagem.status)} text-[10px] sm:text-xs px-2 py-0.5 rounded-full`} variant="outline">
                 {getStatusText(contagem.status)}
               </Badge>
             </>}
             onClose={() => onOpenChange(false)}
             loading={false}
+            className="border-b bg-card/50 backdrop-blur-md"
           >
             <div className="flex items-center gap-2 mt-2">
               <Button
@@ -180,40 +181,40 @@ export function DetalheContagemDialog({
                 size="sm"
                 onClick={() => setExportDialogOpen(true)}
                 disabled={produtos.length === 0}
-                className="gap-1.5 text-xs px-3 h-8"
+                className="gap-2 text-xs px-3 h-8 shadow-sm bg-background/50 backdrop-blur-md hover:bg-primary hover:text-primary-foreground border-primary/20 transition-colors"
               >
-                <Download className="h-3 w-3" />
-                <span className="hidden sm:inline">Exportar PDF</span>
-                <span className="sm:hidden">PDF</span>
+                <Download className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Exportar Relatório</span>
+                <span className="sm:hidden">Exportar</span>
               </Button>
             </div>
           </StandardDialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-0 flex flex-col">
+          <div className="flex-1 overflow-y-auto p-0 flex flex-col bg-background/40">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
-              <div className="flex-shrink-0 px-4 sm:px-5 pt-3 border-b">
-                <TabsList className="grid w-full grid-cols-2 h-10">
-                  <TabsTrigger value="produtos" className="text-sm px-3">
-                    <Package className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Produtos</span>
-                    <span className="sm:hidden">Lista</span>
+              <div className="flex-shrink-0 px-4 sm:px-6 pt-4 pb-2 border-b bg-card/30 backdrop-blur-sm sticky top-0 z-10">
+                <TabsList className="grid w-full sm:max-w-md grid-cols-2 h-11 bg-background/50 p-1">
+                  <TabsTrigger value="produtos" className="text-sm px-3 gap-2 rounded-md data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                    <LayoutList className="h-4 w-4" />
+                    <span className="hidden sm:inline">Lista de Produtos</span>
+                    <span className="sm:hidden">Produtos</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="adicionar"
                     disabled={contagem.status === "finalizada"}
-                    className="text-sm px-3"
+                    className="text-sm px-3 gap-2 rounded-md data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:text-primary"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Adicionar Produto</span>
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden sm:inline">Adicionar Novo</span>
                     <span className="sm:hidden">Adicionar</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               {/* Conteúdo das tabs com scroll */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4">
-                <TabsContent value="produtos" className="mt-0 h-full" asChild>
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
+                <TabsContent value="produtos" className="mt-0 h-full animate-in fade-in slide-in-from-bottom-2 duration-300" asChild>
                   <div className="h-full">
                     <ProdutosList
                       contagemId={contagem.id}
@@ -223,8 +224,8 @@ export function DetalheContagemDialog({
                   </div>
                 </TabsContent>
 
-                <TabsContent value="adicionar" className="mt-0 h-full" asChild>
-                  <div className="h-full">
+                <TabsContent value="adicionar" className="mt-0 h-full animate-in fade-in slide-in-from-bottom-2 duration-300" asChild>
+                  <div className="h-full max-w-2xl mx-auto">
                     <ProdutoForm
                       contagemId={contagem.id}
                       contagemSetor={contagem.setor}

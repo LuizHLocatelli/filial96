@@ -9,6 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, Save, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useGenerateSystemMessage } from "../hooks/useGenerateSystemMessage";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,6 +45,7 @@ interface AssistenteDialogProps {
 export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDelete, isSaving }: AssistenteDialogProps) {
   const [promptPurpose, setPromptPurpose] = useState("");
   const [highlightField, setHighlightField] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { generate, isGenerating } = useGenerateSystemMessage();
 
   const form = useForm<FormData>({
@@ -250,14 +261,10 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
         <StandardDialogFooter>
           <div className="flex justify-between w-full">
             {initialData && onDelete ? (
-              <Button 
-                variant="destructive" 
-                type="button" 
-                onClick={() => {
-                  if (confirm("Tem certeza que deseja apagar este assistente?")) {
-                    onDelete(initialData.id);
-                  }
-                }}
+              <Button
+                variant="destructive"
+                type="button"
+                onClick={() => setDeleteDialogOpen(true)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Excluir
@@ -284,6 +291,33 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
           </div>
         </StandardDialogFooter>
       </DialogContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Assistente</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este assistente? Esta ação não pode ser desfeita e todas as conversas associadas serão perdidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (initialData && onDelete) {
+                  onDelete(initialData.id);
+                  setDeleteDialogOpen(false);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

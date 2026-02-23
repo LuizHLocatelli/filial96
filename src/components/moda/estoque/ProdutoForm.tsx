@@ -165,7 +165,7 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
   };
 
   return (
-    <Card>
+    <Card className="glass-card border-none shadow-sm bg-background/60 backdrop-blur-md">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
           <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
