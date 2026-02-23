@@ -29,7 +29,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
   
   // States
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [daysToGenerate, setDaysToGenerate] = useState(30);
+  const [daysToGenerate, setDaysToGenerate] = useState<number | "">(30);
   const [firstPairIds, setFirstPairIds] = useState<string[]>([]);
   const [excludedConsultantsIds, setExcludedConsultantsIds] = useState<string[]>([]);
   
@@ -82,7 +82,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       setIsGenerating(true);
       const schedule = await generateEscalaWithAI({
         startDate,
-        daysToGenerate,
+        daysToGenerate: Number(daysToGenerate) || 30,
         firstPairIds,
         availableConsultantsIds,
         excludedConsultantsIds
@@ -174,7 +174,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
                     min={7}
                     max={90}
                     value={daysToGenerate}
-                    onChange={(e) => setDaysToGenerate(Number(e.target.value))}
+                    onChange={(e) => setDaysToGenerate(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                   <p className="text-xs text-muted-foreground">Recomendado: 30 dias (1 mês).</p>
                 </div>
