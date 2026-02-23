@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, addDays, startOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Plus, Loader2, Calendar as CalendarIcon, Clock, Truck } from "lucide-react";
@@ -23,6 +23,7 @@ export default function Escalas() {
   const startDateStr = format(startOfWeek(currentDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
   const endDateStr = format(addDays(new Date(startDateStr), 30), "yyyy-MM-dd");
 
+  const queryClient = useQueryClient();
   const { data: escalas, isLoading, refetch } = useQuery({
     queryKey: ["escalas", startDateStr, endDateStr],
     queryFn: () => fetchEscalas(startDateStr, endDateStr),
@@ -168,7 +169,10 @@ export default function Escalas() {
         <GeradorEscalaDialog 
           open={showGerador} 
           onOpenChange={setShowGerador} 
-          onSuccess={() => refetch()}
+          onSuccess={() => {
+            refetch();
+            queryClient.invalidateQueries({ queryKey: ["escalas"] });
+          }}
         />
       )}
     </div>
