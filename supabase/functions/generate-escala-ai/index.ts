@@ -18,7 +18,7 @@ serve(async (req) => {
       throw new Error("GEMINI_API_KEY environment variable is missing.");
     }
 
-    const { startDate, daysToGenerate, firstPairIds, availableConsultantsIds, excludedConsultantsIds = [] } = await req.json();
+    const { startDate, daysToGenerate, firstPairIds, availableConsultantsIds, excludedConsultantsIds = [], folgas = [] } = await req.json();
 
     if (!startDate || !daysToGenerate || !firstPairIds || !availableConsultantsIds) {
       throw new Error("Missing required parameters in request body.");
@@ -41,13 +41,16 @@ RULES:
 8. Use a round-robin rotation for the "Carga" shift among the available consultants.
 9. Everyone else works the "Normal" shift (09:30:00 to 18:30:00).
 10. If someone is in the 'excludedConsultantsIds' list, they must NOT appear in the schedule at all (they are on vacation/medical leave).
+11. The 'folgas' array contains specific dates where specific consultants CANNOT work. If a consultant has a folga on a specific date, they MUST NOT be scheduled for ANY shift (Carga or Normal) on that specific date. 
+12. If a consultant has a folga on a day they were supposed to do "Carga", another available consultant must take their place. If they were supposed to do the mirror shift, replace them with someone else for the mirror day.
 
 INPUTS:
 - Start Date: ${startDate} (This is a Monday)
 - Days to generate: ${daysToGenerate}
 - The first 2 people for Carga on the Start Date are EXACTLY: ${JSON.stringify(firstPairIds)}
 - List of all available consultants (UUIDs): ${JSON.stringify(availableConsultantsIds)}
-- List of excluded consultants (UUIDs): ${JSON.stringify(excludedConsultantsIds)}
+- List of excluded consultants (entire period): ${JSON.stringify(excludedConsultantsIds)}
+- List of specific days off (folgas): ${JSON.stringify(folgas)}
 
 OUTPUT FORMAT:
 Respond ONLY with a raw JSON array of objects. Do not use markdown blocks (\`\`\`json). Just the raw JSON.
@@ -111,10 +114,10 @@ Every available consultant (not excluded) must have 1 object per working day in 
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Function error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { 
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" } 

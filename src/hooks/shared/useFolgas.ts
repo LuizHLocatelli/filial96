@@ -316,6 +316,32 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
         setSelectedConsultor("");
         setMotivo("");
         setOpenDialog(false);
+
+        // Se for folga de móveis, dispara o recálculo automático da escala em background
+        if (config.tableName === 'moveis_folgas' && selectedDate) {
+          toast({
+            title: "Analisando escala...",
+            description: "Verificando se a folga afeta a escala de carga.",
+          });
+          
+          import('@/components/moveis/escalas/services/escalasRecalculate').then(module => {
+            module.recalculateEscalaAfterFolga(insertData.data).then(recalculated => {
+              if (recalculated) {
+                toast({
+                  title: "Escala recalculada",
+                  description: "A Inteligência Artificial ajustou a escala de carga automaticamente devido à nova folga.",
+                });
+              }
+            }).catch(e => {
+              console.error("Erro ao recalcular escala:", e);
+              toast({
+                variant: "destructive",
+                title: "Erro no ajuste da escala",
+                description: "Houve um erro ao tentar recalcular a escala com a IA. O gerente precisará ajustar manualmente na tela de Escalas.",
+              });
+            });
+          });
+        }
       }
     } catch (error) {
       toast({

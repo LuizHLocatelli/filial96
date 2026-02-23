@@ -21,6 +21,7 @@ export interface EscalaAIPayload {
   firstPairIds: string[]; // UUIDs
   availableConsultantsIds: string[]; // UUIDs
   excludedConsultantsIds?: string[]; // UUIDs
+  folgas?: { consultantId: string; date: string }[];
 }
 
 export interface EscalaAIResponse {

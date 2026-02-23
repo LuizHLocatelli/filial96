@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { fetchConsultores, generateEscalaWithAI, saveEscalas } from "./services/escalasApi";
+import { fetchConsultores, generateEscalaWithAI, saveEscalas, fetchFolgasMoveisPeriod } from "./services/escalasApi";
 import { EscalaAIResponse } from "@/types/shared/escalas";
 
 interface Props {
@@ -31,7 +31,6 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [daysToGenerate, setDaysToGenerate] = useState<number | "">(30);
   const [firstPairIds, setFirstPairIds] = useState<string[]>([]);
-  const [excludedConsultantsIds, setExcludedConsultantsIds] = useState<string[]>([]);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -80,12 +79,23 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
 
     try {
       setIsGenerating(true);
+      
+      const numDays = Number(daysToGenerate) || 30;
+      const endDate = format(addDays(dateObj, numDays), "yyyy-MM-dd");
+      
+      // Fetch folgas for the period so AI can respect them
+      const rawFolgas = await fetchFolgasMoveisPeriod(startDate, endDate);
+      const folgas = rawFolgas?.map(f => ({
+        consultantId: f.consultor_id,
+        date: f.data
+      })) || [];
+
       const schedule = await generateEscalaWithAI({
         startDate,
-        daysToGenerate: Number(daysToGenerate) || 30,
+        daysToGenerate: numDays,
         firstPairIds,
         availableConsultantsIds,
-        excludedConsultantsIds
+        folgas
       });
       
       setPreviewSchedule(schedule);
@@ -93,12 +103,12 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
         title: "Escala gerada com sucesso!",
         description: "Revise a escala antes de salvar no banco de dados.",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Erro ao gerar escala",
-        description: error.message || "A inteligência artificial encontrou um erro."
+        description: error instanceof Error ? error.message : "A inteligência artificial encontrou um erro."
       });
     } finally {
       setIsGenerating(false);
@@ -106,25 +116,30 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
   };
 
   const handleSave = async () => {
-    if (!previewSchedule) return;
+    if (!previewSchedule || previewSchedule.length === 0) return;
+
+    // Determine the date range of the generated schedule
+    const dates = previewSchedule.map(s => new Date(s.date + "T12:00:00").getTime());
+    const minDate = format(new Date(Math.min(...dates)), "yyyy-MM-dd");
+    const maxDate = format(new Date(Math.max(...dates)), "yyyy-MM-dd");
 
     try {
       setIsSaving(true);
-      await saveEscalas(previewSchedule);
+      await saveEscalas(previewSchedule, minDate, maxDate);
       
       toast({
         title: "Escala salva!",
-        description: "A escala foi registrada com sucesso.",
+        description: "A escala antiga deste período foi substituída pela nova.",
       });
       
       onSuccess();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Erro ao salvar",
-        description: error.message || "Ocorreu um erro ao salvar a escala no banco de dados."
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao salvar a escala no banco de dados."
       });
     } finally {
       setIsSaving(false);
@@ -146,7 +161,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
         
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <DialogDescription>
-            Defina os parâmetros e deixe a Inteligência Artificial calcular automaticamente a escala da sua equipe, respeitando folgas e espelhamento de horários.
+            Defina os parâmetros e deixe a Inteligência Artificial calcular automaticamente a escala da sua equipe, respeitando espelhamento de horários.
           </DialogDescription>
 
           {!previewSchedule ? (
@@ -202,10 +217,8 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
                             firstPairIds.includes(consultor.id) 
                               ? "border-primary bg-primary/5" 
                               : "hover:border-primary/50"
-                          } ${excludedConsultantsIds.includes(consultor.id) ? "opacity-50 pointer-events-none" : ""}`}
+                          }`}
                           onClick={() => {
-                            if (excludedConsultantsIds.includes(consultor.id)) return;
-                            
                             setFirstPairIds(prev => {
                               if (prev.includes(consultor.id)) return prev.filter(id => id !== consultor.id);
                               if (prev.length < 2) return [...prev, consultor.id];
@@ -218,50 +231,6 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
                               checked={firstPairIds.includes(consultor.id)} 
                               onCheckedChange={() => {}} // Handled by Card onClick
                               className="pointer-events-none"
-                            />
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={consultor.avatar_url || ''} />
-                              <AvatarFallback>{consultor.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm font-medium line-clamp-1">{consultor.name}</span>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 pt-4">
-                    <div className="flex items-center gap-2 border-b pb-2">
-                      <AlertCircle className="h-4 w-4 text-destructive" />
-                      <div>
-                        <Label className="text-base text-destructive">Exceções (Férias/Atestados)</Label>
-                        <p className="text-sm text-muted-foreground">Selecione consultores que não devem participar desta escala (opcional).</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {consultores?.map(consultor => (
-                        <Card 
-                          key={`exc-${consultor.id}`}
-                          className={`cursor-pointer transition-colors ${
-                            excludedConsultantsIds.includes(consultor.id) 
-                              ? "border-destructive bg-destructive/5" 
-                              : "hover:border-destructive/30"
-                          } ${firstPairIds.includes(consultor.id) ? "opacity-50 pointer-events-none" : ""}`}
-                          onClick={() => {
-                            if (firstPairIds.includes(consultor.id)) return;
-                            
-                            setExcludedConsultantsIds(prev => {
-                              if (prev.includes(consultor.id)) return prev.filter(id => id !== consultor.id);
-                              return [...prev, consultor.id];
-                            });
-                          }}
-                        >
-                          <CardContent className="p-3 flex items-center gap-3">
-                            <Checkbox 
-                              checked={excludedConsultantsIds.includes(consultor.id)} 
-                              onCheckedChange={() => {}} // Handled by Card onClick
-                              className="pointer-events-none border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive"
                             />
                             <Avatar className="h-8 w-8">
                               <AvatarImage src={consultor.avatar_url || ''} />

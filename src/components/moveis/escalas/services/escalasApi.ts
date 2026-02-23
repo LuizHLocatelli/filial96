@@ -6,7 +6,7 @@ export async function fetchEscalas(startDate: string, endDate: string) {
     .from('escala_carga')
     .select(`
       *,
-      user:profiles(id, name, avatar_url, role)
+      user:profiles!escala_carga_user_id_fkey(id, name, avatar_url, role)
     `)
     .gte('date', startDate)
     .lte('date', endDate)
@@ -25,9 +25,18 @@ export async function generateEscalaWithAI(payload: EscalaAIPayload): Promise<Es
   return data.schedule;
 }
 
-export async function saveEscalas(escalas: EscalaAIResponse[]) {
+export async function saveEscalas(escalas: EscalaAIResponse[], startDate: string, endDate: string) {
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) throw new Error("User not authenticated");
+
+  // First, delete any existing schedules for this period so the new generation fully replaces them
+  const { error: deleteError } = await supabase
+    .from('escala_carga')
+    .delete()
+    .gte('date', startDate)
+    .lte('date', endDate);
+    
+  if (deleteError) throw deleteError;
 
   // Format data for insert
   const insertData = escalas.map(escala => ({
@@ -39,12 +48,24 @@ export async function saveEscalas(escalas: EscalaAIResponse[]) {
     created_by: user.user.id
   }));
 
-  // Upsert to handle potential conflicts if regenerating
+  // Insert fresh data
   const { error } = await supabase
     .from('escala_carga')
-    .upsert(insertData, {
-      onConflict: 'date,user_id'
-    });
+    .insert(insertData);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function deleteEscalas(startDate: string, endDate: string) {
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) throw new Error("User not authenticated");
+
+  const { error } = await supabase
+    .from('escala_carga')
+    .delete()
+    .gte('date', startDate)
+    .lte('date', endDate);
 
   if (error) throw error;
   return true;
@@ -55,6 +76,17 @@ export async function fetchConsultores() {
     .from('profiles')
     .select('id, name, avatar_url, role')
     .eq('role', 'consultor_moveis');
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchFolgasMoveisPeriod(startDate: string, endDate: string) {
+  const { data, error } = await supabase
+    .from('moveis_folgas')
+    .select('consultor_id, data')
+    .gte('data', startDate)
+    .lte('data', endDate);
 
   if (error) throw error;
   return data;
