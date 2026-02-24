@@ -33,9 +33,16 @@ export function CreateFolderDialog({ isOpen, onOpenChange }: CreateFolderDialogP
 
     setIsLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) throw new Error("Usuário não autenticado");
+
       const { error } = await supabase
         .from('cartaz_folders')
-        .insert([{ name: name.trim() }]);
+        .insert([{ 
+          name: name.trim(),
+          created_by: user.id
+        }]);
 
       if (error) throw error;
 
