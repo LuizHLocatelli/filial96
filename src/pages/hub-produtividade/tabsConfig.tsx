@@ -7,14 +7,14 @@ import {
   CalendarOff
 } from "lucide-react";
 import { lazy } from "react";
-import type { HubHandlers } from "@/components/moveis/hub-produtividade/types/hubTypes";
+import type { HubHandlers } from "@/components/hub-produtividade/types/hubTypes";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
 const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
-const RadioSection = lazy(() => import("@/components/moveis/hub-produtividade/components/RadioSection"));
+const RadioSection = lazy(() => import("@/components/hub-produtividade/components/RadioSection"));
 const AssistentesHub = lazy(() => import("@/components/assistentes/components/AssistentesHub").then(module => ({ default: module.AssistentesHub })));
-const Escalas = lazy(() => import("@/components/moveis/escalas/Escalas"));
-const Folgas = lazy(() => import("@/components/moveis/folgas/Folgas").then(module => ({ default: module.Folgas })));
+const Escalas = lazy(() => import("@/components/hub-produtividade/escalas/Escalas"));
+const Folgas = lazy(() => import("@/components/hub-produtividade/folgas/Folgas").then(module => ({ default: module.Folgas })));
 
 interface TabsConfigProps {
   isLoading: boolean;

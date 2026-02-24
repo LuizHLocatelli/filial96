@@ -127,22 +127,12 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
       let data: FolgaRow[] | null = null;
       let error = null;
 
-      if (config.tableName === 'moda_folgas') {
-        const result = await supabase.from('moda_folgas').select('*');
-        data = result.data as FolgaRow[] | null;
-        error = result.error;
-      } else if (config.tableName === 'moveis_folgas') {
+      if (config.tableName === 'moveis_folgas') {
         const result = await supabase.from('moveis_folgas').select('*');
         data = result.data as FolgaRow[] | null;
         error = result.error;
-      } else if (config.tableName === 'crediario_folgas') {
-        const result = await supabase.from('crediario_folgas').select('*');
-        // Map crediarista_id to consultor_id for compatibility
-        data = (result.data || []).map((row) => ({
-          ...row,
-          consultor_id: row.crediarista_id,
-        })) as FolgaRow[];
-        error = result.error;
+      } else {
+        throw new Error(`Tabela não suportada: ${config.tableName}`);
       }
 
       if (error) {
@@ -258,27 +248,15 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
         created_by: user?.id || null,
       };
 
-      if (config.tableName === 'moda_folgas') {
-        const result = await supabase
-          .from('moda_folgas')
-          .insert({ ...insertData, consultor_id: selectedConsultor })
-          .select();
-        data = result.data;
-        error = result.error;
-      } else if (config.tableName === 'moveis_folgas') {
+      if (config.tableName === 'moveis_folgas') {
         const result = await supabase
           .from('moveis_folgas')
           .insert({ ...insertData, consultor_id: selectedConsultor })
           .select();
         data = result.data;
         error = result.error;
-      } else if (config.tableName === 'crediario_folgas') {
-        const result = await supabase
-          .from('crediario_folgas')
-          .insert({ ...insertData, crediarista_id: selectedConsultor })
-          .select();
-        data = result.data;
-        error = result.error;
+      } else {
+        throw new Error(`Tabela não suportada: ${config.tableName}`);
       }
 
       if (error) {
@@ -324,7 +302,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
             description: "Verificando se a folga afeta a escala de carga.",
           });
           
-          import('@/components/moveis/escalas/services/escalasRecalculate').then(module => {
+          import('@/components/hub-produtividade/escalas/services/escalasRecalculate').then(module => {
             module.recalculateEscalaAfterFolga(insertData.data).then(recalculated => {
               if (recalculated) {
                 toast({
@@ -364,15 +342,11 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
 
       let error = null;
 
-      if (config.tableName === 'moda_folgas') {
-        const result = await supabase.from('moda_folgas').delete().eq("id", folgaId);
-        error = result.error;
-      } else if (config.tableName === 'moveis_folgas') {
+      if (config.tableName === 'moveis_folgas') {
         const result = await supabase.from('moveis_folgas').delete().eq("id", folgaId);
         error = result.error;
-      } else if (config.tableName === 'crediario_folgas') {
-        const result = await supabase.from('crediario_folgas').delete().eq("id", folgaId);
-        error = result.error;
+      } else {
+        throw new Error(`Tabela não suportada: ${config.tableName}`);
       }
 
       if (error) {

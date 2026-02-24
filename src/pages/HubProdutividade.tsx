@@ -5,8 +5,8 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
 
 // Hooks
-import { useHubData } from "@/components/moveis/hub-produtividade/hooks/useHubData";
-import { useHubHandlers } from "@/components/moveis/hub-produtividade/hooks/useHubHandlers";
+import { useHubData } from "@/components/hub-produtividade/hooks/useHubData";
+import { useHubHandlers } from "@/components/hub-produtividade/hooks/useHubHandlers";
 import { useAuth } from "@/contexts/auth";
 
 // Refactored components

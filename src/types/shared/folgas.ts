@@ -32,9 +32,9 @@ export interface FolgaStatistics {
 }
 
 export interface UseFolgasConfig {
-  /** Nome da tabela no Supabase (ex: 'moda_folgas', 'moveis_folgas') */
+  /** Nome da tabela no Supabase (atualmente apenas 'moveis_folgas') */
   tableName: string;
-  /** Role dos consultores (ex: 'consultor_moda', 'consultor_moveis') */
+  /** Role dos consultores (ex: 'consultor_moveis') */
   consultantRole: string;
   /** Título do módulo para exibir no UI */
   moduleTitle: string;

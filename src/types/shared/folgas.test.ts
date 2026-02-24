@@ -60,16 +60,16 @@ describe('Folgas Types', () => {
   describe('UseFolgasConfig', () => {
     it('should have required properties', () => {
       const config: UseFolgasConfig = {
-        tableName: 'moda_folgas',
-        consultantRole: 'consultor_moda',
-        moduleTitle: 'Folgas de Moda',
-        moduleDescription: 'Gerenciamento de folgas do setor de moda',
+        tableName: 'moveis_folgas',
+        consultantRole: 'consultor_moveis',
+        moduleTitle: 'Folgas de Móveis',
+        moduleDescription: 'Gerenciamento de folgas do setor de móveis',
       };
 
-      expect(config.tableName).toBe('moda_folgas');
-      expect(config.consultantRole).toBe('consultor_moda');
-      expect(config.moduleTitle).toBe('Folgas de Moda');
-      expect(config.moduleDescription).toBe('Gerenciamento de folgas do setor de moda');
+      expect(config.tableName).toBe('moveis_folgas');
+      expect(config.consultantRole).toBe('consultor_moveis');
+      expect(config.moduleTitle).toBe('Folgas de Móveis');
+      expect(config.moduleDescription).toBe('Gerenciamento de folgas do setor de móveis');
     });
   });
 });

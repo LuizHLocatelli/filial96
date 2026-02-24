@@ -1,6 +1,6 @@
 
-import { BuscaAvancada } from "@/components/moveis/hub-produtividade/components/funcionalidades/BuscaAvancada";
-import { FiltrosPorData } from "@/components/moveis/hub-produtividade/components/funcionalidades/FiltrosPorData";
+import { BuscaAvancada } from "@/components/hub-produtividade/components/funcionalidades/BuscaAvancada";
+import { FiltrosPorData } from "@/components/hub-produtividade/components/funcionalidades/FiltrosPorData";
 
 import type { DateRange } from "react-day-picker";
 
