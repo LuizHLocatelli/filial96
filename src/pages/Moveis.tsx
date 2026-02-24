@@ -1,13 +1,11 @@
 
 import { useSearchParams } from "react-router-dom";
-import { Folgas } from "@/components/moveis/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
 import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { Fretes } from "@/components/moveis/fretes/Fretes";
 import { ProcedimentosSSC } from "@/components/moveis/procedimentos-ssc/ProcedimentosSSC";
 import {
   Sofa,
-  Calendar,
   Star,
   Package,
   Truck,
@@ -40,13 +38,6 @@ export default function Moveis() {
       description: "Produtos com desconto especial",
       component: <Descontinuados />,
       badge: "PROMOÇÃO"
-    },
-    {
-      value: "folgas",
-      label: "Folgas",
-      icon: Calendar,
-      description: "Controle de folgas",
-      component: <Folgas />
     },
     {
       value: "fretes",
@@ -84,7 +75,7 @@ export default function Moveis() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={5}
+        maxColumns={4}
       />
     </PageLayout>
   );

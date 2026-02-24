@@ -70,14 +70,11 @@ Deno.serve(async (req: Request) => {
     await safeDelete("moveis_tarefas", "criado_por", userId);
     await safeDelete("moveis_descontinuados", "created_by", userId);
     await safeDelete("crediario_sticky_notes", "created_by", userId);
-    await safeDelete("crediario_folgas", "created_by", userId);
-    await safeDelete("crediario_folgas", "crediarista_id", userId);
     await safeDelete("crediario_depositos", "created_by", userId);
     await safeDelete("crediario_directory_categories", "created_by", userId);
     await safeDelete("crediario_directory_files", "created_by", userId);
     await safeDelete("moda_arquivos", "created_by", userId);
     await safeDelete("moda_categorias", "created_by", userId);
-    await safeDelete("moda_folgas", "created_by", userId);
     await safeDelete("moda_produto_foco", "created_by", userId);
     await safeDelete("moda_produto_foco_imagens", "created_by", userId);
     await safeDelete("moda_produto_foco_vendas", "created_by", userId);

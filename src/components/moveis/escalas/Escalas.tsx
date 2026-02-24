@@ -2,13 +2,14 @@ import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, addDays, startOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Plus, Loader2, Calendar as CalendarIcon, Clock, Truck } from "lucide-react";
+import { Plus, Loader2, Calendar as CalendarIcon, Clock, Truck, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth";
 import { fetchEscalas } from "./services/escalasApi";
 import { GeradorEscalaDialog } from "./GeradorEscalaDialog";
+import { LimparEscalaDialog } from "./LimparEscalaDialog";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -17,6 +18,7 @@ export default function Escalas() {
   const isManager = profile?.role === "gerente";
   
   const [showGerador, setShowGerador] = useState(false);
+  const [showLimpar, setShowLimpar] = useState(false);
   const [currentDate] = useState(new Date());
 
   // Show current month
@@ -56,10 +58,16 @@ export default function Escalas() {
         </div>
         
         {isManager && (
-          <Button onClick={() => setShowGerador(true)} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Gerar Escala com IA
-          </Button>
+          <div className="flex w-full sm:w-auto gap-2">
+            <Button variant="outline" onClick={() => setShowLimpar(true)} className="flex-1 sm:flex-none text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Apagar
+            </Button>
+            <Button onClick={() => setShowGerador(true)} className="flex-1 sm:flex-none">
+              <Plus className="mr-2 h-4 w-4" />
+              Gerar Escala com IA
+            </Button>
+          </div>
         )}
       </div>
 
@@ -119,11 +127,10 @@ export default function Escalas() {
                           <Avatar className="h-8 w-8 border-2 border-primary/20">
                             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             <AvatarImage src={(escala.user as any)?.avatar_url || ''} />
-                            <AvatarFallback>{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}{(escala.user as any)?.name?.charAt(0) || '?'}</AvatarFallback>
+                            <AvatarFallback>{(escala.user as { name?: string })?.name?.charAt(0) || '?'}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                            <span className="text-sm font-medium leading-none">{(escala.user as any)?.name}</span>
+                            <span className="text-sm font-medium leading-none">{(escala.user as { name?: string })?.name}</span>
                             <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                               <Truck className="h-3 w-3 text-primary" />
                               {isMirrorDay ? "Espelho Carga" : "Carga"}
@@ -144,11 +151,10 @@ export default function Escalas() {
                           <Avatar className="h-8 w-8">
                             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             <AvatarImage src={(escala.user as any)?.avatar_url || ''} />
-                            <AvatarFallback>{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}{(escala.user as any)?.name?.charAt(0) || '?'}</AvatarFallback>
+                            <AvatarFallback>{(escala.user as { name?: string })?.name?.charAt(0) || '?'}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                            <span className="text-sm font-medium leading-none">{(escala.user as any)?.name}</span>
+                            <span className="text-sm font-medium leading-none">{(escala.user as { name?: string })?.name}</span>
                             <span className="text-xs text-muted-foreground mt-1">Normal</span>
                           </div>
                         </div>
@@ -170,6 +176,16 @@ export default function Escalas() {
         <GeradorEscalaDialog 
           open={showGerador} 
           onOpenChange={setShowGerador} 
+          onSuccess={() => {
+            refetch();
+            queryClient.invalidateQueries({ queryKey: ["escalas"] });
+          }}
+        />
+      )}
+      {showLimpar && (
+        <LimparEscalaDialog 
+          open={showLimpar} 
+          onOpenChange={setShowLimpar} 
           onSuccess={() => {
             refetch();
             queryClient.invalidateQueries({ queryKey: ["escalas"] });

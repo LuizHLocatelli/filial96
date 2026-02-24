@@ -45,7 +45,7 @@ export default function HubProdutividade() {
     setShowFiltrosPorData
   });
 
-  const activeTab = searchParams.get("tab") || "cartazes";
+  const activeTab = searchParams.get("tab") || "escalas";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });

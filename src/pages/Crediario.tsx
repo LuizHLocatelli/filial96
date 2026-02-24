@@ -2,12 +2,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Depositos } from "@/components/crediario/Depositos";
-import { Folgas } from "@/components/crediario/Folgas";
 import { Diretorio } from "@/components/crediario/diretorio/Diretorio";
 import { CalculadoraCredito } from "@/components/crediario/CalculadoraCredito";
 import { 
   Calendar, 
-  Coffee, 
   FolderArchive,
   CreditCard,
   Calculator
@@ -41,13 +39,6 @@ export default function Crediario() {
       component: <CalculadoraCredito />
     },
     {
-      value: "folgas",
-      label: "Folgas",
-      icon: Coffee,
-      description: "Gestão de folgas",
-      component: <Folgas />
-    },
-    {
       value: "diretorio",
       label: "Diretório",
       icon: FolderArchive,
@@ -75,7 +66,7 @@ export default function Crediario() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={4}
+        maxColumns={3}
       />
     </PageLayout>
   );

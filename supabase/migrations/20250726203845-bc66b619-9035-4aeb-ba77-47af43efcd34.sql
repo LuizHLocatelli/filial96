@@ -184,8 +184,7 @@ BEGIN
   DELETE FROM public.crediario_sticky_notes WHERE created_by = current_user_id;
   DELETE FROM public.note_folders WHERE created_by = current_user_id;
   
-  -- Excluir folgas e dados do crediário
-  DELETE FROM public.crediario_folgas WHERE created_by = current_user_id;
+  -- Excluir dados do crediário
   DELETE FROM public.crediario_depositos WHERE created_by = current_user_id;
   DELETE FROM public.crediario_listagens WHERE created_by = current_user_id;
   

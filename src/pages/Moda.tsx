@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Diretorio } from "@/components/moda/diretorio/Diretorio";
-import { Folgas } from "@/components/moda/folgas/Folgas";
 import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
 import { Reservas } from "@/components/moda/reservas/Reservas";
 import { Estoque } from "@/components/moda/Estoque";
@@ -12,7 +11,6 @@ import {
   FolderArchive, 
   Shirt,
   TrendingUp,
-  Calendar,
   Star,
   Clock,
   Package
@@ -55,13 +53,6 @@ export default function Moda() {
       component: <Reservas />
     },
     {
-      value: "folgas",
-      label: "Folgas",
-      icon: Calendar,
-      description: "Controle de folgas",
-      component: <Folgas />
-    },
-    {
       value: "estoque",
       label: "Estoque",
       icon: Package,
@@ -89,7 +80,7 @@ export default function Moda() {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         variant="cards"
-        maxColumns={5}
+        maxColumns={4}
       />
     </PageLayout>
   );

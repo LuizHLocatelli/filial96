@@ -54,15 +54,6 @@ export const searchableItems: SearchResult[] = [
     icon: 'Star'
   },
   {
-    id: 'moveis-folgas',
-    title: 'Folgas - Móveis',
-    description: 'Controle de folgas dos consultores de móveis',
-    type: 'section',
-    path: '/moveis?tab=folgas',
-    section: 'Móveis',
-    icon: 'Calendar'
-  },
-  {
     id: 'crediario',
     title: 'Crediário',
     description: 'Gestão completa do setor de crediário',
@@ -78,15 +69,6 @@ export const searchableItems: SearchResult[] = [
     path: '/crediario?tab=depositos',
     section: 'Crediário',
     icon: 'Calendar'
-  },
-  {
-    id: 'crediario-folgas',
-    title: 'Folgas - Crediário',
-    description: 'Controle de folgas dos crediaristas',
-    type: 'section',
-    path: '/crediario?tab=folgas',
-    section: 'Crediário',
-    icon: 'Coffee'
   },
   {
     id: 'crediario-diretorio',
@@ -156,13 +138,4 @@ export const searchableItems: SearchResult[] = [
     section: 'Moda',
     icon: 'Star'
   },
-  {
-    id: 'moda-folgas',
-    title: 'Folgas - Moda',
-    description: 'Controle de folgas do setor de moda',
-    type: 'section',
-    path: '/moda?tab=folgas',
-    section: 'Moda',
-    icon: 'Calendar'
-  }
 ];
