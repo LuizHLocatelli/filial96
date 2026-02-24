@@ -1,16 +1,17 @@
 
 import { Button } from "@/components/ui/button";
 import { Folder, FileText } from "lucide-react";
-import { useCartazFolders } from "../hooks/useCartazFolders";
+import { CartazFolder } from "../hooks/useCartazFolders";
 import { cn } from "@/lib/utils";
 
 interface FoldersListProps {
+  folders: CartazFolder[];
+  isLoading: boolean;
   selectedFolderId: string | null;
   onSelectFolder: (folderId: string | null) => void;
 }
 
-export function FoldersList({ selectedFolderId, onSelectFolder }: FoldersListProps) {
-  const { folders, isLoading } = useCartazFolders();
+export function FoldersList({ folders, isLoading, selectedFolderId, onSelectFolder }: FoldersListProps) {
 
   if (isLoading) {
     return (

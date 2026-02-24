@@ -12,13 +12,15 @@ import { cn } from "@/lib/utils";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useCartazes } from "./hooks/useCartazes";
+import { useCartazFolders } from "./hooks/useCartazFolders";
 
 export default function Cartazes() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCartazOpen, setIsUploadCartazOpen] = useState(false);
   const isMobile = useIsMobile();
-  const { cartazes, setCartazes, isLoading, refetch } = useCartazes(selectedFolderId);
+  const { cartazes, setCartazes, isLoading: isLoadingCartazes, refetch: refetchCartazes } = useCartazes(selectedFolderId);
+  const { folders, isLoading: isLoadingFolders, refetch: refetchFolders } = useCartazFolders();
   
   return (
     <PageLayout spacing="normal" maxWidth="full">
@@ -69,6 +71,8 @@ export default function Cartazes() {
                   </div>
                   
                   <FoldersList 
+                    folders={folders}
+                    isLoading={isLoadingFolders}
                     selectedFolderId={selectedFolderId}
                     onSelectFolder={setSelectedFolderId}
                   />
@@ -104,7 +108,7 @@ export default function Cartazes() {
                     folderId={selectedFolderId}
                     cartazes={cartazes}
                     setCartazes={setCartazes}
-                    isLoading={isLoading}
+                    isLoading={isLoadingCartazes}
                     onCreateCartaz={() => setIsUploadCartazOpen(true)}
                   />
                 </div>
@@ -118,13 +122,14 @@ export default function Cartazes() {
       <CreateFolderDialog
         isOpen={isCreateFolderOpen}
         onOpenChange={setIsCreateFolderOpen}
+        onSuccess={refetchFolders}
       />
 
       <UploadCartazDialog
         open={isUploadCartazOpen}
         onOpenChange={setIsUploadCartazOpen}
         folderId={selectedFolderId}
-        onUploadSuccess={refetch}
+        onUploadSuccess={refetchCartazes}
       />
     </PageLayout>
   );

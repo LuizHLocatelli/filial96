@@ -12,9 +12,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface CreateFolderDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function CreateFolderDialog({ isOpen, onOpenChange }: CreateFolderDialogProps) {
+export function CreateFolderDialog({ isOpen, onOpenChange, onSuccess }: CreateFolderDialogProps) {
   const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +49,10 @@ export function CreateFolderDialog({ isOpen, onOpenChange }: CreateFolderDialogP
 
       setName("");
       onOpenChange(false);
+      
+      if (onSuccess) {
+        onSuccess();
+      }
       
       toast({
         title: "Sucesso",

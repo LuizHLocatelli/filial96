@@ -29,8 +29,6 @@ export function useCartazes(folderId: string | null) {
       
       if (folderId !== null) {
         query = query.eq('folder_id', folderId);
-      } else {
-        query = query.is('folder_id', null);
       }
       
       const { data, error } = await query;
