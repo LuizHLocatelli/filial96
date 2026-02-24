@@ -1,6 +1,6 @@
 /**
  * Tipos compartilhados para o módulo de Folgas
- * Usados por todos os módulos: crediario, moda, moveis
+ * Atualmente usado apenas pelo módulo do Hub (moveis)
  */
 
 export interface Consultor {
