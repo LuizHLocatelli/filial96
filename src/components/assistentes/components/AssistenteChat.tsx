@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChatSession } from "../hooks/useChatSession";
 import { ChatInput } from "./ChatInput";
+import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
 import { Bot, User, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -18,6 +19,7 @@ interface AssistenteChatProps {
 export function AssistenteChat({ assistant, session, onNewSession, onBack }: AssistenteChatProps) {
   const { messages, isLoading, isSending, sendMessage } = useChatSession(session?.id || null, assistant);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -99,9 +101,15 @@ export function AssistenteChat({ assistant, session, onNewSession, onBack }: Ass
               
               <div className={`flex flex-col gap-2 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 {msg.image_urls?.length > 0 && (
-                  <div className="flex flex-wrap gap-2 justify-end">
+                  <div className={`flex flex-wrap gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.image_urls.map((img, i) => (
-                      <img key={i} src={img} alt="Anexo" className="max-w-48 max-h-48 rounded-lg object-cover border" />
+                      <img 
+                        key={i} 
+                        src={img} 
+                        alt="Anexo" 
+                        className="max-w-48 max-h-48 rounded-lg object-cover border cursor-pointer hover:opacity-90 transition-opacity" 
+                        onClick={() => setSelectedImage(img)}
+                      />
                     ))}
                   </div>
                 )}
@@ -132,6 +140,11 @@ export function AssistenteChat({ assistant, session, onNewSession, onBack }: Ass
       <div className="shrink-0 mt-auto">
         <ChatInput onSend={handleSend} disabled={isSending || !session} />
       </div>
+
+      <AssistenteImageViewer 
+        imageUrl={selectedImage} 
+        onClose={() => setSelectedImage(null)} 
+      />
     </Card>
   );
 }

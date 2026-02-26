@@ -63,7 +63,12 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       // Save model message to database
       const { error: modelInsertError } = await supabase
         .from("ai_chat_messages")
-        .insert([{ session_id: sessionId, role: "model", content: data.text, image_urls: [] }]);
+        .insert([{ 
+          session_id: sessionId, 
+          role: "model", 
+          content: data.text, 
+          image_urls: data.images || [] 
+        }]);
 
       if (modelInsertError) throw modelInsertError;
 
