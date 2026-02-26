@@ -80,14 +80,3 @@ export async function fetchConsultores() {
   if (error) throw error;
   return data;
 }
-
-export async function fetchFolgasMoveisPeriod(startDate: string, endDate: string) {
-  const { data, error } = await supabase
-    .from('moveis_folgas')
-    .select('consultor_id, data')
-    .gte('data', startDate)
-    .lte('data', endDate);
-
-  if (error) throw error;
-  return data;
-}

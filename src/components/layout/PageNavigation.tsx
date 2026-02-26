@@ -1,8 +1,16 @@
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Loader2 } from "lucide-react";
+
+// Componente de loading para tabs
+const TabContentLoader = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 interface TabConfig {
   value: string;
@@ -122,7 +130,9 @@ export function PageNavigation({
 
         {/* Current Tab Content */}
         <div className="space-y-4">
-          {currentTab.component}
+          <Suspense fallback={<TabContentLoader />}>
+            {currentTab.component}
+          </Suspense>
         </div>
       </div>
     );
@@ -150,7 +160,9 @@ export function PageNavigation({
           ))}
         </div>
         <div className="space-y-4">
-          {currentTab.component}
+          <Suspense fallback={<TabContentLoader />}>
+            {currentTab.component}
+          </Suspense>
         </div>
       </div>
     );
@@ -176,7 +188,9 @@ export function PageNavigation({
 
       {tabs.map((tab) => (
         <TabsContent key={tab.value} value={tab.value} className="space-y-4">
-          {tab.component}
+          <Suspense fallback={<TabContentLoader />}>
+            {tab.component}
+          </Suspense>
         </TabsContent>
       ))}
     </Tabs>

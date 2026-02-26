@@ -14,7 +14,6 @@ const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 const RadioSection = lazy(() => import("@/components/hub-produtividade/components/RadioSection"));
 const AssistentesHub = lazy(() => import("@/components/assistentes/components/AssistentesHub").then(module => ({ default: module.AssistentesHub })));
 const Escalas = lazy(() => import("@/components/hub-produtividade/escalas/Escalas"));
-const Folgas = lazy(() => import("@/components/hub-produtividade/folgas/Folgas").then(module => ({ default: module.Folgas })));
 
 interface TabsConfigProps {
   isLoading: boolean;
@@ -36,17 +35,6 @@ export function createTabsConfig({
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden bg-background p-4 md:p-6">
           <Escalas />
-        </div>
-      )
-    },
-    {
-      value: "folgas",
-      label: "Folgas",
-      icon: CalendarOff,
-      description: "Gestão de folgas e atestados",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden bg-background p-4 md:p-6">
-          <Folgas />
         </div>
       )
     },

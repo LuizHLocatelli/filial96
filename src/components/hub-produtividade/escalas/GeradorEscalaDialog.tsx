@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { fetchConsultores, generateEscalaWithAI, saveEscalas, fetchFolgasMoveisPeriod } from "./services/escalasApi";
+import { fetchConsultores, generateEscalaWithAI, saveEscalas } from "./services/escalasApi";
 import { EscalaAIResponse } from "@/types/shared/escalas";
 
 interface Props {
@@ -83,12 +83,8 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       const numDays = Number(daysToGenerate) || 30;
       const endDate = format(addDays(dateObj, numDays), "yyyy-MM-dd");
       
-      // Fetch folgas for the period so AI can respect them
-      const rawFolgas = await fetchFolgasMoveisPeriod(startDate, endDate);
-      const folgas = rawFolgas?.map(f => ({
-        consultantId: f.consultor_id,
-        date: f.data
-      })) || [];
+      // Removed fetching of folgas as moveis_folgas doesn't exist
+      const folgas: { consultantId: string; date: string }[] = [];
 
       const schedule = await generateEscalaWithAI({
         startDate,

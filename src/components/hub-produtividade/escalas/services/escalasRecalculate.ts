@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { generateEscalaWithAI, saveEscalas, fetchFolgasMoveisPeriod } from './escalasApi';
+import { generateEscalaWithAI, saveEscalas } from './escalasApi';
 
 export async function recalculateEscalaAfterFolga(folgaDateStr: string) {
   // 1. Find if there are any schedules from this date onwards
@@ -72,12 +72,8 @@ export async function recalculateEscalaAfterFolga(folgaDateStr: string) {
     
   const availableConsultantsIds = consultores?.map(c => c.id) || [];
 
-  // Get folgas for the period
-  const rawFolgas = await fetchFolgasMoveisPeriod(mondayDateStr, maxDateStr);
-  const folgas = rawFolgas?.map(f => ({
-    consultantId: f.consultor_id,
-    date: f.data
-  })) || [];
+  // Get folgas for the period - removed as moveis_folgas doesn't exist
+  const folgas: { consultantId: string; date: string }[] = [];
 
   // Call AI to generate from the Monday to the end date
   const newSchedule = await generateEscalaWithAI({
