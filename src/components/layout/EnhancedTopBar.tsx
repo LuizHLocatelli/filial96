@@ -2,14 +2,21 @@ import { UserMenu } from "../auth/UserMenu";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { CompanyLogo } from "./CompanyLogo";
+import { FolderLock } from "lucide-react";
+import { useAuth } from "@/contexts/auth";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function EnhancedTopBar() {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  
+  const isManager = profile?.role === 'gerente';
 
   return (
     <motion.header 
@@ -60,6 +67,27 @@ export function EnhancedTopBar() {
           
 
           {/* Action buttons com glassmorphism correto */}
+
+          {isManager && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }} 
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/diretorio-gerencial')}
+                  className={cn(
+                    "glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 cursor-pointer text-primary",
+                    location.pathname === '/diretorio-gerencial' && "bg-primary/20 border-primary/50 text-primary"
+                  )}
+                >
+                  <FolderLock className="h-5 w-5" />
+                </motion.div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Diretório Gerencial</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           
           <motion.div 

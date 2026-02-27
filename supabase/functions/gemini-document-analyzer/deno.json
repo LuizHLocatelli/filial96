@@ -1,0 +1,11 @@
+{
+  "tasks": [
+    {
+      "name": "dev",
+      "command": "deno run --watch main.ts"
+    }
+  ],
+  "imports": {
+    "https://esm.sh/@supabase/supabase-js@2.39.3": "https://esm.sh/@supabase/supabase-js@2.39.3"
+  }
+}

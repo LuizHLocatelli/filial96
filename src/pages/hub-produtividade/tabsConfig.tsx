@@ -1,16 +1,13 @@
 import {
   FileImage,
-  FileText,
   Radio,
   Bot,
-  CalendarDays,
-  CalendarOff
+  CalendarDays
 } from "lucide-react";
 import { lazy } from "react";
 import type { HubHandlers } from "@/components/hub-produtividade/types/hubTypes";
 
 const Cartazes = lazy(() => import("@/components/moveis/cartazes/Cartazes"));
-const Curriculos = lazy(() => import("@/components/curriculos/Curriculos"));
 const RadioSection = lazy(() => import("@/components/hub-produtividade/components/RadioSection"));
 const AssistentesHub = lazy(() => import("@/components/assistentes/components/AssistentesHub").then(module => ({ default: module.AssistentesHub })));
 const Escalas = lazy(() => import("@/components/hub-produtividade/escalas/Escalas"));
@@ -18,13 +15,11 @@ const Escalas = lazy(() => import("@/components/hub-produtividade/escalas/Escala
 interface TabsConfigProps {
   isLoading: boolean;
   handlers: HubHandlers;
-  isManager?: boolean;
 }
 
 export function createTabsConfig({
   isLoading,
-  handlers,
-  isManager = false
+  handlers
 }: TabsConfigProps) {
   const tabs = [
     {
@@ -72,21 +67,6 @@ export function createTabsConfig({
       )
     }
   ];
-
-  // Add Curriculos tab only for managers
-  if (isManager) {
-    tabs.push({
-      value: "curriculos",
-      label: "Currículos",
-      icon: FileText,
-      description: "Gerenciamento de currículos recebidos",
-      component: (
-        <div className="border border-border/40 rounded-lg overflow-hidden">
-          <Curriculos />
-        </div>
-      )
-    });
-  }
 
   return tabs;
 }

@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { AIAssistant, AIChatSession } from "../types";
 
+import { useAuth } from "@/contexts/auth";
+
 interface AssistentesSidebarProps {
   assistants: AIAssistant[];
   sessions: AIChatSession[];
@@ -37,6 +39,7 @@ export function AssistentesSidebar({
   onEditAssistant,
   onDeleteSession
 }: AssistentesSidebarProps) {
+  const { profile } = useAuth();
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
   return (
@@ -54,7 +57,7 @@ export function AssistentesSidebar({
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-4">
           <div>
-            <h3 className="px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Meus Assistentes</h3>
+            <h3 className="px-2 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">Assistentes Disponíveis</h3>
             {assistants.length === 0 ? (
               <p className="px-2 py-4 text-sm text-muted-foreground text-center">
                 Nenhum assistente criado ainda.
@@ -79,18 +82,20 @@ export function AssistentesSidebar({
                       </span>
                       <span className="truncate font-medium">{assistant.name}</span>
                     </button>
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      className="opacity-0 group-hover:opacity-100 h-8 w-8 mr-1 transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditAssistant(assistant);
-                      }}
-                      title="Editar Assistente"
-                    >
-                      <Settings className="w-4 h-4 text-muted-foreground hover:text-foreground" />
-                    </Button>
+                    {(assistant.user_id === profile?.id || profile?.role === 'gerente') && (
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="opacity-0 group-hover:opacity-100 h-8 w-8 mr-1 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditAssistant(assistant);
+                        }}
+                        title="Editar Assistente"
+                      >
+                        <Settings className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

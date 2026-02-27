@@ -14,6 +14,7 @@ const Moda = lazy(() => import("./pages/Moda"));
 const PdfViewerPage = lazy(() => import("./pages/PdfViewerPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
+const DiretorioGerencial = lazy(() => import("./pages/DiretorioGerencial"));
 const PromotionalCards = lazy(() => import("./pages/PromotionalCards"));
 const PainelDaRegiaoWrapper = lazy(() => import("./pages/PainelDaRegiaoWrapper"));
 const ProcedimentosSSCWrapper = lazy(() => import("./pages/ProcedimentosSSCWrapper"));
@@ -155,6 +156,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <LazyPageWrapper>
               <UserManagement />
+            </LazyPageWrapper>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/diretorio-gerencial" 
+        element={
+          <ProtectedRoute>
+            <LazyPageWrapper>
+              <DiretorioGerencial />
             </LazyPageWrapper>
           </ProtectedRoute>
         } 
