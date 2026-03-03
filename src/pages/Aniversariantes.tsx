@@ -148,7 +148,7 @@ export default function Aniversariantes() {
             title="Aniversariantes da Região"
             description="Controle e visualização de todos os aniversariantes das filiais."
             icon={Gift}
-            iconColor="text-pink-500"
+            iconColor="text-primary"
           />
           
           <Button onClick={() => setIsDialogOpen(true)} className="w-full md:w-auto">
@@ -181,9 +181,9 @@ export default function Aniversariantes() {
           <div className="space-y-8">
             {/* Banner de Próximos Aniversariantes */}
             {proximosAniversariantes.length > 0 && (
-              <Card className="glass-card border-primary/50 bg-primary/5 shadow-md">
+              <Card className="glass-card border-primary/20 bg-primary/10 shadow-md">
                 <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4">
-                  <div className="flex-shrink-0 h-14 w-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
+                  <div className="flex-shrink-0 h-14 w-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-sm">
                     <Star className="h-7 w-7" />
                   </div>
                   <div className="flex-1 text-center sm:text-left">
@@ -220,7 +220,7 @@ export default function Aniversariantes() {
 
                 return (
                   <Card key={monthIndex} className={`glass-card overflow-hidden h-fit transition-all ${isCurrentMonth ? 'border-primary/50 ring-1 ring-primary/20' : ''}`}>
-                    <CardHeader className={`pb-3 ${isCurrentMonth ? 'bg-primary/5' : 'bg-muted/20'} border-b flex flex-row items-center justify-between`}>
+                    <CardHeader className={`pb-3 ${isCurrentMonth ? 'bg-primary/10' : 'bg-muted/30'} border-b flex flex-row items-center justify-between`}>
                       <CardTitle className="flex items-center gap-2 text-xl font-semibold">
                         {monthNames[monthIndex]}
                         {isCurrentMonth && <Badge variant="default" className="ml-2 text-xs">Mês Atual</Badge>}
@@ -236,15 +236,15 @@ export default function Aniversariantes() {
                           return (
                             <li 
                               key={pessoa.id} 
-                              className={`p-4 flex items-center justify-between transition-colors hover:bg-muted/30 group ${isToday ? 'bg-primary/5' : ''}`}
+                              className={`p-4 flex items-center justify-between transition-colors hover:bg-accent/50 group ${isToday ? 'bg-primary/10' : ''}`}
                             >
                               <div className="flex items-center gap-4 flex-1 min-w-0">
-                                <div className={`flex items-center justify-center h-10 w-10 shrink-0 rounded-full font-bold text-lg ${isToday ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted text-muted-foreground'}`}>
+                                <div className={`flex items-center justify-center h-10 w-10 shrink-0 rounded-full font-bold text-lg ${isToday ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary text-secondary-foreground'}`}>
                                   {format(anivDate, 'dd')}
                                 </div>
                                 <div className="flex-1 min-w-0 pr-2">
                                   <div className="flex items-center gap-2">
-                                    <p className={`font-semibold text-base truncate ${isToday ? 'text-primary' : ''}`} title={pessoa.nome}>
+                                    <p className={`font-semibold text-base truncate ${isToday ? 'text-primary' : 'text-foreground'}`} title={pessoa.nome}>
                                       {pessoa.nome}
                                     </p>
                                     {isToday && <Gift className="h-3 w-3 text-primary shrink-0" />}

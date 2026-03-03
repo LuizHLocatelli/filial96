@@ -59,7 +59,7 @@ export const painelConfig: PainelConfig = {
       description: 'Controle de aniversários da região',
       route: '/aniversariantes',
       icon: Gift,
-      iconColor: 'text-pink-500',
+      iconColor: 'text-primary',
       badge: 'Novo'
     }
   ]
