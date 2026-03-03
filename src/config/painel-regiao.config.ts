@@ -4,6 +4,7 @@ import {
   Video,
   Calculator,
   FileText,
+  Gift,
 } from "lucide-react";
 import { PainelConfig } from "@/types/painel-regiao";
 
@@ -51,6 +52,15 @@ export const painelConfig: PainelConfig = {
       icon: Calculator,
       iconColor: 'text-primary',
       badge: 'Popular'
+    },
+    {
+      id: 'aniversariantes',
+      title: 'Aniversariantes',
+      description: 'Controle de aniversários da região',
+      route: '/aniversariantes',
+      icon: Gift,
+      iconColor: 'text-pink-500',
+      badge: 'Novo'
     }
   ]
 };

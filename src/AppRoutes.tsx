@@ -18,6 +18,7 @@ const DiretorioGerencial = lazy(() => import("./pages/DiretorioGerencial"));
 const PromotionalCards = lazy(() => import("./pages/PromotionalCards"));
 const PainelDaRegiaoWrapper = lazy(() => import("./pages/PainelDaRegiaoWrapper"));
 const ProcedimentosSSCWrapper = lazy(() => import("./pages/ProcedimentosSSCWrapper"));
+const AniversariantesWrapper = lazy(() => import("./pages/AniversariantesWrapper"));
 
 // Páginas que não precisam de lazy loading (são pequenas ou críticas)
 import NotFound from "./pages/NotFound";
@@ -63,6 +64,14 @@ const AppRoutes = () => {
         element={
           <Suspense fallback={<PageLoader />}>
             <PainelDaRegiaoWrapper />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/aniversariantes"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <AniversariantesWrapper />
           </Suspense>
         }
       />
