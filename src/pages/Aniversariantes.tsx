@@ -198,7 +198,7 @@ export default function Aniversariantes() {
                           <div key={p.id} className="flex flex-col">
                             <span className="font-semibold text-foreground text-lg">{p.nome}</span>
                             <span className="text-sm text-muted-foreground">{p.filial}</span>
-                            <Badge variant={isToday ? "default" : "secondary"} className="w-fit mt-1 self-center sm:self-start">
+                            <Badge variant="outline" className={`w-fit mt-1 self-center sm:self-start border-transparent ${isToday ? 'bg-primary/20 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>
                               {isToday ? "Hoje!" : `${format(anivDate, 'dd')} de ${monthNames[anivDate.getMonth()]}`}
                             </Badge>
                           </div>
@@ -223,7 +223,7 @@ export default function Aniversariantes() {
                     <CardHeader className={`pb-3 ${isCurrentMonth ? 'bg-primary/10' : 'bg-muted/30'} border-b flex flex-row items-center justify-between`}>
                       <CardTitle className="flex items-center gap-2 text-xl font-semibold">
                         {monthNames[monthIndex]}
-                        {isCurrentMonth && <Badge variant="default" className="ml-2 text-xs">Mês Atual</Badge>}
+                        {isCurrentMonth && <Badge variant="outline" className="ml-2 text-xs bg-primary/20 text-primary border-transparent">Mês Atual</Badge>}
                       </CardTitle>
                       <CalendarDays className={`h-5 w-5 ${isCurrentMonth ? 'text-primary' : 'text-muted-foreground'}`} />
                     </CardHeader>
