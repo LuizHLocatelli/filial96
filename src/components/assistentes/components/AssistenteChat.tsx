@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useChatSession } from "../hooks/useChatSession";
-import { ChatInput } from "./ChatInput";
+import { ChatInput, type ChatDocument } from "./ChatInput";
+import { ExportDropdown } from "./ExportDropdown";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
 import { Bot, User, ArrowLeft, Square } from "lucide-react";
@@ -13,7 +14,7 @@ interface AssistenteChatProps {
   assistant: AIAssistant;
   session: AIChatSession | null;
   onNewSession: () => void;
-  onSendWithoutSession?: (message: string, images: string[]) => void;
+  onSendWithoutSession?: (message: string, images: string[], documents?: ChatDocument[]) => void;
   onBack?: () => void;
 }
 
@@ -31,25 +32,22 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
   // Listen for pending messages from auto-session creation
   useEffect(() => {
     if (!session) return;
-    
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail?.sessionId === session.id) {
-        sendMessage.mutateAsync({ content: detail.content, images: detail.images });
+        sendMessage.mutateAsync({ content: detail.content, images: detail.images, documents: detail.documents });
       }
     };
-    
     window.addEventListener('pending-message', handler);
     return () => window.removeEventListener('pending-message', handler);
   }, [session, sendMessage]);
 
-  const handleSend = async (message: string, images: string[]) => {
+  const handleSend = async (message: string, images: string[], documents?: ChatDocument[]) => {
     if (!session) {
-      // No session yet — delegate to parent for auto-creation
-      onSendWithoutSession?.(message, images);
+      onSendWithoutSession?.(message, images, documents);
       return;
     }
-    await sendMessage.mutateAsync({ content: message, images });
+    await sendMessage.mutateAsync({ content: message, images, documents });
   };
 
   if (!session) {
@@ -65,9 +63,8 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
         </div>
         <h3 className="text-xl font-medium">{assistant.name}</h3>
         <p className="text-muted-foreground max-w-md">{assistant.description}</p>
-        
         <div className="w-full max-w-2xl mt-6">
-          <ChatInput onSend={(msg, imgs) => onSendWithoutSession?.(msg, imgs)} disabled={false} />
+          <ChatInput onSend={(msg, imgs, docs) => onSendWithoutSession?.(msg, imgs, docs)} disabled={false} />
         </div>
       </div>
     );
@@ -84,34 +81,25 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
           <Bot className="w-5 h-5" />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <h3 className="font-medium text-sm">{assistant.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-1">{session.title}</p>
         </div>
+        <ExportDropdown messages={messages} assistant={assistant} session={session} />
       </div>
 
       <ScrollArea className="flex-1 p-4" id="chat-scroll-area">
         <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full pb-4">
           {messages.map((msg, idx) => (
-            <div 
-              key={msg.id || idx} 
-              className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
-            >
+            <div key={msg.id || idx} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
                 {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
-              
               <div className={`flex flex-col gap-2 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 {msg.image_urls?.length > 0 && (
                   <div className={`flex flex-wrap gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.image_urls.map((img, i) => (
-                      <img 
-                        key={i} 
-                        src={img} 
-                        alt="Anexo" 
-                        className="max-w-48 max-h-48 rounded-lg object-cover border cursor-pointer hover:opacity-90 transition-opacity" 
-                        onClick={() => setSelectedImage(img)}
-                      />
+                      <img key={i} src={img} alt="Anexo" className="max-w-48 max-h-48 rounded-lg object-cover border cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(img)} />
                     ))}
                   </div>
                 )}
@@ -124,7 +112,6 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             </div>
           ))}
 
-          {/* Streaming message */}
           {isSending && streamingContent && (
             <div className="flex gap-4 flex-row">
               <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
@@ -143,7 +130,6 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             </div>
           )}
 
-          {/* Loading dots (before any text arrives) */}
           {isSending && !streamingContent && (
             <div className="flex gap-4 flex-row">
               <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
@@ -156,7 +142,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
               </div>
             </div>
           )}
-          
+
           <div ref={scrollRef} className="h-1" />
         </div>
       </ScrollArea>
@@ -165,10 +151,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
         <ChatInput onSend={handleSend} disabled={isSending || !session} />
       </div>
 
-      <AssistenteImageViewer 
-        imageUrl={selectedImage} 
-        onClose={() => setSelectedImage(null)} 
-      />
+      <AssistenteImageViewer imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />
     </Card>
   );
 }
