@@ -40,3 +40,12 @@ verify_jwt = false
 
 [functions.gemini-agent]
 verify_jwt = true
+
+[functions.gemini-assistant-chat]
+verify_jwt = false
+
+[functions.gemini-embed-document]
+verify_jwt = false
+
+[functions.gemini-document-analyzer]
+verify_jwt = false
