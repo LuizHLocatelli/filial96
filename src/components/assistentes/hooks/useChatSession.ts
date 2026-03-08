@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { AIChatMessage, AIAssistant } from "../types";
+import type { ChatDocument } from "../components/ChatInput";
 
 export function useChatSession(sessionId: string | null, assistant: AIAssistant | null) {
   const queryClient = useQueryClient();
@@ -14,13 +15,11 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
     queryKey: ["ai_chat_messages", sessionId],
     queryFn: async () => {
       if (!sessionId) return [];
-      
       const { data, error } = await supabase
         .from("ai_chat_messages")
         .select("*")
         .eq("session_id", sessionId)
         .order("created_at", { ascending: true });
-
       if (error) throw error;
       return data as AIChatMessage[];
     },
@@ -28,7 +27,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
   });
 
   const sendMessage = useMutation({
-    mutationFn: async ({ content, images }: { content: string; images: string[] }) => {
+    mutationFn: async ({ content, images, documents }: { content: string; images: string[]; documents?: ChatDocument[] }) => {
       if (!sessionId || !assistant) throw new Error("Sessão ou assistente inválidos");
       setIsSending(true);
       setStreamingContent("");
@@ -37,7 +36,6 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       const { error: insertError } = await supabase
         .from("ai_chat_messages")
         .insert([{ session_id: sessionId, role: "user", content, image_urls: images }]);
-
       if (insertError) throw insertError;
       queryClient.invalidateQueries({ queryKey: ["ai_chat_messages", sessionId] });
 
@@ -67,8 +65,11 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
             message: content,
             systemMessage: assistant.system_message,
             images,
+            documents: documents || [],
             history,
             stream: true,
+            webSearchEnabled: (assistant as any).web_search_enabled || false,
+            assistantId: assistant.id,
           }),
           signal: abortController.signal,
         }
@@ -94,7 +95,6 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
         while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
           let line = textBuffer.slice(0, newlineIndex);
           textBuffer = textBuffer.slice(newlineIndex + 1);
-
           if (line.endsWith("\r")) line = line.slice(0, -1);
           if (line.startsWith(":") || line.trim() === "") continue;
           if (!line.startsWith("data: ")) continue;
@@ -107,9 +107,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
 
           try {
             const parsed = JSON.parse(jsonStr);
-            
             if (parsed.replace) {
-              // Image generation result - replace all text
               fullText = parsed.text || "";
               finalImages = parsed.images || [];
               setStreamingContent(fullText);
@@ -124,7 +122,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
         }
       }
 
-      // Save model message to database
+      // Save model message
       const { error: modelInsertError } = await supabase
         .from("ai_chat_messages")
         .insert([{
@@ -133,7 +131,6 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
           content: fullText,
           image_urls: finalImages,
         }]);
-
       if (modelInsertError) throw modelInsertError;
 
       setStreamingContent("");

@@ -13,10 +13,7 @@ const corsHeaders = {
 
 interface MessagePart {
   text?: string;
-  inlineData?: {
-    mimeType: string;
-    data: string;
-  };
+  inlineData?: { mimeType: string; data: string };
 }
 
 interface ChatMessage {
@@ -24,13 +21,22 @@ interface ChatMessage {
   parts: MessagePart[];
 }
 
+interface DocumentAttachment {
+  base64: string;
+  mimeType: string;
+  fileName: string;
+}
+
 interface RequestBody {
   message: string;
   systemMessage: string;
   images?: string[];
+  documents?: DocumentAttachment[];
   history?: ChatMessage[];
   stream?: boolean;
   generateTitle?: boolean;
+  webSearchEnabled?: boolean;
+  assistantId?: string;
 }
 
 async function handleImageGeneration(prompt: string): Promise<{ text: string; images: string[] }> {
@@ -97,6 +103,48 @@ async function handleImageGeneration(prompt: string): Promise<{ text: string; im
   return { text: "Aqui está a imagem que você solicitou.", images: [publicUrl] };
 }
 
+async function getEmbedding(text: string): Promise<number[]> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "models/text-embedding-004",
+      content: { parts: [{ text }] },
+      taskType: "RETRIEVAL_QUERY",
+    })
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.embedding?.values || [];
+}
+
+async function retrieveRAGContext(assistantId: string, query: string): Promise<string> {
+  try {
+    const embedding = await getEmbedding(query);
+    if (embedding.length === 0) return "";
+
+    const embeddingStr = `[${embedding.join(",")}]`;
+    const { data, error } = await supabase.rpc("match_assistant_documents", {
+      query_embedding: embeddingStr,
+      p_assistant_id: assistantId,
+      match_threshold: 0.65,
+      match_count: 5,
+    });
+
+    if (error || !data || data.length === 0) return "";
+
+    const context = data.map((d: any, i: number) =>
+      `[Documento: ${d.file_name}]\n${d.content_text}`
+    ).join("\n\n---\n\n");
+
+    return `\n\n[CONTEXTO DA BASE DE CONHECIMENTO - Use estas informações para responder quando relevante]\n${context}\n[FIM DO CONTEXTO]`;
+  } catch (e) {
+    console.error("RAG retrieval error:", e);
+    return "";
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -104,13 +152,11 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { message, systemMessage, images = [], history = [], stream = false, generateTitle = false } = body;
+    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, webSearchEnabled = false, assistantId } = body;
 
-    if (!message) {
-      throw new Error("Message is required");
-    }
+    if (!message) throw new Error("Message is required");
 
-    // Title generation mode - quick non-streaming call
+    // Title generation mode
     if (generateTitle) {
       const titleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
       const titleRes = await fetch(titleUrl, {
@@ -134,6 +180,7 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Build system message with image generation instruction
     const imageInstruction = `
 [IMPORTANT INSTRUCTION FOR IMAGE GENERATION]
 You have the ability to generate images using a specialized secondary model.
@@ -146,10 +193,23 @@ If the user explicitly asks you to create, generate, draw, or make an image or p
 \`\`\`
 Do not include any conversational text outside the JSON block if you are generating an image. If the user is NOT asking for an image, respond normally.
 `;
-    const finalSystemMessage = systemMessage + "\n\n" + imageInstruction;
+
+    let finalSystemMessage = systemMessage + "\n\n" + imageInstruction;
+
+    // RAG: Retrieve relevant documents if assistant has a knowledge base
+    if (assistantId) {
+      const ragContext = await retrieveRAGContext(assistantId, message);
+      if (ragContext) {
+        finalSystemMessage += ragContext;
+      }
+    }
+
     const chatModelName = "gemini-3-flash-preview";
 
+    // Build current message parts
     const currentMessageParts: MessagePart[] = [{ text: message }];
+    
+    // Add images
     for (const img of images) {
       let mimeType = "image/jpeg";
       let base64Data = img;
@@ -165,20 +225,36 @@ Do not include any conversational text outside the JSON block if you are generat
       }
     }
 
+    // Add documents (PDF, TXT, etc.)
+    for (const doc of documents) {
+      currentMessageParts.push({ inlineData: { mimeType: doc.mimeType, data: doc.base64 } });
+      // Add context about the file name
+      currentMessageParts.push({ text: `[Arquivo anexado: ${doc.fileName}]` });
+    }
+
     const currentTurn: ChatMessage = { role: "user", parts: currentMessageParts };
     const contents = [...history, currentTurn];
 
-    // Non-streaming mode (for backward compatibility / system message generation)
+    // Build tools array for Google Search grounding
+    const tools: any[] = [];
+    if (webSearchEnabled) {
+      tools.push({ googleSearch: {} });
+    }
+
+    // Non-streaming mode
     if (!stream) {
       const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:generateContent?key=${GEMINI_API_KEY}`;
+      const requestBody: any = {
+        systemInstruction: { parts: [{ text: finalSystemMessage }] },
+        contents,
+        generationConfig: { temperature: 0.7 }
+      };
+      if (tools.length > 0) requestBody.tools = tools;
+
       const chatRes = await fetch(chatUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: finalSystemMessage }] },
-          contents,
-          generationConfig: { temperature: 0.7 }
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!chatRes.ok) {
@@ -189,6 +265,7 @@ Do not include any conversational text outside the JSON block if you are generat
       const chatData = await chatRes.json();
       let generatedText = chatData.candidates?.[0]?.content?.parts?.[0]?.text;
       let generatedImages: string[] = [];
+      const groundingMetadata = chatData.candidates?.[0]?.groundingMetadata;
 
       if (!generatedText) throw new Error("No text generated by Gemini API");
 
@@ -210,6 +287,16 @@ Do not include any conversational text outside the JSON block if you are generat
         }
       }
 
+      // Append grounding sources if available
+      if (groundingMetadata?.groundingChunks?.length > 0) {
+        generatedText += "\n\n---\n**Fontes:**\n";
+        for (const chunk of groundingMetadata.groundingChunks) {
+          if (chunk.web) {
+            generatedText += `- [${chunk.web.title || chunk.web.uri}](${chunk.web.uri})\n`;
+          }
+        }
+      }
+
       return new Response(
         JSON.stringify({ text: generatedText, images: generatedImages }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -218,14 +305,17 @@ Do not include any conversational text outside the JSON block if you are generat
 
     // Streaming mode
     const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
+    const streamBody: any = {
+      systemInstruction: { parts: [{ text: finalSystemMessage }] },
+      contents,
+      generationConfig: { temperature: 0.7 }
+    };
+    if (tools.length > 0) streamBody.tools = tools;
+
     const streamRes = await fetch(streamUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: finalSystemMessage }] },
-        contents,
-        generationConfig: { temperature: 0.7 }
-      })
+      body: JSON.stringify(streamBody)
     });
 
     if (!streamRes.ok) {
@@ -233,8 +323,8 @@ Do not include any conversational text outside the JSON block if you are generat
       throw new Error(`Stream API error: ${err}`);
     }
 
-    // We need to collect all text to check for image generation at the end
     let fullText = "";
+    let groundingSources: { title: string; uri: string }[] = [];
     const reader = streamRes.body!.getReader();
     const decoder = new TextDecoder();
 
@@ -266,13 +356,22 @@ Do not include any conversational text outside the JSON block if you are generat
                   fullText += text;
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
                 }
+                // Capture grounding metadata from last chunk
+                const gm = parsed.candidates?.[0]?.groundingMetadata;
+                if (gm?.groundingChunks) {
+                  for (const chunk of gm.groundingChunks) {
+                    if (chunk.web) {
+                      groundingSources.push({ title: chunk.web.title || chunk.web.uri, uri: chunk.web.uri });
+                    }
+                  }
+                }
               } catch {
                 // Partial JSON, skip
               }
             }
           }
 
-          // Check if the full text was an image generation request
+          // Check for image generation request
           const trimmed = fullText.trim();
           const jsonMatch = trimmed.match(/```(?:json)?\n([\s\S]*?)\n```/);
           const possibleJson = jsonMatch ? jsonMatch[1].trim() : trimmed;
@@ -282,12 +381,21 @@ Do not include any conversational text outside the JSON block if you are generat
               const parsed = JSON.parse(possibleJson);
               if (parsed.action === "generate_image" && parsed.prompt) {
                 const result = await handleImageGeneration(parsed.prompt);
-                // Send image event - replace previous text
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ replace: true, text: result.text, images: result.images })}\n\n`));
               }
             } catch {
-              // Not valid JSON, keep the streamed text
+              // Not valid JSON
             }
+          }
+
+          // Append grounding sources
+          if (groundingSources.length > 0) {
+            const uniqueSources = groundingSources.filter((s, i, arr) => arr.findIndex(x => x.uri === s.uri) === i);
+            let sourcesText = "\n\n---\n**Fontes:**\n";
+            for (const src of uniqueSources) {
+              sourcesText += `- [${src.title}](${src.uri})\n`;
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: sourcesText })}\n\n`));
           }
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));

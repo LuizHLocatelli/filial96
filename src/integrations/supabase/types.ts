@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_assistant_documents: {
+        Row: {
+          assistant_id: string
+          chunk_index: number
+          content_text: string
+          created_at: string
+          embedding: string | null
+          file_name: string
+          file_url: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          assistant_id: string
+          chunk_index?: number
+          content_text?: string
+          created_at?: string
+          embedding?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          assistant_id?: string
+          chunk_index?: number
+          content_text?: string
+          created_at?: string
+          embedding?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_assistant_documents_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "ai_assistants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_assistants: {
         Row: {
           avatar_icon: string | null
@@ -24,6 +68,7 @@ export type Database = {
           system_message: string
           updated_at: string
           user_id: string
+          web_search_enabled: boolean
         }
         Insert: {
           avatar_icon?: string | null
@@ -34,6 +79,7 @@ export type Database = {
           system_message: string
           updated_at?: string
           user_id: string
+          web_search_enabled?: boolean
         }
         Update: {
           avatar_icon?: string | null
@@ -44,6 +90,7 @@ export type Database = {
           system_message?: string
           updated_at?: string
           user_id?: string
+          web_search_enabled?: boolean
         }
         Relationships: []
       }
@@ -51,6 +98,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          document_urls: string[] | null
           id: string
           image_urls: string[] | null
           role: string
@@ -59,6 +107,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          document_urls?: string[] | null
           id?: string
           image_urls?: string[] | null
           role: string
@@ -67,6 +116,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          document_urls?: string[] | null
           id?: string
           image_urls?: string[] | null
           role?: string
@@ -1899,6 +1949,20 @@ export type Database = {
       is_gerente: { Args: { user_id: string }; Returns: boolean }
       is_manager: { Args: never; Returns: boolean }
       is_user_manager: { Args: never; Returns: boolean }
+      match_assistant_documents: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          p_assistant_id: string
+          query_embedding: string
+        }
+        Returns: {
+          content_text: string
+          file_name: string
+          id: string
+          similarity: number
+        }[]
+      }
       match_documents: {
         Args: {
           match_count?: number
