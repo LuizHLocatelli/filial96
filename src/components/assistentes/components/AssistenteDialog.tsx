@@ -189,14 +189,14 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                     <p className="text-sm text-muted-foreground">
                       Descreva como você quer que o assistente se comporte e deixe a IA criar as instruções detalhadas e sugerir um ícone.
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Input
                         placeholder="Ex: Quero um assistente especialista em vendas..."
                         value={promptPurpose}
                         onChange={(e) => setPromptPurpose(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleGeneratePrompt(); } }}
                       />
-                      <Button type="button" variant="default" className="shrink-0" onClick={handleGeneratePrompt} disabled={isGenerating || !promptPurpose.trim()}>
+                      <Button type="button" variant="default" className="shrink-0 w-full sm:w-auto" onClick={handleGeneratePrompt} disabled={isGenerating || !promptPurpose.trim()}>
                         {isGenerating ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Gerando...</>) : (<><Sparkles className="w-4 h-4 mr-2" />Gerar</>)}
                       </Button>
                     </div>
