@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Bot, CalendarIcon, Loader2, CheckCircle2, AlertCircle, Truck } from "lucide-react";
+import { CalendarCog, CalendarIcon, Loader2, CheckCircle2, Truck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
@@ -104,7 +104,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       toast({
         variant: "destructive",
         title: "Erro ao gerar escala",
-        description: error instanceof Error ? error.message : "A inteligência artificial encontrou um erro."
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao gerar a escala."
       });
     } finally {
       setIsGenerating(false);
@@ -150,14 +150,14 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto flex flex-col p-0 sm:max-w-3xl" hideCloseButton>
         <StandardDialogHeader 
-          icon={Bot} 
-          title="Gerador de Escala com IA" 
+          icon={CalendarCog} 
+          title="Gerador de Escala" 
           onClose={() => onOpenChange(false)} 
         />
         
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <DialogDescription>
-            Defina os parâmetros e deixe a Inteligência Artificial calcular automaticamente a escala da sua equipe, respeitando espelhamento de horários.
+            Defina os parâmetros para gerar automaticamente a escala da equipe com rotação round-robin e espelhamento de horários.
           </DialogDescription>
 
           {!previewSchedule ? (
@@ -301,7 +301,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
               <Button onClick={handleGenerate} disabled={isGenerating || firstPairIds.length !== 2 || !startDate}>
                 {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isGenerating ? "Gerando..." : "Gerar com IA"}
+                {isGenerating ? "Gerando..." : "Gerar Escala"}
               </Button>
             </>
           ) : (

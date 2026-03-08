@@ -57,7 +57,7 @@ export function EscalaHeader({
           </Button>
           <Button size="sm" onClick={onGenerate}>
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Gerar com IA
+            Gerar Escala
           </Button>
         </div>
       )}
