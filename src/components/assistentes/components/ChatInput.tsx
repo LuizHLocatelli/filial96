@@ -262,9 +262,6 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           </Button>
         </motion.div>
       </div>
-      <div className="text-center hidden sm:block">
-        <span className="text-[10px] text-muted-foreground/50">O Gemini pode cometer erros. Verifique informações importantes.</span>
-      </div>
     </div>
   );
 }
