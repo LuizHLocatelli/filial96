@@ -5,11 +5,12 @@ import { ChatToolBadges } from "./ChatToolBadges";
 import { ExportDropdown } from "./ExportDropdown";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
-import { Bot, User, ArrowLeft, Square } from "lucide-react";
+import { Bot, User, ArrowLeft, Square, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AssistenteChatProps {
   assistant: AIAssistant;
@@ -53,109 +54,163 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
   if (!session) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4 text-center p-8 bg-background/50 relative">
+      <div className="flex flex-col items-center justify-center h-full gap-5 text-center p-8 bg-gradient-to-b from-background to-muted/30 relative">
         {onBack && (
           <Button variant="ghost" size="icon" className="sm:hidden absolute top-4 left-4" onClick={onBack}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-          <Bot className="w-8 h-8" />
-        </div>
-        <h3 className="text-xl font-medium">{assistant.name}</h3>
-        <p className="text-muted-foreground max-w-md">{assistant.description}</p>
-        <div className="w-full max-w-2xl mt-6">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", duration: 0.5 }}
+          className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary shadow-lg shadow-primary/10 border border-primary/10"
+        >
+          <Sparkles className="w-9 h-9" />
+        </motion.div>
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="space-y-2"
+        >
+          <h3 className="text-2xl font-semibold tracking-tight">{assistant.name}</h3>
+          <p className="text-muted-foreground max-w-md text-sm leading-relaxed">{assistant.description}</p>
+        </motion.div>
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="w-full max-w-2xl mt-4"
+        >
           <ChatInput onSend={(msg, imgs, docs) => onSendWithoutSession?.(msg, imgs, docs)} disabled={false} />
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
     <Card className="flex flex-col h-full border-x-0 sm:border-x rounded-none sm:rounded-xl overflow-hidden shadow-sm relative">
-      <div className="border-b px-4 py-3 bg-muted/30 flex items-center gap-3 shrink-0">
+      {/* Header */}
+      <div className="border-b px-4 py-3 bg-gradient-to-r from-muted/40 to-muted/20 flex items-center gap-3 shrink-0 backdrop-blur-sm">
         {onBack && (
           <Button variant="ghost" size="icon" className="sm:hidden shrink-0 -ml-2" onClick={onBack}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary shrink-0 border border-primary/10 shadow-sm">
           <Bot className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-sm">{assistant.name}</h3>
+          <h3 className="font-semibold text-sm">{assistant.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-1">{session.title}</p>
         </div>
         <ExportDropdown messages={messages} assistant={assistant} session={session} />
       </div>
 
+      {/* Messages */}
       <ScrollArea className="flex-1 p-4" id="chat-scroll-area">
-        <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full pb-4">
-          {messages.map((msg, idx) => (
-            <div key={msg.id || idx} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}`}>
-                {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-              </div>
-              <div className={`flex flex-col gap-2 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                {/* Tool badges for saved model messages */}
-                {msg.role === 'model' && msg.tools_used && msg.tools_used.length > 0 && (
-                  <ChatToolBadges tools={msg.tools_used} />
-                )}
-                {msg.image_urls?.length > 0 && (
-                  <div className={`flex flex-wrap gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {msg.image_urls.map((img, i) => (
-                      <img key={i} src={img} alt="Anexo" className="max-w-48 max-h-48 rounded-lg object-cover border cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setSelectedImage(img)} />
-                    ))}
-                  </div>
-                )}
-                <div className={`p-3 rounded-2xl ${msg.role === 'user' ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'bg-muted rounded-tl-sm'}`}>
-                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-background/50 prose-pre:border prose-code:text-xs max-w-none break-words">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
+        <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full pb-4">
+          <AnimatePresence initial={false}>
+            {messages.map((msg, idx) => (
+              <motion.div
+                key={msg.id || idx}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
+                  msg.role === 'user' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-gradient-to-br from-muted to-muted/60 text-foreground border border-border/50'
+                }`}>
+                  {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
-              </div>
-            </div>
-          ))}
+                <div className={`flex flex-col gap-1.5 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  {/* Tool badges for saved model messages */}
+                  {msg.role === 'model' && msg.tools_used && msg.tools_used.length > 0 && (
+                    <ChatToolBadges tools={msg.tools_used} />
+                  )}
+                  {msg.image_urls?.length > 0 && (
+                    <div className={`flex flex-wrap gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {msg.image_urls.map((img, i) => (
+                        <img 
+                          key={i} 
+                          src={img} 
+                          alt="Anexo" 
+                          className="max-w-48 max-h-48 rounded-xl object-cover border shadow-sm cursor-pointer hover:opacity-90 hover:shadow-md transition-all duration-200" 
+                          onClick={() => setSelectedImage(img)} 
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className={`px-4 py-3 ${
+                    msg.role === 'user' 
+                      ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20' 
+                      : 'bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm'
+                  }`}>
+                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 max-w-none break-words">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground/60 px-1">
+                    {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
+          {/* Streaming response */}
           {isSending && streamingContent && (
-            <div className="flex gap-4 flex-row">
-              <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
+            <motion.div 
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3 flex-row"
+            >
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="flex flex-col gap-2 max-w-[85%] items-start">
-                {/* Active tool badges during streaming */}
+              <div className="flex flex-col gap-1.5 max-w-[85%] items-start">
                 {activeTools.length > 0 && (
                   <ChatToolBadges tools={activeTools} isStreaming />
                 )}
-                <div className="p-3 bg-muted rounded-2xl rounded-tl-sm">
-                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-background/50 prose-pre:border prose-code:text-xs max-w-none break-words">
+                <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
+                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-code:text-xs prose-p:my-1.5 max-w-none break-words">
                     <ReactMarkdown>{streamingContent}</ReactMarkdown>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={cancelStream}>
+                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive h-7 px-2" onClick={cancelStream}>
                   <Square className="w-3 h-3 mr-1" /> Parar
                 </Button>
               </div>
-            </div>
+            </motion.div>
           )}
 
+          {/* Loading indicator */}
           {isSending && !streamingContent && (
-            <div className="flex gap-4 flex-row">
-              <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
+            <motion.div 
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3 flex-row"
+            >
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
                 <Bot className="w-4 h-4 animate-pulse" />
               </div>
-              <div className="flex flex-col gap-2 items-start">
-                {/* Active tool badges during loading */}
+              <div className="flex flex-col gap-1.5 items-start">
                 {activeTools.length > 0 && (
                   <ChatToolBadges tools={activeTools} isStreaming />
                 )}
-                <div className="p-3 bg-muted rounded-2xl rounded-tl-sm flex items-center gap-1">
-                  <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           <div ref={scrollRef} className="h-1" />
