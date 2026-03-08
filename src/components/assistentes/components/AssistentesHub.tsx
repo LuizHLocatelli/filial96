@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AssistentesSidebar } from "./AssistentesSidebar";
 import { AssistenteChat } from "./AssistenteChat";
 import { AssistenteDialog } from "./AssistenteDialog";
 import { useAssistants, useChatSessions } from "../hooks/useAssistants";
+import { useGenerateTitle } from "../hooks/useGenerateTitle";
 import type { AIAssistant } from "../types";
 
 export function AssistentesHub() {
@@ -14,12 +15,16 @@ export function AssistentesHub() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(true);
   
   const { sessions = [], createSession, deleteSession } = useChatSessions(activeAssistantId || undefined);
+  const { generateTitle } = useGenerateTitle();
 
   // Dialog State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAssistant, setEditingAssistant] = useState<AIAssistant | undefined>(undefined);
 
-  // Auto-select first assistant if none selected and assistants are available
+  // Pending message to send after session creation
+  const pendingMessageRef = useRef<{ content: string; images: string[] } | null>(null);
+
+  // Auto-select first assistant if none selected
   useEffect(() => {
     if (!activeAssistantId && assistants.length > 0) {
       setActiveAssistantId(assistants[0].id);
@@ -59,6 +64,24 @@ export function AssistentesHub() {
     }
   };
 
+  // Auto-create session when user sends first message without a session
+  const handleSendWithoutSession = async (message: string, images: string[]) => {
+    if (!activeAssistantId) return;
+
+    // Generate a dynamic title from the message
+    const title = await generateTitle(message);
+
+    const session = await createSession.mutateAsync({
+      assistant_id: activeAssistantId,
+      title,
+    });
+    if (session) {
+      pendingMessageRef.current = { content: message, images };
+      setActiveSessionId(session.id);
+    }
+  };
+
+  // Send pending message after session is active
   const activeAssistant = assistants.find(a => a.id === activeAssistantId) || null;
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
 
@@ -98,11 +121,14 @@ export function AssistentesHub() {
       
       <div className={`flex-1 bg-muted/10 relative h-full overflow-hidden ${showMobileSidebar ? 'hidden sm:flex flex-col' : 'flex flex-col'}`}>
         {activeAssistant ? (
-          <AssistenteChat 
-            assistant={activeAssistant} 
+          <AssistenteChatWithPending
+            key={activeSessionId || activeAssistantId}
+            assistant={activeAssistant}
             session={activeSession}
             onNewSession={handleCreateSession}
+            onSendWithoutSession={handleSendWithoutSession}
             onBack={() => setShowMobileSidebar(true)}
+            pendingMessageRef={pendingMessageRef}
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-muted-foreground bg-background/50 relative">
@@ -134,5 +160,51 @@ export function AssistentesHub() {
         isSaving={createAssistant.isPending || updateAssistant.isPending}
       />
     </div>
+  );
+}
+
+// Wrapper to handle sending pending message after session mounts
+function AssistenteChatWithPending({
+  assistant,
+  session,
+  onNewSession,
+  onSendWithoutSession,
+  onBack,
+  pendingMessageRef,
+}: {
+  assistant: AIAssistant;
+  session: import("../types").AIChatSession | null;
+  onNewSession: () => void;
+  onSendWithoutSession: (message: string, images: string[]) => void;
+  onBack: () => void;
+  pendingMessageRef: React.MutableRefObject<{ content: string; images: string[] } | null>;
+}) {
+  const sentRef = useRef(false);
+  const chatRef = useRef<{ sendMessage: (content: string, images: string[]) => void }>(null);
+
+  useEffect(() => {
+    if (session && pendingMessageRef.current && !sentRef.current) {
+      sentRef.current = true;
+      const { content, images } = pendingMessageRef.current;
+      pendingMessageRef.current = null;
+      
+      // Small delay to ensure chat component is mounted and ready
+      const timer = setTimeout(() => {
+        // Trigger send via the chat component's exposed method
+        const sendEvent = new CustomEvent('pending-message', { detail: { content, images, sessionId: session.id } });
+        window.dispatchEvent(sendEvent);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [session, pendingMessageRef]);
+
+  return (
+    <AssistenteChat
+      assistant={assistant}
+      session={session}
+      onNewSession={onNewSession}
+      onSendWithoutSession={onSendWithoutSession}
+      onBack={onBack}
+    />
   );
 }

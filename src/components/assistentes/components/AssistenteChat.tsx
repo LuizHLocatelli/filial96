@@ -3,21 +3,22 @@ import { useChatSession } from "../hooks/useChatSession";
 import { ChatInput } from "./ChatInput";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
-import { Bot, User, ArrowLeft } from "lucide-react";
+import { Bot, User, ArrowLeft, Square } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import DOMPurify from "dompurify";
+import ReactMarkdown from "react-markdown";
 
 interface AssistenteChatProps {
   assistant: AIAssistant;
   session: AIChatSession | null;
   onNewSession: () => void;
+  onSendWithoutSession?: (message: string, images: string[]) => void;
   onBack?: () => void;
 }
 
-export function AssistenteChat({ assistant, session, onNewSession, onBack }: AssistenteChatProps) {
-  const { messages, isLoading, isSending, sendMessage } = useChatSession(session?.id || null, assistant);
+export function AssistenteChat({ assistant, session, onNewSession, onSendWithoutSession, onBack }: AssistenteChatProps) {
+  const { messages, isLoading, isSending, streamingContent, sendMessage, cancelStream } = useChatSession(session?.id || null, assistant);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -25,32 +26,15 @@ export function AssistenteChat({ assistant, session, onNewSession, onBack }: Ass
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isSending]);
+  }, [messages, isSending, streamingContent]);
 
   const handleSend = async (message: string, images: string[]) => {
     if (!session) {
-      // Must create session first (handled by parent before this point ideally, 
-      // but if not, trigger callback)
-      onNewSession();
-      // Then send message (might fail if session is not ready, better handle this in parent)
-      // Actually, if session is null, we block input or create session first.
+      // No session yet — delegate to parent for auto-creation
+      onSendWithoutSession?.(message, images);
       return;
     }
     await sendMessage.mutateAsync({ content: message, images });
-  };
-
-  const renderMessageContent = (content: string) => {
-    // Basic Markdown rendering (bold, italic, code blocks, lists)
-    const html = content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/```(.*?)```/gs, '<pre className="bg-muted p-2 rounded-md overflow-x-auto"><code>$1</code></pre>')
-      .replace(/`(.*?)`/g, '<code className="bg-muted px-1 rounded">$1</code>')
-      .replace(/\n/g, '<br/>');
-
-    // Make safe
-    const safeHtml = DOMPurify.sanitize(html);
-    return <div dangerouslySetInnerHTML={{ __html: safeHtml }} className="text-sm prose dark:prose-invert prose-p:leading-relaxed max-w-none break-words" />;
   };
 
   if (!session) {
@@ -65,8 +49,11 @@ export function AssistenteChat({ assistant, session, onNewSession, onBack }: Ass
           <Bot className="w-8 h-8" />
         </div>
         <h3 className="text-xl font-medium">{assistant.name}</h3>
-        <p className="text-muted-foreground">{assistant.description}</p>
-        <Button onClick={onNewSession} className="mt-4">Iniciar Conversa</Button>
+        <p className="text-muted-foreground max-w-md">{assistant.description}</p>
+        
+        <div className="w-full max-w-2xl mt-6">
+          <ChatInput onSend={(msg, imgs) => onSendWithoutSession?.(msg, imgs)} disabled={false} />
+        </div>
       </div>
     );
   }
@@ -114,13 +101,35 @@ export function AssistenteChat({ assistant, session, onNewSession, onBack }: Ass
                   </div>
                 )}
                 <div className={`p-3 rounded-2xl ${msg.role === 'user' ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'bg-muted rounded-tl-sm'}`}>
-                  {renderMessageContent(msg.content)}
+                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-background/50 prose-pre:border prose-code:text-xs max-w-none break-words">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
 
-          {isSending && (
+          {/* Streaming message */}
+          {isSending && streamingContent && (
+            <div className="flex gap-4 flex-row">
+              <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col gap-2 max-w-[85%] items-start">
+                <div className="p-3 bg-muted rounded-2xl rounded-tl-sm">
+                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-background/50 prose-pre:border prose-code:text-xs max-w-none break-words">
+                    <ReactMarkdown>{streamingContent}</ReactMarkdown>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={cancelStream}>
+                  <Square className="w-3 h-3 mr-1" /> Parar
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Loading dots (before any text arrives) */}
+          {isSending && !streamingContent && (
             <div className="flex gap-4 flex-row">
               <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 animate-pulse" />
