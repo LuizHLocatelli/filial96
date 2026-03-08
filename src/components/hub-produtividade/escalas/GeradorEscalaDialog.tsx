@@ -150,8 +150,8 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto flex flex-col p-0 sm:max-w-3xl" hideCloseButton>
         <StandardDialogHeader 
-          icon={Bot} 
-          title="Gerador de Escala com IA" 
+          icon={CalendarCog} 
+          title="Gerador de Escala" 
           onClose={() => onOpenChange(false)} 
         />
         
