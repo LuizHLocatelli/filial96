@@ -29,7 +29,6 @@ export async function saveEscalas(escalas: EscalaAIResponse[], startDate: string
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) throw new Error("User not authenticated");
 
-  // First, delete any existing schedules for this period so the new generation fully replaces them
   const { error: deleteError } = await supabase
     .from('escala_carga')
     .delete()
@@ -38,7 +37,6 @@ export async function saveEscalas(escalas: EscalaAIResponse[], startDate: string
     
   if (deleteError) throw deleteError;
 
-  // Format data for insert
   const insertData = escalas.map(escala => ({
     date: escala.date,
     user_id: escala.user_id,
@@ -48,7 +46,6 @@ export async function saveEscalas(escalas: EscalaAIResponse[], startDate: string
     created_by: user.user.id
   }));
 
-  // Insert fresh data
   const { error } = await supabase
     .from('escala_carga')
     .insert(insertData);
@@ -66,6 +63,16 @@ export async function deleteEscalas(startDate: string, endDate: string) {
     .delete()
     .gte('date', startDate)
     .lte('date', endDate);
+
+  if (error) throw error;
+  return true;
+}
+
+export async function updateEscala(id: string, updates: { user_id?: string; shift_start?: string; shift_end?: string; is_carga?: boolean }) {
+  const { error } = await supabase
+    .from('escala_carga')
+    .update(updates)
+    .eq('id', id);
 
   if (error) throw error;
   return true;
