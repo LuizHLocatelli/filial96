@@ -13,7 +13,7 @@ export async function fetchEscalas(startDate: string, endDate: string) {
     .order('date', { ascending: true });
 
   if (error) throw error;
-  return data as EscalaCarga[];
+  return data as unknown as EscalaCarga[];
 }
 
 export async function generateEscalaWithAI(payload: EscalaAIPayload): Promise<EscalaAIResponse[]> {

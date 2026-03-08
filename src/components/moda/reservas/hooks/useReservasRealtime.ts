@@ -28,9 +28,9 @@ export function useReservasRealtime(
     const channel = supabase
       .channel('moda_reservas')
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         { event: '*', schema: 'public', table: 'moda_reservas' },
-        handleRealtimeUpdate
+        handleRealtimeUpdate as any
       )
       .subscribe();
 

@@ -71,7 +71,7 @@ export function useDescontinuados() {
     }
   };
 
-  const createProduto = async (produtoData: Record<string, string | number>, file?: File) => {
+  const createProduto = async (produtoData: Record<string, unknown>, file?: File) => {
     if (!user) return;
 
     try {
