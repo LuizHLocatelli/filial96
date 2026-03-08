@@ -7,6 +7,7 @@ export interface AIAssistant {
   avatar_icon: string;
   created_at: string;
   updated_at: string;
+  web_search_enabled?: boolean;
 }
 
 export interface AIChatSession {
@@ -24,5 +25,6 @@ export interface AIChatMessage {
   role: "user" | "model";
   content: string;
   image_urls: string[];
+  tools_used?: string[];
   created_at: string;
 }

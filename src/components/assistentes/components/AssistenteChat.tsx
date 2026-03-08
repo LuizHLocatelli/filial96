@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useChatSession } from "../hooks/useChatSession";
 import { ChatInput, type ChatDocument } from "./ChatInput";
+import { ChatToolBadges } from "./ChatToolBadges";
 import { ExportDropdown } from "./ExportDropdown";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
@@ -19,7 +20,7 @@ interface AssistenteChatProps {
 }
 
 export function AssistenteChat({ assistant, session, onNewSession, onSendWithoutSession, onBack }: AssistenteChatProps) {
-  const { messages, isLoading, isSending, streamingContent, sendMessage, cancelStream } = useChatSession(session?.id || null, assistant);
+  const { messages, isLoading, isSending, streamingContent, activeTools, sendMessage, cancelStream } = useChatSession(session?.id || null, assistant);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -96,6 +97,10 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
               <div className={`flex flex-col gap-2 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                {/* Tool badges for saved model messages */}
+                {msg.role === 'model' && msg.tools_used && msg.tools_used.length > 0 && (
+                  <ChatToolBadges tools={msg.tools_used} />
+                )}
                 {msg.image_urls?.length > 0 && (
                   <div className={`flex flex-wrap gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {msg.image_urls.map((img, i) => (
@@ -118,6 +123,10 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 <Bot className="w-4 h-4" />
               </div>
               <div className="flex flex-col gap-2 max-w-[85%] items-start">
+                {/* Active tool badges during streaming */}
+                {activeTools.length > 0 && (
+                  <ChatToolBadges tools={activeTools} isStreaming />
+                )}
                 <div className="p-3 bg-muted rounded-2xl rounded-tl-sm">
                   <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-background/50 prose-pre:border prose-code:text-xs max-w-none break-words">
                     <ReactMarkdown>{streamingContent}</ReactMarkdown>
@@ -135,10 +144,16 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
               <div className="w-8 h-8 rounded-full bg-muted text-foreground flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 animate-pulse" />
               </div>
-              <div className="p-3 bg-muted rounded-2xl rounded-tl-sm flex items-center gap-1">
-                <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="flex flex-col gap-2 items-start">
+                {/* Active tool badges during loading */}
+                {activeTools.length > 0 && (
+                  <ChatToolBadges tools={activeTools} isStreaming />
+                )}
+                <div className="p-3 bg-muted rounded-2xl rounded-tl-sm flex items-center gap-1">
+                  <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
               </div>
             </div>
           )}
