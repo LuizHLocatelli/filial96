@@ -9,6 +9,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
+  const [activeTools, setActiveTools] = useState<string[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
   const { data: messages = [], isLoading } = useQuery({
@@ -31,6 +32,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       if (!sessionId || !assistant) throw new Error("Sessão ou assistente inválidos");
       setIsSending(true);
       setStreamingContent("");
+      setActiveTools([]);
 
       // Save user message
       const { error: insertError } = await supabase
@@ -84,6 +86,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       let textBuffer = "";
       let fullText = "";
       let finalImages: string[] = [];
+      let toolsUsed: string[] = [];
       let streamDone = false;
 
       while (!streamDone) {
@@ -107,6 +110,20 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
 
           try {
             const parsed = JSON.parse(jsonStr);
+
+            // Handle tool activation events
+            if (parsed.tool && parsed.status === "active") {
+              setActiveTools(prev => prev.includes(parsed.tool) ? prev : [...prev, parsed.tool]);
+              toolsUsed = [...new Set([...toolsUsed, parsed.tool])];
+              continue;
+            }
+
+            // Handle final tools_used summary
+            if (parsed.tools_used && Array.isArray(parsed.tools_used)) {
+              toolsUsed = parsed.tools_used;
+              continue;
+            }
+
             if (parsed.replace) {
               fullText = parsed.text || "";
               finalImages = parsed.images || [];
@@ -122,18 +139,24 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
         }
       }
 
-      // Save model message
+      // Save model message with tools_used
+      const insertPayload: any = {
+        session_id: sessionId,
+        role: "model",
+        content: fullText,
+        image_urls: finalImages,
+      };
+      if (toolsUsed.length > 0) {
+        insertPayload.tools_used = toolsUsed;
+      }
+
       const { error: modelInsertError } = await supabase
         .from("ai_chat_messages")
-        .insert([{
-          session_id: sessionId,
-          role: "model",
-          content: fullText,
-          image_urls: finalImages,
-        }]);
+        .insert([insertPayload]);
       if (modelInsertError) throw modelInsertError;
 
       setStreamingContent("");
+      setActiveTools([]);
       return fullText;
     },
     onSuccess: () => {
@@ -143,6 +166,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       console.error("Erro ao enviar mensagem:", error);
       toast.error("Erro ao comunicar com o assistente");
       setStreamingContent("");
+      setActiveTools([]);
     },
     onSettled: () => {
       setIsSending(false);
@@ -159,6 +183,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
     isLoading,
     isSending,
     streamingContent,
+    activeTools,
     sendMessage,
     cancelStream,
   };

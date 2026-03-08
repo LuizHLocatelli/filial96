@@ -180,6 +180,9 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Track which tools are activated
+    const activatedTools: string[] = [];
+
     // Build system message with image generation instruction
     const imageInstruction = `
 [IMPORTANT INSTRUCTION FOR IMAGE GENERATION]
@@ -201,7 +204,18 @@ Do not include any conversational text outside the JSON block if you are generat
       const ragContext = await retrieveRAGContext(assistantId, message);
       if (ragContext) {
         finalSystemMessage += ragContext;
+        activatedTools.push("rag");
       }
+    }
+
+    // Track document analysis
+    if (documents.length > 0) {
+      activatedTools.push("document_analysis");
+    }
+
+    // Track web search
+    if (webSearchEnabled) {
+      activatedTools.push("web_search");
     }
 
     const chatModelName = "gemini-3-flash-preview";
@@ -228,7 +242,6 @@ Do not include any conversational text outside the JSON block if you are generat
     // Add documents (PDF, TXT, etc.)
     for (const doc of documents) {
       currentMessageParts.push({ inlineData: { mimeType: doc.mimeType, data: doc.base64 } });
-      // Add context about the file name
       currentMessageParts.push({ text: `[Arquivo anexado: ${doc.fileName}]` });
     }
 
@@ -281,6 +294,7 @@ Do not include any conversational text outside the JSON block if you are generat
             const result = await handleImageGeneration(parsed.prompt);
             generatedText = result.text;
             generatedImages = result.images;
+            activatedTools.push("image_generation");
           }
         } catch (e) {
           console.error("Failed to parse JSON for image generation:", e);
@@ -298,7 +312,7 @@ Do not include any conversational text outside the JSON block if you are generat
       }
 
       return new Response(
-        JSON.stringify({ text: generatedText, images: generatedImages }),
+        JSON.stringify({ text: generatedText, images: generatedImages, tools_used: activatedTools }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -334,6 +348,13 @@ Do not include any conversational text outside the JSON block if you are generat
         let buffer = "";
 
         try {
+          // Emit tool activation events FIRST before any content
+          if (activatedTools.length > 0) {
+            for (const tool of activatedTools) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool, status: "active" })}\n\n`));
+            }
+          }
+
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
@@ -380,6 +401,9 @@ Do not include any conversational text outside the JSON block if you are generat
             try {
               const parsed = JSON.parse(possibleJson);
               if (parsed.action === "generate_image" && parsed.prompt) {
+                // Emit image_generation tool event
+                activatedTools.push("image_generation");
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "image_generation", status: "active" })}\n\n`));
                 const result = await handleImageGeneration(parsed.prompt);
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ replace: true, text: result.text, images: result.images })}\n\n`));
               }
@@ -396,6 +420,11 @@ Do not include any conversational text outside the JSON block if you are generat
               sourcesText += `- [${src.title}](${src.uri})\n`;
             }
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: sourcesText })}\n\n`));
+          }
+
+          // Emit final tools_used summary before DONE
+          if (activatedTools.length > 0) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tools_used: activatedTools })}\n\n`));
           }
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));

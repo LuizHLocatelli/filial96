@@ -103,6 +103,7 @@ export type Database = {
           image_urls: string[] | null
           role: string
           session_id: string
+          tools_used: string[] | null
         }
         Insert: {
           content: string
@@ -112,6 +113,7 @@ export type Database = {
           image_urls?: string[] | null
           role: string
           session_id: string
+          tools_used?: string[] | null
         }
         Update: {
           content?: string
@@ -121,6 +123,7 @@ export type Database = {
           image_urls?: string[] | null
           role?: string
           session_id?: string
+          tools_used?: string[] | null
         }
         Relationships: [
           {
