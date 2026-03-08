@@ -215,7 +215,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                         >
                           <Textarea
                             {...field}
-                            className={`min-h-[250px] font-mono text-sm leading-relaxed transition-colors duration-300 ${highlightField ? 'bg-primary/5 border-primary' : ''}`}
+                            className={`min-h-[180px] sm:min-h-[250px] font-mono text-sm leading-relaxed transition-colors duration-300 ${highlightField ? 'bg-primary/5 border-primary' : ''}`}
                             placeholder="Defina as regras, o tom de voz e o conhecimento base deste assistente..."
                           />
                         </motion.div>

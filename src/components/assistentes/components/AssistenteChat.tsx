@@ -177,7 +177,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                   <ChatToolBadges tools={activeTools} isStreaming />
                 )}
                 <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
-                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-code:text-xs prose-p:my-1.5 max-w-none break-words">
+                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 max-w-none break-words">
                     <ReactMarkdown>{streamingContent}</ReactMarkdown>
                   </div>
                 </div>

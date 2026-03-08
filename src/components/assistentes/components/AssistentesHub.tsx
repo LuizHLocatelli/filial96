@@ -65,7 +65,7 @@ export function AssistentesHub() {
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
 
   return (
-    <div className="flex flex-col sm:flex-row h-[calc(100vh-12rem)] min-h-[500px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm relative">
+    <div className="flex flex-col sm:flex-row h-[calc(100dvh-12rem)] min-h-[500px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm relative">
       <div className={`w-full sm:w-auto h-full shrink-0 ${showMobileSidebar ? 'block' : 'hidden sm:block'}`}>
         <AssistentesSidebar
           assistants={assistants} sessions={sessions}
