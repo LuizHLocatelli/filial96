@@ -1,0 +1,1 @@
+ALTER TABLE public.ai_chat_messages ADD COLUMN IF NOT EXISTS tools_used text[] DEFAULT '{}'::text[];
