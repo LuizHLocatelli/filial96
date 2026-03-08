@@ -150,7 +150,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20' 
                       : 'bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm'
                   }`}>
-                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 max-w-none break-words">
+                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 max-w-none break-words">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   </div>
