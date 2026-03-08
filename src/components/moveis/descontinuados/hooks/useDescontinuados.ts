@@ -71,7 +71,8 @@ export function useDescontinuados() {
     }
   };
 
-  const createProduto = async (produtoData: Record<string, unknown>, file?: File) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const createProduto = async (produtoData: any, file?: File) => {
     if (!user) return;
 
     try {
