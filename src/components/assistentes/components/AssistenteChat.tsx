@@ -139,7 +139,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                           key={i} 
                           src={img} 
                           alt="Anexo" 
-                          className="max-w-48 max-h-48 rounded-xl object-cover border shadow-sm cursor-pointer hover:opacity-90 hover:shadow-md transition-all duration-200" 
+                          className="max-w-32 sm:max-w-48 max-h-32 sm:max-h-48 rounded-xl object-cover border shadow-sm cursor-pointer hover:opacity-90 hover:shadow-md transition-all duration-200" 
                           onClick={() => setSelectedImage(img)} 
                         />
                       ))}
