@@ -169,9 +169,9 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
                 <img src={img} alt={`Anexo ${i}`} className="w-full h-full object-cover" />
                 <button
                   onClick={() => removeImage(i)}
-                  className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center"
+                  className="absolute inset-0 bg-black/40 sm:bg-black/0 sm:group-hover:bg-black/40 transition-colors flex items-center justify-center"
                 >
-                  <X className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <X className="w-4 h-4 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
                 </button>
               </motion.div>
             ))}
