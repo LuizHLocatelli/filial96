@@ -25,7 +25,7 @@ export function useReservas() {
     try {
       setIsLoading(true);
       const data = await fetchReservasApi();
-      const typedReservas = processReservaData(data);
+      const typedReservas = processReservaData(data as unknown as import('../utils/dataProcessing').ReservaData[]);
       setReservas(typedReservas);
     } catch (err) {
       console.error('Erro ao carregar reservas:', err);

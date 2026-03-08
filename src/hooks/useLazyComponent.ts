@@ -1,5 +1,4 @@
 import { lazy, ComponentType, LazyExoticComponent, useState, useEffect, useCallback } from 'react';
-import { lazyLoadingMetrics } from '@/utils/lazyLoadingMetrics';
 
 interface LazyComponentOptions {
   preloadDelay?: number;
@@ -23,27 +22,14 @@ export function useLazyComponent<T = Record<string, unknown>>(
   } = options;
 
   return lazy(() => {
-    if (enableMetrics) {
-      lazyLoadingMetrics.startLoading(componentName);
-    }
-
     const loadWithRetry = async (attempts: number = 0): Promise<{ default: ComponentType<T> }> => {
       try {
-        const module = await importFunction();
-        
-        if (enableMetrics) {
-          lazyLoadingMetrics.endLoading(componentName);
-        }
-        
-        return module;
+        return await importFunction();
       } catch (error) {
         if (attempts < retryAttempts) {
-          console.warn(`Tentativa ${attempts + 1} falhou para ${componentName}. Tentando novamente...`);
           await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1)));
           return loadWithRetry(attempts + 1);
         }
-        
-        console.error(`Falha ao carregar componente ${componentName} após ${retryAttempts} tentativas:`, error);
         throw error;
       }
     };
@@ -206,19 +192,9 @@ export class ExternalLibraryLoader {
   static async loadLibrary(
     libraryName: string,
     importFunction: () => Promise<LibraryModule>,
-    enableMetrics: boolean = true
   ): Promise<LibraryModule> {
     if (!this.instances.has(libraryName)) {
-      if (enableMetrics) {
-        lazyLoadingMetrics.startLoading(`library-${libraryName}`);
-      }
-
-      const promise = importFunction().then(module => {
-        if (enableMetrics) {
-          lazyLoadingMetrics.endLoading(`library-${libraryName}`);
-        }
-        return module;
-      }).catch(error => {
+      const promise = importFunction().catch(error => {
         console.error(`Erro ao carregar biblioteca ${libraryName}:`, error);
         this.instances.delete(libraryName);
         throw error;
@@ -231,7 +207,7 @@ export class ExternalLibraryLoader {
   }
 
   static preloadLibrary(libraryName: string, importFunction: () => Promise<LibraryModule>): void {
-    this.loadLibrary(libraryName, importFunction, false);
+    this.loadLibrary(libraryName, importFunction);
   }
 
   static isLoaded(libraryName: string): boolean {

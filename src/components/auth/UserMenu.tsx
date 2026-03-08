@@ -50,9 +50,8 @@ export function UserMenu() {
 
   // Função para obter o nome de exibição
   const getDisplayName = () => {
-    // Prioridade: displayName do perfil > name do perfil > nome do email
-    if (profile?.displayName) {
-      return profile.displayName;
+    if (profile?.display_name) {
+      return profile.display_name;
     }
     if (profile?.name) {
       return profile.name;
@@ -67,12 +66,11 @@ export function UserMenu() {
 
   // Função para obter nome para as iniciais
   const getNameForInitials = () => {
-    // Prioridade: name do perfil > displayName do perfil > nome do email
     if (profile?.name) {
       return profile.name;
     }
-    if (profile?.displayName) {
-      return profile.displayName;
+    if (profile?.display_name) {
+      return profile.display_name;
     }
     if (user?.email) {
       return user.email.split('@')[0];
@@ -141,7 +139,7 @@ export function UserMenu() {
         <Button variant="ghost" className="relative h-10 w-10 p-0 hover:bg-muted dark:hover:bg-primary/20">
           <Avatar className="h-9 w-9">
             <AvatarImage 
-              src={profile?.avatarUrl} 
+              src={profile?.avatar_url} 
               alt={getDisplayName()} 
             />
             <AvatarFallback className="bg-transparent border-0 text-foreground">
@@ -155,7 +153,7 @@ export function UserMenu() {
         <div className="flex items-center space-x-3 p-3">
           <Avatar className="h-12 w-12">
             <AvatarImage 
-              src={profile?.avatarUrl} 
+              src={profile?.avatar_url} 
               alt={getDisplayName()} 
             />
             <AvatarFallback className="bg-primary/10 text-primary text-lg">
@@ -176,7 +174,7 @@ export function UserMenu() {
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Mail className="h-3 w-3" />
-              <span className="truncate">{user?.email || profile?.email}</span>
+              <span className="truncate">{user?.email}</span>
             </div>
             <div className="flex items-center gap-1">
               {isEmailConfirmed ? (

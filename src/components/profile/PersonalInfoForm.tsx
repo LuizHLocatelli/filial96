@@ -38,7 +38,7 @@ export function PersonalInfoForm() {
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
       fullName: profile?.name || "",
-      displayName: profile?.displayName || "",
+      displayName: profile?.display_name || "",
       phone: profile?.phone || "",
     },
   });
@@ -48,7 +48,7 @@ export function PersonalInfoForm() {
     if (profile) {
       form.reset({
         fullName: profile.name || "",
-        displayName: profile.displayName || profile.name?.split(" ")[0] || "",
+        displayName: profile.display_name || profile.name?.split(" ")[0] || "",
         phone: profile.phone || "",
       });
     }

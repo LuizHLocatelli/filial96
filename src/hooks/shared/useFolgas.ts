@@ -128,8 +128,8 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
       let error = null;
 
       if (config.tableName === 'moveis_folgas') {
-        const result = await supabase.from('moveis_folgas').select('*');
-        data = result.data as FolgaRow[] | null;
+        const result = await supabase.from('moveis_folgas' as any).select('*');
+        data = result.data as unknown as FolgaRow[] | null;
         error = result.error;
       } else {
         throw new Error(`Tabela não suportada: ${config.tableName}`);
@@ -250,7 +250,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
 
       if (config.tableName === 'moveis_folgas') {
         const result = await supabase
-          .from('moveis_folgas')
+          .from('moveis_folgas' as any)
           .insert({ ...insertData, consultor_id: selectedConsultor })
           .select();
         data = result.data;
@@ -343,7 +343,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
       let error = null;
 
       if (config.tableName === 'moveis_folgas') {
-        const result = await supabase.from('moveis_folgas').delete().eq("id", folgaId);
+        const result = await supabase.from('moveis_folgas' as any).delete().eq("id", folgaId);
         error = result.error;
       } else {
         throw new Error(`Tabela não suportada: ${config.tableName}`);
