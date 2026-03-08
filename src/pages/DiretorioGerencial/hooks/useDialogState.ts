@@ -10,7 +10,7 @@ interface UseDialogStateProps {
   excluirPasta: UseMutationResult<string, Error, string>;
   moverPasta: UseMutationResult<PastaGerencial, Error, { id: string; pasta_pai_id: string | null }>;
   moverArquivo: UseMutationResult<ArquivoGerencial, Error, { arquivoId: string; pastaId: string | null }>;
-  deleteArquivo: UseMutationResult<void, Error, ArquivoGerencial>;
+  deleteArquivo: UseMutationResult<string, Error, ArquivoGerencial>;
 }
 
 export function useDialogState({
