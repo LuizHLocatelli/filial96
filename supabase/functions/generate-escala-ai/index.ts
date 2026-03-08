@@ -1,126 +1,196 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+interface ScheduleEntry {
+  date: string;
+  user_id: string;
+  is_carga: boolean;
+  shift_start: string;
+  shift_end: string;
+}
+
+/**
+ * Pure deterministic schedule generator.
+ * No AI needed — the rules are fully algorithmic:
+ * 
+ * - Mon/Wed/Fri → 2 people on Carga (08:30-17:30), rest Normal (09:30-18:30)
+ * - Tue/Thu/Sat → Mirror: same 2 from previous day repeat Carga schedule
+ * - Sunday → skip entirely
+ * - Round-robin rotation for Carga pairs
+ * - Respects folgas (specific day-offs) and excluded consultants
+ */
+function generateSchedule(
+  startDate: string,
+  daysToGenerate: number,
+  firstPairIds: string[],
+  availableConsultantsIds: string[],
+  excludedConsultantsIds: string[],
+  folgas: { consultantId: string; date: string }[]
+): ScheduleEntry[] {
+  const schedule: ScheduleEntry[] = [];
+
+  // Filter out excluded consultants
+  const activeConsultants = availableConsultantsIds.filter(
+    id => !excludedConsultantsIds.includes(id)
+  );
+
+  if (activeConsultants.length < 2) {
+    throw new Error("Pelo menos 2 consultores disponíveis são necessários para gerar a escala.");
+  }
+
+  // Build folgas lookup: Set<"userId|date">
+  const folgaSet = new Set(folgas.map(f => `${f.consultantId}|${f.date}`));
+  const hasFolga = (userId: string, date: string) => folgaSet.has(`${userId}|${date}`);
+
+  // Build round-robin queue for carga pairs, starting with firstPairIds
+  // The queue contains individual consultants; we pick 2 at a time
+  const cargaQueue: string[] = [];
+  
+  // Start with firstPairIds, then add remaining in order
+  for (const id of firstPairIds) {
+    if (activeConsultants.includes(id)) cargaQueue.push(id);
+  }
+  for (const id of activeConsultants) {
+    if (!firstPairIds.includes(id)) cargaQueue.push(id);
+  }
+
+  let queueIndex = 0;
+
+  // Pick next available pair from round-robin, skipping those with folga
+  function pickCargaPair(dateStr: string): [string, string] {
+    const pair: string[] = [];
+    const startIndex = queueIndex;
+    let attempts = 0;
+    
+    while (pair.length < 2 && attempts < cargaQueue.length * 2) {
+      const candidate = cargaQueue[queueIndex % cargaQueue.length];
+      queueIndex++;
+      attempts++;
+      
+      if (!hasFolga(candidate, dateStr) && !pair.includes(candidate)) {
+        pair.push(candidate);
+      }
+    }
+
+    // Fallback: if we couldn't find 2, just use whoever is available
+    if (pair.length < 2) {
+      for (const id of activeConsultants) {
+        if (!hasFolga(id, dateStr) && !pair.includes(id)) {
+          pair.push(id);
+          if (pair.length === 2) break;
+        }
+      }
+    }
+
+    return [pair[0], pair[1]];
+  }
+
+  // Iterate through days
+  const start = new Date(startDate + "T12:00:00Z");
+  let lastCargaPair: [string, string] | null = null;
+
+  for (let i = 0; i < daysToGenerate; i++) {
+    const current = new Date(start);
+    current.setDate(current.getDate() + i);
+
+    const dow = current.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    const dateStr = current.toISOString().split("T")[0];
+
+    // Skip Sundays
+    if (dow === 0) continue;
+
+    const isNewCargaDay = dow === 1 || dow === 3 || dow === 5; // Mon, Wed, Fri
+    const isMirrorDay = dow === 2 || dow === 4 || dow === 6;   // Tue, Thu, Sat
+
+    let cargaPair: [string, string];
+
+    if (isNewCargaDay) {
+      cargaPair = pickCargaPair(dateStr);
+      lastCargaPair = cargaPair;
+    } else if (isMirrorDay && lastCargaPair) {
+      // Mirror: same pair, but replace anyone with folga
+      cargaPair = [...lastCargaPair] as [string, string];
+      for (let p = 0; p < 2; p++) {
+        if (hasFolga(cargaPair[p], dateStr)) {
+          // Find a replacement
+          const replacement = activeConsultants.find(
+            id => !hasFolga(id, dateStr) && !cargaPair.includes(id)
+          );
+          if (replacement) cargaPair[p] = replacement;
+        }
+      }
+    } else {
+      cargaPair = lastCargaPair || pickCargaPair(dateStr);
+    }
+
+    // Generate entries for ALL active consultants on this day
+    for (const consultantId of activeConsultants) {
+      if (hasFolga(consultantId, dateStr)) continue;
+
+      const isCarga = cargaPair.includes(consultantId);
+
+      schedule.push({
+        date: dateStr,
+        user_id: consultantId,
+        is_carga: isCarga,
+        shift_start: isCarga ? "08:30:00" : "09:30:00",
+        shift_end: isCarga ? "17:30:00" : "18:30:00",
+      });
+    }
+  }
+
+  return schedule;
+}
+
 serve(async (req) => {
-  // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY environment variable is missing.");
-    }
-
-    const { startDate, daysToGenerate, firstPairIds, availableConsultantsIds, excludedConsultantsIds = [], folgas = [] } = await req.json();
+    const {
+      startDate,
+      daysToGenerate,
+      firstPairIds,
+      availableConsultantsIds,
+      excludedConsultantsIds = [],
+      folgas = [],
+    } = await req.json();
 
     if (!startDate || !daysToGenerate || !firstPairIds || !availableConsultantsIds) {
-      throw new Error("Missing required parameters in request body.");
+      throw new Error("Parâmetros obrigatórios ausentes.");
     }
 
-    const modelName = "gemini-3-flash-preview";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-
-    const systemPrompt = `
-You are an expert workforce scheduler. Generate a JSON array containing a 30-day work schedule.
-
-RULES:
-1. Work Days: Monday to Saturday.
-2. Sundays are ALWAYS off (skip them entirely from the output array).
-3. "Carga" shift requires EXACTLY 2 people.
-4. "Carga" shift time is 08:30:00 to 17:30:00.
-5. "Normal" shift time is 09:30:00 to 18:30:00.
-6. NEW "Carga" assignments happen ONLY on Mondays, Wednesdays, and Fridays.
-7. On Tuesdays, Thursdays, and Saturdays, the 2 people who did "Carga" on the PREVIOUS DAY must repeat the EXACT SAME 08:30:00 to 17:30:00 shift (this is the "Espelho" or mirror shift).
-8. Use a round-robin rotation for the "Carga" shift among the available consultants.
-9. Everyone else works the "Normal" shift (09:30:00 to 18:30:00).
-10. If someone is in the 'excludedConsultantsIds' list, they must NOT appear in the schedule at all (they are on vacation/medical leave).
-11. The 'folgas' array contains specific dates where specific consultants CANNOT work. If a consultant has a folga on a specific date, they MUST NOT be scheduled for ANY shift (Carga or Normal) on that specific date. 
-12. If a consultant has a folga on a day they were supposed to do "Carga", another available consultant must take their place. If they were supposed to do the mirror shift, replace them with someone else for the mirror day.
-
-INPUTS:
-- Start Date: ${startDate} (This is a Monday)
-- Days to generate: ${daysToGenerate}
-- The first 2 people for Carga on the Start Date are EXACTLY: ${JSON.stringify(firstPairIds)}
-- List of all available consultants (UUIDs): ${JSON.stringify(availableConsultantsIds)}
-- List of excluded consultants (entire period): ${JSON.stringify(excludedConsultantsIds)}
-- List of specific days off (folgas): ${JSON.stringify(folgas)}
-
-OUTPUT FORMAT:
-Respond ONLY with a raw JSON array of objects. Do not use markdown blocks (\`\`\`json). Just the raw JSON.
-Each object must have this EXACT structure:
-{
-  "date": "YYYY-MM-DD",
-  "user_id": "uuid-of-consultant",
-  "is_carga": true/false, // true if they work 08:30-17:30 (carga or mirror), false if 09:30-18:30
-  "shift_start": "08:30:00" or "09:30:00",
-  "shift_end": "17:30:00" or "18:30:00"
-}
-Every available consultant (not excluded) must have 1 object per working day in the array.
-`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: "Please generate the schedule based on the system instructions." }]
-          }
-        ],
-        systemInstruction: {
-          parts: [{ text: systemPrompt }]
-        },
-        generationConfig: {
-          temperature: 0.1, // Low temperature for deterministic output
-          responseMimeType: "application/json",
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API Error:", errorText);
-      throw new Error(`Google API returned ${response.status}: ${errorText}`);
+    if (firstPairIds.length !== 2) {
+      throw new Error("Exatamente 2 consultores devem ser selecionados para a primeira carga.");
     }
 
-    const data = await response.json();
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const schedule = generateSchedule(
+      startDate,
+      daysToGenerate,
+      firstPairIds,
+      availableConsultantsIds,
+      excludedConsultantsIds,
+      folgas
+    );
 
-    if (!generatedText) {
-      throw new Error("No text generated by Gemini API");
-    }
-
-    let scheduleData;
-    try {
-      scheduleData = JSON.parse(generatedText);
-    } catch (e) {
-      console.error("Failed to parse Gemini output as JSON:", generatedText);
-      throw new Error("AI returned invalid JSON format.");
-    }
+    console.log(`Schedule generated: ${schedule.length} entries for ${daysToGenerate} days starting ${startDate}`);
 
     return new Response(
-      JSON.stringify({ schedule: scheduleData }),
-      { 
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      }
+      JSON.stringify({ schedule }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Function error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      JSON.stringify({ error: error instanceof Error ? error.message : "Erro desconhecido" }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
