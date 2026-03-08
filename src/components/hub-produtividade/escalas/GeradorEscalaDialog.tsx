@@ -157,7 +157,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
         
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <DialogDescription>
-            Defina os parâmetros e deixe a Inteligência Artificial calcular automaticamente a escala da sua equipe, respeitando espelhamento de horários.
+            Defina os parâmetros para gerar automaticamente a escala da equipe com rotação round-robin e espelhamento de horários.
           </DialogDescription>
 
           {!previewSchedule ? (
