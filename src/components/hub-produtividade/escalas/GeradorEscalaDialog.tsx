@@ -301,7 +301,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
               <Button onClick={handleGenerate} disabled={isGenerating || firstPairIds.length !== 2 || !startDate}>
                 {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isGenerating ? "Gerando..." : "Gerar com IA"}
+                {isGenerating ? "Gerando..." : "Gerar Escala"}
               </Button>
             </>
           ) : (
