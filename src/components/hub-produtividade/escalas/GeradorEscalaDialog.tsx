@@ -104,7 +104,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       toast({
         variant: "destructive",
         title: "Erro ao gerar escala",
-        description: error instanceof Error ? error.message : "A inteligência artificial encontrou um erro."
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao gerar a escala."
       });
     } finally {
       setIsGenerating(false);
