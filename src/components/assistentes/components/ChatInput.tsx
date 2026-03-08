@@ -169,9 +169,9 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
                 <img src={img} alt={`Anexo ${i}`} className="w-full h-full object-cover" />
                 <button
                   onClick={() => removeImage(i)}
-                  className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center"
+                  className="absolute inset-0 bg-black/40 sm:bg-black/0 sm:group-hover:bg-black/40 transition-colors flex items-center justify-center"
                 >
-                  <X className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <X className="w-4 h-4 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
                 </button>
               </motion.div>
             ))}
@@ -189,7 +189,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
                 <span className="text-xs truncate font-medium">{doc.fileName}</span>
                 <button
                   onClick={() => removeDocument(i)}
-                  className="absolute top-1 right-1 bg-muted hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all"
+                  className="absolute top-1 right-1 bg-muted hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full p-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -262,7 +262,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           </Button>
         </motion.div>
       </div>
-      <div className="text-center">
+      <div className="text-center hidden sm:block">
         <span className="text-[10px] text-muted-foreground/50">O Gemini pode cometer erros. Verifique informações importantes.</span>
       </div>
     </div>

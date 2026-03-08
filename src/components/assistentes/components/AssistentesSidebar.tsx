@@ -109,7 +109,7 @@ export function AssistentesSidebar({
                       <Button 
                         size="icon" 
                         variant="ghost" 
-                        className="opacity-0 group-hover:opacity-100 h-7 w-7 mr-1.5 transition-opacity rounded-lg"
+                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 h-7 w-7 mr-1.5 transition-opacity rounded-lg"
                         onClick={(e) => {
                           e.stopPropagation();
                           onEditAssistant(assistant);
@@ -156,7 +156,7 @@ export function AssistentesSidebar({
                       <Button 
                         size="icon" 
                         variant="ghost" 
-                        className="opacity-0 group-hover:opacity-100 h-7 w-7 mr-1.5 transition-opacity rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 h-7 w-7 mr-1.5 transition-opacity rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSessionToDelete(session.id);

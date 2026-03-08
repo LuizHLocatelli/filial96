@@ -54,7 +54,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
   if (!session) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-5 text-center p-8 bg-gradient-to-b from-background to-muted/30 relative">
+      <div className="flex flex-col items-center justify-center h-full gap-5 text-center p-4 sm:p-8 bg-gradient-to-b from-background to-muted/30 relative">
         {onBack && (
           <Button variant="ghost" size="icon" className="sm:hidden absolute top-4 left-4" onClick={onBack}>
             <ArrowLeft className="w-5 h-5" />
@@ -74,7 +74,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
           transition={{ delay: 0.15 }}
           className="space-y-2"
         >
-          <h3 className="text-2xl font-semibold tracking-tight">{assistant.name}</h3>
+          <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{assistant.name}</h3>
           <p className="text-muted-foreground max-w-md text-sm leading-relaxed">{assistant.description}</p>
         </motion.div>
         <motion.div
@@ -139,7 +139,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                           key={i} 
                           src={img} 
                           alt="Anexo" 
-                          className="max-w-48 max-h-48 rounded-xl object-cover border shadow-sm cursor-pointer hover:opacity-90 hover:shadow-md transition-all duration-200" 
+                          className="max-w-32 sm:max-w-48 max-h-32 sm:max-h-48 rounded-xl object-cover border shadow-sm cursor-pointer hover:opacity-90 hover:shadow-md transition-all duration-200" 
                           onClick={() => setSelectedImage(img)} 
                         />
                       ))}
@@ -150,7 +150,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20' 
                       : 'bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm'
                   }`}>
-                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 max-w-none break-words">
+                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 max-w-none break-words">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   </div>
@@ -177,7 +177,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                   <ChatToolBadges tools={activeTools} isStreaming />
                 )}
                 <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
-                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-code:text-xs prose-p:my-1.5 max-w-none break-words">
+                  <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 max-w-none break-words">
                     <ReactMarkdown>{streamingContent}</ReactMarkdown>
                   </div>
                 </div>
