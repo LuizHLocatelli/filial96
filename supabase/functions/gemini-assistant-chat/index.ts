@@ -104,12 +104,12 @@ async function handleImageGeneration(prompt: string): Promise<{ text: string; im
 }
 
 async function getEmbedding(text: string): Promise<number[]> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-exp-03-07-1024:embedContent?key=${GEMINI_API_KEY}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "models/text-embedding-004",
+      model: "models/gemini-embedding-exp-03-07-1024",
       content: { parts: [{ text }] },
       taskType: "RETRIEVAL_QUERY",
     })
