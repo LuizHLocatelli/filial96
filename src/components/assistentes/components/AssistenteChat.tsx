@@ -28,6 +28,21 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
     }
   }, [messages, isSending, streamingContent]);
 
+  // Listen for pending messages from auto-session creation
+  useEffect(() => {
+    if (!session) return;
+    
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.sessionId === session.id) {
+        sendMessage.mutateAsync({ content: detail.content, images: detail.images });
+      }
+    };
+    
+    window.addEventListener('pending-message', handler);
+    return () => window.removeEventListener('pending-message', handler);
+  }, [session, sendMessage]);
+
   const handleSend = async (message: string, images: string[]) => {
     if (!session) {
       // No session yet — delegate to parent for auto-creation
