@@ -111,7 +111,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" id="chat-scroll-area">
-        <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full pb-4">
+        <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full pb-4 min-w-0 overflow-hidden">
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => (
               <motion.div
@@ -119,7 +119,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                className={`flex gap-3 min-w-0 overflow-hidden ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
                   msg.role === 'user' 
@@ -128,7 +128,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 }`}>
                   {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
-                <div className={`flex flex-col gap-1.5 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`flex flex-col gap-1.5 min-w-0 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {/* Tool badges for saved model messages */}
                   {msg.role === 'model' && msg.tools_used && msg.tools_used.length > 0 && (
                     <ChatToolBadges tools={msg.tools_used} />
@@ -146,12 +146,12 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                       ))}
                     </div>
                   )}
-                  <div className={`px-4 py-3 ${
+                  <div className={`px-4 py-3 min-w-0 overflow-hidden ${
                     msg.role === 'user' 
                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20' 
                       : 'bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm'
                   }`}>
-                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 prose-table:w-full prose-table:text-xs prose-th:bg-muted/50 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border/50 max-w-none break-words overflow-x-auto">
+                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 prose-table:w-full prose-table:text-xs prose-th:bg-muted/50 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border/50 max-w-none [overflow-wrap:anywhere] [word-break:break-word] overflow-x-auto">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                     </div>
                   </div>
