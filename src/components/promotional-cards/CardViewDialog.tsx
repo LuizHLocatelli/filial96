@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/use-toast";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getAspectRatioClass, downloadCardImage, shareCardWhatsApp } from "@/utils/cardUtils";
 
 interface FolderItem {
   id: string;
@@ -23,7 +24,7 @@ interface CardViewDialogProps {
   endDate: string;
   currentFolder: FolderItem;
   aspectRatio?: "1:1" | "3:4" | "4:5";
-  isMobile: boolean;
+  isMobile?: boolean;
 }
 
 export function CardViewDialog({
@@ -40,18 +41,7 @@ export function CardViewDialog({
   const isMobile = useIsMobile();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const getAspectRatioClass = () => {
-    switch (aspectRatio) {
-      case "1:1":
-        return "aspect-square";
-      case "3:4":
-        return "aspect-[3/4]";
-      case "4:5":
-        return "aspect-[4/5]";
-      default:
-        return "aspect-[4/5]";
-    }
-  };
+  const aspectClass = getAspectRatioClass(aspectRatio);
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code);
@@ -64,17 +54,7 @@ export function CardViewDialog({
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
+      await downloadCardImage(imageUrl, title);
       toast({
         title: "Download iniciado!",
         description: "A imagem do card está sendo baixada.",
@@ -91,74 +71,18 @@ export function CardViewDialog({
     }
   };
 
-  const handleShareWhatsApp = () => {
-    const message = encodeURIComponent(
-      `*${title}*\n\n` +
-      (code ? `Código: ${code}\n\n` : '') +
-      `Veja o card: ${imageUrl}`
-    );
-    const whatsappUrl = `https://wa.me/?text=${message}`;
-    window.open(whatsappUrl, '_blank');
-    
-    toast({
-      title: "WhatsApp aberto!",
-      description: "Pronto para compartilhar o card.",
-    });
-  };
-
   const handleShareWhatsAppWithImage = async () => {
     try {
-      // Faz download da imagem primeiro
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`, { type: blob.type || 'image/jpeg' });
-      
-      const messageText = code 
-        ? `*${title}*\n\nCódigo: ${code}`
-        : `*${title}*`;
-      
-      // Verifica se é mobile e suporta compartilhamento nativo
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      if (isMobileDevice && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        // Mobile: tenta usar Web Share API nativa (funciona bem no mobile)
-        await navigator.share({
-          files: [file],
-          title: title,
-          text: messageText,
-        });
-        
-        toast({
-          title: "Compartilhado!",
-          description: "Card compartilhado com sucesso.",
-        });
-      } else {
-        // Desktop: faz download automático e abre WhatsApp Web
-        // Cria URL temporária para download
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        
-        // Abre WhatsApp Web com mensagem preparada
-        const encodedMessage = encodeURIComponent(messageText);
-        const whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        
-        toast({
-          title: "Imagem baixada!",
-          description: "A imagem foi salva. Anexe-a manualmente no WhatsApp Web.",
-          duration: 5000,
-        });
-      }
+      await shareCardWhatsApp(imageUrl, title, code);
     } catch (error) {
       console.error("Erro ao compartilhar:", error);
-      // Fallback: apenas abre WhatsApp com link
-      handleShareWhatsApp();
+      // Fallback: open WhatsApp with link
+      const message = encodeURIComponent(
+        `*${title}*\n\n` +
+        (code ? `Código: ${code}\n\n` : '') +
+        `Veja o card: ${imageUrl}`
+      );
+      window.open(`https://wa.me/?text=${message}`, '_blank');
     }
   };
 
@@ -183,7 +107,7 @@ export function CardViewDialog({
           {/* Imagem com altura máxima controlada */}
           <div className={cn(
             "relative overflow-hidden bg-background border border-border rounded-lg mb-5",
-            getAspectRatioClass(),
+            aspectClass,
             "max-h-[50vh]"
           )}>
             <img

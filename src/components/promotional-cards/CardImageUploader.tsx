@@ -28,18 +28,7 @@ export function CardImageUploader({
   const [previewOpen, setPreviewOpen] = useState(false);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   
-  const getAspectRatioClass = () => {
-    switch (aspectRatio) {
-      case "1:1":
-        return "aspect-square";
-      case "3:4":
-        return "aspect-[3/4]";
-      case "4:5":
-        return "aspect-[4/5]";
-      default:
-        return "aspect-[4/5]";
-    }
-  };
+  const aspectClass = getAspectRatioClass(aspectRatio);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();

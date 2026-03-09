@@ -156,7 +156,7 @@ export function PromotionalCard({
       >
         {/* Imagem do card - clicável para visualização */}
         <div 
-          className={`${getAspectRatioClass()} relative overflow-hidden cursor-pointer`}
+          className={`${aspectClass} relative overflow-hidden cursor-pointer`}
           onClick={(e) => handleCardClick(e)}
           role="button"
           tabIndex={0}
