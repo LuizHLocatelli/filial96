@@ -111,7 +111,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" id="chat-scroll-area">
-        <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full pb-4">
+        <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full pb-4 min-w-0 overflow-hidden">
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => (
               <motion.div
