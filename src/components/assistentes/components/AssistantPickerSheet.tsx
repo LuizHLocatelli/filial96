@@ -58,7 +58,7 @@ export function AssistantPickerSheet({
           </div>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(70dvh-5rem)]">
+        <ScrollArea className="flex-1 max-h-[calc(55dvh-5rem)]">
           <div className="px-3 pb-5 space-y-1">
             <AnimatePresence>
               {assistants.length === 0 ? (
