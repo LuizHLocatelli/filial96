@@ -5,6 +5,7 @@ import { X, Upload, ZoomIn, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { getAspectRatioClass } from "@/utils/cardUtils";
 
 interface CardImageUploaderProps {
   previewUrl: string | null;
