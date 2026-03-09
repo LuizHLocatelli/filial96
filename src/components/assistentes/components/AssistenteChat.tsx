@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AssistenteChatProps {
