@@ -157,6 +157,14 @@ export default function PromotionalCards() {
         folderId={selectedFolderId}
         onUploadSuccess={refetch}
       />
+
+      <CreateCardWithAIDialog
+        open={isAICardOpen}
+        onOpenChange={setIsAICardOpen}
+        sector={selectedSector}
+        folderId={selectedFolderId}
+        onSuccess={refetch}
+      />
     </PageLayout>
   );
 }
