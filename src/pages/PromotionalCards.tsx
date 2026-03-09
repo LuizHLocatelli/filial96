@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkles, Wand2 } from "lucide-react";
 import { FoldersList } from "@/components/promotional-cards/FoldersList";
 import { CardGallery } from "@/components/promotional-cards/CardGallery";
 import { CreateFolderDialog } from "@/components/promotional-cards/CreateFolderDialog";
 import { UploadCardDialog } from "@/components/promotional-cards/UploadCardDialog";
+import { CreateCardWithAIDialog } from "@/components/promotional-cards/CreateCardWithAIDialog";
 import { SectorSelector } from "@/components/promotional-cards/SectorSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ export default function PromotionalCards() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
+  const [isAICardOpen, setIsAICardOpen] = useState(false);
   const [foldersRefreshKey, setFoldersRefreshKey] = useState(0);
   const isMobile = useIsMobile();
   const { cards, setCards, isLoading, refetch } = useCards(selectedSector, selectedFolderId);
@@ -104,14 +106,25 @@ export default function PromotionalCards() {
                       <span>🎨</span>
                       Galeria de Cards
                     </h3>
-                    <Button
-                      onClick={() => setIsUploadCardOpen(true)}
-                      variant="success"
-                      size={isMobile ? "sm" : "default"}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Novo Card
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => setIsAICardOpen(true)}
+                        variant="outline"
+                        size={isMobile ? "sm" : "default"}
+                        className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/30 hover:border-primary/50 hover:from-primary/20 hover:to-purple-500/20"
+                      >
+                        <Wand2 className="h-4 w-4 mr-2 text-primary" />
+                        {isMobile ? "IA" : "Criar com IA"}
+                      </Button>
+                      <Button
+                        onClick={() => setIsUploadCardOpen(true)}
+                        variant="success"
+                        size={isMobile ? "sm" : "default"}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Novo Card
+                      </Button>
+                    </div>
                   </div>
 
                   <CardGallery 
@@ -143,6 +156,14 @@ export default function PromotionalCards() {
         sector={selectedSector}
         folderId={selectedFolderId}
         onUploadSuccess={refetch}
+      />
+
+      <CreateCardWithAIDialog
+        open={isAICardOpen}
+        onOpenChange={setIsAICardOpen}
+        sector={selectedSector}
+        folderId={selectedFolderId}
+        onSuccess={refetch}
       />
     </PageLayout>
   );
