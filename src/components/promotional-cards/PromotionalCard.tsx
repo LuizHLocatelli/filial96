@@ -18,6 +18,7 @@ import { ptBR } from 'date-fns/locale';
 import { CardViewDialog } from "./CardViewDialog";
 import { CardEditDialog } from "./CardEditDialog";
 import { CardDeleteDialog } from "./CardDeleteDialog";
+import { getAspectRatioClass, downloadCardImage, shareCardWhatsApp } from "@/utils/cardUtils";
 
 interface PromotionalCardProps {
   id: string;
