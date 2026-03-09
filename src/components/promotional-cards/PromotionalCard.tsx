@@ -122,68 +122,16 @@ export function PromotionalCard({
   const handleShareWhatsApp = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
     try {
-      // Faz download da imagem primeiro
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      
-      const messageText = code 
-        ? `*${title}*\n\nCódigo: ${code}`
-        : `*${title}*`;
-      
-      // Verifica se é mobile
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      if (isMobileDevice && navigator.share && navigator.canShare) {
-        const file = new File([blob], `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`, { type: blob.type || 'image/jpeg' });
-        
-        if (navigator.canShare({ files: [file] })) {
-          // Mobile: usa Web Share API nativa
-          await navigator.share({
-            files: [file],
-            title: title,
-            text: messageText,
-          });
-          
-          toast({
-            title: "Compartilhado!",
-            description: "Card compartilhado com sucesso.",
-          });
-          return;
-        }
-      }
-      
-      // Desktop: faz download automático e abre WhatsApp Web
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      // Abre WhatsApp Web com mensagem preparada
-      const encodedMessage = encodeURIComponent(messageText);
-      const whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
-      window.open(whatsappUrl, '_blank');
-      
-      toast({
-        title: "Imagem baixada!",
-        description: "A imagem foi salva. Anexe-a manualmente no WhatsApp Web.",
-        duration: 5000,
-      });
+      await shareCardWhatsApp(imageUrl, title, code);
     } catch (error) {
       console.error("Erro ao compartilhar:", error);
-      // Fallback: apenas abre WhatsApp com link
       const message = encodeURIComponent(
         `*${title}*\n\n` +
         (code ? `Código: ${code}\n\n` : '') +
         `Veja o card: ${imageUrl}`
       );
-      const whatsappUrl = `https://wa.me/?text=${message}`;
-      window.open(whatsappUrl, '_blank');
+      window.open(`https://wa.me/?text=${message}`, '_blank');
     }
   };
 
