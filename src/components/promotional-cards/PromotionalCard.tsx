@@ -59,18 +59,7 @@ export function PromotionalCard({
   const [isDeletingCard, setIsDeletingCard] = useState(false);
   const isMobile = useIsMobile();
 
-  const getAspectRatioClass = () => {
-    switch (aspectRatio) {
-      case "1:1":
-        return "aspect-square";
-      case "3:4":
-        return "aspect-[3/4]";
-      case "4:5":
-        return "aspect-[4/5]";
-      default:
-        return "aspect-[4/5]";
-    }
-  };
+  const aspectClass = getAspectRatioClass(aspectRatio);
 
   const formatDateForDisplay = (dateString: string | null | undefined) => {
     if (!dateString) return '';
