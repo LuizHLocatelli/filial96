@@ -106,14 +106,25 @@ export default function PromotionalCards() {
                       <span>🎨</span>
                       Galeria de Cards
                     </h3>
-                    <Button
-                      onClick={() => setIsUploadCardOpen(true)}
-                      variant="success"
-                      size={isMobile ? "sm" : "default"}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Novo Card
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => setIsAICardOpen(true)}
+                        variant="outline"
+                        size={isMobile ? "sm" : "default"}
+                        className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/30 hover:border-primary/50 hover:from-primary/20 hover:to-purple-500/20"
+                      >
+                        <Wand2 className="h-4 w-4 mr-2 text-primary" />
+                        {isMobile ? "IA" : "Criar com IA"}
+                      </Button>
+                      <Button
+                        onClick={() => setIsUploadCardOpen(true)}
+                        variant="success"
+                        size={isMobile ? "sm" : "default"}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Novo Card
+                      </Button>
+                    </div>
                   </div>
 
                   <CardGallery 
