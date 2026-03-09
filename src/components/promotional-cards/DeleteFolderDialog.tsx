@@ -30,6 +30,15 @@ export function DeleteFolderDialog({
 
     setIsDeleting(true);
     try {
+      // First, delete all cards inside this folder
+      const { error: cardsError } = await supabase
+        .from('promotional_cards')
+        .delete()
+        .eq('folder_id', folderId);
+
+      if (cardsError) throw cardsError;
+
+      // Then delete the folder itself
       const { error } = await supabase
         .from('card_folders')
         .delete()

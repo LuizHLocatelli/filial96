@@ -5,6 +5,7 @@ import { X, Upload, ZoomIn, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { getAspectRatioClass } from "@/utils/cardUtils";
 
 interface CardImageUploaderProps {
   previewUrl: string | null;
@@ -27,18 +28,7 @@ export function CardImageUploader({
   const [previewOpen, setPreviewOpen] = useState(false);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   
-  const getAspectRatioClass = () => {
-    switch (aspectRatio) {
-      case "1:1":
-        return "aspect-square";
-      case "3:4":
-        return "aspect-[3/4]";
-      case "4:5":
-        return "aspect-[4/5]";
-      default:
-        return "aspect-[4/5]";
-    }
-  };
+  const aspectClass = getAspectRatioClass(aspectRatio);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -98,7 +88,7 @@ export function CardImageUploader({
             className={cn(
               "border rounded-xl overflow-hidden bg-muted shadow-sm transition-all duration-200",
               "group-hover:shadow-md",
-              getAspectRatioClass()
+              aspectClass
             )}
           >
             <img 
@@ -122,7 +112,7 @@ export function CardImageUploader({
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl w-full p-0 bg-background/95 backdrop-blur-sm">
-                  <div className={cn("w-full bg-black/5 flex items-center justify-center p-4", getAspectRatioClass())}>
+                  <div className={cn("w-full bg-black/5 flex items-center justify-center p-4", aspectClass)}>
                     <img 
                       src={previewUrl} 
                       alt="Prévia ampliada" 

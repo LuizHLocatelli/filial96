@@ -24,12 +24,12 @@ export const CountdownTimer = ({ endDate, isMobile }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(endDate));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(endDate));
-    }, 1000);
+    }, 60000); // Update every minute instead of every second
 
-    return () => clearTimeout(timer);
-  });
+    return () => clearInterval(timer);
+  }, [endDate]);
 
   const timerComponents: string[] = [];
 
