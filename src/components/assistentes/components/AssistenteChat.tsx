@@ -146,12 +146,12 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                       ))}
                     </div>
                   )}
-                  <div className={`px-4 py-3 ${
+                  <div className={`px-4 py-3 min-w-0 overflow-hidden ${
                     msg.role === 'user' 
                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20' 
                       : 'bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm'
                   }`}>
-                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 prose-table:w-full prose-table:text-xs prose-th:bg-muted/50 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border/50 max-w-none break-words overflow-x-auto">
+                    <div className="text-sm prose dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 prose-table:w-full prose-table:text-xs prose-th:bg-muted/50 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border/50 max-w-none [overflow-wrap:anywhere] [word-break:break-word] overflow-x-auto">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                     </div>
                   </div>
