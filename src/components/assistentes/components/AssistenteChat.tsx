@@ -128,7 +128,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 }`}>
                   {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
-                <div className={`flex flex-col gap-1.5 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`flex flex-col gap-1.5 min-w-0 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {/* Tool badges for saved model messages */}
                   {msg.role === 'model' && msg.tools_used && msg.tools_used.length > 0 && (
                     <ChatToolBadges tools={msg.tools_used} />
