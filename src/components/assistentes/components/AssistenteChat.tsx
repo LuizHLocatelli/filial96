@@ -54,7 +54,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
   if (!session) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-5 text-center p-4 sm:p-8 bg-gradient-to-b from-background to-muted/30 relative">
+      <div className="flex flex-col items-center justify-center h-full gap-5 text-center p-4 sm:p-8 bg-gradient-to-b from-background to-muted/30 relative overflow-hidden">
         {onBack && (
           <Button variant="ghost" size="icon" className="sm:hidden absolute top-4 left-4" onClick={onBack}>
             <ArrowLeft className="w-5 h-5" />
@@ -72,10 +72,10 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="space-y-2"
+          className="space-y-2 max-w-full px-2 min-w-0"
         >
-          <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{assistant.name}</h3>
-          <p className="text-muted-foreground max-w-md text-sm leading-relaxed">{assistant.description}</p>
+          <h3 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">{assistant.name}</h3>
+          <p className="text-muted-foreground max-w-md text-sm leading-relaxed mx-auto line-clamp-2">{assistant.description}</p>
         </motion.div>
         <motion.div
           initial={{ y: 10, opacity: 0 }}

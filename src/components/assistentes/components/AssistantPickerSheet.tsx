@@ -80,7 +80,7 @@ export function AssistantPickerSheet({
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.03 }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-150 ${
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-150 overflow-hidden ${
                         isActive
                           ? 'bg-primary/10 ring-1 ring-primary/20'
                           : 'hover:bg-muted/60 active:bg-muted'
