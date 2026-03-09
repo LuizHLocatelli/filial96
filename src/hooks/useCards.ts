@@ -38,7 +38,7 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
         code: card.code || null,
         start_date: card.start_date || null,
         end_date: card.end_date || null,
-        aspect_ratio: card.aspect_ratio as "1:1" | "3:4" | "4:5" || "4:5",
+        aspect_ratio: (card.aspect_ratio as "1:1" | "3:4" | "4:5") || "4:5",
       }));
       
       setCards(typedCards);

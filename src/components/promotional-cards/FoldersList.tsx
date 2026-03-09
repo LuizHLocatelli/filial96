@@ -150,7 +150,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
                 size="sm"
                 className={cn(
                   "absolute top-2 right-2 h-8 w-8 rounded-md p-0 transition-all duration-200",
-                  "opacity-0 group-hover:opacity-100",
+                  "sm:opacity-0 sm:group-hover:opacity-100",
                   selectedFolderId === folder.id 
                     ? "hover:bg-primary-foreground/20 text-primary-foreground" 
                     : "hover:bg-muted text-muted-foreground hover:text-foreground"
