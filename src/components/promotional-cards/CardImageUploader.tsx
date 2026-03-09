@@ -112,7 +112,7 @@ export function CardImageUploader({
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl w-full p-0 bg-background/95 backdrop-blur-sm">
-                  <div className={cn("w-full bg-black/5 flex items-center justify-center p-4", getAspectRatioClass())}>
+                  <div className={cn("w-full bg-black/5 flex items-center justify-center p-4", aspectClass)}>
                     <img 
                       src={previewUrl} 
                       alt="Prévia ampliada" 
