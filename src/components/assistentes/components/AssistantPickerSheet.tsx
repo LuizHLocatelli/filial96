@@ -60,6 +60,7 @@ export function AssistantPickerSheet({
 
         <ScrollArea className="flex-1 max-h-[calc(55dvh-5rem)] w-full">
           <div className="px-3 pb-5 space-y-1 w-full">
+            <AnimatePresence>
               {assistants.length === 0 ? (
                 <div className="py-10 text-center">
                   <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
