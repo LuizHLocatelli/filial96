@@ -104,17 +104,7 @@ export function PromotionalCard({
     e.preventDefault();
     e.stopPropagation();
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_card.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
+      await downloadCardImage(imageUrl, title);
       toast({
         title: "Download iniciado!",
         description: "A imagem do card está sendo baixada.",
