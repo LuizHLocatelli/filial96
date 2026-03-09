@@ -21,7 +21,7 @@ export function AssistentesHub() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAssistant, setEditingAssistant] = useState<AIAssistant | undefined>(undefined);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(true);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const pendingMessageRef = useRef<{ content: string; images: string[]; documents?: ChatDocument[] } | null>(null);
