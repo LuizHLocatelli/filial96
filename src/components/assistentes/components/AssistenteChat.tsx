@@ -72,7 +72,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="space-y-2"
+          className="space-y-2 max-w-full px-2 min-w-0"
         >
           <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{assistant.name}</h3>
           <p className="text-muted-foreground max-w-md text-sm leading-relaxed">{assistant.description}</p>
