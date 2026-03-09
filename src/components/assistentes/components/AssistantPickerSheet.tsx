@@ -35,7 +35,7 @@ export function AssistantPickerSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl max-h-[70dvh] p-0 border-t">
+      <SheetContent side="bottom" className="rounded-t-2xl max-h-[55dvh] p-0 border-t">
         <SheetHeader className="px-5 pt-5 pb-3">
           <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-3" />
           <div className="flex items-center justify-between">
@@ -58,7 +58,7 @@ export function AssistantPickerSheet({
           </div>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(70dvh-5rem)]">
+        <ScrollArea className="flex-1 max-h-[calc(55dvh-5rem)]">
           <div className="px-3 pb-5 space-y-1">
             <AnimatePresence>
               {assistants.length === 0 ? (
