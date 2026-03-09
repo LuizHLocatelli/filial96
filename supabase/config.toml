@@ -47,5 +47,8 @@ verify_jwt = false
 [functions.gemini-embed-document]
 verify_jwt = false
 
+[functions.generate-card-image]
+verify_jwt = false
+
 [functions.gemini-document-analyzer]
 verify_jwt = false
