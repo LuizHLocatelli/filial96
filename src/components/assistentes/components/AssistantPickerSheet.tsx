@@ -97,12 +97,12 @@ export function AssistantPickerSheet({
                       }`}>
                         {assistant.avatar_icon}
                       </span>
-                      <div className="flex-1 min-w-0">
-                        <span className={`block truncate text-sm ${isActive ? 'font-semibold text-primary' : 'font-medium'}`}>
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <span className={`block truncate text-sm max-w-full ${isActive ? 'font-semibold text-primary' : 'font-medium'}`}>
                           {assistant.name}
                         </span>
                         {assistant.description && (
-                          <span className="block truncate text-xs text-muted-foreground/70 mt-0.5">
+                          <span className="block truncate text-xs text-muted-foreground/70 mt-0.5 max-w-full">
                             {assistant.description}
                           </span>
                         )}
