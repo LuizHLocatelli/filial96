@@ -1,25 +1,28 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { AssistentesSidebar } from "./AssistentesSidebar";
+import { AssistentesTopBar } from "./AssistentesTopBar";
+import { AssistantPickerSheet } from "./AssistantPickerSheet";
+import { SessionHistorySheet } from "./SessionHistorySheet";
 import { AssistenteChat } from "./AssistenteChat";
 import { AssistenteDialog } from "./AssistenteDialog";
 import { useAssistants, useChatSessions } from "../hooks/useAssistants";
 import { useGenerateTitle } from "../hooks/useGenerateTitle";
 import type { AIAssistant } from "../types";
 import type { ChatDocument } from "./ChatInput";
+import { Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function AssistentesHub() {
   const { assistants = [], isLoading: isLoadingAssistants, createAssistant, updateAssistant, deleteAssistant } = useAssistants();
   const [activeAssistantId, setActiveAssistantId] = useState<string | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [showMobileSidebar, setShowMobileSidebar] = useState(true);
 
   const { sessions = [], createSession, deleteSession } = useChatSessions(activeAssistantId || undefined);
   const { generateTitle } = useGenerateTitle();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAssistant, setEditingAssistant] = useState<AIAssistant | undefined>(undefined);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const pendingMessageRef = useRef<{ content: string; images: string[]; documents?: ChatDocument[] } | null>(null);
 
@@ -65,56 +68,93 @@ export function AssistentesHub() {
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
 
   return (
-    <div className="flex flex-col sm:flex-row h-[calc(100dvh-12rem)] min-h-[500px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm relative">
-      <div className={`w-full sm:w-auto h-full shrink-0 ${showMobileSidebar ? 'block' : 'hidden sm:block'}`}>
-        <AssistentesSidebar
-          assistants={assistants} sessions={sessions}
-          activeAssistantId={activeAssistantId} activeSessionId={activeSessionId}
-          onSelectAssistant={(id) => { setActiveAssistantId(id); setActiveSessionId(null); setShowMobileSidebar(false); }}
-          onSelectSession={(id) => { setActiveSessionId(id); setShowMobileSidebar(false); }}
-          onCreateAssistant={() => { setEditingAssistant(undefined); setIsDialogOpen(true); }}
-          onEditAssistant={(assistant) => { setEditingAssistant(assistant); setIsDialogOpen(true); }}
-          onDeleteSession={async (id) => { await deleteSession.mutateAsync(id); if (activeSessionId === id) setActiveSessionId(null); }}
-        />
-      </div>
+    <div className="flex flex-col h-[calc(100dvh-12rem)] min-h-[500px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm">
+      {/* Top navigation bar */}
+      <AssistentesTopBar
+        assistant={activeAssistant}
+        session={activeSession}
+        sessionsCount={sessions.length}
+        onOpenAssistantPicker={() => setIsPickerOpen(true)}
+        onOpenSessionHistory={() => setIsHistoryOpen(true)}
+        onEditAssistant={() => {
+          if (activeAssistant) {
+            setEditingAssistant(activeAssistant);
+            setIsDialogOpen(true);
+          }
+        }}
+        onNewSession={handleCreateSession}
+      />
 
-      <div className={`flex-1 bg-muted/10 relative h-full overflow-hidden ${showMobileSidebar ? 'hidden sm:flex flex-col' : 'flex flex-col'}`}>
+      {/* Chat area — full width */}
+      <div className="flex-1 overflow-hidden">
         {activeAssistant ? (
           <AssistenteChatWithPending
             key={activeSessionId || activeAssistantId}
-            assistant={activeAssistant} session={activeSession}
-            onNewSession={handleCreateSession} onSendWithoutSession={handleSendWithoutSession}
-            onBack={() => setShowMobileSidebar(true)} pendingMessageRef={pendingMessageRef}
+            assistant={activeAssistant}
+            session={activeSession}
+            onNewSession={handleCreateSession}
+            onSendWithoutSession={handleSendWithoutSession}
+            pendingMessageRef={pendingMessageRef}
           />
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-muted-foreground bg-background/50 relative">
-            <Button variant="ghost" size="icon" className="sm:hidden absolute top-4 left-4" onClick={() => setShowMobileSidebar(true)}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4"><span className="text-3xl">🤖</span></div>
-            <h3 className="text-lg font-medium text-foreground">Nenhum Assistente Selecionado</h3>
-            <p className="max-w-md mt-2">Selecione um assistente na barra lateral ou crie um novo para começar a conversar.</p>
+          <div className="flex-1 h-full flex flex-col items-center justify-center text-center p-8 text-muted-foreground bg-background/50">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 shadow-lg shadow-primary/5"
+            >
+              <Sparkles className="w-8 h-8 text-primary" />
+            </motion.div>
+            <h3 className="text-lg font-semibold text-foreground">Bem-vindo aos Assistentes</h3>
+            <p className="max-w-sm mt-2 text-sm">Toque no seletor acima para escolher ou criar um assistente.</p>
           </div>
         )}
       </div>
 
+      {/* Bottom sheets */}
+      <AssistantPickerSheet
+        open={isPickerOpen}
+        onOpenChange={setIsPickerOpen}
+        assistants={assistants}
+        activeAssistantId={activeAssistantId}
+        onSelectAssistant={(id) => { setActiveAssistantId(id); setActiveSessionId(null); }}
+        onCreateAssistant={() => { setEditingAssistant(undefined); setIsDialogOpen(true); }}
+        onEditAssistant={(assistant) => { setEditingAssistant(assistant); setIsDialogOpen(true); }}
+      />
+
+      <SessionHistorySheet
+        open={isHistoryOpen}
+        onOpenChange={setIsHistoryOpen}
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onSelectSession={(id) => setActiveSessionId(id)}
+        onCreateSession={handleCreateSession}
+        onDeleteSession={async (id) => {
+          await deleteSession.mutateAsync(id);
+          if (activeSessionId === id) setActiveSessionId(null);
+        }}
+      />
+
       <AssistenteDialog
-        open={isDialogOpen} onOpenChange={setIsDialogOpen}
-        initialData={editingAssistant} onSave={handleSaveAssistant}
-        onDelete={handleDeleteAssistant} isSaving={createAssistant.isPending || updateAssistant.isPending}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        initialData={editingAssistant}
+        onSave={handleSaveAssistant}
+        onDelete={handleDeleteAssistant}
+        isSaving={createAssistant.isPending || updateAssistant.isPending}
       />
     </div>
   );
 }
 
 function AssistenteChatWithPending({
-  assistant, session, onNewSession, onSendWithoutSession, onBack, pendingMessageRef,
+  assistant, session, onNewSession, onSendWithoutSession, pendingMessageRef,
 }: {
   assistant: AIAssistant;
   session: import("../types").AIChatSession | null;
   onNewSession: () => void;
   onSendWithoutSession: (message: string, images: string[], documents?: ChatDocument[]) => void;
-  onBack: () => void;
   pendingMessageRef: React.MutableRefObject<{ content: string; images: string[]; documents?: ChatDocument[] } | null>;
 }) {
   const sentRef = useRef(false);
@@ -134,8 +174,10 @@ function AssistenteChatWithPending({
 
   return (
     <AssistenteChat
-      assistant={assistant} session={session}
-      onNewSession={onNewSession} onSendWithoutSession={onSendWithoutSession} onBack={onBack}
+      assistant={assistant}
+      session={session}
+      onNewSession={onNewSession}
+      onSendWithoutSession={onSendWithoutSession}
     />
   );
 }
