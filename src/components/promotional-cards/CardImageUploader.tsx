@@ -88,7 +88,7 @@ export function CardImageUploader({
             className={cn(
               "border rounded-xl overflow-hidden bg-muted shadow-sm transition-all duration-200",
               "group-hover:shadow-md",
-              getAspectRatioClass()
+              aspectClass
             )}
           >
             <img 
