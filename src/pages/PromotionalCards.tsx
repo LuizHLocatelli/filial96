@@ -20,6 +20,7 @@ export default function PromotionalCards() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
+  const [isAICardOpen, setIsAICardOpen] = useState(false);
   const [foldersRefreshKey, setFoldersRefreshKey] = useState(0);
   const isMobile = useIsMobile();
   const { cards, setCards, isLoading, refetch } = useCards(selectedSector, selectedFolderId);
