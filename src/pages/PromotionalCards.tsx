@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkles, Wand2 } from "lucide-react";
 import { FoldersList } from "@/components/promotional-cards/FoldersList";
 import { CardGallery } from "@/components/promotional-cards/CardGallery";
 import { CreateFolderDialog } from "@/components/promotional-cards/CreateFolderDialog";
 import { UploadCardDialog } from "@/components/promotional-cards/UploadCardDialog";
+import { CreateCardWithAIDialog } from "@/components/promotional-cards/CreateCardWithAIDialog";
 import { SectorSelector } from "@/components/promotional-cards/SectorSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
