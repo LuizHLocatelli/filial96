@@ -129,10 +129,31 @@ export function useAssistantDocuments(assistantId?: string) {
     },
   });
 
+  const renameDocument = useMutation({
+    mutationFn: async ({ fileUrl, newName }: { fileUrl: string; newName: string }) => {
+      const { error } = await supabase
+        .from("ai_assistant_documents" as any)
+        .update({ file_name: newName })
+        .eq("file_url", fileUrl)
+        .eq("assistant_id", assistantId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
+      toast.success("Documento renomeado com sucesso!");
+    },
+    onError: (error) => {
+      console.error("Erro ao renomear documento:", error);
+      toast.error("Erro ao renomear documento");
+    },
+  });
+
   return {
     documents: uniqueFiles,
     isLoading,
     uploadDocument,
     deleteDocument,
+    renameDocument,
   };
 }

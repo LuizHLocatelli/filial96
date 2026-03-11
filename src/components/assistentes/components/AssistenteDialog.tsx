@@ -118,15 +118,16 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
         <StandardDialogHeader icon={Bot} title={initialData ? "Editar Assistente" : "Novo Assistente"} onClose={handleClose} />
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-muted/10">
-          <Tabs defaultValue="config" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="config">Configuração</TabsTrigger>
-              <TabsTrigger value="documents">Documentos (RAG)</TabsTrigger>
-            </TabsList>
+          <Form {...form}>
+            <form id="assistant-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <Tabs defaultValue="config" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="config">Configuração</TabsTrigger>
+                  <TabsTrigger value="documents">Documentos (RAG)</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="config">
-              <Form {...form}>
-                <form id="assistant-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <TabsContent value="config">
+                  <div className="space-y-6">
                   <div className="flex gap-4 items-start">
                     <FormField control={form.control} name="avatar_icon" render={({ field }) => (
                       <FormItem className="w-20 shrink-0">
@@ -226,14 +227,15 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                       <FormMessage />
                     </FormItem>
                   )} />
-                </form>
-              </Form>
-            </TabsContent>
+                  </div>
+                </TabsContent>
 
-            <TabsContent value="documents">
-              <AssistantDocumentsTab assistantId={initialData?.id} />
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="documents">
+                  <AssistantDocumentsTab assistantId={initialData?.id} />
+                </TabsContent>
+              </Tabs>
+            </form>
+          </Form>
         </div>
 
         <StandardDialogFooter>

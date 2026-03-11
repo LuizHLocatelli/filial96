@@ -104,14 +104,15 @@ async function handleImageGeneration(prompt: string): Promise<{ text: string; im
 }
 
 async function getEmbedding(text: string): Promise<number[]> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2-preview:embedContent?key=${GEMINI_API_KEY}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "models/gemini-embedding-001",
+      model: "models/gemini-embedding-2-preview",
       content: { parts: [{ text }] },
       taskType: "RETRIEVAL_QUERY",
+      outputDimensionality: 3072,
     })
   });
   if (!res.ok) return [];
@@ -158,7 +159,7 @@ Deno.serve(async (req) => {
 
     // Title generation mode
     if (generateTitle) {
-      const titleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
+      const titleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
       const titleRes = await fetch(titleUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

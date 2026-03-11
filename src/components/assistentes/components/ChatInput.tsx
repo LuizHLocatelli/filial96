@@ -213,7 +213,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         <input
           type="file"
           multiple
-          accept="image/*,application/pdf,text/plain,.txt,.csv,.md"
+          accept="audio/*,video/*,image/*,application/pdf,text/plain,.txt,.csv,.md"
           className="hidden"
           ref={fileInputRef}
           onChange={handleFileChange}

@@ -33,19 +33,19 @@ function chunkText(text: string, chunkSize = 1000, overlap = 200): string[] {
 }
 
 async function extractTextFromFile(base64Data: string, mimeType: string): Promise<string> {
-  // Use Gemini to extract text from the document
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
+  // Use Gemini to extract text from the document (multimodal)
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
 
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: "Extract ALL text content from this document. Return ONLY the raw text, no formatting, no explanations. If it's a PDF or image, use OCR to extract everything." }] },
+      systemInstruction: { parts: [{ text: "Extract ALL text content, spoken words, transcriptions, or descriptions from this file. Return ONLY the raw text, no formatting, no explanations. If it's a PDF or image, use OCR to extract everything. If it's audio or video, transcribe the speech and describe the visual content." }] },
       contents: [{
         role: "user",
         parts: [
           { inlineData: { mimeType, data: base64Data } },
-          { text: "Extract all text from this document." }
+          { text: "Extract or transcribe all information from this file." }
         ]
       }],
       generationConfig: { temperature: 0.1 }
@@ -62,15 +62,16 @@ async function extractTextFromFile(base64Data: string, mimeType: string): Promis
 }
 
 async function generateEmbedding(text: string): Promise<number[]> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2-preview:embedContent?key=${GEMINI_API_KEY}`;
 
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "models/gemini-embedding-001",
+      model: "models/gemini-embedding-2-preview",
       content: { parts: [{ text }] },
       taskType: "RETRIEVAL_DOCUMENT",
+      outputDimensionality: 3072,
     })
   });
 
