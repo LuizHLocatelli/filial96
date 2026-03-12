@@ -68,7 +68,7 @@ export function AssistentesHub() {
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
 
   return (
-    <div className="flex flex-col h-[85vh] min-h-[650px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm">
+    <div id="assistentes-hub-container" className="flex flex-col h-[85vh] min-h-[650px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm">
       {/* Top navigation bar */}
       <AssistentesTopBar
         assistant={activeAssistant}
@@ -118,7 +118,18 @@ export function AssistentesHub() {
         onOpenChange={setIsPickerOpen}
         assistants={assistants}
         activeAssistantId={activeAssistantId}
-        onSelectAssistant={(id) => { setActiveAssistantId(id); setActiveSessionId(null); }}
+        onSelectAssistant={(id) => { 
+          setActiveAssistantId(id); 
+          setActiveSessionId(null); 
+          setTimeout(() => {
+            const container = document.getElementById('assistentes-hub-container');
+            if (container) {
+              const yOffset = -20; 
+              const y = container.getBoundingClientRect().top + window.scrollY + yOffset;
+              window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+          }, 150);
+        }}
         onCreateAssistant={() => { setEditingAssistant(undefined); setIsDialogOpen(true); }}
         onEditAssistant={(assistant) => { setEditingAssistant(assistant); setIsDialogOpen(true); }}
       />
@@ -128,7 +139,17 @@ export function AssistentesHub() {
         onOpenChange={setIsHistoryOpen}
         sessions={sessions}
         activeSessionId={activeSessionId}
-        onSelectSession={(id) => setActiveSessionId(id)}
+        onSelectSession={(id) => {
+          setActiveSessionId(id);
+          setTimeout(() => {
+            const container = document.getElementById('assistentes-hub-container');
+            if (container) {
+              const yOffset = -20; 
+              const y = container.getBoundingClientRect().top + window.scrollY + yOffset;
+              window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+          }, 150);
+        }}
         onCreateSession={handleCreateSession}
         onDeleteSession={async (id) => {
           await deleteSession.mutateAsync(id);
