@@ -47,8 +47,11 @@ export function useAssistantDocuments(assistantId?: string) {
     mutationFn: async ({ file, assistantId: aId }: { file: File; assistantId: string }) => {
       if (!profile?.id) throw new Error("Usuário não autenticado");
 
-      // Upload file to storage
-      const fileName = `rag/${aId}/${Date.now()}-${file.name}`;
+      // Upload file to storage — sanitize filename to avoid Storage "Invalid key" errors
+      const sanitizedName = file.name
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+        .replace(/[^a-zA-Z0-9._-]/g, "_"); // replace special chars
+      const fileName = `rag/${aId}/${Date.now()}-${sanitizedName}`;
       const { error: uploadError } = await supabase.storage
         .from("ai-chat-attachments")
         .upload(fileName, file, { contentType: file.type });
