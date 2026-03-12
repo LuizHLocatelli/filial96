@@ -59,6 +59,13 @@ Always follow this 3-part structure for Dialogs to fix mobile scrolling issues. 
 </Dialog>
 ```
 
+Additional hard rules for mobile scroll reliability:
+- **Do not set** `touchAction: 'none'` on `DialogOverlay` or `AlertDialogOverlay`.
+- Keep content centered through overlay layout (`grid place-items-center`) instead of forcing custom `position: fixed` + `translate` logic in feature dialogs.
+- The internal scroll container **must** include `data-scroll-lock-ignore` with `flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain`.
+- For dialog-like primitives (e.g., `Sheet`), keep `data-radix-dialog-content` and overlay data attributes so global scroll fixes in `src/index.css` are applied.
+- Reuse `@/components/ui/dialog` and `@/components/ui/alert-dialog` wrappers; avoid bypassing them with raw Radix primitives unless strictly necessary.
+
 ## 6. State Management, Forms & Error Handling
 - **State**: Use TanStack Query for server state, Context for global state, and `useState`/`useMemo` for local UI state.
 - **Forms**: Use `react-hook-form` combined with `zod` for schema validation (`zodResolver`).
