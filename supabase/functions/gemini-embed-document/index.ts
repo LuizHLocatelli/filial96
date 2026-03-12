@@ -20,7 +20,6 @@ interface RequestBody {
   fileSize: number;
 }
 
-// Split text into chunks of ~1000 chars with overlap
 function chunkText(text: string, chunkSize = 1000, overlap = 200): string[] {
   const chunks: string[] = [];
   let start = 0;
@@ -32,8 +31,17 @@ function chunkText(text: string, chunkSize = 1000, overlap = 200): string[] {
   return chunks;
 }
 
-// Upload file to Gemini File API for large files
-async function uploadToGeminiFileAPI(fileBytes: Uint8Array, mimeType: string, displayName: string): Promise<string> {
+// Upload file to Gemini File API using the file URL directly (no memory buffering)
+async function uploadToGeminiFileAPI(fileUrl: string, mimeType: string, displayName: string): Promise<string> {
+  // Download file as stream and get total size
+  const downloadRes = await fetch(fileUrl);
+  if (!downloadRes.ok) throw new Error(`Failed to download file: ${downloadRes.status}`);
+
+  const fileBytes = await downloadRes.arrayBuffer();
+  const size = fileBytes.byteLength;
+  console.log(`[Gemini File API] Uploading ${size} bytes`);
+
+  // Start resumable upload
   const startRes = await fetch(
     `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${GEMINI_API_KEY}`,
     {
@@ -41,7 +49,7 @@ async function uploadToGeminiFileAPI(fileBytes: Uint8Array, mimeType: string, di
       headers: {
         "X-Goog-Upload-Protocol": "resumable",
         "X-Goog-Upload-Command": "start",
-        "X-Goog-Upload-Header-Content-Length": String(fileBytes.length),
+        "X-Goog-Upload-Header-Content-Length": String(size),
         "X-Goog-Upload-Header-Content-Type": mimeType,
         "Content-Type": "application/json",
       },
@@ -49,54 +57,43 @@ async function uploadToGeminiFileAPI(fileBytes: Uint8Array, mimeType: string, di
     }
   );
 
-  if (!startRes.ok) {
-    const err = await startRes.text();
-    throw new Error(`Gemini File API start failed: ${err}`);
-  }
+  if (!startRes.ok) throw new Error(`File API start failed: ${await startRes.text()}`);
 
   const uploadUrl = startRes.headers.get("X-Goog-Upload-URL");
-  if (!uploadUrl) throw new Error("No upload URL returned from Gemini File API");
+  if (!uploadUrl) throw new Error("No upload URL from File API");
 
+  // Upload the bytes
   const uploadRes = await fetch(uploadUrl, {
     method: "POST",
     headers: {
-      "Content-Length": String(fileBytes.length),
+      "Content-Length": String(size),
       "X-Goog-Upload-Offset": "0",
       "X-Goog-Upload-Command": "upload, finalize",
     },
     body: fileBytes,
   });
 
-  if (!uploadRes.ok) {
-    const err = await uploadRes.text();
-    throw new Error(`Gemini File API upload failed: ${err}`);
-  }
+  if (!uploadRes.ok) throw new Error(`File API upload failed: ${await uploadRes.text()}`);
 
   const fileInfo = await uploadRes.json();
   const fileUri = fileInfo.file?.uri;
-  if (!fileUri) throw new Error("No file URI returned from Gemini File API");
+  if (!fileUri) throw new Error("No file URI from File API");
 
-  console.log(`Uploaded to Gemini File API: ${fileUri}, state: ${fileInfo.file?.state}`);
+  console.log(`Uploaded: ${fileUri}, state: ${fileInfo.file?.state}`);
 
-  // Wait for file to be ACTIVE
+  // Wait for ACTIVE state
   const fileName = fileInfo.file?.name;
   if (fileName) {
-    let attempts = 0;
-    const maxAttempts = 30;
-    while (attempts < maxAttempts) {
+    for (let i = 0; i < 60; i++) {
       const statusRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`
       );
       if (statusRes.ok) {
-        const status = await statusRes.json();
-        if (status.state === "ACTIVE") break;
-        console.log(`File state: ${status.state}, waiting...`);
+        const s = await statusRes.json();
+        if (s.state === "ACTIVE") { console.log("File ACTIVE"); break; }
+        console.log(`State: ${s.state}, waiting...`);
       }
-      attempts++;
-      await new Promise(r => setTimeout(r, 10000));
-    }
-    if (attempts >= maxAttempts) {
-      throw new Error("Gemini File API: file processing timed out");
+      await new Promise(r => setTimeout(r, 5000));
     }
   }
 
@@ -109,28 +106,9 @@ async function extractTextWithFileUri(fileUri: string, mimeType: string): Promis
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: "Extract ALL text content from this file. Return ONLY the raw text, no formatting, no explanations. If it's a PDF or image, use OCR to extract everything." }] },
+      systemInstruction: { parts: [{ text: "Extract ALL text content from this file. Return ONLY the raw text, no formatting, no explanations. Use OCR if needed." }] },
       contents: [{ role: "user", parts: [
         { fileData: { mimeType, fileUri } },
-        { text: "Extract all text from this file." }
-      ] }],
-      generationConfig: { temperature: 0.1 }
-    })
-  });
-  if (!res.ok) throw new Error(`Text extraction failed: ${await res.text()}`);
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-}
-
-async function extractTextWithBase64(base64Data: string, mimeType: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: "Extract ALL text content from this file. Return ONLY the raw text, no formatting, no explanations. If it's a PDF or image, use OCR to extract everything." }] },
-      contents: [{ role: "user", parts: [
-        { inlineData: { mimeType, data: base64Data } },
         { text: "Extract all text from this file." }
       ] }],
       generationConfig: { temperature: 0.1 }
@@ -153,60 +131,35 @@ async function generateEmbedding(text: string): Promise<number[]> {
       outputDimensionality: 3072,
     })
   });
-  if (!res.ok) throw new Error(`Embedding generation failed: ${await res.text()}`);
+  if (!res.ok) throw new Error(`Embedding failed: ${await res.text()}`);
   const data = await res.json();
   return data.embedding?.values || [];
 }
 
-const FILE_SIZE_THRESHOLD = 10 * 1024 * 1024; // 10MB
-
-// Background processing function
+// Background processing — all heavy work happens here
 async function processDocument(body: RequestBody) {
   const { assistantId, userId, fileName, fileUrl, mimeType } = body;
 
   try {
-    console.log(`[BG] Starting processing: ${fileName}`);
+    console.log(`[BG] Processing: ${fileName}`);
 
-    // Download file from storage
-    const fileRes = await fetch(fileUrl);
-    if (!fileRes.ok) throw new Error(`Failed to download file: ${fileRes.status}`);
-    const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
-    const actualSize = fileBytes.length;
-    console.log(`[BG] Downloaded ${actualSize} bytes`);
-
-    let extractedText: string;
-
-    if (actualSize > FILE_SIZE_THRESHOLD) {
-      console.log("[BG] Using Gemini File API (large file)");
-      const fileUri = await uploadToGeminiFileAPI(fileBytes, mimeType, fileName);
-      extractedText = await extractTextWithFileUri(fileUri, mimeType);
-    } else {
-      console.log("[BG] Using inlineData (small file)");
-      let binary = "";
-      for (let i = 0; i < fileBytes.length; i++) {
-        binary += String.fromCharCode(fileBytes[i]);
-      }
-      extractedText = await extractTextWithBase64(btoa(binary), mimeType);
-    }
+    // Always use Gemini File API — avoids loading file into edge function memory as base64
+    const fileUri = await uploadToGeminiFileAPI(fileUrl, mimeType, fileName);
+    const extractedText = await extractTextWithFileUri(fileUri, mimeType);
 
     if (!extractedText.trim()) {
-      console.error("[BG] Could not extract text from document");
+      console.error("[BG] No text extracted");
       return;
     }
     console.log(`[BG] Extracted ${extractedText.length} chars`);
 
     const chunks = chunkText(extractedText);
-    console.log(`[BG] Split into ${chunks.length} chunks`);
+    console.log(`[BG] ${chunks.length} chunks`);
 
     for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const embedding = await generateEmbedding(chunk);
-      if (embedding.length === 0) {
-        console.warn(`[BG] Empty embedding for chunk ${i}, skipping`);
-        continue;
-      }
+      const embedding = await generateEmbedding(chunks[i]);
+      if (embedding.length === 0) { console.warn(`[BG] Empty embedding chunk ${i}`); continue; }
 
-      const embeddingStr = `[${embedding.join(",")}]`;
       const { error } = await supabase
         .from("ai_assistant_documents")
         .insert({
@@ -214,20 +167,17 @@ async function processDocument(body: RequestBody) {
           user_id: userId,
           file_name: fileName,
           file_url: fileUrl,
-          content_text: chunk,
-          embedding: embeddingStr,
+          content_text: chunks[i],
+          embedding: `[${embedding.join(",")}]`,
           chunk_index: i,
         });
 
-      if (error) {
-        console.error(`[BG] Error inserting chunk ${i}:`, error);
-        throw error;
-      }
+      if (error) { console.error(`[BG] Insert error chunk ${i}:`, error); throw error; }
     }
 
-    console.log(`[BG] Done processing ${fileName}: ${chunks.length} chunks`);
+    console.log(`[BG] Done: ${fileName} — ${chunks.length} chunks inserted`);
   } catch (err) {
-    console.error(`[BG] Error processing document ${fileName}:`, err);
+    console.error(`[BG] Failed: ${fileName}`, err);
   }
 }
 
@@ -238,24 +188,19 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { assistantId, userId, fileName } = body;
-
-    if (!assistantId || !userId || !body.fileUrl) {
-      throw new Error("Missing required fields (assistantId, userId, fileUrl)");
+    if (!body.assistantId || !body.userId || !body.fileUrl) {
+      throw new Error("Missing required fields");
     }
 
-    console.log(`Received document: ${fileName}, starting background processing...`);
+    console.log(`Received: ${body.fileName}, dispatching background processing...`);
 
-    // Use EdgeRuntime.waitUntil to process in background
-    // @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
+    // @ts-ignore — EdgeRuntime available in Supabase Edge Functions
     EdgeRuntime.waitUntil(processDocument(body));
 
-    // Return immediately
     return new Response(
-      JSON.stringify({ success: true, status: "processing", message: "Documento sendo processado em background" }),
+      JSON.stringify({ success: true, status: "processing" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error) {
     console.error("Function error:", error);
     return new Response(
