@@ -105,7 +105,7 @@ export const FileViewer = ({ arquivo, url, open, onOpenChange }: FileViewerProps
           onClose={() => onOpenChange(false)} 
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 flex flex-col md:flex-row bg-background/50 relative" data-scroll-lock-ignore>
+        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col md:flex-row bg-background/50 relative">
           
           {/* Left Side: Document Viewer */}
           <div className="flex-1 md:w-2/3 border-b md:border-b-0 md:border-r border-border/50 bg-black/5 dark:bg-white/5 relative flex items-center justify-center min-h-[50vh] md:min-h-[70vh]">
@@ -149,7 +149,7 @@ export const FileViewer = ({ arquivo, url, open, onOpenChange }: FileViewerProps
 
             <div 
               ref={scrollRef}
-              className="flex-1 min-h-0 p-4 space-y-4 overflow-y-auto" data-scroll-lock-ignore
+              className="flex-1 min-h-0 p-4 space-y-4 overflow-y-auto"
             >
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-70">

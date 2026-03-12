@@ -89,7 +89,7 @@ export function RegistrarVendaDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6" data-scroll-lock-ignore>
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">

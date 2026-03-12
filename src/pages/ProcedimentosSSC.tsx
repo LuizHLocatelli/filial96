@@ -615,7 +615,7 @@ export default function ProcedimentosSSC() {
               onClose={() => setIsEditDialogOpen(false)}
             />
             
-            <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6" data-scroll-lock-ignore>
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
               {editingProcedimento && (
                 <ProcedimentoForm
                   procedimento={editingProcedimento}

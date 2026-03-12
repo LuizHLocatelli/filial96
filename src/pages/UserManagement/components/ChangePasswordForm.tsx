@@ -140,7 +140,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
         loading={isLoading}
       />
 
-      <div className={`flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 ${isMobile ? 'p-4' : 'p-6'}`}>
+      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Preview */}
         <div className="flex items-center gap-4 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">

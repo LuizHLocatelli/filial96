@@ -230,7 +230,7 @@ export function FiltrosPorData({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-3 md:p-5 lg:p-6 pt-3" data-scroll-lock-ignore>
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 md:p-5 lg:p-6 pt-3">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Configurações de Filtro */}
           <div className="lg:col-span-2 space-y-6">

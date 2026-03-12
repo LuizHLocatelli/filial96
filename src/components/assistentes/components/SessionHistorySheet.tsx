@@ -67,7 +67,7 @@ export function SessionHistorySheet({
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto min-h-0 w-full" data-scroll-lock-ignore>
+          <div className="flex-1 overflow-y-auto min-h-0 w-full">
             <div className="px-3 pb-5 space-y-1 w-full" style={{ maxWidth: '100vw' }}>
               <AnimatePresence>
                 {sessions.length === 0 ? (

@@ -56,7 +56,7 @@ export function EditFolderDialog({ pasta, isOpen, onOpenChange, onSubmit, isLoad
           loading={isLoading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6" data-scroll-lock-ignore>
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="folder-name-edit" className="text-base">Nome da Pasta</Label>

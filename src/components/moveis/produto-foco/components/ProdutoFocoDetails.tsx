@@ -81,7 +81,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
             onClose={onClose}
           />
 
-<div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6 overflow-visible" data-scroll-lock-ignore>
+<div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 overflow-visible">
           <div className="space-y-6">
               {/* Informações Básicas */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -256,7 +256,7 @@ export function ProdutoFocoDetails({ produto, isOpen, onClose }: ProdutoFocoDeta
               onClose={() => setImagemSelecionada(null)}
             />
 
-            <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 flex items-center justify-center p-4 sm:p-6" data-scroll-lock-ignore>
+            <div className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center p-4 sm:p-6">
               <img
                 src={imagemSelecionada}
                 alt="Imagem ampliada"

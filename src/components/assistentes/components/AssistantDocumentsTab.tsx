@@ -93,7 +93,7 @@ export function AssistantDocumentsTab({ assistantId }: AssistantDocumentsTabProp
           <span className="text-xs">Formatos aceitos: Áudio, Vídeo, Imagem, PDF, TXT, MD, CSV</span>
         </div>
       ) : (
-        <div className="space-y-2 max-h-[250px] overflow-y-auto" data-scroll-lock-ignore>
+        <div className="space-y-2 max-h-[250px] overflow-y-auto">
           {documents.map((doc) => (
             <div
               key={doc.id}
