@@ -23,13 +23,13 @@ export function useAssistantDocuments(assistantId?: string) {
     queryFn: async () => {
       if (!assistantId) return [];
       const { data, error } = await supabase
-        .from("ai_assistant_documents" as any)
+        .from("ai_assistant_documents")
         .select("id, assistant_id, user_id, file_name, file_url, chunk_index, created_at")
         .eq("assistant_id", assistantId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as unknown as AssistantDocument[];
+      return data as AssistantDocument[];
     },
     enabled: !!assistantId && !!profile?.id,
   });
@@ -59,17 +59,7 @@ export function useAssistantDocuments(assistantId?: string) {
         .from("ai-chat-attachments")
         .getPublicUrl(fileName);
 
-      // Convert file to base64 for embedding
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          resolve(result.split(",")[1] || result);
-        };
-        reader.readAsDataURL(file);
-      });
-
-      // Call edge function to extract text and create embeddings
+      // Call edge function — send only the URL, not the file content
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-embed-document`,
@@ -85,8 +75,8 @@ export function useAssistantDocuments(assistantId?: string) {
             userId: profile.id,
             fileName: file.name,
             fileUrl: publicUrl,
-            base64Data: base64,
             mimeType: file.type,
+            fileSize: file.size,
           }),
         }
       );
@@ -112,7 +102,7 @@ export function useAssistantDocuments(assistantId?: string) {
     mutationFn: async (fileUrl: string) => {
       // Delete all chunks with this file_url
       const { error } = await supabase
-        .from("ai_assistant_documents" as any)
+        .from("ai_assistant_documents")
         .delete()
         .eq("file_url", fileUrl)
         .eq("assistant_id", assistantId);
@@ -132,7 +122,7 @@ export function useAssistantDocuments(assistantId?: string) {
   const renameDocument = useMutation({
     mutationFn: async ({ fileUrl, newName }: { fileUrl: string; newName: string }) => {
       const { error } = await supabase
-        .from("ai_assistant_documents" as any)
+        .from("ai_assistant_documents")
         .update({ file_name: newName })
         .eq("file_url", fileUrl)
         .eq("assistant_id", assistantId);
