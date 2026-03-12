@@ -91,27 +91,36 @@ export function useAssistantDocuments(assistantId?: string) {
 
       return await response.json();
     },
-    onSuccess: (_data) => {
-      // Document is processing in background — show info toast and poll for completion
-      toast.info("Documento enviado! Processamento em andamento...", {
-        description: "Os chunks aparecerão em alguns instantes.",
-        duration: 5000,
+    onSuccess: (_data, variables) => {
+      // Document is processing in background
+      const toastId = toast.loading("Processando documento...", {
+        description: "Extraindo texto e gerando embeddings.",
       });
 
-      // Poll for document appearance every 5s for up to 3 minutes
+      const docCountBefore = documents.length;
       let attempts = 0;
-      const maxAttempts = 36;
-      const pollInterval = setInterval(async () => {
-        attempts++;
-        await queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
+      const maxAttempts = 60; // 5 minutes
 
-        // Check if new documents appeared
+      const poll = setInterval(async () => {
+        attempts++;
+        const { data: freshDocs } = await supabase
+          .from("ai_assistant_documents")
+          .select("id")
+          .eq("assistant_id", variables.assistantId)
+          .eq("file_url", _data?.fileUrl || "")
+          .limit(1);
+
+        // Also check by refetching the full list
+        await queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
         const cached = queryClient.getQueryData<AssistantDocument[]>(["ai_assistant_documents", assistantId]);
-        if ((cached && cached.length > 0 && attempts > 2) || attempts >= maxAttempts) {
-          clearInterval(pollInterval);
-          if (attempts < maxAttempts) {
-            toast.success("Documento processado com sucesso!");
-          }
+        const newCount = cached?.length ?? 0;
+
+        if (newCount > docCountBefore || (freshDocs && freshDocs.length > 0)) {
+          clearInterval(poll);
+          toast.success("Documento processado com sucesso!", { id: toastId });
+        } else if (attempts >= maxAttempts) {
+          clearInterval(poll);
+          toast.info("Processamento pode levar mais tempo. Recarregue a página em breve.", { id: toastId });
         }
       }, 5000);
     },
