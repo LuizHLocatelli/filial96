@@ -132,9 +132,10 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
       setCardTitle(productName.trim());
 
       toast({ title: "Card gerado!", description: "Revise o resultado e salve ou gere novamente." });
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("Erro ao gerar card:", error);
-      toast({ title: "Erro na geração", description: error.message || "Não foi possível gerar o card", variant: "destructive" });
+      const errorMessage = error instanceof Error ? error.message : "Não foi possível gerar o card";
+      toast({ title: "Erro na geração", description: errorMessage, variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
@@ -183,9 +184,10 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
       toast({ title: "Salvo!", description: "Card promocional criado com sucesso via IA" });
       handleClose();
       onSuccess();
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("Erro ao salvar card:", error);
-      toast({ title: "Erro ao salvar", description: error.message || "Não foi possível salvar o card", variant: "destructive" });
+      const errorMessage = error instanceof Error ? error.message : "Não foi possível salvar o card";
+      toast({ title: "Erro ao salvar", description: errorMessage, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -194,7 +196,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`${isMobile ? "w-[calc(100%-2rem)] max-w-full p-0" : "sm:max-w-3xl p-0"} max-h-[90vh] overflow-hidden flex flex-col`}
+        className={`${isMobile ? "w-[calc(100%-2rem)] max-w-full p-0" : "sm:max-w-3xl p-0"} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -205,7 +207,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
           onClose={handleClose}
         />
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <div className={cn("gap-6", generatedImage && !isMobile ? "grid grid-cols-2" : "space-y-5")}>
             {/* Form section */}
             <div className="space-y-4">

@@ -114,10 +114,10 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col p-0" hideCloseButton>
+      <DialogContent className="max-w-2xl max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0" hideCloseButton>
         <StandardDialogHeader icon={Bot} title={initialData ? "Editar Assistente" : "Novo Assistente"} onClose={handleClose} />
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-muted/10">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 bg-muted/10">
           <Form {...form}>
             <form id="assistant-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs defaultValue="config" className="w-full">

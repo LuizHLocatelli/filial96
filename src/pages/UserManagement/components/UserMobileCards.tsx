@@ -105,7 +105,7 @@ export function UserMobileCards({
                           <span>Excluir conta</span>
                        </DropdownMenuItem>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[400px] p-0 max-h-[85vh] overflow-y-auto flex flex-col glass-overlay border-border/40 rounded-xl">
+                    <AlertDialogContent className="w-[calc(100%-2rem)] max-w-[400px] p-0 max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col glass-overlay border-border/40 rounded-xl">
                       <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-4 border-b border-border/10">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ export function UserMobileCards({
                   }}
                 >
                   <DialogContent 
-                    className={`w-[calc(100%-2rem)] max-w-full p-0 max-h-[85vh] overflow-y-auto flex flex-col glass-overlay`}
+                    className={`w-[calc(100%-2rem)] max-w-full p-0 max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col glass-overlay`}
                     hideCloseButton
                   >
                     {editingUser && (

@@ -43,11 +43,12 @@ To ensure React Fast Refresh works correctly and to avoid `react-refresh/only-ex
 Always follow this 3-part structure for Dialogs to fix mobile scrolling issues. Do NOT use `StandardDialogContent`.
 ```tsx
 <Dialog open={open} onOpenChange={onOpenChange}>
-  <DialogContent className="max-h-[85vh] overflow-y-auto flex flex-col p-0" hideCloseButton>
+  {/* CRITICAL: Use max-h-[75dvh] sm:max-h-[75vh] to prevent it from going offscreen on mobile */}
+  <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0" hideCloseButton>
     <StandardDialogHeader icon={Bot} title="Title" onClose={() => onOpenChange(false)} />
     
-    {/* CRITICAL: Use div with flex-1 and padding for scrollable content */}
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+    {/* CRITICAL: Use div with flex-1 min-h-0 and padding for scrollable content */}
+    <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
       <form>...</form>
     </div>
 

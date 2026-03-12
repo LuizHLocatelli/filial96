@@ -116,7 +116,7 @@ export function CardImageUploader({
                     <img 
                       src={previewUrl} 
                       alt="Prévia ampliada" 
-                      className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                      className="max-w-full max-h-[75dvh] sm:max-h-[75vh] object-contain rounded-lg shadow-2xl"
                     />
                   </div>
                 </DialogContent>

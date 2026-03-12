@@ -79,7 +79,7 @@ export function FileDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -91,7 +91,7 @@ export function FileDialog({
           loading={isSubmitting}
         />
         
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>

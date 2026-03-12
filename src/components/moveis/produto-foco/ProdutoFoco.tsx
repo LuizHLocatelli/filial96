@@ -214,7 +214,7 @@ export function ProdutoFoco() {
       {/* Dialogs */}
       <Dialog open={showForm} onOpenChange={closeForm}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -228,7 +228,7 @@ export function ProdutoFoco() {
             onClose={closeForm}
           />
           
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
             <ProdutoFocoForm
               produto={editingProduto || undefined}
               onSubmit={editingProduto ? handleUpdateProduto : handleCreateProduto}
@@ -258,7 +258,7 @@ export function ProdutoFoco() {
       {/* AlertDialog de Exclusão */}
       <Dialog open={!!deletingProduto} onOpenChange={() => setDeletingProduto(null)}>
         <DialogContent 
-          className="max-w-[400px] p-0 max-h-[85vh] overflow-y-auto flex flex-col"
+          className="max-w-[400px] p-0 max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col"
           hideCloseButton
         >
           <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-4 border-b border-border/10">

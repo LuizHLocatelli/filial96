@@ -219,7 +219,7 @@ export function Reservas() {
                 )}
               </Button>
             </DialogTrigger>
-            <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-lg p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
+            <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-lg p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`} hideCloseButton>
               <StandardDialogHeader
                 icon={Filter}
                 iconColor="primary"
@@ -227,7 +227,7 @@ export function Reservas() {
                 description="Refine sua busca por reservas"
                 onClose={() => setShowFiltersDialog(false)}
               />
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
                 <div className="space-y-4">
                   <ReservasFilters filters={filters} onFilterChange={handleFilterChange} />
                 </div>

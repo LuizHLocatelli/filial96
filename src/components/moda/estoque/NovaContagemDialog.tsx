@@ -68,7 +68,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[450px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col glass-overlay border-none`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[450px] p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col glass-overlay border-none`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -80,7 +80,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
           loading={loading}
         />
 
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-background/50">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 bg-background/50">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-3">
               <Label htmlFor="nome" className="text-sm font-semibold flex items-center gap-2">

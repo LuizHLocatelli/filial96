@@ -42,14 +42,14 @@ export function AniversarianteFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto flex flex-col p-0" hideCloseButton>
+      <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0" hideCloseButton>
         <StandardDialogHeader 
           icon={Gift} 
           title="Novo Aniversariante" 
           onClose={handleClose} 
         />
         
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <form id="aniversariante-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nome">Nome Completo</Label>

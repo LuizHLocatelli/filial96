@@ -75,7 +75,7 @@ export function AssistenteImageViewer({ imageUrl, onClose }: AssistenteImageView
   return (
     <Dialog open={!!imageUrl} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-4xl p-0'} max-h-[90vh] overflow-hidden flex flex-col bg-background/95 backdrop-blur-sm border-muted`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-4xl p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col bg-background/95 backdrop-blur-sm border-muted`}
         hideCloseButton
       >
         <div className="flex items-center justify-between p-3 border-b bg-muted/30 shrink-0">

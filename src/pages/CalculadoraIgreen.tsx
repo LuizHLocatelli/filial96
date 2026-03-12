@@ -233,7 +233,7 @@ const isMobile = useIsMobile();
                         Ver onde encontrar na conta
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-3xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
+                    <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-3xl p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`} hideCloseButton>
                       <StandardDialogHeader
                         icon={Eye}
                         iconColor="primary"
@@ -241,7 +241,7 @@ const isMobile = useIsMobile();
                         description="Veja onde encontrar esta informação na sua conta de luz"
                         onClose={() => document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}))}
                       />
-                      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                      <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
                         <img
                           src={ondeverImage}
                           alt="Onde encontrar o tipo de fornecimento na conta de luz"

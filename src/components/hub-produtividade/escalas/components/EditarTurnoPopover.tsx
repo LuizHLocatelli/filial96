@@ -78,14 +78,14 @@ export function EditarTurnoPopover({ shift, consultores, open, onOpenChange, onS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto flex flex-col p-0 sm:max-w-md" hideCloseButton>
+      <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0 sm:max-w-md" hideCloseButton>
         <StandardDialogHeader
           icon={Save}
           title="Editar Turno"
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-5">
           <DialogDescription className="capitalize">{dateLabel}</DialogDescription>
 
           <div className="space-y-2">

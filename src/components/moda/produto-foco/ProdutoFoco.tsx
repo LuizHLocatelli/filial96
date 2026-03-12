@@ -234,7 +234,7 @@ export function ProdutoFoco() {
 
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col`} hideCloseButton>
+        <DialogContent className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-2xl p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`} hideCloseButton>
           <StandardDialogHeader
             icon={Package}
             iconColor="primary"
@@ -245,7 +245,7 @@ export function ProdutoFoco() {
               setEditingProduto(null);
             }}
           />
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
             <ProdutoFocoForm
               produto={editingProduto}
               onSubmit={handleFormSubmit}

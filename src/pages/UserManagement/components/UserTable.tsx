@@ -159,7 +159,7 @@ export function UserTable({
                               <span>Excluir conta</span>
                            </DropdownMenuItem>
                         </AlertDialogTrigger>
-                        <AlertDialogContent className="max-w-[400px] p-0 max-h-[85vh] overflow-y-auto flex flex-col glass-overlay border-border/40">
+                        <AlertDialogContent className="max-w-[400px] p-0 max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col glass-overlay border-border/40">
                           <div className="bg-gradient-to-br from-red-500/5 via-red-500/10 to-red-500/5 p-5 border-b border-border/10">
                             <div className="flex items-start justify-between">
                               <div className="flex items-center gap-4">
@@ -204,7 +204,7 @@ export function UserTable({
                     }}
                   >
                     <DialogContent 
-                      className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col glass-overlay`}
+                      className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col glass-overlay`}
                       hideCloseButton
                     >
                       {editingUser && (

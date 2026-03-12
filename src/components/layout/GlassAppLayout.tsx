@@ -38,7 +38,7 @@ export function GlassAppLayout({ children }: GlassAppLayoutProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
         className={cn(
-          "flex-1 overflow-y-auto relative z-10",
+          "flex-1 min-h-0 overflow-y-auto relative z-10",
           isMobile ? 'pb-36' : 'pb-32'
         )}
       >

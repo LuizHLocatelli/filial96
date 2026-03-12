@@ -88,7 +88,7 @@ export const RenameFilesDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto flex flex-col p-0 sm:max-w-lg" hideCloseButton>
+      <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0 sm:max-w-lg" hideCloseButton>
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle className="flex items-center gap-2">
             <Edit3 className="w-5 h-5 text-primary" />
@@ -99,7 +99,7 @@ export const RenameFilesDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-3">
           {fileEntries.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               Nenhum arquivo selecionado

@@ -140,7 +140,7 @@ export function DetalheContagemDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[85vh] overflow-y-auto flex flex-col glass-overlay border-none`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'max-w-4xl p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col glass-overlay border-none`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -190,7 +190,7 @@ export function DetalheContagemDialog({
             </div>
           </StandardDialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-0 flex flex-col bg-background/40">
+          <div className="flex-1 min-h-0 overflow-y-auto p-0 flex flex-col bg-background/40">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
               <div className="flex-shrink-0 px-4 sm:px-6 pt-4 pb-2 border-b bg-card/30 backdrop-blur-sm sticky top-0 z-10">
@@ -213,7 +213,7 @@ export function DetalheContagemDialog({
               </div>
 
               {/* Conteúdo das tabs com scroll */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">
+              <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-5">
                 <TabsContent value="produtos" className="mt-0 h-full animate-in fade-in slide-in-from-bottom-2 duration-300" asChild>
                   <div className="h-full">
                     <ProdutosList

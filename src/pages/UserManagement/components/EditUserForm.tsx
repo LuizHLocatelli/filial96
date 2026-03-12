@@ -72,7 +72,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
         loading={isLoading}
       />
 
-      <div className={`flex-1 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
+      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
         <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Avatar Preview */}
         <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">

@@ -37,7 +37,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSubmit, isLoading }
       <DialogContent 
         className={`
           ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'}
-          max-h-[85vh] overflow-y-auto flex flex-col
+          max-h-[75dvh] sm:max-h-[75vh] overflow-y-auto flex flex-col
         `}
         hideCloseButton
       >
@@ -49,7 +49,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSubmit, isLoading }
           loading={isLoading}
         />
         
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="folder-name" className="text-base">Nome da Pasta</Label>

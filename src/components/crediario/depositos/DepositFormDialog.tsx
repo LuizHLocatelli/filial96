@@ -260,7 +260,7 @@ export function DepositFormDialog({
     <>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent 
-          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[85vh] overflow-y-auto flex flex-col`}
+          className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[600px] p-0'} max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col`}
           hideCloseButton
         >
           <StandardDialogHeader
@@ -272,7 +272,7 @@ export function DepositFormDialog({
             loading={isUploading}
           />
           
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
             
             {depositosForDay.length > 0 && (
               <div className="space-y-4">

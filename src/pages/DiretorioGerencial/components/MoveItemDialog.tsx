@@ -50,7 +50,7 @@ export function MoveItemDialog({
       <DialogContent 
         className={`
           ${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[500px] p-0'}
-          max-h-[85vh] overflow-y-auto flex flex-col
+          max-h-[75dvh] sm:max-h-[75vh] overflow-y-auto flex flex-col
         `}
         hideCloseButton
       >
@@ -63,7 +63,7 @@ export function MoveItemDialog({
           loading={isLoading}
         />
         
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
           <ScrollArea className="h-[300px] rounded-md border">
             <div className="p-2 space-y-1">
               {/* Raiz */}
