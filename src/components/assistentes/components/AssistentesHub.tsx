@@ -68,7 +68,7 @@ export function AssistentesHub() {
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-12rem)] min-h-[500px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm">
+    <div className="flex flex-col h-[85vh] min-h-[650px] border rounded-xl overflow-hidden bg-background mt-4 shadow-sm">
       {/* Top navigation bar */}
       <AssistentesTopBar
         assistant={activeAssistant}
