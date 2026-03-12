@@ -30,24 +30,25 @@ function ShiftRow({ shift, isMirror, isManager, onEdit }: {
             type="button"
             onClick={() => isManager && onEdit?.(shift)}
             className={cn(
-              "flex items-center gap-2 w-full rounded-md px-2 py-1.5 text-left transition-colors",
+              "flex flex-col gap-1 w-full rounded-md p-1.5 text-left transition-colors",
               shift.is_carga
                 ? "bg-primary/8 hover:bg-primary/15"
                 : "hover:bg-muted/60",
               isManager && "cursor-pointer"
             )}
           >
-            <Avatar className={cn(
-              "h-6 w-6 flex-shrink-0 ring-1",
-              shift.is_carga ? "ring-primary/30" : "ring-border/50"
-            )}>
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback className="text-[10px] font-medium">
-                {userName.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-
-            <span className="text-xs font-medium truncate flex-1 min-w-0">{userName}</span>
+            <div className="flex items-center gap-1.5 w-full min-w-0 flex-1">
+              <Avatar className={cn(
+                "h-5 w-5 flex-shrink-0 ring-1",
+                shift.is_carga ? "ring-primary/30" : "ring-border/50"
+              )}>
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="text-[9px] font-medium">
+                  {userName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-[11px] font-medium truncate flex-1 min-w-0">{userName}</span>
+            </div>
 
             <EscalaShiftBadge
               shiftStart={shift.shift_start}
@@ -55,6 +56,7 @@ function ShiftRow({ shift, isMirror, isManager, onEdit }: {
               isCarga={shift.is_carga}
               isMirror={isMirror}
               compact
+              className="w-full justify-center"
             />
           </button>
         </TooltipTrigger>
@@ -103,7 +105,7 @@ export const EscalaDayCard = memo(function EscalaDayCard({ day, isManager, onEdi
           {dayOfWeek}
         </span>
         <div className="flex items-center gap-1">
-          {cargaShifts.length > 0 && (
+          {cargaShifts.length > 0 && !isMirrorDay && (
             <Truck className="h-3 w-3 text-primary opacity-60" />
           )}
           <span className={cn(

@@ -307,7 +307,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
               if (recalculated) {
                 toast({
                   title: "Escala recalculada",
-                  description: "A Inteligência Artificial ajustou a escala de carga automaticamente devido à nova folga.",
+                  description: "A escala de carga foi ajustada automaticamente devido à nova folga.",
                 });
               }
             }).catch(e => {
@@ -315,7 +315,7 @@ export function useFolgas(config: UseFolgasConfig): UseFolgasReturn {
               toast({
                 variant: "destructive",
                 title: "Erro no ajuste da escala",
-                description: "Houve um erro ao tentar recalcular a escala com a IA. O gerente precisará ajustar manualmente na tela de Escalas.",
+                description: "Houve um erro ao tentar recalcular a escala automaticamente. O gerente precisará ajustar manualmente na tela de Escalas.",
               });
             });
           });

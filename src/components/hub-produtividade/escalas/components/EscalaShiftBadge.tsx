@@ -7,21 +7,29 @@ interface EscalaShiftBadgeProps {
   isCarga: boolean;
   isMirror?: boolean;
   compact?: boolean;
+  className?: string;
 }
 
-export function EscalaShiftBadge({ shiftStart, shiftEnd, isCarga, isMirror, compact }: EscalaShiftBadgeProps) {
+export function EscalaShiftBadge({ shiftStart, shiftEnd, isCarga, isMirror, compact, className }: EscalaShiftBadgeProps) {
   const time = `${shiftStart.substring(0, 5)}-${shiftEnd.substring(0, 5)}`;
 
   if (compact) {
     return (
       <span className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium leading-none",
+        "inline-flex items-center gap-1 rounded-[4px] px-1.5 py-0.5 text-[9px] font-medium leading-none",
         isCarga
-          ? "bg-primary/15 text-primary"
-          : "bg-muted text-muted-foreground"
+          ? isMirror
+            ? "bg-primary/5 text-primary/80 ring-1 ring-inset ring-primary/10"
+            : "bg-primary/15 text-primary"
+          : "bg-muted text-muted-foreground",
+        className
       )}>
-        {isCarga && <Truck className="h-2.5 w-2.5" />}
-        {time}
+        {isCarga && !isMirror && <Truck className="h-2.5 w-2.5 shrink-0" />}
+        {isCarga && isMirror && <Clock className="h-2.5 w-2.5 shrink-0 opacity-70" />}
+        <span className="truncate">{time}</span>
+        {isCarga && isMirror && (
+          <span className="text-[8px] opacity-70 ml-0.5 font-bold">ESP</span>
+        )}
       </span>
     );
   }
@@ -30,10 +38,12 @@ export function EscalaShiftBadge({ shiftStart, shiftEnd, isCarga, isMirror, comp
     <div className={cn(
       "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium",
       isCarga
-        ? "bg-primary/10 text-primary border border-primary/20"
+        ? isMirror
+          ? "bg-primary/5 text-primary/80 border border-primary/10"
+          : "bg-primary/10 text-primary border border-primary/20"
         : "bg-muted/60 text-muted-foreground border border-border/50"
     )}>
-      {isCarga ? (
+      {isCarga && !isMirror ? (
         <Truck className="h-3 w-3" />
       ) : (
         <Clock className="h-3 w-3 opacity-60" />

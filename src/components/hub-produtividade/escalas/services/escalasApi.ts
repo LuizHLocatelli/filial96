@@ -87,3 +87,29 @@ export async function fetchConsultores() {
   if (error) throw error;
   return data;
 }
+
+export async function fetchTeamAlmoco() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .from('profiles' as any)
+    .select('id, name, avatar_url, role, lunch_time')
+    .in('role', ['consultor_moveis', 'consultor_moda', 'crediarista'])
+    .order('name', { ascending: true });
+
+  if (error) throw error;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return data as any[];
+}
+
+export async function updateLunchTime(userId: string, lunchTime: string | null) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .from('profiles' as any)
+    .update({ lunch_time: lunchTime })
+    .eq('id', userId);
+
+  if (error) throw error;
+  return true;
+}

@@ -68,11 +68,11 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
 
     const dateObj = new Date(startDate + "T12:00:00");
     const dayOfWeek = dateObj.getDay();
-    if (dayOfWeek !== 1) { // 1 = Segunda
+    if (![1, 3, 5].includes(dayOfWeek)) { // 1 = Segunda, 3 = Quarta, 5 = Sexta
       toast({
         variant: "destructive",
         title: "Data inválida",
-        description: "A escala da carga deve sempre começar em uma Segunda-feira."
+        description: "A escala da carga deve começar em uma Segunda, Quarta ou Sexta-feira."
       });
       return;
     }
@@ -165,7 +165,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
               {/* Parameters */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Data de Início (Segunda-feira)</Label>
+                  <Label htmlFor="startDate">Data de Início (Segunda, Quarta ou Sexta)</Label>
                   <div className="relative">
                     <CalendarIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input 

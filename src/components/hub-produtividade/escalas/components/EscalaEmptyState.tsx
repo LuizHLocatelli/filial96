@@ -21,14 +21,14 @@ export function EscalaEmptyState({ isManager, onGenerate }: EscalaEmptyStateProp
       <h3 className="text-lg font-semibold mb-2">Nenhuma escala neste mês</h3>
       <p className="text-sm text-muted-foreground max-w-md mb-6">
         {isManager
-          ? "Use a Inteligência Artificial para gerar automaticamente a escala de carga da equipe, respeitando rotações e espelhamento."
+          ? "Gere automaticamente a escala de carga da equipe, respeitando rotações e espelhamento."
           : "Ainda não há escalas geradas para este período. Aguarde o gerente criar a escala."}
       </p>
 
       {isManager && (
         <Button onClick={onGenerate} size="lg" className="gap-2">
           <Plus className="h-4 w-4" />
-          Gerar Escala com IA
+          Gerar Escala
         </Button>
       )}
     </div>

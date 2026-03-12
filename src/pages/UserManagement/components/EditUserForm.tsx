@@ -45,7 +45,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await onSave(formData);
+      await onSave({ ...user, ...formData });
     } finally {
       setIsLoading(false);
     }

@@ -214,6 +214,7 @@ export function useUserManagement() {
           name: DOMPurify.sanitize(updatedUser.name.trim()),
           role: updatedUser.role,
           phone: updatedUser.phone ? DOMPurify.sanitize(updatedUser.phone.trim()) : null,
+          display_name: updatedUser.displayName ? DOMPurify.sanitize(updatedUser.displayName.trim()) : null,
           updated_at: new Date().toISOString()
         })
         .eq('id', updatedUser.id);

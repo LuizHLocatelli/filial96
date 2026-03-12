@@ -8,6 +8,7 @@ export interface User {
   avatarUrl?: string;
   displayName?: string;
   phone?: string;
+  lunch_time?: string;
 }
 
 export type TaskStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada' | 'aguardando_cliente';
