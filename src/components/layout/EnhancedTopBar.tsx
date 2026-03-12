@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { CompanyLogo } from "./CompanyLogo";
-import { FolderLock } from "lucide-react";
+import { FolderLock, Bot } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -67,6 +67,25 @@ export function EnhancedTopBar() {
           
 
           {/* Action buttons com glassmorphism correto */}
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div 
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/?tab=assistentes')}
+                className={cn(
+                  "glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 cursor-pointer text-primary",
+                  location.pathname === '/' && location.search.includes('tab=assistentes') && "bg-primary/20 border-primary/50 text-primary"
+                )}
+              >
+                <Bot className="h-5 w-5" />
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Assistentes de IA</p>
+            </TooltipContent>
+          </Tooltip>
 
           {isManager && (
             <Tooltip>

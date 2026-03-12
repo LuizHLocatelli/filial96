@@ -25,8 +25,8 @@ serve(async (req) => {
     }
 
     const dimensionGuide = aspectRatio === "1:1"
-      ? "quadrado (1:1), 1080x1080 pixels"
-      : "vertical retrato (4:5), 1080x1350 pixels";
+      ? "quadrado (1:1), 2048x2048 pixels"
+      : "vertical retrato (4:5), 2048x2560 pixels";
 
     const systemPrompt = `Você é um designer gráfico profissional especializado em materiais promocionais para varejo.
 Crie um card promocional visualmente impactante e profissional com as seguintes diretrizes:
@@ -84,6 +84,8 @@ Crie um card promocional visualmente impactante e profissional com as seguintes 
           { role: "user", content: userContent },
         ],
         modalities: ["image", "text"],
+        reasoning_effort: "high",
+        thinking: true
       }),
     });
 
