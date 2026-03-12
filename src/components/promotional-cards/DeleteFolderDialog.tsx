@@ -84,7 +84,7 @@ export function DeleteFolderDialog({
           loading={isDeleting}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6 space-y-6" data-scroll-lock-ignore>
           <div className={`flex items-center gap-3 ${isMobile ? 'p-3' : 'p-4'} rounded-xl bg-muted/50`}>
             <div className="text-2xl">📁</div>
             <div className="flex-1 min-w-0">

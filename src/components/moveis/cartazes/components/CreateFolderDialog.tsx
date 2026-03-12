@@ -87,7 +87,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSuccess }: CreateFo
           loading={isLoading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6" data-scroll-lock-ignore>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="name" className="text-base">Nome da Pasta</Label>

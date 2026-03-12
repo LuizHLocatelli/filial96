@@ -207,7 +207,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
           onClose={handleClose}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6" data-scroll-lock-ignore>
           <div className={cn("gap-6", generatedImage && !isMobile ? "grid grid-cols-2" : "space-y-5")}>
             {/* Form section */}
             <div className="space-y-4">

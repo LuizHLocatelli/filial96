@@ -22,7 +22,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
         className={cn(
-          "flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain",
+          "flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20",
           isMobile ? 'pb-36' : 'pb-32'
         )}
       >

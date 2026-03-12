@@ -155,7 +155,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
           onClose={() => onOpenChange(false)} 
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6 space-y-6" data-scroll-lock-ignore>
           <DialogDescription>
             Defina os parâmetros para gerar automaticamente a escala da equipe com rotação round-robin e espelhamento de horários.
           </DialogDescription>

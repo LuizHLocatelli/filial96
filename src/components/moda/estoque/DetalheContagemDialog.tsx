@@ -190,7 +190,7 @@ export function DetalheContagemDialog({
             </div>
           </StandardDialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-0 flex flex-col bg-background/40">
+          <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-0 flex flex-col bg-background/40" data-scroll-lock-ignore>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               {/* Tabs header */}
               <div className="flex-shrink-0 px-4 sm:px-6 pt-4 pb-2 border-b bg-card/30 backdrop-blur-sm sticky top-0 z-10">
@@ -213,7 +213,7 @@ export function DetalheContagemDialog({
               </div>
 
               {/* Conteúdo das tabs com scroll */}
-              <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain px-4 sm:px-6 py-5">
+              <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 px-4 sm:px-6 py-5" data-scroll-lock-ignore>
                 <TabsContent value="produtos" className="mt-0 h-full animate-in fade-in slide-in-from-bottom-2 duration-300" asChild>
                   <div className="h-full">
                     <ProdutosList

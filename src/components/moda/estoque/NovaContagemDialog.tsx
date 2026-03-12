@@ -80,7 +80,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
           loading={loading}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-5 sm:p-6 bg-background/50">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-5 sm:p-6 bg-background/50" data-scroll-lock-ignore>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-3">
               <Label htmlFor="nome" className="text-sm font-semibold flex items-center gap-2">

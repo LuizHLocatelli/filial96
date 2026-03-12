@@ -15,7 +15,7 @@ export const DIALOG_SIZES = {
 
 // Classe para área de conteúdo scrollável dentro do diálogo
 // Deve ser usada no elemento que contém o conteúdo principal (entre header e footer)
-export const DIALOG_SCROLLABLE_CONTENT = "flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent";
+export const DIALOG_SCROLLABLE_CONTENT = "flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 relative z-20 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent";
 
 export type DialogSizeKey = keyof typeof DIALOG_SIZES;
 

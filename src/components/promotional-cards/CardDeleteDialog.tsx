@@ -41,7 +41,7 @@ export function CardDeleteDialog({
           loading={isLoading}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6 space-y-6" data-scroll-lock-ignore>
           <DialogDescription className="text-center leading-relaxed px-1">
             Tem certeza que deseja excluir este card promocional? <br />
             <span className="text-red-600 font-medium text-sm">

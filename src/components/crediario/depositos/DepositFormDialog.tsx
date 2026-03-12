@@ -272,7 +272,7 @@ export function DepositFormDialog({
             loading={isUploading}
           />
           
-          <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6 space-y-6">
+          <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain relative z-20 p-4 sm:p-6 space-y-6" data-scroll-lock-ignore>
             
             {depositosForDay.length > 0 && (
               <div className="space-y-4">
