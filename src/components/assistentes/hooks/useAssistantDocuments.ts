@@ -62,7 +62,7 @@ export function useAssistantDocuments(assistantId?: string) {
         .from("ai-chat-attachments")
         .getPublicUrl(fileName);
 
-      // Call edge function — send only the URL, not the file content
+      // Call edge function — send only metadata, processing happens in background
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-embed-document`,
@@ -91,9 +91,29 @@ export function useAssistantDocuments(assistantId?: string) {
 
       return await response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
-      toast.success("Documento adicionado à base de conhecimento!");
+    onSuccess: (_data) => {
+      // Document is processing in background — show info toast and poll for completion
+      toast.info("Documento enviado! Processamento em andamento...", {
+        description: "Os chunks aparecerão em alguns instantes.",
+        duration: 5000,
+      });
+
+      // Poll for document appearance every 5s for up to 3 minutes
+      let attempts = 0;
+      const maxAttempts = 36;
+      const pollInterval = setInterval(async () => {
+        attempts++;
+        await queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
+
+        // Check if new documents appeared
+        const cached = queryClient.getQueryData<AssistantDocument[]>(["ai_assistant_documents", assistantId]);
+        if ((cached && cached.length > 0 && attempts > 2) || attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          if (attempts < maxAttempts) {
+            toast.success("Documento processado com sucesso!");
+          }
+        }
+      }, 5000);
     },
     onError: (error) => {
       console.error("Erro ao enviar documento:", error);
@@ -103,7 +123,6 @@ export function useAssistantDocuments(assistantId?: string) {
 
   const deleteDocument = useMutation({
     mutationFn: async (fileUrl: string) => {
-      // Delete all chunks with this file_url
       const { error } = await supabase
         .from("ai_assistant_documents")
         .delete()
