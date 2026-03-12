@@ -5,6 +5,14 @@ import { toast } from "sonner";
 import type { AIChatMessage, AIAssistant } from "../types";
 import type { ChatDocument } from "../components/ChatInput";
 
+interface ModelInsertPayload {
+  session_id: string;
+  role: "model";
+  content: string;
+  image_urls: string[];
+  tools_used?: string[];
+}
+
 export function useChatSession(sessionId: string | null, assistant: AIAssistant | null) {
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
@@ -33,6 +41,20 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       setIsSending(true);
       setStreamingContent("");
       setActiveTools([]);
+
+      const optimisticUserMessage = {
+        id: `optimistic-user-${Date.now()}`,
+        session_id: sessionId,
+        role: "user" as const,
+        content,
+        image_urls: images,
+        created_at: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData(["ai_chat_messages", sessionId], (currentData: AIChatMessage[] | undefined) => {
+        if (!currentData) return [optimisticUserMessage];
+        return [...currentData, optimisticUserMessage];
+      });
 
       // Save user message
       const { error: insertError } = await supabase
@@ -70,7 +92,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
             documents: documents || [],
             history,
             stream: true,
-            webSearchEnabled: (assistant as any).web_search_enabled || false,
+            webSearchEnabled: assistant.web_search_enabled || false,
             assistantId: assistant.id,
           }),
           signal: abortController.signal,
@@ -140,7 +162,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       }
 
       // Save model message with tools_used
-      const insertPayload: any = {
+      const insertPayload: ModelInsertPayload = {
         session_id: sessionId,
         role: "model",
         content: fullText,
@@ -165,6 +187,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
     onError: (error) => {
       console.error("Erro ao enviar mensagem:", error);
       toast.error("Erro ao comunicar com o assistente");
+      queryClient.invalidateQueries({ queryKey: ["ai_chat_messages", sessionId] });
       setStreamingContent("");
       setActiveTools([]);
     },

@@ -9,20 +9,27 @@ import { useGenerateTitle } from "../hooks/useGenerateTitle";
 import type { AIAssistant } from "../types";
 import type { ChatDocument } from "./ChatInput";
 import { Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface PendingTransitionMessage {
+  id: string;
+  content: string;
+  images: string[];
+}
 
 export function AssistentesHub() {
   const { assistants = [], isLoading: isLoadingAssistants, createAssistant, updateAssistant, deleteAssistant } = useAssistants();
   const [activeAssistantId, setActiveAssistantId] = useState<string | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
-  const { sessions = [], createSession, deleteSession } = useChatSessions(activeAssistantId || undefined);
+  const { sessions = [], createSession, updateSession, deleteSession } = useChatSessions(activeAssistantId || undefined);
   const { generateTitle } = useGenerateTitle();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAssistant, setEditingAssistant] = useState<AIAssistant | undefined>(undefined);
   const [isPickerOpen, setIsPickerOpen] = useState(true);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [transitionMessage, setTransitionMessage] = useState<PendingTransitionMessage | null>(null);
 
   const pendingMessageRef = useRef<{ content: string; images: string[]; documents?: ChatDocument[] } | null>(null);
 
@@ -56,11 +63,29 @@ export function AssistentesHub() {
 
   const handleSendWithoutSession = async (message: string, images: string[], documents?: ChatDocument[]) => {
     if (!activeAssistantId) return;
-    const title = await generateTitle(message);
-    const session = await createSession.mutateAsync({ assistant_id: activeAssistantId, title });
+
+    const session = await createSession.mutateAsync({ assistant_id: activeAssistantId, title: "Nova Conversa..." });
+
     if (session) {
+      const nextTransitionMessage = {
+        id: `${session.id}-first-message`,
+        content: message,
+        images,
+      };
+
+      setTransitionMessage(nextTransitionMessage);
       pendingMessageRef.current = { content: message, images, documents };
-      setActiveSessionId(session.id);
+
+      requestAnimationFrame(() => {
+        setActiveSessionId(session.id);
+      });
+
+      void generateTitle(message)
+        .then(async (title) => {
+          if (!title) return;
+          await updateSession.mutateAsync({ id: session.id, title });
+        })
+        .catch((err) => console.error("Erro ao gerar título:", err));
     }
   };
 
@@ -87,17 +112,34 @@ export function AssistentesHub() {
 
       {/* Chat area — full width */}
       <div className="flex-1 overflow-hidden">
-        {activeAssistant ? (
-          <AssistenteChatWithPending
-            key={activeSessionId || activeAssistantId}
-            assistant={activeAssistant}
-            session={activeSession}
-            onNewSession={handleCreateSession}
-            onSendWithoutSession={handleSendWithoutSession}
-            pendingMessageRef={pendingMessageRef}
-          />
-        ) : (
-          <div className="flex-1 h-full flex flex-col items-center justify-center text-center p-8 text-muted-foreground bg-background/50">
+        <AnimatePresence initial={false}>
+          {activeAssistant ? (
+            <motion.div
+              key={activeSessionId || `new-${activeAssistantId}`}
+              initial={{ opacity: 0, filter: "blur(18px)", scale: 0.985 }}
+              animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+              exit={{ opacity: 0, filter: "blur(18px)", scale: 1.01 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full w-full"
+            >
+              <AssistenteChatWithPending
+                assistant={activeAssistant}
+                session={activeSession}
+                onNewSession={handleCreateSession}
+                onSendWithoutSession={handleSendWithoutSession}
+                pendingMessageRef={pendingMessageRef}
+                transitionMessage={transitionMessage}
+                onTransitionMessageComplete={() => setTransitionMessage(null)}
+              />
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-1 h-full flex flex-col items-center justify-center text-center p-8 text-muted-foreground bg-background/50"
+            >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -108,8 +150,9 @@ export function AssistentesHub() {
             </motion.div>
             <h3 className="text-lg font-semibold text-foreground">Bem-vindo aos Assistentes</h3>
             <p className="max-w-sm mt-2 text-sm">Toque no seletor acima para escolher ou criar um assistente.</p>
-          </div>
-        )}
+          </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Bottom sheets */}
@@ -170,13 +213,15 @@ export function AssistentesHub() {
 }
 
 function AssistenteChatWithPending({
-  assistant, session, onNewSession, onSendWithoutSession, pendingMessageRef,
+  assistant, session, onNewSession, onSendWithoutSession, pendingMessageRef, transitionMessage, onTransitionMessageComplete,
 }: {
   assistant: AIAssistant;
   session: import("../types").AIChatSession | null;
   onNewSession: () => void;
   onSendWithoutSession: (message: string, images: string[], documents?: ChatDocument[]) => void;
   pendingMessageRef: React.MutableRefObject<{ content: string; images: string[]; documents?: ChatDocument[] } | null>;
+  transitionMessage: PendingTransitionMessage | null;
+  onTransitionMessageComplete: () => void;
 }) {
   const sentRef = useRef(false);
 
@@ -188,7 +233,7 @@ function AssistenteChatWithPending({
       const timer = setTimeout(() => {
         const sendEvent = new CustomEvent('pending-message', { detail: { content, images, documents, sessionId: session.id } });
         window.dispatchEvent(sendEvent);
-      }, 300);
+      }, 60);
       return () => clearTimeout(timer);
     }
   }, [session, pendingMessageRef]);
@@ -199,6 +244,8 @@ function AssistenteChatWithPending({
       session={session}
       onNewSession={onNewSession}
       onSendWithoutSession={onSendWithoutSession}
+      transitionMessage={transitionMessage}
+      onTransitionMessageComplete={onTransitionMessageComplete}
     />
   );
 }

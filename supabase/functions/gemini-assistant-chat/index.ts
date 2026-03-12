@@ -198,7 +198,27 @@ If the user explicitly asks you to create, generate, draw, or make an image or p
 Do not include any conversational text outside the JSON block if you are generating an image. If the user is NOT asking for an image, respond normally.
 `;
 
-    let finalSystemMessage = systemMessage + "\n\n" + imageInstruction;
+    
+    const now = new Date();
+    const brazilDateStr = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    }).format(now);
+
+    const systemContext = `
+[CONTEXTO DO SISTEMA]
+A data e hora atual no Brasil (fuso horário de Brasília) é: ${brazilDateStr}.
+Use esta data como referência para qualquer pergunta temporal ou sobre eventos recentes/notícias.
+`;
+
+    let finalSystemMessage = systemMessage + "\n\n" + imageInstruction + "\n" + systemContext;
+
 
     // RAG: Retrieve relevant documents if assistant has a knowledge base
     if (assistantId) {
@@ -214,10 +234,7 @@ Do not include any conversational text outside the JSON block if you are generat
       activatedTools.push("document_analysis");
     }
 
-    // Track web search
-    if (webSearchEnabled) {
-      activatedTools.push("web_search");
-    }
+    // Web search is tracked dynamically when grounding chunks appear
 
     const chatModelName = "gemini-3-flash-preview";
 
@@ -304,6 +321,7 @@ Do not include any conversational text outside the JSON block if you are generat
 
       // Append grounding sources if available
       if (groundingMetadata?.groundingChunks?.length > 0) {
+        activatedTools.push("web_search");
         generatedText += "\n\n---\n**Fontes:**\n";
         for (const chunk of groundingMetadata.groundingChunks) {
           if (chunk.web) {
@@ -339,7 +357,7 @@ Do not include any conversational text outside the JSON block if you are generat
     }
 
     let fullText = "";
-    let groundingSources: { title: string; uri: string }[] = [];
+    const groundingSources: { title: string; uri: string }[] = [];
     const reader = streamRes.body!.getReader();
     const decoder = new TextDecoder();
 
@@ -381,6 +399,10 @@ Do not include any conversational text outside the JSON block if you are generat
                 // Capture grounding metadata from last chunk
                 const gm = parsed.candidates?.[0]?.groundingMetadata;
                 if (gm?.groundingChunks) {
+                  if (!activatedTools.includes("web_search")) {
+                    activatedTools.push("web_search");
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "web_search", status: "active" })}\n\n`));
+                  }
                   for (const chunk of gm.groundingChunks) {
                     if (chunk.web) {
                       groundingSources.push({ title: chunk.web.title || chunk.web.uri, uri: chunk.web.uri });

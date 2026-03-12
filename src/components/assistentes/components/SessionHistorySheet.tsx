@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { MessageSquare, Trash2, Plus, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -45,7 +44,7 @@ export function SessionHistorySheet({
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[55dvh] p-0 border-t">
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[55dvh] p-0 border-t flex flex-col overflow-hidden w-full max-w-full">
           <SheetHeader className="px-5 pt-5 pb-3">
             <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-3" />
             <div className="flex items-center justify-between">
@@ -68,8 +67,8 @@ export function SessionHistorySheet({
             </div>
           </SheetHeader>
 
-          <ScrollArea className="flex-1 max-h-[calc(55dvh-5rem)]">
-            <div className="px-3 pb-5 space-y-1">
+          <div className="flex-1 overflow-y-auto min-h-0 w-full">
+            <div className="px-3 pb-5 space-y-1 w-full" style={{ maxWidth: '100vw' }}>
               <AnimatePresence>
                 {sessions.length === 0 ? (
                   <div className="py-10 text-center">
@@ -134,7 +133,7 @@ export function SessionHistorySheet({
                 )}
               </AnimatePresence>
             </div>
-          </ScrollArea>
+          </div>
         </SheetContent>
       </Sheet>
 

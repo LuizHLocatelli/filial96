@@ -99,6 +99,23 @@ export function useChatSessions(assistantId?: string) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
 
+  const upsertSessionInCache = (updatedSession: AIChatSession) => {
+    queryClient.setQueriesData({ queryKey: ["ai_chat_sessions"] }, (currentData: unknown) => {
+      if (!Array.isArray(currentData)) return currentData;
+
+      const sessions = currentData as AIChatSession[];
+      const existingIndex = sessions.findIndex((session) => session.id === updatedSession.id);
+
+      if (existingIndex === -1) {
+        return [updatedSession, ...sessions];
+      }
+
+      const nextSessions = [...sessions];
+      nextSessions[existingIndex] = updatedSession;
+      return nextSessions;
+    });
+  };
+
   const { data: sessions, isLoading: isLoadingSessions } = useQuery({
     queryKey: ["ai_chat_sessions", profile?.id, assistantId],
     queryFn: async () => {
@@ -129,8 +146,31 @@ export function useChatSessions(assistantId?: string) {
       if (error) throw error;
       return data as AIChatSession;
     },
-    onSuccess: () => {
+    onSuccess: (session) => {
+      upsertSessionInCache(session);
       queryClient.invalidateQueries({ queryKey: ["ai_chat_sessions"] });
+    },
+  });
+
+  const updateSession = useMutation({
+    mutationFn: async (session: Partial<AIChatSession> & { id: string }) => {
+      const { id, ...changes } = session;
+      const { data, error } = await supabase
+        .from("ai_chat_sessions")
+        .update(changes)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as AIChatSession;
+    },
+    onSuccess: (session) => {
+      upsertSessionInCache(session);
+      queryClient.invalidateQueries({ queryKey: ["ai_chat_sessions"] });
+    },
+    onError: (error) => {
+      console.error("Erro ao atualizar conversa:", error);
     },
   });
 
@@ -157,6 +197,7 @@ export function useChatSessions(assistantId?: string) {
     sessions,
     isLoadingSessions,
     createSession,
+    updateSession,
     deleteSession,
   };
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Bot, Plus, Settings, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -58,7 +57,7 @@ export function AssistantPickerSheet({
           </div>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 max-h-[calc(55dvh-5rem)] w-full">
+        <div className="flex-1 overflow-y-auto min-h-0 w-full">
           <div className="px-3 pb-5 space-y-1 w-full" style={{ maxWidth: '100vw' }}>
             <AnimatePresence>
               {assistants.length === 0 ? (
@@ -134,7 +133,7 @@ export function AssistantPickerSheet({
               )}
             </AnimatePresence>
           </div>
-        </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );
