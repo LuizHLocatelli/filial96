@@ -45,15 +45,6 @@ export const searchableItems: SearchResult[] = [
     icon: 'Sofa'
   },
   {
-    id: 'moveis-produto-foco',
-    title: 'Produto Foco - Móveis',
-    description: 'Produtos prioritários do setor de móveis',
-    type: 'section',
-    path: '/moveis?tab=produto-foco',
-    section: 'Móveis',
-    icon: 'Star'
-  },
-  {
     id: 'crediario',
     title: 'Crediário',
     description: 'Gestão completa do setor de crediário',
@@ -128,14 +119,5 @@ export const searchableItems: SearchResult[] = [
     path: '/moda?tab=diretorio',
     section: 'Moda',
     icon: 'FolderArchive'
-  },
-  {
-    id: 'moda-produto-foco',
-    title: 'Produto Foco - Moda',
-    description: 'Produtos prioritários e metas de vendas',
-    type: 'section',
-    path: '/moda?tab=produto-foco',
-    section: 'Moda',
-    icon: 'Star'
   },
 ];

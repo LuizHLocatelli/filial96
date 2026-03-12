@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FolderPlus, Loader2 } from "lucide-react";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CreateFolderDialogProps {
@@ -49,7 +50,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSubmit, isLoading }
           loading={isLoading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="folder-name" className="text-base">Nome da Pasta</Label>
@@ -64,7 +65,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSubmit, isLoading }
               />
             </div>
           </form>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

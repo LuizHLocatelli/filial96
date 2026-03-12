@@ -7,6 +7,7 @@ import { UserWithStats } from '../types';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getInitials } from '../utils';
 
@@ -140,7 +141,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
         loading={isLoading}
       />
 
-      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
+      <DialogScrollableContainer>
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Preview */}
         <div className="flex items-center gap-4 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
@@ -259,7 +260,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
           Gerar Senha Segura
         </Button>
       </form>
-      </div>
+      </DialogScrollableContainer>
 
       <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
         <Button 

@@ -9,7 +9,8 @@ import { useProcedimentosSSC } from '@/hooks/useProcedimentosSSC'
 import { ProcedimentoForm } from './ProcedimentoForm'
 import { ProcedimentoSSC, ProcedimentoInsert } from '@/types/ssc-procedimentos'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog'
+import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 export function AdminProcedimentosButton() {
   const isMobile = useIsMobile()
@@ -97,7 +98,7 @@ export function AdminProcedimentosButton() {
           onClose={() => setIsOpen(false)}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           {/* Formulário de Add/Edit */}
           {isFormOpen ? (
             <div className="p-4 space-y-4">
@@ -194,7 +195,7 @@ export function AdminProcedimentosButton() {
               )}
             </div>
           )}
-        </div>
+        </DialogScrollableContainer>
 
         {!isFormOpen && (
           <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>

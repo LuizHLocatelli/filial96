@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ArrowRightLeft, Loader2, Folder, Home, ChevronRight } from "lucide-react";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PastaGerencial } from "../types";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -63,7 +64,7 @@ export function MoveItemDialog({
           loading={isLoading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <ScrollArea className="h-[300px] rounded-md border">
             <div className="p-2 space-y-1">
               {/* Raiz */}
@@ -111,7 +112,7 @@ export function MoveItemDialog({
               )}
             </div>
           </ScrollArea>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

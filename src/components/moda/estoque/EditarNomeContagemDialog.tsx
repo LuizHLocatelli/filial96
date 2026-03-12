@@ -14,6 +14,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface Contagem {
   id: string;
@@ -111,7 +112,7 @@ export function EditarNomeContagemDialog({
           loading={loading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nome-contagem">Nome da Contagem *</Label>
@@ -129,7 +130,7 @@ export function EditarNomeContagemDialog({
               </p>
             </div>
           </form>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

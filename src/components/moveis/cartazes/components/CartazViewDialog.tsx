@@ -6,6 +6,7 @@ import { CartazItem } from "../hooks/useCartazes";
 import { PDFViewer } from "@/components/ui/pdf-viewer/index";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface CartazViewDialogProps {
   cartaz: CartazItem;
@@ -43,7 +44,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
           onClose={() => onOpenChange(false)}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <div className="bg-muted h-[75vh] min-h-[500px] overflow-hidden rounded-lg">
             {cartaz.file_type === 'image' ? (
               <img 
@@ -69,7 +70,7 @@ export function CartazViewDialog({ cartaz, open, onOpenChange }: CartazViewDialo
               </div>
             )}
           </div>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button

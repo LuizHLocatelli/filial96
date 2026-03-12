@@ -136,7 +136,7 @@ export function StandardDialogFooter({
     <div
       className={cn(
         "flex-shrink-0 border-t bg-background",
-        isMobile ? "flex flex-col gap-2 p-4" : "flex flex-row gap-3 p-6",
+        isMobile ? "flex flex-col gap-2 p-4 min-h-[80px]" : "flex flex-row gap-3 p-6 min-h-[88px]",
         className
       )}
     >

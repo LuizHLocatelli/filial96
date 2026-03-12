@@ -5,6 +5,7 @@ import { CalendarCog, CalendarIcon, Loader2, CheckCircle2, Truck } from "lucide-
 import { useQuery } from "@tanstack/react-query";
 
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 
 import { Button } from "@/components/ui/button";
@@ -155,7 +156,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
           onClose={() => onOpenChange(false)} 
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <DialogScrollableContainer>
           <DialogDescription>
             Defina os parâmetros para gerar automaticamente a escala da equipe com rotação round-robin e espelhamento de horários.
           </DialogDescription>
@@ -293,7 +294,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
               </ScrollArea>
             </div>
           )}
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter>
           {!previewSchedule ? (

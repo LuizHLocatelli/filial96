@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
 import { Diretorio } from "@/components/moda/diretorio/Diretorio";
-import { ProdutoFoco } from "@/components/moda/produto-foco/ProdutoFoco";
 import { Reservas } from "@/components/moda/reservas/Reservas";
 import { Estoque } from "@/components/moda/Estoque";
 import { 
@@ -11,7 +10,6 @@ import {
   FolderArchive, 
   Shirt,
   TrendingUp,
-  Star,
   Clock,
   Package
 } from "lucide-react";
@@ -36,13 +34,6 @@ export default function Moda() {
       icon: FolderArchive,
       description: "Arquivos organizados",
       component: <Diretorio />
-    },
-    {
-      value: "produto-foco",
-      label: "Produto Foco",
-      icon: Star,
-      description: "Produtos prioritários",
-      component: <ProdutoFoco />
     },
     {
       value: "reservas",

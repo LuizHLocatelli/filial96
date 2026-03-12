@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +50,7 @@ export function AniversarianteFormDialog({
           onClose={handleClose} 
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <form id="aniversariante-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nome">Nome Completo</Label>
@@ -84,7 +85,7 @@ export function AniversarianteFormDialog({
               />
             </div>
           </form>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter>
           <Button type="button" variant="outline" onClick={handleClose}>

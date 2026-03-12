@@ -14,6 +14,7 @@ import { UserWithStats } from '../types';
 import type { UserRole } from '@/types';
 import { roleLabels, roleColors } from '../types';
 import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getInitials } from '../utils';
 
@@ -72,7 +73,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
         loading={isLoading}
       />
 
-      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'p-4' : 'p-6'}`}>
+      <DialogScrollableContainer>
         <form onSubmit={handleSubmit} className="space-y-5">
         {/* User Avatar Preview */}
         <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">
@@ -169,7 +170,7 @@ export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {
           />
         </div>
       </form>
-      </div>
+      </DialogScrollableContainer>
 
       <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
         <Button 

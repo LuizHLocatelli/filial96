@@ -71,3 +71,104 @@ body[style*="overflow: hidden"] [data-scroll-lock-ignore] {
 [data-radix-dialog-overlay] * {
   pointer-events: auto;
 }
+
+/* ========================================
+   FIX CRÍTICO: SCROLL EM DIALOGS
+   ======================================== */
+
+/* Garante que o conteúdo interno dos dialogs seja scrollável */
+/* O min-h-0 é CRÍTICO para que flex-1 + overflow-y-auto funcione */
+[data-radix-dialog-content] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Qualquer elemento com overflow-y-auto dentro de um dialog deve ter min-h-0 */
+[data-radix-dialog-content] [class*="overflow-y-auto"] {
+  min-height: 0 !important;
+}
+
+/* Container padrão de conteúdo scrollável */
+[data-radix-dialog-content] .flex-1.overflow-y-auto,
+[data-radix-dialog-content] .overflow-y-auto.flex-1 {
+  min-height: 0 !important;
+  flex-shrink: 1;
+}
+
+/* Fix específico para o padrão usado no projeto */
+[data-radix-dialog-content] > div[class*="flex-1"] {
+  min-height: 0 !important;
+}
+
+/* Garante que o scroll funcione em dispositivos touch */
+@media (pointer: coarse) {
+  [data-radix-dialog-content] [class*="overflow-y-auto"] {
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain !important;
+  }
+}
+
+/* Fix para AlertDialogs */
+[data-radix-alert-dialog-content] {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+/* Fix para dialogs com muito conteúdo */
+[data-radix-dialog-content] form {
+  flex-shrink: 0;
+}
+
+/* ========================================
+   FIX ULTRA AGRESSIVO PARA SCROLL EM DIALOGS
+   ======================================== */
+
+/* Desabilitar completamente o scroll lock em elementos marcados */
+[data-scroll-lock-ignore] {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
+  will-change: scroll-position !important;
+}
+
+/* Garantir que o scroll funcione mesmo com react-remove-scroll ativo */
+html body[style*="overflow: hidden"] [data-scroll-lock-ignore] {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y pinch-zoom !important;
+  pointer-events: auto !important;
+}
+
+/* Override para o react-remove-scroll */
+[data-scroll-lock-scrollbar] {
+  overflow-y: auto !important;
+}
+
+/* Garantir que o conteúdo interno seja sempre rolável */
+[data-radix-dialog-content] {
+  overflow: hidden !important;
+}
+
+[data-radix-dialog-content] > [data-scroll-lock-ignore] {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Fix específico para iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  [data-scroll-lock-ignore] {
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    position: relative !important;
+  }
+}

@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DeleteFolderDialogProps {
@@ -84,7 +85,7 @@ export function DeleteFolderDialog({
           loading={isDeleting}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <DialogScrollableContainer>
           <div className={`flex items-center gap-3 ${isMobile ? 'p-3' : 'p-4'} rounded-xl bg-muted/50`}>
             <div className="text-2xl">📁</div>
             <div className="flex-1 min-w-0">
@@ -93,14 +94,14 @@ export function DeleteFolderDialog({
             </div>
           </div>
 
-          <DialogDescription className="text-center leading-relaxed px-1">
+          <DialogDescription className="text-center leading-relaxed px-1 mt-6">
             Tem certeza que deseja excluir a pasta <strong>"{folderName}"</strong>?
             <br />
             <span className="text-red-600 font-medium text-sm">
               Esta ação não pode ser desfeita e todos os cards dentro dela serão removidos.
             </span>
           </DialogDescription>
-        </div>
+        </DialogScrollableContainer>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

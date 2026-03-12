@@ -15,6 +15,7 @@ import { ptBR } from "date-fns/locale";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 import { useMobileDialog } from "@/hooks/useMobileDialog";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 // ============================================================================
 // Subcomponente para renderizar um item de depósito
@@ -272,102 +273,103 @@ export function DepositFormDialog({
             loading={isUploading}
           />
           
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
-            
-            {depositosForDay.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-lg flex items-center justify-center">
-                    <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h3 className="text-base font-semibold">
-                    Depósitos Registrados
-                  </h3>
-                </div>
-                
-                <div className="space-y-3">
-                  {depositosForDay.map(deposito => (
-                    <DepositoItem
-                      key={deposito.id}
-                      deposito={deposito}
-                      isMobile={isMobile}
-                      deletingId={deletingId}
-                      onViewDeposito={onViewDeposito}
-                      onDeleteDeposito={onDeleteDeposito}
-                      getStatusBadge={getStatusBadge}
-                      isAfterDeadline={isAfterDepositDeadline}
-                      handleDeleteConfirm={handleDeleteConfirm}
-                      getMobileAlertDialogProps={getMobileAlertDialogProps}
-                      getMobileFooterProps={getMobileFooterProps}
-                    />
-                  ))}
-                </div>
-
-                {!showForm && (
-                   <Button onClick={onAddNewDeposito} variant="outline" className="w-full border-dashed border-2 hover:bg-green-50 hover:border-green-300 hover:text-green-700 dark:hover:bg-green-950/50 dark:hover:border-green-400 dark:hover:text-green-400 py-3">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Registrar Novo Depósito
-                    </Button>
-                )}
-
-              </div>
-            )}
-            
-            {showForm && (
-              <div className="space-y-6">
-                 {depositosForDay.length > 0 && <Separator />}
+          <DialogScrollableContainer>
+            <div className="space-y-6">
+              {depositosForDay.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-lg flex items-center justify-center">
-                      <Upload className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
-                    <Label className="text-base font-semibold">
-                      {depositoId ? 'Editar Comprovante' : 'Novo Comprovante'}
-                    </Label>
+                    <h3 className="text-base font-semibold">
+                      Depósitos Registrados
+                    </h3>
                   </div>
                   
-                  {previewUrl ? (
-                    <div className="relative">
-                      <div className="border rounded-xl p-4 bg-muted/30 cursor-pointer group" onClick={handleOpenImageModal}>
-                        <img src={previewUrl} alt="Comprovante" className="max-h-48 max-w-full object-contain mx-auto rounded-lg" />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-xl">
-                          <div className="bg-white/90 dark:bg-black/90 rounded-full p-2">
-                            <ZoomIn className="h-4 w-4 text-green-600" />
+                  <div className="space-y-3">
+                    {depositosForDay.map(deposito => (
+                      <DepositoItem
+                        key={deposito.id}
+                        deposito={deposito}
+                        isMobile={isMobile}
+                        deletingId={deletingId}
+                        onViewDeposito={onViewDeposito}
+                        onDeleteDeposito={onDeleteDeposito}
+                        getStatusBadge={getStatusBadge}
+                        isAfterDeadline={isAfterDepositDeadline}
+                        handleDeleteConfirm={handleDeleteConfirm}
+                        getMobileAlertDialogProps={getMobileAlertDialogProps}
+                        getMobileFooterProps={getMobileFooterProps}
+                      />
+                    ))}
+                  </div>
+
+                  {!showForm && (
+                     <Button onClick={onAddNewDeposito} variant="outline" className="w-full border-dashed border-2 hover:bg-green-50 hover:border-green-300 hover:text-green-700 dark:hover:bg-green-950/50 dark:hover:border-green-400 dark:hover:text-green-400 py-3">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Registrar Novo Depósito
+                      </Button>
+                  )}
+
+                </div>
+              )}
+              
+              {showForm && (
+                <div className="space-y-6">
+                   {depositosForDay.length > 0 && <Separator />}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-lg flex items-center justify-center">
+                        <Upload className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      </div>
+                      <Label className="text-base font-semibold">
+                        {depositoId ? 'Editar Comprovante' : 'Novo Comprovante'}
+                      </Label>
+                    </div>
+                    
+                    {previewUrl ? (
+                      <div className="relative">
+                        <div className="border rounded-xl p-4 bg-muted/30 cursor-pointer group" onClick={handleOpenImageModal}>
+                          <img src={previewUrl} alt="Comprovante" className="max-h-48 max-w-full object-contain mx-auto rounded-lg" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-xl">
+                            <div className="bg-white/90 dark:bg-black/90 rounded-full p-2">
+                              <ZoomIn className="h-4 w-4 text-green-600" />
+                            </div>
                           </div>
                         </div>
+                        <Button variant="destructive" size="sm" className="absolute top-2 right-2 rounded-full h-8 w-8 p-0" onClick={handleRemoveFile} aria-label="Remover imagem">
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button variant="destructive" size="sm" className="absolute top-2 right-2 rounded-full h-8 w-8 p-0" onClick={handleRemoveFile} aria-label="Remover imagem">
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <label htmlFor="file-upload" className="border-2 border-dashed border-muted-foreground/25 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/30 p-8 text-center transition-colors">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mb-4">
-                        <Upload className="h-6 w-6 text-green-600 dark:text-green-400" />
-                      </div>
-                      <h3 className="text-base font-semibold mb-2">Adicionar Comprovante</h3>
-                      <p className="text-sm text-muted-foreground">Clique para selecionar ou arraste aqui</p>
-                      <Input id="file-upload" ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                    </label>
-                  )}
-                </div>
-                
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-4">
-                  <div className="flex items-start space-x-3">
-                    <Checkbox id="ja-incluido" checked={jaIncluido} onCheckedChange={(checked) => setJaIncluido(checked === true)} className="mt-0.5 data-[state=checked]:bg-amber-600" />
-                    <div className="grid gap-1 leading-tight">
-                      <label htmlFor="ja-incluido" className="text-sm font-semibold cursor-pointer text-amber-800 dark:text-amber-200">
-                        Depósito incluído na Tesouraria/P2K?
+                    ) : (
+                      <label htmlFor="file-upload" className="border-2 border-dashed border-muted-foreground/25 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-400 hover:bg-green-50/50 dark:hover:bg-green-950/30 p-8 text-center transition-colors">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950/50 dark:to-emerald-950/50 rounded-full flex items-center justify-center mb-4">
+                          <Upload className="h-6 w-6 text-green-600 dark:text-green-400" />
+                        </div>
+                        <h3 className="text-base font-semibold mb-2">Adicionar Comprovante</h3>
+                        <p className="text-sm text-muted-foreground">Clique para selecionar ou arraste aqui</p>
+                        <Input id="file-upload" ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                       </label>
-                      <p className="text-xs text-amber-700 dark:text-amber-300">
-                        Marque se o valor já foi processado.
-                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50 rounded-xl border border-amber-200 dark:border-amber-800 p-4">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox id="ja-incluido" checked={jaIncluido} onCheckedChange={(checked) => setJaIncluido(checked === true)} className="mt-0.5 data-[state=checked]:bg-amber-600" />
+                      <div className="grid gap-1 leading-tight">
+                        <label htmlFor="ja-incluido" className="text-sm font-semibold cursor-pointer text-amber-800 dark:text-amber-200">
+                          Depósito incluído na Tesouraria/P2K?
+                        </label>
+                        <p className="text-xs text-amber-700 dark:text-amber-300">
+                          Marque se o valor já foi processado.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </DialogScrollableContainer>
           
           {showForm && (
             <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>

@@ -16,6 +16,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface FileDialogProps {
   open: boolean;
@@ -91,7 +92,7 @@ export function FileDialog({
           loading={isSubmitting}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -151,7 +152,7 @@ export function FileDialog({
               </div>
             </div>
           </form>
-        </div>
+        </DialogScrollableContainer>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

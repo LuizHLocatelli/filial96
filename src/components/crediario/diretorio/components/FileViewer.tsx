@@ -6,6 +6,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { PDFViewer } from '@/components/ui/pdf-viewer/index';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface FileViewerProps {
   open: boolean;
@@ -29,7 +30,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent 
-        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[900px] p-0'} max-h-[95vh] overflow-y-auto flex flex-col`}
+        className={`${isMobile ? 'w-[calc(100%-2rem)] max-w-full p-0' : 'sm:max-w-[900px] p-0'} max-h-[95vh] overflow-hidden flex flex-col`}
         hideCloseButton
       >
         <StandardDialogHeader
@@ -40,7 +41,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
           onClose={() => onOpenChange(false)}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <div className="space-y-0">
             {isPdf && (
               <div className="w-full h-[75vh] min-h-[500px]">
@@ -77,7 +78,7 @@ export function FileViewer({ open, onOpenChange, file }: FileViewerProps) {
               </div>
             )}
           </div>
-        </div>
+        </DialogScrollableContainer>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

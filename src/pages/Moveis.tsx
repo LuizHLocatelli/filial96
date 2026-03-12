@@ -1,12 +1,10 @@
 
 import { useSearchParams } from "react-router-dom";
-import { ProdutoFoco } from "@/components/moveis/produto-foco/ProdutoFoco";
 import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { Fretes } from "@/components/moveis/fretes/Fretes";
 import { ProcedimentosSSC } from "@/components/moveis/procedimentos-ssc/ProcedimentosSSC";
 import {
   Sofa,
-  Star,
   Package,
   Truck,
   Wrench
@@ -17,20 +15,13 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "produto-foco";
+  const activeTab = searchParams.get("tab") || "descontinuados";
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
   const tabsConfig = [
-    {
-      value: "produto-foco",
-      label: "Produto Foco",
-      icon: Star,
-      description: "Produtos prioritários",
-      component: <ProdutoFoco />
-    },
     {
       value: "descontinuados",
       label: "Descontinuados",

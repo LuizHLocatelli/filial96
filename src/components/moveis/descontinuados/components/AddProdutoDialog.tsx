@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PackagePlus, DollarSign } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface ProdutoData {
   nome: string;
@@ -102,7 +103,7 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
             loading={isSubmitting}
           />
 
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+          <DialogScrollableContainer>
             <div className="space-y-6">
               {/* Informações Básicas */}
               <div className="space-y-4">
@@ -215,7 +216,7 @@ export function AddProdutoDialog({ onAdd }: AddProdutoDialogProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </DialogScrollableContainer>
 
           <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
             <Button

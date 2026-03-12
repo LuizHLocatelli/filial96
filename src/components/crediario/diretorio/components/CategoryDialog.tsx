@@ -14,6 +14,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface CategoryDialogProps {
   open: boolean;
@@ -73,7 +74,7 @@ export function CategoryDialog({
           loading={false}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <div className="space-y-6">
             <div>
               <Label htmlFor="name">Nome da Categoria *</Label>
@@ -98,7 +99,7 @@ export function CategoryDialog({
               />
             </div>
           </div>
-        </div>
+        </DialogScrollableContainer>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

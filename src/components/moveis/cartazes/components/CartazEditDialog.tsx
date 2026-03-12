@@ -16,6 +16,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 const MONTHS = [
   { value: "01", label: "Janeiro" },
@@ -105,7 +106,7 @@ export function CartazEditDialog({
           loading={isUpdating}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="title">Título</Label>
@@ -156,7 +157,7 @@ export function CartazEditDialog({
               </div>
             </div>
           </form>
-        </div>
+        </DialogScrollableContainer>
         
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

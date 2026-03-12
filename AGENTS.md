@@ -41,6 +41,8 @@ To ensure React Fast Refresh works correctly and to avoid `react-refresh/only-ex
 
 ## 5. Standardized Dialogs (CRITICAL)
 Always follow this 3-part structure for Dialogs to fix mobile scrolling issues. Do NOT use `StandardDialogContent`.
+
+### Dialog Structure
 ```tsx
 <Dialog open={open} onOpenChange={onOpenChange}>
   {/* CRITICAL: Use max-h-[75dvh] sm:max-h-[75vh] to prevent it from going offscreen on mobile */}
@@ -58,6 +60,28 @@ Always follow this 3-part structure for Dialogs to fix mobile scrolling issues. 
   </DialogContent>
 </Dialog>
 ```
+
+### Using DialogScrollableContainer (Alternative)
+For dialogs with very large content, use `DialogScrollableContainer` which includes proper maxHeight calculation to ensure the footer is always visible:
+
+```tsx
+<Dialog open={open} onOpenChange={onOpenChange}>
+  <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0" hideCloseButton>
+    <StandardDialogHeader icon={Bot} title="Title" onClose={() => onOpenChange(false)} />
+    
+    {/* DialogScrollableContainer automatically calculates maxHeight */}
+    <DialogScrollableContainer>
+      <form>...</form>
+    </DialogScrollableContainer>
+
+    <StandardDialogFooter>
+      <Button onClick={() => onOpenChange(false)}>Cancel</Button>
+    </StandardDialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+**IMPORTANT**: The `DialogScrollableContainer` uses `maxHeight: calc(75dvh - 260px)` (mobile) / `calc(75vh - 260px)` (desktop) to reserve sufficient space for the header and footer. This ensures buttons in `StandardDialogFooter` are never cut off, even on small screens.
 
 ## 6. State Management, Forms & Error Handling
 - **State**: Use TanStack Query for server state, Context for global state, and `useState`/`useMemo` for local UI state.

@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { Sparkles, Loader2, ImagePlus, X, RefreshCw, Save, Wand2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
@@ -34,6 +35,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollableRef = useRef<HTMLDivElement>(null);
 
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
@@ -193,6 +195,11 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
     }
   };
 
+  // Stop propagation to prevent dialog from closing when scrolling inside
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -207,7 +214,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
           onClose={handleClose}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer ref={scrollableRef}>
           <div className={cn("gap-6", generatedImage && !isMobile ? "grid grid-cols-2" : "space-y-5")}>
             {/* Form section */}
             <div className="space-y-4">
@@ -378,7 +385,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
               </div>
             )}
           </div>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? "flex-col gap-2" : "flex-row gap-3"}>
           {generatedImage && (

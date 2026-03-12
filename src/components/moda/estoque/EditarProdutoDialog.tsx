@@ -22,6 +22,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface Produto {
   id: string;
@@ -201,7 +202,7 @@ export function EditarProdutoDialog({
           loading={loading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -275,7 +276,7 @@ export function EditarProdutoDialog({
               </div>
             )}
           </form>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

@@ -20,7 +20,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 grid place-items-center",
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -36,16 +36,16 @@ const DialogContent = React.forwardRef<
   
   return (
     <DialogPortal container={typeof document !== 'undefined' ? document.body : undefined}>
-      <DialogOverlay>
+      <DialogOverlay className="flex items-center justify-center p-4">
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
             "relative z-50 w-full max-w-lg border bg-background shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-2xl",
             "shadow-2xl glass-overlay-strong flex flex-col",
             isMobile
-              ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-3xl my-4"
-              : "rounded-2xl my-6",
-            "max-h-[calc(100vh-2rem)] flex flex-col touch-pan-y overflow-hidden",
+              ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-3xl max-h-[85dvh]"
+              : "rounded-2xl max-h-[85vh]",
+            "flex flex-col overflow-hidden",
             className
           )}
           style={{

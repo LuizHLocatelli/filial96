@@ -19,6 +19,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface NovaContagemDialogProps {
   open: boolean;
@@ -80,7 +81,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
           loading={loading}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 bg-background/50">
+        <DialogScrollableContainer className="bg-background/50">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-3">
               <Label htmlFor="nome" className="text-sm font-semibold flex items-center gap-2">
@@ -135,7 +136,7 @@ export function NovaContagemDialog({ open, onOpenChange, onCriar }: NovaContagem
               </p>
             </div>
           </form>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={`bg-background/80 backdrop-blur-sm border-t p-4 sm:p-6 ${isMobile ? 'flex-col gap-3' : 'flex-row gap-3'}`}>
           <Button 

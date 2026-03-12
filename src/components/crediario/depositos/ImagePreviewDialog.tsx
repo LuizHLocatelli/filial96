@@ -6,6 +6,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface ImagePreviewDialogProps {
   viewImage: string | null;
@@ -30,7 +31,7 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
           loading={false}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto flex justify-center p-4 sm:p-6">
+        <DialogScrollableContainer className="flex justify-center">
           {viewImage && (
             <img
               src={viewImage}
@@ -38,7 +39,7 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
               className="max-h-[50vh] max-w-full object-contain rounded-lg"
             />
           )}
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button 

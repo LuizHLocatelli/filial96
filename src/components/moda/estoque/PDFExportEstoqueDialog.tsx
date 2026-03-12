@@ -12,6 +12,7 @@ import {
   StandardDialogHeader,
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 
 interface Produto {
   id: string;
@@ -86,7 +87,7 @@ export function PDFExportEstoqueDialog({
           loading={isExporting}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <div className="space-y-6">
             {/* Resumo dos dados */}
             <div className="space-y-3">
@@ -189,7 +190,7 @@ export function PDFExportEstoqueDialog({
               </div>
             </div>
           </div>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter className={isMobile ? 'flex-col gap-2' : 'flex-row gap-3'}>
           <Button
