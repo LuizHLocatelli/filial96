@@ -86,7 +86,7 @@ export function PDFExportEstoqueDialog({
           loading={isExporting}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
           <div className="space-y-6">
             {/* Resumo dos dados */}
             <div className="space-y-3">

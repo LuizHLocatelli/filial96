@@ -61,7 +61,7 @@ export function CartazDeleteDialog({
           loading={isDeleting}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
           <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
             <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
             <p className="text-sm text-red-800 dark:text-red-200">

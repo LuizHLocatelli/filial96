@@ -45,13 +45,9 @@ const DialogContent = React.forwardRef<
             isMobile
               ? "w-[calc(100%-2rem)] max-w-[calc(100%-2rem)] rounded-3xl my-4"
               : "rounded-2xl my-6",
-            "max-h-[calc(100vh-2rem)] flex flex-col touch-pan-y overflow-hidden",
+            "max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden",
             className
           )}
-          style={{
-            WebkitOverflowScrolling: 'touch',
-            overscrollBehavior: 'contain'
-          }}
           {...props}
         >
           {children}

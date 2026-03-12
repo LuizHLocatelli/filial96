@@ -103,7 +103,7 @@ export function CardViewDialog({
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
           {/* Imagem com altura máxima controlada */}
           <div className={cn(
             "relative overflow-hidden bg-background border border-border rounded-lg mb-5",

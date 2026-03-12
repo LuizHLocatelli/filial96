@@ -30,7 +30,7 @@ export function ImagePreviewDialog({ viewImage, setViewImage }: ImagePreviewDial
           loading={false}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto flex justify-center p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain flex justify-center p-4 sm:p-6">
           {viewImage && (
             <img
               src={viewImage}

@@ -241,7 +241,7 @@ const isMobile = useIsMobile();
                         description="Veja onde encontrar esta informação na sua conta de luz"
                         onClose={() => document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}))}
                       />
-                      <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+                      <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
                         <img
                           src={ondeverImage}
                           alt="Onde encontrar o tipo de fornecimento na conta de luz"

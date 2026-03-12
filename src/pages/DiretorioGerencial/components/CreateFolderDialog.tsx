@@ -49,7 +49,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSubmit, isLoading }
           loading={isLoading}
         />
         
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto touch-pan-y overscroll-contain p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="folder-name" className="text-base">Nome da Pasta</Label>
