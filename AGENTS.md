@@ -13,18 +13,25 @@ This is a Vite + React + TypeScript application using shadcn/ui components, Tail
 - **Testing (Single File)**: `npm run test -- <path/to/test.ts>` 
   *(Example: `npm run test -- src/types/shared/folgas.test.ts`)*
 
-## 2. Git Workflow (CRITICAL)
-**CRITICAL MANDATE**: As an AI assistant, you MUST **ALWAYS** commit and `git push` your changes immediately after completing *any* task. Never wait for the user to ask you to commit and push.
+## 2. Git Workflow & Deployment (CRITICAL)
+**CRITICAL MANDATE**: As an AI assistant, you MUST **ALWAYS** commit, `git push`, and trigger the development deployment immediately after completing *any* task. Never wait for the user to ask you.
 
-**REGRA OBRIGATÓRIA**: Sempre faça o commit e o "git push" imediatamente após concluir QUALQUER tarefa solicitada.
+**REGRA OBRIGATÓRIA**: Sempre faça o commit, o "git push" e o acionamento do webhook de deploy imediatamente após concluir QUALQUER tarefa solicitada.
 
+### Step 1: Commit and Push
 ```bash
 git add .
 git commit -m "feat/fix: <description of what was done>"
 git push origin main
 ```
 
-**Do NOT** under any circumstances finish a task and leave changes uncommitted or unpushed. This ensures work is preserved and team members have access to the latest code.
+### Step 2: Trigger Deployment
+After pushing, you MUST trigger the dev environment deployment by making a GET or POST request to the webhook URL:
+```bash
+curl -X GET http://72.60.241.201:3000/api/deploy/06a9bcd1e65574f36f1f0f1bb58b89f438412349046b94d7
+```
+
+**Do NOT** under any circumstances finish a task and leave changes uncommitted, unpushed, or undeployed. This ensures work is preserved, team members have access to the latest code, and the dev environment reflects your changes immediately.
 
 ## 3. Code Style & TypeScript Guidelines
 - **TypeScript**: Use `.ts` for utilities and `.tsx` for components. Project uses `noImplicitAny: false` and `strictNullChecks: false`.
