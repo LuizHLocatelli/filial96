@@ -42,6 +42,8 @@
     "@types/uuid": "^10.0.0",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.0",
+    "baseline-browser-mapping": "^2.10.7",
+    "caniuse-lite": "^1.0.30001778",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
