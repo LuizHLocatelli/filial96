@@ -51,36 +51,18 @@ To ensure React Fast Refresh works correctly and to avoid `react-refresh/only-ex
 - **UI Components**: If adding utility functions (e.g., `cva` variants), split the component (`Button.tsx`), the variants (`buttonVariants.ts`), and the types (`types.ts`).
 
 ## 5. Standardized Dialogs (CRITICAL)
-Always follow this 3-part structure for Dialogs to fix mobile scrolling issues. Do NOT use `StandardDialogContent`.
+ALL dialog windows in the application MUST use `DialogScrollableContainer` to ensure excellent responsiveness and fix mobile scrolling issues. Do NOT use `StandardDialogContent` or manually build scrollable `div` structures.
 
 ### Dialog Structure
+Always follow this 3-part structure for Dialogs:
+
 ```tsx
 <Dialog open={open} onOpenChange={onOpenChange}>
   {/* CRITICAL: Use max-h-[75dvh] sm:max-h-[75vh] to prevent it from going offscreen on mobile */}
   <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0" hideCloseButton>
     <StandardDialogHeader icon={Bot} title="Title" onClose={() => onOpenChange(false)} />
     
-    {/* CRITICAL: Use div with flex-1 min-h-0 and padding for scrollable content */}
-    <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
-      <form>...</form>
-    </div>
-
-    <StandardDialogFooter>
-      <Button onClick={() => onOpenChange(false)}>Cancel</Button>
-    </StandardDialogFooter>
-  </DialogContent>
-</Dialog>
-```
-
-### Using DialogScrollableContainer (Alternative)
-For dialogs with very large content, use `DialogScrollableContainer` which includes proper maxHeight calculation to ensure the footer is always visible:
-
-```tsx
-<Dialog open={open} onOpenChange={onOpenChange}>
-  <DialogContent className="max-h-[75dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0" hideCloseButton>
-    <StandardDialogHeader icon={Bot} title="Title" onClose={() => onOpenChange(false)} />
-    
-    {/* DialogScrollableContainer automatically calculates maxHeight */}
+    {/* CRITICAL: ALL dialogs must use DialogScrollableContainer for their main content */}
     <DialogScrollableContainer>
       <form>...</form>
     </DialogScrollableContainer>
@@ -92,7 +74,7 @@ For dialogs with very large content, use `DialogScrollableContainer` which inclu
 </Dialog>
 ```
 
-**IMPORTANT**: The `DialogScrollableContainer` uses `maxHeight: calc(75dvh - 260px)` (mobile) / `calc(75vh - 260px)` (desktop) to reserve sufficient space for the header and footer. This ensures buttons in `StandardDialogFooter` are never cut off, even on small screens.
+**IMPORTANT**: The `DialogScrollableContainer` automatically calculates maxHeight (e.g., `calc(75dvh - 260px)`) to reserve sufficient space for the header and footer. This ensures the scrolling behavior works flawlessly and that buttons in `StandardDialogFooter` are never cut off, even on small mobile screens.
 
 ## 6. State Management, Forms & Error Handling
 - **State**: Use TanStack Query for server state, Context for global state, and `useState`/`useMemo` for local UI state.
