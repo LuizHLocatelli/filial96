@@ -2,12 +2,10 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSearchParams } from "react-router-dom";
-import { Diretorio } from "@/components/moda/diretorio/Diretorio";
 import { Reservas } from "@/components/moda/reservas/Reservas";
 import { Estoque } from "@/components/moda/Estoque";
 import { 
   FileText, 
-  FolderArchive, 
   Shirt,
   TrendingUp,
   Clock,
@@ -21,20 +19,13 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moda() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "diretorio";
+  const activeTab = searchParams.get("tab") || "reservas";
   
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
   const tabsConfig = [
-    {
-      value: "diretorio",
-      label: "Diretório",
-      icon: FolderArchive,
-      description: "Arquivos organizados",
-      component: <Diretorio />
-    },
     {
       value: "reservas",
       label: "Reservas",

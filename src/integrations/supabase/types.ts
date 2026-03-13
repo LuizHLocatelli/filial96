@@ -449,86 +449,6 @@ export type Database = {
           },
         ]
       }
-      crediario_directory_categories: {
-        Row: {
-          color: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      crediario_directory_files: {
-        Row: {
-          category_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          is_featured: boolean | null
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          file_size?: number | null
-          file_type: string
-          file_url: string
-          id?: string
-          is_featured?: boolean | null
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          file_size?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          is_featured?: boolean | null
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "crediario_directory_files_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "crediario_directory_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       crediario_sticky_notes: {
         Row: {
           color: string
@@ -868,86 +788,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      moda_arquivos: {
-        Row: {
-          category_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          is_featured: boolean | null
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          file_size?: number | null
-          file_type: string
-          file_url: string
-          id?: string
-          is_featured?: boolean | null
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          file_size?: number | null
-          file_type?: string
-          file_url?: string
-          id?: string
-          is_featured?: boolean | null
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "moda_arquivos_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "moda_categorias"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      moda_categorias: {
-        Row: {
-          color: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       moda_estoque_contagens: {
         Row: {
@@ -1620,28 +1460,6 @@ export type Database = {
       eh_sabado: { Args: { data_param: string }; Returns: boolean }
       eh_sexta_feira: { Args: { data_param: string }; Returns: boolean }
       ensure_user_profile: { Args: { user_id: string }; Returns: Json }
-      get_featured_directory_files: {
-        Args: { limit_count?: number }
-        Returns: {
-          category_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          is_featured: boolean | null
-          name: string
-          updated_at: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "crediario_directory_files"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
       get_last_depositos_reset: { Args: never; Returns: string }
       get_user_role: { Args: { user_id?: string }; Returns: string }
       is_gerente: { Args: { user_id: string }; Returns: boolean }
@@ -1697,28 +1515,6 @@ export type Database = {
       }
       obter_sabado_anterior: { Args: { data_param: string }; Returns: string }
       recalculate_all_deposit_statistics: { Args: never; Returns: undefined }
-      search_directory_files: {
-        Args: { search_term: string }
-        Returns: {
-          category_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          file_size: number | null
-          file_type: string
-          file_url: string
-          id: string
-          is_featured: boolean | null
-          name: string
-          updated_at: string
-        }[]
-        SetofOptions: {
-          from: "*"
-          to: "crediario_directory_files"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
       upsert_moda_estoque_produto: {
         Args: {
           p_codigo_produto: string

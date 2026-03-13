@@ -176,10 +176,6 @@ BEGIN
   DELETE FROM public.venda_o_attachments WHERE created_by = current_user_id;
   DELETE FROM public.venda_o_sales WHERE created_by = current_user_id;
   
-  -- Excluir arquivos e categorias do crediário
-  DELETE FROM public.crediario_directory_files WHERE created_by = current_user_id;
-  DELETE FROM public.crediario_directory_categories WHERE created_by = current_user_id;
-  
   -- Excluir notas e pastas
   DELETE FROM public.crediario_sticky_notes WHERE created_by = current_user_id;
   DELETE FROM public.note_folders WHERE created_by = current_user_id;

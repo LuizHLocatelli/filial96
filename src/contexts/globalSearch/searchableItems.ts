@@ -61,15 +61,7 @@ export const searchableItems: SearchResult[] = [
     section: 'Crediário',
     icon: 'Calendar'
   },
-  {
-    id: 'crediario-diretorio',
-    title: 'Diretório - Crediário',
-    description: 'Arquivos organizados do setor de crediário',
-    type: 'section',
-    path: '/crediario?tab=diretorio',
-    section: 'Crediário',
-    icon: 'FolderArchive'
-  },
+
   {
     id: 'cards-promocionais',
     title: 'Cards Promocionais',
@@ -111,13 +103,5 @@ export const searchableItems: SearchResult[] = [
     section: 'Moda',
     icon: 'Shirt'
   },
-  {
-    id: 'moda-diretorio',
-    title: 'Diretório - Moda',
-    description: 'Arquivos e documentos do setor de moda',
-    type: 'section',
-    path: '/moda?tab=diretorio',
-    section: 'Moda',
-    icon: 'FolderArchive'
-  },
+
 ];

@@ -4,26 +4,29 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 
-
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: true, // Permite conexões externas no container Docker
     port: 8080,
+    strictPort: true,
     allowedHosts: [
       "vscodevps-filial96-dev.capy0b.easypanel.host",
       "vscodevps-vscodevps.capy0b.easypanel.host",
     ],
+    // Configuração vital para o Hot Module Replacement (atualização automática) funcionar via HTTPS
+    hmr: {
+      host: "vscodevps-filial96-dev.capy0b.easypanel.host",
+      clientPort: 443,
+    },
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
     visualizer({
       filename: "bundle-analysis.html",
       open: false,
     }),
-
   ].filter(Boolean),
   resolve: {
     alias: {
