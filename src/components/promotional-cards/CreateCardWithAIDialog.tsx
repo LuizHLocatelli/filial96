@@ -39,7 +39,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   
-  const { logoUrl, isLoading: isLoadingLogo, getLogoAsBase64 } = useCompanyLogo();
+  const { logoUrl, isLoading: isLoadingLogo, getLogoAsBase64, refresh: refreshLogo } = useCompanyLogo();
   const [isLogoDialogOpen, setIsLogoDialogOpen] = useState(false);
   const [companyLogoBase64, setCompanyLogoBase64] = useState<string | null>(null);
   const [isLoadingLogoBase64, setIsLoadingLogoBase64] = useState(false);
@@ -59,13 +59,17 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
 
   const isManager = profile?.role === "gerente";
 
-  // Load company logo as base64 when dialog opens
+  // Load company logo as base64 when dialog opens or logoUrl changes
   useEffect(() => {
-    if (open && logoUrl) {
-      setIsLoadingLogoBase64(true);
-      getLogoAsBase64()
-        .then((base64) => setCompanyLogoBase64(base64))
-        .finally(() => setIsLoadingLogoBase64(false));
+    if (open) {
+      if (logoUrl) {
+        setIsLoadingLogoBase64(true);
+        getLogoAsBase64()
+          .then((base64) => setCompanyLogoBase64(base64))
+          .finally(() => setIsLoadingLogoBase64(false));
+      } else {
+        setCompanyLogoBase64(null);
+      }
     }
   }, [open, logoUrl, getLogoAsBase64]);
 
@@ -522,11 +526,11 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
 
       <CompanyLogoDialog
         open={isLogoDialogOpen}
-        onOpenChange={(open) => {
+        onOpenChange={async (open) => {
           setIsLogoDialogOpen(open);
           // Refresh logo when dialog closes
           if (!open) {
-            getLogoAsBase64().then((base64) => setCompanyLogoBase64(base64));
+            await refreshLogo();
           }
         }}
       />
