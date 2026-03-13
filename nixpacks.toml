@@ -1,5 +1,10 @@
-[providers]
-node = ["node"]
+providers = ["node"]
 
 [phases.setup]
 nixPkgs = ["nodejs_20", "npm"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.start]
+cmd = "npm run dev -- --host --port 8080"
