@@ -46,6 +46,7 @@ Crie um card promocional visualmente impactante e profissional com as seguintes 
 - Evite poluição visual - mantenha o design limpo mas impactante
 - Crie um layout profissional de loja/varejo
 - NÃO inclua texto cortado ou ilegível
+- NÃO invente ou adicione sites fictícios, links, números de telefone, endereços ou perfis de redes sociais (como @arrobas ou ícones) a não ser que o usuário solicite explicitamente.
 - IMPORTANTE: Posicione o logo da empresa no TOPO CENTRALIZADO do card, de forma discreta mas visível`;
 
     let userPrompt = `Crie um card promocional para o seguinte produto:
@@ -66,6 +67,7 @@ Crie um card promocional visualmente impactante e profissional com as seguintes 
 
     userPrompt += `\n\nFormato do card: ${dimensionGuide}. Crie um design profissional, moderno e atrativo para divulgação em redes sociais e WhatsApp.`;
     userPrompt += `\n\nINSTRUÇÃO CRÍTICA: O logo da empresa foi fornecido e DEVE ser posicionado no TOPO CENTRALIZADO do card. O logo deve ser exibido de forma discreta mas visível, mantendo a proporção adequada.`;
+    userPrompt += `\n\nINSTRUÇÃO SOBRE CONTATOS: NÃO insira nenhum texto de rodapé contendo sites fictícios, @redessociais ou números de telefone que não tenham sido explicitamente solicitados neste prompt. Mantenha o card focado estritamente nas informações fornecidas.`;
 
     // Build messages array
     interface UserContentItem {
