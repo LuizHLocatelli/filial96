@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
+import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { Building2, ImagePlus, X, Trash2, Loader2 } from "lucide-react";
 import { useCompanyLogo } from "@/hooks/useCompanyLogo";
 import { cn } from "@/lib/utils";
@@ -77,7 +78,7 @@ export function CompanyLogoDialog({ open, onOpenChange }: CompanyLogoDialogProps
           onClose={handleClose}
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+        <DialogScrollableContainer>
           <div className="space-y-4">
             {/* Current/Preview Logo */}
             {currentLogo ? (
@@ -155,7 +156,7 @@ export function CompanyLogoDialog({ open, onOpenChange }: CompanyLogoDialogProps
               </ul>
             </div>
           </div>
-        </div>
+        </DialogScrollableContainer>
 
         <StandardDialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isSaving}>
