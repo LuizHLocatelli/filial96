@@ -330,6 +330,30 @@ export type Database = {
           },
         ]
       }
+      company_settings: {
+        Row: {
+          id: string
+          logo_path: string | null
+          logo_url: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          logo_path?: string | null
+          logo_url?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          logo_path?: string | null
+          logo_url?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       crediario_depositos: {
         Row: {
           comprovante: string | null

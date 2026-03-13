@@ -13,7 +13,18 @@ This is a Vite + React + TypeScript application using shadcn/ui components, Tail
 - **Testing (Single File)**: `npm run test -- <path/to/test.ts>` 
   *(Example: `npm run test -- src/types/shared/folgas.test.ts`)*
 
-## 2. Code Style & TypeScript Guidelines
+## 2. Git Workflow (CRITICAL)
+After completing any file changes, **ALWAYS** commit and push to remote:
+
+```bash
+git add .
+git commit -m "<commit message>"
+git push origin main
+```
+
+**Do NOT** leave changes uncommitted or unpushed. This ensures work is preserved and team members have access to the latest code.
+
+## 3. Code Style & TypeScript Guidelines
 - **TypeScript**: Use `.ts` for utilities and `.tsx` for components. Project uses `noImplicitAny: false` and `strictNullChecks: false`.
 - **Interfaces**: Prefer explicit `interface` declarations over `type` aliases for object shapes.
 - **Component Patterns**: 

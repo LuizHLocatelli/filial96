@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,13 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
-import { Sparkles, Loader2, ImagePlus, X, RefreshCw, Save, Wand2 } from "lucide-react";
+import { Sparkles, Loader2, ImagePlus, X, RefreshCw, Save, Wand2, Building2, AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { v4 as uuidv4 } from "uuid";
 import { cn } from "@/lib/utils";
+import { useCompanyLogo } from "@/hooks/useCompanyLogo";
+import { CompanyLogoDialog } from "./CompanyLogoDialog";
 
 interface CreateCardWithAIDialogProps {
   open: boolean;
@@ -33,9 +35,14 @@ const STYLE_PRESETS = [
 
 export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, onSuccess }: CreateCardWithAIDialogProps) {
   const isMobile = useIsMobile();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
+  
+  const { logoUrl, isLoading: isLoadingLogo, getLogoAsBase64 } = useCompanyLogo();
+  const [isLogoDialogOpen, setIsLogoDialogOpen] = useState(false);
+  const [companyLogoBase64, setCompanyLogoBase64] = useState<string | null>(null);
+  const [isLoadingLogoBase64, setIsLoadingLogoBase64] = useState(false);
 
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
@@ -49,6 +56,18 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [cardTitle, setCardTitle] = useState("");
+
+  const isManager = profile?.role === "gerente";
+
+  // Load company logo as base64 when dialog opens
+  useEffect(() => {
+    if (open && logoUrl) {
+      setIsLoadingLogoBase64(true);
+      getLogoAsBase64()
+        .then((base64) => setCompanyLogoBase64(base64))
+        .finally(() => setIsLoadingLogoBase64(false));
+    }
+  }, [open, logoUrl, getLogoAsBase64]);
 
   const resetState = () => {
     setProductName("");
@@ -95,6 +114,17 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
       return;
     }
 
+    if (!companyLogoBase64) {
+      toast({ 
+        title: "Logo não configurado", 
+        description: isManager 
+          ? "Configure o logo da empresa antes de gerar cards." 
+          : "O logo da empresa não está configurado. Entre em contato com um gerente.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setIsGenerating(true);
     setGeneratedImage(null);
 
@@ -120,6 +150,7 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
             style: style || undefined,
             aspectRatio,
             referenceImageBase64: referenceImage || undefined,
+            companyLogoBase64,
           }),
         }
       );
@@ -218,6 +249,60 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
           <div className={cn("gap-6", generatedImage && !isMobile ? "grid grid-cols-2" : "space-y-5")}>
             {/* Form section */}
             <div className="space-y-4">
+              {/* Logo Configuration Alert/Button */}
+              {(!companyLogoBase64 || isLoadingLogo || isLoadingLogoBase64) && (
+                <div className={cn(
+                  "p-3 rounded-lg border flex items-start gap-3",
+                  !companyLogoBase64 && !isLoadingLogo && !isLoadingLogoBase64
+                    ? "bg-destructive/10 border-destructive/30 text-destructive"
+                    : "bg-muted/50 border-border"
+                )}>
+                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">
+                      {isLoadingLogo || isLoadingLogoBase64
+                        ? "Carregando logo da empresa..."
+                        : "Logo não configurado"}
+                    </p>
+                    <p className="text-xs mt-0.5 opacity-80">
+                      {isLoadingLogo || isLoadingLogoBase64
+                        ? "Aguarde enquanto carregamos o logo."
+                        : isManager
+                          ? "É necessário configurar o logo da empresa antes de gerar cards."
+                          : "O logo da empresa não está configurado. Entre em contato com um gerente."}
+                    </p>
+                  </div>
+                  {isManager && !isLoadingLogo && !isLoadingLogoBase64 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsLogoDialogOpen(true)}
+                      className="shrink-0"
+                    >
+                      <Building2 className="h-4 w-4 mr-1" />
+                      Configurar
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Manager Button - Logo Config (when logo exists) */}
+              {isManager && companyLogoBase64 && !isLoadingLogo && !isLoadingLogoBase64 && (
+                <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Logo da empresa configurado</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setIsLogoDialogOpen(true)}
+                  >
+                    Alterar
+                  </Button>
+                </div>
+              )}
+
               {/* Product name */}
               <div className="space-y-1.5">
                 <Label htmlFor="ai-product-name" className="text-sm font-medium">

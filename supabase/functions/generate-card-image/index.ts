@@ -15,10 +15,17 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { productName, productDescription, promoDetails, style, aspectRatio, referenceImageBase64 } = await req.json();
+    const { productName, productDescription, promoDetails, style, aspectRatio, referenceImageBase64, companyLogoBase64 } = await req.json();
 
     if (!productName) {
       return new Response(JSON.stringify({ error: "Nome do produto é obrigatório" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!companyLogoBase64) {
+      return new Response(JSON.stringify({ error: "O logo da empresa é obrigatório. Configure o logo padrão nas configurações." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -38,7 +45,8 @@ Crie um card promocional visualmente impactante e profissional com as seguintes 
 - O texto deve ser claro, legível e bem posicionado
 - Evite poluição visual - mantenha o design limpo mas impactante
 - Crie um layout profissional de loja/varejo
-- NÃO inclua texto cortado ou ilegível`;
+- NÃO inclua texto cortado ou ilegível
+- IMPORTANTE: Posicione o logo da empresa no TOPO CENTRALIZADO do card, de forma discreta mas visível`;
 
     let userPrompt = `Crie um card promocional para o seguinte produto:
 
@@ -57,10 +65,18 @@ Crie um card promocional visualmente impactante e profissional com as seguintes 
     }
 
     userPrompt += `\n\nFormato do card: ${dimensionGuide}. Crie um design profissional, moderno e atrativo para divulgação em redes sociais e WhatsApp.`;
+    userPrompt += `\n\nINSTRUÇÃO CRÍTICA: O logo da empresa foi fornecido e DEVE ser posicionado no TOPO CENTRALIZADO do card. O logo deve ser exibido de forma discreta mas visível, mantendo a proporção adequada.`;
 
     // Build messages array
     const userContent: any[] = [];
 
+    // Add company logo first (it will be processed as the main brand element)
+    userContent.push({
+      type: "image_url",
+      image_url: { url: companyLogoBase64 },
+    });
+
+    // Add reference image if provided
     if (referenceImageBase64) {
       userContent.push({
         type: "image_url",
