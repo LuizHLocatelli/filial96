@@ -10,6 +10,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: [
+      "vscodevps-filial96-dev.capy0b.easypanel.host",
+      "vscodevps-vscodevps.capy0b.easypanel.host",
+    ],
   },
   plugins: [
     react(),
