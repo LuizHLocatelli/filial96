@@ -14,15 +14,17 @@ This is a Vite + React + TypeScript application using shadcn/ui components, Tail
   *(Example: `npm run test -- src/types/shared/folgas.test.ts`)*
 
 ## 2. Git Workflow (CRITICAL)
-After completing any file changes, **ALWAYS** commit and push to remote:
+**CRITICAL MANDATE**: As an AI assistant, you MUST **ALWAYS** commit and `git push` your changes immediately after completing *any* task. Never wait for the user to ask you to commit and push.
+
+**REGRA OBRIGATÓRIA**: Sempre faça o commit e o "git push" imediatamente após concluir QUALQUER tarefa solicitada.
 
 ```bash
 git add .
-git commit -m "<commit message>"
+git commit -m "feat/fix: <description of what was done>"
 git push origin main
 ```
 
-**Do NOT** leave changes uncommitted or unpushed. This ensures work is preserved and team members have access to the latest code.
+**Do NOT** under any circumstances finish a task and leave changes uncommitted or unpushed. This ensures work is preserved and team members have access to the latest code.
 
 ## 3. Code Style & TypeScript Guidelines
 - **TypeScript**: Use `.ts` for utilities and `.tsx` for components. Project uses `noImplicitAny: false` and `strictNullChecks: false`.
