@@ -68,7 +68,12 @@ Crie um card promocional visualmente impactante e profissional com as seguintes 
     userPrompt += `\n\nINSTRUÇÃO CRÍTICA: O logo da empresa foi fornecido e DEVE ser posicionado no TOPO CENTRALIZADO do card. O logo deve ser exibido de forma discreta mas visível, mantendo a proporção adequada.`;
 
     // Build messages array
-    const userContent: any[] = [];
+    interface UserContentItem {
+      type: string;
+      text?: string;
+      image_url?: { url: string };
+    }
+    const userContent: UserContentItem[] = [];
 
     // Add company logo first (it will be processed as the main brand element)
     userContent.push({

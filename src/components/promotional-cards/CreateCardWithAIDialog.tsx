@@ -504,11 +504,13 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
               </Button>
               <Button
                 onClick={handleGenerate}
-                disabled={isGenerating || !productName.trim()}
+                disabled={isGenerating || !productName.trim() || !companyLogoBase64 || isLoadingLogo || isLoadingLogoBase64}
                 className={cn(isMobile ? "w-full h-10" : "", "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90")}
               >
                 {isGenerating ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Gerando com IA...</>
+                ) : !companyLogoBase64 ? (
+                  <>Logo não configurado</>
                 ) : (
                   <><Wand2 className="mr-2 h-4 w-4" /> Gerar Card com IA</>
                 )}
@@ -517,6 +519,17 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
           )}
         </StandardDialogFooter>
       </DialogContent>
+
+      <CompanyLogoDialog
+        open={isLogoDialogOpen}
+        onOpenChange={(open) => {
+          setIsLogoDialogOpen(open);
+          // Refresh logo when dialog closes
+          if (!open) {
+            getLogoAsBase64().then((base64) => setCompanyLogoBase64(base64));
+          }
+        }}
+      />
     </Dialog>
   );
 }
