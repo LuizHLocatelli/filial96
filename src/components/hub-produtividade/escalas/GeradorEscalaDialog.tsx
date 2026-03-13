@@ -83,16 +83,12 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       
       const numDays = Number(daysToGenerate) || 30;
       const endDate = format(addDays(dateObj, numDays), "yyyy-MM-dd");
-      
-      // Removed fetching of folgas as moveis_folgas doesn't exist
-      const folgas: { consultantId: string; date: string }[] = [];
 
       const schedule = await generateEscalaWithAI({
         startDate,
         daysToGenerate: numDays,
         firstPairIds,
-        availableConsultantsIds,
-        folgas
+        availableConsultantsIds
       });
       
       setPreviewSchedule(schedule);

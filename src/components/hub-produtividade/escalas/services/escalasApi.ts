@@ -89,7 +89,6 @@ export async function fetchConsultores() {
 }
 
 export async function fetchTeamAlmoco() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await supabase
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('profiles' as any)
@@ -103,7 +102,6 @@ export async function fetchTeamAlmoco() {
 }
 
 export async function updateLunchTime(userId: string, lunchTime: string | null) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await supabase
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('profiles' as any)
