@@ -162,7 +162,7 @@ export function RadioPlayerModern() {
             </motion.div>
             <div className="flex flex-col">
               <h3 className="text-xl font-bold tracking-tight text-foreground m-0 leading-tight">Rádio Lebes</h3>
-              <p className="text-sm text-muted-foreground font-medium">No ar, em toda parte.</p>
+              <p className="text-sm text-muted-foreground font-medium">Juntos, a Gente Resolve.</p>
             </div>
           </div>
           <AnimatePresence>
