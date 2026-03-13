@@ -13,6 +13,18 @@ interface ModelInsertPayload {
   tools_used?: string[];
 }
 
+function cleanGeminiOutput(text: string): string {
+  if (!text) return text;
+  // Removes complete tool calls like google:search{...} or google:search{... return:X>]}
+  let cleaned = text.replace(/google:[a-zA-Z0-9_]+\{.*?\}(?:\s*return:\d+>\]\})?/gs, "");
+  // Removes partial tool calls at the end of the text if still streaming
+  const match = cleaned.match(/google:[a-zA-Z0-9_]+\{.*$/s);
+  if (match) {
+    cleaned = cleaned.slice(0, match.index);
+  }
+  return cleaned;
+}
+
 export function useChatSession(sessionId: string | null, assistant: AIAssistant | null) {
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
@@ -149,10 +161,10 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
             if (parsed.replace) {
               fullText = parsed.text || "";
               finalImages = parsed.images || [];
-              setStreamingContent(fullText);
+              setStreamingContent(cleanGeminiOutput(fullText));
             } else if (parsed.text) {
               fullText += parsed.text;
-              setStreamingContent(fullText);
+              setStreamingContent(cleanGeminiOutput(fullText));
             }
           } catch {
             textBuffer = line + "\n" + textBuffer;
@@ -161,11 +173,13 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
         }
       }
 
+      const cleanedFinalText = cleanGeminiOutput(fullText);
+
       // Save model message with tools_used
       const insertPayload: ModelInsertPayload = {
         session_id: sessionId,
         role: "model",
-        content: fullText,
+        content: cleanedFinalText,
         image_urls: finalImages,
       };
       if (toolsUsed.length > 0) {
@@ -179,7 +193,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
 
       setStreamingContent("");
       setActiveTools([]);
-      return fullText;
+      return cleanedFinalText;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ai_chat_messages", sessionId] });
