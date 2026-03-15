@@ -80,7 +80,7 @@ export function EnhancedTopBar() {
                     : "bg-zinc-950/10 dark:bg-zinc-950/30"
                 )}
               >
-                🤖
+                🧠
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>

@@ -28,7 +28,7 @@ Você também deve sugerir um ÚNICO caractere de EMOJI que represente bem esse 
 Retorne APENAS um objeto JSON válido, sem markdown (\`\`\`json), com exatamente estas duas chaves:
 {
   "system_message": "O texto gerado da instrução muito bem formatado com quebras de linha (\\n)",
-  "suggested_emoji": "🤖"
+  "suggested_emoji": "🧠"
 }`;
 
       const { data, error } = await supabase.functions.invoke("gemini-assistant-chat", {

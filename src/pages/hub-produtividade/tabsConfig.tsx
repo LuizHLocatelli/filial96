@@ -41,7 +41,7 @@ export function createTabsConfig({
     {
       value: "assistentes",
       label: "Assistentes IA",
-      icon: "🤖",
+      icon: "🧠",
       description: "Crie e gerencie seus assistentes de IA personalizados",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden bg-background">

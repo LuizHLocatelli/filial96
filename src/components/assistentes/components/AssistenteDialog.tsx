@@ -53,7 +53,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
       name: "",
       description: "",
       system_message: "",
-      avatar_icon: "🤖",
+      avatar_icon: "🧠",
       web_search_enabled: false,
     },
   });
@@ -65,7 +65,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
           name: initialData.name,
           description: initialData.description || "",
           system_message: initialData.system_message,
-          avatar_icon: initialData.avatar_icon || "🤖",
+          avatar_icon: initialData.avatar_icon || "🧠",
           web_search_enabled: (initialData as any).web_search_enabled || false,
         });
       } else {
@@ -73,7 +73,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
           name: "",
           description: "",
           system_message: "Você é um assistente prestativo e especializado em responder dúvidas com clareza e precisão.",
-          avatar_icon: "🤖",
+          avatar_icon: "🧠",
           web_search_enabled: false,
         });
       }
@@ -87,7 +87,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
       name: data.name,
       description: data.description || "",
       system_message: data.system_message,
-      avatar_icon: data.avatar_icon || "🤖",
+      avatar_icon: data.avatar_icon || "🧠",
       web_search_enabled: data.web_search_enabled || false,
     } as any);
   };
@@ -141,7 +141,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                             transition={{ duration: 0.3 }}
                             className="rounded-md"
                           >
-                            <Input {...field} className="text-center text-2xl h-10 transition-colors" placeholder="🤖" maxLength={2} />
+                            <Input {...field} className="text-center text-2xl h-10 transition-colors" placeholder="🧠" maxLength={2} />
                           </motion.div>
                         </FormControl>
                         <FormMessage />
