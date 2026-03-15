@@ -149,8 +149,8 @@ export function Orcamentos() {
         <div className="lg:col-span-7 space-y-6">
           
           {/* Card: Dados do Cliente */}
-          <Card>
-            <CardHeader className="pb-4">
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-4 bg-muted/5 dark:bg-muted/10 border-b">
               <CardTitle className="text-lg flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />
                 Dados do Cliente
@@ -159,7 +159,7 @@ export function Orcamentos() {
                 Informações opcionais que sairão impressas no documento.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="cliente-nome">Nome / Razão Social</Label>
@@ -216,8 +216,8 @@ export function Orcamentos() {
           </Card>
 
           {/* Card: Adicionar Produto */}
-          <Card className="border-primary/20 shadow-sm">
-            <CardHeader className="pb-4 bg-primary/5 rounded-t-xl">
+          <Card className="border-primary/20 shadow-sm overflow-hidden">
+            <CardHeader className="pb-4 bg-primary/5 dark:bg-primary/10 rounded-t-xl">
               <CardTitle className="text-lg flex items-center gap-2 text-primary">
                 <Plus className="h-5 w-5" />
                 Adicionar Produto
@@ -238,20 +238,20 @@ export function Orcamentos() {
                   <div className="flex">
                     <Button 
                       variant="outline" 
-                      className="px-3 rounded-r-none border-r-0"
+                      className="px-3 rounded-r-none border-r-0 dark:border-primary/20"
                       onClick={handleSubQuantidade}
                     >
                       -
                     </Button>
                     <Input 
                       id="item-qtd" 
-                      className="rounded-none text-center focus-visible:ring-0" 
+                      className="rounded-none text-center focus-visible:ring-0 dark:border-primary/20" 
                       value={novoItemQuantidade}
                       onChange={(e) => setNovoItemQuantidade(e.target.value.replace(/\D/g, ''))}
                     />
                     <Button 
                       variant="outline" 
-                      className="px-3 rounded-l-none border-l-0"
+                      className="px-3 rounded-l-none border-l-0 dark:border-primary/20"
                       onClick={handleAddQuantidade}
                     >
                       +
@@ -286,7 +286,7 @@ export function Orcamentos() {
                 {/* Valor Total Previsto (Apenas Visual) */}
                 <div className="sm:col-span-4 space-y-2">
                   <Label className="text-muted-foreground">Total do Item</Label>
-                  <div className="h-10 flex items-center px-3 border rounded-md bg-muted/30 font-semibold text-muted-foreground">
+                  <div className="h-10 flex items-center px-3 border rounded-md bg-muted/50 dark:bg-muted/20 font-semibold text-foreground/90">
                     {formatBrazilianCurrency((parseBrazilianNumber(novoItemValor) || 0) * (parseInt(novoItemQuantidade) || 0))}
                   </div>
                 </div>
@@ -305,14 +305,14 @@ export function Orcamentos() {
           </Card>
 
           {/* Card: Configurações Finais */}
-          <Card>
-            <CardHeader className="pb-4">
+          <Card className="overflow-hidden">
+            <CardHeader className="pb-4 bg-muted/5 dark:bg-muted/10 border-b">
               <CardTitle className="text-lg flex items-center gap-2">
                 <MessageSquare className="h-5 w-5 text-muted-foreground" />
                 Configurações Finais
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="orcamento-consultor" className="flex items-center gap-2">
@@ -358,8 +358,8 @@ export function Orcamentos() {
 
         {/* COLUNA DIREITA: Resumo e PDF (Ocupa 5 colunas) */}
         <div className="lg:col-span-5 space-y-6">
-          <Card className="sticky top-6 flex flex-col h-[calc(100vh-8rem)]">
-            <CardHeader className="pb-4 bg-muted/30 rounded-t-xl border-b">
+          <Card className="sticky top-6 flex flex-col h-[calc(100vh-8rem)] overflow-hidden">
+            <CardHeader className="pb-4 bg-muted/20 dark:bg-muted/40 rounded-t-xl border-b">
               <CardTitle className="text-lg flex items-center justify-between">
                 <span>Resumo do Orçamento</span>
                 <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
@@ -368,7 +368,7 @@ export function Orcamentos() {
               </CardTitle>
             </CardHeader>
             
-            <CardContent className="flex-1 overflow-auto p-0">
+            <CardContent className="flex-1 overflow-auto p-0 scrollbar-thin">
               {itens.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center space-y-3">
                   <FileText className="h-12 w-12 opacity-20" />
@@ -376,9 +376,9 @@ export function Orcamentos() {
                   <p className="text-sm">Preencha os dados ao lado e clique em Adicionar.</p>
                 </div>
               ) : (
-                <div className="divide-y">
+                <div className="divide-y divide-border/50">
                   {itens.map((item, index) => (
-                    <div key={item.id} className="p-4 hover:bg-muted/20 transition-colors">
+                    <div key={item.id} className="p-4 hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1">
                           <p className="font-medium text-sm line-clamp-2">{item.nome}</p>
@@ -406,7 +406,7 @@ export function Orcamentos() {
               )}
             </CardContent>
 
-            <div className="p-4 bg-muted/10 border-t mt-auto">
+            <div className="p-4 bg-muted/5 dark:bg-muted/10 border-t mt-auto">
               <div className="flex justify-between items-end mb-4">
                 <span className="text-sm font-medium text-muted-foreground">Total Geral:</span>
                 <span className="text-2xl font-bold text-primary">
