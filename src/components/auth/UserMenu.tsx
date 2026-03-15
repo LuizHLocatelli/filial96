@@ -1,18 +1,4 @@
 import { useState } from "react";
-import { 
-  User, 
-  Settings, 
-  Shield, 
-  LogOut, 
-  UserCircle,
-  Mail,
-  CheckCircle,
-  AlertCircle,
-  Crown,
-  Calendar,
-  Clock,
-  Users
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/auth";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export function UserMenu() {
   const [open, setOpen] = useState(false);
@@ -143,7 +130,7 @@ export function UserMenu() {
               alt={getDisplayName()} 
             />
             <AvatarFallback className="bg-transparent border-0 text-foreground">
-              {getNameForInitials() ? getInitials(getNameForInitials()) : <User className="h-4 w-4" />}
+              {getNameForInitials() ? getInitials(getNameForInitials()) : "👤"}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -157,7 +144,7 @@ export function UserMenu() {
               alt={getDisplayName()} 
             />
             <AvatarFallback className="bg-primary/10 text-primary text-lg">
-              {getNameForInitials() ? getInitials(getNameForInitials()) : <User className="h-6 w-6" />}
+              {getNameForInitials() ? getInitials(getNameForInitials()) : "👤"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
@@ -167,24 +154,24 @@ export function UserMenu() {
               </p>
               {accountStatus && (
                 <Badge variant={accountStatus.variant} className="text-xs">
-                  {(user?.app_metadata?.claims_admin || profile?.role === 'gerente') && <Crown className="h-3 w-3 mr-1" />}
+                  {(user?.app_metadata?.claims_admin || profile?.role === 'gerente') && <span className="mr-1">👑</span>}
                   {accountStatus.text}
                 </Badge>
               )}
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Mail className="h-3 w-3" />
+              <span className="text-[12px]">✉️</span>
               <span className="truncate">{user?.email}</span>
             </div>
             <div className="flex items-center gap-1">
               {isEmailConfirmed ? (
                 <>
-                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span className="text-[12px]">✅</span>
                   <span className="text-xs text-green-600">Email verificado</span>
                 </>
               ) : (
                 <>
-                  <AlertCircle className="h-3 w-3 text-amber-500" />
+                  <span className="text-[12px]">⚠️</span>
                   <span className="text-xs text-amber-600">Email não verificado</span>
                 </>
               )}
@@ -197,21 +184,21 @@ export function UserMenu() {
         {/* Ações rápidas */}
         <DropdownMenuItem asChild>
           <Link to="/perfil" onClick={() => setOpen(false)} className="flex items-center gap-2">
-            <UserCircle className="h-4 w-4" />
+            <span className="text-[16px] w-5 flex justify-center">👤</span>
             Meu Perfil
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild>
           <Link to="/perfil?tab=security" onClick={() => setOpen(false)} className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
+            <span className="text-[16px] w-5 flex justify-center">🛡️</span>
             Configurações de Segurança
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild>
           <Link to="/perfil?tab=info" onClick={() => setOpen(false)} className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
+            <span className="text-[16px] w-5 flex justify-center">⚙️</span>
             Configurações da Conta
           </Link>
         </DropdownMenuItem>
@@ -222,9 +209,9 @@ export function UserMenu() {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link to="/gerenciar-usuarios" onClick={() => setOpen(false)} className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
+                <span className="text-[16px] w-5 flex justify-center">👥</span>
                 <span>Gerenciar Usuários</span>
-                <Crown className="h-3 w-3 ml-auto text-yellow-600" />
+                <span className="ml-auto text-[12px]">👑</span>
               </Link>
             </DropdownMenuItem>
           </>
@@ -237,7 +224,7 @@ export function UserMenu() {
           <div className="text-xs text-muted-foreground space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+                <span className="text-[12px]">🕒</span>
                 <span>Último login:</span>
               </div>
               <span className="font-medium">
@@ -246,7 +233,7 @@ export function UserMenu() {
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
+                <span className="text-[12px]">📅</span>
                 <span>Conta criada:</span>
               </div>
               <span className="font-medium">
@@ -259,7 +246,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         
         <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive focus:text-destructive">
-          <LogOut className="h-4 w-4" />
+          <span className="text-[16px] w-5 flex justify-center">🚪</span>
           Sair da conta
         </DropdownMenuItem>
       </DropdownMenuContent>

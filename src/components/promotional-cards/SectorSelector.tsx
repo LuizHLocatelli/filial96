@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sofa, Shirt, Wallet, Settings } from "lucide-react";
 
 interface SectorSelectorProps {
   selectedSector: "furniture" | "fashion" | "loan" | "service";
@@ -11,10 +10,10 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
   const isMobile = useIsMobile();
   
   const sectors = [
-    { title: "Móveis", value: "furniture", icon: Sofa },
-    { title: "Moda", value: "fashion", icon: Shirt },
-    { title: "Empréstimo", value: "loan", icon: Wallet },
-    { title: "Geral e Serviços", value: "service", icon: Settings },
+    { title: "Móveis", value: "furniture", icon: "🛋️" },
+    { title: "Moda", value: "fashion", icon: "👕" },
+    { title: "Empréstimo", value: "loan", icon: "💸" },
+    { title: "Geral e Serviços", value: "service", icon: "⚙️" },
   ];
   
   return (
@@ -50,13 +49,15 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
                 ? "bg-primary-foreground/20"
                 : "group-hover:bg-accent"
             )}>
-              <sector.icon className={cn(
+              <span className={cn(
                 "transition-all duration-200",
-                isMobile ? "h-4 w-4" : "h-4 w-4",
+                isMobile ? "text-[14px]" : "text-[14px]",
                 selectedSector === sector.value 
-                  ? "text-primary-foreground" 
-                  : "text-muted-foreground group-hover:text-foreground"
-              )} />
+                  ? "opacity-100" 
+                  : "opacity-70 group-hover:opacity-100"
+              )}>
+                {sector.icon}
+              </span>
             </div>
             <span className={cn(
               "font-medium transition-all duration-200 text-center leading-tight",

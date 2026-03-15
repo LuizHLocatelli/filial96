@@ -15,7 +15,7 @@ const TabContentLoader = () => (
 interface TabConfig {
   value: string;
   label: string;
-  icon?: LucideIcon;
+  icon?: LucideIcon | string;
   description?: string;
   component: ReactNode;
   mobileLabel?: string; // Label alternativo para mobile
@@ -100,13 +100,25 @@ export function PageNavigation({
                       ? "bg-primary-foreground/20"
                       : "group-hover:bg-accent"
                   )}>
-                    <tab.icon className={cn(
-                      "transition-all duration-200",
-                      isMobile ? "h-4 w-4" : "h-4 w-4",
-                      activeTab === tab.value 
-                        ? "text-primary-foreground" 
-                        : "text-muted-foreground group-hover:text-foreground"
-                    )} />
+                    {typeof tab.icon === 'string' ? (
+                      <span className={cn(
+                        "transition-all duration-200",
+                        isMobile ? "text-[14px]" : "text-[14px]",
+                        activeTab === tab.value 
+                          ? "opacity-100" 
+                          : "opacity-70 group-hover:opacity-100"
+                      )}>
+                        {tab.icon}
+                      </span>
+                    ) : (
+                      <tab.icon className={cn(
+                        "transition-all duration-200",
+                        isMobile ? "h-4 w-4" : "h-4 w-4",
+                        activeTab === tab.value 
+                          ? "text-primary-foreground" 
+                          : "text-muted-foreground group-hover:text-foreground"
+                      )} />
+                    )}
                   </div>
                 )}
                 <span className={cn(
@@ -154,7 +166,13 @@ export function PageNavigation({
                   : "bg-muted hover:bg-accent text-muted-foreground hover:text-foreground"
               )}
             >
-              {tab.icon && <tab.icon className="h-4 w-4" />}
+              {tab.icon && (
+                typeof tab.icon === 'string' ? (
+                  <span>{tab.icon}</span>
+                ) : (
+                  <tab.icon className="h-4 w-4" />
+                )
+              )}
               {getDisplayLabel(tab)}
             </button>
           ))}
@@ -180,7 +198,13 @@ export function PageNavigation({
       )}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3">
-            {tab.icon && <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />}
+            {tab.icon && (
+              typeof tab.icon === 'string' ? (
+                <span className="flex-shrink-0">{tab.icon}</span>
+              ) : (
+                <tab.icon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              )
+            )}
             <span className="truncate">{getDisplayLabel(tab)}</span>
           </TabsTrigger>
         ))}

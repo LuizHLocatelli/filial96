@@ -16,7 +16,7 @@ export const searchableItems: SearchResult[] = [
     type: 'section',
     path: '/?tab=monitoramento',
     section: 'Hub de Produtividade',
-    icon: 'Users'
+    icon: '👥'
   },
   {
     id: 'hub-produtividade-radio',
@@ -25,7 +25,7 @@ export const searchableItems: SearchResult[] = [
     type: 'section',
     path: '/?tab=radio',
     section: 'Hub de Produtividade',
-    icon: 'Radio'
+    icon: '📻'
   },
   {
     id: 'moveis',
@@ -59,7 +59,7 @@ export const searchableItems: SearchResult[] = [
     type: 'section',
     path: '/crediario?tab=depositos',
     section: 'Crediário',
-    icon: 'Calendar'
+    icon: '📅'
   },
 
   {
@@ -76,7 +76,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Configurações do usuário e perfil',
     type: 'page',
     path: '/perfil',
-    icon: 'User'
+    icon: '👤'
   },
   {
     id: 'relatorios',
@@ -84,7 +84,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Relatórios e listagens do sistema',
     type: 'feature',
     path: '/?tab=relatorios',
-    icon: 'BarChart3'
+    icon: '📊'
   },
   {
     id: 'moda',

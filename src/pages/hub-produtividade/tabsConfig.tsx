@@ -1,9 +1,3 @@
-import {
-  FileImage,
-  Radio,
-  Bot,
-  CalendarDays
-} from "lucide-react";
 import { lazy } from "react";
 import type { HubHandlers } from "@/components/hub-produtividade/types/hubTypes";
 
@@ -25,7 +19,7 @@ export function createTabsConfig({
     {
       value: "escalas",
       label: "Escalas",
-      icon: CalendarDays,
+      icon: "📅",
       description: "Gestão de horários e cargas",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden bg-background p-4 md:p-6">
@@ -36,7 +30,7 @@ export function createTabsConfig({
     {
       value: "cartazes",
       label: "Cartazes",
-      icon: FileImage,
+      icon: "🎨",
       description: "Gestão de cartazes da loja",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
@@ -47,7 +41,7 @@ export function createTabsConfig({
     {
       value: "assistentes",
       label: "Assistentes IA",
-      icon: Bot,
+      icon: "🤖",
       description: "Crie e gerencie seus assistentes de IA personalizados",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden bg-background">
@@ -58,7 +52,7 @@ export function createTabsConfig({
     {
       value: "radio",
       label: "Rádio",
-      icon: Radio,
+      icon: "📻",
       description: "Ouça sua rádio favorita",
       component: (
         <div className="border border-border/40 rounded-lg overflow-hidden">
