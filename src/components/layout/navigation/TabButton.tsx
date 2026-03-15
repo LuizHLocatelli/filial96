@@ -16,11 +16,15 @@ export const TabButton = memo(function TabButton({
   const isEmoji = typeof tab.icon === 'string';
   const Icon = !isEmoji ? tab.icon as LucideIcon : null;
 
+  // Filtramos os props de preloading para evitar conflitos com framer-motion
+  const { onMouseEnter, onFocus } = preloadProps as { onMouseEnter?: () => void; onFocus?: () => void };
+
   return (
     <motion.button
       key={tab.path}
       onClick={() => onTabClick(index)}
-      {...preloadProps}
+      onMouseEnter={onMouseEnter}
+      onFocus={onFocus}
       role="tab"
       aria-selected={isActive}
       aria-label={tab.title}
@@ -78,6 +82,7 @@ export const TabButton = memo(function TabButton({
       <motion.div 
         className={cn(
           "relative flex items-center justify-center transition-all duration-300 z-10",
+          "bg-zinc-950/15 dark:bg-zinc-950/40", // Fundo base mais escuro para melhor contraste dos emojis
           isMobile 
             ? cn(
                 "rounded-xl mb-1",
@@ -87,8 +92,8 @@ export const TabButton = memo(function TabButton({
               )
             : "rounded-xl w-8 h-8 mb-2",
           isActive 
-            ? "glass-button-secondary shadow-xl shadow-primary/40" 
-            : "group-hover:glass-button-ghost group-hover:shadow-lg"
+            ? "glass-button-secondary shadow-xl shadow-primary/40 ring-1 ring-white/10 bg-zinc-950/40" 
+            : "group-hover:glass-button-ghost group-hover:shadow-lg group-hover:bg-zinc-950/20"
         )}
         whileHover={{ scale: isMobile ? 1.08 : 1.1 }}
         whileTap={{ scale: 0.92 }}
@@ -101,7 +106,7 @@ export const TabButton = memo(function TabButton({
               : "text-[16px]",
             isActive ? "drop-shadow-md" : "opacity-80 group-hover:opacity-100"
           )}>
-            {tab.icon}
+            {tab.icon as string}
           </span>
         ) : (
           Icon && (
