@@ -284,7 +284,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
         }
       }
 
-      if (webSearchEnabled) activatedTools.push("web_search");
+      // We do not eagerly push web_search here because grounding metadata will add it later
 
       const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -366,17 +366,21 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
           }
 
           if (webSearchEnabled) {
-             activatedTools.push("web_search");
+             // Eagerly tell frontend to show animation, but do not consider it officially "used" until grounding chunks appear
              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "web_search", status: "active" })}\n\n`));
           }
 
           // RAG retrieval inside the stream start to show animation to user immediately
           if (assistantId) {
-            activatedTools.push("rag");
+            // Eagerly tell frontend to show animation
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
             const ragContext = await retrieveRAGContext(assistantId, message);
             if (ragContext) {
+              activatedTools.push("rag"); // Only mark as used if context was found
               finalSystemMessage += ragContext;
+            } else {
+              // Tell frontend to remove the active tool since no relevant documents were found
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
             }
           }
 
@@ -473,12 +477,14 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
               sourcesText += `- [${src.title}](${src.uri})\n`;
             }
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: sourcesText })}\n\n`));
+          } else if (webSearchEnabled) {
+            // Eagerly added for animation, but not actually used by Gemini
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "web_search", status: "removed" })}\n\n`));
           }
 
           // Emit final tools_used summary before DONE
-          if (activatedTools.length > 0) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tools_used: activatedTools })}\n\n`));
-          }
+          // Always emit to let frontend sync and clean up any remaining stale tools
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tools_used: activatedTools })}\n\n`));
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();

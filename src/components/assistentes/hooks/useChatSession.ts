@@ -146,15 +146,21 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
             const parsed = JSON.parse(jsonStr);
 
             // Handle tool activation events
-            if (parsed.tool && parsed.status === "active") {
-              setActiveTools(prev => prev.includes(parsed.tool) ? prev : [...prev, parsed.tool]);
-              toolsUsed = [...new Set([...toolsUsed, parsed.tool])];
+            if (parsed.tool) {
+              if (parsed.status === "active") {
+                setActiveTools(prev => prev.includes(parsed.tool) ? prev : [...prev, parsed.tool]);
+                toolsUsed = [...new Set([...toolsUsed, parsed.tool])];
+              } else if (parsed.status === "removed") {
+                setActiveTools(prev => prev.filter(t => t !== parsed.tool));
+                toolsUsed = toolsUsed.filter(t => t !== parsed.tool);
+              }
               continue;
             }
 
             // Handle final tools_used summary
             if (parsed.tools_used && Array.isArray(parsed.tools_used)) {
               toolsUsed = parsed.tools_used;
+              setActiveTools(parsed.tools_used); // Also sync active tools for visual cleanup
               continue;
             }
 
