@@ -6,12 +6,15 @@ import { ExportDropdown } from "./ExportDropdown";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
 import { Bot, User, ArrowLeft, Square, Sparkles } from "lucide-react";
+import { LoadingIndicator } from "./LoadingIndicator";
+import { StreamingMarkdown } from "./StreamingMarkdown";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface TransitionMessage {
   id: string;
@@ -284,53 +287,39 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             )}
           </AnimatePresence>
 
-          {/* Streaming response */}
-          {isSending && streamingContent && (
+                    {/* Streaming response */}
+          {isSending && (
             <motion.div 
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex gap-3 flex-row"
             >
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                <Bot className="w-4 h-4" />
+                <Bot className={cn("w-4 h-4", !streamingContent && "animate-pulse")} />
               </div>
               <div className="flex flex-col gap-1.5 max-w-[85%] items-start">
+                
+                {/* Tools Indicator */}
                 {activeTools.length > 0 && (
-                  <ChatToolBadges tools={activeTools} isStreaming />
+                  <ChatToolBadges tools={activeTools} isStreaming isGeneratingText={!!streamingContent} />
                 )}
-                <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
-                  <div className="text-[13px] prose dark:prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-table:w-full prose-table:text-xs prose-th:bg-muted/50 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border/50 max-w-none [overflow-wrap:anywhere] [word-break:break-word] overflow-x-auto">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamingContent}</ReactMarkdown>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive h-7 px-2" onClick={cancelStream}>
-                  <Square className="w-3 h-3 mr-1" /> Parar
-                </Button>
-              </div>
-            </motion.div>
-          )}
 
-          {/* Loading indicator */}
-          {isSending && !streamingContent && (
-            <motion.div 
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex gap-3 flex-row"
-            >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                <Bot className="w-4 h-4 animate-pulse" />
-              </div>
-              <div className="flex flex-col gap-1.5 items-start">
-                {activeTools.length > 0 && (
-                  <ChatToolBadges tools={activeTools} isStreaming />
+                {/* Loading indicator when no tools and no content */}
+                {!streamingContent && activeTools.length === 0 && (
+                  <LoadingIndicator />
                 )}
-                <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-primary/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                </div>
+
+                {/* The actual streaming content */}
+                {streamingContent && (
+                  <>
+                    <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
+                      <StreamingMarkdown content={streamingContent} isStreaming={true} />
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive h-7 px-2" onClick={cancelStream}>
+                      <Square className="w-3 h-3 mr-1" /> Parar
+                    </Button>
+                  </>
+                )}
               </div>
             </motion.div>
           )}
