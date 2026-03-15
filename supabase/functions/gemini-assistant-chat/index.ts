@@ -231,22 +231,10 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
 
     let finalSystemMessage = systemMessage + "\n\n" + imageInstruction + "\n" + systemContext;
 
-
-    // RAG: Retrieve relevant documents if assistant has a knowledge base
-    if (assistantId) {
-      const ragContext = await retrieveRAGContext(assistantId, message);
-      if (ragContext) {
-        finalSystemMessage += ragContext;
-        activatedTools.push("rag");
-      }
-    }
-
     // Track document analysis
     if (documents.length > 0) {
       activatedTools.push("document_analysis");
     }
-
-    // Web search is tracked dynamically when grounding chunks appear
 
     const chatModelName = "gemini-3-flash-preview";
 
@@ -282,12 +270,24 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
     const tools: any[] = [];
     if (webSearchEnabled) {
       tools.push({ googleSearch: {} });
-      activatedTools.push("web_search");
+      // Web search will be appended dynamically in streaming or below for non-streaming
     }
 
     // Non-streaming mode
     if (!stream) {
+      // Synchronously retrieve RAG context for non-streaming
+      if (assistantId) {
+        const ragContext = await retrieveRAGContext(assistantId, message);
+        if (ragContext) {
+          finalSystemMessage += ragContext;
+          activatedTools.push("rag");
+        }
+      }
+
+      if (webSearchEnabled) activatedTools.push("web_search");
+
       const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:generateContent?key=${GEMINI_API_KEY}`;
+
       const requestBody: any = {
         systemInstruction: { parts: [{ text: finalSystemMessage }] },
         contents,
@@ -336,7 +336,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
 
       // Append grounding sources if available
       if (groundingMetadata?.groundingChunks?.length > 0) {
-        activatedTools.push("web_search");
+        if (!activatedTools.includes("web_search")) activatedTools.push("web_search");
         generatedText += "\n\n---\n**Fontes:**\n";
         for (const chunk of groundingMetadata.groundingChunks) {
           if (chunk.web) {
@@ -352,42 +352,57 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
     }
 
     // Streaming mode
-    const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-    const streamBody: any = {
-      systemInstruction: { parts: [{ text: finalSystemMessage }] },
-      contents,
-      generationConfig: { temperature: 0.7 }
-    };
-    if (tools.length > 0) streamBody.tools = tools;
-
-    const streamRes = await fetch(streamUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(streamBody)
-    });
-
-    if (!streamRes.ok) {
-      const err = await streamRes.text();
-      throw new Error(`Stream API error: ${err}`);
-    }
-
-    let fullText = "";
-    const groundingSources: { title: string; uri: string }[] = [];
-    const reader = streamRes.body!.getReader();
-    const decoder = new TextDecoder();
-
     const outputStream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         let buffer = "";
 
         try {
-          // Emit tool activation events FIRST before any content
+          // Emit existing tool activation events FIRST before any processing
           if (activatedTools.length > 0) {
             for (const tool of activatedTools) {
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool, status: "active" })}\n\n`));
             }
           }
+
+          if (webSearchEnabled) {
+             activatedTools.push("web_search");
+             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "web_search", status: "active" })}\n\n`));
+          }
+
+          // RAG retrieval inside the stream start to show animation to user immediately
+          if (assistantId) {
+            activatedTools.push("rag");
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
+            const ragContext = await retrieveRAGContext(assistantId, message);
+            if (ragContext) {
+              finalSystemMessage += ragContext;
+            }
+          }
+
+          const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
+          const streamBody: any = {
+            systemInstruction: { parts: [{ text: finalSystemMessage }] },
+            contents,
+            generationConfig: { temperature: 0.7 }
+          };
+          if (tools.length > 0) streamBody.tools = tools;
+
+          const streamRes = await fetch(streamUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(streamBody)
+          });
+
+          if (!streamRes.ok) {
+            const err = await streamRes.text();
+            throw new Error(`Stream API error: ${err}`);
+          }
+
+          let fullText = "";
+          const groundingSources: { title: string; uri: string }[] = [];
+          const reader = streamRes.body!.getReader();
+          const decoder = new TextDecoder();
 
           while (true) {
             const { done, value } = await reader.read();
