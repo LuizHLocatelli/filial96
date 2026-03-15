@@ -62,8 +62,8 @@ export function formatForInput(value: number): string {
 export function isValidBrazilianNumber(value: string): boolean {
   if (!value || value.trim() === '') return true; // Vazio é válido
 
-  // Aceita formatos: 123, 123,45, 1.234, 1.234,56
-  const brazilianNumberRegex = /^(\d{1,3}(\.\d{3})*)(,\d{1,2})?$|^\d+(,\d{1,2})?$/;
+  // Aceita formatos: 123, 123,, 123,4, 123,45, 1.234, 1.234,56
+  const brazilianNumberRegex = /^(\d{1,3}(\.\d{3})*)(,\d{0,2})?$|^\d+(,\d{0,2})?$/;
   return brazilianNumberRegex.test(value.trim());
 }
 

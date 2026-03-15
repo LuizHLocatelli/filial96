@@ -41,7 +41,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       // Ao perder o foco, formatar o valor se for válido
       const numericValue = parseBrazilianNumber(displayValue);
-      if (numericValue > 0) {
+      if (displayValue !== '' && !isNaN(numericValue)) {
         const formatted = allowDecimal ?
           numericValue.toFixed(2).replace('.', ',') :
           Math.floor(numericValue).toString();
