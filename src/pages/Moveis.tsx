@@ -3,11 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { Fretes } from "@/components/moveis/fretes/Fretes";
 import { ProcedimentosSSC } from "@/components/moveis/procedimentos-ssc/ProcedimentosSSC";
+import { Orcamentos } from "@/components/moveis/orcamentos/Orcamentos";
 import {
   Sofa,
   Package,
   Truck,
-  Wrench
+  Wrench,
+  Calculator
 } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -36,6 +38,13 @@ export default function Moveis() {
       icon: Truck,
       description: "Consulta de valores de frete",
       component: <Fretes />
+    },
+    {
+      value: "orcamentos",
+      label: "Orçamentos",
+      icon: Calculator,
+      description: "Gerador de orçamentos em PDF",
+      component: <Orcamentos />
     },
     {
       value: "procedimentos-ssc",
