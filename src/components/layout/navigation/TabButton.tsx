@@ -118,7 +118,7 @@ export const TabButton = memo(function TabButton({
                 isActive 
                   ? "nav-icon-active font-bold drop-shadow-sm" 
                   : "nav-icon-inactive group-hover:font-medium",
-                !isActive && "text-gray-600 dark:text-gray-300"
+                !isActive && "text-zinc-700 dark:text-gray-300"
               )} 
             />
           )
@@ -136,7 +136,7 @@ export const TabButton = memo(function TabButton({
           : "text-[11px]",
         isActive 
           ? "text-primary-foreground filter drop-shadow-sm font-bold" 
-          : "group-hover:text-foreground group-hover:drop-shadow-sm text-gray-600 dark:text-foreground/90 font-medium"
+          : "group-hover:text-foreground group-hover:drop-shadow-sm text-zinc-700 dark:text-foreground/90 font-medium"
       )}>
         {tab.title}
       </span>

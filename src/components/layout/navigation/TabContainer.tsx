@@ -32,7 +32,7 @@ export const TabContainer = memo(function TabContainer({ children, isMobile, isS
       >
         
         {/* Animated Gradient Background */}
-        <div className="absolute inset-0 opacity-60 rounded-3xl pointer-events-none">
+        <div className="absolute inset-0 opacity-80 rounded-3xl pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-emerald-500/10 to-green-500/15 rounded-3xl animate-pulse" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/8 to-transparent rounded-3xl" />
         </div>
