@@ -147,6 +147,25 @@ export const procedimentosSSC: Procedimento[] = [
     ]
   },
   {
+    id: "aoc-philips",
+    fabricante: "AOC / Philips (TVs e Áudio)",
+    categoria: "Áudio e Vídeo",
+    procedimento: "As marcas AOC e Philips pertencem ao Grupo TPV. O atendimento para TVs e Monitores é realizado via Portal TPV ou canais de SAC. O cliente deve localizar o posto autorizado no site oficial para produtos em garantia.",
+    canais: [
+      { tipo: "SAC AOC", valor: "3003-0539 (Capitais) ou 0800 704 9539 (Demais)" },
+      { tipo: "SAC Philips", valor: "(11) 2938-0245 (Capitais) ou 0800 701 0245 (Demais)" },
+      { tipo: "WhatsApp Philips", valor: "(11) 95308-6553" },
+      { tipo: "Portal Suporte AOC", valor: "https://aoc.portaltpv.com.br/" },
+      { tipo: "Portal Suporte Philips", valor: "https://philips.portaltpv.com.br/" },
+      { tipo: "Localizar Assistência AOC", valor: "http://www.gap.com.br/aocbusca?domain=envision" },
+      { tipo: "Localizar Assistência Philips", valor: "http://www.gap.com.br/philipsbusca?domain=envision" }
+    ],
+    observacoes: [
+      "Garantia de 12 meses (90 dias legal + 9 meses contratual)",
+      "Acessórios como controles e cabos geralmente possuem 90 dias de garantia"
+    ]
+  },
+  {
     id: "bandeirantes",
     fabricante: "Bandeirantes (Brinquedos)",
     categoria: "Brinquedos",
