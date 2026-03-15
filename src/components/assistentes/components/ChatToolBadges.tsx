@@ -89,22 +89,25 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
     );
   }
 
-  // Finished state (historical messages)
+    // Finished state (historical messages)
   return (
-    <div className="flex flex-wrap gap-1.5 mb-2 mt-1">
+    <div className="flex flex-col gap-2 w-full max-w-[280px] sm:max-w-[320px] mb-2 mt-1">
       {tools.map((tool) => {
         const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processamento", activeLabel: "Processado" };
         const Icon = config.icon;
 
         return (
-          <Badge
-            key={tool}
-            variant="outline"
-            className="text-[10px] gap-1.5 py-0.5 px-2 font-medium rounded-md text-muted-foreground/80 border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors cursor-default"
-          >
-            <Icon className="w-3 h-3 text-muted-foreground/60" />
-            {config.label}
-          </Badge>
+          <div key={tool} className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-muted/40 border-border/50 text-muted-foreground/80 backdrop-blur-sm overflow-hidden">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full shrink-0 bg-muted text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            </div>
+
+            <div className="flex-1 min-w-0 flex items-center justify-between">
+              <span className="text-[13px] font-medium truncate text-muted-foreground">
+                {config.label}
+              </span>
+            </div>
+          </div>
         );
       })}
     </div>
