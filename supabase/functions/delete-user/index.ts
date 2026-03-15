@@ -68,7 +68,7 @@ Deno.serve(async (req: Request) => {
     await safeDelete("moveis_produto_foco_imagens", "created_by", userId);
     await safeDelete("moveis_produto_foco_vendas", "created_by", userId);
     await safeDelete("moveis_tarefas", "criado_por", userId);
-    await safeDelete("moveis_descontinuados", "created_by", userId);
+
     await safeDelete("crediario_sticky_notes", "created_by", userId);
     await safeDelete("crediario_depositos", "created_by", userId);
     await safeDelete("moda_reservas", "created_by", userId);

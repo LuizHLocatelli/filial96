@@ -1,12 +1,10 @@
 
 import { useSearchParams } from "react-router-dom";
-import { Descontinuados } from "@/components/moveis/descontinuados/Descontinuados";
 import { Fretes } from "@/components/moveis/fretes/Fretes";
 import { ProcedimentosSSC } from "@/components/moveis/procedimentos-ssc/ProcedimentosSSC";
 import { Orcamentos } from "@/components/moveis/orcamentos/Orcamentos";
 import {
   Sofa,
-  Package,
   Truck,
   Wrench,
   Calculator
@@ -17,21 +15,13 @@ import { PageNavigation } from "@/components/layout/PageNavigation";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "descontinuados";
+  const activeTab = searchParams.get("tab") || "fretes";
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
   };
 
   const tabsConfig = [
-    {
-      value: "descontinuados",
-      label: "Descontinuados",
-      icon: Package,
-      description: "Produtos com desconto especial",
-      component: <Descontinuados />,
-      badge: "PROMOÇÃO"
-    },
     {
       value: "fretes",
       label: "Fretes",
