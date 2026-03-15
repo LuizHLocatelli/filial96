@@ -18,6 +18,7 @@ export interface TabButtonProps {
   isSmallScreen: boolean;
   isMobile: boolean;
   onTabClick: (index: number) => void;
+  preloadProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 export interface TabContainerProps {

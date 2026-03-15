@@ -1,14 +1,16 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TabButtonProps } from "./types";
 
-export function TabButton({ 
+export const TabButton = memo(function TabButton({ 
   tab, 
   index, 
   isActive, 
   isSmallScreen, 
   isMobile, 
-  onTabClick 
+  onTabClick,
+  preloadProps = {}
 }: TabButtonProps) {
   const Icon = tab.icon;
 
@@ -16,6 +18,12 @@ export function TabButton({
     <motion.button
       key={tab.path}
       onClick={() => onTabClick(index)}
+      {...preloadProps}
+      role="tab"
+      aria-selected={isActive}
+      aria-label={tab.title}
+      id={`nav-tab-${index}`}
+      aria-controls={`nav-panel-${index}`}
       className={cn(
         "relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300",
         "group cursor-pointer select-none shrink-0",
@@ -123,4 +131,4 @@ export function TabButton({
       />
     </motion.button>
   );
-}
+});

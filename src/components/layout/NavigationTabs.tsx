@@ -10,7 +10,8 @@ export function NavigationTabs() {
     isSmallScreen,
     isMobile,
     tabs,
-    handleTabChange
+    handleTabChange,
+    getTabPreloadProps
   } = useNavigationTabs();
   
   return (
@@ -34,6 +35,7 @@ export function NavigationTabs() {
             isSmallScreen={isSmallScreen}
             isMobile={isMobile}
             onTabClick={handleTabChange}
+            preloadProps={getTabPreloadProps(tab.path)}
           />
         ))}
       </div>
