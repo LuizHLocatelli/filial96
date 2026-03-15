@@ -96,6 +96,6 @@ Always follow this 3-part structure for Dialogs:
 - **Structure**: Group tests using `describe` blocks and `it` for specific assertions. Place `*.test.ts/tsx` files alongside their source files.
 
 ## 8. Supabase & MCP Tools
-- **Client**: All Supabase queries must use the client from `@/integrations/supabase/client`.
-- **MCP Tools**: For agents, utilize tools like `supabase_list_tables`, `supabase_execute_sql`, `supabase_apply_migration`, etc., for database ops.
+- **Client**: All Supabase queries in the application code must use the client from `@/integrations/supabase/client`.
+- **MCP Tools (CRITICAL)**: Whenever an agent needs to interact with Supabase (reading/writing data, checking schema, applying migrations, logs, etc.), it **MUST ALWAYS** use the Supabase MCP tools (e.g., `supabase_list_tables`, `supabase_execute_sql`, `supabase_apply_migration`, etc.). **Do NOT** attempt to write custom scripts or workarounds to interact with the database; MCP is strictly mandatory for agents.
 - **Edge Functions**: Located in `supabase/functions/` (Deno runtime). By default, they require JWT verification.
