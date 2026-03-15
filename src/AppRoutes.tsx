@@ -25,9 +25,6 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 
-// Componentes de debug/demonstração
-import { DarkModeHoverDemo } from "./components/debug/DarkModeHoverDemo";
-
 // Componente de loading para Suspense
 const PageLoader = () => (
   <div className="flex items-center justify-center h-screen">
@@ -181,20 +178,6 @@ const AppRoutes = () => {
       />
 
 
-      
-      {/* Rotas de debug/demonstração */}
-      <Route 
-        path="/debug/dark-hover" 
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <DarkModeHoverDemo />
-            </AppLayout>
-          </ProtectedRoute>
-        } 
-      />
-
-      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
