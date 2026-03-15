@@ -124,7 +124,7 @@ export const procedimentosSSC: Procedimento[] = [
     procedimento: "Regra: Não aceita intervenção do lojista. O cliente deve contatar o fabricante diretamente.",
     canais: [
       { tipo: "Site", valor: "https://support.apple.com/pt-br" },
-      { tipo: "SAC", valor: "0800-761-0880" }
+      { tipo: "SAC", valor: "0800 761 0880 ou 0800 761 0867" }
     ],
     observacoes: ["Não aceita intervenção de revenda"]
   },
@@ -195,8 +195,8 @@ export const procedimentosSSC: Procedimento[] = [
     categoria: "Eletroportáteis",
     procedimento: "Procedimento de Abertura: Para Ar-condicionado, Cooktop/Indução e Informática, é obrigatório anexar as fotos solicitadas pelo fabricante.",
     canais: [
-      { tipo: "SAC Britânia", valor: "(11) 4858-1233 (Capitais), (47) 3431-0300 (Demais regiões) ou WhatsApp (47) 98480-2013" },
-      { tipo: "SAC Philco", valor: "(11) 4858-1141 (Capitais)" },
+      { tipo: "SAC Britânia", valor: "(11) 4858-1233 (Capitais), (47) 3431-0300 (Demais) ou WhatsApp (47) 98480-2013" },
+      { tipo: "SAC Philco", valor: "(11) 4858-1141 (Capitais) ou (47) 3431-0499 (Demais)" },
       { tipo: "Atendimento Britânia", valor: "https://britania.force.com/CA/s/" },
       { tipo: "Atendimento Philco", valor: "https://suporte.philco.com.br/s/" }
     ],
@@ -425,7 +425,7 @@ export const procedimentosSSC: Procedimento[] = [
     categoria: "Eletroportáteis",
     procedimento: "Atendimento via SAC Fone, WhatsApp, Chat Online ou E-mail.",
     canais: [
-      { tipo: "SAC", valor: "08000 176 111", horario: "Seg-Qui: 8-18h / Sex: 8-17h" },
+      { tipo: "SAC", valor: "0800 176 111", horario: "Seg-Qui: 8-18h / Sex: 8-17h" },
       { tipo: "WhatsApp", valor: "https://api.whatsapp.com/send/?phone=551938849100" },
       { tipo: "Chat", valor: "https://nwdsk.co/chat-form/J74wU" },
       { tipo: "Formulário", valor: "https://portal.karcher.com.br/home/contato.aspx" },
@@ -468,7 +468,8 @@ export const procedimentosSSC: Procedimento[] = [
       { tipo: "Reparo Celular", valor: "https://www.lg.com/br/suporte/reparo-garantia/solicitar-reparo-celular" },
       { tipo: "Visita Técnica TV", valor: "https://www.lg.com/br/suporte/reparo-garantia/solicitar-reparo" },
       { tipo: "Postos", valor: "https://www.lg.com/br/suporte/localizar-assistencia-tecnica" },
-      { tipo: "WhatsApp", valor: "11 4004 5400" }
+      { tipo: "WhatsApp/Capitais", valor: "11 4004 5400" },
+      { tipo: "SAC Demais", valor: "0800 707 5454" }
     ]
   },
   {
