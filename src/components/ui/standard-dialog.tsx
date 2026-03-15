@@ -145,33 +145,3 @@ export function StandardDialogFooter({
   );
 }
 
-interface StandardDialogContentProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-/**
- * ⚠️ DEPRECIADO: Este componente tem problemas de scroll no mobile.
- * Use `<div className="flex-1 min-h-0 overflow-y-auto">` diretamente no lugar deste componente.
- * 
- * @deprecated Use div com overflow-y-auto ao invés deste componente
- */
-export function StandardDialogContent({
-  children,
-  className,
-}: StandardDialogContentProps) {
-  const isMobile = useIsMobile();
-
-  return (
-    <div
-      className={cn(
-        "flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent",
-        "touch-pan-y select-text",
-        isMobile ? "p-4" : "p-6",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-}

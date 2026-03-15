@@ -2,7 +2,7 @@
  * Traduções para mensagens de erro comuns do Supabase e outras APIs
  */
 
-export const ERROR_TRANSLATIONS: Record<string, string> = {
+const ERROR_TRANSLATIONS: Record<string, string> = {
   // Mensagens de autenticação
   "Invalid login credentials": "Credenciais de login inválidas",
   "Email not confirmed": "E-mail não confirmado",
@@ -35,12 +35,7 @@ export const ERROR_TRANSLATIONS: Record<string, string> = {
   "FunctionsHttpError": "Erro na comunicação com o servidor",
 };
 
-/**
- * Traduz uma mensagem de erro para português brasileiro
- * @param error - Mensagem de erro original ou objeto de erro
- * @returns Mensagem traduzida ou mensagem original se não houver tradução
- */
-export function translateError(error: string | Error | { message?: string }): string {
+function translateError(error: string | Error | { message?: string }): string {
   let errorMessage: string;
   
   if (typeof error === 'string') {

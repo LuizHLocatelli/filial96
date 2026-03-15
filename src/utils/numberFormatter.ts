@@ -24,18 +24,6 @@ export function parseBrazilianNumber(value: string): number {
 }
 
 /**
- * Converte número para formato brasileiro (1.234,56)
- */
-export function formatBrazilianNumber(value: number, decimals: number = 2): string {
-  if (isNaN(value) || value === null || value === undefined) return '';
-
-  return value.toLocaleString('pt-BR', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-}
-
-/**
  * Converte valor monetário para formato brasileiro
  */
 export function formatBrazilianCurrency(value: number): string {

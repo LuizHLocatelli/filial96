@@ -32,7 +32,7 @@ export default function Crediario() {
     {
       value: "calculadora",
       label: "Calculadora",
-      icon: "🧮",
+      icon: "📟",
       description: "Calculadora de renegociação",
       component: <CalculadoraCredito />
     }
