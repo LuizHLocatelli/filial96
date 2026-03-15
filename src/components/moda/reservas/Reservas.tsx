@@ -285,10 +285,10 @@ export function Reservas() {
           ) : isMobile ? (
             <Tabs defaultValue="all" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="all">Todas ({filteredReservas.length})</TabsTrigger>
-                <TabsTrigger value="ativas">Ativas ({reservasByStatus.ativas.length})</TabsTrigger>
+                <TabsTrigger value="all">📋 Todas ({filteredReservas.length})</TabsTrigger>
+                <TabsTrigger value="ativas">⏳ Ativas ({reservasByStatus.ativas.length})</TabsTrigger>
                 <TabsTrigger value="outras">
-                  Outras ({reservasByStatus.expiradas.length + reservasByStatus.convertidas.length + reservasByStatus.canceladas.length})
+                  📁 Outras ({reservasByStatus.expiradas.length + reservasByStatus.convertidas.length + reservasByStatus.canceladas.length})
                 </TabsTrigger>
               </TabsList>
 

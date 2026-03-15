@@ -123,8 +123,8 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
             <form id="assistant-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs defaultValue="config" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="config">Configuração</TabsTrigger>
-                  <TabsTrigger value="documents">Documentos (RAG)</TabsTrigger>
+                  <TabsTrigger value="config">⚙️ Configuração</TabsTrigger>
+                  <TabsTrigger value="documents">📄 Documentos (RAG)</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="config">

@@ -445,18 +445,18 @@ export function Depositos() {
 
           <TabsList className="grid w-full grid-cols-3 max-w-[320px] mx-auto h-11">
             <TabsTrigger value="dashboard" className="flex items-center gap-2 text-sm">
-              <Home className="h-4 w-4" />
+              <span className="text-[16px]">🏠</span>
               <span className="hidden sm:inline">Início</span>
-                </TabsTrigger>
+            </TabsTrigger>
             <TabsTrigger value="calendar" className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4" />
+              <span className="text-[16px]">📅</span>
               <span className="hidden sm:inline">Calendário</span>
-                </TabsTrigger>
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2 text-sm">
-              <BarChart3 className="h-4 w-4" />
+              <span className="text-[16px]">📊</span>
               <span className="hidden sm:inline">Analytics</span>
-                </TabsTrigger>
-              </TabsList>
+            </TabsTrigger>
+          </TabsList>
           </div>
 
         <TabsContent value="dashboard" className="space-y-6 mt-4">

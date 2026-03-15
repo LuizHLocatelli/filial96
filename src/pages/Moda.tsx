@@ -29,7 +29,7 @@ export default function Moda() {
     {
       value: "reservas",
       label: "Reservas",
-      icon: Clock,
+      icon: "⏳",
       description: "Controle de reservas",
       mobileLabel: "Reservas",
       component: <Reservas />
@@ -37,7 +37,7 @@ export default function Moda() {
     {
       value: "estoque",
       label: "Estoque",
-      icon: Package,
+      icon: "📦",
       description: "Contagem de estoque",
       component: <Estoque />
     }

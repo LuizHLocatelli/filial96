@@ -25,14 +25,14 @@ export default function Moveis() {
     {
       value: "fretes",
       label: "Fretes",
-      icon: Truck,
+      icon: "🚛",
       description: "Consulta de valores de frete",
       component: <Fretes />
     },
     {
       value: "orcamentos",
       label: "Orçamentos",
-      icon: Calculator,
+      icon: "📑",
       description: "Gerador de orçamentos em PDF",
       component: <Orcamentos />
     },
@@ -40,7 +40,7 @@ export default function Moveis() {
       value: "procedimentos-ssc",
       label: "Procedimentos SSC",
       mobileLabel: "SSC",
-      icon: Wrench,
+      icon: "🛠️",
       description: "Guia de assistência técnica",
       component: <ProcedimentosSSC />
     }

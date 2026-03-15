@@ -192,13 +192,16 @@ export function Estoque() {
           >
             <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:flex bg-background/50">
               <TabsTrigger value="todos" className="gap-2">
+                <span className="text-[14px]">📋</span>
                 Todos
                 <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[10px] bg-background/50">{stats.total}</Badge>
               </TabsTrigger>
               <TabsTrigger value="em_andamento" className="gap-2 data-[state=active]:text-amber-600 data-[state=active]:bg-amber-100/50 dark:data-[state=active]:bg-amber-500/10">
+                <span className="text-[14px]">⏳</span>
                 Abertos
               </TabsTrigger>
               <TabsTrigger value="finalizada" className="gap-2 data-[state=active]:text-emerald-600 data-[state=active]:bg-emerald-100/50 dark:data-[state=active]:bg-emerald-500/10">
+                <span className="text-[14px]">✅</span>
                 Fechados
               </TabsTrigger>
             </TabsList>

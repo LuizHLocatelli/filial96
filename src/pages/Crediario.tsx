@@ -25,14 +25,14 @@ export default function Crediario() {
     {
       value: "depositos",
       label: "Depósitos",
-      icon: Calendar,
+      icon: "📅",
       description: "Controle de depósitos",
       component: <Depositos />
     },
     {
       value: "calculadora",
       label: "Calculadora",
-      icon: Calculator,
+      icon: "🧮",
       description: "Calculadora de renegociação",
       component: <CalculadoraCredito />
     }

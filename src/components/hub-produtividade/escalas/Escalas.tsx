@@ -41,8 +41,8 @@ export default function Escalas() {
       <Tabs defaultValue="carga" className="w-full">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <TabsList className="grid w-full sm:w-[400px] grid-cols-2">
-            <TabsTrigger value="carga">Escala de Carga</TabsTrigger>
-            <TabsTrigger value="almoco">Horários de Almoço</TabsTrigger>
+            <TabsTrigger value="carga">🚛 Escala de Carga</TabsTrigger>
+            <TabsTrigger value="almoco">🍴 Horários de Almoço</TabsTrigger>
           </TabsList>
         </div>
 

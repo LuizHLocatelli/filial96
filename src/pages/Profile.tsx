@@ -33,7 +33,7 @@ export default function Profile() {
     {
       value: "info",
       label: "Informações Pessoais",
-      icon: User,
+      icon: "👤",
       description: "Dados pessoais e configurações de conta",
       component: (
         <div className="space-y-6">
@@ -66,7 +66,7 @@ export default function Profile() {
     {
       value: "security",
       label: "Segurança",
-      icon: Shield,
+      icon: "🛡️",
       description: "Senha e configurações de segurança",
       component: (
         <div className="space-y-6">
@@ -102,7 +102,7 @@ export default function Profile() {
     {
       value: "debug",
       label: "Debug Notificações",
-      icon: Bug,
+      icon: "🐛",
       description: "Diagnóstico do sistema de notificações",
       component: (
         <div className="space-y-6">
@@ -129,7 +129,7 @@ export default function Profile() {
       <PageHeader
         title="Configurações do Perfil"
         description="Gerencie suas informações pessoais e configurações de segurança"
-        icon={User}
+        icon="👤"
         iconColor="text-primary"
         variant="minimal"
         breadcrumbs={[
