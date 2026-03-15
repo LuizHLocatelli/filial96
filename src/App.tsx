@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/auth";
 import { ThemeProvider } from "./contexts/theme";
-import { GlobalSearchProvider } from "./contexts/globalSearch";
 import AppRoutes from "./AppRoutes";
 
 
@@ -18,11 +17,9 @@ const AppContent = () => {
     <AuthProvider>
       <TooltipProvider>
         <BrowserRouter>
-          <GlobalSearchProvider>
-            <Toaster />
-            <Sonner />
-            <AppRoutes />
-          </GlobalSearchProvider>
+          <Toaster />
+          <Sonner />
+          <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
