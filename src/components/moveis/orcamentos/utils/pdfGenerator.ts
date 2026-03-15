@@ -63,6 +63,10 @@ export const generateOrcamentoPdf = (data: OrcamentoData) => {
   cursorY += 5;
   if (data.validade) {
     doc.text(`Válido até: ${data.validade}`, PAGE_WIDTH - MARGIN_RIGHT, cursorY, { align: "right" });
+    cursorY += 5;
+  }
+  if (data.consultor) {
+    doc.text(`Consultor(a): ${data.consultor}`, PAGE_WIDTH - MARGIN_RIGHT, cursorY, { align: "right" });
   }
 
   // Linha separadora

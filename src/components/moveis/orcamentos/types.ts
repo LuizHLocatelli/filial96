@@ -19,6 +19,7 @@ export interface OrcamentoData {
   itens: OrcamentoItem[];
   validade: string; // Data ou texto (ex: "15 dias")
   observacoes: string;
+  consultor?: string; // Nome do consultor que atendeu
   valorTotal: number;
   dataCriacao: Date;
 }

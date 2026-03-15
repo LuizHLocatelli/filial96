@@ -34,6 +34,7 @@ export function Orcamentos() {
   // Estado das Configurações do Orçamento
   const [validade, setValidade] = useState("7 dias");
   const [observacoes, setObservacoes] = useState("");
+  const [consultor, setConsultor] = useState("");
 
   // Estado dos Itens
   const [itens, setItens] = useState<OrcamentoItem[]>([]);
@@ -114,6 +115,7 @@ export function Orcamentos() {
       itens,
       validade,
       observacoes,
+      consultor,
       valorTotal,
       dataCriacao: new Date()
     };
@@ -311,18 +313,32 @@ export function Orcamentos() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="orcamento-validade" className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Validade do Orçamento
-                </Label>
-                <Input 
-                  id="orcamento-validade" 
-                  placeholder="Ex: 7 dias, 15 dias, ou 30/12/2023" 
-                  value={validade}
-                  onChange={(e) => setValidade(e.target.value)}
-                  className="max-w-xs"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="orcamento-consultor" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Nome do Consultor
+                  </Label>
+                  <Input 
+                    id="orcamento-consultor" 
+                    placeholder="Seu nome" 
+                    value={consultor}
+                    onChange={(e) => setConsultor(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="orcamento-validade" className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Validade do Orçamento
+                  </Label>
+                  <Input 
+                    id="orcamento-validade" 
+                    placeholder="Ex: 7 dias, 15 dias, ou 30/12/2023" 
+                    value={validade}
+                    onChange={(e) => setValidade(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
