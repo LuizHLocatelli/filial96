@@ -37,8 +37,29 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const prevMessagesLength = useRef(0);
+
   useEffect(() => {
-    if (scrollRef.current) {
+    if (!scrollRef.current) return;
+    
+    const viewport = scrollRef.current.closest('[data-radix-scroll-area-viewport]');
+    
+    const isInitialLoad = prevMessagesLength.current === 0 && messages.length > 0;
+    const isNewUserMessage = messages.length > prevMessagesLength.current && messages[messages.length - 1]?.role === 'user';
+    
+    if (isInitialLoad || isNewUserMessage) {
+      if (viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      } else {
+        scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+    
+    prevMessagesLength.current = messages.length;
+  }, [messages]);
+
+  useEffect(() => {
+    if (isSending && scrollRef.current) {
       const viewport = scrollRef.current.closest('[data-radix-scroll-area-viewport]');
       if (viewport) {
         viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
@@ -46,7 +67,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
         scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
-  }, [messages, isSending, streamingContent]);
+  }, [isSending]);
 
   // Listen for pending messages from auto-session creation
   useEffect(() => {
