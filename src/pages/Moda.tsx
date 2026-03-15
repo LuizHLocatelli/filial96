@@ -48,7 +48,7 @@ export default function Moda() {
       <PageHeader
         title="Moda"
         description="Gestão completa do setor de moda"
-        icon={Shirt}
+        icon="👕"
         iconColor="text-primary"
         variant="default"
         breadcrumbs={[

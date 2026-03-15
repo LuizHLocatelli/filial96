@@ -30,7 +30,7 @@ export default function PromotionalCards() {
       <PageHeader
         title="Cards Promocionais"
         description="Gestão completa dos materiais promocionais"
-        icon={Sparkles}
+        icon="🖼️"
         iconColor="text-primary"
         variant="default"
         breadcrumbs={[

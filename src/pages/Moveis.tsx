@@ -51,7 +51,7 @@ export default function Moveis() {
       <PageHeader
         title="Móveis"
         description="Gestão completa do setor de móveis"
-        icon={Sofa}
+        icon="🛋️"
         iconColor="text-primary"
         variant="default"
         breadcrumbs={[

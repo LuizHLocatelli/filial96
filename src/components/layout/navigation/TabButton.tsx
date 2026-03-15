@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TabButtonProps } from "./types";
 
@@ -12,7 +13,8 @@ export const TabButton = memo(function TabButton({
   onTabClick,
   preloadProps = {}
 }: TabButtonProps) {
-  const Icon = tab.icon;
+  const isEmoji = typeof tab.icon === 'string';
+  const Icon = !isEmoji ? tab.icon as LucideIcon : null;
 
   return (
     <motion.button
@@ -91,18 +93,32 @@ export const TabButton = memo(function TabButton({
         whileHover={{ scale: isMobile ? 1.08 : 1.1 }}
         whileTap={{ scale: 0.92 }}
       >
-        <Icon 
-          className={cn(
-            "transition-all duration-300",
+        {isEmoji ? (
+          <span className={cn(
+            "transition-all duration-300 flex items-center justify-center leading-none",
             isMobile 
-              ? (isSmallScreen ? "h-3 w-3" : "h-3.5 w-3.5")
-              : "h-4 w-4", 
-            isActive 
-              ? "nav-icon-active font-bold drop-shadow-sm" 
-              : "nav-icon-inactive group-hover:font-medium",
-            !isActive && "text-gray-600 dark:text-gray-300"
-          )} 
-        />
+              ? (isSmallScreen ? "text-[12px]" : "text-[14px]")
+              : "text-[16px]",
+            isActive ? "drop-shadow-md" : "opacity-80 group-hover:opacity-100"
+          )}>
+            {tab.icon}
+          </span>
+        ) : (
+          Icon && (
+            <Icon 
+              className={cn(
+                "transition-all duration-300",
+                isMobile 
+                  ? (isSmallScreen ? "h-3 w-3" : "h-3.5 w-3.5")
+                  : "h-4 w-4", 
+                isActive 
+                  ? "nav-icon-active font-bold drop-shadow-sm" 
+                  : "nav-icon-inactive group-hover:font-medium",
+                !isActive && "text-gray-600 dark:text-gray-300"
+              )} 
+            />
+          )
+        )}
       </motion.div>
       
       {/* Label */}

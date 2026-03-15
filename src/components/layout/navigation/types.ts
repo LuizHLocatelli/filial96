@@ -3,7 +3,7 @@ import { LucideIcon } from "lucide-react";
 
 export interface NavigationTab {
   title: string;
-  icon: LucideIcon;
+  icon: LucideIcon | string;
   path: string;
 }
 

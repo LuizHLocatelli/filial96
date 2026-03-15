@@ -43,7 +43,7 @@ export default function Crediario() {
       <PageHeader
         title="Crediário"
         description="Sistema completo de gestão do crediário"
-        icon={CreditCard}
+        icon="💸"
         iconColor="text-primary"
         variant="default"
         breadcrumbs={[

@@ -76,7 +76,7 @@ export default function HubProdutividade() {
       <PageHeader
         title="Hub de Produtividade"
         description="Central de ferramentas e produtividade"
-        icon={Activity}
+        icon="🏠"
         iconColor="text-primary"
         variant="default"
       />

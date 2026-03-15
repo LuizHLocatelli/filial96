@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface PageHeaderProps {
   title: string;
   description?: string;
-  icon?: LucideIcon;
+  icon?: LucideIcon | string;
   iconColor?: string;
   status?: {
     label: string;
@@ -27,7 +27,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
-  icon: Icon,
+  icon,
   iconColor = "text-primary",
   status,
   actions,
@@ -38,6 +38,8 @@ export function PageHeader({
 }: PageHeaderProps) {
   const isMinimal = variant === "minimal";
   const isMobile = useIsMobile();
+  const isEmoji = typeof icon === 'string';
+  const IconComponent = !isEmoji ? icon as LucideIcon : null;
 
   return (
     <div
@@ -57,19 +59,30 @@ export function PageHeader({
       >
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            {Icon && (
+            {icon && (
               <div
                 className={cn(
-                  "flex-shrink-0 p-2 rounded-lg bg-primary/10 border border-primary/20",
-                  isMinimal && "p-1.5"
+                  "flex-shrink-0 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/20",
+                  isMinimal ? "w-8 h-8 p-1" : "w-10 h-10 p-2"
                 )}
               >
-                <Icon
-                  className={cn(
-                    "h-5 w-5 text-primary",
-                    isMinimal && "h-4 w-4"
-                  )}
-                />
+                {isEmoji ? (
+                  <span className={cn(
+                    "leading-none",
+                    isMinimal ? "text-base" : "text-xl"
+                  )}>
+                    {icon}
+                  </span>
+                ) : (
+                  IconComponent && (
+                    <IconComponent
+                      className={cn(
+                        "h-5 w-5 text-primary",
+                        isMinimal && "h-4 w-4"
+                      )}
+                    />
+                  )
+                )}
               </div>
             )}
             <div>

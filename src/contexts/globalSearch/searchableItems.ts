@@ -7,7 +7,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Central de ferramentas e produtividade',
     type: 'page',
     path: '/',
-    icon: 'Activity'
+    icon: '🏠'
   },
   {
     id: 'hub-produtividade-monitoramento',
@@ -33,7 +33,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Gestão completa do setor de móveis',
     type: 'page',
     path: '/moveis',
-    icon: 'Sofa'
+    icon: '🛋️'
   },
   {
     id: 'moveis-visao-geral',
@@ -42,7 +42,7 @@ export const searchableItems: SearchResult[] = [
     type: 'section',
     path: '/moveis?tab=overview',
     section: 'Móveis',
-    icon: 'Sofa'
+    icon: '🛋️'
   },
   {
     id: 'crediario',
@@ -50,7 +50,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Gestão completa do setor de crediário',
     type: 'page',
     path: '/crediario',
-    icon: 'CreditCard'
+    icon: '💸'
   },
   {
     id: 'crediario-depositos',
@@ -68,7 +68,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Gestão de cards promocionais e campanhas',
     type: 'page',
     path: '/cards-promocionais',
-    icon: 'Image'
+    icon: '🖼️'
   },
   {
     id: 'perfil',
@@ -92,7 +92,7 @@ export const searchableItems: SearchResult[] = [
     description: 'Gestão completa do setor de moda',
     type: 'page',
     path: '/moda',
-    icon: 'Shirt'
+    icon: '👕'
   },
   {
     id: 'moda-visao-geral',
@@ -101,7 +101,7 @@ export const searchableItems: SearchResult[] = [
     type: 'section',
     path: '/moda?tab=overview',
     section: 'Moda',
-    icon: 'Shirt'
+    icon: '👕'
   },
 
 ];
