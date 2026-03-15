@@ -362,7 +362,7 @@ export function Orcamentos() {
             <CardHeader className="pb-4 bg-muted/20 dark:bg-muted/40 rounded-t-xl border-b">
               <CardTitle className="text-lg flex items-center justify-between">
                 <span>Resumo do Orçamento</span>
-                <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">
+                <span className="bg-primary/20 dark:bg-primary/30 text-primary dark:text-primary-foreground border border-primary/30 dark:border-primary/50 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                   {itens.length} {itens.length === 1 ? 'item' : 'itens'}
                 </span>
               </CardTitle>
