@@ -282,6 +282,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
     const tools: any[] = [];
     if (webSearchEnabled) {
       tools.push({ googleSearch: {} });
+      activatedTools.push("web_search");
     }
 
     // Non-streaming mode
