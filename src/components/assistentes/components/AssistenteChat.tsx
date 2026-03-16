@@ -246,7 +246,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-gradient-to-br from-muted to-muted/60 text-foreground border border-border/50'
                 }`}>
-                  {msg.role === 'user' ? <span className="text-sm">❓</span> : <span className="text-sm">🧠</span>}
+                  {msg.role === 'user' ? <span className="text-sm">❔</span> : <span className="text-sm">🧠</span>}
                 </div>
                 <div className={`flex flex-col gap-1.5 min-w-0 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {/* Tool badges for saved model messages */}
@@ -294,7 +294,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 className="flex gap-3 min-w-0 overflow-hidden flex-row-reverse"
               >
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm bg-primary text-primary-foreground">
-                  <span className="text-sm">❓</span>
+                  <span className="text-sm">❔</span>
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-0 max-w-[85%] items-end">
                   <div className="px-4 py-3 min-w-0 overflow-hidden bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20">
