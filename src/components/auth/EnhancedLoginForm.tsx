@@ -55,7 +55,7 @@ export function EnhancedLoginForm() {
         localStorage.setItem('remember-user', JSON.stringify({ email: values.email }));
       }
 
-      navigate("/");
+      navigate("/", { state: { justLoggedIn: true } });
     } catch (error) {
       toast({
         variant: "destructive",

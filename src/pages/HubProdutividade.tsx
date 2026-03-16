@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Activity } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
@@ -12,11 +13,25 @@ import { useHubHandlers } from "@/components/hub-produtividade/hooks/useHubHandl
 import { createTabsConfig } from "./hub-produtividade/tabsConfig";
 import { HubDialogs } from "./hub-produtividade/HubDialogs";
 import { useHubUrlParams } from "./hub-produtividade/useHubUrlParams";
+import { WelcomeHubDialog } from "./hub-produtividade/WelcomeHubDialog";
 
 export default function HubProdutividade() {
   // Estados para dialogs funcionais
   const [showBuscaAvancada, setShowBuscaAvancada] = useState(false);
   const [showFiltrosPorData, setShowFiltrosPorData] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const location = useLocation();
+
+  // Efeito para mostrar boas-vindas após login
+  useEffect(() => {
+    const justLoggedIn = (location.state as any)?.justLoggedIn;
+    const welcomeShown = sessionStorage.getItem("welcome_shown");
+
+    if (justLoggedIn && !welcomeShown) {
+      setShowWelcome(true);
+      sessionStorage.setItem("welcome_shown", "true");
+    }
+  }, [location]);
 
   // Hook para dados
   const {
@@ -96,6 +111,11 @@ export default function HubProdutividade() {
         setShowFiltrosPorData={setShowFiltrosPorData}
         onBuscaAvancadaResults={handleBuscaAvancadaResults}
         onFiltrosPorDataApply={handleFiltrosPorDataApply}
+      />
+
+      <WelcomeHubDialog 
+        open={showWelcome} 
+        onOpenChange={setShowWelcome} 
       />
     </PageLayout>
   );
