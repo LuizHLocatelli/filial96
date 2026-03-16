@@ -168,7 +168,7 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
           onChange={handleInput}
           onKeyDown={handleKeyDown}
           placeholder={isListening ? "🎙️ Ouvindo..." : isFloating ? "Como posso ajudar você hoje?" : "Escreva sua mensagem..."}
-          className="min-h-[40px] sm:min-h-[44px] max-h-[150px] resize-none border-0 focus-visible:ring-0 bg-transparent py-2 px-1 text-sm sm:text-[15px] placeholder:text-[13px] sm:placeholder:text-sm placeholder:text-muted-foreground/60 leading-relaxed font-normal"
+          className="min-h-[40px] sm:min-h-[44px] max-h-[150px] resize-none border-0 focus-visible:ring-0 bg-transparent py-2 px-1 text-[13px] sm:text-sm placeholder:text-[12px] sm:placeholder:text-[13px] placeholder:text-muted-foreground/60 leading-relaxed font-normal"
           disabled={disabled || isListening}
           rows={1}
         />
