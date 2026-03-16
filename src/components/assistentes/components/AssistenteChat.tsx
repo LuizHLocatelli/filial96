@@ -144,7 +144,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             {assistant.avatar_icon ? (
               <span className="drop-shadow-sm">{assistant.avatar_icon}</span>
             ) : (
-              <Sparkles className="w-10 h-10 text-primary" />
+              <span className="text-4xl drop-shadow-sm">🧠</span>
             )}
           </motion.div>
 
@@ -210,11 +210,11 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary shrink-0 border border-primary/10 shadow-sm text-lg">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary shrink-0 border border-primary/10 shadow-sm text-lg">
           {assistant.avatar_icon ? (
             <span className="drop-shadow-sm">{assistant.avatar_icon}</span>
           ) : (
-            <Bot className="w-5 h-5" />
+            <span className="drop-shadow-sm text-base">🧠</span>
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -241,12 +241,12 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 transition={{ duration: 0.2 }}
                 className={`flex gap-3 min-w-0 overflow-hidden ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
                   msg.role === 'user' 
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-gradient-to-br from-muted to-muted/60 text-foreground border border-border/50'
                 }`}>
-                  {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                  {msg.role === 'user' ? <span className="text-sm">👤</span> : <span className="text-sm">🧠</span>}
                 </div>
                 <div className={`flex flex-col gap-1.5 min-w-0 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {/* Tool badges for saved model messages */}
@@ -293,8 +293,8 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
                 className="flex gap-3 min-w-0 overflow-hidden flex-row-reverse"
               >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm bg-primary text-primary-foreground">
-                  <User className="w-4 h-4" />
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm bg-primary text-primary-foreground">
+                  <span className="text-sm">👤</span>
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-0 max-w-[85%] items-end">
                   <div className="px-4 py-3 min-w-0 overflow-hidden bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20">
@@ -315,8 +315,8 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
               animate={{ opacity: 1, y: 0 }}
               className="flex gap-3 flex-row"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                <Bot className={cn("w-4 h-4", !streamingContent && "animate-pulse")} />
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
+                <span className={cn("text-sm", !streamingContent && "animate-pulse")}>🧠</span>
               </div>
               <div className="flex flex-col gap-1.5 max-w-[85%] items-start">
                 
