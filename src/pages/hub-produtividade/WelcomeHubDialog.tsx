@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { 
-  Bot, 
-  Calendar, 
-  ShoppingBag, 
-  Settings, 
   ChevronRight, 
   ChevronLeft, 
-  Check,
-  Zap,
-  LayoutDashboard,
-  ShieldCheck
+  Check
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -17,83 +10,95 @@ import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/stan
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useAuth } from "@/contexts/auth";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface WelcomeHubDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const EmojiComponent = ({ emoji, className }: { emoji: string, className?: string }) => (
+  <span className={cn("flex items-center justify-center", className)} style={{ fontStyle: 'normal' }}>
+    {emoji}
+  </span>
+);
+
+
 const STEPS = [
   {
-    title: "Bem-vindo à Filial 96",
-    subtitle: "Sua nova central de operações",
-    icon: ShieldCheck,
+    title: "Seja bem-vindo!",
+    subtitle: "Seu novo App Filial 96",
+    emoji: "👋",
     color: "text-blue-500",
     bg: "bg-blue-500/10",
     content: (
       <div className="space-y-4">
-        <p className="text-muted-foreground leading-relaxed">
-          Olá! Estamos muito felizes em ter você aqui. O App Filial 96 foi redesenhado para ser seu braço direito no dia a dia da loja.
+        <p className="text-muted-foreground leading-relaxed text-base">
+          Opa! Que bom ter você aqui. Esse app foi pensado para facilitar sua rotina e deixar tudo o que você precisa na palma da mão.
         </p>
         <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
-          <Zap className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-          <p className="text-sm">
-            Tudo o que você precisa — de escalas a gestão de estoque — está agora em um só lugar, acessível de qualquer dispositivo.
+          <span className="text-xl shrink-0 mt-0.5">⚡</span>
+          <p className="text-sm font-medium">
+            De escalas a gestão de estoque, agora tá tudo em um só lugar.
           </p>
         </div>
       </div>
     )
   },
   {
-    title: "Operações & Vendas",
-    subtitle: "Móveis, Moda e Crediário",
-    icon: ShoppingBag,
+    title: "Direto ao ponto",
+    subtitle: "Móveis, Moda e Finanças",
+    emoji: "📦",
     color: "text-emerald-500",
     bg: "bg-emerald-500/10",
     content: (
       <div className="space-y-4">
         <p className="text-muted-foreground leading-relaxed">
-          Gerencie os setores core da loja com ferramentas específicas:
+          Nada de complicação. Agora você resolve as contagens de estoque e cuida dos depósitos do crediário rapidinho:
         </p>
         <ul className="space-y-3">
-          <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-            <div className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-sm font-medium">Móveis & Moda:</span>
-            <span className="text-sm text-muted-foreground">Estoque e contagens em tempo real.</span>
+          <li className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+            <span className="text-xl">👕</span>
+            <div>
+              <p className="text-sm font-semibold">Móveis & Moda</p>
+              <p className="text-xs text-muted-foreground">Estoque e contagens em tempo real.</p>
+            </div>
           </li>
-          <li className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-            <div className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-sm font-medium">Crediário:</span>
-            <span className="text-sm text-muted-foreground">Depósitos e fluxos financeiros simplificados.</span>
+          <li className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+            <span className="text-xl">💰</span>
+            <div>
+              <p className="text-sm font-semibold">Crediário</p>
+              <p className="text-xs text-muted-foreground">Depósitos e fluxos financeiros simplificados.</p>
+            </div>
           </li>
         </ul>
       </div>
     )
   },
   {
-    title: "Produtividade & IA",
-    subtitle: "Ferramentas Inteligentes",
-    icon: Bot,
+    title: "Agilize seu dia",
+    subtitle: "Escalas e Apoio com IA",
+    emoji: "🚀",
     color: "text-purple-500",
     bg: "bg-purple-500/10",
     content: (
       <div className="space-y-4">
         <p className="text-muted-foreground leading-relaxed">
-          Otimize seu tempo com nossos assistentes e utilitários:
+          Chega de papel ou dúvida. Veja tudo direto no celular:
         </p>
         <div className="grid grid-cols-1 gap-3">
           <div className="flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-background/50">
-            <Calendar className="h-5 w-5 text-purple-500" />
+            <span className="text-xl">📅</span>
             <div>
               <p className="text-sm font-semibold">Escalas Digitais</p>
-              <p className="text-xs text-muted-foreground">Consulte horários e folgas instantaneamente.</p>
+              <p className="text-xs text-muted-foreground">Consulte horários e folgas na hora.</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 rounded-xl border border-border/50 bg-background/50">
-            <Bot className="h-5 w-5 text-purple-500" />
+            <span className="text-xl">🤖</span>
             <div>
               <p className="text-sm font-semibold">Assistentes IA</p>
-              <p className="text-xs text-muted-foreground">Suporte inteligente para dúvidas e procedimentos.</p>
+              <p className="text-xs text-muted-foreground">Tire dúvidas sobre procedimentos instantaneamente.</p>
             </div>
           </div>
         </div>
@@ -101,21 +106,21 @@ const STEPS = [
     )
   },
   {
-    title: "Tudo Pronto!",
-    subtitle: "Vamos começar?",
-    icon: LayoutDashboard,
+    title: "Bora começar?",
+    subtitle: "O App é todo seu",
+    emoji: "✨",
     color: "text-orange-500",
     bg: "bg-orange-500/10",
     content: (
       <div className="space-y-4 text-center py-4">
         <div className="mx-auto w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center mb-4">
-          <Check className="h-8 w-8 text-orange-500" />
+          <span className="text-3xl">✅</span>
         </div>
         <p className="text-muted-foreground">
-          Explore o menu e descubra como a Filial 96 pode facilitar seu trabalho hoje.
+          Explore as ferramentas e sinta-se em casa. O Hub de Produtividade é o ponto de partida ideal.
         </p>
-        <p className="text-sm font-medium text-primary">
-          Dica: Use o Hub de Produtividade para acesso rápido às ferramentas frequentes.
+        <p className="text-sm font-bold text-primary">
+          Dica: Use os atalhos do Hub para o que você mais usa no dia a dia.
         </p>
       </div>
     )
@@ -155,8 +160,8 @@ export function WelcomeHubDialog({ open, onOpenChange }: WelcomeHubDialogProps) 
       <DialogContent className="max-h-[85dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0 border-none sm:border bg-transparent shadow-none sm:shadow-2xl" hideCloseButton>
         <div className="glass-card flex flex-col h-full overflow-hidden border-none sm:border">
           <StandardDialogHeader 
-            icon={step.icon} 
-            title={currentStep === 0 ? `Olá, ${userName}!` : step.title}
+            icon={((props: any) => <EmojiComponent emoji={step.emoji} {...props} />) as any} 
+            title={currentStep === 0 ? `Fala, ${userName}!` : step.title}
             onClose={() => onOpenChange(false)} 
           />
           
@@ -170,12 +175,12 @@ export function WelcomeHubDialog({ open, onOpenChange }: WelcomeHubDialogProps) 
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
-                <div className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-2 mb-6">
-                  <div className={`p-3 rounded-2xl ${step.bg} ${step.color} inline-flex mb-2`}>
-                    <step.icon className="h-8 w-8" />
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left space-y-1 mb-6">
+                  <div className={`p-3 rounded-2xl ${step.bg} inline-flex mb-2 shadow-inner`}>
+                    <span className="text-3xl leading-none">{step.emoji}</span>
                   </div>
-                  <h3 className="text-xl font-bold tracking-tight">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">{step.subtitle}</p>
+                  <h3 className="text-2xl font-bold tracking-tight text-foreground">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground font-semibold uppercase tracking-widest">{step.subtitle}</p>
                 </div>
 
                 {step.content}

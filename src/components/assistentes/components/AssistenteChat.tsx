@@ -114,7 +114,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
           scale: isInitializing ? 0.985 : 1,
         }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-center justify-center h-full gap-4 text-center p-4 sm:p-8 relative overflow-hidden bg-background"
+        className="flex flex-col items-center justify-center h-full gap-4 text-center px-2.5 py-6 sm:p-8 relative overflow-hidden bg-background"
       >
         {/* Glow de fundo */}
         <motion.div
@@ -132,14 +132,14 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
         <motion.div
           animate={{ opacity: isInitializing ? 0.3 : 1, y: isInitializing ? -14 : 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center justify-center gap-4 max-w-3xl w-full z-10"
+          className="flex flex-col items-center justify-center gap-4 max-w-4xl w-full z-10"
         >
           <motion.div 
             initial={{ scale: 0.8, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ type: "spring", duration: 0.8, bounce: 0.4 }}
-            className="w-24 h-24 rounded-3xl bg-gradient-to-br from-background to-muted border border-border/50 shadow-xl shadow-primary/5 flex items-center justify-center text-4xl overflow-hidden ring-1 ring-white/10"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-background to-muted border border-border/50 shadow-xl shadow-primary/5 flex items-center justify-center text-3xl sm:text-4xl overflow-hidden ring-1 ring-white/10"
           >
             {assistant.avatar_icon ? (
               <span className="drop-shadow-sm">{assistant.avatar_icon}</span>
@@ -155,10 +155,10 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             transition={{ delay: 0.2, duration: 0.5 }}
             className="space-y-3 max-w-2xl px-4"
           >
-            <h3 className="text-3xl sm:text-4xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70 pb-1">
+            <h3 className="text-2xl sm:text-4xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70 pb-1">
               {assistant.name}
             </h3>
-            <p className="text-muted-foreground text-[15px] sm:text-base leading-relaxed max-w-lg mx-auto">
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
               {assistant.description}
             </p>
           </motion.div>
@@ -172,7 +172,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="z-20 flex w-full max-w-3xl justify-end px-4"
+              className="z-20 flex w-full max-w-4xl justify-end px-4"
             >
               <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-left text-[13px] text-primary-foreground shadow-lg shadow-primary/20">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{transitionMessage.content}</ReactMarkdown>
@@ -188,7 +188,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
           transition={{ delay: 0.4, type: "spring", stiffness: 100, damping: 20 }}
           className="w-full mt-6 flex justify-center z-20"
         >
-          <div className="w-full max-w-3xl">
+          <div className="w-full max-w-4xl">
             <ChatInput onSend={(msg, imgs, docs) => handleSend(msg, imgs, docs)} disabled={isInitializing} variant="floating" />
           </div>
         </motion.div>
@@ -226,7 +226,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
       {/* Messages */}
       <ScrollArea className="flex-1 p-4" id="chat-scroll-area">
-        <div className="flex flex-col gap-5 max-w-3xl mx-auto w-full pb-4 min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-5 max-w-4xl mx-auto w-full pb-4 min-w-0 overflow-hidden">
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => (
               <motion.div

@@ -81,9 +81,9 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
   return (
     <div className={`transition-all duration-500 relative z-10 w-full ${
       isFloating 
-        ? "w-full max-w-3xl mx-auto flex flex-col items-center justify-center px-4" 
+        ? "w-full max-w-4xl mx-auto flex flex-col items-center justify-center px-0 sm:px-4" 
         : "bg-card/95 backdrop-blur-md border-t border-border/50 p-3 sm:p-4 shadow-[0_-4px_24px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_24px_-12px_rgba(0,0,0,0.4)]"
-    } gap-3`}>
+    } gap-2.5`}>
       {/* Attachments preview */}
       <AnimatePresence>
         {(images.length > 0 || documents.length > 0) && (
@@ -91,7 +91,7 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
             initial={{ height: 0, opacity: 0, marginTop: 0 }}
             animate={{ height: "auto", opacity: 1, marginTop: 4 }}
             exit={{ height: 0, opacity: 0, marginTop: 0 }}
-            className={`flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide w-full ${isFloating ? "px-2" : ""}`}
+            className={`flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide w-full ${isFloating ? "px-4 sm:px-2" : ""}`}
           >
             {images.map((img, i) => (
               <motion.div 
@@ -138,19 +138,19 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
       </AnimatePresence>
 
       {/* Input area */}
-      <div className={`flex gap-2 items-end bg-background/50 p-1.5 border border-border/50 shadow-sm focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10 focus-within:bg-background/80 transition-all duration-300 group w-full max-w-full ${
-        isFloating ? "rounded-3xl shadow-lg hover:shadow-xl dark:shadow-none hover:border-primary/30 py-2 px-2" : "rounded-2xl"
+      <div className={`flex gap-1.5 sm:gap-2 items-end bg-background/50 p-1 border border-border/50 shadow-sm focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10 focus-within:bg-background/80 transition-all duration-300 group w-full max-w-full ${
+        isFloating ? "rounded-[2rem] shadow-lg hover:shadow-xl dark:shadow-none hover:border-primary/30 py-1.5 px-1.5 sm:py-2 sm:px-2" : "rounded-2xl"
       }`}>
         <Button
           variant="ghost"
           size="icon"
-          className={`shrink-0 mb-0.5 h-10 w-10 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors ${
+          className={`shrink-0 mb-0.5 h-9 w-9 sm:h-10 sm:w-10 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors ${
             isFloating ? "rounded-full" : "rounded-xl"
           }`}
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
         >
-          <Paperclip className="w-5 h-5" />
+          <Paperclip className="w-4.5 h-4.5 sm:w-5 h-5" />
         </Button>
         <input
           type="file"
@@ -167,8 +167,8 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
           value={message}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder={isListening ? "🎙️ Ouvindo com atenção..." : isFloating ? "Como posso ajudar você hoje?" : "Escreva sua mensagem..."}
-          className="min-h-[44px] max-h-[150px] resize-none border-0 focus-visible:ring-0 bg-transparent py-2.5 px-2 text-[15px] sm:text-[15px] placeholder:text-muted-foreground/60 leading-relaxed font-normal"
+          placeholder={isListening ? "🎙️ Ouvindo..." : isFloating ? "Como posso ajudar você hoje?" : "Escreva sua mensagem..."}
+          className="min-h-[40px] sm:min-h-[44px] max-h-[150px] resize-none border-0 focus-visible:ring-0 bg-transparent py-2 px-1 text-sm sm:text-[15px] placeholder:text-[13px] sm:placeholder:text-sm placeholder:text-muted-foreground/60 leading-relaxed font-normal"
           disabled={disabled || isListening}
           rows={1}
         />
@@ -178,7 +178,7 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
             variant="ghost"
             size="icon"
             onClick={toggleListening}
-            className={`shrink-0 mb-0.5 h-10 w-10 transition-all duration-300 ${
+            className={`shrink-0 mb-0.5 h-9 w-9 sm:h-10 sm:w-10 transition-all duration-300 ${
               isFloating ? "rounded-full" : "rounded-xl"
             } ${
               isListening 
@@ -188,7 +188,7 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
             disabled={disabled}
             title={isListening ? "Parar gravação" : "Enviar mensagem de voz"}
           >
-            <Mic className="w-5 h-5" />
+            <Mic className="w-4.5 h-4.5 sm:w-5 h-5" />
           </Button>
         )}
 
@@ -203,7 +203,7 @@ export function ChatInput({ onSend, disabled, variant = "default" }: ChatInputPr
             onClick={handleSend}
             disabled={disabled || !hasContent}
             size="icon"
-            className={`shrink-0 mb-0.5 h-10 w-10 transition-all duration-300 ${
+            className={`shrink-0 mb-0.5 h-9 w-9 sm:h-10 sm:w-10 transition-all duration-300 ${
               isFloating ? "rounded-full" : "rounded-xl"
             } ${
               hasContent 
