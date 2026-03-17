@@ -99,3 +99,11 @@ Always follow this 3-part structure for Dialogs:
 - **Client**: All Supabase queries in the application code must use the client from `@/integrations/supabase/client`.
 - **MCP Tools (CRITICAL)**: Whenever an agent needs to interact with Supabase (reading/writing data, checking schema, applying migrations, logs, etc.), it **MUST ALWAYS** use the Supabase MCP tools (e.g., `supabase_list_tables`, `supabase_execute_sql`, `supabase_apply_migration`, etc.). **Do NOT** attempt to write custom scripts or workarounds to interact with the database; MCP is strictly mandatory for agents.
 - **Edge Functions**: Located in `supabase/functions/` (Deno runtime). By default, they require JWT verification.
+
+## 9. Role-Based Access Control (RBAC) & Routing
+The application uses a granular Role-Based Access Control system to manage what pages, tabs, and tools users can access.
+
+- **Role Definitions**: User roles (e.g., `gerente`, `freteiro`, `consultor_moveis`) are stored in the Supabase `profiles` table.
+- **Permission Hooks**: Always use `useRolePermissions()` to verify if a user has access to a specific tool or module. The `hasAccessToTool("permission_key")` method determines boolean access. (Note: The `gerente` role automatically returns `['*']` for full access).
+- **Route Protection**: Wrap routes in `<ProtectedRoute requiredPermission="permission_key">`. If a user lacks the specified permission, the component intercepts navigation and intelligently redirects them to their first allowed navigation tab or `/perfil` to avoid infinite loops.
+- **Dynamic Tabs**: Internal page tabs (like the sub-tabs in the "Móveis" page) should conditionally render based on the same permission keys. Always ensure the default active tab is computed dynamically by selecting the first tab the user has permission to see, rather than hardcoding a default tab.
