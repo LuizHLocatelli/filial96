@@ -17,7 +17,8 @@ export const roleLabels: Record<UserRole, string> = {
   crediarista: 'Crediarista',
   consultor_moveis: 'Consultor Móveis',
   consultor_moda: 'Consultor Moda',
-  jovem_aprendiz: 'Jovem Aprendiz'
+  jovem_aprendiz: 'Jovem Aprendiz',
+  freteiro: 'Freteiro'
 };
 
 export const roleColors: Record<UserRole, string> = {
@@ -25,5 +26,6 @@ export const roleColors: Record<UserRole, string> = {
   crediarista: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200/50 dark:border-blue-900/50',
   consultor_moveis: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-200/50 dark:border-green-900/50',
   consultor_moda: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200/50 dark:border-purple-900/50',
-  jovem_aprendiz: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/50 dark:border-orange-900/50'
+  jovem_aprendiz: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200/50 dark:border-orange-900/50',
+  freteiro: 'bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-200/50 dark:border-slate-900/50'
 }; 

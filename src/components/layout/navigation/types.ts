@@ -5,6 +5,7 @@ export interface NavigationTab {
   title: string;
   icon: LucideIcon | string;
   path: string;
+  permissionKey?: string;
 }
 
 export interface NavigationTabsProps {

@@ -108,7 +108,8 @@ export function UserMenu() {
         'consultor_moda': 'Consultor Moda',
         'crediarista': 'Crediarista',
         'gerente': 'Gerente',
-        'jovem_aprendiz': 'Jovem Aprendiz'
+        'jovem_aprendiz': 'Jovem Aprendiz',
+        'freteiro': 'Freteiro'
       };
       return { text: roleMap[profile.role] || profile.role, variant: 'outline' as const };
     }
@@ -211,6 +212,13 @@ export function UserMenu() {
               <Link to="/gerenciar-usuarios" onClick={() => setOpen(false)} className="flex items-center gap-2">
                 <span className="text-[16px] w-5 flex justify-center">👥</span>
                 <span>Gerenciar Usuários</span>
+                <span className="ml-auto text-[12px]">👑</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/gerenciar-acessos" onClick={() => setOpen(false)} className="flex items-center gap-2">
+                <span className="text-[16px] w-5 flex justify-center">🔐</span>
+                <span>Controle de Acessos</span>
                 <span className="ml-auto text-[12px]">👑</span>
               </Link>
             </DropdownMenuItem>

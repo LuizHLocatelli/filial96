@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Crown, Shield, UserCircle, GraduationCap, Phone, Tag, Loader2 } from 'lucide-react';
+import { User, Crown, Shield, UserCircle, GraduationCap, Phone, Tag, Loader2, Truck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ const roleIcons: Record<UserRole, React.ReactNode> = {
   consultor_moveis: <UserCircle className="h-4 w-4" />,
   consultor_moda: <UserCircle className="h-4 w-4" />,
   jovem_aprendiz: <GraduationCap className="h-4 w-4" />,
+  freteiro: <Truck className="h-4 w-4" />,
 };
 
 export function EditUserForm({ user, onSave, onCancel }: EditUserFormProps) {

@@ -1,6 +1,6 @@
 import React from "react";
 import { UserRole } from "@/types";
-import { Crown, Shield, User } from "lucide-react";
+import { Crown, Shield, User, GraduationCap, Truck } from "lucide-react";
 
 export const getRoleIcon = (role: UserRole) => {
   switch (role) {
@@ -8,6 +8,8 @@ export const getRoleIcon = (role: UserRole) => {
     case 'crediarista': return <Shield className="h-4 w-4 mr-2" />;
     case 'consultor_moveis': return <User className="h-4 w-4 mr-2" />;
     case 'consultor_moda': return <User className="h-4 w-4 mr-2" />;
+    case 'jovem_aprendiz': return <GraduationCap className="h-4 w-4 mr-2" />;
+    case 'freteiro': return <Truck className="h-4 w-4 mr-2" />;
     default: return <User className="h-4 w-4 mr-2" />;
   }
 };

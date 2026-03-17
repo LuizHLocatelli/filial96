@@ -164,6 +164,7 @@ export function EnhancedSignupForm() {
                       <SelectItem value="consultor_moveis">Consultor Móveis</SelectItem>
                       <SelectItem value="consultor_moda">Consultor Moda</SelectItem>
                       <SelectItem value="jovem_aprendiz">Jovem Aprendiz</SelectItem>
+                      <SelectItem value="freteiro">Freteiro</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

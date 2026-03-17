@@ -1,8 +1,8 @@
-
-import { useState, useEffect, useCallback, type ComponentType } from "react";
+import { useState, useEffect, useCallback, type ComponentType, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useResponsive } from "@/hooks/use-responsive";
 import { usePreloadOnHover } from "@/hooks/useLazyComponent";
+import { useRolePermissions } from "@/hooks/useRolePermissions";
 import { NAVIGATION_TABS, MOBILE_BREAKPOINT } from "./constants";
 
 export function useNavigationTabs() {
@@ -10,10 +10,16 @@ export function useNavigationTabs() {
   const location = useLocation();
   const { isMobile } = useResponsive();
   const { preloadOnHover } = usePreloadOnHover();
+  const { hasAccessToTool, isLoading: isPermissionsLoading } = useRolePermissions();
   
   const [selectedTab, setSelectedTab] = useState<number | null>(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [preloadedTabs, setPreloadedTabs] = useState<Set<string>>(new Set());
+
+  const filteredTabs = useMemo(() => {
+    if (isPermissionsLoading) return [];
+    return NAVIGATION_TABS.filter(tab => !tab.permissionKey || hasAccessToTool(tab.permissionKey));
+  }, [hasAccessToTool, isPermissionsLoading]);
   
   // Check for very small screen using window width
   useEffect(() => {
@@ -29,8 +35,10 @@ export function useNavigationTabs() {
   
   // Set selected tab based on current path
   useEffect(() => {
+    if (filteredTabs.length === 0) return;
+    
     const currentPath = location.pathname;
-    const tabIndex = NAVIGATION_TABS.findIndex(tab => 
+    const tabIndex = filteredTabs.findIndex(tab => 
       currentPath === tab.path || (tab.path !== '/' && currentPath.startsWith(`${tab.path}/`))
     );
     
@@ -39,10 +47,10 @@ export function useNavigationTabs() {
     } else if (currentPath === '/') {
       setSelectedTab(0);
     }
-  }, [location.pathname]);
+  }, [location.pathname, filteredTabs]);
   
   const handleTabChange = useCallback((index: number) => {
-    const tab = NAVIGATION_TABS[index];
+    const tab = filteredTabs[index];
     if (tab) {
       setSelectedTab(index);
       
@@ -53,7 +61,7 @@ export function useNavigationTabs() {
       
       navigate(tab.path);
     }
-  }, [navigate]);
+  }, [navigate, filteredTabs]);
 
   // Preload de componentes ao fazer hover/focus
   const getTabPreloadProps = useCallback((path: string) => {
@@ -80,7 +88,7 @@ export function useNavigationTabs() {
     selectedTab,
     isSmallScreen,
     isMobile,
-    tabs: NAVIGATION_TABS,
+    tabs: filteredTabs,
     handleTabChange,
     getTabPreloadProps
   };
