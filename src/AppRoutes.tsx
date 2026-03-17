@@ -89,7 +89,7 @@ const AppRoutes = () => {
       <Route 
         path="/" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="hub">
             <LazyPageWrapper>
               <HubProdutividade />
             </LazyPageWrapper>
@@ -99,7 +99,7 @@ const AppRoutes = () => {
       <Route 
         path="/cards-promocionais" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="cards">
             <LazyPageWrapper>
               <PromotionalCards />
             </LazyPageWrapper>
@@ -109,7 +109,7 @@ const AppRoutes = () => {
       <Route 
         path="/crediario" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="crediario">
             <LazyPageWrapper>
               <Crediario />
             </LazyPageWrapper>
@@ -119,7 +119,7 @@ const AppRoutes = () => {
       <Route 
         path="/moveis" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="moveis">
             <LazyPageWrapper>
               <Moveis />
             </LazyPageWrapper>
@@ -129,7 +129,7 @@ const AppRoutes = () => {
       <Route 
         path="/moda" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="moda">
             <LazyPageWrapper>
               <Moda />
             </LazyPageWrapper>
