@@ -160,7 +160,7 @@ const AppRoutes = () => {
       <Route 
         path="/gerenciar-usuarios" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="admin_only">
             <LazyPageWrapper>
               <UserManagement />
             </LazyPageWrapper>
@@ -170,7 +170,7 @@ const AppRoutes = () => {
       <Route 
         path="/gerenciar-acessos" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="admin_only">
             <LazyPageWrapper>
               <RolePermissions />
             </LazyPageWrapper>
@@ -180,7 +180,7 @@ const AppRoutes = () => {
       <Route 
         path="/diretorio-gerencial" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredPermission="admin_only">
             <LazyPageWrapper>
               <DiretorioGerencial />
             </LazyPageWrapper>

@@ -17,13 +17,6 @@ export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { hasAccessToTool, isLoading } = useRolePermissions();
   
-  // Only set initial active tab once permissions are loaded
-  const activeTab = searchParams.get("tab") || (hasAccessToTool("moveis_fretes") ? "fretes" : "orcamentos");
-
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value });
-  };
-
   const allTabsConfig = [
     {
       value: "fretes",
@@ -53,6 +46,13 @@ export default function Moveis() {
   ];
 
   const tabsConfig = allTabsConfig.filter(tab => !tab.permissionKey || hasAccessToTool(tab.permissionKey));
+
+  // Only set initial active tab once permissions are loaded
+  const activeTab = searchParams.get("tab") || tabsConfig[0]?.value || "";
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
 
   if (isLoading) {
     return null; // Or a loading spinner
