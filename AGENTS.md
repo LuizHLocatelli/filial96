@@ -19,10 +19,15 @@ This is a Vite + React + TypeScript application using shadcn/ui components, Tail
 **REGRA OBRIGATÓRIA**: Sempre faça o commit, o "git push" e o acionamento do webhook de deploy imediatamente após concluir QUALQUER tarefa solicitada.
 
 ### Step 1: Commit and Push
+To prevent "non-fast-forward" errors and ensure smooth deployments, **always pull remote changes with rebase** before pushing. Also, use the current branch instead of hardcoding `main`.
+
 ```bash
 git add .
 git commit -m "feat/fix: <description of what was done>"
-git push origin main
+BRANCH=$(git branch --show-current)
+git fetch origin
+git pull --rebase origin $BRANCH || echo "Pull failed (maybe no remote branch yet, or conflicts)"
+git push -u origin $BRANCH
 ```
 
 ### Step 2: Trigger Deployment
