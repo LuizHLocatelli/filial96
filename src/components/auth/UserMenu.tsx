@@ -196,13 +196,6 @@ export function UserMenu() {
             Configurações de Segurança
           </Link>
         </DropdownMenuItem>
-        
-        <DropdownMenuItem asChild>
-          <Link to="/perfil?tab=info" onClick={() => setOpen(false)} className="flex items-center gap-2">
-            <span className="text-[16px] w-5 flex justify-center">⚙️</span>
-            Configurações da Conta
-          </Link>
-        </DropdownMenuItem>
 
         {/* Menu exclusivo para gerentes */}
         {isManager && (
