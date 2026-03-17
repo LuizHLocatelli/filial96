@@ -33,6 +33,9 @@ export default {
 			'3xl': '1600px',
 		},
 		extend: {
+			fontFamily: {
+				sans: ['"Bricolage Grotesque"', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
