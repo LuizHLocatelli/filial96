@@ -51,20 +51,20 @@ curl -X GET http://72.60.241.201:3000/api/deploy/06a9bcd1e65574f36f1f0f1bb58b89f
   - Use shadcn/ui tokens (e.g., `bg-primary`, `text-muted-foreground`).
   - **Glassmorphism**: Use `.glass-card` (translucent backgrounds) or `.glass-overlay` (opaque floating elements like dropdowns/dialogs) defined in `src/styles/glassmorphism.css`.
 
-## 3. Naming Conventions
+## 4. Naming Conventions
 - **Components**: `PascalCase.tsx` (e.g., `ToolCard.tsx`)
 - **Hooks**: `useCamelCase.ts` (e.g., `useCardOperations.ts`)
 - **Utilities**: `camelCase.ts` (e.g., `formatPhoneNumber.ts`)
 - **Types/Interfaces**: `PascalCase` (e.g., `CardItem`)
 - **Constants**: `SCREAMING_SNAKE_CASE` (e.g., `CARD_COLORS`)
 
-## 4. Architecture & Modularization
+## 5. Architecture & Modularization
 To ensure React Fast Refresh works correctly and to avoid `react-refresh/only-export-components` ESLint warnings:
 - **Never mix Hooks and Components in the same file.**
 - **Contexts**: Split into `types.ts`, `AuthContext.tsx`, `AuthProvider.tsx`, `useAuth.ts`, and an `index.ts` for public exports.
 - **UI Components**: If adding utility functions (e.g., `cva` variants), split the component (`Button.tsx`), the variants (`buttonVariants.ts`), and the types (`types.ts`).
 
-## 5. Standardized Dialogs (CRITICAL)
+## 6. Standardized Dialogs (CRITICAL)
 ALL dialog windows in the application MUST use `DialogScrollableContainer` to ensure excellent responsiveness and fix mobile scrolling issues. Do NOT use `StandardDialogContent` or manually build scrollable `div` structures.
 
 ### Dialog Structure
@@ -90,22 +90,22 @@ Always follow this 3-part structure for Dialogs:
 
 **IMPORTANT**: The `DialogScrollableContainer` automatically calculates maxHeight (e.g., `calc(75dvh - 260px)`) to reserve sufficient space for the header and footer. This ensures the scrolling behavior works flawlessly and that buttons in `StandardDialogFooter` are never cut off, even on small mobile screens.
 
-## 6. State Management, Forms & Error Handling
+## 7. State Management, Forms & Error Handling
 - **State**: Use TanStack Query for server state, Context for global state, and `useState`/`useMemo` for local UI state.
 - **Forms**: Use `react-hook-form` combined with `zod` for schema validation (`zodResolver`).
 - **Error Handling**: Wrap async operations in `try/catch`. Log errors to `console.error` and use UI error boundaries.
 
-## 7. Testing Standards
+## 8. Testing Standards
 - **Framework**: Vitest + React Testing Library. 
 - **Mocking**: Mock the Supabase client and Auth Contexts in tests (see `src/test/setup.ts`).
 - **Structure**: Group tests using `describe` blocks and `it` for specific assertions. Place `*.test.ts/tsx` files alongside their source files.
 
-## 8. Supabase & MCP Tools
+## 9. Supabase & MCP Tools
 - **Client**: All Supabase queries in the application code must use the client from `@/integrations/supabase/client`.
 - **MCP Tools (CRITICAL)**: Whenever an agent needs to interact with Supabase (reading/writing data, checking schema, applying migrations, logs, etc.), it **MUST ALWAYS** use the Supabase MCP tools (e.g., `supabase_list_tables`, `supabase_execute_sql`, `supabase_apply_migration`, etc.). **Do NOT** attempt to write custom scripts or workarounds to interact with the database; MCP is strictly mandatory for agents.
 - **Edge Functions**: Located in `supabase/functions/` (Deno runtime). By default, they require JWT verification.
 
-## 9. Role-Based Access Control (RBAC) & Routing
+## 10. Role-Based Access Control (RBAC) & Routing
 The application uses a granular Role-Based Access Control system to manage what pages, tabs, and tools users can access.
 
 - **Role Definitions**: User roles (e.g., `gerente`, `freteiro`, `consultor_moveis`) are stored in the Supabase `profiles` table.
