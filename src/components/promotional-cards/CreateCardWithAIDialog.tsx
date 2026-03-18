@@ -212,13 +212,15 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
 
       if (insertError) throw insertError;
 
-      toast({ title: "Salvo!", description: "Card promocional criado com sucesso via IA" });
+      toast.success("Salvo!", {
+        description: "Card promocional criado com sucesso via IA",
+      });
       handleClose();
       onSuccess();
     } catch (error: Error | unknown) {
       console.error("Erro ao salvar card:", error);
       const errorMessage = error instanceof Error ? error.message : "Não foi possível salvar o card";
-      toast({ title: "Erro ao salvar", description: errorMessage, variant: "destructive" });
+      toast.error("Erro ao salvar", { description: errorMessage });
     } finally {
       setIsSaving(false);
     }

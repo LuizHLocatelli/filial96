@@ -55,7 +55,6 @@ function toProcedimentoSSC(procedimento: Procedimento): ProcedimentoSSC {
 
 export function ProcedimentosSSC() {
   const shouldReduceMotion = useReducedMotion();
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   const { profile } = useAuth();
   const isManager = profile?.role === 'gerente';
@@ -161,17 +160,13 @@ export function ProcedimentosSSC() {
     try {
       await navigator.clipboard.writeText(texto);
       setCopiedId(proc.id);
-      toast({
-        title: "Copiado!",
+      toast.success("Copiado!", {
         description: "Procedimento copiado para enviar ao cliente",
-        duration: 2000,
       });
       setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível copiar o procedimento",
-        variant: "destructive",
       });
     }
   };
@@ -197,8 +192,7 @@ export function ProcedimentosSSC() {
           await createProcedimento(dados as ProcedimentoInsert);
         }
         
-        toast({
-          title: "Sucesso!",
+        toast.success("Sucesso!", {
           description: "Procedimento atualizado com sucesso",
         });
         
@@ -209,10 +203,8 @@ export function ProcedimentosSSC() {
         setEditingProcedimento(null);
       }
     } catch (error) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível salvar as alterações",
-        variant: "destructive",
       });
     }
   };

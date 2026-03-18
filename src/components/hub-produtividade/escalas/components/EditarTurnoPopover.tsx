@@ -56,14 +56,12 @@ export function EditarTurnoPopover({ shift, consultores, open, onOpenChange, onS
         is_carga: isCarga,
       });
 
-      toast({ title: "Turno atualizado!" });
+      toast.success("Turno atualizado!");
       onSuccess();
       onOpenChange(false);
     } catch (error) {
       console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
+      toast.error("Erro ao salvar", {
         description: error instanceof Error ? error.message : "Erro desconhecido",
       });
     } finally {
