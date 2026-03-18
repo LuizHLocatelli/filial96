@@ -155,6 +155,30 @@ export const ArrowRight = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 ArrowRight.displayName = 'ArrowRight';
+export const ArrowUp = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        ⬆️
+      </span>
+    );
+  }
+);
+ArrowUp.displayName = 'ArrowUp';
 export const ArrowRightLeft = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -827,6 +851,30 @@ export const Crown = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 Crown.displayName = 'Crown';
+export const CreditCard = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        💳
+      </span>
+    );
+  }
+);
+CreditCard.displayName = 'CreditCard';
 export const Database = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -1331,6 +1379,54 @@ export const GraduationCap = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 GraduationCap.displayName = 'GraduationCap';
+export const Hash = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        #️⃣
+      </span>
+    );
+  }
+);
+Hash.displayName = 'Hash';
+export const Headset = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        🎧
+      </span>
+    );
+  }
+);
+Headset.displayName = 'Headset';
 export const History = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -1619,6 +1715,30 @@ export const Loader2 = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 Loader2.displayName = 'Loader2';
+export const Link = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        🔗
+      </span>
+    );
+  }
+);
+Link.displayName = 'Link';
 export const Lock = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -1715,6 +1835,78 @@ export const MapPin = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 MapPin.displayName = 'MapPin';
+export const Maximize = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        ⛶
+      </span>
+    );
+  }
+);
+Maximize.displayName = 'Maximize';
+export const Minus = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        ➖
+      </span>
+    );
+  }
+);
+Minus.displayName = 'Minus';
+export const Monitor = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        🖥️
+      </span>
+    );
+  }
+);
+Monitor.displayName = 'Monitor';
 export const MessageSquare = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -2003,6 +2195,30 @@ export const Plus = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 Plus.displayName = 'Plus';
+export const Printer = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        🖨️
+      </span>
+    );
+  }
+);
+Printer.displayName = 'Printer';
 export const PlusCircle = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -2243,6 +2459,54 @@ export const Settings = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 Settings.displayName = 'Settings';
+export const Shirt = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        👕
+      </span>
+    );
+  }
+);
+Shirt.displayName = 'Shirt';
+export const Sofa = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        🛋️
+      </span>
+    );
+  }
+);
+Sofa.displayName = 'Sofa';
 export const Share2 = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
@@ -2723,6 +2987,30 @@ export const Users = React.forwardRef<HTMLSpanElement, IconProps>(
   }
 );
 Users.displayName = 'Users';
+export const Video = React.forwardRef<HTMLSpanElement, IconProps>(
+  ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
+    return (
+      <span
+        ref={ref}
+        className={className}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: typeof size === 'number' ? `${size}px` : size,
+          lineHeight: 1,
+          color: color || 'inherit',
+          width: typeof size === 'number' ? `${size}px` : size,
+          height: typeof size === 'number' ? `${size}px` : size,
+        }}
+        {...props}
+      >
+        🎥
+      </span>
+    );
+  }
+);
+Video.displayName = 'Video';
 export const Volume2 = React.forwardRef<HTMLSpanElement, IconProps>(
   ({ className, size = 24, color, strokeWidth, absoluteStrokeWidth, ...props }, ref) => {
     return (
