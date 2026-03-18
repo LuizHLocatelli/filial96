@@ -18,9 +18,7 @@ export async function handleUpdatePassword({
   try {
     // Security: Enhanced password validation
     if (!password || password.length < 8) {
-      toast({
-        variant: "destructive",
-        title: "Senha inválida",
+      toast.error("Senha inválida", {
         description: "A senha deve ter pelo menos 8 caracteres.",
       });
       return false;
@@ -33,9 +31,7 @@ export async function handleUpdatePassword({
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
     
     if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
-      toast({
-        variant: "destructive",
-        title: "Senha fraca",
+      toast.error("Senha fraca", {
         description: "A senha deve conter ao menos uma letra maiúscula, minúscula, número e caractere especial.",
       });
       return false;
@@ -72,9 +68,7 @@ export async function handleUpdatePassword({
         
         if (sessionError) {
           console.error("Erro ao configurar sessão:", sessionError);
-          toast({
-            variant: "destructive",
-            title: "Erro ao validar token de recuperação",
+          toast.error("Erro ao validar token de recuperação", {
             description: "O link de recuperação pode estar expirado ou inválido. Por favor, solicite um novo.",
             duration: 6000,
           });
@@ -108,9 +102,7 @@ export async function handleUpdatePassword({
           
           if (!email || !email.includes('@')) {
             console.error("Email inválido ou não encontrado nos parâmetros da URL");
-            toast({
-              variant: "destructive",
-              title: "Erro ao redefinir senha",
+            toast.error("Erro ao redefinir senha", {
               description: "E-mail inválido ou não encontrado. Por favor, solicite um novo link de recuperação.",
               duration: 6000,
             });
@@ -129,9 +121,7 @@ export async function handleUpdatePassword({
           
           if (verifyError) {
             console.error("Erro na verificação do token:", verifyError);
-            toast({
-              variant: "destructive",
-              title: "Erro ao redefinir senha",
+            toast.error("Erro ao redefinir senha", {
               description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
               duration: 6000,
             });
@@ -148,9 +138,7 @@ export async function handleUpdatePassword({
           
           if (updateError) {
             console.error("Erro na segunda tentativa de atualização:", updateError);
-            toast({
-              variant: "destructive",
-              title: "Erro ao redefinir senha",
+            toast.error("Erro ao redefinir senha", {
               description: "Não foi possível atualizar sua senha. Por favor, solicite um novo link de recuperação.",
               duration: 6000,
             });
@@ -159,9 +147,7 @@ export async function handleUpdatePassword({
           }
         } catch (alterErr) {
           console.error("Erro no método alternativo:", alterErr);
-          toast({
-            variant: "destructive",
-            title: "Erro ao redefinir senha",
+          toast.error("Erro ao redefinir senha", {
             description: "Erro ao processar sua solicitação. Por favor, tente novamente.",
             duration: 5000,
           });
@@ -169,9 +155,7 @@ export async function handleUpdatePassword({
           return false;
         }
       } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao atualizar senha",
+        toast.error("Erro ao atualizar senha", {
           description: "Link de recuperação inválido ou expirado. Por favor, solicite um novo link.",
           duration: 6000,
         });
@@ -190,8 +174,7 @@ export async function handleUpdatePassword({
       userAgent: navigator.userAgent
     });
     
-    toast({
-      title: "Senha alterada com sucesso",
+    toast.success("Senha alterada com sucesso", {
       description: "Sua senha foi redefinida. Você será redirecionado para o login.",
       duration: 4000,
     });
@@ -207,9 +190,7 @@ export async function handleUpdatePassword({
     
   } catch (error) {
     console.error("Erro inesperado ao redefinir senha:", error);
-    toast({
-      variant: "destructive",
-      title: "Erro ao redefinir senha",
+    toast.error("Erro ao redefinir senha", {
       description: "Ocorreu um erro inesperado ao redefinir sua senha. Por favor, tente novamente.",
       duration: 5000,
     });

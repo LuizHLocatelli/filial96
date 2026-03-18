@@ -72,14 +72,11 @@ export function PersonalInfoForm() {
       // Força uma atualização do perfil do usuário
       window.location.reload();
 
-      toast({
-        title: "Perfil atualizado",
+      toast.success("Perfil atualizado", {
         description: "Suas informações pessoais foram atualizadas com sucesso.",
       });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao atualizar perfil",
+      toast.error("Erro ao atualizar perfil", {
         description: error instanceof Error ? error.message : "Ocorreu um erro ao atualizar seu perfil.",
       });
     } finally {

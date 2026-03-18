@@ -45,10 +45,8 @@ export function useCards(sector: "furniture" | "fashion" | "loan" | "service", f
     } catch (error) {
       console.error('Error fetching cards:', error);
       setCards([]); // Garantir que sempre seja um array
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível carregar os cards promocionais",
-        variant: "destructive",
         duration: 5000,
       });
     } finally {

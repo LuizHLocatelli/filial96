@@ -46,19 +46,15 @@ export function useCompanyLogo() {
     try {
       // Validate file
       if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Erro",
+        toast.error("Erro", {
           description: "Selecione um arquivo de imagem válido",
-          variant: "destructive",
         });
         return false;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Erro",
+        toast.error("Erro", {
           description: "Imagem muito grande (máx. 5MB)",
-          variant: "destructive",
         });
         return false;
       }
@@ -102,18 +98,15 @@ export function useCompanyLogo() {
       // Refresh settings
       await fetchSettings();
 
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Logo da empresa atualizado com sucesso!",
       });
 
       return true;
     } catch (error) {
       console.error("Error uploading logo:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível atualizar o logo. Tente novamente.",
-        variant: "destructive",
       });
       return false;
     } finally {
@@ -150,18 +143,15 @@ export function useCompanyLogo() {
       // Refresh settings
       await fetchSettings();
 
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Logo da empresa removido.",
       });
 
       return true;
     } catch (error) {
       console.error("Error removing logo:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível remover o logo. Tente novamente.",
-        variant: "destructive",
       });
       return false;
     } finally {

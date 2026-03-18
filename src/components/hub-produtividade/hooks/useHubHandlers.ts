@@ -29,18 +29,14 @@ export function useHubHandlers({
           // Função removida - atividades foram removidas do sistema
     console.log("✅ Nova tarefa desabilitada - sistema de atividades removido");
       
-      toast({
-        title: "Funcionalidade Removida",
+      toast.error("Funcionalidade Removida", {
         description: "O sistema de atividades foi removido",
-        variant: "destructive",
         duration: 2000,
       });
     } catch (error) {
       console.error("❌ Erro no handler Nova Tarefa:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Erro ao abrir formulário de nova tarefa",
-        variant: "destructive",
       });
     }
   };
@@ -53,17 +49,14 @@ export function useHubHandlers({
       currentUrl.searchParams.set('tab', 'relatorios');
       navigate(currentUrl.pathname + currentUrl.search);
       
-      toast({
-        title: "Relatórios",
+      toast.success("Relatórios", {
         description: "Redirecionando para relatórios...",
         duration: 2000,
       });
     } catch (error) {
       console.error("❌ Erro no handler Export Data:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Erro ao abrir relatórios",
-        variant: "destructive",
       });
     }
   };
@@ -78,17 +71,14 @@ export function useHubHandlers({
     console.log("🔄 Handler Refresh Data executado");
     try {
       await refreshData();
-      toast({
-        title: "Dados Atualizados",
+      toast.success("Dados Atualizados", {
         description: "Informações foram atualizadas com sucesso!",
         duration: 2000,
       });
     } catch (error) {
       console.error("❌ Erro no refresh data:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar dados",
-        variant: "destructive",
+      toast.error("Erro", {
+        description: "Erro ao abrir relatórios",
       });
     }
   };
@@ -111,8 +101,7 @@ export function useHubHandlers({
       navigate(currentUrl.pathname + currentUrl.search);
       setCurrentSection(section);
       
-      toast({
-        title: "Navegação",
+      toast.success("Navegação", {
         description: `Redirecionando para ${section}...`,
         duration: 1500,
       });
@@ -129,17 +118,14 @@ export function useHubHandlers({
       currentUrl.searchParams.set('search', 'advanced');
       navigate(currentUrl.pathname + currentUrl.search);
       
-      toast({
-        title: "Busca Avançada",
+      toast.success("Busca Avançada", {
         description: "Abrindo busca avançada...",
         duration: 2000,
       });
     } catch (error) {
       console.error("❌ Erro na busca avançada:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao abrir busca avançada",
-        variant: "destructive",
+      toast.error("Erro", {
+        description: "Erro ao atualizar dados",
       });
     }
   };
@@ -152,17 +138,14 @@ export function useHubHandlers({
       currentUrl.searchParams.set('filters', 'date');
       navigate(currentUrl.pathname + currentUrl.search);
       
-      toast({
-        title: "Filtros por Data",
+      toast.success("Filtros por Data", {
         description: "Abrindo filtros por data...",
         duration: 2000,
       });
     } catch (error) {
       console.error("❌ Erro nos filtros por data:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao abrir filtros por data",
-        variant: "destructive",
+      toast.error("Erro", {
+        description: "Erro ao abrir busca avançada",
       });
     }
   };
@@ -175,17 +158,14 @@ export function useHubHandlers({
       currentUrl.searchParams.set('tab', 'relatorios');
       navigate(currentUrl.pathname + currentUrl.search);
       
-      toast({
-        title: "Relatórios",
+      toast.success("Relatórios", {
         description: "Redirecionando para relatórios...",
         duration: 2000,
       });
     } catch (error) {
       console.error("❌ Erro nos relatórios:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Erro ao abrir relatórios",
-        variant: "destructive",
       });
     }
   };

@@ -43,15 +43,12 @@ export function HorariosAlmoco() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["team-almoco"] });
       setEditingId(null);
-      toast({
-        title: "Horário atualizado",
+      toast.success("Horário atualizado", {
         description: "O horário de almoço foi salvo com sucesso.",
       });
     },
     onError: () => {
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
+      toast.error("Erro ao salvar", {
         description: "Não foi possível atualizar o horário de almoço.",
       });
     }

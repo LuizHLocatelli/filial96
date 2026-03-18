@@ -54,15 +54,12 @@ export function PasswordForm() {
 
       if (error) throw error;
 
-      toast({
-        title: "Senha atualizada",
+      toast.success("Senha atualizada", {
         description: "Sua senha foi alterada com sucesso.",
       });
       form.reset();
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao atualizar senha",
+      toast.error("Erro ao atualizar senha", {
         description: error instanceof Error ? error.message : "Ocorreu um erro ao atualizar sua senha.",
       });
     } finally {

@@ -55,8 +55,7 @@ export async function shareCardWhatsApp(imageUrl: string, title: string, code?: 
         text: messageText,
       });
 
-      toast({
-        title: "Compartilhado!",
+      toast.success("Compartilhado!", {
         description: "Card compartilhado com sucesso.",
       });
       return;
@@ -70,8 +69,7 @@ export async function shareCardWhatsApp(imageUrl: string, title: string, code?: 
   const whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
   window.open(whatsappUrl, '_blank');
 
-  toast({
-    title: "Imagem baixada!",
+  toast.success("Imagem baixada!", {
     description: "A imagem foi salva. Anexe-a manualmente no WhatsApp Web.",
     duration: 5000,
   });

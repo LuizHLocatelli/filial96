@@ -30,9 +30,7 @@ export function LimparEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
     if (!startDate || !endDate) return;
 
     if (startDate > endDate) {
-      toast({
-        variant: "destructive",
-        title: "Período inválido",
+      toast.error("Período inválido", {
         description: "A data inicial deve ser menor ou igual à data final."
       });
       return;
@@ -42,8 +40,7 @@ export function LimparEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       setIsDeleting(true);
       await deleteEscalas(startDate, endDate);
       
-      toast({
-        title: "Escalas apagadas",
+      toast.success("Escalas apagadas", {
         description: "As escalas no período selecionado foram removidas com sucesso.",
       });
       
@@ -51,9 +48,7 @@ export function LimparEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       onOpenChange(false);
     } catch (error) {
       console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao apagar",
+      toast.error("Erro ao apagar", {
         description: error instanceof Error ? error.message : "Ocorreu um erro ao excluir as escalas."
       });
     } finally {

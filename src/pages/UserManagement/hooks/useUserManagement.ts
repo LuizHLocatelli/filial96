@@ -55,10 +55,8 @@ export function useUserManagement() {
 
       if (profilesError) {
         console.error('Profile fetch error:', profilesError);
-        toast({
-          title: "Erro de Acesso",
+        toast.error("Erro de Acesso", {
           description: "Não foi possível carregar os usuários.",
-          variant: "destructive",
         });
         return;
       }
@@ -111,10 +109,8 @@ export function useUserManagement() {
       setFilteredUsers(usersWithStats);
     } catch (error: unknown) {
       console.error('Unexpected error fetching users:', error);
-      toast({
-        title: "Erro Inesperado",
+      toast.error("Erro Inesperado", {
         description: "Erro interno do sistema.",
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -151,10 +147,8 @@ export function useUserManagement() {
   const handleDeleteUser = async (userId: string, userName: string) => {
     try {
       if (userId === profile?.id) {
-        toast({
-          title: "Operação Não Permitida",
+        toast.error("Operação Não Permitida", {
           description: "Você não pode excluir sua própria conta.",
-          variant: "destructive",
         });
         return;
       }
@@ -166,10 +160,8 @@ export function useUserManagement() {
 
       if (error) {
         console.error('Delete error:', error);
-        toast({
-          title: "Erro ao Excluir",
+        toast.error("Erro ao Excluir", {
           description: "Não foi possível excluir o usuário.",
-          variant: "destructive",
         });
         return;
       }
@@ -183,16 +175,13 @@ export function useUserManagement() {
         roleLabels[user.role].toLowerCase().includes(searchTermRef.current.toLowerCase())
       ));
 
-      toast({
-        title: "Usuário Excluído",
+      toast.success("Usuário Excluído", {
         description: `${DOMPurify.sanitize(userName)} foi excluído com sucesso.`,
       });
     } catch (error: unknown) {
       console.error('Unexpected deletion error:', error);
-      toast({
-        title: "Erro Inesperado",
+      toast.error("Erro Inesperado", {
         description: "Erro interno do sistema.",
-        variant: "destructive",
       });
     }
   };
@@ -200,10 +189,8 @@ export function useUserManagement() {
   const handleEditUser = async (updatedUser: UserWithStats) => {
     try {
       if (!updatedUser.name?.trim()) {
-        toast({
-          title: "Dados Inválidos",
+        toast.error("Dados Inválidos", {
           description: "Nome é obrigatório.",
-          variant: "destructive",
         });
         return;
       }
@@ -220,10 +207,8 @@ export function useUserManagement() {
         .eq('id', updatedUser.id);
 
       if (error) {
-        toast({
-          title: "Erro ao Atualizar",
+        toast.error("Erro ao Atualizar", {
           description: "Não foi possível atualizar o usuário.",
-          variant: "destructive",
         });
         return;
       }
@@ -242,16 +227,13 @@ export function useUserManagement() {
       setIsEditDialogOpen(false);
       setEditingUser(null);
 
-      toast({
-        title: "Usuário Atualizado",
+      toast.success("Usuário Atualizado", {
         description: "Informações atualizadas com sucesso.",
       });
     } catch (error: unknown) {
       console.error('Unexpected update error:', error);
-      toast({
-        title: "Erro Inesperado",
+      toast.error("Erro Inesperado", {
         description: "Erro interno do sistema.",
-        variant: "destructive",
       });
     }
   };

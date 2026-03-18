@@ -61,15 +61,12 @@ export function EmailForm() {
 
       if (error) throw error;
 
-      toast({
-        title: "Solicitação enviada",
+      toast.success("Solicitação enviada", {
         description: "Verifique seu email para confirmar a alteração.",
       });
       form.reset({ email: data.email, password: "" });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao atualizar email",
+      toast.error("Erro ao atualizar email", {
         description: error instanceof Error ? error.message : "Ocorreu um erro ao atualizar seu email.",
       });
     } finally {

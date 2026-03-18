@@ -65,9 +65,7 @@ export function DeleteAccountForm() {
     } catch (error) {
       console.error("Erro capturado no formulário:", error);
       const message = error instanceof Error ? error.message : "Ocorreu um erro ao excluir sua conta. Por favor, tente novamente.";
-      toast({
-        variant: "destructive",
-        title: "Erro ao excluir conta",
+      toast.error("Erro ao excluir conta", {
         description: message,
       });
       setLoading(false);

@@ -37,9 +37,8 @@ export function CartazGallery({
       
       if (success) {
         setCartazes(prevCartazes => prevCartazes.filter(cartaz => cartaz.id !== id));
-        toast({
-          title: "Sucesso",
-          description: "Cartaz excluído com sucesso"
+        toast.success("Sucesso", {
+          description: "Cartaz excluído com sucesso",
         });
         return true;
       } else {
@@ -47,10 +46,8 @@ export function CartazGallery({
       }
     } catch (error) {
       console.error('Error deleting cartaz:', error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível excluir o cartaz",
-        variant: "destructive"
       });
       return false;
     } finally {
@@ -86,10 +83,8 @@ export function CartazGallery({
       }
     } catch (error) {
       console.error('Error moving cartaz to folder:', error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível mover o cartaz",
-        variant: "destructive"
       });
       return false;
     } finally {

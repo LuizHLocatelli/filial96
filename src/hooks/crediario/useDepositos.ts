@@ -218,10 +218,8 @@ export function useDepositos() {
       setConnectionStatus('online');
       setIsLoading(false);
       
-      toast({
-        title: 'Modo Demonstração',
+      toast.success('Modo Demonstração', {
         description: 'Supabase não configurado. Usando dados de exemplo.',
-        variant: 'default',
         duration: 3000,
       });
       
@@ -264,10 +262,8 @@ export function useDepositos() {
         ? 'Timeout de rede. Tentando reconectar...'
         : errorMsg || 'Erro desconhecido';
       
-      toast({
-        title: 'Problema de Conexão',
+      toast.error('Problema de Conexão', {
         description: errorMessage,
-        variant: 'destructive',
         duration: 3000,
       });
       
@@ -301,8 +297,7 @@ export function useDepositos() {
       
       setDepositos(prev => [...prev, novoDeposito]);
       
-      toast({
-        title: 'Sucesso (Demo)',
+      toast.success('Sucesso (Demo)', {
         description: 'Depósito adicionado (modo demonstração)',
         duration: 3000,
       });
@@ -350,8 +345,7 @@ export function useDepositos() {
         return data;
       }, 3, 1500);
       
-      toast({
-        title: 'Sucesso',
+      toast.success('Sucesso', {
         description: 'Depósito adicionado com sucesso',
         duration: 3000,
       });
@@ -375,10 +369,8 @@ export function useDepositos() {
         ? 'Problema de conexão. Depósito não foi salvo.'
         : errorMsg || 'Falha ao adicionar depósito';
 
-      toast({
-        title: 'Erro',
+      toast.error('Erro', {
         description: errorMessage,
-        variant: 'destructive',
         duration: 3000,
       });
       return null;
@@ -405,8 +397,7 @@ export function useDepositos() {
           : dep
       ));
       
-      toast({
-        title: 'Sucesso (Demo)',
+      toast.success('Sucesso (Demo)', {
         description: 'Depósito atualizado (modo demonstração)',
         duration: 3000,
       });
@@ -451,8 +442,7 @@ export function useDepositos() {
       }
       }, 3, 1500);
       
-      toast({
-        title: 'Sucesso',
+      toast.success('Sucesso', {
         description: 'Depósito atualizado com sucesso',
         duration: 3000,
       });
@@ -476,10 +466,8 @@ export function useDepositos() {
         ? 'Problema de conexão. Atualização não foi salva.'
         : errorMsg || 'Falha ao atualizar depósito';
 
-      toast({
-        title: 'Erro',
+      toast.error('Erro', {
         description: errorMessage,
-        variant: 'destructive',
         duration: 3000,
       });
     }
@@ -502,8 +490,7 @@ export function useDepositos() {
       }
       }, 3, 1500);
       
-      toast({
-        title: 'Sucesso',
+      toast.success('Sucesso', {
         description: 'Depósito excluído com sucesso',
         duration: 3000,
       });
@@ -527,10 +514,8 @@ export function useDepositos() {
         ? 'Problema de conexão. Exclusão não foi processada.'
         : errorMsg || 'Falha ao excluir depósito';
 
-      toast({
-        title: 'Erro',
+      toast.error('Erro', {
         description: errorMessage,
-        variant: 'destructive',
         duration: 3000,
       });
     }
@@ -542,8 +527,7 @@ export function useDepositos() {
       setDepositos([]);
       setStatistics([]);
       
-      toast({
-        title: 'Sucesso (Demo)',
+      toast.success('Sucesso (Demo)', {
         description: 'Todo o histórico de depósitos foi removido (modo demonstração)',
         duration: 3000,
       });
@@ -596,8 +580,7 @@ export function useDepositos() {
       await fetchStatistics();
       await fetchLastResetDate();
       
-      toast({
-        title: 'Sucesso',
+      toast.success('Sucesso', {
         description: 'Todo o histórico de depósitos foi removido com sucesso',
         duration: 3000,
       });
@@ -611,10 +594,8 @@ export function useDepositos() {
         ? 'Problema de conexão. Limpeza não foi processada.'
         : errorMsg || 'Falha ao limpar histórico de depósitos';
 
-      toast({
-        title: 'Erro',
+      toast.error('Erro', {
         description: errorMessage,
-        variant: 'destructive',
         duration: 3000,
       });
 
@@ -700,8 +681,7 @@ export function useDepositos() {
       // Recarregar estatísticas
       await fetchStatistics();
       
-      toast({
-        title: 'Estatísticas Atualizadas',
+      toast.success('Estatísticas Atualizadas', {
         description: 'Estatísticas recalculadas com sucesso',
         duration: 3000,
       });
@@ -709,10 +689,8 @@ export function useDepositos() {
     } catch (error) {
       console.error('Erro ao forçar recálculo:', error);
 
-      toast({
-        title: 'Erro',
+      toast.error('Erro', {
         description: 'Falha ao recalcular estatísticas',
-        variant: 'destructive',
         duration: 3000,
       });
     }

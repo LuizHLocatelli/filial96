@@ -78,34 +78,22 @@ export function NotificationSystem({ depositos, enabled = true }: NotificationSy
     // Evitar notificações duplicadas no mesmo dia
     if (shownNotifications.has(notificationKey)) return;
     
-    let variant: "default" | "destructive" = "default";
-    let icon = Bell;
+    const duration = type === 'urgent' || type === 'missed' ? 8000 : 5000;
+    const toastOptions = { description, duration };
     
     switch (type) {
       case 'urgent':
-        variant = "destructive";
-        icon = AlertTriangle;
-        break;
       case 'missed':
-        variant = "destructive";
-        icon = AlertTriangle;
+        toast.error(message, toastOptions);
         break;
       case 'success':
-        icon = CheckCircle;
+        toast.success(message, toastOptions);
         break;
       case 'reminder':
-        icon = Clock;
+      default:
+        toast(message, toastOptions);
         break;
     }
-
-    toast({
-      title: message,
-      description: description,
-      variant: variant,
-      duration: type === 'urgent' || type === 'missed' ? 8000 : 5000,
-    });
-
-
 
     setLastNotification(notificationKey);
     const newNotifications = new Set(shownNotifications).add(notificationKey);

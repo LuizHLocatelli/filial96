@@ -79,10 +79,8 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     
     if (file) {
       if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Erro",
+        toast.error("Erro", {
           description: "O arquivo selecionado não é uma imagem",
-          variant: "destructive"
         });
         return;
       }
@@ -112,16 +110,13 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
           "4:5": "Retrato (4:5)"
         };
         
-        toast({
-          title: "Formato detectado",
+        toast.success("Formato detectado", {
           description: `Imagem no formato ${formatLabels[detectedAspectRatio]} detectado automaticamente`,
         });
       } catch (error) {
         console.error("Erro ao detectar dimensões da imagem:", error);
-        toast({
-          title: "Aviso",
+        toast.warning("Aviso", {
           description: "Não foi possível detectar o formato da imagem automaticamente",
-          variant: "default"
         });
         
         // Ainda assim cria o preview
@@ -152,37 +147,29 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
     e.preventDefault();
     
     if (!state.title.trim()) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Por favor, insira um título para o card",
-        variant: "destructive"
       });
       return;
     }
     
     if (!state.selectedFile) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Por favor, selecione uma imagem",
-        variant: "destructive"
       });
       return;
     }
 
     if (state.endDate && state.startDate && state.endDate < state.startDate) {
-      toast({
-        title: "Erro de Validação",
+      toast.error("Erro de Validação", {
         description: "A data final não pode ser anterior à data de início.",
-        variant: "destructive",
       });
       return;
     }
     
     if (!user) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Você precisa estar autenticado para criar cards promocionais",
-        variant: "destructive"
       });
       return;
     }
@@ -236,19 +223,16 @@ export function useCardUpload({ sector, initialFolderId, onSuccess }: UseCardUpl
       
       if (insertError) throw insertError;
       
-      toast({
-        title: "Sucesso",
-        description: "Card promocional criado com sucesso"
+      toast.success("Sucesso", {
+        description: "Card promocional criado com sucesso",
       });
       
       resetState();
       onSuccess();
     } catch (error) {
       console.error('Error creating promotional card:', error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível criar o card promocional",
-        variant: "destructive"
       });
     } finally {
       setState(prev => ({ ...prev, isSubmitting: false }));

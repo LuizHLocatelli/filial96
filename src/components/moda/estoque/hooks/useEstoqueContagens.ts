@@ -54,10 +54,8 @@ export function useEstoqueContagens() {
       setContagens(contagensFormatadas);
     } catch (error) {
       console.error("Erro ao carregar contagens:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível carregar as contagens.",
-        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -73,10 +71,8 @@ export function useEstoqueContagens() {
       const { data: user } = await supabase.auth.getUser();
 
       if (!user.user) {
-        toast({
-          title: "Erro",
+        toast.error("Erro", {
           description: "Usuário não autenticado.",
-          variant: "destructive",
         });
         return false;
       }
@@ -91,8 +87,7 @@ export function useEstoqueContagens() {
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Contagem criada com sucesso!",
       });
 
@@ -100,10 +95,8 @@ export function useEstoqueContagens() {
       return true;
     } catch (error) {
       console.error("Erro ao criar contagem:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível criar a contagem.",
-        variant: "destructive",
       });
       return false;
     }
@@ -118,8 +111,7 @@ export function useEstoqueContagens() {
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Contagem excluída com sucesso!",
       });
 
@@ -127,10 +119,8 @@ export function useEstoqueContagens() {
       return true;
     } catch (error) {
       console.error("Erro ao excluir contagem:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível excluir a contagem.",
-        variant: "destructive",
       });
       return false;
     }
@@ -145,8 +135,7 @@ export function useEstoqueContagens() {
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: `Contagem ${novoStatus === "finalizada" ? "finalizada" : "reaberta"} com sucesso!`,
       });
 
@@ -154,10 +143,8 @@ export function useEstoqueContagens() {
       return true;
     } catch (error) {
       console.error("Erro ao alterar status:", error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível alterar o status da contagem.",
-        variant: "destructive",
       });
       return false;
     }

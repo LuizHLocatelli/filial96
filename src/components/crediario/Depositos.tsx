@@ -140,10 +140,8 @@ export function Depositos() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "Arquivo muito grande",
+        toast.error("Arquivo muito grande", {
           description: "O arquivo deve ter no máximo 10MB.",
-          variant: "destructive",
           duration: 4000,
         });
         return;
@@ -161,8 +159,7 @@ export function Depositos() {
     setPreviewUrl(url);
     setShowCamera(false);
     
-    toast({
-      title: "✅ Imagem Capturada",
+    toast.success("✅ Imagem Capturada", {
       description: "Imagem capturada com sucesso! Pronta para upload.",
       duration: 3000,
     });
@@ -243,10 +240,8 @@ export function Depositos() {
       
     } catch (error) {
       console.error('Erro ao salvar depósito:', error);
-      toast({
-        title: "❌ Erro ao Salvar",
+      toast.error("❌ Erro ao Salvar", {
         description: "Não foi possível salvar o depósito. Tente novamente.",
-        variant: "destructive",
         duration: 4000,
       });
       setUploadProgress(null);
@@ -302,10 +297,8 @@ export function Depositos() {
       
     } catch (error) {
       console.error('Erro no quick submit:', error);
-      toast({
-        title: "❌ Erro",
+      toast.error("❌ Erro", {
         description: "Erro ao registrar depósito.",
-        variant: "destructive",
         duration: 4000,
       });
       setUploadProgress(null);
@@ -321,17 +314,14 @@ export function Depositos() {
       await fetchDepositos();
       await forceRecalculateStatistics(currentMonth);
       
-      toast({
-        title: "✅ Dados Atualizados",
+      toast.success("✅ Dados Atualizados", {
         description: "Depósitos e estatísticas foram atualizados com sucesso.",
         duration: 3000,
       });
     } catch (error) {
       console.error('Erro ao atualizar dados:', error);
-      toast({
-        title: "❌ Erro",
+      toast.error("❌ Erro", {
         description: "Falha ao atualizar dados. Tente novamente.",
-        variant: "destructive",
         duration: 3000,
       });
     } finally {
@@ -356,18 +346,15 @@ export function Depositos() {
     try {
       const success = await clearAllDepositos();
       if (success) {
-        toast({
-          title: "✅ Histórico Removido",
+        toast.success("✅ Histórico Removido", {
           description: "Todo o histórico de depósitos foi removido com sucesso.",
           duration: 3000,
         });
       }
     } catch (error) {
       console.error('Erro ao limpar histórico:', error);
-      toast({
-        title: "❌ Erro",
+      toast.error("❌ Erro", {
         description: "Não foi possível remover o histórico de depósitos.",
-        variant: "destructive",
         duration: 3000,
       });
     }

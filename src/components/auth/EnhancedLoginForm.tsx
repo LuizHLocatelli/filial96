@@ -43,9 +43,7 @@ export function EnhancedLoginForm() {
       });
 
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao fazer login",
+        toast.error("Erro ao fazer login", {
           description: formatErrorForUser(error, "Verifique suas credenciais e tente novamente."),
         });
         return;
@@ -57,9 +55,7 @@ export function EnhancedLoginForm() {
 
       navigate("/", { state: { justLoggedIn: true } });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao fazer login",
+      toast.error("Erro ao fazer login", {
         description: formatErrorForUser(error, "Ocorreu um erro inesperado ao fazer login."),
       });
     } finally {

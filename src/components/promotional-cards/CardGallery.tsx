@@ -83,11 +83,7 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
       }
     } catch (error) {
       console.error('Error moving card to folder:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível mover o card",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível mover o card" });
       return false;
     } finally {
       setProcessingCardIds(prev => {
@@ -114,26 +110,15 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
             card.id === id ? { ...card, ...updates } : card
           )
         );
-        toast({
-          title: "Sucesso",
-          description: "Card atualizado com sucesso"
-        });
+        toast.success("Sucesso", { description: "Card atualizado com sucesso" });
         return true;
       } else {
-        toast({
-          title: "Erro",
-          description: "Não foi possível atualizar o card",
-          variant: "destructive"
-        });
+        toast.error("Erro", { description: "Não foi possível atualizar o card" });
         return false;
       }
     } catch (error) {
       console.error('Error updating card:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o card",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível atualizar o card" });
       return false;
     } finally {
       setProcessingCardIds(prev => {

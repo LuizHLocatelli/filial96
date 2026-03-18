@@ -45,19 +45,15 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
   const validateFile = (selectedFile: File): boolean => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
     if (!validTypes.includes(selectedFile.type)) {
-      toast({
-        title: "Arquivo inválido",
+      toast.error("Arquivo inválido", {
         description: "Apenas imagens (JPG, PNG, GIF, WebP) e PDFs são aceitos",
-        variant: "destructive"
       });
       return false;
     }
 
     if (selectedFile.size > 10 * 1024 * 1024) {
-      toast({
-        title: "Arquivo muito grande",
+      toast.error("Arquivo muito grande", {
         description: "O arquivo deve ter no máximo 10MB",
-        variant: "destructive"
       });
       return false;
     }
@@ -82,19 +78,15 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
     e.preventDefault();
     
     if (!title.trim()) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "O título é obrigatório",
-        variant: "destructive"
       });
       return;
     }
 
     if (!file) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Selecione um arquivo",
-        variant: "destructive"
       });
       return;
     }
@@ -143,16 +135,13 @@ export function UploadCartazForm({ folderId, onUploadSuccess, onCancel }: Upload
 
       onUploadSuccess();
       
-      toast({
-        title: "Sucesso",
-        description: "Cartaz enviado com sucesso"
+      toast.success("Sucesso", {
+        description: "Cartaz enviado com sucesso",
       });
     } catch (error) {
       console.error('Error uploading cartaz:', error);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível enviar o cartaz",
-        variant: "destructive"
       });
     } finally {
       setIsUploading(false);

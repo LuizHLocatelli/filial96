@@ -73,16 +73,13 @@ export const usePastasGerenciais = (pastaPaiId?: string | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pastas_gerenciais'] });
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Pasta criada com sucesso",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Erro ao criar pasta",
+      toast.error("Erro ao criar pasta", {
         description: error.message,
-        variant: "destructive",
       });
     }
   });
@@ -107,16 +104,13 @@ export const usePastasGerenciais = (pastaPaiId?: string | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pastas_gerenciais'] });
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Pasta atualizada com sucesso",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Erro ao atualizar pasta",
+      toast.error("Erro ao atualizar pasta", {
         description: error.message,
-        variant: "destructive",
       });
     }
   });
@@ -135,16 +129,13 @@ export const usePastasGerenciais = (pastaPaiId?: string | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pastas_gerenciais'] });
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Pasta movida com sucesso",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Erro ao mover pasta",
+      toast.error("Erro ao mover pasta", {
         description: error.message,
-        variant: "destructive",
       });
     }
   });
@@ -162,16 +153,13 @@ export const usePastasGerenciais = (pastaPaiId?: string | null) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pastas_gerenciais'] });
       queryClient.invalidateQueries({ queryKey: ['arquivos_gerenciais'] });
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Pasta excluída com sucesso",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Erro ao excluir pasta",
+      toast.error("Erro ao excluir pasta", {
         description: error.message,
-        variant: "destructive",
       });
     }
   });

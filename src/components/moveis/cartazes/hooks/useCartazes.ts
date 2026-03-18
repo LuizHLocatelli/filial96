@@ -53,10 +53,8 @@ export function useCartazes(folderId: string | null) {
     } catch (error) {
       console.error('Error fetching cartazes:', error);
       setCartazes([]);
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível carregar os cartazes",
-        variant: "destructive",
         duration: 5000,
       });
     } finally {

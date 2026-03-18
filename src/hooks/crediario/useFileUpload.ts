@@ -109,10 +109,8 @@ export function useFileUpload() {
       
       const message = error instanceof Error ? error.message : 'Ocorreu um erro ao adicionar o arquivo.';
       
-      toast({
-        title: 'Erro ao fazer upload',
+      toast.error('Erro ao fazer upload', {
         description: message,
-        variant: 'destructive',
       });
       
       return null;

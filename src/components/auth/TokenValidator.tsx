@@ -82,8 +82,7 @@ export function useTokenValidator(): TokenValidatorResult {
             if (data.session) {
               console.log("Sessão estabelecida com sucesso");
               setIsValidSession(true);
-              toast({
-                title: "Verificação bem-sucedida",
+              toast.success("Verificação bem-sucedida", {
                 description: "Por favor, defina sua nova senha.",
               });
             } else {
@@ -129,8 +128,7 @@ export function useTokenValidator(): TokenValidatorResult {
             
             console.log("Token verificado com sucesso");
             setIsValidSession(true);
-            toast({
-              title: "Token verificado",
+            toast.success("Token verificado", {
               description: "Por favor, defina sua nova senha abaixo.",
             });
           } catch (verifyError) {
@@ -140,8 +138,7 @@ export function useTokenValidator(): TokenValidatorResult {
             const { data: sessionData } = await supabase.auth.getSession();
             if (sessionData.session) {
               setIsValidSession(true);
-              toast({
-                title: "Sessão verificada",
+              toast.success("Sessão verificada", {
                 description: "Por favor, defina sua nova senha abaixo.",
               });
             } else {

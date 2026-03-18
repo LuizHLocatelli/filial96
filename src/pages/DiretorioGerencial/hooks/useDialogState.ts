@@ -57,10 +57,8 @@ export function useDialogState({
   const handleMoveFolder = async (pastaDestinoId: string | null) => {
     if (!selectedPasta) return;
     if (pastaDestinoId === selectedPasta.id) {
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não é possível mover uma pasta para dentro dela mesma",
-        variant: "destructive",
       });
       return;
     }

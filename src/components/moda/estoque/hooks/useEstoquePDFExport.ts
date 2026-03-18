@@ -34,10 +34,8 @@ export function useEstoquePDFExport() {
     try {
       // Verificar se há produtos para exportar
       if (!produtos || produtos.length === 0) {
-        toast({
-          title: "Nenhum produto para exportar",
+        toast.error("Nenhum produto para exportar", {
           description: "A contagem deve ter pelo menos um produto para gerar o PDF.",
-          variant: "destructive"
         });
         return false;
       }
@@ -202,8 +200,7 @@ export function useEstoquePDFExport() {
       const fileName = `contagem-estoque-${contagem.nome.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(fileName);
 
-      toast({
-        title: "PDF exportado com sucesso!",
+      toast.success("PDF exportado com sucesso!", {
         description: `Arquivo "${fileName}" foi baixado.`,
       });
 
@@ -221,10 +218,8 @@ export function useEstoquePDFExport() {
         }
       }
       
-      toast({
-        title: "Erro na exportação",
+      toast.error("Erro na exportação", {
         description: errorMessage,
-        variant: "destructive"
       });
       return false;
     }

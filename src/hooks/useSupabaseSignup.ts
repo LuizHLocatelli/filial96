@@ -128,13 +128,11 @@ export function useSupabaseSignup(): UseSupabaseSignupReturn {
       logSupabaseOperation.auth.signup('Processo de cadastro concluído com sucesso');
       
       if (authResult.user.email_confirmed_at) {
-        toast({
-          title: "Conta criada com sucesso! 🎉",
+        toast.success("Conta criada com sucesso! 🎉", {
           description: "Você já pode fazer login na sua conta.",
         });
       } else {
-        toast({
-          title: "Conta criada com sucesso! 🎉",
+        toast.success("Conta criada com sucesso! 🎉", {
           description: "Verifique seu e-mail para confirmar sua conta.",
         });
       }
@@ -148,39 +146,27 @@ export function useSupabaseSignup(): UseSupabaseSignupReturn {
       const errorMessage = error instanceof Error ? error.message : String(error);
       
       if (errorMessage.includes('EMAIL_ALREADY_EXISTS')) {
-        toast({
-          variant: "destructive",
-          title: "E-mail já cadastrado",
+        toast.error("E-mail já cadastrado", {
           description: "Este e-mail já está registrado. Tente fazer login ou use outro e-mail.",
         });
       } else if (errorMessage.includes('INVALID_PASSWORD')) {
-        toast({
-          variant: "destructive",
-          title: "Senha inválida",
+        toast.error("Senha inválida", {
           description: "A senha deve ter pelo menos 6 caracteres.",
         });
       } else if (errorMessage.includes('INVALID_EMAIL')) {
-        toast({
-          variant: "destructive",
-          title: "E-mail inválido",
+        toast.error("E-mail inválido", {
           description: "Por favor, insira um endereço de e-mail válido.",
         });
       } else if (errorMessage.includes('RATE_LIMITED')) {
-        toast({
-          variant: "destructive",
-          title: "Muitas tentativas",
+        toast.error("Muitas tentativas", {
           description: "Aguarde alguns minutos antes de tentar novamente.",
         });
       } else if (errorMessage.includes('SIGNUP_SERVICE_ERROR')) {
-        toast({
-          variant: "destructive",
-          title: "Serviço temporariamente indisponível",
+        toast.error("Serviço temporariamente indisponível", {
           description: "Tente novamente em alguns minutos. Se o problema persistir, contate o suporte.",
         });
       } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao criar conta",
+        toast.error("Erro ao criar conta", {
           description: "Ocorreu um erro inesperado. Tente novamente em alguns minutos ou contate o suporte.",
         });
       }

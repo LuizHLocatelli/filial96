@@ -42,10 +42,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
   const validateFile = (file: File) => {
     // Validar tipo de arquivo
     if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Tipo de arquivo inválido",
+      toast.error("Tipo de arquivo inválido", {
         description: "Por favor, selecione uma imagem.",
-        variant: "destructive",
         duration: 4000,
       });
       return false;
@@ -53,10 +51,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
     
     // Validar tamanho (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Arquivo muito grande",
+      toast.error("Arquivo muito grande", {
         description: "O arquivo deve ter no máximo 5MB.",
-        variant: "destructive",
         duration: 4000,
       });
       return false;
@@ -114,10 +110,8 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
 
   const handleSubmit = async () => {
     if (!selectedFile && !hasReceiptToday) {
-      toast({
-        title: "Comprovante obrigatório",
+      toast.error("Comprovante obrigatório", {
         description: "Por favor, anexe o comprovante do depósito.",
-        variant: "destructive",
         duration: 4000,
       });
       return;
@@ -137,17 +131,14 @@ export function QuickDepositForm({ depositos, isUploading, onSubmit }: QuickDepo
         handleRemoveFile();
         setJa_incluido(false);
         
-        toast({
-          title: "Depósito registrado!",
+        toast.success("Depósito registrado!", {
           description: `Depósito de hoje foi ${ja_incluido ? 'registrado e incluído na Tesouraria/P2K' : 'registrado (pendente inclusão na Tesouraria/P2K)'}.`,
           duration: 4000,
         });
       }
     } catch (error) {
-      toast({
-        title: "Erro ao registrar",
+      toast.error("Erro ao registrar", {
         description: "Não foi possível registrar o depósito. Tente novamente.",
-        variant: "destructive",
         duration: 4000,
       });
     } finally {

@@ -33,10 +33,8 @@ export function useFolders(sector: "furniture" | "fashion" | "loan" | "service")
         console.error('Error fetching folders:', error);
         setError("Failed to load folders");
         setFolders([]); // Garantir que sempre seja um array
-        toast({
-          title: "Erro",
+        toast.error("Erro", {
           description: "Falha ao carregar pastas",
-          variant: "destructive"
         });
       } finally {
         setIsLoading(false);

@@ -49,18 +49,14 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
   // Handlers
   const handleGenerate = async () => {
     if (firstPairIds.length !== 2) {
-      toast({
-        variant: "destructive",
-        title: "Seleção incompleta",
+      toast.error("Seleção incompleta", {
         description: "Você deve selecionar exatamente 2 pessoas para iniciar a carga."
       });
       return;
     }
 
     if (!startDate) {
-      toast({
-        variant: "destructive",
-        title: "Data inválida",
+      toast.error("Data inválida", {
         description: "Selecione uma data de início válida."
       });
       return;
@@ -69,9 +65,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
     const dateObj = new Date(startDate + "T12:00:00");
     const dayOfWeek = dateObj.getDay();
     if (![1, 3, 5].includes(dayOfWeek)) { // 1 = Segunda, 3 = Quarta, 5 = Sexta
-      toast({
-        variant: "destructive",
-        title: "Data inválida",
+      toast.error("Data inválida", {
         description: "A escala da carga deve começar em uma Segunda, Quarta ou Sexta-feira."
       });
       return;
@@ -91,15 +85,12 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       });
       
       setPreviewSchedule(schedule);
-      toast({
-        title: "Escala gerada com sucesso!",
+      toast.success("Escala gerada com sucesso!", {
         description: "Revise a escala antes de salvar no banco de dados.",
       });
     } catch (error) {
       console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao gerar escala",
+      toast.error("Erro ao gerar escala", {
         description: error instanceof Error ? error.message : "Ocorreu um erro ao gerar a escala."
       });
     } finally {
@@ -119,8 +110,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       setIsSaving(true);
       await saveEscalas(previewSchedule, minDate, maxDate);
       
-      toast({
-        title: "Escala salva!",
+      toast.success("Escala salva!", {
         description: "A escala antiga deste período foi substituída pela nova.",
       });
       
@@ -128,9 +118,7 @@ export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
       onOpenChange(false);
     } catch (error) {
       console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar",
+      toast.error("Erro ao salvar", {
         description: error instanceof Error ? error.message : "Ocorreu um erro ao salvar a escala no banco de dados."
       });
     } finally {

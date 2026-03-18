@@ -60,16 +60,13 @@ export const useArquivosGerenciais = (pastaId?: string | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['arquivos_gerenciais'] });
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Arquivo excluído com sucesso",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Erro ao excluir",
+      toast.error("Erro ao excluir", {
         description: error.message,
-        variant: "destructive",
       });
     }
   });
@@ -88,16 +85,13 @@ export const useArquivosGerenciais = (pastaId?: string | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['arquivos_gerenciais'] });
-      toast({
-        title: "Sucesso",
+      toast.success("Sucesso", {
         description: "Arquivo movido com sucesso",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Erro ao mover",
+      toast.error("Erro ao mover", {
         description: error.message,
-        variant: "destructive",
       });
     }
   });
