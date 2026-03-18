@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, Plus, Settings, Check, Sparkles } from "lucide-react";
+import { Bot, Plus, Settings, Check, Sparkles } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,

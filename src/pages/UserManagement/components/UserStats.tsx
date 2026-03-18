@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, User } from "lucide-react";
+import { Users, User } from "@/components/ui/emoji-icons";
 import { UserWithStats, roleLabels } from "../types";
 
 interface UserStatsProps {

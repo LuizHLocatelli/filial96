@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit3, Loader2 } from "lucide-react";
+import { Edit3, Loader2 } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";

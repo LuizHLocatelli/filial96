@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Upload, FileText, Trash2, Loader2, Pencil, Check, X } from "lucide-react";
+import { Upload, FileText, Trash2, Loader2, Pencil, Check, X } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAssistantDocuments } from "../hooks/useAssistantDocuments";

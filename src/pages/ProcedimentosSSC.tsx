@@ -12,7 +12,7 @@ import {
   Copy,
   Check,
   Edit2,
-} from "lucide-react";
+} from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

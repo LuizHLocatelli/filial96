@@ -1,7 +1,7 @@
 import { format, isSameMonth, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/ui/emoji-icons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cliente, getIndicatorColor } from "../types";
 import { Badge } from "@/components/ui/badge";

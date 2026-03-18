@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Search, FolderPlus, ArrowLeft } from "lucide-react";
+import { Search, FolderPlus, ArrowLeft } from "@/components/ui/emoji-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UploadZone } from "./components/UploadZone";

@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/ui/emoji-icons";
 import { DayPicker } from "react-day-picker";
 import { ptBR } from "date-fns/locale";
 

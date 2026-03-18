@@ -13,7 +13,7 @@ import {
   CheckCircle,
   XCircle,
   Calendar,
-} from "lucide-react";
+} from "@/components/ui/emoji-icons";
 import { ModaReserva } from "../types";
 import { ReservaCountdown } from "./ReservaCountdown";
 import { EditReservaDialog } from "./EditReservaDialog";

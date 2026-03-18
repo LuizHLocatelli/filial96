@@ -20,7 +20,7 @@ import { EnhancedSignupForm } from "@/components/auth/EnhancedSignupForm";
 import { AuthBackgroundElements } from "@/components/auth/AuthBackgroundElements";
 import { TrustIndicators } from "@/components/auth/TrustIndicators";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, MapPin } from "lucide-react";
+import { AlertTriangle, MapPin } from "@/components/ui/emoji-icons";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("login");

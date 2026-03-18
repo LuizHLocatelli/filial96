@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save } from "@/components/ui/emoji-icons";
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";

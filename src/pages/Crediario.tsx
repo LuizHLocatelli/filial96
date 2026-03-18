@@ -7,7 +7,7 @@ import {
   Calendar, 
   CreditCard,
   Calculator
-} from "lucide-react";
+} from "@/components/ui/emoji-icons";
 import { Badge } from "@/components/ui/badge";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";

@@ -1,4 +1,4 @@
-import { ChevronRight, Home, Folder } from "lucide-react";
+import { ChevronRight, Home, Folder } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { PastaGerencial } from "../types";
 

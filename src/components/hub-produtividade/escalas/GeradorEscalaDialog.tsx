@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarCog, CalendarIcon, Loader2, CheckCircle2, Truck } from "lucide-react";
+import { CalendarCog, CalendarIcon, Loader2, CheckCircle2, Truck } from "@/components/ui/emoji-icons";
 import { useQuery } from "@tanstack/react-query";
 
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";

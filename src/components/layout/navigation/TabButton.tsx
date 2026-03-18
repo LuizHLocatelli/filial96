@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from "@/components/ui/emoji-icons";
 import { cn } from "@/lib/utils";
 import { TabButtonProps } from "./types";
 

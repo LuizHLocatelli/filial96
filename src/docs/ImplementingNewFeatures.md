@@ -22,7 +22,7 @@ Create a new file `src/pages/Inventario.tsx`:
 ```typescript
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/emoji-icons";
 import { v4 as uuidv4 } from "uuid";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

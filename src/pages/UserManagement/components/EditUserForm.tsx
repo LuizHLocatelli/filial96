@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Crown, Shield, UserCircle, GraduationCap, Phone, Tag, Loader2, Truck } from 'lucide-react';
+import { User, Crown, Shield, UserCircle, GraduationCap, Phone, Tag, Loader2, Truck } from '@/components/ui/emoji-icons';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

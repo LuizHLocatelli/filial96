@@ -1,5 +1,5 @@
 
-import { Clock, TrendingUp, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Clock, TrendingUp, AlertCircle, CheckCircle, XCircle } from "@/components/ui/emoji-icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useReservasStats } from "../hooks/useReservasStats";

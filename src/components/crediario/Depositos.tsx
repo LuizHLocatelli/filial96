@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, isSameMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Camera, Settings, Zap, Download, RefreshCw, Home, Calendar, BarChart3, FileText, Trash2, AlertTriangle, Crown } from "lucide-react";
+import { Camera, Settings, Zap, Download, RefreshCw, Home, Calendar, BarChart3, FileText, Trash2, AlertTriangle, Crown } from "@/components/ui/emoji-icons";
 import { useAuth } from "@/contexts/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

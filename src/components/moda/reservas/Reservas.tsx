@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { PlusCircle, Clock, Filter, Search } from "lucide-react";
+import { PlusCircle, Clock, Filter, Search } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AddReservaButton } from "./components/AddReservaButton";
 import { ReservasFilters } from "./components/ReservasFilters";
 import { ReservaCard } from "./components/ReservaCard";
-import { Clock as ClockIcon } from "lucide-react";
+import { Clock as ClockIcon } from "@/components/ui/emoji-icons";
 import { StandardDialogHeader } from "@/components/ui/standard-dialog";
 
 export function Reservas() {

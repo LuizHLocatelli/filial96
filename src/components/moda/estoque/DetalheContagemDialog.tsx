@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Download, Edit2, Plus, Box, LayoutList } from "lucide-react";
+import { Package, Download, Edit2, Plus, Box, LayoutList } from "@/components/ui/emoji-icons";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProdutoForm } from "./ProdutoForm";

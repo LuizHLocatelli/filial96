@@ -1,4 +1,4 @@
-import { MapPin, ArrowLeft } from "lucide-react";
+import { MapPin, ArrowLeft } from "@/components/ui/emoji-icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";

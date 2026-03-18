@@ -13,7 +13,7 @@ import {
   Filter,
   BarChart3,
   Minus
-} from 'lucide-react';
+} from '@/components/ui/emoji-icons';
 import { 
   format, 
   startOfDay, 

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Shield, CheckCircle, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Shield, CheckCircle, AlertCircle } from "@/components/ui/emoji-icons";
 import { supabase } from "@/integrations/supabase/client";
 import { updatePasswordSchema, UpdatePasswordFormData } from "./schemas/updatePasswordSchema";
 

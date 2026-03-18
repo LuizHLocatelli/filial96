@@ -5,7 +5,7 @@ import { EscalaShiftBadge } from "./EscalaShiftBadge";
 import { EscalaDayData } from "../hooks/useEscalas";
 import { EscalaCarga } from "@/types/shared/escalas";
 import { cn } from "@/lib/utils";
-import { Truck } from "lucide-react";
+import { Truck } from "@/components/ui/emoji-icons";
 
 interface EscalaDayCardProps {
   day: EscalaDayData;

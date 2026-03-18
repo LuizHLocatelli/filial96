@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { isSameDay, differenceInMinutes, setHours, setMinutes, setSeconds } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import { Bell, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import { Bell, Clock, AlertTriangle, CheckCircle } from "@/components/ui/emoji-icons";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 
 

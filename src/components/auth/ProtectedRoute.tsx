@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { useRolePermissions } from "@/hooks/useRolePermissions";
 import { NAVIGATION_TABS } from "@/components/layout/navigation/constants";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/ui/emoji-icons";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

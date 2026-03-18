@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, X, Edit3 } from 'lucide-react';
+import { FileText, X, Edit3 } from '@/components/ui/emoji-icons';
 import {
   Dialog,
   DialogContent,

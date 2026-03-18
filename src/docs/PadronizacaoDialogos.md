@@ -95,7 +95,7 @@ className="max-w-5xl max-h-[80vh] md:max-h-[85vh] lg:max-h-[90vh] overflow-hidde
 ```tsx
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { IconeContextual } from "lucide-react";
+import { IconeContextual } from "@/components/ui/emoji-icons";
 
 export function NovoDialog({ isOpen, onOpenChange }: Props) {
   return (
@@ -351,7 +351,7 @@ Todos os **43 componentes** identificados foram **completamente padronizados** s
 ```tsx
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { IconeContextual } from "lucide-react";
+import { IconeContextual } from "@/components/ui/emoji-icons";
 
 export function NovoDialog({ isOpen, onOpenChange }: Props) {
   return (

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Send, Paperclip, X, Mic, FileText } from "lucide-react";
+import { Send, Paperclip, X, Mic, FileText } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";

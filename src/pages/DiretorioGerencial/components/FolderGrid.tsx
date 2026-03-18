@@ -1,7 +1,7 @@
 import { FolderCard } from "./FolderCard";
 import { PastaGerencial } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Folder } from "lucide-react";
+import { Folder } from "@/components/ui/emoji-icons";
 
 interface FolderGridProps {
   pastas: PastaGerencial[] | undefined;

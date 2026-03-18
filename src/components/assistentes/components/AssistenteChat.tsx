@@ -5,7 +5,7 @@ import { ChatToolBadges } from "./ChatToolBadges";
 import { ExportDropdown } from "./ExportDropdown";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
 import type { AIAssistant, AIChatSession } from "../types";
-import { Bot, User, ArrowLeft, Square, Sparkles } from "lucide-react";
+import { Bot, User, ArrowLeft, Square, Sparkles } from "@/components/ui/emoji-icons";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { StreamingMarkdown } from "./StreamingMarkdown";
 import { Card } from "@/components/ui/card";

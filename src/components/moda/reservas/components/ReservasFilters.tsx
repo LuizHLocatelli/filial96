@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Filter } from "lucide-react";
+import { Filter } from "@/components/ui/emoji-icons";
 
 interface ReservasFiltersProps {
   filters: {

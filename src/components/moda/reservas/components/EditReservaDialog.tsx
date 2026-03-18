@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { ModaReserva, ProdutoReserva } from "../types";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, Trash2, Plus, Crown, Edit, Loader2 } from "lucide-react";
+import { Save, Trash2, Plus, Crown, Edit, Loader2 } from "@/components/ui/emoji-icons";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";

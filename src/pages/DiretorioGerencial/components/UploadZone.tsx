@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, File, AlertCircle, FolderOpen } from 'lucide-react';
+import { UploadCloud, File, AlertCircle, FolderOpen } from '@/components/ui/emoji-icons';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useArquivosGerenciais } from '../hooks/useArquivosGerenciais';

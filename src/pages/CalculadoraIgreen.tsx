@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft, Eye } from "lucide-react";
+import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft, Eye } from "@/components/ui/emoji-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Upload, Camera, Check, X, ImageIcon, Loader2, Calendar } from "lucide-react";
+import { Upload, Camera, Check, X, ImageIcon, Loader2, Calendar } from "@/components/ui/emoji-icons";
 import { toast } from "@/hooks/use-toast";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 

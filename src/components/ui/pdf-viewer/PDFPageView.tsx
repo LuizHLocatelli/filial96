@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/emoji-icons';
 import { pdfjsLib } from './pdf-worker';
 
 interface PDFPageViewProps {

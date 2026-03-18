@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { LucideIcon, ChevronRight } from "lucide-react";
+import { LucideIcon, ChevronRight } from "@/components/ui/emoji-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PageHeaderProps {

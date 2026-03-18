@@ -14,7 +14,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Package, User, Baby } from "lucide-react";
+import { Edit2, Package, User, Baby } from "@/components/ui/emoji-icons";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";

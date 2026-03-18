@@ -15,7 +15,7 @@ import {
   Trash2,
   Save,
   Loader2
-} from "lucide-react";
+} from "@/components/ui/emoji-icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

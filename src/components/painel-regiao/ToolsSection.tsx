@@ -1,4 +1,4 @@
-import { Wrench } from "lucide-react";
+import { Wrench } from "@/components/ui/emoji-icons";
 import { InternalTool } from "@/types/painel-regiao";
 import { ToolCard } from "./ToolCard";
 

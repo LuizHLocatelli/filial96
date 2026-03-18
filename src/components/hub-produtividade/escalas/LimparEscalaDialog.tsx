@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Trash2, Loader2, CalendarIcon } from "lucide-react";
+import { Trash2, Loader2, CalendarIcon } from "@/components/ui/emoji-icons";
 
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";

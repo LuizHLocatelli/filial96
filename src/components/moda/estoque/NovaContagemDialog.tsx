@@ -13,7 +13,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Package, User, Baby, Tag } from "lucide-react";
+import { Package, User, Baby, Tag } from "@/components/ui/emoji-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,

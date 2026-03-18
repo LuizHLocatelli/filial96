@@ -1,6 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
-import { Clock, Crown, Infinity as InfinityIcon } from "lucide-react";
+import { Clock, Crown, Infinity as InfinityIcon } from "@/components/ui/emoji-icons";
 import { useReservasCountdown } from "../hooks/useReservasCountdown";
 import { cn } from "@/lib/utils";
 

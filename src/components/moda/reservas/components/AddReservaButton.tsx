@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from "@/components/ui/emoji-icons";
 import { AddReservaDialog } from "./AddReservaDialog";
 import { useReservas } from "../hooks/useReservas";
 import { ReservaFormData } from "../types";

@@ -5,7 +5,7 @@ import {
   Calculator,
   FileText,
   Gift,
-} from "lucide-react";
+} from "@/components/ui/emoji-icons";
 import { PainelConfig } from "@/types/painel-regiao";
 
 export const painelConfig: PainelConfig = {

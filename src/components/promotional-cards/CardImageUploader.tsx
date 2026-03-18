@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Upload, ZoomIn, ImageIcon } from "lucide-react";
+import { X, Upload, ZoomIn, ImageIcon } from "@/components/ui/emoji-icons";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";

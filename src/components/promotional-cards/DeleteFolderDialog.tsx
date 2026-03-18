@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2, AlertTriangle, Loader2 } from "lucide-react";
+import { Trash2, AlertTriangle, Loader2 } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";

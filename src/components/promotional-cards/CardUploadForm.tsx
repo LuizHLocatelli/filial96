@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, CalendarIcon, CheckCircle2, AlertCircle, ImageIcon } from "lucide-react";
+import { Loader2, CalendarIcon, CheckCircle2, AlertCircle, ImageIcon } from "@/components/ui/emoji-icons";
 import { useFolders } from "@/hooks/useFolders";
 import { CardImageUploader } from "./CardImageUploader";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";

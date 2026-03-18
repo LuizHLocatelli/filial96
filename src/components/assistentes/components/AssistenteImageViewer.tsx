@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Share2, X, Image as ImageIcon } from "lucide-react";
+import { Download, Share2, X, Image as ImageIcon } from "@/components/ui/emoji-icons";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 

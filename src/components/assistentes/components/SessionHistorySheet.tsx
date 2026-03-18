@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Trash2, Plus, History } from "lucide-react";
+import { MessageSquare, Trash2, Plus, History } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,

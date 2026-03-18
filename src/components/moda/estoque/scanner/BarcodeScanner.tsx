@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Camera, CameraOff, History, Volume2, VolumeX, RefreshCw } from 'lucide-react';
+import { Camera, CameraOff, History, Volume2, VolumeX, RefreshCw } from '@/components/ui/emoji-icons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

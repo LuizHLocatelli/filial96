@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus, FileImage } from "lucide-react";
+import { Plus, FileImage } from "@/components/ui/emoji-icons";
 
 interface CartazGalleryEmptyProps {
   folderId: string | null;

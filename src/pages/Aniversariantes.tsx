@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { format, parseISO, isValid } from "date-fns";
-import { Plus, Gift, Trash2, CalendarDays, MapPin, ArrowLeft, Star } from "lucide-react";
+import { Plus, Gift, Trash2, CalendarDays, MapPin, ArrowLeft, Star } from "@/components/ui/emoji-icons";
 import { useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";

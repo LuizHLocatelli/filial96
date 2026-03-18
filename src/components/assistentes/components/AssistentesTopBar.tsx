@@ -1,4 +1,4 @@
-import { ChevronDown, History, Plus, Settings } from "lucide-react";
+import { ChevronDown, History, Plus, Settings } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
 import type { AIAssistant, AIChatSession } from "../types";

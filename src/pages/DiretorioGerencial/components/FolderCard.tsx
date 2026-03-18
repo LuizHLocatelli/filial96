@@ -1,4 +1,4 @@
-import { Folder, FolderOpen, MoreVertical } from "lucide-react";
+import { Folder, FolderOpen, MoreVertical } from "@/components/ui/emoji-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PastaGerencial } from "../types";
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit3, Trash2, ArrowRightLeft } from "lucide-react";
+import { Edit3, Trash2, ArrowRightLeft } from "@/components/ui/emoji-icons";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 

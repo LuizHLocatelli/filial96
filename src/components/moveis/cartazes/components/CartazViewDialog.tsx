@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, FileImage, Download, Eye } from "lucide-react";
+import { FileText, FileImage, Download, Eye } from "@/components/ui/emoji-icons";
 import { CartazItem } from "../hooks/useCartazes";
 import { PDFViewer } from "@/components/ui/pdf-viewer/index";
 import { useIsMobile } from "@/hooks/use-mobile";

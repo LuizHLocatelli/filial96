@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowRightLeft, Loader2, Folder, Home, ChevronRight } from "lucide-react";
+import { ArrowRightLeft, Loader2, Folder, Home, ChevronRight } from "@/components/ui/emoji-icons";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";

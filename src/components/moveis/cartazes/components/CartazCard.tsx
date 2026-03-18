@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, FileImage, MoreVertical } from "lucide-react";
+import { FileText, FileImage, MoreVertical } from "@/components/ui/emoji-icons";
 import { CartazItem } from "../hooks/useCartazes";
 import { CartazDropdownMenu } from "./CartazDropdownMenu";
 import { CartazViewDialog } from "./CartazViewDialog";

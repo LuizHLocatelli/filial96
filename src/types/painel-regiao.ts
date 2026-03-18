@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from "@/components/ui/emoji-icons";
 
 export interface ExternalLink {
   id: string;

@@ -1,4 +1,4 @@
-import { Globe, BookOpen, FileText, ImageIcon, Loader2, CheckCircle2, Sparkles, Database } from "lucide-react";
+import { Globe, BookOpen, FileText, ImageIcon, Loader2, CheckCircle2, Sparkles, Database } from "@/components/ui/emoji-icons";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FolderPlus, Loader2 } from "lucide-react";
+import { FolderPlus, Loader2 } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

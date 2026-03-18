@@ -1,4 +1,4 @@
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "@/components/ui/emoji-icons";
 import { Button } from "@/components/ui/button";
 import { useCalculatorTheme } from "./calculator-theme";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

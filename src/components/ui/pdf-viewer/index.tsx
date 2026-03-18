@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Loader2, AlertCircle, FileText } from 'lucide-react';
+import { Loader2, AlertCircle, FileText } from '@/components/ui/emoji-icons';
 import { Button } from '@/components/ui/button';
 import { PDFToolbar } from './PDFToolbar';
 import { PDFPageView } from './PDFPageView';

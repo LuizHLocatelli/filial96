@@ -1,5 +1,5 @@
 
-import { Upload, FileText, FileImage } from "lucide-react";
+import { Upload, FileText, FileImage } from "@/components/ui/emoji-icons";
 import { Label } from "@/components/ui/label";
 
 interface FileUploadZoneProps {

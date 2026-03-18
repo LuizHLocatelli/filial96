@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock } from '@/components/ui/emoji-icons';
 
 interface CountdownTimerProps {
   endDate: string;
