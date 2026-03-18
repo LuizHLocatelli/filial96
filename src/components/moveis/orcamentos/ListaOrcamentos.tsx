@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Search, Trash2, Eye, Calendar, User } from "lucide-react";
+import { FileText, Search, Trash2, Eye, Calendar, User, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
+import { generateOrcamentoPdf } from "./utils/pdfGenerator";
+import { OrcamentoData } from "./types";
+import { toast } from "@/components/ui/use-toast";
 
 export function ListaOrcamentos() {
   const { orcamentos, isLoading, deleteOrcamento } = useOrcamentos();
@@ -27,6 +30,36 @@ export function ListaOrcamentos() {
   const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir este orçamento?")) {
       await deleteOrcamento(id);
+    }
+  };
+
+  const handleDownloadPdf = (orcamento: Orcamento) => {
+    try {
+      const data: OrcamentoData = {
+        cliente: {
+          nome: orcamento.cliente_nome,
+          documento: orcamento.cliente_documento || '',
+          telefone: orcamento.cliente_telefone || '',
+          email: orcamento.cliente_email || '',
+          endereco: orcamento.cliente_endereco || ''
+        },
+        itens: orcamento.itens,
+        validade: orcamento.validade,
+        observacoes: orcamento.observacoes || '',
+        consultor: orcamento.consultor || '',
+        valorTotal: orcamento.valor_total,
+        dataCriacao: orcamento.created_at ? new Date(orcamento.created_at) : new Date()
+      };
+      
+      generateOrcamentoPdf(data);
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar o PDF.",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   };
 
@@ -126,6 +159,14 @@ export function ListaOrcamentos() {
                   >
                     <Eye className="h-4 w-4" />
                     Ver
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => handleDownloadPdf(orcamento)}
+                  >
+                    <Download className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
@@ -242,6 +283,13 @@ export function ListaOrcamentos() {
           </DialogScrollableContainer>
 
           <StandardDialogFooter>
+            <Button 
+              variant="outline"
+              onClick={() => selectedOrcamento && handleDownloadPdf(selectedOrcamento)}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Baixar PDF
+            </Button>
             <Button onClick={() => setSelectedOrcamento(null)}>
               Fechar
             </Button>
