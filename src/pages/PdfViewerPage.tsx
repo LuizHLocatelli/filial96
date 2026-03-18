@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowDown, ArrowLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { PDFViewer } from "@/components/ui/pdf-viewer/index";
 
 const PdfViewerPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   
   const pdfUrl = searchParams.get("url");
@@ -18,11 +17,7 @@ const PdfViewerPage = () => {
   
   useEffect(() => {
     if (!pdfUrl) {
-      toast({
-        title: "Erro",
-        description: "URL do PDF não fornecida",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "URL do PDF não fornecida" });
       navigate("/crediario");
     }
   }, [pdfUrl, navigate, toast]);
@@ -54,18 +49,11 @@ const PdfViewerPage = () => {
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
           
-          toast({
-            title: "Download concluído",
-            description: "O arquivo foi baixado com sucesso.",
-          });
+          toast.success("Download concluído", { description: "O arquivo foi baixado com sucesso." });
         })
         .catch(error => {
           console.error('Download failed:', error);
-          toast({
-            title: "Erro ao baixar",
-            description: "Não foi possível baixar o arquivo.",
-            variant: "destructive",
-          });
+          toast.error("Erro ao baixar", { description: "Não foi possível baixar o arquivo." });
         });
     }
   };

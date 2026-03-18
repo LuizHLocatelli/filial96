@@ -32,7 +32,7 @@ import { AdminProcedimentosButton } from "@/components/ssc/AdminProcedimentosBut
 import { ProcedimentoForm } from "@/components/ssc/ProcedimentoForm";
 import { useProcedimentosSSC } from "@/hooks/useProcedimentosSSC";
 import { ProcedimentoSSC, ProcedimentoInsert } from "@/types/ssc-procedimentos";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StandardDialogHeader } from "@/components/ui/standard-dialog";

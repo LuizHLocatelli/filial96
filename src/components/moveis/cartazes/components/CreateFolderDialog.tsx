@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FolderPlus, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -25,11 +25,7 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSuccess }: CreateFo
     e.preventDefault();
     
     if (!name.trim()) {
-      toast({
-        title: "Erro",
-        description: "O nome da pasta é obrigatório",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "O nome da pasta é obrigatório" });
       return;
     }
 
@@ -55,17 +51,10 @@ export function CreateFolderDialog({ isOpen, onOpenChange, onSuccess }: CreateFo
         onSuccess();
       }
       
-      toast({
-        title: "Sucesso",
-        description: "Pasta criada com sucesso"
-      });
+      toast.success("Sucesso", { description: "Pasta criada com sucesso" });
     } catch (error) {
       console.error('Error creating folder:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível criar a pasta",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível criar a pasta" });
     } finally {
       setIsLoading(false);
     }

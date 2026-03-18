@@ -24,7 +24,11 @@ export function useAuthActions({
         console.log("✅ Logout do Supabase bem-sucedido");
       }
     } catch (error) {
-      console.error("💥 Erro crítico no logout do Supabase:", error);
+      console.error("💥 Erro completo ao excluir conta:", error);
+      toast.error("Erro ao excluir conta", {
+        description: formatErrorForUser(error, "Ocorreu um erro ao excluir sua conta."),
+      });
+      throw error;
     }
     
     // Independentemente de sucesso ou erro, força limpeza completa
@@ -49,8 +53,7 @@ export function useAuthActions({
       
       console.log("✅ Limpeza completa realizada com sucesso");
       
-      toast({
-        title: "Logout realizado",
+      toast.success("Logout realizado", {
         description: "Você saiu da sua conta com sucesso.",
       });
       
@@ -59,9 +62,8 @@ export function useAuthActions({
       
       // Último recurso: recarregar a página
       console.log("🔄 Forçando recarregamento da página...");
-      toast({
-        title: "Logout forçado",
-        description: "Recarregando página para completar logout...",
+      toast.success("Logout realizado", {
+        description: "Você saiu da sua conta com sucesso.",
       });
       
       setTimeout(() => {
@@ -101,8 +103,7 @@ export function useAuthActions({
         console.log("✅ Edge Function executada com sucesso:", result);
         
         // Show success message
-        toast({
-          title: "Conta excluída",
+        toast.success("Conta excluída", {
           description: "Sua conta foi excluída com sucesso.",
         });
         
@@ -123,9 +124,7 @@ export function useAuthActions({
 
     } catch (error) {
       console.error("💥 Erro completo ao excluir conta:", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao excluir conta",
+      toast.error("Erro ao excluir conta", {
         description: formatErrorForUser(error, "Ocorreu um erro ao excluir sua conta."),
       });
       throw error;

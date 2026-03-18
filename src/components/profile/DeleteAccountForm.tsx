@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth";
 
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,6 @@ const deleteAccountSchema = z.object({
 
 export function DeleteAccountForm() {
   const { user, deleteAccount } = useAuth();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 

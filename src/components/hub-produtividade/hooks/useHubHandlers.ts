@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HubViewMode } from '../types';
 import { HubHandlers } from '../types/hubTypes';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface UseHubHandlersProps {
   setCurrentSection: (section: string) => void;
@@ -22,7 +22,6 @@ export function useHubHandlers({
   refreshData
 }: UseHubHandlersProps): HubHandlers {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleNovaTarefa = () => {
     console.log("✅ Handler Nova Tarefa executado");

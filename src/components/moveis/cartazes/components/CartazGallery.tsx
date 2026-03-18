@@ -7,7 +7,7 @@ import { CartazGalleryEmpty } from "./CartazGalleryEmpty";
 import { CartazGalleryLoading } from "./CartazGalleryLoading";
 import { CartazSearchBar } from "./CartazSearchBar";
 import { useCartazSearch } from "../hooks/useCartazSearch";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface CartazGalleryProps {
   folderId: string | null;

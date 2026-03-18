@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { ModaReserva, ProdutoReserva } from "../types";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, Trash2, Plus, Crown, Edit, Loader2 } from "lucide-react";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
@@ -22,7 +22,6 @@ interface EditReservaDialogProps {
 }
 
 export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: EditReservaDialogProps) {
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -56,20 +55,13 @@ export function EditReservaDialog({ reserva, open, onOpenChange, onSuccess }: Ed
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
-        description: "Reserva atualizada com sucesso!",
-      });
+      toast.success("Sucesso", { description: "Reserva atualizada com sucesso!" });
       
       onSuccess();
       onOpenChange(false);
     } catch (error) {
       console.error('Erro ao atualizar reserva:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar a reserva",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Não foi possível atualizar a reserva" });
     } finally {
       setIsLoading(false);
     }

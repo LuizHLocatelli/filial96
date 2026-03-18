@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Package, User, Baby } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { BarcodeScanner } from "./scanner/BarcodeScanner";
@@ -33,7 +33,6 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
   const [codigoProduto, setCodigoProduto] = useState("");
   const [quantidade, setQuantidade] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const [scannerEnabled, setScannerEnabled] = useState(false);
   const [autoAddOnScan, setAutoAddOnScan] = useState(true);
 
@@ -61,18 +60,14 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
   const addProduto = async (codigo: string, contagemSetorValue: string, qtd: number) => {
     if (!codigo || !contagemSetorValue || qtd < 1) return false;
     if (!validarCodigo(codigo)) {
-      toast({
-        title: "Código inválido",
-        description: "O código do produto deve ter exatamente 6 ou 9 dígitos.",
-        variant: "destructive",
-      });
+      toast.error("Código inválido", { description: "O código do produto deve ter exatamente 6 ou 9 dígitos." });
       return false;
     }
     setLoading(true);
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
-        toast({ title: "Erro", description: "Usuário não autenticado.", variant: "destructive" });
+        toast.error("Erro", { description: "Usuário não autenticado." });
         return false;
       }
       const { error: rpcError } = await supabase.rpc("upsert_moda_estoque_produto", {
@@ -98,12 +93,9 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
       const quantidadeAnterior = (produtoInfo.quantidade ?? 0) - qtd;
       const contagemSetorLabel = getSetorLabel(contagemSetor);
       if (quantidadeAnterior > 0) {
-        toast({
-          title: "✅ Produto somado!",
-          description: `${qtd} + ${quantidadeAnterior} = ${produtoInfo.quantidade} unidades (${contagemSetorLabel})`,
-        });
+        toast.success("✅ Produto somado!", { description: `${qtd} + ${quantidadeAnterior} = ${produtoInfo.quantidade} unidades (${contagemSetorLabel})` });
       } else {
-        toast({ title: "✅ Produto adicionado!", description: `${qtd} unidade(s) · ${codigo} · ${contagemSetorLabel}` });
+        toast.success("✅ Produto adicionado!", { description: `${qtd} unidade(s) · ${codigo} · ${contagemSetorLabel}` });
       }
 
       // limpar campos e focar
@@ -118,7 +110,7 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
       return true;
     } catch (err) {
       console.error("Erro ao adicionar produto:", err);
-      toast({ title: "Erro", description: "Não foi possível adicionar o produto.", variant: "destructive" });
+      toast.error("Erro", { description: "Não foi possível adicionar o produto." });
       return false;
     } finally {
       setLoading(false);
@@ -128,21 +120,13 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
     e.preventDefault();
     
     if (!codigoProduto || !contagemSetor || quantidade < 1) {
-      toast({
-        title: "Erro",
-        description: "Todos os campos são obrigatórios.",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Todos os campos são obrigatórios." });
       return;
     }
 
     // Validação do código do produto
     if (!validarCodigo(codigoProduto)) {
-      toast({
-        title: "Código inválido",
-        description: "O código do produto deve ter exatamente 6 ou 9 dígitos.",
-        variant: "destructive"
-      });
+      toast.error("Código inválido", { description: "O código do produto deve ter exatamente 6 ou 9 dígitos." });
       return;
     }
 
@@ -152,11 +136,7 @@ export function ProdutoForm({ contagemId, contagemSetor, onProdutoAdicionado }: 
   const handleScan = async (code: string) => {
     setCodigoProduto(code);
     if (!contagemSetor) {
-      toast({
-        title: "Selecione o contagemSetor",
-        description: "Escolha o contagemSetor antes de adicionar pelo leitor.",
-        variant: "destructive",
-      });
+      toast.error("Selecione o contagemSetor", { description: "Escolha o contagemSetor antes de adicionar pelo leitor." });
       return;
     }
     if (autoAddOnScan) {

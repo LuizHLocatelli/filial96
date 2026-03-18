@@ -8,7 +8,7 @@ import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/stan
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { Sparkles, Loader2, ImagePlus, X, RefreshCw, Save, Wand2, Building2, AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/auth";
 import { v4 as uuidv4 } from "uuid";
@@ -97,11 +97,11 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast({ title: "Erro", description: "Selecione um arquivo de imagem", variant: "destructive" });
+      toast.error("Erro", { description: "Selecione um arquivo de imagem" });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Erro", description: "Imagem muito grande (máx. 5MB)", variant: "destructive" });
+      toast.error("Erro", { description: "Imagem muito grande (máx. 5MB)" });
       return;
     }
     setReferenceFileName(file.name);
@@ -114,18 +114,12 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
 
   const handleGenerate = async () => {
     if (!productName.trim()) {
-      toast({ title: "Campo obrigatório", description: "Informe o nome do produto", variant: "destructive" });
+      toast.error("Campo obrigatório", { description: "Informe o nome do produto" });
       return;
     }
 
     if (!companyLogoBase64) {
-      toast({ 
-        title: "Logo não configurado", 
-        description: isManager 
-          ? "Configure o logo da empresa antes de gerar cards." 
-          : "O logo da empresa não está configurado. Entre em contato com um gerente.", 
-        variant: "destructive" 
-      });
+      toast.error("Logo não configurado", { description: isManager ? "Configure o logo da empresa antes de gerar cards." : "O logo da empresa não está configurado. Entre em contato com um gerente." });
       return;
     }
 
@@ -168,11 +162,11 @@ export function CreateCardWithAIDialog({ open, onOpenChange, sector, folderId, o
       setGeneratedImage(data.imageBase64);
       setCardTitle(productName.trim());
 
-      toast({ title: "Card gerado!", description: "Revise o resultado e salve ou gere novamente." });
+      toast.success("Card gerado!", { description: "Revise o resultado e salve ou gere novamente." });
     } catch (error: Error | unknown) {
       console.error("Erro ao gerar card:", error);
       const errorMessage = error instanceof Error ? error.message : "Não foi possível gerar o card";
-      toast({ title: "Erro na geração", description: errorMessage, variant: "destructive" });
+      toast.error("Erro na geração", { description: errorMessage });
     } finally {
       setIsGenerating(false);
     }

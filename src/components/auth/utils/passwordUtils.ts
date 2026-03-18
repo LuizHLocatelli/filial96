@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { NavigateFunction } from "react-router-dom";
 
 export interface UpdatePasswordParams {

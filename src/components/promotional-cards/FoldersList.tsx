@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { EditFolderDialog } from "./EditFolderDialog";
@@ -74,11 +74,7 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
       setTotalCardCount(totalCount);
     } catch (error) {
       console.error("Error fetching folders:", error);
-      toast({
-        title: "Erro ao carregar",
-        description: "Não foi possível carregar as pastas. Tente novamente.",
-        variant: "destructive"
-      });
+      toast.error("Erro ao carregar", { description: "Não foi possível carregar as pastas. Tente novamente." });
     }
   }, [sector]);
 

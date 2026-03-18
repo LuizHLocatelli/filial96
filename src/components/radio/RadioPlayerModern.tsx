@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, Radio, Play, Pause, Loader2 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import { cn } from '@/lib/utils';
 
 // Visualizer Bar Component
@@ -29,7 +29,6 @@ export function RadioPlayerModern() {
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
-  const { toast } = useToast();
 
   const STREAM_URL = 'https://centova4.transmissaodigital.com:20129/stream';
 
@@ -62,11 +61,7 @@ export function RadioPlayerModern() {
       
       setIsPlaying(false);
       setIsLoading(false);
-      toast({
-        variant: "destructive",
-        title: "Erro na Rádio",
-        description: message,
-      });
+      toast.error("Erro na Rádio", { description: message });
     };
 
     const handleWaiting = () => {
@@ -111,16 +106,9 @@ export function RadioPlayerModern() {
         playPromise.catch((err) => {
           setIsLoading(false);
           if (err.name === 'NotAllowedError') {
-            toast({
-              title: "Permissão necessária",
-              description: "Clique no botão de play para ativar o áudio.",
-            });
+            toast.success("Permissão necessária", { description: "Clique no botão de play para ativar o áudio." });
           } else {
-            toast({
-              variant: "destructive",
-              title: "Erro ao reproduzir",
-              description: "Não foi possível iniciar a reprodução.",
-            });
+            toast.error("Erro ao reproduzir", { description: "Não foi possível iniciar a reprodução." });
           }
         });
       }

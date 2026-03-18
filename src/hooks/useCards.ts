@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { CardItem } from "./useCardOperations";
 
 export function useCards(sector: "furniture" | "fashion" | "loan" | "service", folderId: string | null) {

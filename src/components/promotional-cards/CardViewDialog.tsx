@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Copy, Download, X, Smartphone } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useState } from "react";
@@ -46,27 +46,17 @@ export function CardViewDialog({
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code);
-    toast({
-      title: "Código copiado!",
-      description: "O código foi copiado para a área de transferência.",
-    });
+    toast.success("Código copiado!", { description: "O código foi copiado para a área de transferência." });
   };
 
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
       await downloadCardImage(imageUrl, title);
-      toast({
-        title: "Download iniciado!",
-        description: "A imagem do card está sendo baixada.",
-      });
+      toast.success("Download iniciado!", { description: "A imagem do card está sendo baixada." });
     } catch (error) {
       console.error("Erro ao baixar imagem:", error);
-      toast({
-        title: "Erro no download",
-        description: "Não foi possível baixar a imagem.",
-        variant: "destructive",
-      });
+      toast.error("Erro no download", { description: "Não foi possível baixar a imagem." });
     } finally {
       setIsDownloading(false);
     }

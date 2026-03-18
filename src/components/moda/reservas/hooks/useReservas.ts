@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/auth';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import { ModaReserva, ReservaFormData } from '../types';
 import { processReservaData } from '../utils/dataProcessing';
 import {
@@ -17,7 +17,6 @@ export function useReservas() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-  const { toast } = useToast();
 
   const fetchReservas = useCallback(async () => {
     if (!user) return;
@@ -30,11 +29,7 @@ export function useReservas() {
     } catch (err) {
       console.error('Erro ao carregar reservas:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar as reservas",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Não foi possível carregar as reservas" });
     } finally {
       setIsLoading(false);
     }
@@ -56,19 +51,12 @@ export function useReservas() {
 
     try {
       await createReservaApi(formData, user.id);
-      toast({
-        title: "Sucesso",
-        description: `Reserva criada com sucesso!${formData.cliente_vip ? ' (Cliente VIP - sem limite de tempo)' : ''}`,
-      });
+      toast.success("Sucesso", { description: `Reserva criada com sucesso!${formData.cliente_vip ? ' (Cliente VIP - sem limite de tempo)' : ''}` });
       // Realtime já atualiza o estado — fetch manual removido
       return true;
     } catch (err) {
       console.error('Erro ao criar reserva:', err);
-      toast({
-        title: "Erro",
-        description: "Não foi possível criar a reserva",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Não foi possível criar a reserva" });
       return false;
     }
   };
@@ -76,18 +64,11 @@ export function useReservas() {
   const updateReservaStatus = async (id: string, status: ModaReserva['status'], venda_id?: string): Promise<boolean> => {
     try {
       await updateReservaStatusApi(id, status, venda_id);
-      toast({
-        title: "Sucesso",
-        description: "Status da reserva atualizado!",
-      });
+      toast.success("Sucesso", { description: "Status da reserva atualizado!" });
       return true;
     } catch (err) {
       console.error('Erro ao atualizar reserva:', err);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar a reserva",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Não foi possível atualizar a reserva" });
       return false;
     }
   };
@@ -95,18 +76,11 @@ export function useReservas() {
   const deleteReserva = async (id: string): Promise<boolean> => {
     try {
       await deleteReservaApi(id);
-      toast({
-        title: "Sucesso",
-        description: "Reserva removida com sucesso!",
-      });
+      toast.success("Sucesso", { description: "Reserva removida com sucesso!" });
       return true;
     } catch (err) {
       console.error('Erro ao remover reserva:', err);
-      toast({
-        title: "Erro",
-        description: "Não foi possível remover a reserva",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Não foi possível remover a reserva" });
       return false;
     }
   };

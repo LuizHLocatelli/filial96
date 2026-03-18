@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from 'date-fns';
@@ -74,18 +74,11 @@ export function PromotionalCard({
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(code || '')
       .then(() => {
-        toast({
-          title: "Copiado!",
-          description: "Código copiado para a área de transferência.",
-        });
+        toast.success("Copiado!", { description: "Código copiado para a área de transferência." });
       })
       .catch(err => {
         console.error("Failed to copy text: ", err);
-        toast({
-          title: "Erro",
-          description: "Falha ao copiar o código.",
-          variant: "destructive"
-        });
+        toast.error("Erro", { description: "Falha ao copiar o código." });
       });
   };
 
@@ -105,17 +98,10 @@ export function PromotionalCard({
     e.stopPropagation();
     try {
       await downloadCardImage(imageUrl, title);
-      toast({
-        title: "Download iniciado!",
-        description: "A imagem do card está sendo baixada.",
-      });
+      toast.success("Download iniciado!", { description: "A imagem do card está sendo baixada." });
     } catch (error) {
       console.error("Erro ao baixar imagem:", error);
-      toast({
-        title: "Erro no download",
-        description: "Não foi possível baixar a imagem.",
-        variant: "destructive",
-      });
+      toast.error("Erro no download", { description: "Não foi possível baixar a imagem." });
     }
   };
 

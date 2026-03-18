@@ -24,7 +24,7 @@ import { generateOrcamentoPdf } from "./utils/pdfGenerator";
 import { useOrcamentos } from "./hooks/useOrcamentos";
 import { ListaOrcamentos } from "./ListaOrcamentos";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export function Orcamentos() {
   const { createOrcamento } = useOrcamentos();
@@ -140,11 +140,7 @@ export function Orcamentos() {
       });
       
       if (orcamentoId) {
-        toast({
-          title: "Orçamento salvo",
-          description: "O orçamento foi salvo e está disponível para consulta.",
-          duration: 3000,
-        });
+        toast.success("Orçamento salvo", { description: "O orçamento foi salvo e está disponível para consulta." });
       }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import type { OrcamentoItem, ClienteOrcamento } from "../types";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -62,12 +62,7 @@ export function useOrcamentos() {
       setOrcamentos(typedOrcamentos);
     } catch (error) {
       console.error('Error fetching orcamentos:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os orçamentos",
-        variant: "destructive",
-        duration: 5000,
-      });
+      toast.error("Erro", { description: "Não foi possível carregar os orçamentos" });
     } finally {
       setIsLoading(false);
     }
@@ -101,12 +96,7 @@ export function useOrcamentos() {
       return data.id;
     } catch (error) {
       console.error('Error creating orcamento:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível salvar o orçamento",
-        variant: "destructive",
-        duration: 5000,
-      });
+      toast.error("Erro", { description: "Não foi possível salvar o orçamento" });
       return null;
     }
   };
@@ -120,22 +110,13 @@ export function useOrcamentos() {
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
-        description: "Orçamento excluído com sucesso!",
-        duration: 3000,
-      });
+      toast.success("Sucesso", { description: "Orçamento excluído com sucesso!" });
 
       fetchOrcamentos();
       return true;
     } catch (error) {
       console.error('Error deleting orcamento:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o orçamento",
-        variant: "destructive",
-        duration: 5000,
-      });
+      toast.error("Erro", { description: "Não foi possível excluir o orçamento" });
       return false;
     }
   };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import { useFileUpload } from '@/hooks/crediario/useFileUpload';
 
 export type Deposito = {
@@ -147,7 +147,6 @@ export function useDepositos() {
   const [isLoading, setIsLoading] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'reconnecting'>('online');
   const [lastResetDate, setLastResetDate] = useState<Date | null>(null);
-  const { toast } = useToast();
   const { uploadFile, isUploading, progress } = useFileUpload();
 
   const fetchStatistics = useCallback(async () => {

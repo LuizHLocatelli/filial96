@@ -2,12 +2,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth";
 import { PastaGerencial } from "../types";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export const usePastasGerenciais = (pastaPaiId?: string | null) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const { data: pastas, isLoading, error } = useQuery({
     queryKey: ['pastas_gerenciais', pastaPaiId],

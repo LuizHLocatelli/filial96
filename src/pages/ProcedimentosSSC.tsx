@@ -37,7 +37,7 @@ import { AdminProcedimentosButton } from "@/components/ssc/AdminProcedimentosBut
 import { ProcedimentoForm } from "@/components/ssc/ProcedimentoForm";
 import { useProcedimentosSSC } from "@/hooks/useProcedimentosSSC";
 import { ProcedimentoSSC, ProcedimentoInsert } from "@/types/ssc-procedimentos";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/auth";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
@@ -62,7 +62,6 @@ function toProcedimentoSSC(procedimento: Procedimento): ProcedimentoSSC {
 export default function ProcedimentosSSC() {
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   const { profile } = useAuth();
   const isManager = profile?.role === 'gerente';
@@ -175,18 +174,10 @@ export default function ProcedimentosSSC() {
     try {
       await navigator.clipboard.writeText(texto);
       setCopiedId(proc.id);
-      toast({
-        title: "Copiado!",
-        description: "Procedimento copiado para enviar ao cliente",
-        duration: 2000,
-      });
+      toast.success("Copiado!", { description: "Procedimento copiado para enviar ao cliente" });
       setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível copiar o procedimento",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Não foi possível copiar o procedimento" });
     }
   };
 
@@ -211,10 +202,7 @@ export default function ProcedimentosSSC() {
           await createProcedimento(dados as ProcedimentoInsert);
         }
         
-        toast({
-          title: "Sucesso!",
-          description: "Procedimento atualizado com sucesso",
-        });
+        toast.success("Sucesso!", { description: "Procedimento atualizado com sucesso" });
         
         // Recarregar procedimentos do banco
         await fetchProcedimentos();
@@ -223,11 +211,7 @@ export default function ProcedimentosSSC() {
         setEditingProcedimento(null);
       }
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível salvar as alterações",
-        variant: "destructive",
-      });
+        toast.error("Erro", { description: "Não foi possível salvar as alterações" });
     }
   };
 

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export interface CartazFolder {
   id: string;
@@ -27,11 +27,7 @@ export function useCartazFolders() {
       setFolders(data || []);
     } catch (error) {
       console.error('Error fetching folders:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar as pastas",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível carregar as pastas" });
     } finally {
       setIsLoading(false);
     }

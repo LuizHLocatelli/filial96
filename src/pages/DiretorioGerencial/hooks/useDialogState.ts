@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArquivoGerencial, PastaGerencial } from "../types";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { UseMutationResult } from "@tanstack/react-query";
 
 interface UseDialogStateProps {
@@ -22,7 +22,6 @@ export function useDialogState({
   moverArquivo,
   deleteArquivo,
 }: UseDialogStateProps) {
-  const { toast } = useToast();
 
   // Dialog open states
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);

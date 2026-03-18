@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
@@ -29,11 +29,7 @@ export function CreateFolderDialog({
 
   const handleCreateFolder = async () => {
     if (!folderName.trim()) {
-      toast({
-        title: "Nome obrigatório",
-        description: "Por favor, insira um nome para a pasta.",
-        variant: "destructive"
-      });
+      toast.error("Nome obrigatório", { description: "Por favor, insira um nome para a pasta." });
       return;
     }
 
@@ -55,10 +51,7 @@ export function CreateFolderDialog({
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
-        description: "Pasta criada com sucesso."
-      });
+      toast.success("Sucesso", { description: "Pasta criada com sucesso." });
       
       setFolderName("");
       onOpenChange(false);
@@ -68,11 +61,7 @@ export function CreateFolderDialog({
       }
     } catch (error) {
       console.error('Error creating folder:', error);
-      toast({
-        title: "Erro ao criar pasta",
-        description: "Não foi possível criar a pasta. Tente novamente.",
-        variant: "destructive"
-      });
+      toast.error("Erro ao criar pasta", { description: "Não foi possível criar a pasta. Tente novamente." });
     } finally {
       setIsCreating(false);
     }

@@ -1,4 +1,4 @@
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 /**
  * Returns the Tailwind aspect ratio class for a given card aspect ratio.

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -25,7 +25,6 @@ export interface UploadedFile {
 export function useFileUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const { toast } = useToast();
   
   const uploadFile = async (
     file: File,

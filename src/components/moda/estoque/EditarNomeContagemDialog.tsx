@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit2, Package } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -38,7 +38,6 @@ export function EditarNomeContagemDialog({
   const isMobile = useIsMobile();
   const [nome, setNome] = useState("");
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (contagem) {
@@ -50,11 +49,7 @@ export function EditarNomeContagemDialog({
     e.preventDefault();
     
     if (!nome.trim()) {
-      toast({
-        title: "Erro",
-        description: "O nome da contagem não pode estar vazio.",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "O nome da contagem não pode estar vazio." });
       return;
     }
 
@@ -68,28 +63,17 @@ export function EditarNomeContagemDialog({
 
       if (error) {
         console.error("Erro ao atualizar contagem:", error);
-        toast({
-          title: "Erro",
-          description: `Erro ao atualizar contagem: ${error.message}`,
-          variant: "destructive",
-        });
+      toast.error("Erro", { description: `Erro ao atualizar contagem: ${error.message}` });
         return;
       }
 
-      toast({
-        title: "Sucesso",
-        description: "Nome da contagem atualizado com sucesso!",
-      });
+      toast.success("Sucesso", { description: "Nome da contagem atualizado com sucesso!" });
 
       onContagemAtualizada();
       onOpenChange(false);
     } catch (error) {
       console.error("Erro ao atualizar contagem:", error);
-      toast({
-        title: "Erro",
-        description: "Erro inesperado ao atualizar contagem.",
-        variant: "destructive",
-      });
+      toast.error("Erro", { description: "Erro inesperado ao atualizar contagem." });
     } finally {
       setLoading(false);
     }

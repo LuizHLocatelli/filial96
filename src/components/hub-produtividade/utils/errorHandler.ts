@@ -1,5 +1,5 @@
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export interface ErrorHandlerOptions {
   showToast?: boolean;
@@ -23,11 +23,7 @@ export function handleError(
   const errorMessage = error instanceof Error ? error.message : fallbackMessage;
   
   if (showToast) {
-    toast({
-      title: `⚠️ Erro em ${operation}`,
-      description: errorMessage,
-      variant: "destructive",
-    });
+    toast.error(`⚠️ Erro em ${operation}`, { description: errorMessage });
   }
   
   onError?.(error);

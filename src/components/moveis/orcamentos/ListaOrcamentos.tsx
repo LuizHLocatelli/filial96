@@ -14,7 +14,7 @@ import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/stan
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { generateOrcamentoPdf } from "./utils/pdfGenerator";
 import { OrcamentoData } from "./types";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,12 +67,7 @@ export function ListaOrcamentos() {
       generateOrcamentoPdf(data);
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível gerar o PDF.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      toast.error("Erro", { description: "Não foi possível gerar o PDF." });
     }
   };
 

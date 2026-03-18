@@ -15,7 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { fetchConsultores, generateEscalaWithAI, saveEscalas } from "./services/escalasApi";
 import { EscalaAIResponse } from "@/types/shared/escalas";
 
@@ -26,7 +26,6 @@ interface Props {
 }
 
 export function GeradorEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
-  const { toast } = useToast();
   
   // States
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));

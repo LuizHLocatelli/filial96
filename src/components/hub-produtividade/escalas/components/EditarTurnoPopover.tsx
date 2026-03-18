@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { updateEscala } from "../services/escalasApi";
 import { EscalaCarga } from "@/types/shared/escalas";
 import { format } from "date-fns";
@@ -30,7 +30,6 @@ interface EditarTurnoPopoverProps {
 }
 
 export function EditarTurnoPopover({ shift, consultores, open, onOpenChange, onSuccess }: EditarTurnoPopoverProps) {
-  const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [userId, setUserId] = useState(shift?.user_id || "");
   const [shiftStart, setShiftStart] = useState(shift?.shift_start?.substring(0, 5) || "09:30");

@@ -2,12 +2,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth";
 import { ArquivoGerencial } from "../types";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export const useArquivosGerenciais = (pastaId?: string | null) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const { data: arquivos, isLoading, error } = useQuery({
     queryKey: ['arquivos_gerenciais', pastaId],

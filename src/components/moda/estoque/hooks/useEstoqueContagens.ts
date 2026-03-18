@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Contagem {
@@ -15,7 +15,6 @@ export interface Contagem {
 export function useEstoqueContagens() {
   const [contagens, setContagens] = useState<Contagem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const carregarContagens = useCallback(async () => {
     try {

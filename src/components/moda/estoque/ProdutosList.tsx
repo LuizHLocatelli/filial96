@@ -47,7 +47,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { EditarProdutoDialog } from "./EditarProdutoDialog";
 
@@ -78,7 +78,6 @@ export function ProdutosList({
   const [filtroValidacao, setFiltroValidacao] = useState("todos");
   const [editarProdutoOpen, setEditarProdutoOpen] = useState(false);
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     carregarProdutos();
@@ -105,11 +104,7 @@ export function ProdutosList({
       setProdutos(produtosFormatados);
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os produtos.",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível carregar os produtos." });
     } finally {
       setLoading(false);
     }
@@ -124,20 +119,13 @@ export function ProdutosList({
 
       if (error) throw error;
 
-      toast({
-        title: "Produto excluído",
-        description: "Produto removido da contagem com sucesso."
-      });
+      toast.success("Produto excluído", { description: "Produto removido da contagem com sucesso." });
 
       carregarProdutos();
       onProdutoAtualizado();
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o produto.",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível excluir o produto." });
     }
   };
 

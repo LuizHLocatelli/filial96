@@ -16,7 +16,8 @@ export interface AuthActionsProps {
   setUser: (user: User | null) => void;
   setProfile: (profile: UserProfile | null) => void;
   setSession: (session: Session | null) => void;
-  toast: (props: { title?: string; description?: string; variant?: "default" | "destructive" }) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toast: any;
 }
 
 export interface AuthEffectsProps {

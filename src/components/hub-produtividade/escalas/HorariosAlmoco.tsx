@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -27,7 +27,6 @@ interface TeamMember {
 export function HorariosAlmoco() {
   const { profile } = useAuth();
   const isManager = profile?.role === "gerente";
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: team, isLoading } = useQuery({

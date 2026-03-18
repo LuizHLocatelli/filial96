@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { isSameDay, differenceInMinutes, setHours, setMinutes, setSeconds } from "date-fns";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Bell, Clock, AlertTriangle, CheckCircle } from "lucide-react";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 

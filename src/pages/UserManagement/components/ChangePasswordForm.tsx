@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserWithStats } from '../types';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardDialogHeader, StandardDialogFooter } from '@/components/ui/standard-dialog';
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
@@ -43,20 +43,12 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
     e.preventDefault();
     
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Erro",
-        description: "As senhas não coincidem",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "As senhas não coincidem" });
       return;
     }
 
     if (newPassword.length < 6) {
-      toast({
-        title: "Erro",
-        description: "A senha deve ter pelo menos 6 caracteres",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "A senha deve ter pelo menos 6 caracteres" });
       return;
     }
 
@@ -71,10 +63,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
         throw error;
       }
 
-      toast({
-        title: "Sucesso",
-        description: `Senha do usuário ${user.name} alterada com sucesso!`
-      });
+      toast.success("Sucesso", { description: `Senha do usuário ${user.name} alterada com sucesso!` });
 
       setNewPassword('');
       setConfirmPassword('');
@@ -83,11 +72,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
     } catch (error: unknown) {
       console.error('Erro ao alterar senha:', error);
       const errorMessage = error instanceof Error ? error.message : "Erro ao alterar senha do usuário";
-      toast({
-        title: "Erro",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -108,10 +93,7 @@ export function ChangePasswordForm({ user, onClose }: ChangePasswordFormProps) {
     navigator.clipboard.writeText(newPassword);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast({
-      title: "Copiado!",
-      description: "Senha copiada para a área de transferência"
-    });
+      toast.success("Copiado!", { description: "Senha copiada para a área de transferência" });
   };
 
   const getStrengthColor = () => {

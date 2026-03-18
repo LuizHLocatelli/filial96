@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { CartazItem } from "../hooks/useCartazes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -55,11 +55,7 @@ export function CartazEditDialog({
     e.preventDefault();
     
     if (!title.trim()) {
-      toast({
-        title: "Erro",
-        description: "O título é obrigatório",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "O título é obrigatório" });
       return;
     }
 
@@ -76,17 +72,10 @@ export function CartazEditDialog({
       onUpdate(cartaz.id, title.trim(), newMonth);
       onOpenChange(false);
       
-      toast({
-        title: "Sucesso",
-        description: "Cartaz atualizado com sucesso"
-      });
+      toast.success("Sucesso", { description: "Cartaz atualizado com sucesso" });
     } catch (error) {
       console.error('Error updating cartaz:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o cartaz",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível atualizar o cartaz" });
     } finally {
       setIsUpdating(false);
     }

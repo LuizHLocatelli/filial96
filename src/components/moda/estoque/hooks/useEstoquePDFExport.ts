@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -25,7 +25,6 @@ interface EstoquePDFExportOptions {
 }
 
 export function useEstoquePDFExport() {
-  const { toast } = useToast();
 
   const exportToPDF = async (
     contagem: Contagem,

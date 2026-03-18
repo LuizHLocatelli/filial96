@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
@@ -47,10 +47,7 @@ export function DeleteFolderDialog({
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
-        description: "Pasta excluída com sucesso."
-      });
+      toast.success("Sucesso", { description: "Pasta excluída com sucesso." });
       
       onOpenChange(false);
       if (onSuccess) {
@@ -58,11 +55,7 @@ export function DeleteFolderDialog({
       }
     } catch (error) {
       console.error('Error deleting folder:', error);
-      toast({
-        title: "Erro ao excluir",
-        description: "Não foi possível excluir a pasta. Tente novamente.",
-        variant: "destructive"
-      });
+      toast.error("Erro ao excluir", { description: "Não foi possível excluir a pasta. Tente novamente." });
     } finally {
       setIsDeleting(false);
     }

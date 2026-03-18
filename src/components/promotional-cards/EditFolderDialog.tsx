@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
@@ -48,10 +48,7 @@ export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: Ed
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
-        description: "Pasta atualizada com sucesso."
-      });
+      toast.success("Sucesso", { description: "Pasta atualizada com sucesso." });
       
       onOpenChange(false); // Fecha o diálogo
       if (onSuccess) {
@@ -59,11 +56,7 @@ export function EditFolderDialog({ folder, isOpen, onOpenChange, onSuccess }: Ed
       }
     } catch (error) {
       console.error('Error updating folder:', error);
-      toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar a pasta. Tente novamente.",
-        variant: "destructive"
-      });
+      toast.error("Erro ao atualizar", { description: "Não foi possível atualizar a pasta. Tente novamente." });
     } finally {
       setIsProcessing(false);
     }

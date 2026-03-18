@@ -8,7 +8,7 @@ import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/stan
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { deleteEscalas } from "./services/escalasApi";
 
 interface Props {
@@ -18,7 +18,6 @@ interface Props {
 }
 
 export function LimparEscalaDialog({ open, onOpenChange, onSuccess }: Props) {
-  const { toast } = useToast();
   const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-01"));
   
   // Default to end of month

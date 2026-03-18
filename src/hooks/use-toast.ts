@@ -1,3 +1,3 @@
-
-// Re-export from the component
-export { useToast, toast } from '@/components/ui/use-toast';
+// Re-export from sonner
+export { toast } from '@/components/ui/sonner/toast';
+export type { ToasterProps } from '@/components/ui/sonner/toast';

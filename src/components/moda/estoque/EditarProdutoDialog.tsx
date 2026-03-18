@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, Package, User, Baby } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -57,7 +57,6 @@ export function EditarProdutoDialog({
   const [setor, setSetor] = useState("");
   const [quantidade, setQuantidade] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (produto) {
@@ -88,21 +87,13 @@ export function EditarProdutoDialog({
     e.preventDefault();
     
     if (!produto || !codigoProduto || !setor || quantidade < 1) {
-      toast({
-        title: "Erro",
-        description: "Todos os campos são obrigatórios.",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Todos os campos são obrigatórios." });
       return;
     }
 
     // Validação do código do produto
     if (!validarCodigo(codigoProduto)) {
-      toast({
-        title: "Código inválido",
-        description: "O código do produto deve ter exatamente 6 ou 9 dígitos.",
-        variant: "destructive"
-      });
+      toast.error("Código inválido", { description: "O código do produto deve ter exatamente 6 ou 9 dígitos." });
       return;
     }
 
@@ -145,10 +136,7 @@ export function EditarProdutoDialog({
 
         const setorLabel = setores.find(s => s.value === setor)?.label || setor;
         
-        toast({
-          title: "Produtos unificados!",
-          description: `${codigoProduto} · ${novaQuantidade} unidade(s) · ${setorLabel} (quantidades somadas)`
-        });
+        toast.success("Produtos unificados!", { description: `${codigoProduto} · ${novaQuantidade} unidade(s) · ${setorLabel} (quantidades somadas)` });
       } else {
         // Se não existe, apenas atualizar normalmente
         const { error } = await supabase
@@ -165,21 +153,14 @@ export function EditarProdutoDialog({
 
         const setorLabel = setores.find(s => s.value === setor)?.label || setor;
         
-        toast({
-          title: "Produto atualizado!",
-          description: `${codigoProduto} · ${quantidade} unidade(s) · ${setorLabel}`
-        });
+        toast.success("Produto atualizado!", { description: `${codigoProduto} · ${quantidade} unidade(s) · ${setorLabel}` });
       }
 
       onProdutoAtualizado();
       onOpenChange(false);
     } catch (error) {
       console.error("Erro ao atualizar produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o produto.",
-        variant: "destructive"
-      });
+      toast.error("Erro", { description: "Não foi possível atualizar o produto." });
     } finally {
       setLoading(false);
     }

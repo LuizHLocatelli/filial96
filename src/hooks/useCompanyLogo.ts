@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
 export interface CompanySettings {
@@ -14,7 +14,6 @@ export function useCompanyLogo() {
   const [settings, setSettings] = useState<CompanySettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
 
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);

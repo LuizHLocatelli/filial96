@@ -6,7 +6,7 @@ import { CardGalleryEmpty } from "@/components/promotional-cards/CardGalleryEmpt
 import { CardGalleryLoading } from "@/components/promotional-cards/CardGalleryLoading";
 import { CardSearchBar } from "@/components/promotional-cards/CardSearchBar";
 import { useState, useMemo } from "react";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface CardGalleryProps {
   sector: "furniture" | "fashion" | "loan" | "service";
@@ -41,21 +41,14 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
       
       if (success) {
         setCards(prevCards => prevCards.filter(card => card.id !== id));
-        toast({
-          title: "Sucesso",
-          description: "Card promocional excluído com sucesso"
-        });
+        toast.success("Sucesso", { description: "Card promocional excluído com sucesso" });
         return true;
       } else {
         return false;
       }
     } catch (error) {
       console.error('Error deleting card:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o card promocional",
-        variant: "destructive"
-      });
+        toast.error("Erro", { description: "Não foi possível excluir o card promocional" });
       return false;
     } finally {
       setProcessingCardIds(prev => {

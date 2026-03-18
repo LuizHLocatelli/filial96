@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
 import React from "react";
@@ -136,7 +136,6 @@ const useLocationDetection = () => {
 
 export function SecuritySettingsForm() {
   const { user, signOut } = useAuth();
-  const { toast } = useToast();
   const [sessions, setSessions] = useState<LoginSession[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
@@ -219,18 +218,9 @@ export function SecuritySettingsForm() {
     setLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "Configurações atualizadas",
-        description: "Suas preferências de segurança foram salvas com sucesso.",
-        duration: 4000,
-      });
+      toast.success("Configurações atualizadas", { description: "Suas preferências de segurança foram salvas com sucesso." });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar configurações",
-        description: error instanceof Error ? error.message : "Ocorreu um erro ao salvar as configurações.",
-        duration: 5000,
-      });
+      toast.error("Erro ao salvar configurações", { description: error instanceof Error ? error.message : "Ocorreu um erro ao salvar as configurações." });
     } finally {
       setLoading(false);
     }
@@ -253,12 +243,7 @@ export function SecuritySettingsForm() {
       
     } catch (error) {
       console.error("🔴 SecuritySettingsForm: Erro no logout:", error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao fazer logout",
-        description: "Ocorreu um erro ao tentar fazer logout. Tente novamente.",
-        duration: 5000,
-      });
+      toast.error("Erro ao fazer logout", { description: "Ocorreu um erro ao tentar fazer logout. Tente novamente." });
       setLoading(false);
     }
   };

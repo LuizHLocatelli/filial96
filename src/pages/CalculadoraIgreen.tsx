@@ -11,7 +11,7 @@ import { Calculator, Zap, CheckCircle, Info, Loader2, ArrowLeft, Eye } from "luc
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import { CalculatorThemeToggle } from "@/components/theme/CalculatorThemeToggle";
 import ondeverImage from "@/assets/onde-ver-tipo-fornecimento.png";
@@ -51,7 +51,6 @@ export default function CalculadoraIgreen() {
   } | null>(null);
 const [calculando, setCalculando] = useState(false);
 const shouldReduceMotion = useReducedMotion();
-const { toast } = useToast();
 const isMobile = useIsMobile();
 
   const handleConsumoChange = useCallback((index: number, valor: string) => {
@@ -66,21 +65,13 @@ const isMobile = useIsMobile();
 
   const calcular = () => {
     if (!dados.distribuidora || !dados.tipoFornecimento) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios.",
-        variant: "destructive",
-      });
+      toast.error("Campos obrigatórios", { description: "Por favor, preencha todos os campos obrigatórios." });
       return;
     }
 
     const consumoValido = dados.consumoMeses.filter(valor => valor > 0);
     if (consumoValido.length === 0) {
-      toast({
-        title: "Consumo inválido",
-        description: "Por favor, insira pelo menos um valor de consumo válido.",
-        variant: "destructive",
-      });
+      toast.error("Consumo inválido", { description: "Por favor, insira pelo menos um valor de consumo válido." });
       return;
     }
 
