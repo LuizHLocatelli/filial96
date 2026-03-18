@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { X, Plus, Trash2, Edit2 } from '@/components/ui/emoji-icons'
+import { X, Plus, Trash2, Edit2 } from 'lucide-react'
 import { ProcedimentoSSC, ProcedimentoCanal, ProcedimentoLink, ProcedimentoContato } from '@/types/ssc-procedimentos'
 
 interface ProcedimentoFormProps {

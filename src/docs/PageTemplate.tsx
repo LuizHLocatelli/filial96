@@ -5,7 +5,7 @@ import {
   FileText, 
   Users, 
   Calendar 
-} from "@/components/ui/emoji-icons";
+} from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";

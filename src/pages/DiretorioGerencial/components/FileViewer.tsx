@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { StandardDialogHeader } from "@/components/ui/standard-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bot, Send, User, Loader2, FileText } from "@/components/ui/emoji-icons";
+import { Bot, Send, User, Loader2, FileText } from "lucide-react";
 import { ArquivoGerencial } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";

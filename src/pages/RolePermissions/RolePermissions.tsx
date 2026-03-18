@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Crown, GraduationCap, Truck, UserCircle, Save, Loader2 } from '@/components/ui/emoji-icons';
+import { Shield, Crown, GraduationCap, Truck, UserCircle, Save, Loader2 } from 'lucide-react';
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";

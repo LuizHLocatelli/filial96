@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Clock, Check, Edit2, X } from "@/components/ui/emoji-icons";
+import { Loader2, Clock, Check, Edit2, X } from "lucide-react";
 import { fetchTeamAlmoco, updateLunchTime } from "./services/escalasApi";
 import { useAuth } from "@/contexts/auth";
 import { Card, CardContent } from "@/components/ui/card";

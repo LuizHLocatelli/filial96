@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Package, RefreshCcw, Search, BarChart3, Filter } from "@/components/ui/emoji-icons";
+import { Plus, Package, RefreshCcw, Search, BarChart3, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EstoqueContagemCard } from "./estoque/EstoqueContagemCard";

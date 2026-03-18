@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Clock, CheckCircle2, AlertTriangle, XCircle, Calendar, TrendingUp } from "@/components/ui/emoji-icons";
+import { Clock, CheckCircle2, AlertTriangle, XCircle, Calendar, TrendingUp } from "lucide-react";
 import type { Deposito } from "@/hooks/crediario/useDepositos";
 
 interface DailyStatusWidgetProps {

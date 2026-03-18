@@ -4,7 +4,7 @@ import { useFieldArray, Control, UseFormRegister, FieldErrors } from "react-hook
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField, FormItem, FormControl, FormMessage, FormLabel } from "@/components/ui/form";
-import { PlusCircle, X, Package } from "@/components/ui/emoji-icons";
+import { PlusCircle, X, Package } from "lucide-react";
 import { ReservaFormData } from "../types";
 
 interface ProdutoReservaInputProps {

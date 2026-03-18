@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Copy, Download, X, Smartphone } from "@/components/ui/emoji-icons";
+import { Eye, Copy, Download, X, Smartphone } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";

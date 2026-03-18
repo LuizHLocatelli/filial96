@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Folder, FileText } from "@/components/ui/emoji-icons";
+import { Folder, FileText } from "lucide-react";
 import { CartazFolder } from "../hooks/useCartazFolders";
 import { cn } from "@/lib/utils";
 

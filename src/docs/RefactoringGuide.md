@@ -46,7 +46,7 @@ export default function MinhaPage() {
 
 // ✅ DEPOIS
 import { PageHeader } from "@/components/layout/PageHeader";
-import { IconName } from "@/components/ui/emoji-icons";
+import { IconName } from "lucide-react";
 
 <PageHeader
   title="Título da Página"
@@ -229,7 +229,7 @@ export default function MinhaPage() {
 #### DEPOIS:
 ```tsx
 import { useSearchParams } from "react-router-dom";
-import { FileText, Users } from "@/components/ui/emoji-icons";
+import { FileText, Users } from "lucide-react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";

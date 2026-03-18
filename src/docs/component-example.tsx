@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Edit3, Trash2, Folder, FolderPlus } from "@/components/ui/emoji-icons";
+import { Plus, Search, Edit3, Trash2, Folder, FolderPlus } from "lucide-react";
 
 interface ExampleItem {
   id: string;

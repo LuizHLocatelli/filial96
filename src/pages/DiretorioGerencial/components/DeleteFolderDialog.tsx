@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Loader2, Trash2 } from "@/components/ui/emoji-icons";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
 import { useIsMobile } from "@/hooks/use-mobile";

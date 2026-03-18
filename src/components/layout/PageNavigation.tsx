@@ -1,9 +1,9 @@
 import { ReactNode, Suspense } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { LucideIcon } from "@/components/ui/emoji-icons";
+import { LucideIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2 } from "@/components/ui/emoji-icons";
+import { Loader2 } from "lucide-react";
 
 // Componente de loading para tabs
 const TabContentLoader = () => (

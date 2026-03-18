@@ -44,7 +44,7 @@ import {
   User,
   Baby,
   AlertTriangle
-} from "@/components/ui/emoji-icons";
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";

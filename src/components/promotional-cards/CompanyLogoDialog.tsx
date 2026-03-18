@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
-import { Building2, ImagePlus, X, Trash2, Loader2 } from "@/components/ui/emoji-icons";
+import { Building2, ImagePlus, X, Trash2, Loader2 } from "lucide-react";
 import { useCompanyLogo } from "@/hooks/useCompanyLogo";
 import { cn } from "@/lib/utils";
 

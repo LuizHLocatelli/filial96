@@ -1,4 +1,4 @@
-import { Filter, Users, Truck, CalendarDays, BarChart3 } from "@/components/ui/emoji-icons";
+import { Filter, Users, Truck, CalendarDays, BarChart3 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 

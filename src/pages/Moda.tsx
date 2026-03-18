@@ -10,7 +10,7 @@ import {
   TrendingUp,
   Clock,
   Package
-} from "@/components/ui/emoji-icons";
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AppLayout as Layout } from "@/components/layout/AppLayout";
 import { PageLayout } from "@/components/layout/PageLayout";

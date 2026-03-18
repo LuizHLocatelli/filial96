@@ -1,4 +1,4 @@
-import { Truck, Clock } from "@/components/ui/emoji-icons";
+import { Truck, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EscalaShiftBadgeProps {

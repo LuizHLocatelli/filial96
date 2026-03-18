@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Upload, X, CheckCircle, Clock, FileText, Trash2, AlertTriangle, Edit3, ZoomIn, ZoomOut, RotateCw } from "@/components/ui/emoji-icons";
+import { Upload, X, CheckCircle, Clock, FileText, Trash2, AlertTriangle, Edit3, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";

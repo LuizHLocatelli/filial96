@@ -8,7 +8,7 @@ import { useAssistants, useChatSessions } from "../hooks/useAssistants";
 import { useGenerateTitle } from "../hooks/useGenerateTitle";
 import type { AIAssistant } from "../types";
 import type { ChatDocument } from "./ChatInput";
-import { Sparkles } from "@/components/ui/emoji-icons";
+import { Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface PendingTransitionMessage {

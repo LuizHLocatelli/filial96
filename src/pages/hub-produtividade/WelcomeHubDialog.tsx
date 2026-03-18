@@ -3,7 +3,7 @@ import {
   ChevronRight, 
   ChevronLeft, 
   Check
-} from "@/components/ui/emoji-icons";
+} from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";

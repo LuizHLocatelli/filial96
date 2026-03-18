@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, TrendingDown, Calendar, Clock, Target, Award, AlertTriangle, CheckCircle } from "@/components/ui/emoji-icons";
+import { TrendingUp, TrendingDown, Calendar, Clock, Target, Award, AlertTriangle, CheckCircle } from "lucide-react";
 import type { Deposito, DepositoStatistics } from "@/hooks/crediario/useDepositos";
 import { DEPOSIT_SYSTEM_START_DATE } from "@/lib/constants";
 

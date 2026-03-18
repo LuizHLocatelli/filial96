@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Eye } from "@/components/ui/emoji-icons";
+import { Eye } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,

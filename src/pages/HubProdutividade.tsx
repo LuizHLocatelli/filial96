@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Activity } from "@/components/ui/emoji-icons";
+import { Activity } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";

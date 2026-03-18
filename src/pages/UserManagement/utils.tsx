@@ -1,6 +1,6 @@
 import React from "react";
 import { UserRole } from "@/types";
-import { Crown, Shield, User, GraduationCap, Truck } from "@/components/ui/emoji-icons";
+import { Crown, Shield, User, GraduationCap, Truck } from "lucide-react";
 
 export const getRoleIcon = (role: UserRole) => {
   switch (role) {

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
-import { Sparkles, Loader2, ImagePlus, X, RefreshCw, Save, Wand2, Building2, AlertCircle } from "@/components/ui/emoji-icons";
+import { Sparkles, Loader2, ImagePlus, X, RefreshCw, Save, Wand2, Building2, AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";

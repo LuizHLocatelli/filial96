@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Trash2, AlertTriangle } from '@/components/ui/emoji-icons';
+import { FileText, Trash2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,

@@ -1,4 +1,4 @@
-import { LucideIcon } from '@/components/ui/emoji-icons';
+import { LucideIcon } from 'lucide-react';
 
 // ===== TIPOS PARA O HUB =====
 export interface HubSection {

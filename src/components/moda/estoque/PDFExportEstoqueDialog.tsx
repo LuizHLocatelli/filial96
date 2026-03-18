@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Package, BarChart3 } from "@/components/ui/emoji-icons";
+import { FileText, Package, BarChart3 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   StandardDialogHeader,

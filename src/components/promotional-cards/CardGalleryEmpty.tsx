@@ -1,4 +1,4 @@
-import { Plus, Upload, FolderOpen, Image } from "@/components/ui/emoji-icons";
+import { Plus, Upload, FolderOpen, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CardGalleryEmptyProps {

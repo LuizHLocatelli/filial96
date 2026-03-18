@@ -9,7 +9,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, Trash2, FolderOpen, Download } from "@/components/ui/emoji-icons";
+import { Edit, Trash2, FolderOpen, Download } from "lucide-react";
 import { CartazItem } from "../hooks/useCartazes";
 import { useCartazFolders } from "../hooks/useCartazFolders";
 import { useState } from "react";

@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, Trash2, AlertTriangle, Key, Loader2, MoreHorizontal } from "@/components/ui/emoji-icons";
+import { Edit, Trash2, AlertTriangle, Key, Loader2, MoreHorizontal } from "lucide-react";
 import { UserWithStats, roleColors, roleLabels } from "../types";
 import { getRoleIcon, getInitials, formatDate } from "../utils.tsx";
 import { EditUserForm } from "./EditUserForm";

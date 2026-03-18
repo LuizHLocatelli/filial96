@@ -1,6 +1,6 @@
 
 import { Input } from "@/components/ui/input";
-import { Search } from "@/components/ui/emoji-icons";
+import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const MONTHS = [

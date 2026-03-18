@@ -1,4 +1,4 @@
-import { LayoutGrid, Users } from "@/components/ui/emoji-icons";
+import { LayoutGrid, Users } from "lucide-react";
 
 export function TrustIndicators() {
   const indicators = [

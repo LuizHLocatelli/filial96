@@ -4,7 +4,7 @@ import {
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Trash2 } from "@/components/ui/emoji-icons";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { CartazItem } from "../hooks/useCartazes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {

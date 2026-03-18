@@ -1,4 +1,4 @@
-import { Download, FileText, FileDown } from "@/components/ui/emoji-icons";
+import { Download, FileText, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

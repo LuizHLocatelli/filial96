@@ -11,7 +11,7 @@ import {
   Search,
   RotateCw,
   Maximize,
-} from '@/components/ui/emoji-icons';
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PDFToolbarProps {

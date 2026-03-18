@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles } from "@/components/ui/emoji-icons";
+import { Sparkles } from "lucide-react";
 
 export function LoadingIndicator() {
   return (

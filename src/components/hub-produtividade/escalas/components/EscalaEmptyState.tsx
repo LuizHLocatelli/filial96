@@ -1,4 +1,4 @@
-import { CalendarDays, Plus, Sparkles } from "@/components/ui/emoji-icons";
+import { CalendarDays, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface EscalaEmptyStateProps {

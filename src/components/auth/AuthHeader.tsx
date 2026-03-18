@@ -1,5 +1,5 @@
 
-import { ShoppingBag } from "@/components/ui/emoji-icons";
+import { ShoppingBag } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function AuthHeader() {

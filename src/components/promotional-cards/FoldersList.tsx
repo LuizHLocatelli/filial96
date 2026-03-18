@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3, Package } from "@/components/ui/emoji-icons";
+import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

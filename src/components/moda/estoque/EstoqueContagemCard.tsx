@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Eye, CheckCircle, RotateCcw, Trash2, Calendar, Package } from "@/components/ui/emoji-icons";
+import { MoreVertical, Eye, CheckCircle, RotateCcw, Trash2, Calendar, Package } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 

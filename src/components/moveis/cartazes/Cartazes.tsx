@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileImage } from "@/components/ui/emoji-icons";
+import { Plus, FileImage } from "lucide-react";
 import { FoldersList } from "./components/FoldersList";
 import { CartazGallery } from "./components/CartazGallery";
 import { CreateFolderDialog } from "./components/CreateFolderDialog";

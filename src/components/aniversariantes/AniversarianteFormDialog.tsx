@@ -5,7 +5,7 @@ import { StandardDialogHeader, StandardDialogFooter } from "@/components/ui/stan
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Gift } from "@/components/ui/emoji-icons";
+import { Gift } from "lucide-react";
 import { AniversarianteFormData } from "@/types/aniversariantes";
 
 interface AniversarianteFormDialogProps {

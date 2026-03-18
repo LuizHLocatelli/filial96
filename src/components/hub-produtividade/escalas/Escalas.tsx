@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2 } from "@/components/ui/emoji-icons";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { useEscalas } from "./hooks/useEscalas";
 import { EscalaHeader } from "./components/EscalaHeader";

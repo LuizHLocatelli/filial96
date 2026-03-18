@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { ArquivoGerencial } from "../types";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Image as ImageIcon, FileSpreadsheet, File as FileIcon, Trash2, Download, Bot, MoreVertical, ArrowRightLeft } from "@/components/ui/emoji-icons";
+import { FileText, Image as ImageIcon, FileSpreadsheet, File as FileIcon, Trash2, Download, Bot, MoreVertical, ArrowRightLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useArquivosGerenciais } from "../hooks/useArquivosGerenciais";
 import { Skeleton } from "@/components/ui/skeleton";

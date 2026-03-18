@@ -1,4 +1,4 @@
-import { ExternalLink } from "@/components/ui/emoji-icons";
+import { ExternalLink } from "lucide-react";
 import { ExternalLink as ExternalLinkType } from "@/types/painel-regiao";
 import { LinkCard } from "./LinkCard";
 

@@ -3,7 +3,7 @@ import { format, isSameDay, isAfter, setHours, setMinutes, setSeconds } from "da
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ChevronLeft, ChevronRight, Clock, AlertTriangle, XCircle, RefreshCw } from "@/components/ui/emoji-icons";
+import { CheckCircle, ChevronLeft, ChevronRight, Clock, AlertTriangle, XCircle, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Deposito, DepositoStatistics } from "@/hooks/crediario/useDepositos";
 import { useIsMobile } from "@/hooks/use-mobile";

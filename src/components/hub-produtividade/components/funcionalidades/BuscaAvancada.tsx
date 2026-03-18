@@ -14,7 +14,7 @@ import {
   Filter, 
   RotateCcw,
   Calendar as CalendarIcon,
-} from '@/components/ui/emoji-icons';
+} from 'lucide-react';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { DateRange } from 'react-day-picker';

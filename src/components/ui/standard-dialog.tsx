@@ -1,11 +1,11 @@
 import * as React from "react";
-import { X } from "@/components/ui/emoji-icons";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDialogScroll } from "@/hooks/useDialogScroll";
-import { LucideIcon } from "@/components/ui/emoji-icons";
+import { LucideIcon } from "lucide-react";
 
 interface StandardDialogHeaderProps {
   icon?: LucideIcon;

@@ -9,7 +9,7 @@ import {
   StandardDialogFooter,
 } from "@/components/ui/standard-dialog";
 import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-container";
-import { Upload } from "@/components/ui/emoji-icons";
+import { Upload } from "lucide-react";
 
 interface UploadCartazDialogProps {
   open: boolean;

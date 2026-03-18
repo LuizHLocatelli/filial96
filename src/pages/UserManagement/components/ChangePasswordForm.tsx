@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Key, Eye, EyeOff, Shield, Copy, Check, Loader2, Lock } from '@/components/ui/emoji-icons';
+import { Key, Eye, EyeOff, Shield, Copy, Check, Loader2, Lock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

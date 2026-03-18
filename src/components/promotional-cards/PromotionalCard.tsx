@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CardItem } from "@/hooks/useCardOperations";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Copy, Edit3, Trash2, Download, Smartphone, ExternalLink } from "@/components/ui/emoji-icons";
+import { MoreHorizontal, Copy, Edit3, Trash2, Download, Smartphone, ExternalLink } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
