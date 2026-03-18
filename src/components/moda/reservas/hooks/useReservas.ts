@@ -99,7 +99,6 @@ export function useReservas() {
         title: "Sucesso",
         description: "Reserva removida com sucesso!",
       });
-      await fetchReservas();
       return true;
     } catch (err) {
       console.error('Erro ao remover reserva:', err);

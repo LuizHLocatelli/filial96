@@ -9,7 +9,16 @@ import { ThemeProvider } from "./contexts/theme";
 import AppRoutes from "./AppRoutes";
 
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2, // 2 minutos antes de considerar stale
+      gcTime: 1000 * 60 * 10, // 10 minutos no cache
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 // Componente interno para usar o hook dentro do ThemeProvider
 const AppContent = () => {
