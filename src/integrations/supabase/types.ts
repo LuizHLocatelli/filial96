@@ -1302,6 +1302,54 @@ export type Database = {
         }
         Relationships: []
       }
+      orcamentos: {
+        Row: {
+          cliente_documento: string | null
+          cliente_email: string | null
+          cliente_endereco: string | null
+          cliente_nome: string
+          cliente_telefone: string | null
+          consultor: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          itens: Json
+          observacoes: string | null
+          validade: string
+          valor_total: number
+        }
+        Insert: {
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_endereco?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          consultor?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          itens?: Json
+          observacoes?: string | null
+          validade?: string
+          valor_total?: number
+        }
+        Update: {
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_endereco?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          consultor?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          itens?: Json
+          observacoes?: string | null
+          validade?: string
+          valor_total?: number
+        }
+        Relationships: []
+      }
       ssc_procedimentos: {
         Row: {
           canais: Json

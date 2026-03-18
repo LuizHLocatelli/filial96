@@ -7,7 +7,8 @@ import {
   Calendar, 
   MessageSquare, 
   Download,
-  AlertCircle
+  AlertCircle,
+  List
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,8 +21,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { parseBrazilianNumber, formatBrazilianCurrency } from "@/utils/numberFormatter";
 import { OrcamentoItem, ClienteOrcamento, OrcamentoData } from "./types";
 import { generateOrcamentoPdf } from "./utils/pdfGenerator";
+import { useOrcamentos } from "./hooks/useOrcamentos";
+import { ListaOrcamentos } from "./ListaOrcamentos";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
 
 export function Orcamentos() {
+  const { createOrcamento } = useOrcamentos();
+  
   // Estado do Cliente
   const [cliente, setCliente] = useState<ClienteOrcamento>({
     nome: "",
@@ -104,7 +111,7 @@ export function Orcamentos() {
     setItens(itens.filter(item => item.id !== id));
   };
 
-  const handleGerarPdf = () => {
+  const handleGerarPdf = async () => {
     if (itens.length === 0) {
       alert("Adicione pelo menos um item para gerar o orçamento.");
       return;
@@ -122,6 +129,23 @@ export function Orcamentos() {
 
     try {
       generateOrcamentoPdf(data);
+      
+      const orcamentoId = await createOrcamento({
+        cliente,
+        itens,
+        validade,
+        observacoes,
+        consultor,
+        valor_total: valorTotal
+      });
+      
+      if (orcamentoId) {
+        toast({
+          title: "Orçamento salvo",
+          description: "O orçamento foi salvo e está disponível para consulta.",
+          duration: 3000,
+        });
+      }
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
       alert("Ocorreu um erro ao gerar o PDF. Verifique os dados e tente novamente.");
@@ -129,21 +153,32 @@ export function Orcamentos() {
   };
 
   return (
-    <div className="w-full mx-auto animate-fade-in space-y-4 sm:space-y-6 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
-      {/* Header da Ferramenta */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-            <FileText className="h-6 w-6 text-primary" />
-            Gerador de Orçamentos
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Crie orçamentos profissionais em PDF para seus clientes PF ou PJ.
-          </p>
+    <div className="w-full mx-auto animate-fade-in px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 max-w-7xl">
+      <Tabs defaultValue="criar" className="space-y-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+              <FileText className="h-6 w-6 text-primary" />
+              Gerador de Orçamentos
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Crie orçamentos profissionais em PDF para seus clientes PF ou PJ.
+            </p>
+          </div>
+          <TabsList>
+            <TabsTrigger value="criar" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Criar
+            </TabsTrigger>
+            <TabsTrigger value="salvos" className="gap-2">
+              <List className="h-4 w-4" />
+              Salvos
+            </TabsTrigger>
+          </TabsList>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <TabsContent value="criar" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* COLUNA ESQUERDA: Formulários (Ocupa 7 colunas em telas grandes) */}
         <div className="lg:col-span-7 space-y-6">
@@ -428,6 +463,12 @@ export function Orcamentos() {
         </div>
 
       </div>
+        </TabsContent>
+
+        <TabsContent value="salvos">
+          <ListaOrcamentos />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
