@@ -80,7 +80,6 @@ export function useReservas() {
         title: "Sucesso",
         description: "Status da reserva atualizado!",
       });
-      await fetchReservas();
       return true;
     } catch (err) {
       console.error('Erro ao atualizar reserva:', err);
