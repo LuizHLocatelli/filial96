@@ -97,12 +97,6 @@ export function useOrcamentos() {
 
       if (error) throw error;
 
-      toast({
-        title: "Sucesso",
-        description: "Orçamento salvo com sucesso!",
-        duration: 3000,
-      });
-
       fetchOrcamentos();
       return data.id;
     } catch (error) {

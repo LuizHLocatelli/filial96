@@ -15,11 +15,23 @@ import { DialogScrollableContainer } from "@/components/ui/dialog-scrollable-con
 import { generateOrcamentoPdf } from "./utils/pdfGenerator";
 import { OrcamentoData } from "./types";
 import { toast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function ListaOrcamentos() {
   const { orcamentos, isLoading, deleteOrcamento } = useOrcamentos();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrcamento, setSelectedOrcamento] = useState<Orcamento | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filteredOrcamentos = orcamentos.filter(orcamento =>
     orcamento.cliente_nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,9 +39,10 @@ export function ListaOrcamentos() {
     orcamento.consultor?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este orçamento?")) {
-      await deleteOrcamento(id);
+  const handleDelete = async () => {
+    if (deleteId) {
+      await deleteOrcamento(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -168,14 +181,30 @@ export function ListaOrcamentos() {
                   >
                     <Download className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1 text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(orcamento.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 text-destructive hover:text-destructive"
+                        onClick={() => setDeleteId(orcamento.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir Orçamento</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tem certeza que deseja excluir este orçamento? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setDeleteId(null)}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>Excluir</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </CardContent>
             </Card>
