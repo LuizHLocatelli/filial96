@@ -60,7 +60,7 @@ export function useReservas() {
         title: "Sucesso",
         description: `Reserva criada com sucesso!${formData.cliente_vip ? ' (Cliente VIP - sem limite de tempo)' : ''}`,
       });
-      await fetchReservas(); // Garante consistência imediata
+      // Realtime já atualiza o estado — fetch manual removido
       return true;
     } catch (err) {
       console.error('Erro ao criar reserva:', err);
@@ -80,7 +80,6 @@ export function useReservas() {
         title: "Sucesso",
         description: "Status da reserva atualizado!",
       });
-      await fetchReservas();
       return true;
     } catch (err) {
       console.error('Erro ao atualizar reserva:', err);
@@ -100,7 +99,6 @@ export function useReservas() {
         title: "Sucesso",
         description: "Reserva removida com sucesso!",
       });
-      await fetchReservas();
       return true;
     } catch (err) {
       console.error('Erro ao remover reserva:', err);
