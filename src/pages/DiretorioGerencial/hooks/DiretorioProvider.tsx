@@ -4,6 +4,8 @@ import { usePastas, useAllPastas, useCreatePasta, useUpdatePasta, useDeletePasta
 import { useArquivos, useDeleteArquivo, useMoveArquivo } from "./useArquivos";
 import { useUploadQueue } from "./useUploads";
 import { PastaComCounts, ArquivoGerencial, BreadcrumbItem, FileWithUrl, DialogState, FolderFormData } from "../types";
+import { AI_SUPPORTED_TYPES } from "../constants";
+import type { ViewTab } from "../constants";
 import { DiretorioContext } from "./context";
 
 interface DiretorioProviderProps {
@@ -41,6 +43,8 @@ export function DiretorioProvider({ children }: DiretorioProviderProps) {
   });
 
   const [selectedFile, setSelectedFile] = useState<FileWithUrl | null>(null);
+
+  const [viewTab, setViewTab] = useState<ViewTab>("all");
 
   const createPasta = useCreatePasta();
   const updatePasta = useUpdatePasta();
@@ -153,6 +157,8 @@ export function DiretorioProvider({ children }: DiretorioProviderProps) {
       closeDialog,
       selectedFile,
       setSelectedFile,
+      viewTab,
+      setViewTab,
       handleCreateFolder,
       handleUpdateFolder,
       handleDeleteFolder,
@@ -186,6 +192,8 @@ export function DiretorioProvider({ children }: DiretorioProviderProps) {
       openMoveFileDialog,
       closeDialog,
       selectedFile,
+      viewTab,
+      setViewTab,
       handleCreateFolder,
       handleUpdateFolder,
       handleDeleteFolder,

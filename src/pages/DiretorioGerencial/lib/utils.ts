@@ -5,6 +5,10 @@ import {
   FileSpreadsheet,
   File,
 } from "lucide-react";
+import { AI_SUPPORTED_TYPES } from "../constants";
+import type { AIStatus } from "../constants";
+import type { ArquivoGerencial } from "../types";
+import type { ViewTab } from "../constants";
 
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 Bytes";
@@ -68,4 +72,59 @@ export function getItemCountText(
   if (subfoldersCount === 0) return fileText;
   if (filesCount === 0) return folderText;
   return `${folderText}, ${fileText}`;
+}
+
+export function getAIStatus(arquivo: ArquivoGerencial): AIStatus {
+  if (!AI_SUPPORTED_TYPES.includes(arquivo.tipo_arquivo)) {
+    return "unsupported";
+  }
+  if (arquivo.resumo_ia && arquivo.resumo_ia.length > 0) {
+    return "completed";
+  }
+  return "pending";
+}
+
+export function filterArquivosByViewTab(
+  arquivos: ArquivoGerencial[] | undefined,
+  viewTab: ViewTab
+): ArquivoGerencial[] {
+  if (!arquivos) return [];
+
+  switch (viewTab) {
+    case "pending":
+      return arquivos.filter((a) => {
+        const status = getAIStatus(a);
+        return status === "pending";
+      });
+    case "analyzed":
+      return arquivos.filter((a) => {
+        const status = getAIStatus(a);
+        return status === "completed";
+      });
+    case "recent":
+      return [...arquivos].sort((a, b) => {
+        const dateA = new Date(a.updated_at).getTime();
+        const dateB = new Date(b.updated_at).getTime();
+        return dateB - dateA;
+      });
+    case "all":
+    default:
+      return arquivos;
+  }
+}
+
+export function getArquivosCounts(arquivos: ArquivoGerencial[] | undefined) {
+  if (!arquivos) {
+    return { all: 0, pending: 0, analyzed: 0, recent: 0 };
+  }
+
+  const pending = arquivos.filter((a) => getAIStatus(a) === "pending").length;
+  const analyzed = arquivos.filter((a) => getAIStatus(a) === "completed").length;
+
+  return {
+    all: arquivos.length,
+    pending,
+    analyzed,
+    recent: arquivos.length,
+  };
 }

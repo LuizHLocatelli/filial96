@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import type { PastaComCounts, ArquivoGerencial, BreadcrumbItem, FileWithUrl, DialogState, FolderFormData, UploadItem } from "../types";
+import type { ViewTab } from "../constants";
 
 export interface DiretorioContextValue {
   currentFolderId: string | null;
@@ -30,6 +31,9 @@ export interface DiretorioContextValue {
 
   selectedFile: FileWithUrl | null;
   setSelectedFile: (file: FileWithUrl | null) => void;
+
+  viewTab: ViewTab;
+  setViewTab: (tab: ViewTab) => void;
 
   handleCreateFolder: (data: FolderFormData) => Promise<void>;
   handleUpdateFolder: (id: string, data: FolderFormData) => Promise<void>;

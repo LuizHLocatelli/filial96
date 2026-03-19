@@ -1,15 +1,17 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Search, FolderPlus, ArrowLeft } from "lucide-react";
+import { Search, FolderPlus, ArrowLeft, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDiretorio } from "./hooks/useDiretorio";
 import { DiretorioProvider } from "./hooks/DiretorioProvider";
 import { FolderGrid } from "./components/FolderGrid";
 import { FileGrid } from "./components/FileGrid";
 import { Breadcrumb } from "./components/Breadcrumb";
 import { UploadZone } from "./components/UploadZone";
+import { ViewTabs } from "./components/ViewTabs";
+import { EmptyState } from "./components/EmptyState";
 import {
   FolderDialog,
   DeleteDialog,
@@ -18,6 +20,9 @@ import {
 } from "./components";
 import { getPublicUrl } from "./lib/queries";
 import { BreadcrumbItem } from "./types";
+import { filterArquivosByViewTab, getArquivosCounts } from "./lib/utils";
+import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
 
 function DiretorioContent() {
   const {
@@ -49,7 +54,29 @@ function DiretorioContent() {
     isMovingFolder,
     isMovingFile,
     isDeletingFile,
+    viewTab,
+    setViewTab,
   } = useDiretorio();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredArquivos = useMemo(() => {
+    let filtered = filterArquivosByViewTab(arquivos, viewTab);
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (a) =>
+          a.nome_arquivo.toLowerCase().includes(query) ||
+          a.resumo_ia?.toLowerCase().includes(query) ||
+          a.tags?.some((t) => t.toLowerCase().includes(query))
+      );
+    }
+    return filtered;
+  }, [arquivos, viewTab, searchQuery]);
+
+  const counts = useMemo(() => {
+    return getArquivosCounts(arquivos);
+  }, [arquivos]);
 
   const selectedPasta =
     dialogState.itemType === "pasta" && dialogState.selectedId
@@ -127,6 +154,12 @@ function DiretorioContent() {
     ? allPastas?.find((p) => p.id === currentFolderId)?.nome
     : null;
 
+  const showEmptyState =
+    !isLoadingPastas &&
+    !isLoadingArquivos &&
+    filteredArquivos.length === 0 &&
+    (!pastas || pastas.length === 0);
+
   return (
     <PageLayout>
       <PageHeader
@@ -146,8 +179,13 @@ function DiretorioContent() {
           />
         </motion.div>
 
-        <div className="glass-panel p-4 space-y-4 sticky top-[4.5rem] z-10">
-          <div className="flex items-center justify-between">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="glass-panel p-4 space-y-4 sticky top-[4.5rem] z-10"
+        >
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center space-x-2 overflow-hidden">
               {currentFolderId && (
                 <Button
@@ -168,53 +206,98 @@ function DiretorioContent() {
               </div>
             </div>
 
-            <Button
-              onClick={openCreateFolderDialog}
-              size="sm"
-              className="flex-shrink-0"
-            >
-              <FolderPlus className="h-4 w-4 mr-2" />
-              Nova Pasta
-            </Button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">IA</span>
+              </Button>
+              <Button
+                onClick={openCreateFolderDialog}
+                size="sm"
+                className="gap-2"
+              >
+                <FolderPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">Nova Pasta</span>
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <Search className="w-5 h-5 text-muted-foreground ml-2" />
+          <ViewTabs
+            activeTab={viewTab}
+            onTabChange={setViewTab}
+            counts={counts}
+            className="w-full sm:w-auto"
+          />
+
+          <div className="flex items-center gap-3 px-1">
+            <Search className="w-5 h-5 text-muted-foreground" />
             <Input
-              placeholder="Pesquisar pastas e arquivos por nome, tags ou resumo..."
+              placeholder="Pesquisar por nome, tags ou resumo IA..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="border-0 bg-transparent focus-visible:ring-0 px-0"
             />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery("")}
+                className="h-8 px-2 text-muted-foreground"
+              >
+                Limpar
+              </Button>
+            )}
           </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <FolderGrid
-            pastas={pastas}
-            isLoading={isLoadingPastas}
-            onFolderClick={handleFolderClick}
-            onEditFolder={openEditFolderDialog}
-            onDeleteFolder={openDeleteFolderDialog}
-            onMoveFolder={openMoveFolderDialog}
-          />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          <FileGrid
-            arquivos={arquivos}
-            isLoading={isLoadingArquivos}
-            onFileClick={handleFileClick}
-            onDeleteFile={openMoveFileDialog}
-            onMoveFile={openMoveFileDialog}
+        {showEmptyState ? (
+          <EmptyState
+            type={viewTab === "pending" ? "pending" : viewTab === "analyzed" ? "analyzed" : searchQuery ? "search" : "folders"}
+            searchQuery={searchQuery}
+            onCreateFolder={openCreateFolderDialog}
           />
-        </motion.div>
+        ) : (
+          <>
+            <AnimatePresence mode="wait">
+              {(viewTab === "all" || viewTab === "pending" || viewTab === "analyzed") && (
+                <motion.div
+                  key="folders"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FolderGrid
+                    pastas={pastas}
+                    isLoading={isLoadingPastas}
+                    onFolderClick={handleFolderClick}
+                    onEditFolder={openEditFolderDialog}
+                    onDeleteFolder={openDeleteFolderDialog}
+                    onMoveFolder={openMoveFolderDialog}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              <FileGrid
+                arquivos={filteredArquivos}
+                isLoading={isLoadingArquivos}
+                onFileClick={handleFileClick}
+                onDeleteFile={openMoveFileDialog}
+                onMoveFile={openMoveFileDialog}
+              />
+            </motion.div>
+          </>
+        )}
       </div>
 
       <FolderDialog
