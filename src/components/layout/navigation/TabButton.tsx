@@ -37,10 +37,10 @@ export const TabButton = memo(function TabButton({
           ? cn(
               "flex-1 min-w-0",
               isSmallScreen 
-                ? "h-14 px-0.5 py-1.5"
+                ? "h-14 px-0.5 py-2"
                 : "h-16 px-1 py-2"
             )
-          : "min-w-[48px] h-14 px-2.5 py-2",
+          : "min-w-[48px] h-15 px-2.5 py-2",
         isActive
           ? "nav-tab-active scale-105 transform-gpu"
           : "nav-tab-inactive hover:scale-[1.03] transform-gpu"
