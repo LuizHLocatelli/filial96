@@ -1,65 +1,10 @@
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useCallback, useMemo, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 import { usePastas, useAllPastas, useCreatePasta, useUpdatePasta, useDeletePasta, useMovePasta } from "./usePastas";
 import { useArquivos, useDeleteArquivo, useMoveArquivo } from "./useArquivos";
 import { useUploadQueue } from "./useUploads";
 import { PastaComCounts, ArquivoGerencial, BreadcrumbItem, FileWithUrl, DialogState, FolderFormData } from "../types";
-import { fetchPastaById } from "../lib/queries";
-
-interface DiretorioContextValue {
-  currentFolderId: string | null;
-  setCurrentFolderId: (id: string | null) => void;
-
-  pastas: PastaComCounts[] | undefined;
-  isLoadingPastas: boolean;
-
-  arquivos: ArquivoGerencial[] | undefined;
-  isLoadingArquivos: boolean;
-
-  allPastas: PastaComCounts[] | undefined;
-
-  breadcrumb: BreadcrumbItem[];
-  setBreadcrumb: (path: BreadcrumbItem[]) => void;
-
-  uploads: ReturnType<typeof useUploadQueue>["uploads"];
-  uploadFiles: ReturnType<typeof useUploadQueue>["uploadFiles"];
-  clearUploads: ReturnType<typeof useUploadQueue>["clearCompleted"];
-
-  dialogState: DialogState;
-  openCreateFolderDialog: () => void;
-  openEditFolderDialog: (pasta: PastaComCounts) => void;
-  openDeleteFolderDialog: (pasta: PastaComCounts) => void;
-  openMoveFolderDialog: (pasta: PastaComCounts) => void;
-  openMoveFileDialog: (arquivo: ArquivoGerencial) => void;
-  closeDialog: () => void;
-
-  selectedFile: FileWithUrl | null;
-  setSelectedFile: (file: FileWithUrl | null) => void;
-
-  handleCreateFolder: (data: FolderFormData) => Promise<void>;
-  handleUpdateFolder: (id: string, data: FolderFormData) => Promise<void>;
-  handleDeleteFolder: (id: string) => Promise<void>;
-  handleMoveFolder: (pastaId: string, targetPastaId: string | null) => Promise<void>;
-  handleDeleteFile: (arquivo: ArquivoGerencial) => Promise<void>;
-  handleMoveFile: (arquivoId: string, targetPastaId: string | null) => Promise<void>;
-
-  isCreatingFolder: boolean;
-  isUpdatingFolder: boolean;
-  isDeletingFolder: boolean;
-  isMovingFolder: boolean;
-  isMovingFile: boolean;
-  isDeletingFile: boolean;
-}
-
-const DiretorioContext = createContext<DiretorioContextValue | null>(null);
-
-export function useDiretorio() {
-  const context = useContext(DiretorioContext);
-  if (!context) {
-    throw new Error("useDiretorio must be used within a DiretorioProvider");
-  }
-  return context;
-}
+import { DiretorioContext, type DiretorioContextValue } from "./useDiretorio";
 
 interface DiretorioProviderProps {
   children: ReactNode;
