@@ -3,6 +3,8 @@
    Consolidado de: design-system.css, navigation.css, responsive.css
    ======================================== */
 
+@tailwind components;
+
 @layer components {
   /* ========================================
      🎨 CLASSES EXISTENTES (mantidas)
@@ -12,6 +14,12 @@
   .glass {
     background: var(--gradient-glass);
     backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    background: var(--gradient-card);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
