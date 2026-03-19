@@ -88,28 +88,7 @@ export function EnhancedTopBar() {
             </TooltipContent>
           </Tooltip>
 
-          {isManager && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <motion.div 
-                  whileHover={{ scale: 1.05 }} 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/diretorio-gerencial')}
-                  className={cn(
-                    "glass-button-default h-10 w-10 rounded-xl flex items-center justify-center shadow-lg border border-white/20 dark:border-white/10 backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 cursor-pointer text-[18px]",
-                    location.pathname === '/diretorio-gerencial' 
-                      ? "bg-primary/20 border-primary/50" 
-                      : "bg-zinc-950/10 dark:bg-zinc-950/30"
-                  )}
-                >
-                  📁
-                </motion.div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Diretório Gerencial</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
+
 
           
           <motion.div 
