@@ -25,9 +25,9 @@ export const TabContainer = memo(function TabContainer({ children, isMobile, isS
           isMobile 
             ? cn(
                 "w-full max-w-lg backdrop-blur-2xl",
-                isSmallScreen ? "px-2 py-4" : "px-3 py-5"
+                isSmallScreen ? "px-2 py-3" : "px-3 py-3"
               )
-            : "rounded-3xl px-5 py-4 w-auto max-w-md mx-auto backdrop-blur-2xl"
+            : "rounded-3xl px-4 py-3 w-auto max-w-md mx-auto backdrop-blur-2xl"
         )}
       >
         
