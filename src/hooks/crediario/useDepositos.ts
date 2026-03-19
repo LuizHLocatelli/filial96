@@ -275,7 +275,7 @@ export function useDepositos() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   const addDeposito = async (depositoData: {
     data: Date;

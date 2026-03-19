@@ -24,7 +24,8 @@ export default function HubProdutividade() {
 
   // Efeito para mostrar boas-vindas após login
   useEffect(() => {
-    const justLoggedIn = (location.state as any)?.justLoggedIn;
+    const locationState = location.state as { justLoggedIn?: boolean } | null;
+    const justLoggedIn = locationState?.justLoggedIn;
     const welcomeShown = sessionStorage.getItem("welcome_shown");
 
     if (justLoggedIn && !welcomeShown) {

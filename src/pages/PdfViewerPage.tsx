@@ -20,7 +20,7 @@ const PdfViewerPage = () => {
       toast.error("Erro", { description: "URL do PDF não fornecida" });
       navigate("/crediario");
     }
-  }, [pdfUrl, navigate, toast]);
+  }, [pdfUrl, navigate]);
 
   const handleBack = () => {
     navigate("/crediario");

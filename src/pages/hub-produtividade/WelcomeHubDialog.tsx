@@ -160,7 +160,7 @@ export function WelcomeHubDialog({ open, onOpenChange }: WelcomeHubDialogProps) 
       <DialogContent className="max-h-[85dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0 border-none sm:border bg-transparent shadow-none sm:shadow-2xl" hideCloseButton>
         <div className="glass-card flex flex-col h-full overflow-hidden border-none sm:border">
           <StandardDialogHeader 
-            icon={((props: any) => <EmojiComponent emoji={step.emoji} {...props} />) as any} 
+            icon={((props: React.SVGProps<SVGSVGElement>) => <EmojiComponent emoji={step.emoji} {...props} />) as React.FC<React.SVGProps<SVGSVGElement>>} 
             title={currentStep === 0 ? `Fala, ${userName}!` : step.title}
             onClose={() => onOpenChange(false)} 
           />

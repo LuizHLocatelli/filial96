@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Crown, GraduationCap, Truck, UserCircle, Save, Loader2 } from 'lucide-react';
+import { Shield, Crown, GraduationCap, Truck, UserCircle, Save, Loader2, type LucideIcon } from 'lucide-react';
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { UserRole } from '@/types';
 
 // O gerente não precisa ser configurado pois tem acesso ['*'] por padrão no hook
-const ROLES: { id: UserRole, label: string, icon: any }[] = [
+const ROLES: { id: UserRole, label: string, icon: LucideIcon }[] = [
   { id: 'consultor_moveis', label: 'Consultor de Móveis', icon: UserCircle },
   { id: 'consultor_moda', label: 'Consultor de Moda', icon: UserCircle },
   { id: 'crediarista', label: 'Crediarista', icon: Shield },

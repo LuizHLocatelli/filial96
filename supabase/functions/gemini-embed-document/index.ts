@@ -194,7 +194,7 @@ Deno.serve(async (req) => {
 
     console.log(`Received: ${body.fileName}, dispatching background processing...`);
 
-    // @ts-ignore — EdgeRuntime available in Supabase Edge Functions
+    // @ts-expect-error — EdgeRuntime available in Supabase Edge Functions
     EdgeRuntime.waitUntil(processDocument(body));
 
     return new Response(

@@ -60,7 +60,7 @@ export function useEstoqueContagens() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     carregarContagens();

@@ -66,7 +66,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
           description: initialData.description || "",
           system_message: initialData.system_message,
           avatar_icon: initialData.avatar_icon || "🧠",
-          web_search_enabled: (initialData as any).web_search_enabled || false,
+          web_search_enabled: initialData.web_search_enabled || false,
         });
       } else {
         form.reset({
@@ -89,7 +89,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
       system_message: data.system_message,
       avatar_icon: data.avatar_icon || "🧠",
       web_search_enabled: data.web_search_enabled || false,
-    } as any);
+    } as Omit<AIAssistant, "id" | "created_at" | "updated_at" | "user_id">);
   };
 
   const handleClose = () => onOpenChange(false);

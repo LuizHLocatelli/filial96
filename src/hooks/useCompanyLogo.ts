@@ -112,7 +112,7 @@ export function useCompanyLogo() {
     } finally {
       setIsSaving(false);
     }
-  }, [settings?.id, fetchSettings, toast]);
+  }, [settings?.id, fetchSettings]);
 
   const removeLogo = useCallback(async (): Promise<boolean> => {
     setIsSaving(true);
@@ -157,7 +157,7 @@ export function useCompanyLogo() {
     } finally {
       setIsSaving(false);
     }
-  }, [settings?.id, settings?.logo_path, fetchSettings, toast]);
+  }, [settings?.id, settings?.logo_path, fetchSettings]);
 
   const getLogoAsBase64 = useCallback(async (): Promise<string | null> => {
     if (!settings?.logo_url) return null;

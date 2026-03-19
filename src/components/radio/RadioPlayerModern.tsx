@@ -113,7 +113,7 @@ export function RadioPlayerModern() {
         });
       }
     }
-  }, [isPlaying, toast]);
+  }, [isPlaying]);
 
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];

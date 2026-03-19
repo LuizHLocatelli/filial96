@@ -27,6 +27,18 @@ interface DocumentAttachment {
   fileName: string;
 }
 
+interface MatchedDocument {
+  file_name: string;
+  content_text: string;
+}
+
+interface GenerateContentRequest {
+  systemInstruction?: { parts: MessagePart[] };
+  contents: ChatMessage[];
+  generationConfig?: { temperature?: number };
+  tools?: { googleSearch?: Record<string, never> }[];
+}
+
 interface RequestBody {
   message: string;
   systemMessage: string;
@@ -135,7 +147,7 @@ async function retrieveRAGContext(assistantId: string, query: string): Promise<s
 
     if (error || !data || data.length === 0) return "";
 
-    const context = data.map((d: any, i: number) =>
+    const context = data.map((d: MatchedDocument, i: number) =>
       `[Documento: ${d.file_name}]\n${d.content_text}`
     ).join("\n\n---\n\n");
 
@@ -267,7 +279,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
     const contents = [...history, currentTurn];
 
     // Build tools array for Google Search grounding
-    const tools: any[] = [];
+    const tools: { googleSearch: Record<string, never> }[] = [];
     if (webSearchEnabled) {
       tools.push({ googleSearch: {} });
       // Web search will be appended dynamically in streaming or below for non-streaming
@@ -288,7 +300,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
 
       const chatUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:generateContent?key=${GEMINI_API_KEY}`;
 
-      const requestBody: any = {
+      const requestBody: GenerateContentRequest = {
         systemInstruction: { parts: [{ text: finalSystemMessage }] },
         contents,
         generationConfig: { temperature: 0.7 }
@@ -385,7 +397,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
           }
 
           const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-          const streamBody: any = {
+          const streamBody: GenerateContentRequest = {
             systemInstruction: { parts: [{ text: finalSystemMessage }] },
             contents,
             generationConfig: { temperature: 0.7 }
