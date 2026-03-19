@@ -17,7 +17,8 @@ export const queryKeys = {
 
 export async function fetchPastas(pastaPaiId: string | null): Promise<PastaComCounts[]> {
   let query = supabase
-    .from("gerencial_pastas_com_counts" as any)
+    // @ts-expect-error - View not in generated types
+    .from("gerencial_pastas_com_counts")
     .select("*")
     .order("nome");
 
@@ -37,18 +38,20 @@ export async function fetchPastaById(id: string): Promise<PastaComCounts | null>
   if (!id) return null;
 
   const { data, error } = await supabase
-    .from("gerencial_pastas_com_counts" as any)
+    // @ts-expect-error - View not in generated types
+    .from("gerencial_pastas_com_counts")
     .select("*")
     .eq("id", id)
     .single();
 
   if (error) throw error;
-  return (data as unknown) as PastaComCounts;
+  return data as unknown as PastaComCounts;
 }
 
 export async function fetchAllPastas(): Promise<PastaComCounts[]> {
   const { data, error } = await supabase
-    .from("gerencial_pastas_com_counts" as any)
+    // @ts-expect-error - View not in generated types
+    .from("gerencial_pastas_com_counts")
     .select("*")
     .order("nome");
 
