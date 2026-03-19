@@ -20,16 +20,11 @@ export function useAuthEffects({
   setIsInitialized 
 }: UseAuthEffectsProps) {
   const initializationRef = useRef(false);
-  const profileFetchRef = useRef<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     
-    // Secure profile fetching with duplicate request prevention
     const fetchUserProfile = async (userId: string) => {
-      if (profileFetchRef.current === userId) return;
-      profileFetchRef.current = userId;
-
       try {
         const { data, error } = await supabase
           .from('profiles')
@@ -41,7 +36,6 @@ export function useAuthEffects({
 
         if (error) {
           if (error.code === 'PGRST116') {
-            // Profile not found - try to create it
             console.warn('Profile not found for user:', userId);
             const { data: newProfile, error: createError } = await supabase
               .from('profiles')
@@ -64,8 +58,6 @@ export function useAuthEffects({
         }
       } catch (error) {
         console.error('Profile fetch failed:', error);
-      } finally {
-        profileFetchRef.current = null;
       }
     };
 
