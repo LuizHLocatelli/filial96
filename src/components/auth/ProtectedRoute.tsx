@@ -1,7 +1,7 @@
 
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
-import { useRolePermissions } from "@/hooks/useRolePermissions";
+import { useRolePermissions } from "@/contexts/role-permissions";
 import { NAVIGATION_TABS } from "@/components/layout/navigation/constants";
 import { Loader2 } from "lucide-react";
 

@@ -9,6 +9,12 @@ export interface PastaGerencial {
   created_by: string;
 }
 
+export interface PastaComCounts extends PastaGerencial {
+  subfolders_count: number;
+  files_count: number;
+  total_items: number;
+}
+
 export interface ArquivoGerencial {
   id: string;
   nome_arquivo: string;
@@ -23,10 +29,45 @@ export interface ArquivoGerencial {
   updated_at: string;
 }
 
-export type UploadProgress = {
-  [key: string]: {
-    progress: number;
-    status: 'uploading' | 'analyzing' | 'completed' | 'error';
-    error?: string;
-  };
-};
+export type UploadStatus = "pending" | "uploading" | "analyzing" | "completed" | "error";
+
+export interface UploadProgress {
+  id: string;
+  fileName: string;
+  progress: number;
+  status: UploadStatus;
+  error?: string;
+}
+
+export interface UploadItem {
+  id: string;
+  file: File;
+  customName: string;
+  progress: number;
+  status: UploadStatus;
+  error?: string;
+}
+
+export interface FileWithUrl {
+  arquivo: ArquivoGerencial;
+  url: string;
+}
+
+export interface BreadcrumbItem {
+  id: string | null;
+  nome: string;
+}
+
+export interface DialogState {
+  type: "create" | "edit" | "delete" | "move" | null;
+  itemType: "pasta" | "arquivo" | null;
+  selectedId: string | null;
+}
+
+export type FolderDialogMode = "create" | "edit" | "rename";
+
+export interface FolderFormData {
+  nome: string;
+  cor?: string;
+  icone?: string;
+}

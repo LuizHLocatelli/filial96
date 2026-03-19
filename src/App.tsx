@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/auth";
 import { ThemeProvider } from "./contexts/theme";
+import { RolePermissionsProvider } from "./contexts/role-permissions";
 import AppRoutes from "./AppRoutes";
 
 
@@ -23,12 +24,14 @@ const queryClient = new QueryClient({
 const AppContent = () => {
   return (
     <AuthProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <Sonner />
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <RolePermissionsProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <Sonner />
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </RolePermissionsProvider>
     </AuthProvider>
   );
 };

@@ -1,7 +1,9 @@
-import { Folder, FolderOpen, MoreVertical } from "lucide-react";
+import { memo } from "react";
+import { FolderOpen, MoreVertical } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PastaGerencial } from "../types";
+import { PastaComCounts } from "../types";
+import { getItemCountText } from "../lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,53 +11,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Edit3, Trash2, ArrowRightLeft } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface FolderCardProps {
-  pasta: PastaGerencial;
+  pasta: PastaComCounts;
   onClick: () => void;
-  onEdit?: (pasta: PastaGerencial) => void;
-  onDelete?: (pasta: PastaGerencial) => void;
-  onMove?: (pasta: PastaGerencial) => void;
+  onEdit?: (pasta: PastaComCounts) => void;
+  onDelete?: (pasta: PastaComCounts) => void;
+  onMove?: (pasta: PastaComCounts) => void;
 }
 
-export function FolderCard({ pasta, onClick, onEdit, onDelete, onMove }: FolderCardProps) {
+export const FolderCard = memo(function FolderCard({
+  pasta,
+  onClick,
+  onEdit,
+  onDelete,
+  onMove,
+}: FolderCardProps) {
   const iconColor = pasta.cor || "#3b82f6";
-
-  // Count sub-items (subfolders + files)
-  const { data: counts } = useQuery({
-    queryKey: ["pasta_counts", pasta.id],
-    queryFn: async () => {
-      const [foldersRes, filesRes] = await Promise.all([
-        supabase
-          .from("gerencial_pastas")
-          .select("id", { count: "exact", head: true })
-          .eq("pasta_pai_id", pasta.id),
-        supabase
-          .from("gerencial_arquivos")
-          .select("id", { count: "exact", head: true })
-          .eq("pasta_id", pasta.id),
-      ]);
-      return {
-        folders: foldersRes.count ?? 0,
-        files: filesRes.count ?? 0,
-      };
-    },
-    staleTime: 30_000,
-  });
-
-  const totalItems = (counts?.folders ?? 0) + (counts?.files ?? 0);
-
-  const subtitle = totalItems === 0
-    ? "Pasta vazia"
-    : totalItems === 1
-      ? "1 item"
-      : `${totalItems} itens`;
+  const itemCountText = getItemCountText(pasta.subfolders_count, pasta.files_count);
 
   return (
     <Card
-      className="group glass-card overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer relative"
+      className="group glass-card overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer"
       onClick={onClick}
     >
       <CardContent className="p-4 flex items-center space-x-3">
@@ -70,7 +47,7 @@ export function FolderCard({ pasta, onClick, onEdit, onDelete, onMove }: FolderC
           <h4 className="font-medium text-sm truncate" title={pasta.nome}>
             {pasta.nome}
           </h4>
-          <p className="text-xs text-muted-foreground">{subtitle}</p>
+          <p className="text-xs text-muted-foreground">{itemCountText}</p>
         </div>
 
         {(onEdit || onDelete || onMove) && (
@@ -112,4 +89,4 @@ export function FolderCard({ pasta, onClick, onEdit, onDelete, onMove }: FolderC
       </CardContent>
     </Card>
   );
-}
+});

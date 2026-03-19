@@ -11,7 +11,7 @@ import {
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageNavigation } from "@/components/layout/PageNavigation";
-import { useRolePermissions } from "@/hooks/useRolePermissions";
+import { useRolePermissions } from "@/contexts/role-permissions";
 
 export default function Moveis() {
   const [searchParams, setSearchParams] = useSearchParams();

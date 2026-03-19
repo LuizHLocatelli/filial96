@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, type ComponentType, useMemo } from "r
 import { useNavigate, useLocation } from "react-router-dom";
 import { useResponsive } from "@/hooks/use-responsive";
 import { usePreloadOnHover } from "@/hooks/useLazyComponent";
-import { useRolePermissions } from "@/hooks/useRolePermissions";
+import { useRolePermissions } from "@/contexts/role-permissions";
 import { NAVIGATION_TABS, MOBILE_BREAKPOINT } from "./constants";
 
 export function useNavigationTabs() {

@@ -1,3 +1,5 @@
+import { useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Search, FolderPlus, ArrowLeft } from "lucide-react";
@@ -18,7 +20,8 @@ import {
 import { getPublicUrl } from "./lib/queries";
 import { BreadcrumbItem } from "./types";
 
-export default function DiretorioGerencial() {
+export function FolderExplorer() {
+  const navigate = useNavigate();
   const {
     currentFolderId,
     setCurrentFolderId,
@@ -27,6 +30,7 @@ export default function DiretorioGerencial() {
     arquivos,
     isLoadingArquivos,
     allPastas,
+    uploads,
     dialogState,
     openCreateFolderDialog,
     openEditFolderDialog,
@@ -50,38 +54,44 @@ export default function DiretorioGerencial() {
     isDeletingFile,
   } = useDiretorio();
 
-  const selectedPasta =
-    dialogState.itemType === "pasta" && dialogState.selectedId
-      ? allPastas?.find((p) => p.id === dialogState.selectedId)
-      : null;
+  const selectedPasta = dialogState.itemType === "pasta" && dialogState.selectedId
+    ? allPastas?.find((p) => p.id === dialogState.selectedId)
+    : null;
 
-  const selectedArquivo =
-    dialogState.itemType === "arquivo" && dialogState.selectedId
-      ? arquivos?.find((a) => a.id === dialogState.selectedId)
-      : null;
+  const selectedArquivo = dialogState.itemType === "arquivo" && dialogState.selectedId
+    ? arquivos?.find((a) => a.id === dialogState.selectedId)
+    : null;
 
-  const getBreadcrumbPath = (): BreadcrumbItem[] => {
-    const path: BreadcrumbItem[] = [
-      { id: null, nome: "Diretório Gerencial" },
-    ];
+  const breadcrumbPath: BreadcrumbItem[] = [
+    { id: null, nome: "Diretório Gerencial" },
+  ];
 
-    if (!currentFolderId || !allPastas) return path;
+  const getBreadcrumbPath = useCallback(async () => {
+    if (!currentFolderId) return breadcrumbPath;
 
-    const folderPath: BreadcrumbItem[] = [];
+    const path: BreadcrumbItem[] = [{ id: null, nome: "Diretório Gerencial" }];
+
     let currentId: string | null = currentFolderId;
-
     while (currentId) {
-      const pasta = allPastas.find((p) => p.id === currentId);
+      const pasta = allPastas?.find((p) => p.id === currentId);
       if (pasta) {
-        folderPath.unshift({ id: pasta.id, nome: pasta.nome });
+        path.push({ id: pasta.id, nome: pasta.nome });
         currentId = pasta.pasta_pai_id;
       } else {
         break;
       }
     }
 
-    return [...path, ...folderPath];
-  };
+    return path.reverse();
+  }, [currentFolderId, allPastas]);
+
+  useEffect(() => {
+    if (currentFolderId && allPastas) {
+      getBreadcrumbPath().then((path) => {
+        // This would ideally update context state, but for now we derive from URL
+      });
+    }
+  }, [currentFolderId, allPastas, getBreadcrumbPath]);
 
   const handleFolderClick = (pasta: { id: string }) => {
     setCurrentFolderId(pasta.id);
@@ -92,13 +102,13 @@ export default function DiretorioGerencial() {
   };
 
   const handleGoBack = () => {
-    if (currentFolderId && allPastas) {
-      const currentPasta = allPastas.find((p) => p.id === currentFolderId);
-      setCurrentFolderId(currentPasta?.pasta_pai_id || null);
+    if (currentFolderId) {
+      const parentPasta = allPastas?.find((p) => p.id === currentFolderId);
+      setCurrentFolderId(parentPasta?.pasta_pai_id || null);
     }
   };
 
-  const handleFileClick = (arquivo: { id: string }) => {
+  const handleFileClick = async (arquivo: { id: string }) => {
     const foundArquivo = arquivos?.find((a) => a.id === arquivo.id);
     if (foundArquivo) {
       const url = getPublicUrl(foundArquivo.caminho_storage);
@@ -122,10 +132,6 @@ export default function DiretorioGerencial() {
     }
   };
 
-  const currentFolderNome = currentFolderId
-    ? allPastas?.find((p) => p.id === currentFolderId)?.nome
-    : null;
-
   return (
     <PageLayout>
       <PageHeader
@@ -141,7 +147,11 @@ export default function DiretorioGerencial() {
         >
           <UploadZone
             pastaAtualId={currentFolderId}
-            pastaAtualNome={currentFolderNome}
+            pastaAtualNome={
+              currentFolderId
+                ? allPastas?.find((p) => p.id === currentFolderId)?.nome
+                : null
+            }
           />
         </motion.div>
 
@@ -161,7 +171,23 @@ export default function DiretorioGerencial() {
               )}
               <div className="overflow-x-auto">
                 <Breadcrumb
-                  path={getBreadcrumbPath()}
+                  path={[
+                    { id: null, nome: "Diretório Gerencial" },
+                    ...(currentFolderId && allPastas
+                      ? (() => {
+                          const path: BreadcrumbItem[] = [];
+                          let cid: string | null = currentFolderId;
+                          while (cid) {
+                            const p = allPastas.find((x) => x.id === cid);
+                            if (p) {
+                              path.unshift({ id: p.id, nome: p.nome });
+                              cid = p.pasta_pai_id;
+                            } else break;
+                          }
+                          return path;
+                        })()
+                      : []),
+                  ]}
                   onNavigate={handleBreadcrumbNavigate}
                 />
               </div>
@@ -210,7 +236,9 @@ export default function DiretorioGerencial() {
             arquivos={arquivos}
             isLoading={isLoadingArquivos}
             onFileClick={handleFileClick}
-            onDeleteFile={openMoveFileDialog}
+            onDeleteFile={(arquivo) => {
+              openMoveFileDialog(arquivo);
+            }}
             onMoveFile={openMoveFileDialog}
           />
         </motion.div>

@@ -1,27 +1,24 @@
-import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { UploadCloud, File, AlertCircle, FolderOpen } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress';
-import { useArquivosGerenciais } from '../hooks/useArquivosGerenciais';
-import { RenameFilesDialog, FileWithCustomName } from './RenameFilesDialog';
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { UploadCloud, AlertCircle, FolderOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { File } from "lucide-react";
+import { useDiretorio } from "../hooks/useDiretorio";
+import { RenameFilesDialog, FileWithCustomName } from "./dialogs/RenameFilesDialog";
+import { ACCEPTED_FILE_TYPES } from "../constants";
+import { generateFileId, getFileExtension, getFileNameWithoutExtension } from "../lib/utils";
 
 interface UploadZoneProps {
-  pastaAtualId?: string | null;
+  pastaAtualId: string | null;
   pastaAtualNome?: string | null;
 }
 
-interface UploadingFile {
-  progress: number;
-  status: string;
-  customName: string;
-}
-
-export const UploadZone = ({ pastaAtualId, pastaAtualNome }: UploadZoneProps) => {
-  const [uploadingFiles, setUploadingFiles] = useState<{ [key: string]: UploadingFile }>({});
+export function UploadZone({ pastaAtualId, pastaAtualNome }: UploadZoneProps) {
+  const { uploads, uploadFiles } = useDiretorio();
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
-  const { uploadFile } = useArquivosGerenciais(pastaAtualId);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -30,73 +27,36 @@ export const UploadZone = ({ pastaAtualId, pastaAtualNome }: UploadZoneProps) =>
     }
   }, []);
 
-  const handleConfirmUpload = async (fileEntries: FileWithCustomName[]) => {
-    // Start uploading each file with its custom name
-    fileEntries.forEach(async (entry) => {
-      const fileId = entry.id;
-      
-      setUploadingFiles((prev) => ({
-        ...prev,
-        [fileId]: { 
-          progress: 0, 
-          status: 'Preparando...',
-          customName: entry.customName + entry.extension
-        }
-      }));
-
-      try {
-        await uploadFile(
-          entry.file, 
-          pastaAtualId || null, 
-          (status, progress) => {
-            let statusText = 'Enviando...';
-            if (status === 'analyzing') statusText = 'Analisando com IA...';
-            if (status === 'completed') statusText = 'Concluído';
-            if (status === 'error') statusText = 'Erro';
-
-            setUploadingFiles((prev) => ({
-              ...prev,
-              [fileId]: { 
-                ...prev[fileId],
-                progress, 
-                status: statusText 
-              }
-            }));
-
-            if (status === 'completed' || status === 'error') {
-              setTimeout(() => {
-                setUploadingFiles((prev) => {
-                  const newObj = { ...prev };
-                  delete newObj[fileId];
-                  return newObj;
-                });
-              }, 3000);
-            }
-          },
-          entry.customName // Pass custom name without extension
-        );
-      } catch (error) {
-         setUploadingFiles((prev) => ({
-           ...prev,
-           [fileId]: { 
-             ...prev[fileId],
-             progress: 0, 
-             status: 'Erro no upload' 
-           }
-         }));
-      }
-    });
-  };
-
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
-    }
+    accept: ACCEPTED_FILE_TYPES,
   });
+
+  const handleConfirmUpload = async (fileEntries: FileWithCustomName[]) => {
+    const filesToUpload = fileEntries.map((entry) => ({
+      file: entry.file,
+      customName: entry.customName,
+    }));
+    await uploadFiles(filesToUpload, pastaAtualId);
+    setShowRenameDialog(false);
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Preparando...";
+      case "uploading":
+        return "Enviando...";
+      case "analyzing":
+        return "Analisando com IA...";
+      case "completed":
+        return "Concluído";
+      case "error":
+        return "Erro";
+      default:
+        return status;
+    }
+  };
 
   return (
     <>
@@ -105,17 +65,21 @@ export const UploadZone = ({ pastaAtualId, pastaAtualNome }: UploadZoneProps) =>
           {...getRootProps()}
           className={cn(
             "glass-panel border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300",
-            isDragActive ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/50",
+            isDragActive
+              ? "border-primary bg-primary/5"
+              : "border-border/50 hover:border-primary/50",
             isDragReject && "border-destructive bg-destructive/5"
           )}
         >
           <input {...getInputProps()} />
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className={cn(
-              "p-4 rounded-full bg-background/50",
-              isDragActive && "bg-primary/20 text-primary",
-              isDragReject && "bg-destructive/20 text-destructive"
-            )}>
+            <div
+              className={cn(
+                "p-4 rounded-full bg-background/50",
+                isDragActive && "bg-primary/20 text-primary",
+                isDragReject && "bg-destructive/20 text-destructive"
+              )}
+            >
               {isDragReject ? (
                 <AlertCircle className="w-8 h-8" />
               ) : (
@@ -141,20 +105,24 @@ export const UploadZone = ({ pastaAtualId, pastaAtualNome }: UploadZoneProps) =>
           </div>
         </div>
 
-        {/* Upload Progress Queue */}
-        {Object.keys(uploadingFiles).length > 0 && (
+        {uploads.length > 0 && (
           <div className="space-y-3 mt-4">
-            {Object.entries(uploadingFiles).map(([id, info]) => (
-              <div key={id} className="glass-panel p-3 rounded-lg flex items-center space-x-4">
+            {uploads.map((upload) => (
+              <div
+                key={upload.id}
+                className="glass-panel p-3 rounded-lg flex items-center space-x-4"
+              >
                 <File className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1">
-                    <p className="text-sm font-medium truncate">{info.customName}</p>
+                    <p className="text-sm font-medium truncate">
+                      {upload.customName}
+                    </p>
                     <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                      {info.status}
+                      {getStatusText(upload.status)}
                     </span>
                   </div>
-                  <Progress value={info.progress} className="h-1.5" />
+                  <Progress value={upload.progress} className="h-1.5" />
                 </div>
               </div>
             ))}
@@ -170,4 +138,4 @@ export const UploadZone = ({ pastaAtualId, pastaAtualNome }: UploadZoneProps) =>
       />
     </>
   );
-};
+}

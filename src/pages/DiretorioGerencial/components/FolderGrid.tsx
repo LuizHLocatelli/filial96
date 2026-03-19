@@ -1,29 +1,29 @@
+import { memo } from "react";
 import { FolderCard } from "./FolderCard";
-import { PastaGerencial } from "../types";
+import { PastaComCounts } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Folder } from "lucide-react";
 
 interface FolderGridProps {
-  pastas: PastaGerencial[] | undefined;
+  pastas: PastaComCounts[] | undefined;
   isLoading: boolean;
-  onFolderClick: (pasta: PastaGerencial) => void;
-  onEditFolder?: (pasta: PastaGerencial) => void;
-  onDeleteFolder?: (pasta: PastaGerencial) => void;
-  onMoveFolder?: (pasta: PastaGerencial) => void;
+  onFolderClick: (pasta: PastaComCounts) => void;
+  onEditFolder?: (pasta: PastaComCounts) => void;
+  onDeleteFolder?: (pasta: PastaComCounts) => void;
+  onMoveFolder?: (pasta: PastaComCounts) => void;
 }
 
-export function FolderGrid({ 
-  pastas, 
-  isLoading, 
-  onFolderClick, 
-  onEditFolder, 
+export const FolderGrid = memo(function FolderGrid({
+  pastas,
+  isLoading,
+  onFolderClick,
+  onEditFolder,
   onDeleteFolder,
-  onMoveFolder 
+  onMoveFolder,
 }: FolderGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
-        {[1, 2, 3, 4].map(i => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-20 w-full rounded-xl" />
         ))}
       </div>
@@ -35,7 +35,7 @@ export function FolderGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {pastas.map((pasta) => (
         <FolderCard
           key={pasta.id}
@@ -48,4 +48,4 @@ export function FolderGrid({
       ))}
     </div>
   );
-}
+});
