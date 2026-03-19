@@ -1,0 +1,1 @@
+export { useDiretorio } from "./context";
