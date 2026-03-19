@@ -21,7 +21,7 @@ export function ProtectedRoute({ children, requiredPermission }: ProtectedRouteP
   }
 
   // Wait for permissions to load before deciding if permission is required
-  if (requiredPermission && isLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
