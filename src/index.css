@@ -1,12 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import './styles/variables.css';
 @import './styles/glassmorphism.css';
 @import './styles/components.css';
 
 /* Font loaded via index.html <link rel="preload"> for better performance */
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer base {
   * {
