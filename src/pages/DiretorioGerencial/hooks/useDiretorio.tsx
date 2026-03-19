@@ -4,7 +4,7 @@ import { usePastas, useAllPastas, useCreatePasta, useUpdatePasta, useDeletePasta
 import { useArquivos, useDeleteArquivo, useMoveArquivo } from "./useArquivos";
 import { useUploadQueue } from "./useUploads";
 import { PastaComCounts, ArquivoGerencial, BreadcrumbItem, FileWithUrl, DialogState, FolderFormData } from "../types";
-import { DiretorioContext, type DiretorioContextValue } from "./useDiretorio";
+import { DiretorioContext, type DiretorioContextValue, useDiretorio } from "./context";
 
 interface DiretorioProviderProps {
   children: ReactNode;
@@ -207,3 +207,5 @@ export function DiretorioProvider({ children }: DiretorioProviderProps) {
     </DiretorioContext.Provider>
   );
 }
+
+export { useDiretorio };

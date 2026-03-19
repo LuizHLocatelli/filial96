@@ -4,8 +4,7 @@ import { Search, FolderPlus, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useDiretorio } from "./hooks/useDiretorio";
-import { DiretorioProvider } from "./hooks/useDiretorio.tsx";
+import { useDiretorio, DiretorioProvider } from "./hooks/useDiretorio";
 import { FolderGrid } from "./components/FolderGrid";
 import { FileGrid } from "./components/FileGrid";
 import { Breadcrumb } from "./components/Breadcrumb";
@@ -19,7 +18,7 @@ import {
 import { getPublicUrl } from "./lib/queries";
 import { BreadcrumbItem } from "./types";
 
-export default function DiretorioGerencial() {
+function DiretorioContent() {
   const {
     currentFolderId,
     setCurrentFolderId,
@@ -128,7 +127,6 @@ export default function DiretorioGerencial() {
     : null;
 
   return (
-    <DiretorioProvider>
     <PageLayout>
       <PageHeader
         title="Diretório Gerencial"
@@ -274,6 +272,13 @@ export default function DiretorioGerencial() {
         onOpenChange={(open) => !open && setSelectedFile(null)}
       />
     </PageLayout>
+  );
+}
+
+export default function DiretorioGerencial() {
+  return (
+    <DiretorioProvider>
+      <DiretorioContent />
     </DiretorioProvider>
   );
 }
