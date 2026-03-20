@@ -160,7 +160,7 @@ export function WelcomeHubDialog({ open, onOpenChange }: WelcomeHubDialogProps) 
       <DialogContent className="max-h-[85dvh] sm:max-h-[75vh] overflow-hidden flex flex-col p-0 border-none sm:border bg-transparent shadow-none sm:shadow-2xl" hideCloseButton>
         <div className="glass-card flex flex-col h-full overflow-hidden border-none sm:border">
           <StandardDialogHeader 
-            icon={React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) => <EmojiComponent emoji={step.emoji} {...props} />) as any} 
+            icon={React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) => <EmojiComponent emoji={step.emoji} {...props} />) as unknown as import("lucide-react").LucideIcon} 
             title={currentStep === 0 ? `Fala, ${userName}!` : step.title}
             onClose={() => onOpenChange(false)} 
           />
