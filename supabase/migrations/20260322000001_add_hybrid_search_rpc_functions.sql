@@ -13,7 +13,7 @@ RETURNS TABLE (
   file_name text,
   content_text text,
   similarity double precision,
-  rank double precision
+  rank bigint
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -51,7 +51,7 @@ BEGIN
     c.file_name,
     c.content_text,
     c.combined_score AS similarity,
-    ROW_NUMBER() OVER (ORDER BY c.combined_score DESC) AS rank
+    ROW_NUMBER() OVER (ORDER BY c.combined_score DESC)::bigint AS rank
   FROM combined_scores c
   WHERE c.combined_score > p_match_threshold
   ORDER BY c.combined_score DESC
