@@ -50,6 +50,8 @@ interface RequestBody {
   history?: ChatMessage[];
   stream?: boolean;
   generateTitle?: boolean;
+  enhanceSystemMessage?: boolean;
+  ragDocuments?: MatchedDocument[];
   webSearchEnabled?: boolean;
   assistantId?: string;
   temperatureLevel?: 'low' | 'medium' | 'high';
@@ -328,6 +330,93 @@ Deno.serve(async (req) => {
         });
       }
       return new Response(JSON.stringify({ title: "Nova Conversa" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // Enhance system message with RAG documents
+    if (enhanceSystemMessage && ragDocuments && ragDocuments.length > 0) {
+      const docsContext = ragDocuments.map((doc, idx) => 
+        `[Documento ${idx + 1}: ${doc.file_name}]\n${doc.content_text}`
+      ).join("\n\n---\n\n");
+
+      const enhancePrompt = `Você é um engenheiro de prompt especialista em IA. Sua tarefa é APRIMORAR uma system message existente usando informações de uma Base de Conhecimento (RAG).
+
+**SYSTEM MESSAGE ORIGINAL:**
+${systemMessage}
+
+**BASE DE CONHECIMENTO DO ASSISTENTE (Documentos carregados):**
+${docsContext}
+
+**INSTRUÇÕES:**
+1. Analise a system message original e os documentos da base de conhecimento
+2. Identifique os principais tópicos e expertise cobertos pelos documentos
+3. Integre as informações dos documentos na system message de forma NATURAL e COERENTE
+4. Adicione seções que aproveitem o conhecimento específico disponível nos documentos
+5. Mantenha o tom e estilo da mensagem original
+6. Inclua diretrizes sobre como usar a base de conhecimento (quando citar, como referenciar, etc.)
+7. A system message final deve ser mais rica e específica para os documentos disponíveis
+
+**REGRAS IMPORTANTES:**
+- Mantenha no MÁXIMO 7500 caracteres
+- Use formatação excelente com markdown (negrito, listas, seções claras)
+- NÃO remova nenhuma diretiva importante da mensagem original
+- Adicione conhecimento dos documentos de forma complementar
+- Inclua uma seção sobre "USO DA BASE DE CONHECIMENTO" com diretrizes específicas
+
+Retorne APENAS um objeto JSON válido (sem markdown \`\`\`json):
+{
+  "system_message": "A system message aprimorada com quebras de linha (\\n) e excelente formatação markdown",
+  "suggested_emoji": "emoji"
+}`;
+
+      const enhanceUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
+      const enhanceRes = await fetch(enhanceUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: enhancePrompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 8192 }
+        })
+      });
+
+      if (enhanceRes.ok) {
+        const enhanceData = await enhanceRes.json();
+        const rawText = enhanceData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+        
+        // Parse JSON response
+        let jsonStr = rawText;
+        if (jsonStr.startsWith('```json')) {
+          jsonStr = jsonStr.replace(/^```json\n/, '').replace(/\n```$/, '');
+        } else if (jsonStr.startsWith('```')) {
+          jsonStr = jsonStr.replace(/^```\n/, '').replace(/\n```$/, '');
+        }
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          return new Response(JSON.stringify({
+            system_message: parsed.system_message || systemMessage,
+            suggested_emoji: parsed.suggested_emoji || "🧠"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        } catch (parseError) {
+          console.error("Failed to parse enhanced system message:", parseError);
+          return new Response(JSON.stringify({
+            system_message: systemMessage,
+            suggested_emoji: "🧠",
+            error: "Falha ao processar resposta"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+      }
+
+      return new Response(JSON.stringify({
+        system_message: systemMessage,
+        suggested_emoji: "🧠",
+        error: "Falha ao chamar API de aprimoramento"
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }

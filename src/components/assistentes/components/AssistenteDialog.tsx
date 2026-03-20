@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bot, Save, Trash2, Sparkles, Loader2, Globe, Thermometer } from "lucide-react";
+import { Bot, Save, Trash2, Sparkles, Loader2, Globe, Thermometer, Wand2 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AssistantDocumentsTab } from "./AssistantDocumentsTab";
 import { useGenerateSystemMessage } from "../hooks/useGenerateSystemMessage";
+import { useEnhanceSystemMessageWithRAG } from "../hooks/useEnhanceSystemMessageWithRAG";
+import { useAssistantDocuments } from "../hooks/useAssistantDocuments";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import type { AIAssistant } from "../types";
@@ -48,6 +50,9 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
   const [highlightField, setHighlightField] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { generate, isGenerating } = useGenerateSystemMessage();
+  const { enhance, isEnhancing } = useEnhanceSystemMessageWithRAG();
+  const { documents: ragDocuments } = useAssistantDocuments(initialData?.id);
+  const hasRAGDocuments = ragDocuments.length > 0;
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -116,6 +121,28 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
       setHighlightField(true);
       setTimeout(() => setHighlightField(false), 2000);
       toast.success("Instruções e ícone gerados com sucesso!");
+    }
+  };
+
+  const handleEnhanceWithRAG = async () => {
+    if (!initialData?.id) {
+      toast.warning("Salve o assistente primeiro para adicionar documentos.");
+      return;
+    }
+    const currentSystemMessage = form.getValues("system_message");
+    if (!currentSystemMessage || currentSystemMessage.length < 10) {
+      toast.warning("A system message precisa ter pelo menos 10 caracteres.");
+      return;
+    }
+    const result = await enhance(currentSystemMessage, initialData.id);
+    if (result && result.system_message) {
+      form.setValue("system_message", result.system_message, { shouldValidate: true, shouldDirty: true });
+      if (result.suggested_emoji && result.suggested_emoji.length <= 2) {
+        form.setValue("avatar_icon", result.suggested_emoji, { shouldValidate: true, shouldDirty: true });
+      }
+      setHighlightField(true);
+      setTimeout(() => setHighlightField(false), 2000);
+      toast.success("Instruções aprimoradas com a base de conhecimento!");
     }
   };
 
@@ -242,6 +269,33 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                       </Button>
                     </div>
                   </div>
+
+                  {initialData && (
+                    <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/30 space-y-3">
+                      <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium">
+                        <Wand2 className="w-4 h-4" />
+                        <h3>Aprimorar com Base de Conhecimento</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {hasRAGDocuments 
+                          ? `Use as informações dos ${ragDocuments.length} documento(s) carregado(s) para melhorar as instruções do assistente.`
+                          : "Carregue documentos na aba 'Documentos (RAG)' primeiro para usar esta funcionalidade."}
+                      </p>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="w-full border-amber-500/50 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10" 
+                        onClick={handleEnhanceWithRAG} 
+                        disabled={isEnhancing || !hasRAGDocuments}
+                      >
+                        {isEnhancing ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Aprimorando...</>
+                        ) : (
+                          <><Wand2 className="w-4 h-4 mr-2" />Aprimorar Instruções com RAG</>
+                        )}
+                      </Button>
+                    </div>
+                  )}
 
                   <FormField control={form.control} name="system_message" render={({ field }) => (
                     <FormItem>
