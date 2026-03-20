@@ -386,7 +386,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
               ragReferences={ragReferences}
               webSources={webSources}
               onCancel={cancelStream}
-              className="w-full flex-1"
+              className="w-full flex-1 min-w-0 overflow-hidden"
             />
           )}
 
