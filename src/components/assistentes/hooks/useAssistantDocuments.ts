@@ -104,21 +104,25 @@ export function useAssistantDocuments(assistantId?: string) {
 
       const poll = setInterval(async () => {
         attempts++;
-        const { data: freshDocs } = await supabase
-          .from("ai_assistant_documents")
-          .select("id")
+        const { data: statusDocs } = await supabase
+          .from("ai_assistant_document_status")
+          .select("status, error_message")
           .eq("assistant_id", variables.assistantId)
           .eq("file_url", uploadedFileUrl)
           .limit(1);
 
-        // Also check by refetching the full list
-        await queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
-        const cached = queryClient.getQueryData<AssistantDocument[]>(["ai_assistant_documents", assistantId]);
-        const newCount = cached?.length ?? 0;
+        const fileStatus = statusDocs?.[0]?.status;
 
-        if ((freshDocs && freshDocs.length > 0)) {
+        // Fetch documents to check
+        await queryClient.invalidateQueries({ queryKey: ["ai_assistant_documents", assistantId] });
+
+        if (fileStatus === "completed") {
           clearInterval(poll);
-          toast.success("Documento processado com sucesso!", { id: toastId });
+          toast.success("Documento processado e indexado com sucesso!", { id: toastId });
+        } else if (fileStatus === "error") {
+          clearInterval(poll);
+          const errorMsg = statusDocs?.[0]?.error_message || "Erro desconhecido";
+          toast.error(`Falha no processamento: ${errorMsg}`, { id: toastId });
         } else if (attempts >= maxAttempts) {
           clearInterval(poll);
           toast.info("Processamento pode levar mais tempo. Recarregue a página em breve.", { id: toastId });

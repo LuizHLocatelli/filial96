@@ -1,4 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import pdf from "npm:pdf-parse@1.1.1";
+import { Buffer } from "node:buffer";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -161,14 +163,34 @@ async function processDocument(body: RequestBody) {
   try {
     console.log(`[BG] Processing: ${fileName}`);
 
-    // Always use Gemini File API — avoids loading file into edge function memory as base64
-    const fileUri = await uploadToGeminiFileAPI(fileUrl, mimeType, fileName);
-    const extractedText = await extractTextWithFileUri(fileUri, mimeType);
+    // Create status record
+    await supabase.from("ai_assistant_document_status").insert({
+      assistant_id: assistantId,
+      file_name: fileName,
+      file_url: fileUrl,
+      status: "processing"
+    });
 
-    if (!extractedText.trim()) {
-      console.error("[BG] No text extracted");
-      return;
+    let extractedText = "";
+
+    // Parse PDF natively avoiding Gemini API token limits
+    if (mimeType === "application/pdf") {
+      console.log(`[BG] Native PDF parse: ${fileName}`);
+      const fileRes = await fetch(fileUrl);
+      if (!fileRes.ok) throw new Error(`Failed to download PDF: ${fileRes.status}`);
+      const fileBuf = await fileRes.arrayBuffer();
+      const pdfData = await pdf(Buffer.from(fileBuf));
+      extractedText = pdfData.text;
+    } else {
+      console.log(`[BG] Gemini File API (Vision): ${fileName}`);
+      const fileUri = await uploadToGeminiFileAPI(fileUrl, mimeType, fileName);
+      extractedText = await extractTextWithFileUri(fileUri, mimeType);
     }
+
+    if (!extractedText || !extractedText.trim()) {
+      throw new Error("Não foi possível extrair nenhum texto legível do arquivo.");
+    }
+    
     console.log(`[BG] Extracted ${extractedText.length} chars`);
 
     const chunks = chunkText(extractedText);
@@ -226,9 +248,22 @@ async function processDocument(body: RequestBody) {
       }
     }
 
+    // Success -> Update status
+    await supabase.from("ai_assistant_document_status")
+      .update({ status: "completed" })
+      .match({ assistant_id: assistantId, file_url: fileUrl });
+
     console.log(`[BG] Done: ${fileName} — ${insertedCount}/${chunks.length} chunks inserted`);
   } catch (err) {
     console.error(`[BG] Failed: ${fileName}`, err);
+    
+    // Error -> Update status
+    await supabase.from("ai_assistant_document_status")
+      .update({ 
+        status: "error", 
+        error_message: err instanceof Error ? err.message : String(err) 
+      })
+      .match({ assistant_id: assistantId, file_url: fileUrl });
   }
 }
 

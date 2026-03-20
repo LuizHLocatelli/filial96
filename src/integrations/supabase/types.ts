@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_assistant_document_status: {
+        Row: {
+          assistant_id: string
+          created_at: string | null
+          error_message: string | null
+          file_name: string
+          file_url: string
+          id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          assistant_id: string
+          created_at?: string | null
+          error_message?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          assistant_id?: string
+          created_at?: string | null
+          error_message?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_assistant_document_status_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "ai_assistants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_assistant_documents: {
         Row: {
           assistant_id: string
