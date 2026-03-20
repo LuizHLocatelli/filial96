@@ -204,7 +204,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
               const sources: WebSource[] = parsed.web_sources.map((src: Record<string, unknown>) => ({
                 title: src.title || 'Fonte',
                 uri: src.uri || src.url || '',
-                domain: src.domain || new URL(src.uri || src.url || 'http://example.com').hostname,
+                domain: (src.domain as string) || (() => { try { return new URL(String(src.uri || src.url || 'http://example.com')).hostname; } catch { return 'web'; } })(),
               }));
               setWebSources(sources);
               continue;
