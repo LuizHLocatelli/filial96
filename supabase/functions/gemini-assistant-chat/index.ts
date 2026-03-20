@@ -571,8 +571,9 @@ ${safetyInstruction}`;
              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Buscando informações atualizadas na web...", type: "search" } })}\n\n`));
           }
 
-          // RAG retrieval inside the stream start to show animation to user immediately
-          if (assistantId) {
+          // RAG retrieval — only if assistant has documents uploaded
+          const hasDocs = assistantId ? await assistantHasDocuments(assistantId) : false;
+          if (assistantId && hasDocs) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
