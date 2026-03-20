@@ -198,7 +198,7 @@ Deno.serve(async (req) => {
     EdgeRuntime.waitUntil(processDocument(body));
 
     return new Response(
-      JSON.stringify({ success: true, status: "processing" }),
+      JSON.stringify({ success: true, status: "processing", fileUrl: body.fileUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
