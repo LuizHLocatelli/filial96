@@ -1,8 +1,16 @@
 import { motion } from "framer-motion";
 import { Globe, ExternalLink, CheckCircle2, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import type { WebSource } from "../types";
+
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 interface WebSourcesPanelProps {
   sources: WebSource[];
@@ -12,7 +20,9 @@ interface WebSourcesPanelProps {
 export function WebSourcesPanel({ sources, className }: WebSourcesPanelProps) {
   if (!sources || sources.length === 0) return null;
 
-  const uniqueSources = sources.filter((s, i, arr) => arr.findIndex(x => x.uri === s.uri) === i);
+  const uniqueSources = sources
+    .filter((s, i, arr) => arr.findIndex(x => x.uri === s.uri) === i)
+    .filter(s => isValidUrl(s.uri));
 
   return (
     <motion.div

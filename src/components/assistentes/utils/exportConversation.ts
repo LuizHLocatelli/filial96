@@ -8,6 +8,13 @@ function formatTimestamp(isoDate: string): string {
   });
 }
 
+function sanitizeFilename(name: string): string {
+  return name
+    .replace(/[<>:"/\\|?*]/g, "_")
+    .replace(/\.{2,}/g, ".")
+    .substring(0, 100) || "conversa";
+}
+
 export function exportAsTxt(
   messages: AIChatMessage[],
   assistant: AIAssistant,
@@ -32,7 +39,7 @@ export function exportAsTxt(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${session.title || "conversa"}.txt`;
+  a.download = `${sanitizeFilename(session.title || "conversa")}.txt`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -98,5 +105,5 @@ export function exportAsPdf(
     y += 4;
   }
 
-  doc.save(`${session.title || "conversa"}.pdf`);
+  doc.save(`${sanitizeFilename(session.title || "conversa")}.pdf`);
 }

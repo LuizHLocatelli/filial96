@@ -154,14 +154,10 @@ async function getEmbedding(text: string): Promise<number[]> {
 
 async function retrieveRAGContext(assistantId: string, query: string): Promise<{ context: string; documents: MatchedDocument[] }> {
   try {
-    console.log("RAG: Starting retrieval for assistant:", assistantId);
-    
     const embedding = await getEmbedding(query);
     if (embedding.length === 0) {
-      console.log("RAG: Failed to get embedding");
       return { context: "", documents: [] };
     }
-    console.log("RAG: Got embedding with", embedding.length, "dimensions");
 
     const embeddingStr = `[${embedding.join(",")}]`;
     const { data, error } = await supabase.rpc("match_assistant_documents", {
@@ -177,11 +173,8 @@ async function retrieveRAGContext(assistantId: string, query: string): Promise<{
     }
     
     if (!data || data.length === 0) {
-      console.log("RAG: No documents found");
       return { context: "", documents: [] };
     }
-    
-    console.log("RAG: Found", data.length, "documents");
 
     // Build enhanced context with similarity scores
     const context = data.map((d: any, i: number) => {
@@ -281,7 +274,7 @@ Deno.serve(async (req) => {
     const imageInstruction = `
 [INSTRUÇÕES DE GERAÇÃO DE IMAGEM]
 Você tem a capacidade de gerar imagens usando um modelo secundário especializado.
-Se o usuário explicitly perguntar para criar, gerar, desenhar ou fazer uma imagem, você DEVE responder com um bloco JSON neste formato exato:
+Se o usuário explicitamente perguntar para criar, gerar, desenhar ou fazer uma imagem, você DEVE responder com um bloco JSON neste formato exato:
 \`\`\`json
 {
   "action": "generate_image",
@@ -300,12 +293,12 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
     const ragInstruction = `
 [DIRETRIZES DE USO DA BASE DE CONHECIMENTO]
 Quando o usuário fizer perguntas, você DEVE:
-1.优先使用提供的文档内容回答 (Priorize o conteúdo dos documentos fornecidos)
-2.Cite explicitamente a fonte ao usar informações: "Segundo o documento [nome]..."
-3.Se houver contradição entre os documentos e seu conhecimento, prefira os documentos carregados
-4.Se a informação NÃO estiver nos documentos, diga claramente: "Não encontrei essa informação nos documentos carregados"
-5.NÃO invente informações que não estejam nos documentos
-6.Quando usar trechos dos documentos, coloque-os em aspas ou blocks de código para maior clareza`;
+1. Priorize o conteúdo dos documentos fornecidos na resposta
+2. Cite explicitamente a fonte ao usar informações: "Segundo o documento [nome]..."
+3. Se houver contradição entre os documentos e seu conhecimento, prefira os documentos carregados
+4. Se a informação NÃO estiver nos documentos, diga claramente: "Não encontrei essa informação nos documentos carregados"
+5. NÃO invente informações que não estejam nos documentos
+6. Quando usar trechos dos documentos, coloque-os em aspas ou blocks de código para maior clareza`;
 
     // Web search guidelines
     const webSearchInstruction = `
@@ -499,12 +492,10 @@ ${safetyInstruction}`;
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
             const ragResult = await retrieveRAGContext(assistantId, message);
-            console.log("RAG result:", ragResult.documents.length, "documents found");
             
             if (ragResult.context && ragResult.documents.length > 0) {
               activatedTools.push("rag"); // Only mark as used if context was found
               finalSystemMessage += ragResult.context;
-              console.log("RAG: Context added to system message, length:", ragResult.context.length);
               
               // Emit RAG documents with excerpts
               const ragDocs = ragResult.documents.map((d, i) => ({
@@ -519,7 +510,6 @@ ${safetyInstruction}`;
               // Tell frontend to remove the active tool since no relevant documents were found
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
-              console.log("RAG: No relevant documents found");
             }
           }
           
