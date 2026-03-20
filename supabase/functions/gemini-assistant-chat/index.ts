@@ -173,32 +173,49 @@ async function retrieveRAGContext(
 }> {
   try {
     if (!assistantId || !query || query.trim().length < 2) {
+      console.log("RAG: Invalid input parameters");
       return { context: "", documents: [], hasContext: false };
     }
     
-    const embedding = await getEmbedding(query.trim());
+    const trimmedQuery = query.trim();
+    console.log("RAG: Query:", trimmedQuery);
+    
+    const embedding = await getEmbedding(trimmedQuery);
     
     if (embedding.length === 0) {
+      console.log("RAG: Empty embedding returned");
       return { context: "", documents: [], hasContext: false };
     }
     
+    console.log("RAG: Embedding generated, dimensions:", embedding.length);
+    
     const embeddingStr = `[${embedding.join(",")}]`;
+    
     const { data: results, error } = await supabase.rpc("match_assistant_documents", {
       query_embedding: embeddingStr,
       p_assistant_id: assistantId,
-      match_threshold: 0.70,
-      match_count: 3,
+      match_threshold: 0.50,
+      match_count: 5,
     });
     
-    if (error || !results || results.length === 0) {
+    if (error) {
+      console.error("RAG: RPC error:", error);
+      return { context: "", documents: [], hasContext: false };
+    }
+    
+    console.log("RAG: RPC returned", results?.length || 0, "results");
+    
+    if (!results || results.length === 0) {
+      console.log("RAG: No results found");
       return { context: "", documents: [], hasContext: false };
     }
     
     const topResults = results as MatchedDocument[];
+    console.log("RAG: Top results:", topResults.map(r => ({ file: r.file_name, sim: r.similarity })));
     
     const context = topResults.map((d, idx) => {
       const displayRank = idx + 1;
-      return `[Documento: ${d.file_name}] (#${displayRank} mais relevante)\n${d.content_text}`;
+      return `[Documento: ${d.file_name}] (#${displayRank} mais relevante, similaridade: ${Math.round((d.similarity || 0) * 100)}%)\n${d.content_text}`;
     }).join("\n\n---\n\n");
     
     return {
