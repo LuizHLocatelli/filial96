@@ -464,7 +464,7 @@ ${safetyInstruction}`;
     // Non-streaming mode
     let ragDebug: RAGDebugInfo | undefined;
     if (!stream) {
-      if (assistantId) {
+      if (assistantId && await assistantHasDocuments(assistantId)) {
         const ragResult = await retrieveRAGContext(assistantId, message, debugRAG);
         ragDebug = ragResult.debug;
         if (ragResult.hasContext) {
