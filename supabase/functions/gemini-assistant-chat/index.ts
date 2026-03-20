@@ -171,7 +171,11 @@ async function retrieveRAGContext(
   hasContext: boolean;
 }> {
   try {
-    const embedding = await getEmbedding(query);
+    if (!assistantId || !query || query.trim().length < 2) {
+      return { context: "", documents: [], hasContext: false };
+    }
+    
+    const embedding = await getEmbedding(query.trim());
     
     if (embedding.length === 0) {
       return { context: "", documents: [], hasContext: false };
@@ -192,7 +196,7 @@ async function retrieveRAGContext(
     const topResults = results as MatchedDocument[];
     
     const context = topResults.map((d, idx) => {
-      const displayRank = topResults.length - idx;
+      const displayRank = idx + 1;
       return `[Documento: ${d.file_name}] (#${displayRank} mais relevante)\n${d.content_text}`;
     }).join("\n\n---\n\n");
     
@@ -515,7 +519,7 @@ ${safetyInstruction}`;
               const ragDocs = ragResult.documents.map((d, i) => ({
                 file_name: d.file_name,
                 file_url: d.file_url || "",
-                relevance_score: Math.round((d.similarity || 0.9 - (i * 0.1)) * 100),
+                relevance_score: Math.round((d.similarity || 0.7) * 100),
                 excerpt: (d.content_text || "").substring(0, 300) + ((d.content_text || "").length > 300 ? "..." : ""),
               }));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
