@@ -34,6 +34,17 @@ interface MatchedDocument {
   similarity?: number;
 }
 
+interface RRFSearchResult {
+  id?: string;
+  file_name: string;
+  content_text: string;
+  similarity?: number;
+}
+
+interface RRFResultItem extends RRFSearchResult {
+  combinedScore: number;
+}
+
 interface GenerateContentRequest {
   systemInstruction?: { parts: MessagePart[] };
   contents: ChatMessage[];
@@ -51,7 +62,14 @@ interface RequestBody {
   generateTitle?: boolean;
   webSearchEnabled?: boolean;
   assistantId?: string;
+  temperatureLevel?: 'low' | 'medium' | 'high';
 }
+
+const TEMPERATURE_MAP: Record<string, number> = {
+  'low': 0.1,
+  'medium': 0.4,
+  'high': 0.7
+};
 
 async function handleImageGeneration(prompt: string): Promise<{ text: string; images: string[] }> {
   const imageModelName = "gemini-3.1-flash-image-preview";
@@ -152,47 +170,153 @@ async function getEmbedding(text: string): Promise<number[]> {
   }
 }
 
-async function retrieveRAGContext(assistantId: string, query: string): Promise<{ context: string; documents: MatchedDocument[] }> {
+async function expandQuery(query: string): Promise<string[]> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
+  
   try {
-    const embedding = await getEmbedding(query);
-    if (embedding.length === 0) {
-      return { context: "", documents: [] };
-    }
-
-    const embeddingStr = `[${embedding.join(",")}]`;
-    const { data, error } = await supabase.rpc("match_assistant_documents", {
-      query_embedding: embeddingStr,
-      p_assistant_id: assistantId,
-      match_threshold: 0.5, // Lowered from 0.65 for better matches
-      match_count: 5,
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { 
+          parts: [{ 
+            text: "Gere 2 variações alternativas desta query em português que capturam o mesmo significado mas usam palavras/sinônimos diferentes. Retorne apenas as 3 queries (original + 2 variações) separadas por pipe |, sem explicações, sem aspas." 
+          }] 
+        },
+        contents: [{ role: "user", parts: [{ text: query }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 100 }
+      })
     });
+    
+    if (!res.ok) return [query];
+    
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || query;
+    const parts = text.split('|').map((q: string) => q.trim()).filter((q: string) => q.length > 0);
+    
+    return parts.length >= 1 ? parts.slice(0, 3) : [query];
+  } catch {
+    return [query];
+  }
+}
 
-    if (error) {
-      console.error("RAG: RPC error:", error);
-      return { context: "", documents: [] };
+function reciprocalRankFusion(
+  resultSets: Array<{ results: RRFSearchResult[]; weight: number }>,
+  k: number = 60
+): RRFResultItem[] {
+  const scoreMap = new Map<string, { item: RRFSearchResult; score: number }>();
+  
+  for (const { results, weight } of resultSets) {
+    results.forEach((item: RRFSearchResult, rank: number) => {
+      const key = item.id || item.content_text || JSON.stringify(item);
+      const rrfScore = weight / (k + rank + 1);
+      
+      if (scoreMap.has(key)) {
+        scoreMap.get(key)!.score += rrfScore;
+      } else {
+        scoreMap.set(key, { item, score: rrfScore });
+      }
+    });
+  }
+  
+  return Array.from(scoreMap.values())
+    .sort((a, b) => b.score - a.score)
+    .map(entry => ({
+      ...entry.item,
+      combinedScore: entry.score,
+      similarity: entry.item.similarity || entry.score
+    }));
+}
+
+async function retrieveRAGContext(
+  assistantId: string, 
+  query: string
+): Promise<{ 
+  context: string; 
+  documents: MatchedDocument[];
+  confidence: 'high' | 'medium' | 'low' | 'none';
+}> {
+  try {
+    // Step 1: Expand query for better retrieval
+    const expandedQueries = await expandQuery(query);
+    const allResults: Array<{ results: RRFSearchResult[]; weight: number }> = [];
+    
+    // Step 2: For each expanded query, do hybrid search
+    for (const q of expandedQueries.slice(0, 2)) { // Limit to 2 expansions for performance
+      // Semantic search (embedding)
+      const embedding = await getEmbedding(q);
+      if (embedding.length > 0) {
+        const embeddingStr = `[${embedding.join(",")}]`;
+        const { data: semanticResults } = await supabase.rpc("match_assistant_documents", {
+          query_embedding: embeddingStr,
+          p_assistant_id: assistantId,
+          match_threshold: 0.25, // Lower threshold for fusion
+          match_count: 8,
+        });
+        
+        if (semanticResults && semanticResults.length > 0) {
+          allResults.push({ results: semanticResults as RRFSearchResult[], weight: 0.7 });
+        }
+      }
+      
+      // Keyword search (full-text)
+      const { data: keywordResults } = await supabase
+        .from('ai_assistant_documents')
+        .select('id, file_name, content_text, similarity:1.0')
+        .eq('assistant_id', assistantId)
+        .textSearch('content_tsvector', q, { config: 'portuguese' })
+        .limit(8);
+      
+      if (keywordResults && keywordResults.length > 0) {
+        allResults.push({ results: keywordResults as RRFSearchResult[], weight: 0.3 });
+      }
     }
     
-    if (!data || data.length === 0) {
-      return { context: "", documents: [] };
+    // Step 3: Fuse results with RRF
+    let fusedResults: RRFResultItem[] = [];
+    if (allResults.length > 0) {
+      fusedResults = reciprocalRankFusion(allResults);
     }
-
-    // Build enhanced context with similarity scores
-    const context = data.map((d: MatchedDocument, i: number) => {
-      const similarityPct = Math.round((d.similarity || 0.8) * 100);
+    
+    // Step 4: Filter and limit to top 5
+    const topResults = fusedResults.slice(0, 5);
+    
+    // Step 5: Assess confidence
+    const topScore = topResults[0]?.similarity || topResults[0]?.combinedScore || 0;
+    let confidence: 'high' | 'medium' | 'low' | 'none' = 'none';
+    
+    if (topResults.length === 0) {
+      confidence = 'none';
+    } else if (topScore >= 0.7) {
+      confidence = 'high';
+    } else if (topScore >= 0.5) {
+      confidence = 'medium';
+    } else if (topScore >= 0.35) {
+      confidence = 'low';
+    } else {
+      confidence = 'none';
+    }
+    
+    // Step 6: Build enhanced context
+    const context = topResults.map((d: RRFResultItem) => {
+      const similarityPct = Math.round((d.similarity || d.combinedScore || 0.8) * 100);
       return `[Documento: ${d.file_name}] (Relevância: ${similarityPct}%)\n${d.content_text}`;
     }).join("\n\n---\n\n");
-
+    
     return {
-      context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]\nUse as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`,
-      documents: data.map((d: MatchedDocument) => ({
+      context: confidence !== 'none' 
+        ? `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]\nUse as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`
+        : "",
+      documents: topResults.map((d: RRFResultItem) => ({
         file_name: d.file_name,
         content_text: d.content_text,
-        similarity: d.similarity,
+        similarity: d.similarity || d.combinedScore,
       })),
+      confidence
     };
   } catch (e) {
     console.error("RAG retrieval error:", e);
-    return { context: "", documents: [] };
+    return { context: "", documents: [], confidence: "none" };
   }
 }
 
@@ -226,7 +350,8 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, webSearchEnabled = false, assistantId } = body;
+    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, webSearchEnabled = false, assistantId, temperatureLevel = 'medium' } = body;
+    const actualTemperature = TEMPERATURE_MAP[temperatureLevel] || 0.4;
 
     if (!message) throw new Error("Message is required");
 
@@ -291,14 +416,59 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
 
     // RAG usage guidelines
     const ragInstruction = `
-[DIRETRIZES DE USO DA BASE DE CONHECIMENTO]
-Quando o usuário fizer perguntas, você DEVE:
-1. Priorize o conteúdo dos documentos fornecidos na resposta
-2. Cite explicitamente a fonte ao usar informações: "Segundo o documento [nome]..."
-3. Se houver contradição entre os documentos e seu conhecimento, prefira os documentos carregados
-4. Se a informação NÃO estiver nos documentos, diga claramente: "Não encontrei essa informação nos documentos carregados"
-5. NÃO invente informações que não estejam nos documentos
-6. Quando usar trechos dos documentos, coloque-os em aspas ou blocks de código para maior clareza`;
+[REGRAS CRÍTICAS DE USO DA BASE DE CONHECIMENTO]
+⚠️ ATENÇÃO: Estas regras são OBRIGATÓRIAS e devem ser seguidas SEMPRE:
+
+1. CITAÇÃO EXPLICITA: Para CADA fato mencionado na resposta, cite claramente o documento de origem:
+   "Segundo o documento [NOME DO ARQUIVO], ..."
+
+2. RESPOSTA "NÃO ENCONTREI": Se a informação NÃO estiver presente nos documentos fornecidos, 
+   você DEVE responder EXATAMENTE com:
+   "Não encontrei essa informação nos documentos carregados. Esta pergunta não faz parte da base de conhecimento disponível."
+
+3. PROIBIÇÃO ABSOLUTA: É STRICTAMENTE PROIBIDO inventar, inferir, extrapolarr ou criar 
+   informações que não estejam literalmente presentes nos documentos fornecidos.
+
+4. SEPARAÇÃO DE CONTEXTOS: Se os documentos não são relevantes para a pergunta, diga claramente.
+   NÃO use seu conhecimento interno para responder quando os documentos não contém a informação.
+
+5. CONFIANÇA BAIXA: Se os documentos encontrados têm baixa relevância, informe o usuário:
+   "Encontrei alguns documentos parcialmente relevantes, mas a informação pode não ser completa..."
+
+6. PARAFRASEAR COM FIDELIDADE: Pode parafrasear informações dos documentos, mas mantenha o significado original.
+`;
+
+    const ragExamples = `
+[EXEMPLOS DE APLICAÇÃO DESTAS REGRAS]
+
+EXEMPLO 1 - Pergunta FORA do escopo:
+Usuário: "Qual a capital do Brasil?"
+Contexto disponível: [documentos sobre política de entrega de móveis]
+Resposta correta: "Não encontrei essa informação nos documentos carregados. Esta pergunta não faz parte da base de conhecimento disponível."
+
+EXEMPLO 2 - Pergunta NO escopo:
+Usuário: "Qual o prazo de entrega?"
+Contexto disponível: [Documento: politica_entrega.pdf] "O prazo de entrega é 5-7 dias úteis"
+Resposta correta: "Segundo o documento [politica_entrega.pdf], o prazo de entrega é de 5-7 dias úteis."
+
+EXEMPLO 3 - Contexto insuficiente:
+Usuário: "Fale sobre o produto XYZ"
+Contexto disponível: [Documento: catalogo.pdf] "XYZ é um produto da linha premium"
+Resposta correta: "Segundo o documento [catalogo.pdf], XYZ é um produto da linha premium. Não encontrei informações detalhadas adicionais sobre especificações técnicas deste produto."
+
+EXEMPLO 4 - Contexto com baixa relevância:
+Usuário: "Como funciona a garantia?"
+Contexto disponível: [Documento: faq.pdf] "Garantia: 90 dias segundo CDC" (similarity: 35%)
+Resposta correta: "Encontrei algumas informações parcialmente relevantes sobre garantia. Segundo o documento [faq.pdf], a garantia é de 90 dias segundo o Código de Defesa do Consumidor. Porém, não encontrei detalhes específicos sobre o processo de garantia."
+`;
+
+    const confidenceWarning = `
+[MANUSEIO DE BAIXA CONFIANÇA]
+Se os documentos encontrados têm relevância inferior a 50%:
+- Informe claramente que a resposta pode não ser precisa
+- Cite apenas as informações que têm suporte explícito nos documentos
+- Evite afirmações categóricas sobre informações não bem cobertas
+`;
 
     // Web search guidelines
     const webSearchInstruction = `
@@ -335,6 +505,8 @@ ${imageInstruction}
 ${systemContext}
 
 ${ragInstruction}
+
+${ragExamples}
 
 ${webSearchInstruction}
 
@@ -386,9 +558,22 @@ ${safetyInstruction}`;
     if (!stream) {
       // Synchronously retrieve RAG context for non-streaming
       if (assistantId) {
-        const ragContext = await retrieveRAGContext(assistantId, message);
-        if (ragContext) {
-          finalSystemMessage += ragContext;
+        const ragResult = await retrieveRAGContext(assistantId, message);
+        if (ragResult.confidence === 'none') {
+          // No relevant documents - add critical warning
+          finalSystemMessage += `\n\n[AVISO CRÍTICO]
+          A base de conhecimento NÃO contém informações relevantes para esta pergunta.
+          Você DEVE responder que NÃO encontrou informações nos documentos.
+          É PROIBIDO usar seu conhecimento interno para responder.`;
+        } else if (ragResult.confidence === 'low') {
+          // Low confidence - add warning but still use context
+          finalSystemMessage += ragResult.context;
+          finalSystemMessage += `\n\n${confidenceWarning}`;
+        } else {
+          // Medium or high confidence - use context normally
+          finalSystemMessage += ragResult.context;
+        }
+        if (ragResult.confidence !== 'none') {
           activatedTools.push("rag");
         }
       }
@@ -401,7 +586,7 @@ ${safetyInstruction}`;
         systemInstruction: { parts: [{ text: finalSystemMessage }] },
         contents,
         generationConfig: { 
-          temperature: 0.7,
+          temperature: actualTemperature,
           maxOutputTokens: 8192,
           topP: 0.95,
           topK: 40
@@ -487,17 +672,39 @@ ${safetyInstruction}`;
 
           // RAG retrieval inside the stream start to show animation to user immediately
           if (assistantId) {
-            // Eagerly tell frontend to show animation
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
             const ragResult = await retrieveRAGContext(assistantId, message);
             
-            if (ragResult.context && ragResult.documents.length > 0) {
-              activatedTools.push("rag"); // Only mark as used if context was found
-              finalSystemMessage += ragResult.context;
+            if (ragResult.confidence === 'none') {
+              // No relevant documents
+              finalSystemMessage += `\n\n[AVISO CRÍTICO]
+              A base de conhecimento NÃO contém informações relevantes para esta pergunta.
+              Você DEVE responder que NÃO encontrou informações nos documentos.
+              É PROIBIDO usar seu conhecimento interno para responder.`;
               
-              // Emit RAG documents with excerpts
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
+            } else if (ragResult.confidence === 'low') {
+              // Low confidence - use context with warning
+              finalSystemMessage += ragResult.context;
+              finalSystemMessage += `\n\n${confidenceWarning}`;
+              activatedTools.push("rag");
+              
+              const ragDocs = ragResult.documents.map((d, i) => ({
+                file_name: d.file_name,
+                file_url: d.file_url || "",
+                relevance_score: Math.round((d.similarity || 0.3) * 100),
+                excerpt: (d.content_text || "").substring(0, 300) + ((d.content_text || "").length > 300 ? "..." : ""),
+              }));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: `${ragResult.documents.length} documento(s) encontrado(s) com baixa relevância`, type: "rag" } })}\n\n`));
+            } else {
+              // Medium or high confidence
+              finalSystemMessage += ragResult.context;
+              activatedTools.push("rag");
+              
               const ragDocs = ragResult.documents.map((d, i) => ({
                 file_name: d.file_name,
                 file_url: d.file_url || "",
@@ -506,10 +713,6 @@ ${safetyInstruction}`;
               }));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: `${ragResult.documents.length} documento(s) encontrado(s) na base de conhecimento`, type: "rag" } })}\n\n`));
-            } else {
-              // Tell frontend to remove the active tool since no relevant documents were found
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
             }
           }
           
@@ -520,7 +723,7 @@ ${safetyInstruction}`;
             systemInstruction: { parts: [{ text: finalSystemMessage }] },
             contents,
             generationConfig: { 
-              temperature: 0.7,
+              temperature: actualTemperature,
               maxOutputTokens: 8192,
               topP: 0.95,
               topK: 40

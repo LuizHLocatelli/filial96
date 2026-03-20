@@ -135,6 +135,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
             stream: true,
             webSearchEnabled: assistant.web_search_enabled || false,
             assistantId: assistant.id,
+            temperatureLevel: assistant.temperature_level || 'medium',
           }),
           signal: abortController.signal,
         }

@@ -8,6 +8,7 @@ export interface AIAssistant {
   created_at: string;
   updated_at: string;
   web_search_enabled?: boolean;
+  temperature_level?: 'low' | 'medium' | 'high';
 }
 
 export interface AIChatSession {

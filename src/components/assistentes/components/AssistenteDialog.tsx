@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Bot, Save, Trash2, Sparkles, Loader2, Globe } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Bot, Save, Trash2, Sparkles, Loader2, Globe, Thermometer } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -28,6 +29,7 @@ const schema = z.object({
   system_message: z.string().min(10, "Instruções devem ser detalhadas").max(8000),
   avatar_icon: z.string().max(2).optional(),
   web_search_enabled: z.boolean().optional(),
+  temperature_level: z.enum(['low', 'medium', 'high']).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -55,6 +57,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
       system_message: "",
       avatar_icon: "🧠",
       web_search_enabled: false,
+      temperature_level: "medium",
     },
   });
 
@@ -67,6 +70,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
           system_message: initialData.system_message,
           avatar_icon: initialData.avatar_icon || "🧠",
           web_search_enabled: initialData.web_search_enabled || false,
+          temperature_level: initialData.temperature_level || "medium",
         });
       } else {
         form.reset({
@@ -75,6 +79,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
           system_message: "Você é um assistente prestativo e especializado em responder dúvidas com clareza e precisão.",
           avatar_icon: "🧠",
           web_search_enabled: false,
+          temperature_level: "medium",
         });
       }
       setPromptPurpose("");
@@ -89,6 +94,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
       system_message: data.system_message,
       avatar_icon: data.avatar_icon || "🧠",
       web_search_enabled: data.web_search_enabled || false,
+      temperature_level: data.temperature_level || "medium",
     } as Omit<AIAssistant, "id" | "created_at" | "updated_at" | "user_id">);
   };
 
@@ -179,6 +185,39 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+
+                  {/* Temperature Level Select */}
+                  <FormField control={form.control} name="temperature_level" render={({ field }) => (
+                    <FormItem className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <Thermometer className="w-5 h-5 text-primary" />
+                        <div>
+                          <FormLabel className="text-sm font-medium cursor-pointer">Nível de Temperatura</FormLabel>
+                          <FormDescription className="text-xs">
+                            Controla a criatividade das respostas. Baixa = mais factual.
+                          </FormDescription>
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || 'medium'}>
+                          <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Selecione..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">
+                              🧊 Baixa (0.1) - Respostas factuais
+                            </SelectItem>
+                            <SelectItem value="medium">
+                              ⚖️ Média (0.4) - Equilíbrio
+                            </SelectItem>
+                            <SelectItem value="high">
+                              🔥 Alta (0.7) - Mais criativa
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                     </FormItem>
                   )} />
