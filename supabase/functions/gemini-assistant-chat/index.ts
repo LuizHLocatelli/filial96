@@ -45,6 +45,10 @@ interface RRFResultItem extends RRFSearchResult {
   combinedScore: number;
 }
 
+interface KeywordSearchResult extends RRFSearchResult {
+  ts_rank?: number;
+}
+
 interface GenerateContentRequest {
   systemInstruction?: { parts: MessagePart[] };
   contents: ChatMessage[];
@@ -180,7 +184,7 @@ async function expandQuery(query: string): Promise<string[]> {
       body: JSON.stringify({
         systemInstruction: { 
           parts: [{ 
-            text: "Gere 2 variações alternativas desta query em português que capturam o mesmo significado mas usam palavras/sinônimos diferentes. Retorne apenas as 3 queries (original + 2 variações) separadas por pipe |, sem explicações, sem aspas." 
+            text: "Gere 2 variações alternativas desta query em português que capturam o mesmo significado mas usam palavras/sinônimos diferentes. Retorne APENAS as 3 queries (original + 2 variações) separadas por pipe |, sem explicações, sem aspas, sem texto adicional." 
           }] 
         },
         contents: [{ role: "user", parts: [{ text: query }] }],
@@ -188,14 +192,28 @@ async function expandQuery(query: string): Promise<string[]> {
       })
     });
     
-    if (!res.ok) return [query];
+    if (!res.ok) {
+      console.error("Query expansion API error:", res.status);
+      return [query];
+    }
     
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || query;
-    const parts = text.split('|').map((q: string) => q.trim()).filter((q: string) => q.length > 0);
+    
+    // Split by pipe and validate each part is a meaningful query
+    const parts = text.split('|')
+      .map((q: string) => q.trim())
+      .filter((q: string) => q.length > 3 && q.length < 200) // Filter out too short/long
+      .filter((q: string) => !/^[A-Za-z]{1,2}$/.test(q)) // Filter single letters
+      .slice(0, 3); // Max 3 queries
+    
+    // Ensure original query is included
+    if (!parts.includes(query.trim())) {
+      parts.unshift(query.trim());
+    }
     
     return parts.length >= 1 ? parts.slice(0, 3) : [query];
-  } catch {
+  } catch (e) {
     return [query];
   }
 }
@@ -259,16 +277,22 @@ async function retrieveRAGContext(
         }
       }
       
-      // Keyword search (full-text)
+      // Keyword search (full-text) - use ts_rank for actual relevance scoring
       const { data: keywordResults } = await supabase
         .from('ai_assistant_documents')
-        .select('id, file_name, content_text, similarity:1.0')
+        .select('id, file_name, content_text, ts_rank:ts_rank(content_tsvector, query_to_tsquery(Portuguese, $1))')
         .eq('assistant_id', assistantId)
         .textSearch('content_tsvector', q, { config: 'portuguese' })
         .limit(8);
       
       if (keywordResults && keywordResults.length > 0) {
-        allResults.push({ results: keywordResults as RRFSearchResult[], weight: 0.3 });
+        // Normalize ts_rank to 0-1 range (ts_rank typically ranges 0-1 for most queries)
+        const maxRank = Math.max(...keywordResults.map((r: KeywordSearchResult) => r.ts_rank || 0.1));
+        const normalizedResults = keywordResults.map((r: KeywordSearchResult) => ({
+          ...r,
+          similarity: maxRank > 0 ? (r.ts_rank || 0.1) / maxRank * 0.8 : 0.3 // Scale to 0-0.8 range
+        }));
+        allResults.push({ results: normalizedResults as RRFSearchResult[], weight: 0.3 });
       }
     }
     
@@ -281,26 +305,32 @@ async function retrieveRAGContext(
     // Step 4: Filter and limit to top 5
     const topResults = fusedResults.slice(0, 5);
     
-    // Step 5: Assess confidence
-    const topScore = topResults[0]?.similarity || topResults[0]?.combinedScore || 0;
+    // Step 5: Assess confidence based on RRF combined score, not misleading similarity
+    // RRF scores are rank-based and typically much smaller than similarity scores
+    const topRRFScore = topResults[0]?.combinedScore || 0;
+    const semanticCount = topResults.filter(r => (r.similarity || 0) > 0.3).length;
     let confidence: 'high' | 'medium' | 'low' | 'none' = 'none';
     
     if (topResults.length === 0) {
       confidence = 'none';
-    } else if (topScore >= 0.7) {
+    } else if (topRRFScore >= 0.01 && semanticCount >= 2) {
+      // High confidence: good RRF score AND multiple strong semantic matches
       confidence = 'high';
-    } else if (topScore >= 0.5) {
+    } else if (topRRFScore >= 0.005 && semanticCount >= 1) {
+      // Medium confidence: reasonable RRF score with at least one semantic match
       confidence = 'medium';
-    } else if (topScore >= 0.35) {
+    } else if (topRRFScore >= 0.002 || semanticCount >= 1) {
+      // Low confidence: weak signal but some relevance
       confidence = 'low';
     } else {
       confidence = 'none';
     }
     
     // Step 6: Build enhanced context
-    const context = topResults.map((d: RRFResultItem) => {
-      const similarityPct = Math.round((d.similarity || d.combinedScore || 0.8) * 100);
-      return `[Documento: ${d.file_name}] (Relevância: ${similarityPct}%)\n${d.content_text}`;
+    const context = topResults.map((d: RRFResultItem, idx: number) => {
+      // Use rank-based display (higher rank = higher position = more relevant)
+      const displayRank = topResults.length - idx;
+      return `[Documento: ${d.file_name}] (#${displayRank} mais relevante)\n${d.content_text}`;
     }).join("\n\n---\n\n");
     
     return {

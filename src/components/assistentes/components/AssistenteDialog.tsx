@@ -202,7 +202,7 @@ export function AssistenteDialog({ open, onOpenChange, initialData, onSave, onDe
                         </div>
                       </div>
                       <FormControl>
-                        <Select onValueChange={field.onChange} defaultValue={field.value || 'medium'}>
+                        <Select onValueChange={field.onChange} value={field.value || 'medium'}>
                           <SelectTrigger className="w-[200px]">
                             <SelectValue placeholder="Selecione..." />
                           </SelectTrigger>
