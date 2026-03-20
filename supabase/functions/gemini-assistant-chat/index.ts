@@ -173,6 +173,19 @@ interface RAGDebugInfo {
   error?: string;
 }
 
+async function assistantHasDocuments(assistantId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("ai_assistant_documents")
+    .select("id")
+    .eq("assistant_id", assistantId)
+    .limit(1);
+  if (error) {
+    console.error("Error checking assistant documents:", error);
+    return false;
+  }
+  return (data?.length || 0) > 0;
+}
+
 async function retrieveRAGContext(
   assistantId: string, 
   query: string,
