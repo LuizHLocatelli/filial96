@@ -31,7 +31,7 @@ interface MatchedDocument {
   file_name: string;
   content_text: string;
   file_url?: string;
-  relevance_score?: number;
+  similarity?: number;
 }
 
 interface GenerateContentRequest {
@@ -119,43 +119,81 @@ async function handleImageGeneration(prompt: string): Promise<{ text: string; im
 
 async function getEmbedding(text: string): Promise<number[]> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2-preview:embedContent?key=${GEMINI_API_KEY}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "models/gemini-embedding-2-preview",
-      content: { parts: [{ text }] },
-      taskType: "RETRIEVAL_QUERY",
-      outputDimensionality: 3072,
-    })
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.embedding?.values || [];
+  
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "models/gemini-embedding-2-preview",
+        content: { parts: [{ text }] },
+        taskType: "RETRIEVAL_QUERY",
+        outputDimensionality: 3072,
+      })
+    });
+    
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Embedding API error:", res.status, errText);
+      return [];
+    }
+    
+    const data = await res.json();
+    const values = data.embedding?.values || [];
+    
+    if (values.length === 0) {
+      console.error("Embedding API returned empty values");
+    }
+    
+    return values;
+  } catch (e) {
+    console.error("Embedding fetch error:", e);
+    return [];
+  }
 }
 
 async function retrieveRAGContext(assistantId: string, query: string): Promise<{ context: string; documents: MatchedDocument[] }> {
   try {
+    console.log("RAG: Starting retrieval for assistant:", assistantId);
+    
     const embedding = await getEmbedding(query);
-    if (embedding.length === 0) return { context: "", documents: [] };
+    if (embedding.length === 0) {
+      console.log("RAG: Failed to get embedding");
+      return { context: "", documents: [] };
+    }
+    console.log("RAG: Got embedding with", embedding.length, "dimensions");
 
     const embeddingStr = `[${embedding.join(",")}]`;
     const { data, error } = await supabase.rpc("match_assistant_documents", {
       query_embedding: embeddingStr,
       p_assistant_id: assistantId,
-      match_threshold: 0.65,
+      match_threshold: 0.5, // Lowered from 0.65 for better matches
       match_count: 5,
     });
 
-    if (error || !data || data.length === 0) return { context: "", documents: [] };
+    if (error) {
+      console.error("RAG: RPC error:", error);
+      return { context: "", documents: [] };
+    }
+    
+    if (!data || data.length === 0) {
+      console.log("RAG: No documents found");
+      return { context: "", documents: [] };
+    }
+    
+    console.log("RAG: Found", data.length, "documents");
 
-    const context = data.map((d: MatchedDocument, i: number) =>
+    const context = data.map((d: any, i: number) =>
       `[Documento: ${d.file_name}]\n${d.content_text}`
     ).join("\n\n---\n\n");
 
     return {
       context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO - Use estas informações para responder quando relevante]\n${context}\n[FIM DO CONTEXTO]`,
-      documents: data as MatchedDocument[],
+      documents: data.map((d: any) => ({
+        file_name: d.file_name,
+        content_text: d.content_text,
+        similarity: d.similarity,
+      })),
     };
   } catch (e) {
     console.error("RAG retrieval error:", e);
@@ -395,16 +433,19 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
             const ragResult = await retrieveRAGContext(assistantId, message);
-            if (ragResult.context) {
+            console.log("RAG result:", ragResult.documents.length, "documents found");
+            
+            if (ragResult.context && ragResult.documents.length > 0) {
               activatedTools.push("rag"); // Only mark as used if context was found
               finalSystemMessage += ragResult.context;
+              console.log("RAG: Context added to system message, length:", ragResult.context.length);
               
               // Emit RAG documents with excerpts
               const ragDocs = ragResult.documents.map((d, i) => ({
                 file_name: d.file_name,
                 file_url: d.file_url || "",
-                relevance_score: Math.round((1 - (i * 0.1)) * 100),
-                excerpt: d.content_text.substring(0, 300) + (d.content_text.length > 300 ? "..." : ""),
+                relevance_score: Math.round((d.similarity || 0.9 - (i * 0.1)) * 100),
+                excerpt: (d.content_text || "").substring(0, 300) + ((d.content_text || "").length > 300 ? "..." : ""),
               }));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: `${ragResult.documents.length} documento(s) encontrado(s) na base de conhecimento`, type: "rag" } })}\n\n`));
@@ -412,6 +453,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
               // Tell frontend to remove the active tool since no relevant documents were found
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
+              console.log("RAG: No relevant documents found");
             }
           }
           
