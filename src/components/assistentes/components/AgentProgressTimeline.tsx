@@ -50,9 +50,9 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-[240px] xs:max-w-[280px] sm:max-w-[320px] mb-3 min-w-0", className)}
+      className={cn("w-full max-w-[200px] xs:max-w-[240px] sm:max-w-[320px] mb-3 min-w-0", className)}
     >
-      <div className="relative px-2 py-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/10 backdrop-blur-sm overflow-hidden">
+      <div className="relative px-1 py-2 sm:px-2 sm:py-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/10 backdrop-blur-sm overflow-hidden">
         {/* Animated gradient background */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"
@@ -71,7 +71,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
                   {/* Step icon */}
                   <div
                     className={cn(
-                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300",
+                      "relative flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full transition-all duration-300",
                       step.status === 'completed' && "bg-gradient-to-br from-emerald-500/20 to-emerald-500/10 border border-emerald-500/30",
                       step.status === 'active' && "bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 shadow-lg shadow-primary/20",
                       step.status === 'pending' && "bg-muted/50 border border-dashed border-muted-foreground/20"

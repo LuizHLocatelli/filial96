@@ -58,13 +58,13 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-[240px] xs:max-w-[280px] sm:max-w-[320px] mb-3 min-w-0", className)}
+      className={cn("w-full max-w-[200px] xs:max-w-[240px] sm:max-w-[320px] mb-3 min-w-0", className)}
     >
       <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm overflow-hidden">
         {/* Header */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
+          className="w-full flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 hover:bg-muted/30 transition-colors"
         >
           <div className="flex items-center gap-2 min-w-0">
             <div className={cn("flex items-center justify-center w-6 h-6 rounded-full shrink-0", colorClass.split(' ').slice(1).join(' '))}>
@@ -89,7 +89,7 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-3 space-y-2 min-w-0">
+              <div className="px-3 pb-2 sm:px-4 sm:pb-3 space-y-2 min-w-0">
                 {thoughts.map((thought, index) => {
                   const ThoughtIcon = getThoughtIcon(thought.type);
                   const thoughtColorClass = getThoughtColor(thought.type);

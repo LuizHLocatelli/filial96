@@ -30,7 +30,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
 
   if (isStreaming) {
     return (
-      <div className="flex flex-col gap-2 w-full max-w-[240px] xs:max-w-[280px] sm:max-w-[320px] mb-2 mt-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col gap-2 w-full max-w-[200px] xs:max-w-[240px] sm:max-w-[320px] mb-2 mt-1 min-w-0 overflow-hidden">
         <AnimatePresence>
           {tools.map((tool, index) => {
             const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processando", activeLabel: "Processando...", color: "blue" };
@@ -51,7 +51,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
                 className="overflow-hidden"
               >
                 <div className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-sm relative overflow-hidden transition-all duration-300",
+                  "flex items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3 rounded-xl border backdrop-blur-sm relative overflow-hidden transition-all duration-300",
                   isActive 
                     ? `${colors.bg} ${colors.border} shadow-sm ${colors.glow}` 
                     : "bg-muted/40 border-border/50"
@@ -66,7 +66,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
                   )}
 
                   <div className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full shrink-0 relative z-10 transition-all duration-300",
+                    "flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full shrink-0 relative z-10 transition-all duration-300",
                     isActive 
                       ? `bg-gradient-to-br ${colors.bg} ${colors.border} shadow-sm` 
                       : "bg-muted text-muted-foreground"

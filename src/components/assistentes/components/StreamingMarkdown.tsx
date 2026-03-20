@@ -11,7 +11,7 @@ export const StreamingMarkdown = memo(({ content, isStreaming }: StreamingMarkdo
   const displayContent = content + (isStreaming && content.trim() !== '' ? '▍' : '');
 
   return (
-    <div className="relative text-[13px] leading-relaxed">
+    <div className="relative text-[12px] sm:text-[13px] leading-relaxed">
       <style>{`
         .prose-stream table {
           width: 100%;
