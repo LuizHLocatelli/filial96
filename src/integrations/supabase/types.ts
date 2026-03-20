@@ -19,6 +19,7 @@ export type Database = {
           assistant_id: string
           chunk_index: number
           content_text: string
+          content_tsvector: unknown
           created_at: string
           embedding: string | null
           file_name: string
@@ -30,6 +31,7 @@ export type Database = {
           assistant_id: string
           chunk_index?: number
           content_text?: string
+          content_tsvector?: unknown
           created_at?: string
           embedding?: string | null
           file_name: string
@@ -41,6 +43,7 @@ export type Database = {
           assistant_id?: string
           chunk_index?: number
           content_text?: string
+          content_tsvector?: unknown
           created_at?: string
           embedding?: string | null
           file_name?: string
@@ -66,6 +69,7 @@ export type Database = {
           id: string
           name: string
           system_message: string
+          temperature_level: string
           updated_at: string
           user_id: string
           web_search_enabled: boolean
@@ -77,6 +81,7 @@ export type Database = {
           id?: string
           name: string
           system_message: string
+          temperature_level?: string
           updated_at?: string
           user_id: string
           web_search_enabled?: boolean
@@ -88,6 +93,7 @@ export type Database = {
           id?: string
           name?: string
           system_message?: string
+          temperature_level?: string
           updated_at?: string
           user_id?: string
           web_search_enabled?: boolean
@@ -1098,6 +1104,54 @@ export type Database = {
         }
         Relationships: []
       }
+      orcamentos: {
+        Row: {
+          cliente_documento: string | null
+          cliente_email: string | null
+          cliente_endereco: string | null
+          cliente_nome: string
+          cliente_telefone: string | null
+          consultor: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          itens: Json
+          observacoes: string | null
+          validade: string
+          valor_total: number
+        }
+        Insert: {
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_endereco?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          consultor?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          itens?: Json
+          observacoes?: string | null
+          validade?: string
+          valor_total?: number
+        }
+        Update: {
+          cliente_documento?: string | null
+          cliente_email?: string | null
+          cliente_endereco?: string | null
+          cliente_nome?: string
+          cliente_telefone?: string | null
+          consultor?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          itens?: Json
+          observacoes?: string | null
+          validade?: string
+          valor_total?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1208,54 +1262,6 @@ export type Database = {
           role?: string
           updated_at?: string | null
           updated_by?: string | null
-        }
-        Relationships: []
-      }
-      orcamentos: {
-        Row: {
-          cliente_documento: string | null
-          cliente_email: string | null
-          cliente_endereco: string | null
-          cliente_nome: string
-          cliente_telefone: string | null
-          consultor: string | null
-          created_at: string | null
-          created_by: string | null
-          id: string
-          itens: Json
-          observacoes: string | null
-          validade: string
-          valor_total: number
-        }
-        Insert: {
-          cliente_documento?: string | null
-          cliente_email?: string | null
-          cliente_endereco?: string | null
-          cliente_nome?: string
-          cliente_telefone?: string | null
-          consultor?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          itens?: Json
-          observacoes?: string | null
-          validade?: string
-          valor_total?: number
-        }
-        Update: {
-          cliente_documento?: string | null
-          cliente_email?: string | null
-          cliente_endereco?: string | null
-          cliente_nome?: string
-          cliente_telefone?: string | null
-          consultor?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          id?: string
-          itens?: Json
-          observacoes?: string | null
-          validade?: string
-          valor_total?: number
         }
         Relationships: []
       }
@@ -1408,6 +1414,12 @@ export type Database = {
       eh_sabado: { Args: { data_param: string }; Returns: boolean }
       eh_sexta_feira: { Args: { data_param: string }; Returns: boolean }
       ensure_user_profile: { Args: { user_id: string }; Returns: Json }
+      exec_sql: {
+        Args: { sql_query: string }
+        Returns: {
+          row_data: Json
+        }[]
+      }
       get_last_depositos_reset: { Args: never; Returns: string }
       get_user_role: { Args: { user_id?: string }; Returns: string }
       is_gerente: { Args: { user_id: string }; Returns: boolean }
