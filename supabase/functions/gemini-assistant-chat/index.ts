@@ -53,6 +53,7 @@ interface RequestBody {
   webSearchEnabled?: boolean;
   assistantId?: string;
   temperatureLevel?: 'low' | 'medium' | 'high';
+  debugRAG?: boolean;
 }
 
 const TEMPERATURE_MAP: Record<string, number> = {
@@ -163,28 +164,51 @@ async function getEmbedding(text: string): Promise<number[]> {
 
 
 
+interface RAGDebugInfo {
+  queryLength: number;
+  embeddingDimensions: number;
+  embeddingPreview: number[];
+  rpcResults: number;
+  topSimilarities: number[];
+  error?: string;
+}
+
 async function retrieveRAGContext(
   assistantId: string, 
-  query: string
+  query: string,
+  debugMode: boolean = false
 ): Promise<{ 
   context: string; 
   documents: MatchedDocument[];
   hasContext: boolean;
+  debug?: RAGDebugInfo;
 }> {
+  const debugInfo: RAGDebugInfo = {
+    queryLength: query?.trim().length || 0,
+    embeddingDimensions: 0,
+    embeddingPreview: [],
+    rpcResults: 0,
+    topSimilarities: []
+  };
+  
   try {
     if (!assistantId || !query || query.trim().length < 2) {
       console.log("RAG: Invalid input parameters");
-      return { context: "", documents: [], hasContext: false };
+      debugInfo.error = "Invalid input parameters";
+      return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
     const trimmedQuery = query.trim();
     console.log("RAG: Query:", trimmedQuery);
     
     const embedding = await getEmbedding(trimmedQuery);
+    debugInfo.embeddingDimensions = embedding.length;
+    debugInfo.embeddingPreview = embedding.slice(0, 5);
     
     if (embedding.length === 0) {
       console.log("RAG: Empty embedding returned");
-      return { context: "", documents: [], hasContext: false };
+      debugInfo.error = "Empty embedding returned from getEmbedding()";
+      return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
     console.log("RAG: Embedding generated, dimensions:", embedding.length);
@@ -200,17 +224,21 @@ async function retrieveRAGContext(
     
     if (error) {
       console.error("RAG: RPC error:", error);
-      return { context: "", documents: [], hasContext: false };
+      debugInfo.error = `RPC error: ${error.message}`;
+      return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
+    debugInfo.rpcResults = results?.length || 0;
     console.log("RAG: RPC returned", results?.length || 0, "results");
     
     if (!results || results.length === 0) {
       console.log("RAG: No results found");
-      return { context: "", documents: [], hasContext: false };
+      debugInfo.error = "No results from RPC (similarity below threshold or no docs)";
+      return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
     const topResults = results as MatchedDocument[];
+    debugInfo.topSimilarities = topResults.map(r => r.similarity || 0);
     console.log("RAG: Top results:", topResults.map(r => ({ file: r.file_name, sim: r.similarity })));
     
     const context = topResults.map((d, idx) => {
@@ -219,13 +247,16 @@ async function retrieveRAGContext(
     }).join("\n\n---\n\n");
     
     return {
-      context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]\nUse as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`,
+      context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]
+Use as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`,
       documents: topResults,
-      hasContext: true
+      hasContext: true,
+      debug: debugMode ? debugInfo : undefined
     };
   } catch (e) {
     console.error("RAG retrieval error:", e);
-    return { context: "", documents: [], hasContext: false };
+    debugInfo.error = `Exception: ${(e as Error).message}`;
+    return { context: "", documents: [], hasContext: false, debug: debugInfo };
   }
 }
 
@@ -259,7 +290,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, webSearchEnabled = false, assistantId, temperatureLevel = 'medium' } = body;
+    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, webSearchEnabled = false, assistantId, temperatureLevel = 'medium', debugRAG = false } = body;
     const actualTemperature = TEMPERATURE_MAP[temperatureLevel] || 0.4;
 
     if (!message) throw new Error("Message is required");
@@ -418,9 +449,11 @@ ${safetyInstruction}`;
     }
 
     // Non-streaming mode
+    let ragDebug: RAGDebugInfo | undefined;
     if (!stream) {
       if (assistantId) {
-        const ragResult = await retrieveRAGContext(assistantId, message);
+        const ragResult = await retrieveRAGContext(assistantId, message, debugRAG);
+        ragDebug = ragResult.debug;
         if (ragResult.hasContext) {
           finalSystemMessage += ragResult.context;
           activatedTools.push("rag");
@@ -497,8 +530,12 @@ ${safetyInstruction}`;
         }
       }
 
+      const response: Record<string, unknown> = { text: generatedText, images: generatedImages, tools_used: activatedTools };
+      if (debugRAG && ragDebug) {
+        response.ragDebug = ragDebug;
+      }
       return new Response(
-        JSON.stringify({ text: generatedText, images: generatedImages, tools_used: activatedTools }),
+        JSON.stringify(response),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -528,7 +565,11 @@ ${safetyInstruction}`;
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
-            const ragResult = await retrieveRAGContext(assistantId, message);
+            const ragResult = await retrieveRAGContext(assistantId, message, debugRAG);
+            
+            if (debugRAG && ragResult.debug) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ ragDebug: ragResult.debug })}\n\n`));
+            }
             
             if (ragResult.hasContext) {
               finalSystemMessage += ragResult.context;
