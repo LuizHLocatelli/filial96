@@ -20,14 +20,30 @@ interface RequestBody {
   fileSize: number;
 }
 
-function chunkText(text: string, chunkSize = 1000, overlap = 200): string[] {
+function chunkText(text: string, chunkSize = 1500, overlap = 300): string[] {
+  const words = text.split(/\s+/);
   const chunks: string[] = [];
-  let start = 0;
-  while (start < text.length) {
-    const end = Math.min(start + chunkSize, text.length);
-    chunks.push(text.slice(start, end));
-    start += chunkSize - overlap;
+  let currentChunk: string[] = [];
+  let currentLength = 0;
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    currentChunk.push(word);
+    currentLength += word.length + 1;
+
+    if (currentLength >= chunkSize) {
+      chunks.push(currentChunk.join(" "));
+      
+      const overlapWordsCount = Math.floor(overlap / 5);
+      currentChunk = currentChunk.slice(-overlapWordsCount);
+      currentLength = currentChunk.join(" ").length + 1;
+    }
   }
+  
+  if (currentChunk.length > 0 && (chunks.length === 0 || currentLength > overlap)) {
+    chunks.push(currentChunk.join(" "));
+  }
+  
   return chunks;
 }
 
@@ -81,18 +97,20 @@ async function uploadToGeminiFileAPI(fileUrl: string, mimeType: string, displayN
 
   console.log(`Uploaded: ${fileUri}, state: ${fileInfo.file?.state}`);
 
-  // Wait for ACTIVE state
+  // Wait for ACTIVE state (Limit to 15 tries to prevent Edge Function timeout)
   const fileName = fileInfo.file?.name;
   if (fileName) {
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 15; i++) {
       const statusRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${GEMINI_API_KEY}`
       );
       if (statusRes.ok) {
         const s = await statusRes.json();
         if (s.state === "ACTIVE") { console.log("File ACTIVE"); break; }
+        if (s.state === "FAILED") { throw new Error("Gemini File API processing FAILED"); }
         console.log(`State: ${s.state}, waiting...`);
       }
+      if (i === 14) { throw new Error("File processing timeout on Gemini API"); }
       await new Promise(r => setTimeout(r, 5000));
     }
   }
@@ -156,26 +174,59 @@ async function processDocument(body: RequestBody) {
     const chunks = chunkText(extractedText);
     console.log(`[BG] ${chunks.length} chunks`);
 
-    for (let i = 0; i < chunks.length; i++) {
-      const embedding = await generateEmbedding(chunks[i]);
-      if (embedding.length === 0) { console.warn(`[BG] Empty embedding chunk ${i}`); continue; }
-
-      const { error } = await supabase
-        .from("ai_assistant_documents")
-        .insert({
-          assistant_id: assistantId,
-          user_id: userId,
-          file_name: fileName,
-          file_url: fileUrl,
-          content_text: chunks[i],
-          embedding: `[${embedding.join(",")}]`,
-          chunk_index: i,
-        });
-
-      if (error) { console.error(`[BG] Insert error chunk ${i}:`, error); throw error; }
+    // Process embeddings in batches to avoid API limits and speed up
+    const embeddings: number[][] = [];
+    const batchSize = 10;
+    
+    for (let i = 0; i < chunks.length; i += batchSize) {
+      const batchChunks = chunks.slice(i, i + batchSize);
+      const batchPromises = batchChunks.map(chunk => 
+        generateEmbedding(chunk).catch(err => {
+          console.error(`[BG] Embedding failed for a chunk:`, err);
+          return [];
+        })
+      );
+      const batchResults = await Promise.all(batchPromises);
+      embeddings.push(...batchResults);
     }
 
-    console.log(`[BG] Done: ${fileName} — ${chunks.length} chunks inserted`);
+    // Prepare DB rows
+    const rowsToInsert = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const embedding = embeddings[i];
+      if (!embedding || embedding.length === 0) { 
+        console.warn(`[BG] Empty embedding chunk ${i}`); 
+        continue; 
+      }
+
+      rowsToInsert.push({
+        assistant_id: assistantId,
+        user_id: userId,
+        file_name: fileName,
+        file_url: fileUrl,
+        content_text: chunks[i],
+        embedding: `[${embedding.join(",")}]`,
+        chunk_index: i,
+      });
+    }
+
+    // Insert to DB in batches
+    let insertedCount = 0;
+    const dbBatchSize = 50;
+    for (let i = 0; i < rowsToInsert.length; i += dbBatchSize) {
+      const batch = rowsToInsert.slice(i, i + dbBatchSize);
+      const { error } = await supabase
+        .from("ai_assistant_documents")
+        .insert(batch);
+      
+      if (error) { 
+        console.error(`[BG] Insert error db batch ${i}:`, error); 
+      } else {
+        insertedCount += batch.length;
+      }
+    }
+
+    console.log(`[BG] Done: ${fileName} — ${insertedCount}/${chunks.length} chunks inserted`);
   } catch (err) {
     console.error(`[BG] Failed: ${fileName}`, err);
   }

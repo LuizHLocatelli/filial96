@@ -231,7 +231,7 @@ async function retrieveRAGContext(
     const { data: results, error } = await supabase.rpc("match_assistant_documents", {
       query_embedding: embeddingStr,
       p_assistant_id: assistantId,
-      match_threshold: 0.30,
+      match_threshold: 0.60,
       match_count: 5,
     });
     
