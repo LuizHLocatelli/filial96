@@ -28,3 +28,35 @@ export interface AIChatMessage {
   tools_used?: string[];
   created_at: string;
 }
+
+export interface RAGReference {
+  fileName: string;
+  fileUrl: string;
+  relevanceScore: number;
+  excerpt: string;
+}
+
+export interface WebSource {
+  title: string;
+  uri: string;
+  domain: string;
+}
+
+export type ThoughtType = 'search' | 'rag' | 'reasoning' | 'generating' | 'analyzing';
+
+export interface ThoughtStep {
+  id: string;
+  text: string;
+  timestamp: number;
+  type: ThoughtType;
+}
+
+export type StreamStatus = 'idle' | 'thinking' | 'using_tools' | 'generating' | 'done';
+
+export interface StreamProgress {
+  status: StreamStatus;
+  activeTools: string[];
+  thoughtSteps: ThoughtStep[];
+  ragReferences: RAGReference[];
+  webSources: WebSource[];
+}

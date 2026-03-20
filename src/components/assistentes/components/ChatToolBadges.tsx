@@ -1,5 +1,4 @@
-import { Globe, BookOpen, FileText, ImageIcon, Loader2, CheckCircle2, Sparkles, Database } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Globe, BookOpen, FileText, ImageIcon, Loader2, CheckCircle2, Sparkles, Database, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -7,77 +6,117 @@ interface ChatToolBadgesProps {
   tools: string[];
   isStreaming?: boolean;
   isGeneratingText?: boolean;
+  showDetails?: boolean;
 }
 
-const TOOL_CONFIG: Record<string, { icon: typeof Globe; label: string; activeLabel: string }> = {
-  web_search: { icon: Globe, label: "Busca na Web", activeLabel: "Buscando na web..." },
-  rag: { icon: BookOpen, label: "Base de Conhecimento", activeLabel: "Consultando base..." },
-  document_analysis: { icon: FileText, label: "Análise de Documento", activeLabel: "Analisando documento..." },
-  image_generation: { icon: ImageIcon, label: "Geração de Imagem", activeLabel: "Gerando imagem..." },
-  database: { icon: Database, label: "Banco de Dados", activeLabel: "Consultando banco de dados..." },
+const TOOL_CONFIG: Record<string, { icon: typeof Globe; label: string; activeLabel: string; color: string }> = {
+  web_search: { icon: Globe, label: "Busca na Web", activeLabel: "Buscando na web...", color: "blue" },
+  rag: { icon: BookOpen, label: "Base de Conhecimento", activeLabel: "Consultando base...", color: "amber" },
+  document_analysis: { icon: FileText, label: "Análise de Documento", activeLabel: "Analisando documento...", color: "orange" },
+  image_generation: { icon: ImageIcon, label: "Geração de Imagem", activeLabel: "Gerando imagem...", color: "purple" },
+  database: { icon: Database, label: "Banco de Dados", activeLabel: "Consultando banco...", color: "cyan" },
 };
 
-export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = false }: ChatToolBadgesProps) {
+const colorMap: Record<string, { bg: string; border: string; text: string; glow: string }> = {
+  blue: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", glow: "shadow-blue-500/20" },
+  amber: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-600 dark:text-amber-400", glow: "shadow-amber-500/20" },
+  orange: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-600 dark:text-orange-400", glow: "shadow-orange-500/20" },
+  purple: { bg: "bg-purple-500/10", border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", glow: "shadow-purple-500/20" },
+  cyan: { bg: "bg-cyan-500/10", border: "border-cyan-500/30", text: "text-cyan-600 dark:text-cyan-400", glow: "shadow-cyan-500/20" },
+};
+
+export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = false, showDetails = false }: ChatToolBadgesProps) {
   if (!tools || tools.length === 0) return null;
 
   if (isStreaming) {
     return (
-      <div className="flex flex-col gap-2 w-full max-w-[280px] sm:max-w-[320px] mb-2 mt-1">
+      <div className="flex flex-col gap-2 w-full max-w-[300px] sm:max-w-[340px] mb-2 mt-1">
         <AnimatePresence>
           {tools.map((tool, index) => {
-            const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processando", activeLabel: "Processando..." };
+            const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processando", activeLabel: "Processando...", color: "blue" };
             const Icon = config.icon;
+            const colors = colorMap[config.color] || colorMap.blue;
             
-            // If we are generating text, ALL tools are complete
-            // Otherwise, only the last tool is active
             const isCompleted = isGeneratingText || index < tools.length - 1;
             const isActive = !isCompleted;
 
             return (
               <motion.div
                 key={tool}
-                initial={{ opacity: 0, height: 0, y: -10 }}
-                animate={{ opacity: 1, height: 'auto', y: 0 }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+                initial={{ opacity: 0, height: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, height: 'auto', y: 0, scale: 1 }}
+                exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
+                layout
                 className="overflow-hidden"
               >
                 <div className={cn(
-                  "flex items-center gap-3 px-3.5 py-2.5 rounded-xl border backdrop-blur-sm relative overflow-hidden transition-all duration-300",
+                  "flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-sm relative overflow-hidden transition-all duration-300",
                   isActive 
-                    ? "bg-primary/5 border-primary/20 shadow-sm" 
-                    : "bg-muted/40 border-border/50 text-muted-foreground/80"
+                    ? `${colors.bg} ${colors.border} shadow-sm ${colors.glow}` 
+                    : "bg-muted/40 border-border/50"
                 )}>
-                  {/* Active Tool animated glow */}
+                  {/* Animated glow for active tool */}
                   {isActive && (
                     <motion.div 
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent skew-x-12"
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12"
                       animate={{ x: ['-200%', '200%'] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                      transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
                     />
                   )}
 
                   <div className={cn(
-                    "flex items-center justify-center w-7 h-7 rounded-full shrink-0 relative z-10 transition-colors duration-300",
-                    isActive ? "bg-background text-primary shadow-sm ring-1 ring-primary/20" : "bg-muted text-muted-foreground"
+                    "flex items-center justify-center w-8 h-8 rounded-full shrink-0 relative z-10 transition-all duration-300",
+                    isActive 
+                      ? `bg-gradient-to-br ${colors.bg} ${colors.border} shadow-sm` 
+                      : "bg-muted text-muted-foreground"
                   )}>
                     {isActive ? (
-                      <Icon className="w-3.5 h-3.5 animate-pulse" />
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      >
+                        <Loader2 className={cn("w-4 h-4", colors.text)} />
+                      </motion.div>
                     ) : (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", bounce: 0.5 }}
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      </motion.div>
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0 relative z-10 flex items-center justify-between">
-                    <span className={cn(
-                      "text-[13px] font-medium truncate",
-                      isActive ? "text-foreground" : "text-muted-foreground"
-                    )}>
-                      {isActive ? config.activeLabel : config.label}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {isActive && (
+                        <motion.div
+                          className="w-2 h-2 rounded-full bg-current"
+                          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                      )}
+                      <span className={cn(
+                        "text-[13px] font-medium truncate",
+                        isActive ? colors.text : "text-muted-foreground"
+                      )}>
+                        {isActive ? config.activeLabel : config.label}
+                      </span>
+                    </div>
                     
-                    {isActive && (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground/70 shrink-0 ml-2" />
+                    {isActive && !showDetails && (
+                      <div className="flex items-center gap-1 shrink-0 ml-2">
+                        {[0, 1, 2].map((i) => (
+                          <motion.div
+                            key={i}
+                            className={cn("w-1.5 h-1.5 rounded-full", colors.text.replace("text-", "bg-").split(' ')[0] + "/60")}
+                            animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
+                            transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
+                          />
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -89,25 +128,28 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
     );
   }
 
-    // Finished state (historical messages)
   return (
-    <div className="flex flex-col gap-2 w-full max-w-[280px] sm:max-w-[320px] mb-2 mt-1">
-      {tools.map((tool) => {
-        const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processamento", activeLabel: "Processado" };
-        const Icon = config.icon;
+    <div className="flex flex-wrap gap-2 mb-2 mt-1">
+      {tools.map((tool, index) => {
+        const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processamento", activeLabel: "Processado", color: "blue" };
+        const colors = colorMap[config.color] || colorMap.blue;
 
         return (
-          <div key={tool} className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-muted/40 border-border/50 text-muted-foreground/80 backdrop-blur-sm overflow-hidden">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full shrink-0 bg-muted text-muted-foreground">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            </div>
-
-            <div className="flex-1 min-w-0 flex items-center justify-between">
-              <span className="text-[13px] font-medium truncate text-muted-foreground">
-                {config.label}
-              </span>
-            </div>
-          </div>
+          <motion.div
+            key={tool}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2, delay: index * 0.05 }}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium backdrop-blur-sm",
+              colors.bg,
+              colors.border,
+              colors.text
+            )}
+          >
+            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+            {config.label}
+          </motion.div>
         );
       })}
     </div>

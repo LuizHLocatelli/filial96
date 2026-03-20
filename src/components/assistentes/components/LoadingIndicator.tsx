@@ -1,35 +1,60 @@
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function LoadingIndicator() {
+interface LoadingIndicatorProps {
+  message?: string;
+  className?: string;
+}
+
+export function LoadingIndicator({ message = "Pensando...", className }: LoadingIndicatorProps) {
   return (
     <motion.div 
       initial={{ opacity: 0, height: 0, y: -10 }}
       animate={{ opacity: 1, height: 'auto', y: 0 }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-      className="overflow-hidden w-full max-w-[280px] sm:max-w-[320px] mb-2 mt-1"
+      className={cn("overflow-hidden w-full max-w-[280px] sm:max-w-[320px] mb-2 mt-1", className)}
     >
-      <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border bg-muted/40 border-border/50 text-muted-foreground/80 backdrop-blur-sm relative overflow-hidden transition-all duration-300">
+      <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-primary/20 backdrop-blur-sm relative overflow-hidden transition-all duration-300">
         
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent skew-x-12"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent"
           animate={{ x: ['-200%', '200%'] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
         />
 
-        <div className="flex items-center justify-center w-7 h-7 rounded-full shrink-0 relative z-10 bg-background text-primary shadow-sm ring-1 ring-primary/20">
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+        <div className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 shadow-lg shadow-primary/10">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          >
+            <Loader2 className="w-4 h-4 text-primary" />
+          </motion.div>
         </div>
 
-        <div className="flex-1 min-w-0 relative z-10 flex items-center justify-between">
+        <div className="relative z-10 flex-1 min-w-0 flex items-center justify-between">
           <span className="text-[13px] font-medium truncate text-foreground">
-            Pensando...
+            {message}
           </span>
-          <div className="flex items-center gap-1 shrink-0 ml-2">
-            <motion.div className="w-1.5 h-1.5 bg-primary/40 rounded-full" animate={{ opacity: [0.4, 1, 0.4], y: [0, -2, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} />
-            <motion.div className="w-1.5 h-1.5 bg-primary/40 rounded-full" animate={{ opacity: [0.4, 1, 0.4], y: [0, -2, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} />
-            <motion.div className="w-1.5 h-1.5 bg-primary/40 rounded-full" animate={{ opacity: [0.4, 1, 0.4], y: [0, -2, 0] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} />
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 bg-gradient-to-br from-primary/60 to-primary/40 rounded-full"
+                animate={{ 
+                  opacity: [0.4, 1, 0.4], 
+                  y: [0, -3, 0],
+                  scale: [0.9, 1.1, 0.9]
+                }}
+                transition={{ 
+                  duration: 1, 
+                  repeat: Infinity, 
+                  delay: i * 0.15,
+                  ease: 'easeInOut'
+                }}
+              />
+            ))}
           </div>
         </div>
       </div>

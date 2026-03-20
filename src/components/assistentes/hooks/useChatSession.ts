@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { AIChatMessage, AIAssistant } from "../types";
+import type { AIChatMessage, AIAssistant, ThoughtStep, RAGReference, WebSource, StreamStatus } from "../types";
 import type { ChatDocument } from "../components/ChatInput";
 
 interface ModelInsertPayload {
@@ -30,6 +30,10 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
   const [isSending, setIsSending] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [activeTools, setActiveTools] = useState<string[]>([]);
+  const [streamStatus, setStreamStatus] = useState<StreamStatus>('idle');
+  const [thoughtSteps, setThoughtSteps] = useState<ThoughtStep[]>([]);
+  const [ragReferences, setRAGReferences] = useState<RAGReference[]>([]);
+  const [webSources, setWebSources] = useState<WebSource[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
   const { data: messages = [], isLoading } = useQuery({
@@ -53,6 +57,10 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       setIsSending(true);
       setStreamingContent("");
       setActiveTools([]);
+      setStreamStatus('thinking');
+      setThoughtSteps([]);
+      setRAGReferences([]);
+      setWebSources([]);
 
       const optimisticUserMessage = {
         id: `optimistic-user-${Date.now()}`,
@@ -145,11 +153,51 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
           try {
             const parsed = JSON.parse(jsonStr);
 
+            // Handle thought process events
+            if (parsed.thought) {
+              const thought: ThoughtStep = {
+                id: `thought-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                text: parsed.thought.text || parsed.thought,
+                timestamp: Date.now(),
+                type: parsed.thought.type || 'reasoning',
+              };
+              setThoughtSteps(prev => [...prev, thought]);
+              continue;
+            }
+
+            // Handle RAG references
+            if (parsed.rag_documents && Array.isArray(parsed.rag_documents)) {
+              const refs: RAGReference[] = parsed.rag_documents.map((doc: any) => ({
+                fileName: doc.file_name || doc.fileName || 'Documento',
+                fileUrl: doc.file_url || doc.fileUrl || '',
+                relevanceScore: doc.relevance_score || doc.relevanceScore || 0,
+                excerpt: doc.excerpt || doc.content_text || '',
+              }));
+              setRAGReferences(refs);
+              continue;
+            }
+
+            // Handle web sources
+            if (parsed.web_sources && Array.isArray(parsed.web_sources)) {
+              const sources: WebSource[] = parsed.web_sources.map((src: any) => ({
+                title: src.title || 'Fonte',
+                uri: src.uri || src.url || '',
+                domain: src.domain || new URL(src.uri || src.url || 'http://example.com').hostname,
+              }));
+              setWebSources(sources);
+              continue;
+            }
+
             // Handle tool activation events
             if (parsed.tool) {
               if (parsed.status === "active") {
                 setActiveTools(prev => prev.includes(parsed.tool) ? prev : [...prev, parsed.tool]);
                 toolsUsed = [...new Set([...toolsUsed, parsed.tool])];
+                
+                // Update stream status based on tool type
+                if (parsed.tool === 'web_search' || parsed.tool === 'rag' || parsed.tool === 'document_analysis') {
+                  setStreamStatus('using_tools');
+                }
               } else if (parsed.status === "removed") {
                 setActiveTools(prev => prev.filter(t => t !== parsed.tool));
                 toolsUsed = toolsUsed.filter(t => t !== parsed.tool);
@@ -160,7 +208,8 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
             // Handle final tools_used summary
             if (parsed.tools_used && Array.isArray(parsed.tools_used)) {
               toolsUsed = parsed.tools_used;
-              setActiveTools(parsed.tools_used); // Also sync active tools for visual cleanup
+              setActiveTools(parsed.tools_used);
+              setStreamStatus('generating');
               continue;
             }
 
@@ -199,6 +248,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
 
       setStreamingContent("");
       setActiveTools([]);
+      setStreamStatus('done');
       return cleanedFinalText;
     },
     onSuccess: () => {
@@ -210,10 +260,12 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
       queryClient.invalidateQueries({ queryKey: ["ai_chat_messages", sessionId] });
       setStreamingContent("");
       setActiveTools([]);
+      setStreamStatus('idle');
     },
     onSettled: () => {
       setIsSending(false);
       abortRef.current = null;
+      setTimeout(() => setStreamStatus('idle'), 1000);
     }
   });
 
@@ -227,6 +279,10 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
     isSending,
     streamingContent,
     activeTools,
+    streamStatus,
+    thoughtSteps,
+    ragReferences,
+    webSources,
     sendMessage,
     cancelStream,
   };

@@ -30,6 +30,8 @@ interface DocumentAttachment {
 interface MatchedDocument {
   file_name: string;
   content_text: string;
+  file_url?: string;
+  relevance_score?: number;
 }
 
 interface GenerateContentRequest {
@@ -132,10 +134,10 @@ async function getEmbedding(text: string): Promise<number[]> {
   return data.embedding?.values || [];
 }
 
-async function retrieveRAGContext(assistantId: string, query: string): Promise<string> {
+async function retrieveRAGContext(assistantId: string, query: string): Promise<{ context: string; documents: MatchedDocument[] }> {
   try {
     const embedding = await getEmbedding(query);
-    if (embedding.length === 0) return "";
+    if (embedding.length === 0) return { context: "", documents: [] };
 
     const embeddingStr = `[${embedding.join(",")}]`;
     const { data, error } = await supabase.rpc("match_assistant_documents", {
@@ -145,16 +147,19 @@ async function retrieveRAGContext(assistantId: string, query: string): Promise<s
       match_count: 5,
     });
 
-    if (error || !data || data.length === 0) return "";
+    if (error || !data || data.length === 0) return { context: "", documents: [] };
 
     const context = data.map((d: MatchedDocument, i: number) =>
       `[Documento: ${d.file_name}]\n${d.content_text}`
     ).join("\n\n---\n\n");
 
-    return `\n\n[CONTEXTO DA BASE DE CONHECIMENTO - Use estas informações para responder quando relevante]\n${context}\n[FIM DO CONTEXTO]`;
+    return {
+      context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO - Use estas informações para responder quando relevante]\n${context}\n[FIM DO CONTEXTO]`,
+      documents: data as MatchedDocument[],
+    };
   } catch (e) {
     console.error("RAG retrieval error:", e);
-    return "";
+    return { context: "", documents: [] };
   }
 }
 
@@ -380,21 +385,37 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
           if (webSearchEnabled) {
              // Eagerly tell frontend to show animation, but do not consider it officially "used" until grounding chunks appear
              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "web_search", status: "active" })}\n\n`));
+             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Buscando informações atualizadas na web...", type: "search" } })}\n\n`));
           }
 
           // RAG retrieval inside the stream start to show animation to user immediately
           if (assistantId) {
             // Eagerly tell frontend to show animation
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
-            const ragContext = await retrieveRAGContext(assistantId, message);
-            if (ragContext) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
+            
+            const ragResult = await retrieveRAGContext(assistantId, message);
+            if (ragResult.context) {
               activatedTools.push("rag"); // Only mark as used if context was found
-              finalSystemMessage += ragContext;
+              finalSystemMessage += ragResult.context;
+              
+              // Emit RAG documents with excerpts
+              const ragDocs = ragResult.documents.map((d, i) => ({
+                file_name: d.file_name,
+                file_url: d.file_url || "",
+                relevance_score: Math.round((1 - (i * 0.1)) * 100),
+                excerpt: d.content_text.substring(0, 300) + (d.content_text.length > 300 ? "..." : ""),
+              }));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: `${ragResult.documents.length} documento(s) encontrado(s) na base de conhecimento`, type: "rag" } })}\n\n`));
             } else {
               // Tell frontend to remove the active tool since no relevant documents were found
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
             }
           }
+          
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Processando sua mensagem...", type: "reasoning" } })}\n\n`));
 
           const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${chatModelName}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
           const streamBody: GenerateContentRequest = {
@@ -416,7 +437,7 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
           }
 
           let fullText = "";
-          const groundingSources: { title: string; uri: string }[] = [];
+          const groundingSources: { title: string; uri: string; domain: string }[] = [];
           const reader = streamRes.body!.getReader();
           const decoder = new TextDecoder();
 
@@ -448,11 +469,30 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
                   if (!activatedTools.includes("web_search")) {
                     activatedTools.push("web_search");
                     controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "web_search", status: "active" })}\n\n`));
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Fontes da web encontradas!", type: "search" } })}\n\n`));
                   }
                   for (const chunk of gm.groundingChunks) {
                     if (chunk.web) {
-                      groundingSources.push({ title: chunk.web.title || chunk.web.uri, uri: chunk.web.uri });
+                      const uri = chunk.web.uri || chunk.web.title;
+                      let domain = '';
+                      try {
+                        domain = new URL(uri).hostname;
+                      } catch {
+                        domain = uri;
+                      }
+                      groundingSources.push({ title: chunk.web.title || uri, uri, domain });
                     }
+                  }
+                  
+                  // Emit web sources incrementally
+                  if (groundingSources.length > 0) {
+                    const uniqueSources = groundingSources.filter((s, i, arr) => arr.findIndex(x => x.uri === s.uri) === i);
+                    const webSourcesPayload = uniqueSources.map(s => ({
+                      title: s.title,
+                      uri: s.uri,
+                      domain: s.domain,
+                    }));
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ web_sources: webSourcesPayload })}\n\n`));
                   }
                 }
               } catch {
@@ -473,13 +513,18 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
                 // Emit image_generation tool event
                 activatedTools.push("image_generation");
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "image_generation", status: "active" })}\n\n`));
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Gerando imagem...", type: "generating" } })}\n\n`));
                 const result = await handleImageGeneration(parsed.prompt);
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ replace: true, text: result.text, images: result.images })}\n\n`));
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Imagem gerada com sucesso!", type: "generating" } })}\n\n`));
               }
             } catch {
               // Not valid JSON
             }
           }
+          
+          // Final thought
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Resposta concluída!", type: "generating" } })}\n\n`));
 
           // Append grounding sources
           if (groundingSources.length > 0) {

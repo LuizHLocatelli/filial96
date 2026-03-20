@@ -4,6 +4,7 @@ import { ChatInput, type ChatDocument } from "./ChatInput";
 import { ChatToolBadges } from "./ChatToolBadges";
 import { ExportDropdown } from "./ExportDropdown";
 import { AssistenteImageViewer } from "./AssistenteImageViewer";
+import { EnhancedStreamingMessage } from "./EnhancedStreamingMessage";
 import type { AIAssistant, AIChatSession } from "../types";
 import { Bot, User, ArrowLeft, Square, Sparkles } from "lucide-react";
 import { LoadingIndicator } from "./LoadingIndicator";
@@ -33,7 +34,7 @@ interface AssistenteChatProps {
 }
 
 export function AssistenteChat({ assistant, session, onNewSession, onSendWithoutSession, onBack, transitionMessage, onTransitionMessageComplete }: AssistenteChatProps) {
-  const { messages, isLoading, isSending, streamingContent, activeTools, sendMessage, cancelStream } = useChatSession(session?.id || null, assistant);
+  const { messages, isLoading, isSending, streamingContent, activeTools, streamStatus, thoughtSteps, ragReferences, webSources, sendMessage, cancelStream } = useChatSession(session?.id || null, assistant);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -310,39 +311,18 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
 
                     {/* Streaming response */}
           {isSending && (
-            <motion.div 
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex gap-3 flex-row"
-            >
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-muted to-muted/60 text-foreground flex items-center justify-center shrink-0 border border-border/50 shadow-sm">
-                <span className={cn("text-sm", !streamingContent && "animate-pulse")}>🧠</span>
-              </div>
-              <div className="flex flex-col gap-1.5 max-w-[85%] items-start">
-                
-                {/* Tools Indicator */}
-                {activeTools.length > 0 && (
-                  <ChatToolBadges tools={activeTools} isStreaming isGeneratingText={!!streamingContent} />
-                )}
-
-                {/* Loading indicator when no tools and no content */}
-                {!streamingContent && activeTools.length === 0 && (
-                  <LoadingIndicator />
-                )}
-
-                {/* The actual streaming content */}
-                {streamingContent && (
-                  <>
-                    <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
-                      <StreamingMarkdown content={streamingContent} isStreaming={true} />
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive h-7 px-2" onClick={cancelStream}>
-                      <Square className="w-3 h-3 mr-1" /> Parar
-                    </Button>
-                  </>
-                )}
-              </div>
-            </motion.div>
+            <EnhancedStreamingMessage
+              assistantAvatar={assistant.avatar_icon}
+              assistantName={assistant.name}
+              streamingContent={streamingContent}
+              isStreaming={isSending}
+              streamStatus={streamStatus}
+              activeTools={activeTools}
+              thoughtSteps={thoughtSteps}
+              ragReferences={ragReferences}
+              webSources={webSources}
+              onCancel={cancelStream}
+            />
           )}
 
           <div ref={scrollRef} className="h-1" />
