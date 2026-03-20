@@ -97,7 +97,8 @@ export function useAssistantDocuments(assistantId?: string) {
         description: "Extraindo texto e gerando embeddings.",
       });
 
-      const docCountBefore = documents.length;
+      // Use the publicUrl we built, which matches what the edge function stores
+      const uploadedFileUrl = _data?.fileUrl || "";
       let attempts = 0;
       const maxAttempts = 60; // 5 minutes
 
@@ -107,7 +108,7 @@ export function useAssistantDocuments(assistantId?: string) {
           .from("ai_assistant_documents")
           .select("id")
           .eq("assistant_id", variables.assistantId)
-          .eq("file_url", _data?.fileUrl || "")
+          .eq("file_url", uploadedFileUrl)
           .limit(1);
 
         // Also check by refetching the full list
@@ -115,7 +116,7 @@ export function useAssistantDocuments(assistantId?: string) {
         const cached = queryClient.getQueryData<AssistantDocument[]>(["ai_assistant_documents", assistantId]);
         const newCount = cached?.length ?? 0;
 
-        if (newCount > docCountBefore || (freshDocs && freshDocs.length > 0)) {
+        if ((freshDocs && freshDocs.length > 0)) {
           clearInterval(poll);
           toast.success("Documento processado com sucesso!", { id: toastId });
         } else if (attempts >= maxAttempts) {

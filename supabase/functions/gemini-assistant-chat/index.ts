@@ -173,6 +173,19 @@ interface RAGDebugInfo {
   error?: string;
 }
 
+async function assistantHasDocuments(assistantId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("ai_assistant_documents")
+    .select("id")
+    .eq("assistant_id", assistantId)
+    .limit(1);
+  if (error) {
+    console.error("Error checking assistant documents:", error);
+    return false;
+  }
+  return (data?.length || 0) > 0;
+}
+
 async function retrieveRAGContext(
   assistantId: string, 
   query: string,
@@ -451,7 +464,7 @@ ${safetyInstruction}`;
     // Non-streaming mode
     let ragDebug: RAGDebugInfo | undefined;
     if (!stream) {
-      if (assistantId) {
+      if (assistantId && await assistantHasDocuments(assistantId)) {
         const ragResult = await retrieveRAGContext(assistantId, message, debugRAG);
         ragDebug = ragResult.debug;
         if (ragResult.hasContext) {
@@ -558,8 +571,9 @@ ${safetyInstruction}`;
              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Buscando informações atualizadas na web...", type: "search" } })}\n\n`));
           }
 
-          // RAG retrieval inside the stream start to show animation to user immediately
-          if (assistantId) {
+          // RAG retrieval — only if assistant has documents uploaded
+          const hasDocs = assistantId ? await assistantHasDocuments(assistantId) : false;
+          if (assistantId && hasDocs) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
@@ -585,6 +599,7 @@ ${safetyInstruction}`;
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
               finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados."\nNÃO invente ou forneça informações genéricas sobre o tema.`;
+            }
           }
           
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Processando sua mensagem...", type: "reasoning" } })}\n\n`));
