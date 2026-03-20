@@ -28,21 +28,11 @@ interface DocumentAttachment {
 }
 
 interface MatchedDocument {
+  id?: string;
   file_name: string;
   content_text: string;
   file_url?: string;
   similarity?: number;
-}
-
-interface RRFSearchResult {
-  id?: string;
-  file_name: string;
-  content_text: string;
-  similarity?: number;
-}
-
-interface RRFResultItem extends RRFSearchResult {
-  combinedScore: number;
 }
 
 interface GenerateContentRequest {
@@ -170,77 +160,7 @@ async function getEmbedding(text: string): Promise<number[]> {
   }
 }
 
-async function expandQuery(query: string): Promise<string[]> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
-  
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { 
-          parts: [{ 
-            text: "Gere 2 variações alternativas desta query em português que capturam o mesmo significado mas usam palavras/sinônimos diferentes. Retorne APENAS as 3 queries (original + 2 variações) separadas por pipe |, sem explicações, sem aspas, sem texto adicional." 
-          }] 
-        },
-        contents: [{ role: "user", parts: [{ text: query }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 100 }
-      })
-    });
-    
-    if (!res.ok) {
-      console.error("Query expansion API error:", res.status);
-      return [query];
-    }
-    
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || query;
-    
-    // Split by pipe and validate each part is a meaningful query
-    const parts = text.split('|')
-      .map((q: string) => q.trim())
-      .filter((q: string) => q.length > 3 && q.length < 200) // Filter out too short/long
-      .filter((q: string) => !/^[A-Za-z]{1,2}$/.test(q)) // Filter single letters
-      .slice(0, 3); // Max 3 queries
-    
-    // Ensure original query is included
-    if (!parts.includes(query.trim())) {
-      parts.unshift(query.trim());
-    }
-    
-    return parts.length >= 1 ? parts.slice(0, 3) : [query];
-  } catch (e) {
-    return [query];
-  }
-}
 
-function reciprocalRankFusion(
-  resultSets: Array<{ results: RRFSearchResult[]; weight: number }>,
-  k: number = 60
-): RRFResultItem[] {
-  const scoreMap = new Map<string, { item: RRFSearchResult; score: number }>();
-  
-  for (const { results, weight } of resultSets) {
-    results.forEach((item: RRFSearchResult, rank: number) => {
-      const key = item.id || item.content_text || JSON.stringify(item);
-      const rrfScore = weight / (k + rank + 1);
-      
-      if (scoreMap.has(key)) {
-        scoreMap.get(key)!.score += rrfScore;
-      } else {
-        scoreMap.set(key, { item, score: rrfScore });
-      }
-    });
-  }
-  
-  return Array.from(scoreMap.values())
-    .sort((a, b) => b.score - a.score)
-    .map(entry => ({
-      ...entry.item,
-      combinedScore: entry.score,
-      similarity: entry.item.similarity || entry.score
-    }));
-}
 
 async function retrieveRAGContext(
   assistantId: string, 
@@ -248,105 +168,42 @@ async function retrieveRAGContext(
 ): Promise<{ 
   context: string; 
   documents: MatchedDocument[];
-  confidence: 'high' | 'medium' | 'low' | 'none';
+  hasContext: boolean;
 }> {
   try {
-    // Step 1: Expand query for better retrieval
-    const expandedQueries = await expandQuery(query);
-    console.log("RAG: Expanded queries:", expandedQueries);
-    const allResults: Array<{ results: RRFSearchResult[]; weight: number }> = [];
+    const embedding = await getEmbedding(query);
     
-    // Step 2: For each expanded query, do hybrid search
-    for (const q of expandedQueries.slice(0, 2)) { // Limit to 2 expansions for performance
-      // Semantic search (embedding)
-      const embedding = await getEmbedding(q);
-      console.log("RAG: Embedding for query:", q, "length:", embedding.length);
-      
-      if (embedding.length > 0) {
-        const embeddingStr = `[${embedding.join(",")}]`;
-        const { data: semanticResults, error: semanticError } = await supabase.rpc("match_assistant_documents", {
-          query_embedding: embeddingStr,
-          p_assistant_id: assistantId,
-          match_threshold: 0.60, // Use a reasonable threshold to avoid garbage results
-          match_count: 10,
-        });
-        
-        console.log("RAG: Semantic results:", semanticResults?.length || 0, "error:", semanticError);
-        
-        if (semanticResults && semanticResults.length > 0) {
-          allResults.push({ results: semanticResults as RRFSearchResult[], weight: 0.8 });
-        }
-      }
-      
-      // Keyword search (full-text) - simplified without ts_rank complexity
-      const { data: keywordResults, error: keywordError } = await supabase
-        .from('ai_assistant_documents')
-        .select('id, file_name, content_text')
-        .eq('assistant_id', assistantId)
-        .textSearch('content_tsvector', q, { config: 'portuguese' })
-        .limit(10);
-      
-      console.log("RAG: Keyword results:", keywordResults?.length || 0, "error:", keywordError);
-      
-      if (keywordResults && keywordResults.length > 0) {
-        // Assign a fixed similarity score for keyword matches (keyword matches are reliable)
-        const normalizedResults = keywordResults.map((r) => ({
-          ...r,
-          similarity: 0.65 // Keyword matches get 0.65 fixed score
-        }));
-        allResults.push({ results: normalizedResults as RRFSearchResult[], weight: 0.5 });
-      }
+    if (embedding.length === 0) {
+      return { context: "", documents: [], hasContext: false };
     }
     
-    // Step 3: Fuse results with RRF
-    let fusedResults: RRFResultItem[] = [];
-    if (allResults.length > 0) {
-      console.log("RAG: Total result sets to fuse:", allResults.length);
-      fusedResults = reciprocalRankFusion(allResults);
-      console.log("RAG: Fused results count:", fusedResults.length);
+    const embeddingStr = `[${embedding.join(",")}]`;
+    const { data: results, error } = await supabase.rpc("match_assistant_documents", {
+      query_embedding: embeddingStr,
+      p_assistant_id: assistantId,
+      match_threshold: 0.70,
+      match_count: 3,
+    });
+    
+    if (error || !results || results.length === 0) {
+      return { context: "", documents: [], hasContext: false };
     }
     
-    // Step 4: Filter and limit to top 5
-    const topResults = fusedResults.slice(0, 5);
-    console.log("RAG: Top results:", topResults.length);
+    const topResults = results as MatchedDocument[];
     
-    // Step 5: Assess confidence - simplified and more lenient for better recall
-    let confidence: 'high' | 'medium' | 'low' | 'none' = 'none';
-    
-    if (topResults.length === 0) {
-      confidence = 'none';
-    } else if (topResults.length >= 3) {
-      // High confidence: multiple results found
-      confidence = 'high';
-    } else if (topResults.length === 2) {
-      // Medium confidence: two results
-      confidence = 'medium';
-    } else if (topResults.length === 1) {
-      // Low confidence: only one result
-      confidence = 'low';
-    }
-    
-    // Step 6: Build enhanced context
-    const context = topResults.map((d: RRFResultItem, idx: number) => {
-      // Use rank-based display (higher rank = higher position = more relevant)
+    const context = topResults.map((d, idx) => {
       const displayRank = topResults.length - idx;
       return `[Documento: ${d.file_name}] (#${displayRank} mais relevante)\n${d.content_text}`;
     }).join("\n\n---\n\n");
     
     return {
-      context: confidence !== 'none' 
-        ? `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]\nUse as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`
-        : "",
-      documents: topResults.map((d: RRFResultItem) => ({
-        file_name: d.file_name,
-        content_text: d.content_text,
-        similarity: d.similarity || d.combinedScore,
-      })),
-      confidence
+      context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]\nUse as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`,
+      documents: topResults,
+      hasContext: true
     };
   } catch (e) {
     console.error("RAG retrieval error:", e);
-    return { context: "", documents: [], confidence: "none" };
+    return { context: "", documents: [], hasContext: false };
   }
 }
 
@@ -446,58 +303,14 @@ Use esta data como referência para qualquer pergunta temporal ou sobre eventos 
 
     // RAG usage guidelines
     const ragInstruction = `
-[REGRAS CRÍTICAS DE USO DA BASE DE CONHECIMENTO]
-⚠️ ATENÇÃO: Estas regras são OBRIGATÓRIAS e devem ser seguidas SEMPRE:
+[USO DA BASE DE CONHECIMENTO]
+Quando os documentos forem relevantes:
+- Cite a fonte: "Segundo [NOME DO ARQUIVO], ..."
+- Mantenha fidelidade às informações dos documentos
 
-1. CITAÇÃO EXPLICITA: Para CADA fato mencionado na resposta, cite claramente o documento de origem:
-   "Segundo o documento [NOME DO ARQUIVO], ..."
-
-2. RESPOSTA "NÃO ENCONTREI": Se a informação NÃO estiver presente nos documentos fornecidos, 
-   você DEVE responder EXATAMENTE com:
-   "Não encontrei essa informação nos documentos carregados. Esta pergunta não faz parte da base de conhecimento disponível."
-
-3. PROIBIÇÃO ABSOLUTA: É STRICTAMENTE PROIBIDO inventar, inferir, extrapolarr ou criar 
-   informações que não estejam literalmente presentes nos documentos fornecidos.
-
-4. SEPARAÇÃO DE CONTEXTOS: Se os documentos não são relevantes para a pergunta, diga claramente.
-   NÃO use seu conhecimento interno para responder quando os documentos não contém a informação.
-
-5. CONFIANÇA BAIXA: Se os documentos encontrados têm baixa relevância, informe o usuário:
-   "Encontrei alguns documentos parcialmente relevantes, mas a informação pode não ser completa..."
-
-6. PARAFRASEAR COM FIDELIDADE: Pode parafrasear informações dos documentos, mas mantenha o significado original.
-`;
-
-    const ragExamples = `
-[EXEMPLOS DE APLICAÇÃO DESTAS REGRAS]
-
-EXEMPLO 1 - Pergunta FORA do escopo:
-Usuário: "Qual a capital do Brasil?"
-Contexto disponível: [documentos sobre política de entrega de móveis]
-Resposta correta: "Não encontrei essa informação nos documentos carregados. Esta pergunta não faz parte da base de conhecimento disponível."
-
-EXEMPLO 2 - Pergunta NO escopo:
-Usuário: "Qual o prazo de entrega?"
-Contexto disponível: [Documento: politica_entrega.pdf] "O prazo de entrega é 5-7 dias úteis"
-Resposta correta: "Segundo o documento [politica_entrega.pdf], o prazo de entrega é de 5-7 dias úteis."
-
-EXEMPLO 3 - Contexto insuficiente:
-Usuário: "Fale sobre o produto XYZ"
-Contexto disponível: [Documento: catalogo.pdf] "XYZ é um produto da linha premium"
-Resposta correta: "Segundo o documento [catalogo.pdf], XYZ é um produto da linha premium. Não encontrei informações detalhadas adicionais sobre especificações técnicas deste produto."
-
-EXEMPLO 4 - Contexto com baixa relevância:
-Usuário: "Como funciona a garantia?"
-Contexto disponível: [Documento: faq.pdf] "Garantia: 90 dias segundo CDC" (similarity: 35%)
-Resposta correta: "Encontrei algumas informações parcialmente relevantes sobre garantia. Segundo o documento [faq.pdf], a garantia é de 90 dias segundo o Código de Defesa do Consumidor. Porém, não encontrei detalhes específicos sobre o processo de garantia."
-`;
-
-    const confidenceWarning = `
-[MANUSEIO DE BAIXA CONFIANÇA]
-Se os documentos encontrados têm relevância inferior a 50%:
-- Informe claramente que a resposta pode não ser precisa
-- Cite apenas as informações que têm suporte explícito nos documentos
-- Evite afirmações categóricas sobre informações não bem cobertas
+Quando NÃO houver informação relevante:
+- Diga: "Não encontrei essa informação nos documentos carregados."
+- NÃO invente ou infira informações não presentes nos documentos.
 `;
 
     // Web search guidelines
@@ -535,8 +348,6 @@ ${imageInstruction}
 ${systemContext}
 
 ${ragInstruction}
-
-${ragExamples}
 
 ${webSearchInstruction}
 
@@ -586,25 +397,15 @@ ${safetyInstruction}`;
 
     // Non-streaming mode
     if (!stream) {
-      // Synchronously retrieve RAG context for non-streaming
       if (assistantId) {
         const ragResult = await retrieveRAGContext(assistantId, message);
-        if (ragResult.confidence === 'none') {
-          // No relevant documents - add critical warning
-          finalSystemMessage += `\n\n[AVISO CRÍTICO]
-          A base de conhecimento NÃO contém informações relevantes para esta pergunta.
-          Você DEVE responder que NÃO encontrou informações nos documentos.
-          É PROIBIDO usar seu conhecimento interno para responder.`;
-        } else if (ragResult.confidence === 'low') {
-          // Low confidence - add warning but still use context
+        if (ragResult.hasContext) {
           finalSystemMessage += ragResult.context;
-          finalSystemMessage += `\n\n${confidenceWarning}`;
-        } else {
-          // Medium or high confidence - use context normally
-          finalSystemMessage += ragResult.context;
-        }
-        if (ragResult.confidence !== 'none') {
           activatedTools.push("rag");
+        } else {
+          finalSystemMessage += `\n\n[AVISO]
+          A base de conhecimento pode não conter informações relevantes para esta pergunta.
+          Se não encontrar nos documentos, diga que não encontrou.`;
         }
       }
 
@@ -707,31 +508,7 @@ ${safetyInstruction}`;
             
             const ragResult = await retrieveRAGContext(assistantId, message);
             
-            if (ragResult.confidence === 'none') {
-              // No relevant documents
-              finalSystemMessage += `\n\n[AVISO CRÍTICO]
-              A base de conhecimento NÃO contém informações relevantes para esta pergunta.
-              Você DEVE responder que NÃO encontrou informações nos documentos.
-              É PROIBIDO usar seu conhecimento interno para responder.`;
-              
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
-            } else if (ragResult.confidence === 'low') {
-              // Low confidence - use context with warning
-              finalSystemMessage += ragResult.context;
-              finalSystemMessage += `\n\n${confidenceWarning}`;
-              activatedTools.push("rag");
-              
-              const ragDocs = ragResult.documents.map((d, i) => ({
-                file_name: d.file_name,
-                file_url: d.file_url || "",
-                relevance_score: Math.round((d.similarity || 0.3) * 100),
-                excerpt: (d.content_text || "").substring(0, 300) + ((d.content_text || "").length > 300 ? "..." : ""),
-              }));
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: `${ragResult.documents.length} documento(s) encontrado(s) com baixa relevância`, type: "rag" } })}\n\n`));
-            } else {
-              // Medium or high confidence
+            if (ragResult.hasContext) {
               finalSystemMessage += ragResult.context;
               activatedTools.push("rag");
               
@@ -743,6 +520,9 @@ ${safetyInstruction}`;
               }));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ rag_documents: ragDocs })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: `${ragResult.documents.length} documento(s) encontrado(s) na base de conhecimento`, type: "rag" } })}\n\n`));
+            } else {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
             }
           }
           
