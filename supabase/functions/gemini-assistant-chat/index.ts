@@ -66,9 +66,9 @@ interface RequestBody {
 }
 
 const TEMPERATURE_MAP: Record<string, number> = {
-  'low': 0.1,
-  'medium': 0.4,
-  'high': 0.7
+  'low': 0.0,
+  'medium': 0.2,
+  'high': 0.5
 };
 
 async function handleImageGeneration(prompt: string): Promise<{ text: string; images: string[] }> {
@@ -267,7 +267,7 @@ async function retrieveRAGContext(
         const { data: semanticResults, error: semanticError } = await supabase.rpc("match_assistant_documents", {
           query_embedding: embeddingStr,
           p_assistant_id: assistantId,
-          match_threshold: 0.0, // No threshold - get all and filter later
+          match_threshold: 0.60, // Use a reasonable threshold to avoid garbage results
           match_count: 10,
         });
         
