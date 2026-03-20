@@ -305,7 +305,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json() as RequestBody;
-    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, webSearchEnabled = false, assistantId, temperatureLevel = 'medium', debugRAG = false } = body;
+    const { message, systemMessage, images = [], documents = [], history = [], stream = false, generateTitle = false, enhanceSystemMessage = false, ragDocuments = [], webSearchEnabled = false, assistantId, temperatureLevel = 'medium', debugRAG = false } = body;
     const actualTemperature = TEMPERATURE_MAP[temperatureLevel] || 0.4;
 
     if (!message) throw new Error("Message is required");
