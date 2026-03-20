@@ -45,10 +45,6 @@ interface RRFResultItem extends RRFSearchResult {
   combinedScore: number;
 }
 
-interface KeywordSearchResult extends RRFSearchResult {
-  ts_rank?: number;
-}
-
 interface GenerateContentRequest {
   systemInstruction?: { parts: MessagePart[] };
   contents: ChatMessage[];
@@ -257,73 +253,77 @@ async function retrieveRAGContext(
   try {
     // Step 1: Expand query for better retrieval
     const expandedQueries = await expandQuery(query);
+    console.log("RAG: Expanded queries:", expandedQueries);
     const allResults: Array<{ results: RRFSearchResult[]; weight: number }> = [];
     
     // Step 2: For each expanded query, do hybrid search
     for (const q of expandedQueries.slice(0, 2)) { // Limit to 2 expansions for performance
       // Semantic search (embedding)
       const embedding = await getEmbedding(q);
+      console.log("RAG: Embedding for query:", q, "length:", embedding.length);
+      
       if (embedding.length > 0) {
         const embeddingStr = `[${embedding.join(",")}]`;
-        const { data: semanticResults } = await supabase.rpc("match_assistant_documents", {
+        const { data: semanticResults, error: semanticError } = await supabase.rpc("match_assistant_documents", {
           query_embedding: embeddingStr,
           p_assistant_id: assistantId,
-          match_threshold: 0.25, // Lower threshold for fusion
-          match_count: 8,
+          match_threshold: 0.0, // No threshold - get all and filter later
+          match_count: 10,
         });
         
+        console.log("RAG: Semantic results:", semanticResults?.length || 0, "error:", semanticError);
+        
         if (semanticResults && semanticResults.length > 0) {
-          allResults.push({ results: semanticResults as RRFSearchResult[], weight: 0.7 });
+          allResults.push({ results: semanticResults as RRFSearchResult[], weight: 0.8 });
         }
       }
       
-      // Keyword search (full-text) - use ts_rank for actual relevance scoring
-      const { data: keywordResults } = await supabase
+      // Keyword search (full-text) - simplified without ts_rank complexity
+      const { data: keywordResults, error: keywordError } = await supabase
         .from('ai_assistant_documents')
-        .select('id, file_name, content_text, ts_rank:ts_rank(content_tsvector, query_to_tsquery(Portuguese, $1))')
+        .select('id, file_name, content_text')
         .eq('assistant_id', assistantId)
         .textSearch('content_tsvector', q, { config: 'portuguese' })
-        .limit(8);
+        .limit(10);
+      
+      console.log("RAG: Keyword results:", keywordResults?.length || 0, "error:", keywordError);
       
       if (keywordResults && keywordResults.length > 0) {
-        // Normalize ts_rank to 0-1 range (ts_rank typically ranges 0-1 for most queries)
-        const maxRank = Math.max(...keywordResults.map((r: KeywordSearchResult) => r.ts_rank || 0.1));
-        const normalizedResults = keywordResults.map((r: KeywordSearchResult) => ({
+        // Assign a fixed similarity score for keyword matches (keyword matches are reliable)
+        const normalizedResults = keywordResults.map((r) => ({
           ...r,
-          similarity: maxRank > 0 ? (r.ts_rank || 0.1) / maxRank * 0.8 : 0.3 // Scale to 0-0.8 range
+          similarity: 0.65 // Keyword matches get 0.65 fixed score
         }));
-        allResults.push({ results: normalizedResults as RRFSearchResult[], weight: 0.3 });
+        allResults.push({ results: normalizedResults as RRFSearchResult[], weight: 0.5 });
       }
     }
     
     // Step 3: Fuse results with RRF
     let fusedResults: RRFResultItem[] = [];
     if (allResults.length > 0) {
+      console.log("RAG: Total result sets to fuse:", allResults.length);
       fusedResults = reciprocalRankFusion(allResults);
+      console.log("RAG: Fused results count:", fusedResults.length);
     }
     
     // Step 4: Filter and limit to top 5
     const topResults = fusedResults.slice(0, 5);
+    console.log("RAG: Top results:", topResults.length);
     
-    // Step 5: Assess confidence based on RRF combined score, not misleading similarity
-    // RRF scores are rank-based and typically much smaller than similarity scores
-    const topRRFScore = topResults[0]?.combinedScore || 0;
-    const semanticCount = topResults.filter(r => (r.similarity || 0) > 0.3).length;
+    // Step 5: Assess confidence - simplified and more lenient for better recall
     let confidence: 'high' | 'medium' | 'low' | 'none' = 'none';
     
     if (topResults.length === 0) {
       confidence = 'none';
-    } else if (topRRFScore >= 0.01 && semanticCount >= 2) {
-      // High confidence: good RRF score AND multiple strong semantic matches
+    } else if (topResults.length >= 3) {
+      // High confidence: multiple results found
       confidence = 'high';
-    } else if (topRRFScore >= 0.005 && semanticCount >= 1) {
-      // Medium confidence: reasonable RRF score with at least one semantic match
+    } else if (topResults.length === 2) {
+      // Medium confidence: two results
       confidence = 'medium';
-    } else if (topRRFScore >= 0.002 || semanticCount >= 1) {
-      // Low confidence: weak signal but some relevance
+    } else if (topResults.length === 1) {
+      // Low confidence: only one result
       confidence = 'low';
-    } else {
-      confidence = 'none';
     }
     
     // Step 6: Build enhanced context
