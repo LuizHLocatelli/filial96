@@ -191,7 +191,8 @@ async function assistantHasDocuments(assistantId: string): Promise<boolean> {
 async function retrieveRAGContext(
   assistantId: string, 
   query: string,
-  debugMode: boolean = false
+  debugMode: boolean = false,
+  conversationHistory?: ChatMessage[]
 ): Promise<{ 
   context: string; 
   documents: MatchedDocument[];
@@ -216,7 +217,22 @@ async function retrieveRAGContext(
     const trimmedQuery = query.trim();
     console.log("RAG: Query:", trimmedQuery);
     
-    const embedding = await getEmbedding(trimmedQuery);
+    // Query expansion: combine current query with conversation context for better retrieval
+    let expandedQuery = trimmedQuery;
+    if (conversationHistory && conversationHistory.length > 0) {
+      const recentMessages = conversationHistory
+        .filter(m => m.role === "user")
+        .slice(-3)
+        .map(m => m.parts.map(p => p.text || "").join(" "))
+        .join(" ");
+      
+      if (recentMessages.length > 0) {
+        expandedQuery = `${recentMessages} ${trimmedQuery}`;
+        console.log("RAG: Expanded query with history:", expandedQuery.substring(0, 100));
+      }
+    }
+    
+    const embedding = await getEmbedding(expandedQuery);
     debugInfo.embeddingDimensions = embedding.length;
     debugInfo.embeddingPreview = embedding.slice(0, 5);
     
@@ -230,12 +246,39 @@ async function retrieveRAGContext(
     
     const embeddingStr = `[${embedding.join(",")}]`;
     
-    const { data: results, error } = await supabase.rpc("match_assistant_documents", {
-      query_embedding: embeddingStr,
+    // Try hybrid search first (vector + BM25), fallback to vector-only
+    let results = null;
+    let useHybrid = false;
+    
+    // Try hybrid search
+    const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
+      p_query_embedding: embeddingStr,
+      p_query_text: expandedQuery,
       p_assistant_id: assistantId,
-      match_threshold: 0.40,
-      match_count: 5,
+      p_match_threshold: 0.45,
+      p_match_count: 10,
+      p_vector_weight: 0.6,
+      p_fts_weight: 0.4
     });
+    
+    if (!hybridError && hybridResults && hybridResults.length > 0) {
+      results = hybridResults;
+      useHybrid = true;
+      console.log("RAG: Using hybrid search, got", results.length, "results");
+    } else {
+      // Fallback to vector-only search with improved parameters
+      console.log("RAG: Hybrid search failed or returned empty, using vector search");
+      const { data: vectorResults, error: vectorError } = await supabase.rpc("match_assistant_documents", {
+        query_embedding: embeddingStr,
+        p_assistant_id: assistantId,
+        match_threshold: 0.55,
+        match_count: 10,
+      });
+      
+      if (!vectorError) {
+        results = vectorResults;
+      }
+    }
     
     if (error) {
       console.error("RAG: RPC error:", error);
@@ -252,18 +295,30 @@ async function retrieveRAGContext(
       return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
-    const topResults = results as MatchedDocument[];
+    const topResults = (results as MatchedDocument[]).slice(0, 8);
     debugInfo.topSimilarities = topResults.map(r => r.similarity || 0);
     console.log("RAG: Top results:", topResults.map(r => ({ file: r.file_name, sim: r.similarity })));
     
+    // Improved context formatting with better structure for the model
     const context = topResults.map((d, idx) => {
       const displayRank = idx + 1;
-      return `[Documento: ${d.file_name}] (#${displayRank} mais relevante, similaridade: ${Math.round((d.similarity || 0) * 100)}%)\n${d.content_text}`;
+      const relevancePct = Math.round((d.similarity || 0) * 100);
+      return `[Documento: **${d.file_name}**] — Relevância: ${relevancePct}%\n\n${d.content_text}`;
     }).join("\n\n---\n\n");
     
+    const searchTypeNote = useHybrid ? "(Busca Híbrida: Vector + Full-Text)" : "(Busca Vetorial)";
+    
     return {
-      context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]
-Use as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`,
+      context: `\n\n${searchTypeNote}
+[INFORMAÇÕES DA BASE DE CONHECIMENTO]
+Use AS SEGUINTES INFORMAÇÕES dos documentos carregados para responder. 
+- **SEMPRE cite a fonte**: "Segundo [NOME DO ARQUIVO], ..."
+- **Seja completo**: Inclua todos os detalhes relevantes dos fragmentos abaixo
+- **Não resuma excessivamente**: Informações detalhadas são importantes
+- **Se a informação estiver incompleta**, mencione isso
+
+${context}
+[FIM DAS INFORMAÇÕES DA BASE DE CONHECIMENTO]`,
       documents: topResults,
       hasContext: true,
       debug: debugMode ? debugInfo : undefined
@@ -554,7 +609,7 @@ ${safetyInstruction}`;
     let ragDebug: RAGDebugInfo | undefined;
     if (!stream) {
       if (assistantId && await assistantHasDocuments(assistantId)) {
-        const ragResult = await retrieveRAGContext(assistantId, message, debugRAG);
+        const ragResult = await retrieveRAGContext(assistantId, message, debugRAG, history);
         ragDebug = ragResult.debug;
         if (ragResult.hasContext) {
           finalSystemMessage += ragResult.context;
@@ -666,7 +721,7 @@ ${safetyInstruction}`;
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "active" })}\n\n`));
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Consultando base de conhecimento...", type: "rag" } })}\n\n`));
             
-            const ragResult = await retrieveRAGContext(assistantId, message, debugRAG);
+            const ragResult = await retrieveRAGContext(assistantId, message, debugRAG, history);
             
             if (debugRAG && ragResult.debug) {
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ ragDebug: ragResult.debug })}\n\n`));

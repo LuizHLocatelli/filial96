@@ -22,31 +22,106 @@ interface RequestBody {
   fileSize: number;
 }
 
-function chunkText(text: string, chunkSize = 1500, overlap = 300): string[] {
-  const words = text.split(/\s+/);
+function chunkText(text: string, chunkSize = 1800, overlap = 400): string[] {
+  // Split by double newlines (paragraphs) to preserve semantic structure
+  const paragraphs = text.split(/\n\n+/);
   const chunks: string[] = [];
   let currentChunk: string[] = [];
   let currentLength = 0;
 
-  for (let i = 0; i < words.length; i++) {
-    const word = words[i];
-    currentChunk.push(word);
-    currentLength += word.length + 1;
+  for (const paragraph of paragraphs) {
+    const trimmedParagraph = paragraph.trim();
+    if (!trimmedParagraph) continue;
 
-    if (currentLength >= chunkSize) {
-      chunks.push(currentChunk.join(" "));
+    const paragraphLength = trimmedParagraph.length;
+    
+    // If single paragraph exceeds chunk size, split by sentences
+    if (paragraphLength > chunkSize) {
+      // First, save current chunk if not empty
+      if (currentChunk.length > 0) {
+        chunks.push(currentChunk.join("\n\n"));
+        // Keep overlap from previous chunks
+        const overlapParagraphs: string[] = [];
+        let overlapLength = 0;
+        for (let i = currentChunk.length - 1; i >= 0; i--) {
+          const p = currentChunk[i];
+          if (overlapLength + p.length > overlap) break;
+          overlapParagraphs.unshift(p);
+          overlapLength += p.length + 2;
+        }
+        currentChunk = overlapParagraphs;
+        currentLength = currentChunk.join("\n\n").length;
+      }
       
-      const overlapWordsCount = Math.floor(overlap / 5);
-      currentChunk = currentChunk.slice(-overlapWordsCount);
-      currentLength = currentChunk.join(" ").length + 1;
+      // Split long paragraph by sentences while respecting markdown structure
+      const sentences = trimmedParagraph.match(/[^.!?]+[.!?]+/g) || [trimmedParagraph];
+      let sentenceChunk: string[] = [];
+      let sentenceLength = 0;
+      
+      for (const sentence of sentences) {
+        sentenceChunk.push(sentence);
+        sentenceLength += sentence.length;
+        
+        if (sentenceLength >= chunkSize * 0.8) {
+          const chunkText = sentenceChunk.join(" ");
+          if (chunkText.length > 200) {
+            chunks.push(chunkText);
+          }
+          // Keep last sentences as overlap
+          const overlapSentences = sentenceChunk.slice(-2);
+          sentenceChunk = overlapSentences;
+          sentenceLength = overlapSentences.join(" ").length;
+        }
+      }
+      
+      if (sentenceChunk.length > 0) {
+        const remainingText = sentenceChunk.join(" ");
+        if (remainingText.length > 200) {
+          currentChunk.push(remainingText);
+          currentLength += remainingText.length;
+        }
+      }
+    } else {
+      // Normal paragraph, add to current chunk
+      currentChunk.push(trimmedParagraph);
+      currentLength += paragraphLength + 2;
+      
+      // If chunk is big enough, save it
+      if (currentLength >= chunkSize) {
+        chunks.push(currentChunk.join("\n\n"));
+        
+        // Keep overlap paragraphs for context continuity
+        const overlapParagraphs: string[] = [];
+        let overlapLength = 0;
+        for (let i = currentChunk.length - 1; i >= 0; i--) {
+          const p = currentChunk[i];
+          if (overlapLength + p.length > overlap) break;
+          overlapParagraphs.unshift(p);
+          overlapLength += p.length + 2;
+        }
+        currentChunk = overlapParagraphs;
+        currentLength = currentChunk.join("\n\n").length;
+      }
     }
   }
   
-  if (currentChunk.length > 0 && (chunks.length === 0 || currentLength > overlap)) {
-    chunks.push(currentChunk.join(" "));
+  // Add remaining content
+  if (currentChunk.length > 0 && currentLength > 100) {
+    chunks.push(currentChunk.join("\n\n"));
   }
   
-  return chunks;
+  // Clean up chunks - remove very short ones and merge if needed
+  const cleanedChunks: string[] = [];
+  for (const chunk of chunks) {
+    if (chunk.length < 300 && cleanedChunks.length > 0) {
+      // Merge short chunk with previous
+      cleanedChunks[cleanedChunks.length - 1] += "\n\n" + chunk;
+    } else {
+      cleanedChunks.push(chunk);
+    }
+  }
+  
+  return cleanedChunks;
 }
 
 // Upload file to Gemini File API using the file URL directly (no memory buffering)
