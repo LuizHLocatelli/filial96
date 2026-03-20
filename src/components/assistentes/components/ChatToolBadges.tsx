@@ -30,7 +30,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
 
   if (isStreaming) {
     return (
-      <div className="flex flex-col gap-2 w-full max-w-[200px] xs:max-w-[240px] sm:max-w-[320px] mb-2 mt-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col gap-2 w-full max-w-[220px] xs:max-w-[260px] sm:max-w-[340px] mb-2 mt-1 min-w-0 overflow-hidden">
         <AnimatePresence>
           {tools.map((tool, index) => {
             const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processando", activeLabel: "Processando...", color: "blue" };

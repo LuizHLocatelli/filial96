@@ -50,7 +50,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-[200px] xs:max-w-[240px] sm:max-w-[320px] mb-3 min-w-0", className)}
+      className={cn("w-full max-w-[220px] xs:max-w-[260px] sm:max-w-[340px] mb-3 min-w-0", className)}
     >
       <div className="relative px-1 py-2 sm:px-2 sm:py-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/10 backdrop-blur-sm overflow-hidden">
         {/* Animated gradient background */}

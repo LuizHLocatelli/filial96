@@ -16,7 +16,7 @@ export function LoadingIndicator({ message = "Pensando...", className }: Loading
       transition={{ type: "spring", bounce: 0, duration: 0.4 }}
       role="status"
       aria-label={message}
-      className={cn("overflow-hidden w-full max-w-[200px] sm:max-w-[280px] mb-2 mt-1", className)}
+      className={cn("overflow-hidden w-full max-w-[220px] sm:max-w-[300px] mb-2 mt-1", className)}
     >
       <div className="flex items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3 rounded-2xl border bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-primary/20 backdrop-blur-sm relative overflow-hidden transition-all duration-300">
         
