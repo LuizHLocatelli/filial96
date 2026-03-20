@@ -116,7 +116,7 @@ export function useAssistantDocuments(assistantId?: string) {
         const cached = queryClient.getQueryData<AssistantDocument[]>(["ai_assistant_documents", assistantId]);
         const newCount = cached?.length ?? 0;
 
-        if (newCount > docCountBefore || (freshDocs && freshDocs.length > 0)) {
+        if ((freshDocs && freshDocs.length > 0)) {
           clearInterval(poll);
           toast.success("Documento processado com sucesso!", { id: toastId });
         } else if (attempts >= maxAttempts) {
