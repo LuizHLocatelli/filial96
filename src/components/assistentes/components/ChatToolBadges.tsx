@@ -30,7 +30,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
 
   if (isStreaming) {
     return (
-      <div className="flex flex-col gap-2 w-full max-w-[calc(100%-8px)] sm:max-w-[360px] mb-2 mt-1 overflow-hidden">
+      <div className="flex flex-col gap-2 w-full max-w-full sm:max-w-[360px] mb-2 mt-1 overflow-hidden">
         <AnimatePresence>
           {tools.map((tool, index) => {
             const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processando", activeLabel: "Processando...", color: "blue" };
@@ -89,17 +89,17 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
                     )}
                   </div>
 
-                  <div className="flex-1 min-w-0 relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0 relative z-10 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       {isActive && (
                         <motion.div
-                          className="w-2 h-2 rounded-full bg-current"
+                          className="w-2 h-2 rounded-full bg-current shrink-0"
                           animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         />
                       )}
                       <span className={cn(
-                        "text-[13px] font-medium truncate",
+                        "text-[13px] font-medium truncate block",
                         isActive ? colors.text : "text-muted-foreground"
                       )}>
                         {isActive ? config.activeLabel : config.label}
@@ -107,7 +107,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
                     </div>
                     
                     {isActive && !showDetails && (
-                      <div className="flex items-center gap-1 shrink-0 ml-2">
+                      <div className="flex items-center gap-1 shrink-0">
                         {[0, 1, 2].map((i) => (
                           <motion.div
                             key={i}

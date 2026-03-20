@@ -30,7 +30,7 @@ export function WebSourcesPanel({ sources, className }: WebSourcesPanelProps) {
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-[calc(100%-8px)] sm:max-w-[360px] mb-3", className)}
+      className={cn("w-full max-w-full sm:max-w-[360px] mb-3", className)}
     >
       <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-blue-500/5 to-blue-500/10 backdrop-blur-sm overflow-hidden">
         {/* Header */}

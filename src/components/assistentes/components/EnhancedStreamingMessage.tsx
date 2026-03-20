@@ -70,7 +70,7 @@ export function EnhancedStreamingMessage({
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-2 min-w-0 max-w-[85%]">
+      <div className="flex flex-col gap-2 min-w-0 w-full flex-1 sm:max-w-[85%]">
         {/* Progress Timeline */}
         {showProgress && (
           <AgentProgressTimeline

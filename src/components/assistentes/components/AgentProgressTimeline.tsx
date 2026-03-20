@@ -50,7 +50,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-[calc(100%-8px)] sm:max-w-[360px] mb-3", className)}
+      className={cn("w-full max-w-full sm:max-w-[360px] mb-3", className)}
     >
       <div className="relative px-2 py-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/10 backdrop-blur-sm overflow-hidden">
         {/* Animated gradient background */}
@@ -60,13 +60,13 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
         />
 
-        <div className="relative flex items-center justify-between gap-1">
+        <div className="relative flex items-center justify-between w-full">
           {steps.map((step, index) => {
             const Icon = step.icon;
             const isLast = index === steps.length - 1;
 
             return (
-              <div key={step.id} className="flex items-center">
+              <div key={step.id} className={cn("flex items-center", !isLast && "flex-1")}>
                 <div className="flex flex-col items-center gap-1.5">
                   {/* Step icon */}
                   <div
@@ -116,7 +116,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
 
                 {/* Connector line */}
                 {!isLast && (
-                  <div className="w-6 h-[3px] mx-1 relative overflow-hidden rounded-full">
+                  <div className="flex-1 min-w-[8px] max-w-[24px] h-[3px] mx-1 sm:mx-2 relative overflow-hidden rounded-full shrink-1">
                     <div className="absolute inset-0 bg-muted-foreground/20" />
                     {step.status === 'completed' && (
                       <motion.div
