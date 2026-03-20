@@ -599,6 +599,7 @@ ${safetyInstruction}`;
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
               finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados."\nNÃO invente ou forneça informações genéricas sobre o tema.`;
+            }
           }
           
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Processando sua mensagem...", type: "reasoning" } })}\n\n`));
