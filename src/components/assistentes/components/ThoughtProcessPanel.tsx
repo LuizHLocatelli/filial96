@@ -66,16 +66,16 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
           onClick={() => setIsExpanded(!isExpanded)}
           className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
         >
-          <div className="flex items-center gap-2">
-            <div className={cn("flex items-center justify-center w-6 h-6 rounded-full", colorClass.split(' ').slice(1).join(' '))}>
+          <div className="flex items-center gap-2 min-w-0">
+            <div className={cn("flex items-center justify-center w-6 h-6 rounded-full shrink-0", colorClass.split(' ').slice(1).join(' '))}>
               <Icon className="w-3 h-3" />
             </div>
-            <span className="text-xs font-medium text-foreground/80">Pensamento do Assistente</span>
+            <span className="text-xs font-medium text-foreground/80 truncate text-left">Pensamento do Assistente</span>
           </div>
           {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-muted-foreground/60" />
+            <ChevronUp className="w-4 h-4 text-muted-foreground/60 shrink-0" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-muted-foreground/60" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground/60 shrink-0" />
           )}
         </button>
 
@@ -128,7 +128,7 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
                         isLatest ? "bg-muted/60 border border-border/50" : "bg-muted/30"
                       )}>
                         <p className={cn(
-                          "leading-relaxed",
+                          "leading-relaxed break-words",
                           isLatest ? "text-foreground/90" : "text-muted-foreground/80"
                         )}>
                           {thought.text}

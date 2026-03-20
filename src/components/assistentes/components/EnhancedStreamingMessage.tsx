@@ -49,7 +49,7 @@ export function EnhancedStreamingMessage({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.2 }}
-      className={cn("flex gap-3 flex-row", className)}
+      className={cn("flex gap-3 flex-row min-w-0", className)}
     >
       {/* Avatar */}
       <div className="relative shrink-0">
@@ -108,7 +108,7 @@ export function EnhancedStreamingMessage({
         {/* Streaming content */}
         {streamingContent && (
           <>
-            <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm">
+            <div className="px-4 py-3 bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm min-w-0 overflow-hidden">
               <StreamingMarkdown content={streamingContent} isStreaming={isStreaming} />
             </div>
 

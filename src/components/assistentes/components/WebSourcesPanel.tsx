@@ -34,14 +34,14 @@ export function WebSourcesPanel({ sources, className }: WebSourcesPanelProps) {
     >
       <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-blue-500/5 to-blue-500/10 backdrop-blur-sm overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-3 flex items-center gap-2 border-b border-border/30">
-          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20">
+        <div className="px-4 py-3 flex items-center gap-2 border-b border-border/30 min-w-0">
+          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20 shrink-0">
             <Globe className="w-3 h-3 text-blue-600 dark:text-blue-400" />
           </div>
-          <span className="text-xs font-medium text-foreground/80">
+          <span className="text-xs font-medium text-foreground/80 truncate">
             Fontes da Web
           </span>
-          <span className="ml-auto flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-medium">
+          <span className="ml-auto shrink-0 flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-medium">
             <CheckCircle2 className="w-3 h-3" />
             Verificado
           </span>
@@ -72,7 +72,7 @@ export function WebSourcesPanel({ sources, className }: WebSourcesPanelProps) {
                 <p className="text-xs font-medium text-foreground/90 line-clamp-2 leading-snug">
                   {source.title}
                 </p>
-                <div className="flex items-center gap-1.5 mt-1">
+                <div className="flex items-center gap-1.5 mt-1 min-w-0">
                   <Link2 className="w-3 h-3 text-muted-foreground/50" />
                   <span className="text-[10px] text-muted-foreground/70 truncate">
                     {source.domain}
@@ -81,7 +81,7 @@ export function WebSourcesPanel({ sources, className }: WebSourcesPanelProps) {
               </div>
 
               {/* External link indicator */}
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                 <ExternalLink className="w-3 h-3 text-muted-foreground/70" />
               </div>
             </motion.a>

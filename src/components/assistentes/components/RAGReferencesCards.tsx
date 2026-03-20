@@ -37,14 +37,14 @@ export function RAGReferencesCards({ references, className }: RAGReferencesCards
     >
       <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-amber-500/5 to-amber-500/10 backdrop-blur-sm overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-3 flex items-center gap-2 border-b border-border/30">
-          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20">
+        <div className="px-4 py-3 flex items-center gap-2 border-b border-border/30 min-w-0">
+          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 shrink-0">
             <BookOpen className="w-3 h-3 text-amber-600 dark:text-amber-400" />
           </div>
-          <span className="text-xs font-medium text-foreground/80">
+          <span className="text-xs font-medium text-foreground/80 truncate">
             Base de Conhecimento
           </span>
-          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-medium">
+          <span className="ml-auto shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-medium">
             {references.length} {references.length === 1 ? 'documento' : 'documentos'}
           </span>
         </div>
@@ -106,9 +106,9 @@ export function RAGReferencesCards({ references, className }: RAGReferencesCards
                       </Button>
                     )}
                     {isExpanded ? (
-                      <ChevronUp className="w-4 h-4 text-muted-foreground/60" />
+                      <ChevronUp className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-muted-foreground/60" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                     )}
                   </div>
                 </button>

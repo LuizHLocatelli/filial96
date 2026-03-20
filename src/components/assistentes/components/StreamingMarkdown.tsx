@@ -96,7 +96,7 @@ export const StreamingMarkdown = memo(({ content, isStreaming }: StreamingMarkdo
           font-weight: 600;
         }
       `}</style>
-      <div className="prose-stream dark:prose-invert max-w-none overflow-wrap-anywhere word-break-break-word">
+      <div className="prose-stream dark:prose-invert max-w-none [overflow-wrap:anywhere] [word-break:break-word] min-w-0 overflow-hidden">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {displayContent}
         </ReactMarkdown>

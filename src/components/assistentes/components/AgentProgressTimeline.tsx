@@ -66,8 +66,8 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
             const isLast = index === steps.length - 1;
 
             return (
-              <div key={step.id} className={cn("flex items-center", !isLast && "flex-1")}>
-                <div className="flex flex-col items-center gap-1.5">
+              <div key={step.id} className={cn("flex items-center min-w-0", !isLast && "flex-1")}>
+                <div className="flex flex-col items-center gap-1.5 min-w-0 w-full">
                   {/* Step icon */}
                   <div
                     className={cn(
@@ -104,7 +104,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
                   {/* Label */}
                   <span
                     className={cn(
-                      "text-[10px] font-medium transition-colors duration-300 whitespace-nowrap",
+                      "text-[10px] font-medium transition-colors duration-300 text-center leading-tight break-words max-w-full",
                       step.status === 'completed' && "text-emerald-600 dark:text-emerald-400",
                       step.status === 'active' && "text-primary",
                       step.status === 'pending' && "text-muted-foreground/50"
@@ -116,7 +116,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
 
                 {/* Connector line */}
                 {!isLast && (
-                  <div className="flex-1 min-w-[8px] max-w-[24px] h-[3px] mx-1 sm:mx-2 relative overflow-hidden rounded-full shrink-1">
+                  <div className="flex-1 min-w-[4px] max-w-[24px] h-[3px] mx-1 sm:mx-2 relative overflow-hidden rounded-full shrink-1">
                     <div className="absolute inset-0 bg-muted-foreground/20" />
                     {step.status === 'completed' && (
                       <motion.div
