@@ -147,7 +147,8 @@ async function getEmbedding(text: string): Promise<number[]> {
     }
     
     const data = await res.json();
-    const values = data.embedding?.values || [];
+    const embedding = data.embedding;
+    const values = Array.isArray(embedding?.values) ? embedding.values : [];
     
     if (values.length === 0) {
       console.error("Embedding API returned empty values");
