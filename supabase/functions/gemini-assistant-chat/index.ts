@@ -218,7 +218,7 @@ async function retrieveRAGContext(
     const { data: results, error } = await supabase.rpc("match_assistant_documents", {
       query_embedding: embeddingStr,
       p_assistant_id: assistantId,
-      match_threshold: 0.50,
+      match_threshold: 0.30,
       match_count: 5,
     });
     
@@ -458,9 +458,7 @@ ${safetyInstruction}`;
           finalSystemMessage += ragResult.context;
           activatedTools.push("rag");
         } else {
-          finalSystemMessage += `\n\n[AVISO]
-          A base de conhecimento pode não conter informações relevantes para esta pergunta.
-          Se não encontrar nos documentos, diga que não encontrou.`;
+          finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados. Por favor, faça uma pergunta mais específica sobre o conteúdo dos documentos ou sobre VM, moda ou campanhas disponíveis."\nNÃO invente, предположите ou forneça informações genéricas sobre o tema. Sempre cite especificamente algo dos documentos se disponível.`;
         }
       }
 
@@ -586,7 +584,7 @@ ${safetyInstruction}`;
             } else {
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
-            }
+              finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados."\nNÃO inventa ou forneça informações genéricas sobre o tema.`;
           }
           
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Processando sua mensagem...", type: "reasoning" } })}\n\n`));
