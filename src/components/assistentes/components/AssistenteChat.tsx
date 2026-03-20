@@ -373,7 +373,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
             )}
           </AnimatePresence>
 
-                    {/* Streaming response */}
+          {/* Streaming response */}
           {isSending && (
             <EnhancedStreamingMessage
               assistantAvatar={assistant.avatar_icon}
@@ -386,6 +386,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
               ragReferences={ragReferences}
               webSources={webSources}
               onCancel={cancelStream}
+              className="w-full flex-1"
             />
           )}
 
