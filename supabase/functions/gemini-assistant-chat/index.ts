@@ -394,7 +394,7 @@ Ao usar informações da web:
 5.Respeite o contexto da conversa e mantenha consistência`;
 
     // Assemble final system message in proper order
-    const finalSystemMessage = `${systemMessage}
+    let finalSystemMessage = `${systemMessage}
 
 ${imageInstruction}
 
