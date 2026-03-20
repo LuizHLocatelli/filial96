@@ -28,7 +28,7 @@ function cleanGeminiOutput(text: string): string {
   }
   
   // Remove any leftover bracket characters at the end
-  cleaned = cleaned.replace(/[\{\}\[\]]+$/g, "");
+  cleaned = cleaned.replace(/[{}[\]]+$/g, "");
   
   // Clean up multiple spaces/tabs, preserve newlines for markdown formatting
   cleaned = cleaned.replace(/[ \t]+/g, " ").trim();
@@ -188,7 +188,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
 
             // Handle RAG references
             if (parsed.rag_documents && Array.isArray(parsed.rag_documents)) {
-              const refs: RAGReference[] = parsed.rag_documents.map((doc: any) => ({
+              const refs: RAGReference[] = parsed.rag_documents.map((doc: Record<string, unknown>) => ({
                 fileName: doc.file_name || doc.fileName || 'Documento',
                 fileUrl: doc.file_url || doc.fileUrl || '',
                 relevanceScore: doc.relevance_score || doc.relevanceScore || 0,
@@ -200,7 +200,7 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
 
             // Handle web sources
             if (parsed.web_sources && Array.isArray(parsed.web_sources)) {
-              const sources: WebSource[] = parsed.web_sources.map((src: any) => ({
+              const sources: WebSource[] = parsed.web_sources.map((src: Record<string, unknown>) => ({
                 title: src.title || 'Fonte',
                 uri: src.uri || src.url || '',
                 domain: src.domain || new URL(src.uri || src.url || 'http://example.com').hostname,

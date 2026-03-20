@@ -177,14 +177,14 @@ async function retrieveRAGContext(assistantId: string, query: string): Promise<{
     }
 
     // Build enhanced context with similarity scores
-    const context = data.map((d: any, i: number) => {
+    const context = data.map((d: MatchedDocument, i: number) => {
       const similarityPct = Math.round((d.similarity || 0.8) * 100);
       return `[Documento: ${d.file_name}] (Relevância: ${similarityPct}%)\n${d.content_text}`;
     }).join("\n\n---\n\n");
 
     return {
       context: `\n\n[CONTEXTO DA BASE DE CONHECIMENTO]\nUse as informações abaixo para responder perguntas. Cite sempre a fonte usando o nome do documento.\n\n${context}\n[FIM DO CONTEXTO]`,
-      documents: data.map((d: any) => ({
+      documents: data.map((d: MatchedDocument) => ({
         file_name: d.file_name,
         content_text: d.content_text,
         similarity: d.similarity,
@@ -211,7 +211,7 @@ function cleanGeminiOutput(text: string): string {
   }
   
   // Remove any leftover bracket characters at the end
-  cleaned = cleaned.replace(/[\{\}\[\]]+$/g, "");
+  cleaned = cleaned.replace(/[{}[\]]+$/g, "");
   
   // Clean up multiple spaces/tabs, preserve newlines for markdown formatting
   cleaned = cleaned.replace(/[ \t]+/g, " ").trim();
