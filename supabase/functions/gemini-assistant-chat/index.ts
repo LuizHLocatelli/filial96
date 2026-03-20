@@ -28,7 +28,7 @@ interface DocumentAttachment {
 }
 
 interface MatchedDocument {
-  id?: string;
+  id: string;
   file_name: string;
   content_text: string;
   file_url?: string;
@@ -458,7 +458,7 @@ ${safetyInstruction}`;
           finalSystemMessage += ragResult.context;
           activatedTools.push("rag");
         } else {
-          finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados. Por favor, faça uma pergunta mais específica sobre o conteúdo dos documentos ou sobre VM, moda ou campanhas disponíveis."\nNÃO invente, предположите ou forneça informações genéricas sobre o tema. Sempre cite especificamente algo dos documentos se disponível.`;
+          finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados. Por favor, faça uma pergunta mais específica sobre o conteúdo dos documentos ou sobre VM, moda ou campanhas disponíveis."\nNÃO invente ou forneça informações genéricas sobre o tema. Sempre cite especificamente algo dos documentos se disponível.`;
         }
       }
 
@@ -584,7 +584,7 @@ ${safetyInstruction}`;
             } else {
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ tool: "rag", status: "removed" })}\n\n`));
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Nenhum documento relevante encontrado na base de conhecimento", type: "rag" } })}\n\n`));
-              finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados."\nNÃO inventa ou forneça informações genéricas sobre o tema.`;
+              finalSystemMessage += `\n\n[IMPORTANTE - RESTRIÇÃO DE RESPOSTA]\nA base de conhecimento NÃO contém informações relevantes para esta pergunta específica.\nVocê DEVE responder apenas dizendo: "Não encontrei informações sobre este tema nos documentos carregados."\nNÃO invente ou forneça informações genéricas sobre o tema.`;
           }
           
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ thought: { text: "Processando sua mensagem...", type: "reasoning" } })}\n\n`));
@@ -615,7 +615,7 @@ ${safetyInstruction}`;
 
           let fullText = "";
           const groundingSources: { title: string; uri: string; domain: string }[] = [];
-          const reader = streamRes.body!.getReader();
+          const reader = streamRes.body?.getReader();
           const decoder = new TextDecoder();
 
           while (true) {
