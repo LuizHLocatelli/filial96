@@ -70,6 +70,28 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
     }
   }, [isSending]);
 
+  useEffect(() => {
+    if (streamStatus === 'using_tools' && scrollRef.current) {
+      const viewport = scrollRef.current.closest('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      } else {
+        scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [streamStatus]);
+
+  useEffect(() => {
+    if (activeTools.length > 0 && scrollRef.current) {
+      const viewport = scrollRef.current.closest('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      } else {
+        scrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [activeTools]);
+
   // Listen for pending messages from auto-session creation
   useEffect(() => {
     if (!session) return;
