@@ -271,7 +271,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 }`}>
                   {msg.role === 'user' ? <span className="text-sm">❔</span> : <span className="text-sm">🧠</span>}
                 </div>
-                <div className={`flex flex-col gap-1.5 min-w-0 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`flex flex-col gap-1.5 min-w-0 max-w-[calc(100%-3rem)] sm:max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {/* Tool badges for saved model messages */}
                   {msg.role === 'model' && msg.tools_used && msg.tools_used.length > 0 && (
                     <ChatToolBadges tools={msg.tools_used} />
@@ -345,7 +345,7 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm bg-primary text-primary-foreground">
                   <span className="text-sm">❔</span>
                 </div>
-                <div className="flex flex-col gap-1.5 min-w-0 max-w-[85%] items-end">
+                <div className="flex flex-col gap-1.5 min-w-0 max-w-[calc(100%-3rem)] sm:max-w-[85%] items-end">
                   <div className="px-4 py-3 min-w-0 overflow-hidden bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20">
                     <div className="text-[13px] leading-relaxed">
                       <style>{`
