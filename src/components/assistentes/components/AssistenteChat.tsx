@@ -272,8 +272,34 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                       ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20' 
                       : 'bg-card border border-border/50 rounded-2xl rounded-tl-md shadow-sm'
                   }`}>
-                    <div className="text-[13px] prose dark:prose-invert prose-sm prose-p:leading-relaxed prose-pre:bg-muted prose-pre:border prose-pre:overflow-x-auto prose-code:text-xs prose-p:my-1.5 prose-headings:my-2 prose-table:w-full prose-table:text-xs prose-th:bg-muted/50 prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-medium prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-border/50 max-w-none [overflow-wrap:anywhere] [word-break:break-word] overflow-x-auto">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                    <div className="text-[13px] leading-relaxed">
+                      <style>{`
+                        .msg-markdown table {
+                          width: 100%;
+                          border-collapse: collapse;
+                          margin: 0.75rem 0;
+                          font-size: 0.7rem;
+                          overflow-x: auto;
+                          display: block;
+                        }
+                        .msg-markdown thead { background: hsl(var(--muted) / 0.5); }
+                        .msg-markdown th { padding: 0.375rem 0.5rem; text-align: left; font-weight: 500; border-bottom: 1px solid hsl(var(--border)); }
+                        .msg-markdown td { padding: 0.375rem 0.5rem; border-top: 1px solid hsl(var(--border) / 0.5); }
+                        .msg-markdown pre { background: hsl(var(--muted)); border: 1px solid hsl(var(--border)); border-radius: 0.375rem; padding: 0.5rem 0.75rem; overflow-x: auto; margin: 0.5rem 0; }
+                        .msg-markdown code { font-size: 0.7rem; font-family: ui-monospace, monospace; }
+                        .msg-markdown :not(pre) > code { background: hsl(var(--muted)); padding: 0.1rem 0.3rem; border-radius: 0.2rem; }
+                        .msg-markdown ul, .msg-markdown ol { margin: 0.375rem 0; padding-left: 1.25rem; }
+                        .msg-markdown li { margin: 0.2rem 0; }
+                        .msg-markdown p { margin: 0.375rem 0; }
+                        .msg-markdown h1, .msg-markdown h2, .msg-markdown h3, .msg-markdown h4 { margin: 0.75rem 0 0.375rem 0; font-weight: 600; }
+                        .msg-markdown blockquote { border-left: 3px solid hsl(var(--primary)); padding-left: 0.75rem; margin: 0.5rem 0; color: hsl(var(--muted-foreground)); }
+                        .msg-markdown a { color: hsl(var(--primary)); text-decoration: underline; text-underline-offset: 2px; }
+                        .msg-markdown strong { font-weight: 600; }
+                        .msg-markdown hr { border: none; border-top: 1px solid hsl(var(--border)); margin: 0.75rem 0; }
+                      `}</style>
+                      <div className="msg-markdown max-w-none [overflow-wrap:anywhere] [word-break:break-word]">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                      </div>
                     </div>
                   </div>
                   <span className="text-[10px] text-muted-foreground/60 px-1">
@@ -299,8 +325,24 @@ export function AssistenteChat({ assistant, session, onNewSession, onSendWithout
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-0 max-w-[85%] items-end">
                   <div className="px-4 py-3 min-w-0 overflow-hidden bg-primary text-primary-foreground rounded-2xl rounded-tr-md shadow-sm shadow-primary/20">
-                    <div className="text-[13px] prose prose-sm prose-p:my-1.5 max-w-none text-primary-foreground [&_*]:text-inherit [overflow-wrap:anywhere] [word-break:break-word]">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{transitionMessage.content}</ReactMarkdown>
+                    <div className="text-[13px] leading-relaxed">
+                      <style>{`
+                        .transition-markdown table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.7rem; }
+                        .transition-markdown th { padding: 0.375rem 0.5rem; text-align: left; font-weight: 500; border-bottom: 1px solid hsl(var(--primary-foreground) / 0.2); }
+                        .transition-markdown td { padding: 0.375rem 0.5rem; border-top: 1px solid hsl(var(--primary-foreground) / 0.1); }
+                        .transition-markdown pre { background: hsl(var(--primary-foreground) / 0.1); border-radius: 0.375rem; padding: 0.5rem 0.75rem; overflow-x: auto; margin: 0.5rem 0; }
+                        .transition-markdown code { font-size: 0.7rem; font-family: ui-monospace, monospace; }
+                        .transition-markdown :not(pre) > code { background: hsl(var(--primary-foreground) / 0.15); padding: 0.1rem 0.3rem; border-radius: 0.2rem; }
+                        .transition-markdown ul, .transition-markdown ol { margin: 0.375rem 0; padding-left: 1.25rem; }
+                        .transition-markdown li { margin: 0.2rem 0; }
+                        .transition-markdown p { margin: 0.375rem 0; }
+                        .transition-markdown h1, .transition-markdown h2, .transition-markdown h3 { margin: 0.75rem 0 0.375rem 0; font-weight: 600; }
+                        .transition-markdown a { text-decoration: underline; text-underline-offset: 2px; }
+                        .transition-markdown strong { font-weight: 600; }
+                      `}</style>
+                      <div className="transition-markdown max-w-none text-primary-foreground [&_*]:text-inherit [overflow-wrap:anywhere] [word-break:break-word]">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{transitionMessage.content}</ReactMarkdown>
+                      </div>
                     </div>
                   </div>
                   <span className="text-[10px] text-muted-foreground/60 px-1">agora</span>
