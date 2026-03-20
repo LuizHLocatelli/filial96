@@ -30,8 +30,8 @@ function cleanGeminiOutput(text: string): string {
   // Remove any leftover bracket characters at the end
   cleaned = cleaned.replace(/[\{\}\[\]]+$/g, "");
   
-  // Clean up multiple spaces or newlines
-  cleaned = cleaned.replace(/\s+/g, " ").trim();
+  // Clean up multiple spaces/tabs, preserve newlines for markdown formatting
+  cleaned = cleaned.replace(/[ \t]+/g, " ").trim();
   
   return cleaned;
 }
