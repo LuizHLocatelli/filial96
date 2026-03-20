@@ -63,7 +63,7 @@ export function EnhancedStreamingMessage({
         
         {/* Online/Streaming indicator */}
         <motion.div
-          className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-background"
+          className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-border"
           animate={isStreaming ? { scale: [1, 1.2, 1], opacity: [1, 0.7, 1] } : {}}
           transition={{ duration: 1, repeat: Infinity }}
         />

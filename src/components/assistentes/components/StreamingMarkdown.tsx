@@ -95,20 +95,6 @@ export const StreamingMarkdown = memo(({ content, isStreaming }: StreamingMarkdo
         .prose-stream strong {
           font-weight: 600;
         }
-        .streaming-cursor {
-          display: inline-block;
-          width: 6px;
-          height: 1em;
-          background: hsl(var(--primary));
-          margin-left: 2px;
-          border-radius: 2px;
-          animation: blink 1s infinite;
-          vertical-align: text-bottom;
-        }
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
       `}</style>
       <div className="prose-stream dark:prose-invert max-w-none overflow-wrap-anywhere word-break-break-word">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>

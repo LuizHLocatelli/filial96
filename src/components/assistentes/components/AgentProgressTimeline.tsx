@@ -50,7 +50,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-[320px] mb-3", className)}
+      className={cn("w-full max-w-[360px] mb-3", className)}
     >
       <div className="relative px-2 py-3 rounded-2xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/10 backdrop-blur-sm overflow-hidden">
         {/* Animated gradient background */}
@@ -116,7 +116,7 @@ export function AgentProgressTimeline({ status, activeTools, className }: AgentP
 
                 {/* Connector line */}
                 {!isLast && (
-                  <div className="w-6 h-[2px] mx-1 relative overflow-hidden">
+                  <div className="w-6 h-[3px] mx-1 relative overflow-hidden rounded-full">
                     <div className="absolute inset-0 bg-muted-foreground/20" />
                     {step.status === 'completed' && (
                       <motion.div

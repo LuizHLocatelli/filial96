@@ -17,12 +17,12 @@ const TOOL_CONFIG: Record<string, { icon: typeof Globe; label: string; activeLab
   database: { icon: Database, label: "Banco de Dados", activeLabel: "Consultando banco...", color: "cyan" },
 };
 
-const colorMap: Record<string, { bg: string; border: string; text: string; glow: string }> = {
-  blue: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", glow: "shadow-blue-500/20" },
-  amber: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-600 dark:text-amber-400", glow: "shadow-amber-500/20" },
-  orange: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-600 dark:text-orange-400", glow: "shadow-orange-500/20" },
-  purple: { bg: "bg-purple-500/10", border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", glow: "shadow-purple-500/20" },
-  cyan: { bg: "bg-cyan-500/10", border: "border-cyan-500/30", text: "text-cyan-600 dark:text-cyan-400", glow: "shadow-cyan-500/20" },
+const colorMap: Record<string, { bg: string; border: string; text: string; glow: string; dot: string }> = {
+  blue: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", glow: "shadow-blue-500/20", dot: "bg-blue-500" },
+  amber: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-600 dark:text-amber-400", glow: "shadow-amber-500/20", dot: "bg-amber-500" },
+  orange: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-600 dark:text-orange-400", glow: "shadow-orange-500/20", dot: "bg-orange-500" },
+  purple: { bg: "bg-purple-500/10", border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", glow: "shadow-purple-500/20", dot: "bg-purple-500" },
+  cyan: { bg: "bg-cyan-500/10", border: "border-cyan-500/30", text: "text-cyan-600 dark:text-cyan-400", glow: "shadow-cyan-500/20", dot: "bg-cyan-500" },
 };
 
 export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = false, showDetails = false }: ChatToolBadgesProps) {
@@ -30,7 +30,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
 
   if (isStreaming) {
     return (
-      <div className="flex flex-col gap-2 w-full max-w-[300px] sm:max-w-[340px] mb-2 mt-1">
+      <div className="flex flex-col gap-2 w-full max-w-[360px] mb-2 mt-1">
         <AnimatePresence>
           {tools.map((tool, index) => {
             const config = TOOL_CONFIG[tool] || { icon: Sparkles, label: "Processando", activeLabel: "Processando...", color: "blue" };
@@ -111,7 +111,7 @@ export function ChatToolBadges({ tools, isStreaming = false, isGeneratingText = 
                         {[0, 1, 2].map((i) => (
                           <motion.div
                             key={i}
-                            className={cn("w-1.5 h-1.5 rounded-full", colors.text.replace("text-", "bg-").split(' ')[0] + "/60")}
+                            className={cn("w-1.5 h-1.5 rounded-full", colors.dot, "opacity-60")}
                             animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
                             transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
                           />
