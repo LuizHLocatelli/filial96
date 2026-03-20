@@ -58,7 +58,7 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className={cn("w-full max-w-full sm:max-w-[360px] mb-3", className)}
+      className={cn("w-full max-w-full sm:max-w-[360px] mb-3 min-w-0", className)}
     >
       <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm overflow-hidden">
         {/* Header */}
@@ -89,7 +89,7 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-3 space-y-2">
+              <div className="px-4 pb-3 space-y-2 min-w-0">
                 {thoughts.map((thought, index) => {
                   const ThoughtIcon = getThoughtIcon(thought.type);
                   const thoughtColorClass = getThoughtColor(thought.type);
@@ -101,7 +101,7 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
                       initial={{ opacity: 0, x: -10, height: 0 }}
                       animate={{ opacity: 1, x: 0, height: 'auto' }}
                       transition={{ duration: 0.2, delay: index * 0.05 }}
-                      className="flex items-start gap-2"
+                      className="flex items-start gap-2 min-w-0"
                     >
                       {/* Timeline dot */}
                       <div className="flex flex-col items-center mt-1">
@@ -128,7 +128,7 @@ export function ThoughtProcessPanel({ thoughts, className }: ThoughtProcessPanel
                         isLatest ? "bg-muted/60 border border-border/50" : "bg-muted/30"
                       )}>
                         <p className={cn(
-                          "leading-relaxed break-words",
+                          "leading-relaxed break-words whitespace-pre-wrap [word-break:break-word] max-w-full",
                           isLatest ? "text-foreground/90" : "text-muted-foreground/80"
                         )}>
                           {thought.text}
