@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,13 +15,24 @@ interface ModelInsertPayload {
 
 function cleanGeminiOutput(text: string): string {
   if (!text) return text;
-  // Removes complete tool calls like google:search{...} or google:search{... return:X>]}
-  let cleaned = text.replace(/google:[a-zA-Z0-9_]+\{.*?\}(?:\s*return:\d+>\]\})?/gs, "");
-  // Removes partial tool calls at the end of the text if still streaming
-  const match = cleaned.match(/google:[a-zA-Z0-9_]+\{.*$/s);
-  if (match) {
-    cleaned = cleaned.slice(0, match.index);
+  
+  let cleaned = text;
+  
+  // Remove tool calls pattern: google:search{...} or google:search{... return:X>]}
+  cleaned = cleaned.replace(/google:[a-zA-Z0-9_]+\{[^}]*\}(?:\s*return:\d+>\]\})?/g, "");
+  
+  // Remove partial tool calls at the end of the text if still streaming
+  const partialMatch = cleaned.match(/google:[a-zA-Z0-9_]+\{[^}]*$/s);
+  if (partialMatch) {
+    cleaned = cleaned.slice(0, partialMatch.index);
   }
+  
+  // Remove any leftover bracket characters at the end
+  cleaned = cleaned.replace(/[\{\}\[\]]+$/g, "");
+  
+  // Clean up multiple spaces or newlines
+  cleaned = cleaned.replace(/\s+/g, " ").trim();
+  
   return cleaned;
 }
 
@@ -35,6 +46,16 @@ export function useChatSession(sessionId: string | null, assistant: AIAssistant 
   const [ragReferences, setRAGReferences] = useState<RAGReference[]>([]);
   const [webSources, setWebSources] = useState<WebSource[]>([]);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+        abortRef.current = null;
+      }
+    };
+  }, []);
 
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ["ai_chat_messages", sessionId],
