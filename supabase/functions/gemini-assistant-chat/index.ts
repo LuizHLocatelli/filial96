@@ -250,15 +250,15 @@ async function retrieveRAGContext(
     let results = null;
     let useHybrid = false;
     
-    // Try hybrid search with lower threshold to catch more results
+    // Use hybrid search with better weighting - prioritize vector similarity
     const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
       p_query_embedding: embeddingStr,
       p_query_text: expandedQuery,
       p_assistant_id: assistantId,
-      p_match_threshold: 0.40,
+      p_match_threshold: 0.35,
       p_match_count: 15,
-      p_vector_weight: 0.7,
-      p_fts_weight: 0.3
+      p_vector_weight: 0.85,
+      p_fts_weight: 0.15
     });
     
     if (!hybridError && hybridResults && hybridResults.length > 0) {
@@ -266,12 +266,12 @@ async function retrieveRAGContext(
       useHybrid = true;
       console.log("RAG: Using hybrid search, got", results.length, "results");
     } else {
-      // Fallback to vector-only search with improved parameters
+      // Fallback to vector-only search with lower threshold
       console.log("RAG: Hybrid search failed or returned empty, using vector search");
       const { data: vectorResults, error: vectorError } = await supabase.rpc("match_assistant_documents", {
         query_embedding: embeddingStr,
         p_assistant_id: assistantId,
-        match_threshold: 0.40,
+        match_threshold: 0.35,
         match_count: 15,
       });
       
