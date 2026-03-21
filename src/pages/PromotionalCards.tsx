@@ -1,28 +1,53 @@
 import { useState } from "react";
-import { Plus, Sparkles, Wand2, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Plus, Wand2, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FoldersList } from "@/components/promotional-cards/FoldersList";
 import { CardGallery } from "@/components/promotional-cards/CardGallery";
 import { CreateFolderDialog } from "@/components/promotional-cards/CreateFolderDialog";
 import { UploadCardDialog } from "@/components/promotional-cards/UploadCardDialog";
 import { CreateCardWithAIDialog } from "@/components/promotional-cards/CreateCardWithAIDialog";
-import { SectorSelector } from "@/components/promotional-cards/SectorSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageNavigation } from "@/components/layout/PageNavigation";
 import { useCards } from "@/hooks/useCards";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
+import { Armchair, Shirt, Banknote, Settings } from "lucide-react";
+
+type Sector = "furniture" | "fashion" | "loan" | "service";
+
+const SectorGallery = ({ 
+  sector,
+  folderId,
+  onUploadClick
+}: { 
+  sector: Sector;
+  folderId: string | null;
+  onUploadClick: () => void;
+}) => {
+  const { cards, setCards, isLoading, refetch } = useCards(sector, folderId);
+  
+  return (
+    <CardGallery 
+      sector={sector}
+      folderId={folderId}
+      cards={cards}
+      setCards={setCards}
+      isLoading={isLoading}
+      onCreateCard={onUploadClick}
+    />
+  );
+};
 
 export default function PromotionalCards() {
-  const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion" | "loan" | "service">("furniture");
+  const [selectedSector, setSelectedSector] = useState<Sector>("furniture");
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
@@ -30,12 +55,61 @@ export default function PromotionalCards() {
   const [foldersRefreshKey, setFoldersRefreshKey] = useState(0);
   const [isFolderPanelOpen, setIsFolderPanelOpen] = useState(false);
   const isMobile = useIsMobile();
-  const { cards, setCards, isLoading, refetch } = useCards(selectedSector, selectedFolderId);
-  
-  const handleSectorChange = (value: string) => {
-    setSelectedSector(value as "furniture" | "fashion" | "loan" | "service");
-    setSelectedFolderId(null);
-  };
+
+  const tabsConfig = [
+    {
+      value: "furniture",
+      label: "Móveis",
+      icon: Armchair,
+      mobileLabel: "Móveis",
+      component: (
+        <SectorGallery 
+          sector="furniture" 
+          folderId={selectedFolderId}
+          onUploadClick={() => setIsUploadCardOpen(true)}
+        />
+      )
+    },
+    {
+      value: "fashion",
+      label: "Moda",
+      icon: Shirt,
+      mobileLabel: "Moda",
+      component: (
+        <SectorGallery 
+          sector="fashion" 
+          folderId={selectedFolderId}
+          onUploadClick={() => setIsUploadCardOpen(true)}
+        />
+      )
+    },
+    {
+      value: "loan",
+      label: "Empréstimo",
+      icon: Banknote,
+      mobileLabel: "Emp.",
+      component: (
+        <SectorGallery 
+          sector="loan" 
+          folderId={selectedFolderId}
+          onUploadClick={() => setIsUploadCardOpen(true)}
+        />
+      )
+    },
+    {
+      value: "service",
+      label: "Geral",
+      icon: Settings,
+      mobileLabel: "Geral",
+      component: (
+        <SectorGallery 
+          sector="service" 
+          folderId={selectedFolderId}
+          onUploadClick={() => setIsUploadCardOpen(true)}
+        />
+      )
+    }
+  ];
 
   const FoldersPanel = () => (
     <div className="space-y-4">
@@ -56,7 +130,7 @@ export default function PromotionalCards() {
       </div>
       
       <FoldersList 
-        key={foldersRefreshKey}
+        key={`${foldersRefreshKey}-${selectedSector}`}
         sector={selectedSector}
         selectedFolderId={selectedFolderId}
         onSelectFolder={(folderId) => {
@@ -106,9 +180,15 @@ export default function PromotionalCards() {
       />
 
       <div className="space-y-4">
-        <SectorSelector 
-          selectedSector={selectedSector} 
-          onSectorChange={handleSectorChange}
+        <PageNavigation
+          tabs={tabsConfig}
+          activeTab={selectedSector}
+          onTabChange={(value) => {
+            setSelectedSector(value as Sector);
+            setSelectedFolderId(null);
+          }}
+          variant="cards"
+          maxColumns={4}
         />
 
         <div className={cn(
@@ -161,13 +241,10 @@ export default function PromotionalCards() {
             className="flex-1 min-w-0"
           >
             <div className="glass-card p-4 sm:p-6">
-              <CardGallery 
+              <SectorGallery 
                 sector={selectedSector}
                 folderId={selectedFolderId}
-                cards={cards}
-                setCards={setCards}
-                isLoading={isLoading}
-                onCreateCard={() => setIsUploadCardOpen(true)}
+                onUploadClick={() => setIsUploadCardOpen(true)}
               />
             </div>
           </motion.div>
@@ -186,7 +263,7 @@ export default function PromotionalCards() {
         onOpenChange={setIsUploadCardOpen}
         sector={selectedSector}
         folderId={selectedFolderId}
-        onUploadSuccess={refetch}
+        onUploadSuccess={() => {}}
       />
 
       <CreateCardWithAIDialog
@@ -194,7 +271,7 @@ export default function PromotionalCards() {
         onOpenChange={setIsAICardOpen}
         sector={selectedSector}
         folderId={selectedFolderId}
-        onSuccess={refetch}
+        onSuccess={() => {}}
       />
     </PageLayout>
   );
