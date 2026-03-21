@@ -246,43 +246,50 @@ async function retrieveRAGContext(
     
     const embeddingStr = `[${embedding.join(",")}]`;
     
-    // Try hybrid search first (vector + BM25), fallback to vector-only
-    let results = null;
+    // Use PURE VECTOR SEARCH - FTS was hurting more than helping
+    // High-frequency terms like "Lebes" dominated FTS scores, drowningsemantic matcheslet results = null;
     let useHybrid = false;
     
-    // Use hybrid search with better weighting - prioritize vector similarity
-    const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
-      p_query_embedding: embeddingStr,
-      p_query_text: expandedQuery,
+    // Vector search first (most reliable for semantic matching)
+    const { data: vectorResults, error: vectorError } = await supabase.rpc("match_assistant_documents", {
+      query_embedding: embeddingStr,
       p_assistant_id: assistantId,
-      p_match_threshold: 0.35,
-      p_match_count: 15,
-      p_vector_weight: 0.85,
-      p_fts_weight: 0.15
+      match_threshold: 0.35,
+      match_count: 15,
     });
     
-    if (!hybridError && hybridResults && hybridResults.length > 0) {
-      results = hybridResults;
-      useHybrid = true;
-      console.log("RAG: Using hybrid search, got", results.length, "results");
+    if (!vectorError && vectorResults && vectorResults.length > 0) {
+      results = vectorResults;
+      console.log("RAG: Vector search got", results.length, "results");
     } else {
-      // Fallback to vector-only search with lower threshold
-      console.log("RAG: Hybrid search failed or returned empty, using vector search");
-      const { data: vectorResults, error: vectorError } = await supabase.rpc("match_assistant_documents", {
-        query_embedding: embeddingStr,
+      // Fallback to hybrid if vector fails
+      console.log("RAG: Vector search failed, trying hybrid");
+      const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
+        p_query_embedding: embeddingStr,
+        p_query_text: expandedQuery,
         p_assistant_id: assistantId,
-        match_threshold: 0.35,
-        match_count: 15,
+        p_match_threshold: 0.35,
+        p_match_count: 15,
+        p_vector_weight: 0.95,
+        p_fts_weight: 0.05
       });
       
-      if (!vectorError) {
-        results = vectorResults;
+      if (!hybridError && hybridResults && hybridResults.length > 0) {
+        results = hybridResults;
+        useHybrid = true;
+        console.log("RAG: Hybrid search got", results.length, "results");
       }
     }
     
-    if (error) {
-      console.error("RAG: RPC error:", error);
-      debugInfo.error = `RPC error: ${error.message}`;
+    if (!results || results.length === 0) {
+      console.log("RAG: No results from vector or hybrid search");
+      debugInfo.error = "No results from search (similarity below threshold or no docs)";
+      return { context: "", documents: [], hasContext: false, debug: debugInfo };
+    }
+    
+    if (vectorError && !results) {
+      console.error("RAG: Vector search error:", vectorError);
+      debugInfo.error = `Vector search error: ${vectorError.message}`;
       return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
