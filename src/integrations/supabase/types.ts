@@ -1462,6 +1462,7 @@ export type Database = {
         }[]
       }
       get_last_depositos_reset: { Args: never; Returns: string }
+      get_query_embedding: { Args: { p_query: string }; Returns: string }
       get_user_role: { Args: { user_id?: string }; Returns: string }
       is_gerente: { Args: { user_id: string }; Returns: boolean }
       is_manager: { Args: never; Returns: boolean }
@@ -1470,8 +1471,25 @@ export type Database = {
         Args: {
           match_count?: number
           match_threshold?: number
-          p_assistant_id: string
+          p_assistant_id?: string
           query_embedding: string
+        }
+        Returns: {
+          content_text: string
+          file_name: string
+          id: string
+          similarity: number
+        }[]
+      }
+      match_assistant_documents_hybrid: {
+        Args: {
+          p_assistant_id?: string
+          p_fts_weight?: number
+          p_match_count?: number
+          p_match_threshold?: number
+          p_query_embedding: string
+          p_query_text: string
+          p_vector_weight?: number
         }
         Returns: {
           content_text: string
@@ -1516,6 +1534,7 @@ export type Database = {
       }
       obter_sabado_anterior: { Args: { data_param: string }; Returns: string }
       recalculate_all_deposit_statistics: { Args: never; Returns: undefined }
+      reindex_documents_tsvector: { Args: never; Returns: undefined }
       upsert_moda_estoque_produto: {
         Args: {
           p_codigo_produto: string
