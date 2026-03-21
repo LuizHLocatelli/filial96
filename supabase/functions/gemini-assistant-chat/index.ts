@@ -243,14 +243,19 @@ async function retrieveRAGContext(
     }
     
     console.log("RAG: Embedding generated, dimensions:", embedding.length);
+    console.log("RAG: Embedding preview (first 5 values):", embedding.slice(0, 5));
+    console.log("RAG: assistantId:", assistantId);
     
     const embeddingStr = `[${embedding.join(",")}]`;
+    console.log("RAG: Embedding string length:", embeddingStr.length);
     
     // Use PURE VECTOR SEARCH - FTS was hurting more than helping
-    // High-frequency terms like "Lebes" dominated FTS scores, drowningsemantic matcheslet results = null;
+    // High-frequency terms like "Lebes" dominated FTS scores, drowning semantic matches
+    let results: any = null;
     let useHybrid = false;
     
     // Vector search first (most reliable for semantic matching)
+    console.log("RAG: Calling match_assistant_documents RPC...");
     const { data: vectorResults, error: vectorError } = await supabase.rpc("match_assistant_documents", {
       query_embedding: embeddingStr,
       p_assistant_id: assistantId,
@@ -258,12 +263,15 @@ async function retrieveRAGContext(
       match_count: 15,
     });
     
+    console.log("RAG: Vector search RPC complete. error:", vectorError, "results count:", vectorResults?.length);
+    
     if (!vectorError && vectorResults && vectorResults.length > 0) {
       results = vectorResults;
       console.log("RAG: Vector search got", results.length, "results");
+      console.log("RAG: Vector results file_names:", vectorResults.map((r: any) => r.file_name));
     } else {
       // Fallback to hybrid if vector fails
-      console.log("RAG: Vector search failed, trying hybrid");
+      console.log("RAG: Vector search failed/error, trying hybrid");
       const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
         p_query_embedding: embeddingStr,
         p_query_text: expandedQuery,
@@ -278,6 +286,8 @@ async function retrieveRAGContext(
         results = hybridResults;
         useHybrid = true;
         console.log("RAG: Hybrid search got", results.length, "results");
+      } else {
+        console.log("RAG: Hybrid search also failed/error:", hybridError);
       }
     }
     
