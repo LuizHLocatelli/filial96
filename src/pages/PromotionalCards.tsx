@@ -180,49 +180,25 @@ export default function PromotionalCards() {
       />
 
       <div className="space-y-4">
-        <PageNavigation
-          tabs={tabsConfig}
-          activeTab={selectedSector}
-          onTabChange={(value) => {
-            setSelectedSector(value as Sector);
-            setSelectedFolderId(null);
-          }}
-          variant="cards"
-          maxColumns={4}
-        />
+        {isMobile && (
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFolderPanelOpen(true)}
+              className="gap-2"
+            >
+              <PanelLeft className="h-4 w-4" />
+              <span>Pastas</span>
+            </Button>
+          </div>
+        )}
 
         <div className={cn(
           "flex gap-4",
           isMobile ? "flex-col" : "flex-row"
         )}>
-          {isMobile ? (
-            <>
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFolderPanelOpen(true)}
-                  className="gap-2"
-                >
-                  <PanelLeft className="h-4 w-4" />
-                  <span>Pastas</span>
-                </Button>
-              </div>
-
-              <Sheet open={isFolderPanelOpen} onOpenChange={setIsFolderPanelOpen}>
-                <SheetContent side="left" className="w-[300px] p-0">
-                  <SheetHeader className="p-4 border-b">
-                    <SheetTitle className="text-base font-semibold">
-                      Selecionar Pasta
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="p-4">
-                    <FoldersPanel />
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </>
-          ) : (
+          {!isMobile && (
             <motion.aside 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -234,22 +210,33 @@ export default function PromotionalCards() {
             </motion.aside>
           )}
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex-1 min-w-0"
-          >
-            <div className="glass-card p-4 sm:p-6">
-              <SectorGallery 
-                sector={selectedSector}
-                folderId={selectedFolderId}
-                onUploadClick={() => setIsUploadCardOpen(true)}
-              />
-            </div>
-          </motion.div>
+          <div className="flex-1 min-w-0">
+            <PageNavigation
+              tabs={tabsConfig}
+              activeTab={selectedSector}
+              onTabChange={(value) => {
+                setSelectedSector(value as Sector);
+                setSelectedFolderId(null);
+              }}
+              variant="cards"
+              maxColumns={4}
+            />
+          </div>
         </div>
       </div>
+
+      <Sheet open={isFolderPanelOpen} onOpenChange={setIsFolderPanelOpen}>
+        <SheetContent side="left" className="w-[300px] p-0">
+          <SheetHeader className="p-4 border-b">
+            <SheetTitle className="text-base font-semibold">
+              Selecionar Pasta
+            </SheetTitle>
+          </SheetHeader>
+          <div className="p-4">
+            <FoldersPanel />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <CreateFolderDialog
         isOpen={isCreateFolderOpen}
