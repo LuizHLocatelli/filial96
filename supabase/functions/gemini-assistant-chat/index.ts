@@ -624,8 +624,11 @@ ${safetyInstruction}`;
 
     // Non-streaming mode
     let ragDebug: RAGDebugInfo | undefined;
+    console.log("RAG_CHECK: stream =", stream, "assistantId =", assistantId);
     if (!stream) {
-      if (assistantId && await assistantHasDocuments(assistantId)) {
+      const hasDocs = assistantId ? await assistantHasDocuments(assistantId) : false;
+      console.log("RAG_CHECK: hasDocs =", hasDocs);
+      if (assistantId && hasDocs) {
         const ragResult = await retrieveRAGContext(assistantId, message, debugRAG, history);
         ragDebug = ragResult.debug;
         if (ragResult.hasContext) {
