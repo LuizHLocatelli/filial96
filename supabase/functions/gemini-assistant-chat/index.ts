@@ -251,8 +251,8 @@ async function retrieveRAGContext(
     
     // We are now using HYBRID SEARCH natively for best results.
     // It properly combines semantic matching (Vector) with exact keyword matching (FTS).
-    let results: any = null;
-    let useHybrid = true;
+    let results: MatchedDocument[] | null = null;
+    const useHybrid = true;
     
     console.log("RAG: Calling match_assistant_documents_hybrid RPC with assistantId:", assistantId);
     
@@ -270,8 +270,8 @@ async function retrieveRAGContext(
     
     if (!hybridError && hybridResults && hybridResults.length > 0) {
       results = hybridResults;
-      console.log("RAG: Hybrid search got", results.length, "results");
-      console.log("RAG: Hybrid results file_names:", hybridResults.map((r: any) => r.file_name));
+      console.log("RAG: Hybrid search got", results?.length, "results");
+      console.log("RAG: Hybrid results file_names:", hybridResults.map((r: MatchedDocument) => r.file_name));
     } else if (hybridError) {
       console.error("RAG: Hybrid search error:", hybridError);
     }
