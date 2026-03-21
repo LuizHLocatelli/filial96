@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3, Package } from "lucide-react";
+import { Folder, FolderPlus, MoreHorizontal, Trash2, Edit3, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { EditFolderDialog } from "./EditFolderDialog";
 import { DeleteFolderDialog } from "./DeleteFolderDialog";
 
@@ -35,7 +36,6 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
 
   const refetch = useCallback(async () => {
     try {
-      // Buscar pastas
       const { data: foldersData, error: foldersError } = await supabase
         .from('card_folders')
         .select('id, name')
@@ -45,7 +45,6 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         throw foldersError;
       }
 
-      // Buscar contagem de cards por pasta
       const { data: countsData, error: countsError } = await supabase
         .from('promotional_cards')
         .select('folder_id', { count: 'exact' })
@@ -55,7 +54,6 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         throw countsError;
       }
 
-      // Calcular contagem por pasta
       const countMap = new Map<string, number>();
       let totalCount = 0;
       countsData?.forEach(card => {
@@ -64,7 +62,6 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
         totalCount++;
       });
 
-      // Adicionar contagem às pastas
       const foldersWithCounts = (foldersData || []).map(folder => ({
         ...folder,
         cardCount: countMap.get(folder.id) || 0
@@ -82,102 +79,123 @@ export function FoldersList({ sector, selectedFolderId, onSelectFolder }: Folder
     refetch();
   }, [refetch, sector]);
   
-  return (
-    <div className="space-y-2">
-      {/* "Todos os Cards" item */}
-      <div
-        onClick={() => onSelectFolder(null)}
-        className={cn(
-          "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 group border-2",
-          selectedFolderId === null 
-            ? "btn-primary-standard shadow-sm" 
-            : "bg-background hover:bg-muted border-border hover:border-border/80 text-foreground"
-        )}
-      >
-        <div className="flex items-center gap-3">
-          <FolderPlus className="h-5 w-5 flex-shrink-0" />
-          <span className="font-medium text-sm">Todos os Cards</span>
-        </div>
-        {totalCardCount > 0 && (
-          <span className={cn(
-            "text-xs px-2 py-0.5 rounded-full",
-            selectedFolderId === null 
-              ? "bg-primary-foreground/20 text-primary-foreground" 
-              : "bg-muted text-muted-foreground"
-          )}>
-            {totalCardCount}
-          </span>
-        )}
-      </div>
+  const FolderItem = ({ folder, index, isAllCards = false }: { folder?: FolderItem; index?: number; isAllCards?: boolean }) => {
+    const isSelected = isAllCards ? selectedFolderId === null : selectedFolderId === folder?.id;
+    const item = isAllCards 
+      ? { id: null, name: 'Todos os Cards', cardCount: totalCardCount }
+      : folder;
 
-      {/* Folders list */}
-      {folders.map((folder) => (
-        <div key={folder.id} className="relative group">
-          <div
-            onClick={() => onSelectFolder(folder.id)}
-            className={cn(
-              "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 border-2 pr-12",
-              selectedFolderId === folder.id 
-                ? "btn-primary-standard shadow-sm" 
-                : "bg-background hover:bg-muted border-border hover:border-border/80 text-foreground"
-            )}
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <Folder className="h-5 w-5 flex-shrink-0" />
-              <span className="font-medium text-sm truncate">{folder.name}</span>
-            </div>
-            {(folder.cardCount || 0) > 0 && (
-              <span className={cn(
-                "text-xs px-2 py-0.5 rounded-full flex-shrink-0",
-                selectedFolderId === folder.id 
-                  ? "bg-primary-foreground/20 text-primary-foreground" 
-                  : "bg-muted text-muted-foreground"
-              )}>
-                {folder.cardCount}
-              </span>
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index !== undefined ? index * 0.03 : 0 }}
+      >
+        <div
+          onClick={() => onSelectFolder(item.id)}
+          className={cn(
+            "group relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200",
+            "border-2",
+            isSelected
+              ? "bg-gradient-to-r from-primary/20 to-primary/10 border-primary shadow-sm"
+              : cn(
+                  "bg-card hover:bg-muted/50 border-transparent hover:border-border/50",
+                  "hover:shadow-sm"
+                )
+          )}
+        >
+          <div className={cn(
+            "flex items-center justify-center rounded-lg transition-all duration-200",
+            "w-9 h-9 flex-shrink-0",
+            isSelected 
+              ? "bg-primary text-primary-foreground" 
+              : "bg-muted group-hover:bg-muted/80 text-muted-foreground"
+          )}>
+            {isAllCards ? (
+              <Layers className="h-4 w-4" />
+            ) : (
+              <Folder className="h-4 w-4" />
             )}
           </div>
 
-          {/* Context menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "absolute top-2 right-2 h-8 w-8 rounded-md p-0 transition-all duration-200",
-                  "sm:opacity-0 sm:group-hover:opacity-100",
-                  selectedFolderId === folder.id 
-                    ? "hover:bg-primary-foreground/20 text-primary-foreground" 
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Abrir menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem onClick={() => {
-                setSelectedFolder(folder);
-                setIsEditDialogOpen(true);
-              }}>
-                <Edit3 className="mr-2 h-4 w-4" />
-                <span>Renomear</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => {
-                setSelectedFolder(folder);
-                setIsDeleteDialogOpen(true);
-              }} className="text-red-600 focus:text-red-600">
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span>Excluir</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex-1 min-w-0">
+            <span className={cn(
+              "font-medium text-sm block truncate",
+              isSelected ? "text-primary" : "text-foreground"
+            )}>
+              {item?.name}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              "text-xs px-2 py-0.5 rounded-full font-medium",
+              isSelected 
+                ? "bg-primary/20 text-primary" 
+                : "bg-muted text-muted-foreground"
+            )}>
+              {item?.cardCount || 0}
+            </span>
+
+            {!isAllCards && folder && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "h-7 w-7 p-0 rounded-md transition-all duration-200",
+                      "opacity-0 group-hover:opacity-100",
+                      isSelected 
+                        ? "hover:bg-primary/20 text-primary" 
+                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Abrir menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem onClick={() => {
+                    setSelectedFolder(folder);
+                    setIsEditDialogOpen(true);
+                  }}>
+                    <Edit3 className="mr-2 h-4 w-4" />
+                    <span>Renomear</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => {
+                    setSelectedFolder(folder);
+                    setIsDeleteDialogOpen(true);
+                  }} className="text-red-600 focus:text-red-600">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Excluir</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
+      </motion.div>
+    );
+  };
+
+  return (
+    <div className="space-y-2">
+      <FolderItem isAllCards />
+      
+      {folders.map((folder, index) => (
+        <FolderItem key={folder.id} folder={folder} index={index + 1} />
       ))}
 
-      {/* Dialogs */}
+      {folders.length === 0 && (
+        <div className="text-center py-6 text-muted-foreground">
+          <FolderPlus className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p className="text-xs">Nenhuma pasta ainda</p>
+          <p className="text-[10px] mt-1">Crie uma pasta para organizar seus cards</p>
+        </div>
+      )}
+
       <EditFolderDialog
         folder={selectedFolder}
         isOpen={isEditDialogOpen}

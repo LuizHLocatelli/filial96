@@ -1,8 +1,7 @@
-
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Sparkles, Wand2, PanelLeftClose, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, Wand2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { FoldersList } from "@/components/promotional-cards/FoldersList";
 import { CardGallery } from "@/components/promotional-cards/CardGallery";
 import { CreateFolderDialog } from "@/components/promotional-cards/CreateFolderDialog";
@@ -14,6 +13,13 @@ import { cn } from "@/lib/utils";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { useCards } from "@/hooks/useCards";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function PromotionalCards() {
   const [selectedSector, setSelectedSector] = useState<"furniture" | "fashion" | "loan" | "service">("furniture");
@@ -22,9 +28,45 @@ export default function PromotionalCards() {
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
   const [isAICardOpen, setIsAICardOpen] = useState(false);
   const [foldersRefreshKey, setFoldersRefreshKey] = useState(0);
+  const [isFolderPanelOpen, setIsFolderPanelOpen] = useState(false);
   const isMobile = useIsMobile();
   const { cards, setCards, isLoading, refetch } = useCards(selectedSector, selectedFolderId);
   
+  const handleSectorChange = (value: string) => {
+    setSelectedSector(value as "furniture" | "fashion" | "loan" | "service");
+    setSelectedFolderId(null);
+  };
+
+  const FoldersPanel = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+          <span className="text-base">📁</span>
+          Pastas
+        </h3>
+        <Button 
+          size="sm"
+          variant="ghost"
+          onClick={() => setIsCreateFolderOpen(true)}
+          className="h-8 px-2 text-primary hover:bg-primary/10"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          <span className="hidden sm:inline">Nova</span>
+        </Button>
+      </div>
+      
+      <FoldersList 
+        key={foldersRefreshKey}
+        sector={selectedSector}
+        selectedFolderId={selectedFolderId}
+        onSelectFolder={(folderId) => {
+          setSelectedFolderId(folderId);
+          if (isMobile) setIsFolderPanelOpen(false);
+        }}
+      />
+    </div>
+  );
+
   return (
     <PageLayout spacing="normal" maxWidth="full">
       <PageHeader
@@ -34,115 +76,104 @@ export default function PromotionalCards() {
         iconColor="text-primary"
         variant="default"
         breadcrumbs={[
-          { label: "Hub de Produtividade", href: "/" },
+          { label: "Hub", href: "/" },
           { label: "Cards Promocionais" }
         ]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setIsAICardOpen(true)}
+              variant="outline"
+              size="sm"
+              className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/30 hover:border-primary/50 hover:from-primary/20 hover:to-purple-500/20 gap-1.5"
+            >
+              <Wand2 className="h-3.5 w-3.5 text-primary" />
+              <span className="hidden sm:inline">Criar com IA</span>
+              <span className="sm:hidden">IA</span>
+            </Button>
+            <Button
+              onClick={() => setIsUploadCardOpen(true)}
+              variant="success"
+              size="sm"
+              className="gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Novo Card</span>
+              <span className="sm:hidden">Novo</span>
+            </Button>
+          </div>
+        }
       />
 
-      {/* Container principal com melhor organização */}
-      <div className="space-y-6">
-        {/* Seletor de setor */}
+      <div className="space-y-4">
         <SectorSelector 
           selectedSector={selectedSector} 
-          onSectorChange={(value) => {
-            setSelectedSector(value as "furniture" | "fashion" | "loan" | "service");
-            setSelectedFolderId(null);
-          }} 
+          onSectorChange={handleSectorChange}
         />
 
-        {/* Layout principal melhorado */}
         <div className={cn(
-          "flex gap-6",
+          "flex gap-4",
           isMobile ? "flex-col" : "flex-row"
         )}>
-          {/* Painel de pastas */}
-          <div className={cn(
-            "flex-shrink-0",
-            isMobile ? "w-full" : "w-80"
-          )}>
-            <Card className="bg-card border border-border shadow-sm">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className={cn(
-                      "font-semibold text-foreground flex items-center gap-2",
-                      isMobile ? "text-sm" : "text-lg"
-                    )}>
-                      <span>📁</span>
-                      Pastas
-                    </h3>
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsCreateFolderOpen(true)}
-                      className="bg-primary/5 hover:bg-primary/10 border-primary/20 hover:border-primary/30"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Nova Pasta
-                    </Button>
-                  </div>
-                  
-                  <FoldersList 
-                    key={foldersRefreshKey}
-                    sector={selectedSector}
-                    selectedFolderId={selectedFolderId}
-                    onSelectFolder={setSelectedFolderId}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {isMobile ? (
+            <>
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsFolderPanelOpen(true)}
+                  className="gap-2"
+                >
+                  <PanelLeft className="h-4 w-4" />
+                  <span>Pastas</span>
+                </Button>
+              </div>
 
-          {/* Área principal dos cards */}
-          <div className="flex-1 min-w-0">
-            <Card className="bg-card border border-border shadow-sm h-full">
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className={cn(
-                      "font-semibold text-foreground flex items-center gap-2",
-                      isMobile ? "text-sm" : "text-lg"
-                    )}>
-                      <span>🎨</span>
-                      Galeria de Cards
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={() => setIsAICardOpen(true)}
-                        variant="outline"
-                        size={isMobile ? "sm" : "default"}
-                        className="bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/30 hover:border-primary/50 hover:from-primary/20 hover:to-purple-500/20"
-                      >
-                        <Wand2 className="h-4 w-4 mr-2 text-primary" />
-                        {isMobile ? "IA" : "Criar com IA"}
-                      </Button>
-                      <Button
-                        onClick={() => setIsUploadCardOpen(true)}
-                        variant="success"
-                        size={isMobile ? "sm" : "default"}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Novo Card
-                      </Button>
-                    </div>
+              <Sheet open={isFolderPanelOpen} onOpenChange={setIsFolderPanelOpen}>
+                <SheetContent side="left" className="w-[300px] p-0">
+                  <SheetHeader className="p-4 border-b">
+                    <SheetTitle className="text-base font-semibold">
+                      Selecionar Pasta
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="p-4">
+                    <FoldersPanel />
                   </div>
+                </SheetContent>
+              </Sheet>
+            </>
+          ) : (
+            <motion.aside 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex-shrink-0 w-72"
+            >
+              <div className="glass-card p-4 sticky top-4">
+                <FoldersPanel />
+              </div>
+            </motion.aside>
+          )}
 
-                  <CardGallery 
-                    sector={selectedSector}
-                    folderId={selectedFolderId}
-                    cards={cards}
-                    setCards={setCards}
-                    isLoading={isLoading}
-                    onCreateCard={() => setIsUploadCardOpen(true)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex-1 min-w-0"
+          >
+            <div className="glass-card p-4 sm:p-6">
+              <CardGallery 
+                sector={selectedSector}
+                folderId={selectedFolderId}
+                cards={cards}
+                setCards={setCards}
+                isLoading={isLoading}
+                onCreateCard={() => setIsUploadCardOpen(true)}
+              />
+            </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Diálogos */}
       <CreateFolderDialog
         isOpen={isCreateFolderOpen}
         onOpenChange={setIsCreateFolderOpen}

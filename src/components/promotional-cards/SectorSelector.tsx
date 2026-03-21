@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
+import { Armchair, Shirt, Banknote, Settings } from "lucide-react";
 
 interface SectorSelectorProps {
   selectedSector: "furniture" | "fashion" | "loan" | "service";
@@ -10,71 +12,98 @@ export function SectorSelector({ selectedSector, onSectorChange }: SectorSelecto
   const isMobile = useIsMobile();
   
   const sectors = [
-    { title: "Móveis", value: "furniture", icon: "🛋️" },
-    { title: "Moda", value: "fashion", icon: "👕" },
-    { title: "Empréstimo", value: "loan", icon: "💸" },
-    { title: "Geral e Serviços", value: "service", icon: "⚙️" },
+    { 
+      title: "Móveis", 
+      value: "furniture", 
+      icon: Armchair,
+      gradient: "from-amber-500/20 to-orange-500/20",
+      activeGradient: "from-amber-500 to-orange-500",
+      borderColor: "hover:border-amber-500/50",
+      activeBorder: "border-amber-500",
+      textColor: "text-amber-600",
+      activeText: "text-white"
+    },
+    { 
+      title: "Moda", 
+      value: "fashion", 
+      icon: Shirt,
+      gradient: "from-pink-500/20 to-rose-500/20",
+      activeGradient: "from-pink-500 to-rose-500",
+      borderColor: "hover:border-pink-500/50",
+      activeBorder: "border-pink-500",
+      textColor: "text-pink-600",
+      activeText: "text-white"
+    },
+    { 
+      title: "Empréstimo", 
+      value: "loan", 
+      icon: Banknote,
+      gradient: "from-emerald-500/20 to-green-500/20",
+      activeGradient: "from-emerald-500 to-green-500",
+      borderColor: "hover:border-emerald-500/50",
+      activeBorder: "border-emerald-500",
+      textColor: "text-emerald-600",
+      activeText: "text-white"
+    },
+    { 
+      title: "Geral", 
+      value: "service", 
+      icon: Settings,
+      gradient: "from-blue-500/20 to-indigo-500/20",
+      activeGradient: "from-blue-500 to-indigo-500",
+      borderColor: "hover:border-blue-500/50",
+      activeBorder: "border-blue-500",
+      textColor: "text-blue-600",
+      activeText: "text-white"
+    },
   ];
   
   return (
-    <div className="w-full p-3 bg-gradient-to-r from-background to-accent/5 border rounded-xl shadow-sm">
-      <div className={cn(
-        "gap-2",
-        isMobile ? "grid grid-cols-2" : "flex flex-wrap justify-center"
-      )}>
-        {sectors.map((sector, index) => (
-          <button
-            key={sector.value}
-            onClick={() => onSectorChange(sector.value)}
-            className={cn(
-              "group relative flex flex-col items-center gap-1.5 rounded-xl transition-all duration-200 border animate-fade-in-up",
-              // Tamanhos e espaçamentos otimizados
-              isMobile 
-                ? "h-16 px-2 py-2" 
-                : "h-12 px-3 py-2 flex-row gap-2",
-              // Estados visuais melhorados
-              selectedSector === sector.value
-                ? "bg-primary text-primary-foreground border-primary shadow-lg scale-105"
-                : "bg-card hover:bg-accent/80 border-border/50 hover:border-border hover:shadow-md hover:scale-102"
-            )}
-            style={{ 
-              animationDelay: `${index * 50}ms`,
-              animationFillMode: 'both'
-            }}
-          >
-            <div className={cn(
-              "flex items-center justify-center rounded-lg transition-all duration-200",
-              isMobile ? "w-6 h-6" : "w-5 h-5",
-              selectedSector === sector.value
-                ? "bg-primary-foreground/20"
-                : "group-hover:bg-accent"
-            )}>
+    <div className="relative">
+      <div className="flex gap-2 p-1.5 bg-muted/50 rounded-xl overflow-x-auto scrollbar-hide">
+        {sectors.map((sector, index) => {
+          const isActive = selectedSector === sector.value;
+          const Icon = sector.icon;
+          
+          return (
+            <motion.button
+              key={sector.value}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.2 }}
+              onClick={() => onSectorChange(sector.value)}
+              className={cn(
+                "relative flex items-center gap-2 rounded-lg transition-all duration-300 whitespace-nowrap",
+                isMobile 
+                  ? "px-3 py-2.5 text-xs" 
+                  : "px-4 py-2.5 text-sm",
+                isActive
+                  ? cn(
+                      "bg-gradient-to-r shadow-md scale-[1.02]",
+                      sector.activeGradient,
+                      sector.activeText
+                    )
+                  : cn(
+                      "bg-card border border-transparent hover:border-border/50",
+                      "hover:shadow-sm hover:scale-[1.01]",
+                      sector.gradient
+                    )
+              )}
+            >
+              <Icon className={cn(
+                "transition-all duration-300",
+                isMobile ? "h-4 w-4" : "h-4 w-4",
+                isActive ? "text-white" : sector.textColor
+              )} />
               <span className={cn(
-                "transition-all duration-200",
-                isMobile ? "text-[14px]" : "text-[14px]",
-                selectedSector === sector.value 
-                  ? "opacity-100" 
-                  : "opacity-70 group-hover:opacity-100"
+                "font-medium transition-all duration-300",
+                isActive ? "text-white" : "text-muted-foreground"
               )}>
-                {sector.icon}
+                {sector.title}
               </span>
-            </div>
-            <span className={cn(
-              "font-medium transition-all duration-200 text-center leading-tight",
-              isMobile ? "text-[10px]" : "text-xs",
-              selectedSector === sector.value 
-                ? "text-primary-foreground" 
-                : "text-muted-foreground group-hover:text-foreground"
-            )}>
-              {sector.title}
-            </span>
-            
-            {/* Indicador visual para setor ativo */}
-            {selectedSector === sector.value && (
-              <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 bg-primary-foreground rounded-full" />
-            )}
-          </button>
-        ))}
+            </motion.button>
+          );
+        })}
       </div>
     </div>
   );

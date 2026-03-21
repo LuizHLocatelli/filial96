@@ -7,6 +7,7 @@ import { CardGalleryLoading } from "@/components/promotional-cards/CardGalleryLo
 import { CardSearchBar } from "@/components/promotional-cards/CardSearchBar";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface CardGalleryProps {
   sector: "furniture" | "fashion" | "loan" | "service";
@@ -23,7 +24,6 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
   const { folders } = useFolders(sector);
   const [processingCardIds, setProcessingCardIds] = useState<Set<string>>(new Set());
 
-  // Criar mapa de pastas para lookup rápido
   const folderMap = useMemo(() => {
     const map = new Map<string, string>();
     folders.forEach(folder => {
@@ -104,7 +104,6 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
       const success = await updateCard(id, updateData);
       
       if (success) {
-        // Atualizar estado local apenas após sucesso na API
         setCards(prevCards =>
           prevCards.map(card =>
             card.id === id ? { ...card, ...updates } : card
@@ -134,8 +133,12 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
   }
 
   return (
-    <div className="space-y-6">
-      {/* Barra de pesquisa */}
+    <motion.div 
+      className="space-y-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       {cards.length > 0 && (
         <CardSearchBar
           searchTerm={searchTerm}
@@ -146,18 +149,22 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
         />
       )}
 
-      {/* Resultados */}
       {cards.length === 0 ? (
         <CardGalleryEmpty folderId={folderId} onCreateCard={onCreateCard} />
       ) : !hasResults && isSearching ? (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground">
-            <p className="text-lg font-medium mb-2">Nenhum card encontrado</p>
-            <p className="text-sm">
-              Tente pesquisar com outros termos ou verifique a ortografia.
-            </p>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12 px-4"
+        >
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+            <span className="text-3xl">🔍</span>
           </div>
-        </div>
+          <p className="text-lg font-medium text-foreground mb-1">Nenhum card encontrado</p>
+          <p className="text-sm text-muted-foreground">
+            Tente pesquisar com outros termos ou verifique a ortografia.
+          </p>
+        </motion.div>
       ) : (
         <CardGrid 
           cards={filteredCards}
@@ -168,6 +175,6 @@ export function CardGallery({ sector, folderId, cards, setCards, isLoading, onCr
           folderMap={folderMap}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

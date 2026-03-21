@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CardItem } from "@/hooks/useCardOperations";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Copy, Edit3, Trash2, Download, Smartphone, ExternalLink } from "lucide-react";
+import { MoreHorizontal, Copy, Edit3, Trash2, Download, Smartphone, ExternalLink, QrCode } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,7 @@ import { CardViewDialog } from "./CardViewDialog";
 import { CardEditDialog } from "./CardEditDialog";
 import { CardDeleteDialog } from "./CardDeleteDialog";
 import { getAspectRatioClass, downloadCardImage, shareCardWhatsApp } from "@/utils/cardUtils";
+import { motion } from "framer-motion";
 
 interface PromotionalCardProps {
   id: string;
@@ -57,6 +58,7 @@ export function PromotionalCard({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeletingCard, setIsDeletingCard] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const isMobile = useIsMobile();
 
   const aspectClass = getAspectRatioClass(aspectRatio);
@@ -126,7 +128,6 @@ export function PromotionalCard({
       e.preventDefault();
       e.stopPropagation();
     }
-    console.log('[PromotionalCard] Card clicked, opening view dialog for:', id);
     setIsViewDialogOpen(true);
   };
 
@@ -135,14 +136,24 @@ export function PromotionalCard({
     e.stopPropagation();
   };
 
+  const isExpired = endDate ? new Date(endDate) < new Date() : false;
+  const isUpcoming = startDate ? new Date(startDate) > new Date() : false;
+
   return (
     <>
       <Card 
-        className="group relative overflow-hidden bg-card border border-border shadow-sm hover:shadow-lg transition-all duration-300"
+        className={cn(
+          "group relative overflow-hidden bg-card border-border",
+          "transition-all duration-300",
+          "hover:shadow-lg hover:border-primary/20",
+          isMobile ? "rounded-2xl" : "rounded-xl"
+        )}
       >
-        {/* Imagem do card - clicável para visualização */}
         <div 
-          className={`${aspectClass} relative overflow-hidden cursor-pointer`}
+          className={cn(
+            "relative overflow-hidden cursor-pointer",
+            aspectClass
+          )}
           onClick={(e) => handleCardClick(e)}
           role="button"
           tabIndex={0}
@@ -153,95 +164,110 @@ export function PromotionalCard({
           }}
           aria-label={`Visualizar card ${title}`}
         >
+          {!isImageLoaded && (
+            <div className="absolute inset-0 bg-muted animate-pulse" />
+          )}
           <img
             src={imageUrl}
             alt={title}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+            className={cn(
+              "object-cover w-full h-full transition-all duration-500",
+              "group-hover:scale-110",
+              isImageLoaded ? "opacity-100" : "opacity-0"
+            )}
             width={500}
             height={300}
             style={{ objectFit: "cover" }}
+            onLoad={() => setIsImageLoaded(true)}
           />
           
-          {/* Overlay com ações - sempre visível em mobile, hover em desktop */}
           <div
             className={cn(
-              "absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 transition-all duration-300 flex flex-col justify-between p-2",
-              isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              "absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent",
+              "opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+              isMobile && "opacity-100"
             )}
-            onClick={(e) => e.stopPropagation()}
           >
-            {/* Botão de menu no topo */}
-            <div className="flex justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild onClick={handleMenuClick}>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="h-8 w-8 rounded-full bg-white hover:bg-gray-100 text-gray-900 shadow-md border-0"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Abrir menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    <span>Visualizar</span>
-                  </DropdownMenuItem>
-                  {code && (
-                    <DropdownMenuItem onClick={handleCopyToClipboard}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      <span>Copiar Código</span>
+            <div className="absolute inset-0 flex flex-col justify-between p-3">
+              <div className="flex justify-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={handleMenuClick}>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 rounded-full bg-white/90 hover:bg-white text-gray-900 shadow-lg border-0"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Abrir menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      <span>Visualizar</span>
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-                    <Edit3 className="mr-2 h-4 w-4" />
-                    <span>Editar</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Excluir</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            
-            {/* Botões de ação rápida na parte inferior */}
-            <div className={cn(
-              "flex gap-2 justify-center",
-              isMobile ? "flex-row" : "flex-row"
-            )}>
-              <Button
-                size="icon"
-                className="h-9 w-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md border-0"
-                onClick={handleDownload}
-                title="Baixar imagem"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                className="h-9 w-9 rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white shadow-md border-0"
-                onClick={handleShareWhatsApp}
-                title="Compartilhar no WhatsApp"
-              >
-                <Smartphone className="h-4 w-4" />
-              </Button>
+                    {code && (
+                      <DropdownMenuItem onClick={handleCopyToClipboard}>
+                        <Copy className="mr-2 h-4 w-4" />
+                        <span>Copiar Código</span>
+                      </DropdownMenuItem>
+                    )}
+                    {code && (
+                      <DropdownMenuItem onClick={handleCopyToClipboard}>
+                        <QrCode className="mr-2 h-4 w-4" />
+                        <span>Ver QR Code</span>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                      <Edit3 className="mr-2 h-4 w-4" />
+                      <span>Editar</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Excluir</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <div className="flex gap-2 justify-center">
+                <Button
+                  size="icon"
+                  className="h-10 w-10 rounded-full bg-white/90 hover:bg-white text-gray-900 shadow-lg border-0 transition-transform hover:scale-110"
+                  onClick={handleDownload}
+                  title="Baixar imagem"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  className="h-10 w-10 rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white shadow-lg border-0 transition-transform hover:scale-110"
+                  onClick={handleShareWhatsApp}
+                  title="Compartilhar no WhatsApp"
+                >
+                  <Smartphone className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Indicador de clique para visualização */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-0 pointer-events-none">
-            <div className="bg-black/50 rounded-full p-3">
-              <ExternalLink className="h-6 w-6 text-white" />
+          {(isExpired || isUpcoming) && (
+            <div className="absolute top-2 left-2">
+              <span className={cn(
+                "px-2 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide",
+                isExpired 
+                  ? "bg-red-500/90 text-white" 
+                  : "bg-amber-500/90 text-white"
+              )}>
+                {isExpired ? "Expirado" : "Em breve"}
+              </span>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Informações do card - clicável para visualização */}
         <div 
-          className="p-4 space-y-2 cursor-pointer hover:bg-accent/50 transition-colors"
+          className="p-3 space-y-2 cursor-pointer"
           onClick={(e) => handleCardClick(e)}
           role="button"
           tabIndex={0}
@@ -252,24 +278,23 @@ export function PromotionalCard({
           }}
           aria-label={`Visualizar card ${title}`}
         >
-          <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
+          <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
             {title}
           </h3>
           
-          <div className="space-y-1.5 text-xs">
+          <div className="space-y-1.5">
             {code && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Código:</span>
-                <span className="font-mono bg-muted px-2 py-0.5 rounded text-foreground">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Código:</span>
+                <span className="font-mono bg-muted px-2 py-0.5 rounded text-xs text-foreground flex-1 truncate">
                   {code}
                 </span>
               </div>
             )}
             
             {(startDate || endDate) && (
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span>Período:</span>
-                <span className="text-foreground">
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <span className="shrink-0">
                   {startDate && formatDateForDisplay(startDate)}
                   {startDate && endDate && ' - '}
                   {endDate && formatDateForDisplay(endDate)}
@@ -278,46 +303,45 @@ export function PromotionalCard({
             )}
           </div>
         </div>
-
-        {/* Dialogs */}
-        <CardViewDialog
-          open={isViewDialogOpen}
-          onOpenChange={setIsViewDialogOpen}
-          title={title}
-          imageUrl={imageUrl}
-          code={code || ''}
-          startDate={startDate ? formatDateForDisplay(startDate) : ''}
-          endDate={endDate ? formatDateForDisplay(endDate) : ''}
-          currentFolder={{
-            id: folderId || '',
-            name: folderName || 'Sem Pasta'
-          }}
-          aspectRatio={aspectRatio}
-          isMobile={isMobileProp || false}
-        />
-
-        <CardEditDialog
-          open={isEditDialogOpen}
-          onOpenChange={setIsEditDialogOpen}
-          id={id}
-          title={title}
-          code={code}
-          startDate={startDate}
-          endDate={endDate}
-          isMobile={isMobileProp || false}
-          onSuccess={async (updates) => {
-            const result = await onUpdate(id, updates);
-            return result;
-          }}
-        />
-
-        <CardDeleteDialog
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-          onConfirm={handleDeleteCard}
-          isLoading={isDeletingCard}
-        />
       </Card>
+
+      <CardViewDialog
+        open={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+        title={title}
+        imageUrl={imageUrl}
+        code={code || ''}
+        startDate={startDate ? formatDateForDisplay(startDate) : ''}
+        endDate={endDate ? formatDateForDisplay(endDate) : ''}
+        currentFolder={{
+          id: folderId || '',
+          name: folderName || 'Sem Pasta'
+        }}
+        aspectRatio={aspectRatio}
+        isMobile={isMobileProp || false}
+      />
+
+      <CardEditDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        id={id}
+        title={title}
+        code={code}
+        startDate={startDate}
+        endDate={endDate}
+        isMobile={isMobileProp || false}
+        onSuccess={async (updates) => {
+          const result = await onUpdate(id, updates);
+          return result;
+        }}
+      />
+
+      <CardDeleteDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteCard}
+        isLoading={isDeletingCard}
+      />
     </>
   );
 }
