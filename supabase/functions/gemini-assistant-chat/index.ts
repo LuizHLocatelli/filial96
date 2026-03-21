@@ -249,70 +249,46 @@ async function retrieveRAGContext(
     const embeddingStr = `[${embedding.join(",")}]`;
     console.log("RAG: Embedding string length:", embeddingStr.length);
     
-    // Use PURE VECTOR SEARCH - FTS was hurting more than helping
-    // High-frequency terms like "Lebes" dominated FTS scores, drowning semantic matches
+    // We are now using HYBRID SEARCH natively for best results.
+    // It properly combines semantic matching (Vector) with exact keyword matching (FTS).
     let results: any = null;
-    let useHybrid = false;
+    let useHybrid = true;
     
-    // Vector search first (most reliable for semantic matching)
-    console.log("RAG: Calling match_assistant_documents RPC...");
-    const { data: vectorResults, error: vectorError } = await supabase.rpc("match_assistant_documents", {
-      query_embedding: embeddingStr,
+    console.log("RAG: Calling match_assistant_documents_hybrid RPC with assistantId:", assistantId);
+    
+    const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
+      p_query_embedding: embeddingStr,
+      p_query_text: expandedQuery,
       p_assistant_id: assistantId,
-      match_threshold: 0.35,
-      match_count: 15,
+      p_match_threshold: 0.35,
+      p_match_count: 50,
+      p_vector_weight: 0.70, // 70% vector (semantic meaning)
+      p_fts_weight: 0.30     // 30% full text search (exact keyword match like "Triunfo")
     });
     
-    console.log("RAG: Vector search RPC complete. error:", vectorError, "results count:", vectorResults?.length);
+    console.log("RAG: Hybrid search RPC complete. error:", hybridError, "results count:", hybridResults?.length);
     
-    if (!vectorError && vectorResults && vectorResults.length > 0) {
-      results = vectorResults;
-      console.log("RAG: Vector search got", results.length, "results");
-      console.log("RAG: Vector results file_names:", vectorResults.map((r: any) => r.file_name));
-    } else {
-      // Fallback to hybrid if vector fails
-      console.log("RAG: Vector search failed/error, trying hybrid");
-      const { data: hybridResults, error: hybridError } = await supabase.rpc("match_assistant_documents_hybrid", {
-        p_query_embedding: embeddingStr,
-        p_query_text: expandedQuery,
-        p_assistant_id: assistantId,
-        p_match_threshold: 0.35,
-        p_match_count: 15,
-        p_vector_weight: 0.95,
-        p_fts_weight: 0.05
-      });
-      
-      if (!hybridError && hybridResults && hybridResults.length > 0) {
-        results = hybridResults;
-        useHybrid = true;
-        console.log("RAG: Hybrid search got", results.length, "results");
-      } else {
-        console.log("RAG: Hybrid search also failed/error:", hybridError);
-      }
+    if (!hybridError && hybridResults && hybridResults.length > 0) {
+      results = hybridResults;
+      console.log("RAG: Hybrid search got", results.length, "results");
+      console.log("RAG: Hybrid results file_names:", hybridResults.map((r: any) => r.file_name));
+    } else if (hybridError) {
+      console.error("RAG: Hybrid search error:", hybridError);
     }
     
     if (!results || results.length === 0) {
-      console.log("RAG: No results from vector or hybrid search");
+      console.log("RAG: No results from search (similarity below threshold or no docs)");
       debugInfo.error = "No results from search (similarity below threshold or no docs)";
-      return { context: "", documents: [], hasContext: false, debug: debugInfo };
-    }
-    
-    if (vectorError && !results) {
-      console.error("RAG: Vector search error:", vectorError);
-      debugInfo.error = `Vector search error: ${vectorError.message}`;
       return { context: "", documents: [], hasContext: false, debug: debugInfo };
     }
     
     debugInfo.rpcResults = results?.length || 0;
     console.log("RAG: RPC returned", results?.length || 0, "results");
-    
-    if (!results || results.length === 0) {
-      console.log("RAG: No results found");
-      debugInfo.error = "No results from RPC (similarity below threshold or no docs)";
-      return { context: "", documents: [], hasContext: false, debug: debugInfo };
-    }
-    
-    const topResults = (results as MatchedDocument[]).slice(0, 8);
+
+    // Increased from 8 to 30 because specific street names can distract vector search,
+    // pushing the correct city chunk down to rank 10-15. Giving the LLM more context
+    // allows it to filter through the noise perfectly since Gemini has a large context window.
+    const topResults = (results as MatchedDocument[]).slice(0, 30);    
     debugInfo.topSimilarities = topResults.map(r => r.similarity || 0);
     console.log("RAG: Top results:", topResults.map(r => ({ file: r.file_name, sim: r.similarity })));
     
