@@ -112,3 +112,14 @@ The application uses a granular Role-Based Access Control system to manage what 
 - **Permission Hooks**: Always use `useRolePermissions()` to verify if a user has access to a specific tool or module. The `hasAccessToTool("permission_key")` method determines boolean access. (Note: The `gerente` role automatically returns `['*']` for full access).
 - **Route Protection**: Wrap routes in `<ProtectedRoute requiredPermission="permission_key">`. If a user lacks the specified permission, the component intercepts navigation and intelligently redirects them to their first allowed navigation tab or `/perfil` to avoid infinite loops.
 - **Dynamic Tabs**: Internal page tabs (like the sub-tabs in the "Móveis" page) should conditionally render based on the same permission keys. Always ensure the default active tab is computed dynamically by selecting the first tab the user has permission to see, rather than hardcoding a default tab.
+
+## 11. RAG (Retrieval-Augmented Generation) Architecture
+The application features an advanced RAG implementation ("Assistente de Uso Geral") to query knowledge base documents:
+
+- **Hybrid Search Strategy (CRITICAL)**: Always use Hybrid Search via the `match_assistant_documents_hybrid` RPC. This combines:
+  - **Vector Search** (pgvector): Captures semantic meaning (70% weight baseline).
+  - **Full-Text Search (FTS)**: Ensures precise keyword matches for exact terms like city names or specific codes (30% weight baseline).
+- **Context Window Management**: Gemini models have large context windows (1M+ tokens). Rather than severely limiting the retrieved document chunks (e.g., top 5-8), the `gemini-assistant-chat` Edge Function retrieves a higher number of chunks (e.g., up to 30) from the database. This is a deliberate strategy to provide the LLM with enough context to filter out noise, especially when queries contain distracting information (e.g., a street name in the prompt that exists in another city).
+- **Stop Words**: The Hybrid Search RPC uses an extensive list of Portuguese stop-words and domain-specific terms (like "loja", "filial", "endereço") filtered out via `NOT ILIKE ALL(v_stop_words)` to ensure the FTS `tsvector` focuses entirely on unique keywords (e.g., city names like "Triunfo").
+- **Embeddings**: Generated using `models/gemini-embedding-2-preview` (3072 dimensions) for consistency across document processing and query execution.
+- **Query Expansion**: The RAG pipeline expands the current user query with the context from the last 3 user messages to handle implicit references and improve retrieval quality.

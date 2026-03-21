@@ -3,7 +3,7 @@
 CREATE OR REPLACE FUNCTION public.match_assistant_documents_hybrid(
   p_query_embedding vector(3072),
   p_query_text text,
-  p_assistant_id uuid,
+  p_assistant_id uuid DEFAULT NULL::uuid,
   p_match_threshold double precision DEFAULT 0.35,
   p_match_count integer DEFAULT 15,
   p_vector_weight double precision DEFAULT 0.85,
@@ -25,7 +25,12 @@ DECLARE
   v_filtered_terms text[];
   v_prefixes text[];
   v_tsquery tsquery;
-  v_stop_words text[] := ARRAY['que', 'qual', 'para', 'com', 'uma', 'umas', 'uns', 'umas', 'eu', 'tu', 'ele', 'ela', 'nós', 'vós', 'eles', 'elas', 'da', 'de', 'do', 'em', 'no', 'na', 'mais', 'perto'];
+  v_stop_words text[] := ARRAY[
+    'que', 'qual', 'para', 'com', 'uma', 'umas', 'uns', 'eu', 'tu', 'ele', 'ela', 'nós', 'vós', 'eles', 'elas', 
+    'da', 'de', 'do', 'em', 'no', 'na', 'mais', 'perto', 'lebes', 'loja', 'lojas', 'filial', 'filiais', 
+    'endereço', 'cidade', 'cep', 'telefone', 'email', 'coordenadas', 'campo', 'valor', 'nome', 'observação',
+    'quais', 'onde', 'como', 'quem', 'quando', 'porque', 'por'
+  ];
 BEGIN
   -- Extract terms and filter out stop words and short words
   SELECT ARRAY_AGG(LOWER(TRIM(regexp_replace(term, '["''.,;:!?()]', '', 'g'))))
@@ -34,9 +39,11 @@ BEGIN
   WHERE LENGTH(TRIM(regexp_replace(term, '["''.,;:!?()]', '', 'g'))) > 2;
   
   -- Filter out stop words
-  SELECT ARRAY_AGG(term) INTO v_filtered_terms
-  FROM unnest(v_terms) AS term
-  WHERE term NOT ILIKE ANY(v_stop_words);
+  IF v_terms IS NOT NULL THEN
+    SELECT ARRAY_AGG(term) INTO v_filtered_terms
+    FROM unnest(v_terms) AS term
+    WHERE term NOT ILIKE ALL(v_stop_words);
+  END IF;
   
   -- Build OR-based prefix query for broad recall (any term matches)
   IF array_length(v_filtered_terms, 1) > 0 THEN
@@ -53,7 +60,7 @@ BEGIN
                  THEN MAX(ts_rank_cd(ad.content_tsvector, v_tsquery))
                  ELSE 0.001 END as max_rank
       FROM public.ai_assistant_documents ad
-      WHERE ad.assistant_id = p_assistant_id
+      WHERE (p_assistant_id IS NULL OR ad.assistant_id = p_assistant_id)
         AND ad.content_tsvector IS NOT NULL
     ),
     combined_scores AS (
@@ -71,7 +78,7 @@ BEGIN
             (1 - (ad.embedding <=> p_query_embedding))
         END AS combined_score
       FROM public.ai_assistant_documents ad
-      WHERE ad.assistant_id = p_assistant_id
+      WHERE (p_assistant_id IS NULL OR ad.assistant_id = p_assistant_id)
         AND ad.embedding IS NOT NULL
     )
   SELECT
